@@ -1,0 +1,510 @@
+{
+  "beforeSwitchTextContrast": 3.529,
+  "afterMinimum": 6.978,
+  "measurements": [
+    {
+      "label": "31-dialog-off-1280-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-off-1280-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-off-1280-light-final",
+      "text": "포함",
+      "contrast": 6.978,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-on-1280-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-on-1280-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-on-1280-light-final",
+      "text": "제외",
+      "contrast": 6.978,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-detail-1280-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-off-768-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-off-768-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-off-768-light-final",
+      "text": "포함",
+      "contrast": 6.978,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-on-768-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-on-768-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-on-768-light-final",
+      "text": "제외",
+      "contrast": 6.978,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-detail-768-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-off-390-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-off-390-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-off-390-light-final",
+      "text": "포함",
+      "contrast": 6.978,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-on-390-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-on-390-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-on-390-light-final",
+      "text": "제외",
+      "contrast": 6.978,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-detail-390-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-off-1280-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-off-1280-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-off-1280-dark-final",
+      "text": "포함",
+      "contrast": 7.129,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-on-1280-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-on-1280-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-on-1280-dark-final",
+      "text": "제외",
+      "contrast": 7.129,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-detail-1280-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-off-768-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-off-768-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-off-768-dark-final",
+      "text": "포함",
+      "contrast": 7.129,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-on-768-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-on-768-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-on-768-dark-final",
+      "text": "제외",
+      "contrast": 7.129,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-detail-768-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-off-390-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-off-390-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-off-390-dark-final",
+      "text": "포함",
+      "contrast": 7.129,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-on-390-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-on-390-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-dialog-on-390-dark-final",
+      "text": "제외",
+      "contrast": 7.129,
+      "fontSize": "14px"
+    },
+    {
+      "label": "31-detail-390-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-off-1280-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-off-1280-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-off-1280-light-final",
+      "text": "포함",
+      "contrast": 6.978,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-on-1280-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-on-1280-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-on-1280-light-final",
+      "text": "제외",
+      "contrast": 6.978,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-detail-1280-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-off-768-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-off-768-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-off-768-light-final",
+      "text": "포함",
+      "contrast": 6.978,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-on-768-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-on-768-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-on-768-light-final",
+      "text": "제외",
+      "contrast": 6.978,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-detail-768-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-off-390-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-off-390-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-off-390-light-final",
+      "text": "포함",
+      "contrast": 6.978,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-on-390-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-on-390-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-on-390-light-final",
+      "text": "제외",
+      "contrast": 6.978,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-detail-390-light-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 7.557,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-off-1280-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-off-1280-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-off-1280-dark-final",
+      "text": "포함",
+      "contrast": 7.129,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-on-1280-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-on-1280-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-on-1280-dark-final",
+      "text": "제외",
+      "contrast": 7.129,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-detail-1280-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-off-768-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-off-768-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-off-768-dark-final",
+      "text": "포함",
+      "contrast": 7.129,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-on-768-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-on-768-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-on-768-dark-final",
+      "text": "제외",
+      "contrast": 7.129,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-detail-768-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-off-390-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-off-390-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-off-390-dark-final",
+      "text": "포함",
+      "contrast": 7.129,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-on-390-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-on-390-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-dialog-on-390-dark-final",
+      "text": "제외",
+      "contrast": 7.129,
+      "fontSize": "14px"
+    },
+    {
+      "label": "32-detail-390-dark-final",
+      "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsa",
+      "contrast": 9.176,
+      "fontSize": "14px"
+    }
+  ]
+}

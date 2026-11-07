@@ -1,0 +1,105 @@
+[
+  {
+    "id": "9db40fb4-8481-4f29-9be5-de7ca6d8e3bf",
+    "request": {
+      "destroyvirtualmachineresponse": {
+        "jobid": "51f47ce5-e372-4a29-bb9b-855456574cd0"
+      }
+    },
+    "result": {
+      "queryasyncjobresultresponse": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.admin.vm.DestroyVMCmdByAdmin",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "virtualmachine": {
+            "volumemutationblockedreason": "",
+            "securitygroup": [],
+            "nic": [],
+            "affinitygroup": [],
+            "deleteprotection": false,
+            "tags": []
+          }
+        },
+        "jobinstancetype": "VirtualMachine",
+        "jobinstanceid": "9db40fb4-8481-4f29-9be5-de7ca6d8e3bf",
+        "created": "2026-11-04T00:00:42+0900",
+        "completed": "2026-11-04T00:00:51+0900",
+        "jobid": "51f47ce5-e372-4a29-bb9b-855456574cd0",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "id": "7cd29c89-cf27-410d-8820-5e57695fe08f",
+    "request": {
+      "destroyvirtualmachineresponse": {
+        "jobid": "e9cd6bda-4aee-4ca3-b406-dd3e28ba094f"
+      }
+    },
+    "result": {
+      "queryasyncjobresultresponse": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.admin.vm.DestroyVMCmdByAdmin",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "virtualmachine": {
+            "volumemutationblockedreason": "",
+            "securitygroup": [],
+            "nic": [],
+            "affinitygroup": [],
+            "deleteprotection": false,
+            "tags": []
+          }
+        },
+        "jobinstancetype": "VirtualMachine",
+        "jobinstanceid": "7cd29c89-cf27-410d-8820-5e57695fe08f",
+        "created": "2026-11-04T00:00:52+0900",
+        "completed": "2026-11-04T00:01:01+0900",
+        "jobid": "e9cd6bda-4aee-4ca3-b406-dd3e28ba094f",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "id": "fb4aedcd-d93b-4375-b38b-752629c24750",
+    "request": {
+      "deletenetworkresponse": {
+        "jobid": "6c1d8b03-a44d-43bd-bdd5-ff9415663eec"
+      }
+    },
+    "result": {
+      "queryasyncjobresultresponse": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "success": true
+        },
+        "jobinstancetype": "Network",
+        "created": "2026-11-04T00:01:02+0900",
+        "completed": "2026-11-04T00:01:05+0900",
+        "jobid": "6c1d8b03-a44d-43bd-bdd5-ff9415663eec",
+        "jobstatus": 1
+      }
+    }
+  }
+]

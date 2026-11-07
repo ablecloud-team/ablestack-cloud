@@ -1,0 +1,23 @@
+[
+  {
+    "reason": "promiseRejection",
+    "error": "QuotaExceededError: Setting the value of 'primate__APIS' exceeded the quota.\n    at e.set (http://10.10.31.10:8080/client/js/vendors.a1855359.js:67:101858)\n    at e.SET_APIS (http://10.10.31.10:8080/client/js/app.c7aa5d2b.js:1:361262)\n    at http://10.10.31.10:8080/client/js/vendors.a1855359.js:28:790279\n    at http://10.10.31.10:8080/client/js/vendors.a1855359.js:28:798637\n    at Array.forEach (<anonymous>)\n    at http://10.10.31.10:8080/client/js/vendors.a1855359.js:28:798617\n    at e._withCommit (http://10.10.31.10:8080/client/js/vendors.a1855359.js:28:801222)\n    at e.commit (http://10.10.31.10:8080/client/js/vendors.a1855359.js:28:798592)\n    at http://10.10.31.10:8080/client/js/vendors.a1855359.js:28:797993\n    at http://10.10.31.10:8080/client/js/app.c7aa5d2b.js:1:373459",
+    "frames": [
+      {
+        "name": "",
+        "line": 66,
+        "url": ""
+      },
+      {
+        "name": "SET_APIS",
+        "line": 0,
+        "url": ""
+      },
+      {
+        "name": "",
+        "line": 27,
+        "url": ""
+      }
+    ]
+  }
+]

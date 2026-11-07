@@ -1,0 +1,20 @@
+{
+  "networks": {
+    "before": 11,
+    "after": 11,
+    "missing": 0,
+    "changed": 0
+  },
+  "userVms": {
+    "before": 58,
+    "after": 58,
+    "missing": 0,
+    "changed": 0
+  },
+  "offerings": {
+    "before": 21,
+    "after": 21,
+    "missing": 0,
+    "changed": 0
+  }
+}

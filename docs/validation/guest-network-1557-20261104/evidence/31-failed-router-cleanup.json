@@ -1,0 +1,30 @@
+{
+  "router_before": {
+    "id": "a3928b58-8379-4468-b5bb-35220b7999b3",
+    "name": "r-852-VM",
+    "templateid": "7965a16a-dbc9-4617-991f-212416e5dd8b",
+    "templatename": "SystemVM Template (KVM)",
+    "created": "2026-11-04T10:16:50+0900",
+    "state": "Stopped",
+    "account": "system",
+    "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+    "domain": "ROOT",
+    "domainpath": "ROOT",
+    "serviceofferingid": "314ccb87-0e40-4438-9d1f-474c52e4e609",
+    "serviceofferingname": "System Offering For Software Router",
+    "isredundantrouter": false,
+    "redundantstate": "UNKNOWN",
+    "version": "UNKNOWN",
+    "role": "VIRTUAL_ROUTER",
+    "nic": [],
+    "requiresupgrade": true,
+    "healthchecksfailed": false,
+    "arch": "x86_64",
+    "hasannotations": false
+  },
+  "jobstatus": 1,
+  "api_absent": true,
+  "db": "a3928b58-8379-4468-b5bb-35220b7999b3\tr-852-VM\tDestroyed\t2026-11-04 02:17:40\n",
+  "matching_failed_vm_job": "8f470b5b-0ea2-4ef4-b90c-c2a2ae3cbff0",
+  "created_with_failed_shared_deployment": true
+}

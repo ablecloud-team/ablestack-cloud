@@ -1,0 +1,24 @@
+{
+  "sourceHead": "59a5c92934f9c09535755a3bbaacf7366cdf4367",
+  "apiTests": 1129,
+  "serverTests": 29,
+  "coreTests": 8,
+  "uiTests": 68,
+  "uiSuites": 3,
+  "checkstyle": {
+    "api": {
+      "existingErrors": 6,
+      "changedJavaErrors": 0
+    },
+    "core": {
+      "existingErrors": 3,
+      "changedJavaErrors": 0
+    },
+    "server": {
+      "existingErrors": 62,
+      "changedJavaErrors": 0
+    }
+  },
+  "manuallyStartedFullBuilds": 0,
+  "qemuBuilds": 0
+}

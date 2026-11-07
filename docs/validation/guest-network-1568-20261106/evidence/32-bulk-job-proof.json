@@ -1,0 +1,91 @@
+{
+  "rows": [
+    {
+      "kind": "isolated",
+      "network": "1171cd96-ad12-420e-88d0-70636b7bdb7d",
+      "jobs": [
+        {
+          "job": "368349a8-428d-43e6-9658-148be5cccda1",
+          "forced": null,
+          "status": 2,
+          "created": "2026-11-05 17:00:13.000000"
+        }
+      ]
+    },
+    {
+      "kind": "l2",
+      "network": "ecf3ac29-e12b-467e-ade0-47026f663ff4",
+      "jobs": [
+        {
+          "job": "3586e6df-29a5-49f0-b112-abd6a3188aca",
+          "forced": null,
+          "status": 2,
+          "created": "2026-11-05 17:00:15.000000"
+        }
+      ]
+    },
+    {
+      "kind": "shared",
+      "network": "4401793f-ab5b-4e45-a5c1-adb4c53bc986",
+      "jobs": [
+        {
+          "job": "2207fc27-97e0-4db4-be76-aa424dd11e37",
+          "forced": null,
+          "status": 2,
+          "created": "2026-11-05 17:00:18.000000"
+        }
+      ]
+    },
+    {
+      "kind": "temp-isolated",
+      "network": "51cccc36-8c11-4832-9a5e-9abc91ab8e59",
+      "jobs": [
+        {
+          "job": "ece38239-f181-4973-8259-8ef7c98442bd",
+          "forced": null,
+          "status": 2,
+          "created": "2026-11-05 17:33:03.000000"
+        },
+        {
+          "job": "1b5bc3e3-13ee-4c03-95c2-27e31faa930e",
+          "forced": null,
+          "status": 2,
+          "created": "2026-11-05 17:34:10.000000"
+        },
+        {
+          "job": "247c7947-4dd1-403b-a625-c1e4087f4f90",
+          "forced": null,
+          "status": 1,
+          "created": "2026-11-05 17:38:13.000000"
+        }
+      ]
+    },
+    {
+      "kind": "temp-l2",
+      "network": "2451c521-91ac-4744-99ae-767e34c88845",
+      "jobs": [
+        {
+          "job": "d68de918-1525-4359-970b-11ed987d9a78",
+          "forced": null,
+          "status": 1,
+          "created": "2026-11-05 17:33:01.000000"
+        }
+      ]
+    },
+    {
+      "kind": "temp-shared",
+      "network": "b6e99eba-037a-435d-b5fc-4c1513ffdcb1",
+      "jobs": [
+        {
+          "job": "92906917-274f-4755-a084-2e08792fc047",
+          "forced": null,
+          "status": 1,
+          "created": "2026-11-05 17:32:59.000000"
+        }
+      ]
+    }
+  ],
+  "duplicateSuccessfulTargetPosts": 0,
+  "forcedDeletes": 0,
+  "status": "PASS"
+}

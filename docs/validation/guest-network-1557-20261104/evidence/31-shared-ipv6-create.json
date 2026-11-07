@@ -1,0 +1,89 @@
+{
+  "records": [
+    {
+      "requestId": "49180.3021",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "903d1def-9929-4755-82ec-69296b6847fd",
+        "command": "listNetworks"
+      },
+      "status": 200,
+      "result": {
+        "count": 1
+      }
+    },
+    {
+      "requestId": "49180.3022",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "903d1def-9929-4755-82ec-69296b6847fd",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 2
+      }
+    },
+    {
+      "requestId": "49180.3023",
+      "command": "createVlanIpRange",
+      "method": "POST",
+      "params": {
+        "command": "createVlanIpRange",
+        "networkid": "903d1def-9929-4755-82ec-69296b6847fd",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "forvirtualnetwork": "false",
+        "startipv6": "fd31:1557::40",
+        "endipv6": "fd31:1557::44",
+        "ip6gateway": "fd31:1557::1",
+        "ip6cidr": "fd31:1557::/64"
+      },
+      "status": 200,
+      "result": {
+        "id": "9742961a-d6ba-4f59-a67e-b175f234561c"
+      }
+    },
+    {
+      "requestId": "49180.3024",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "903d1def-9929-4755-82ec-69296b6847fd",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 3
+      }
+    },
+    {
+      "requestId": "49180.3025",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "903d1def-9929-4755-82ec-69296b6847fd",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "10",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 3
+      }
+    }
+  ],
+  "cursor": 4742,
+  "ui": "IP 주소 범위 추가\nIPv4\tIPv6\tVLAN/VNI\t작업\n\n \n\t\n \n\t\n \n\t\n \n\n\n172.27.31.10 – 172.27.31.20\n게이트웨이: 172.27.31.1 · 255.255.255.0\n\t\nfd31:1557::10 – fd31:1557::20\n게이트웨이: fd31:1557::1\nfd31:1557::/64\n\t651\t\n\n\n—\n\t\nfd31:1557::30 – fd31:1557::35\n게이트웨이: fd31:1557::1\nfd31:1557::/64\n\t651\t\n\n\n—\n\t\nfd31:1557::40 – fd31:1557::44\n게이트웨이: fd31:1557::1\nfd31:1557::/64\n\t651\t\n전체 3 개 항목\n1\n10 / 쪽"
+}

@@ -3101,6 +3101,15 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
 
     private String getBroadcastUriFromBridge(final String brName) {
         final String pif = matchPifFileInDirectory(brName);
+        if (!brName.startsWith("brvx") && pif.matches("[a-zA-Z0-9_.:-]{1,15}")) {
+            // Device names (including compact names) do not encode their VLAN reliably.
+            // Read the kernel VLAN metadata instead of guessing from digit groups in a NIC name.
+            String vlanId = Script.runSimpleBashScript("awk '/VID:/ {for(i=1;i<=NF;i++) if($i==\"VID:\") print $(i+1)}' /proc/net/vlan/" + pif);
+            if (vlanId != null && vlanId.trim().matches("[0-9]{1,4}")) {
+                return BroadcastDomainType.Vlan.toUri(vlanId.trim()).toString();
+            }
+            return "";
+        }
         final Pattern pattern = Pattern.compile("(\\D+)(\\d+)(\\D*)(\\d*)(\\D*)(\\d*)");
         final Matcher matcher = pattern.matcher(pif);
         LOGGER.debug("getting broadcast uri for pif " + pif + " and bridge " + brName);
@@ -7267,7 +7276,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
 
     public String getVlanIdFromBridgeName(String brName) {
         if (StringUtils.isNotBlank(brName)) {
-            String[] s = brName.split("-");
+            String[] s = brName.split("-(?=[^-]+$)");
             if (s.length > 1) {
                 return s[1];
             }

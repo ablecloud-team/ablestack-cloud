@@ -1,0 +1,86 @@
+[
+  {
+    "cluster": 31,
+    "action": "l2-create-from-isolated",
+    "path": "/networkoffering?keyword=qa-gn1576",
+    "type": "L2",
+    "sourceNatVisible": false,
+    "scoped": true
+  },
+  {
+    "cluster": 31,
+    "action": "isolated-default-clone",
+    "path": "/networkoffering/d2382ff5-39d5-45c9-a188-852f31fb110a",
+    "name": "qa-gn1576-31-isolated-ui"
+  },
+  {
+    "cluster": 31,
+    "action": "shared-custom-clone",
+    "path": "/networkoffering/4efa04dc-2cde-4f59-a179-cb754a83396c",
+    "rate": 321
+  },
+  {
+    "cluster": 32,
+    "action": "l2-create-from-isolated",
+    "path": "/networkoffering?keyword=qa-gn1576",
+    "type": "L2",
+    "sourceNatVisible": false,
+    "scoped": true
+  },
+  {
+    "cluster": 32,
+    "action": "isolated-default-clone",
+    "path": "/networkoffering/05ecbd13-da61-482e-8700-be65dd8bb947"
+  },
+  {
+    "cluster": 32,
+    "action": "shared-custom-clone",
+    "path": "/networkoffering/da3b9962-36d5-440f-8352-423fd5de28c2",
+    "rate": 321
+  },
+  {
+    "cluster": 31,
+    "action": "offering-description-edit",
+    "path": "/networkoffering/6ead1117-db83-444c-ae96-b445e55b699b?tab=details"
+  },
+  {
+    "cluster": 31,
+    "action": "usage-tab-network-navigation",
+    "path": "/guestnetwork/07c19a00-d2da-4bac-9c8d-80bc644c5f0d?networkreturn={%22networkofferingid%22:%226ead1117-db83-444c-ae96-b445e55b699b%22,%22page%22:%221%22,%22pagesize%22:%2220%22}"
+  },
+  {
+    "cluster": 31,
+    "action": "used-isolated-disable",
+    "path": "/networkoffering/6ead1117-db83-444c-ae96-b445e55b699b"
+  },
+  {
+    "cluster": 32,
+    "action": "used-isolated-disable",
+    "path": "/networkoffering/08777c92-e5c9-4661-b411-0e982a3684f3?tab=network.offering.used.networks"
+  },
+  {
+    "cluster": 31,
+    "action": "used-isolated-reenable",
+    "path": "/networkoffering/6ead1117-db83-444c-ae96-b445e55b699b"
+  },
+  {
+    "cluster": 32,
+    "action": "used-isolated-reenable",
+    "path": "/networkoffering/08777c92-e5c9-4661-b411-0e982a3684f3"
+  },
+  {
+    "cluster": 32,
+    "action": "list-detail-services-breadcrumb-dark",
+    "path": "/networkoffering",
+    "mobile": [
+      390,
+      844
+    ],
+    "darkAcrossRoute": true
+  },
+  {
+    "cluster": 32,
+    "action": "instant-return-light",
+    "path": "/networkoffering"
+  }
+]

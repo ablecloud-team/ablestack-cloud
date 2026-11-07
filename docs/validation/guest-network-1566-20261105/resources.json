@@ -1,0 +1,154 @@
+[
+  {
+    "cluster": 31,
+    "prefix": "qa-gn1566-31",
+    "network": {
+      "id": "4b9726af-b1cc-4d22-89da-b700e57d14e4",
+      "name": "qa-gn1566-31-lb",
+      "type": "Isolated",
+      "cidr": "10.76.31.0/24",
+      "state": "Implemented",
+      "networkofferingid": "d5f8bded-2ead-4d13-addc-17fe7ae8c7d7"
+    },
+    "vm": {
+      "id": "5b4ac993-a565-4f8e-b4b4-0c4d10975877",
+      "name": "qa-gn1566-31-backend",
+      "state": "Running",
+      "hostid": "3fb147f3-aea4-4f65-b8c6-e7192ea26138"
+    },
+    "router": {
+      "id": "d6eb5be7-7467-4e3e-ad02-d6cef952dea6",
+      "name": "r-876-VM",
+      "state": "Running",
+      "hostid": "3fb147f3-aea4-4f65-b8c6-e7192ea26138"
+    },
+    "publicIp": {
+      "id": "25328461-bb0a-4b4e-8852-258ad4227d7f",
+      "ipaddress": "10.10.31.142"
+    },
+    "lbRule": {
+      "id": "b31d0c16-10d2-4d63-851f-a94a27a46a00",
+      "name": "qa-gn1566-31-http",
+      "state": "Active",
+      "publicport": "80",
+      "privateport": "8080",
+      "algorithm": "roundrobin",
+      "protocol": "http"
+    },
+    "firewallRule": "5c313a66-57f5-4f4e-87c2-9a77f661f7c0",
+    "sameHostBackend": true,
+    "offerings": [
+      {
+        "id": "d5f8bded-2ead-4d13-addc-17fe7ae8c7d7",
+        "name": "qa-gn1566-31-seed",
+        "state": "Enabled",
+        "maxconnections": 513,
+        "keepaliveenabled": true
+      },
+      {
+        "id": "eaf0ae4c-7d96-44bb-9da8-2a51a807d055",
+        "name": "qa-gn1566-31-api-contract",
+        "state": "Enabled",
+        "maxconnections": 321,
+        "keepaliveenabled": true
+      },
+      {
+        "id": "b6550d2e-bf19-4cc0-80b7-beb3a062beb9",
+        "name": "qa-gn1566-31-api-create-verified",
+        "state": "Enabled",
+        "maxconnections": 321,
+        "keepaliveenabled": true
+      },
+      {
+        "id": "ccb87110-6ac8-46cc-80c4-c7ddf935f480",
+        "name": "qa-gn1566-31-ui-clone",
+        "state": "Disabled",
+        "maxconnections": 513,
+        "keepaliveenabled": true
+      },
+      {
+        "id": "916d8258-0911-4b78-b588-f0d6c8205362",
+        "name": "qa-gn1566-31-ui-create",
+        "state": "Disabled",
+        "maxconnections": 321,
+        "keepaliveenabled": false
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "prefix": "qa-gn1566-32",
+    "network": {
+      "id": "9bf0afda-a536-4356-a4d9-27cfdaffc916",
+      "name": "qa-gn1566-32-lb",
+      "type": "Isolated",
+      "cidr": "10.76.32.0/24",
+      "state": "Implemented",
+      "networkofferingid": "b567eab0-6a63-455d-9b00-279d5e122d33"
+    },
+    "vm": {
+      "id": "4e17f7fc-b2a5-431a-af42-a5cee88734c8",
+      "name": "qa-gn1566-32-backend",
+      "state": "Running",
+      "hostid": "05bc1189-abf8-4ec3-9ef5-02558863b628"
+    },
+    "router": {
+      "id": "eff844e9-5b04-4edc-9cd0-9d0ce1b98a5c",
+      "name": "r-364-VM",
+      "state": "Running",
+      "hostid": "05bc1189-abf8-4ec3-9ef5-02558863b628"
+    },
+    "publicIp": {
+      "id": "04de4618-4265-4bfc-9b4c-95bc88ac1c2c",
+      "ipaddress": "10.10.32.166"
+    },
+    "lbRule": {
+      "id": "1d59766c-2002-4f4b-81ff-8e44b6f4ef2e",
+      "name": "qa-gn1566-32-http",
+      "state": "Active",
+      "publicport": "80",
+      "privateport": "8080",
+      "algorithm": "roundrobin",
+      "protocol": "http"
+    },
+    "firewallRule": "d360f585-0c47-48ea-be6e-aeb91ad81c78",
+    "sameHostBackend": true,
+    "offerings": [
+      {
+        "id": "b567eab0-6a63-455d-9b00-279d5e122d33",
+        "name": "qa-gn1566-32-seed",
+        "state": "Enabled",
+        "maxconnections": 513,
+        "keepaliveenabled": true
+      },
+      {
+        "id": "59b8b401-d7e8-4ca4-ac13-afa33a2e2229",
+        "name": "qa-gn1566-32-api-contract",
+        "state": "Enabled",
+        "maxconnections": 321,
+        "keepaliveenabled": true
+      },
+      {
+        "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+        "name": "qa-gn1566-32-api-create-verified",
+        "state": "Enabled",
+        "maxconnections": 321,
+        "keepaliveenabled": true
+      },
+      {
+        "id": "e7b92926-2ac9-4d41-9c2d-e84a33e0339f",
+        "name": "qa-gn1566-32-ui-clone",
+        "state": "Disabled",
+        "maxconnections": 513,
+        "keepaliveenabled": true
+      },
+      {
+        "id": "23e262cc-9763-4ac7-b74a-f546f12ad9fa",
+        "name": "qa-gn1566-32-ui-create",
+        "state": "Disabled",
+        "maxconnections": 321,
+        "keepaliveenabled": false
+      }
+    ]
+  }
+]

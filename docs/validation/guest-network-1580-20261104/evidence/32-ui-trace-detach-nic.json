@@ -1,0 +1,34 @@
+{
+  "records": [
+    {
+      "requestId": "40480.11070",
+      "command": "removeNicFromVirtualMachine",
+      "method": "POST",
+      "params": {
+        "command": "removeNicFromVirtualMachine",
+        "virtualmachineid": "5aa5afbd-7846-4663-82ae-3fb101e3bc04",
+        "nicid": "f8e05b21-9d38-4a70-884b-0261a3e92e44"
+      },
+      "http": 200,
+      "result": {
+        "jobid": "451a15ce-fe36-4d9a-800e-8d75861acda3"
+      }
+    },
+    {
+      "requestId": "40480.11071",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "451a15ce-fe36-4d9a-800e-8d75861acda3",
+        "command": "queryAsyncJobResult"
+      },
+      "http": 200,
+      "result": {
+        "jobid": "451a15ce-fe36-4d9a-800e-8d75861acda3",
+        "jobstatus": 0,
+        "jobresultcode": 0
+      }
+    }
+  ],
+  "cursor": 20656
+}

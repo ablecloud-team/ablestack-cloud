@@ -1,0 +1,20 @@
+{
+  "service": "active",
+  "pid": "1088434",
+  "activeSince": "Sat 2026-11-07 21:24:44 KST",
+  "http": 200,
+  "webInfPresent": true,
+  "indexSha256": "59917fcce9a0c9fb3d63b3957f0ec8b45f6d3ac39835112e42ed1a75263a0970",
+  "jarSha256": "785c9c48617f4bc7a93f39fd18774ca366213d925917c0947615300d126edcb4",
+  "classes": {
+    "org/apache/cloudstack/acl/ProjectRoleBasedApiAccessChecker.class": "567bf11f79b40bbdffbd924e5c16676348784dd14c16215834fc607437865197",
+    "com/cloud/api/query/QueryManagerImpl.class": "2af15a59badb92354583cba81e9cfb8ccd92c9a04c8e617bd7ccb30576884320"
+  },
+  "logLinkageMatches": [],
+  "logWindow": "last 15000 lines",
+  "changedFromBaseline": [
+    "org/apache/cloudstack/acl/ProjectRoleBasedApiAccessChecker.class",
+    "com/cloud/api/query/QueryManagerImpl.class"
+  ],
+  "unchangedEntriesFromBaseline": 204655
+}

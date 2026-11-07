@@ -1,0 +1,16 @@
+{
+  "source": "d2382ff5-39d5-45c9-a188-852f31fb110a",
+  "checked": [
+    "service",
+    "domainid",
+    "zoneid",
+    "conservemode",
+    "keepaliveenabled",
+    "ispersistent",
+    "state",
+    "internetprotocol"
+  ],
+  "diff": {},
+  "temporaryDeleted": "5f5e11ab-4cac-442f-b706-48a62ffe002d",
+  "outsideDirectVisible": false
+}

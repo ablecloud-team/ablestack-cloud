@@ -1,0 +1,42 @@
+[
+  {
+    "cluster": 31,
+    "range": {
+      "id": "9742961a-d6ba-4f59-a67e-b175f234561c",
+      "forvirtualnetwork": false,
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "vlan": "651",
+      "account": "system",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "networkid": "903d1def-9929-4755-82ec-69296b6847fd",
+      "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+      "startipv6": "fd31:1557::40",
+      "endipv6": "fd31:1557::44",
+      "ip6gateway": "fd31:1557::1",
+      "ip6cidr": "fd31:1557::/64",
+      "forsystemvms": false
+    }
+  },
+  {
+    "cluster": 32,
+    "range": {
+      "id": "9a2bf684-e205-40f6-877f-47e068c817ab",
+      "forvirtualnetwork": false,
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "vlan": "652",
+      "account": "system",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+      "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+      "startipv6": "fd32:1557::40",
+      "endipv6": "fd32:1557::44",
+      "ip6gateway": "fd32:1557::1",
+      "ip6cidr": "fd32:1557::/64",
+      "forsystemvms": false
+    }
+  }
+]

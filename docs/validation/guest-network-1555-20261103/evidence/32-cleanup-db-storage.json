@@ -1,0 +1,352 @@
+{
+  "cluster": 32,
+  "active_db_counts": {
+    "networks": 0,
+    "vms": 0,
+    "routers": 0,
+    "nics": 0,
+    "volumes": 0
+  },
+  "hosts": [
+    {
+      "host": "10.10.32.1",
+      "domains": [
+        {
+          "name": "i-2-310-VM",
+          "absent": true
+        },
+        {
+          "name": "i-2-312-VM",
+          "absent": true
+        },
+        {
+          "name": "i-2-313-VM",
+          "absent": true
+        },
+        {
+          "name": "i-2-317-VM",
+          "absent": true
+        },
+        {
+          "name": "i-2-323-VM",
+          "absent": true
+        },
+        {
+          "name": "r-311-VM",
+          "absent": true
+        },
+        {
+          "name": "r-314-VM",
+          "absent": true
+        },
+        {
+          "name": "r-315-VM",
+          "absent": true
+        },
+        {
+          "name": "r-316-VM",
+          "absent": true
+        },
+        {
+          "name": "r-318-VM",
+          "absent": true
+        },
+        {
+          "name": "r-319-VM",
+          "absent": true
+        },
+        {
+          "name": "r-320-VM",
+          "absent": true
+        },
+        {
+          "name": "r-321-VM",
+          "absent": true
+        },
+        {
+          "name": "r-322-VM",
+          "absent": true
+        },
+        {
+          "name": "r-324-VM",
+          "absent": true
+        },
+        {
+          "name": "r-325-VM",
+          "absent": true
+        },
+        {
+          "name": "r-326-VM",
+          "absent": true
+        },
+        {
+          "name": "r-327-VM",
+          "absent": true
+        },
+        {
+          "name": "r-328-VM",
+          "absent": true
+        }
+      ],
+      "roots": [
+        {
+          "id": "4d07b276-6b14-42f9-9c72-c8f8305df080",
+          "path": "rbd/4d07b276-6b14-42f9-9c72-c8f8305df080",
+          "absent": true
+        },
+        {
+          "id": "d0b642bc-dae5-4e30-965d-1b2ed4d4c9a2",
+          "path": "rbd/d0b642bc-dae5-4e30-965d-1b2ed4d4c9a2",
+          "absent": true
+        },
+        {
+          "id": "b52520ec-3b9d-4e2a-a58c-0f5b0e57c28a",
+          "path": "rbd/b52520ec-3b9d-4e2a-a58c-0f5b0e57c28a",
+          "absent": true
+        },
+        {
+          "id": "432f094b-ae71-4930-b15e-c41abbde5a3a",
+          "path": "rbd/432f094b-ae71-4930-b15e-c41abbde5a3a",
+          "absent": true
+        },
+        {
+          "id": "b4d97980-5051-4062-9032-97935dbad460",
+          "path": "rbd/b4d97980-5051-4062-9032-97935dbad460",
+          "absent": true
+        },
+        {
+          "id": "bada6afb-672c-427a-9ed2-159d2a849a09",
+          "path": "rbd/bada6afb-672c-427a-9ed2-159d2a849a09",
+          "absent": true
+        },
+        {
+          "id": "5abb069c-7d96-4347-a8e4-12b693c84dc3",
+          "path": "rbd/5abb069c-7d96-4347-a8e4-12b693c84dc3",
+          "absent": true
+        },
+        {
+          "id": "ebd64739-5000-464b-bfd6-69c46e07fe07",
+          "path": "rbd/ebd64739-5000-464b-bfd6-69c46e07fe07",
+          "absent": true
+        },
+        {
+          "id": "603d5cf0-102f-4a82-bfc8-9928255e5aa7",
+          "path": "rbd/603d5cf0-102f-4a82-bfc8-9928255e5aa7",
+          "absent": true
+        },
+        {
+          "id": "063c17e6-debf-4777-98fd-8857b4189687",
+          "path": "rbd/063c17e6-debf-4777-98fd-8857b4189687",
+          "absent": true
+        },
+        {
+          "id": "7a7db311-848c-440f-9bfe-ff8fec314bac",
+          "path": "rbd/7a7db311-848c-440f-9bfe-ff8fec314bac",
+          "absent": true
+        },
+        {
+          "id": "74e6997f-dc27-4d09-b115-79fbb72596ac",
+          "path": "rbd/74e6997f-dc27-4d09-b115-79fbb72596ac",
+          "absent": true
+        },
+        {
+          "id": "3643e51a-b1d8-45c6-a2a9-2e884df190ce",
+          "path": "rbd/3643e51a-b1d8-45c6-a2a9-2e884df190ce",
+          "absent": true
+        },
+        {
+          "id": "ce57a005-0f4e-4b9d-90b5-8d0626c321f7",
+          "path": "rbd/ce57a005-0f4e-4b9d-90b5-8d0626c321f7",
+          "absent": true
+        },
+        {
+          "id": "b59596b3-e508-424b-9db5-c59a287a13fb",
+          "path": "rbd/b59596b3-e508-424b-9db5-c59a287a13fb",
+          "absent": true
+        },
+        {
+          "id": "c60b7324-2080-4ccf-9dc6-d9803d0a385e",
+          "path": "rbd/c60b7324-2080-4ccf-9dc6-d9803d0a385e",
+          "absent": true
+        },
+        {
+          "id": "bf1453bd-71a6-4bda-91b5-c3377d20ceb4",
+          "path": "rbd/bf1453bd-71a6-4bda-91b5-c3377d20ceb4",
+          "absent": true
+        },
+        {
+          "id": "8124b24e-5265-44e3-8524-11e91e1f6f7d",
+          "path": "rbd/8124b24e-5265-44e3-8524-11e91e1f6f7d",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "host": "10.10.32.2",
+      "domains": [
+        {
+          "name": "i-2-310-VM",
+          "absent": true
+        },
+        {
+          "name": "i-2-312-VM",
+          "absent": true
+        },
+        {
+          "name": "i-2-313-VM",
+          "absent": true
+        },
+        {
+          "name": "i-2-317-VM",
+          "absent": true
+        },
+        {
+          "name": "i-2-323-VM",
+          "absent": true
+        },
+        {
+          "name": "r-311-VM",
+          "absent": true
+        },
+        {
+          "name": "r-314-VM",
+          "absent": true
+        },
+        {
+          "name": "r-315-VM",
+          "absent": true
+        },
+        {
+          "name": "r-316-VM",
+          "absent": true
+        },
+        {
+          "name": "r-318-VM",
+          "absent": true
+        },
+        {
+          "name": "r-319-VM",
+          "absent": true
+        },
+        {
+          "name": "r-320-VM",
+          "absent": true
+        },
+        {
+          "name": "r-321-VM",
+          "absent": true
+        },
+        {
+          "name": "r-322-VM",
+          "absent": true
+        },
+        {
+          "name": "r-324-VM",
+          "absent": true
+        },
+        {
+          "name": "r-325-VM",
+          "absent": true
+        },
+        {
+          "name": "r-326-VM",
+          "absent": true
+        },
+        {
+          "name": "r-327-VM",
+          "absent": true
+        },
+        {
+          "name": "r-328-VM",
+          "absent": true
+        }
+      ],
+      "roots": []
+    },
+    {
+      "host": "10.10.32.3",
+      "domains": [
+        {
+          "name": "i-2-310-VM",
+          "absent": true
+        },
+        {
+          "name": "i-2-312-VM",
+          "absent": true
+        },
+        {
+          "name": "i-2-313-VM",
+          "absent": true
+        },
+        {
+          "name": "i-2-317-VM",
+          "absent": true
+        },
+        {
+          "name": "i-2-323-VM",
+          "absent": true
+        },
+        {
+          "name": "r-311-VM",
+          "absent": true
+        },
+        {
+          "name": "r-314-VM",
+          "absent": true
+        },
+        {
+          "name": "r-315-VM",
+          "absent": true
+        },
+        {
+          "name": "r-316-VM",
+          "absent": true
+        },
+        {
+          "name": "r-318-VM",
+          "absent": true
+        },
+        {
+          "name": "r-319-VM",
+          "absent": true
+        },
+        {
+          "name": "r-320-VM",
+          "absent": true
+        },
+        {
+          "name": "r-321-VM",
+          "absent": true
+        },
+        {
+          "name": "r-322-VM",
+          "absent": true
+        },
+        {
+          "name": "r-324-VM",
+          "absent": true
+        },
+        {
+          "name": "r-325-VM",
+          "absent": true
+        },
+        {
+          "name": "r-326-VM",
+          "absent": true
+        },
+        {
+          "name": "r-327-VM",
+          "absent": true
+        },
+        {
+          "name": "r-328-VM",
+          "absent": true
+        }
+      ],
+      "roots": []
+    }
+  ],
+  "root_volumes_checked": 18,
+  "domains_checked_per_host": 19,
+  "temporary_host_trust_files_removed": true
+}

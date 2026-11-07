@@ -1,0 +1,16 @@
+{
+  "jar_sha256": "58d8aaf66db1c5c68dca70bfdac064dfce55a9928ef764e3279ab2a56f674561",
+  "index_sha256": "09292173dcf0d0fb8c1efc5651b146657658d7c335c895e85adf80779595238c",
+  "WEB-INF": true,
+  "META-INF": false,
+  "http": 200,
+  "ft_markers": {
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  },
+  "search_markers": {
+    "network-search-select": true,
+    "network-offering-usage": true
+  }
+}

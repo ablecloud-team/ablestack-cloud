@@ -112,6 +112,20 @@ test('leaving a snapshot screen unmounts its pending form before navigation', ()
   expect(order).toEqual(['close', 'next'])
 })
 
+test('a guest network action closes before its target or project changes', () => {
+  const from = { path: '/guestnetwork/old', meta: { name: 'guestnetwork' }, query: { projectid: 'p1' } }
+  const context = { ...view(), showAction: true, $refs: {}, $route: from, closeAction: jest.fn() }
+  const next = jest.fn()
+
+  AutogenView.beforeRouteUpdate.call(context, { ...from, query: { projectid: 'p1', tab: 'details' } }, from, next)
+  expect(context.closeAction).not.toHaveBeenCalled()
+  AutogenView.beforeRouteUpdate.call(context, { ...from, path: '/guestnetwork/new' }, from, next)
+  expect(context.closeAction).toHaveBeenCalledTimes(1)
+  AutogenView.beforeRouteUpdate.call(context, { ...from, query: { projectid: 'p2' } }, from, next)
+  expect(context.closeAction).toHaveBeenCalledTimes(2)
+  expect(next).toHaveBeenCalledTimes(3)
+})
+
 test('a self-managed blocking action retains its confirmation when navigation is denied', () => {
   const context = { ...view(), showAction: true, $refs: { selfManagedAction: { blocksNavigation: true } }, closeAction: jest.fn() }
   const next = jest.fn()

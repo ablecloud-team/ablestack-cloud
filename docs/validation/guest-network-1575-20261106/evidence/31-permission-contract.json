@@ -1,0 +1,91 @@
+{
+  "before": {},
+  "nonowner-denied": {
+    "errorcode": 531,
+    "errortext": "network Network {\"id\": 487, \"name\": \"qa-gn1575-31-isolated\", \"uuid\": \"34015e1d-ca40-4d05-a4de-ba26172009e1\", \"networkofferingid\": 59} cannot be operated by normal user Account [{\"accountName\":\"qa-gn1575-31-peer\",\"id\":403,\"uuid\":\"102f11f5-6de2-402d-aa44-0b5dc7cbb0d9\"}]"
+  },
+  "project-external-denied": {
+    "errorcode": 431,
+    "errortext": "Update network permissions is an invalid operation on network qa-gn1575-31-project. Project owned networks cannot be shared outside network."
+  },
+  "domain-shared-denied": {
+    "errorcode": 431,
+    "errortext": "network is already shared in domain"
+  },
+  "mixed-domain-denied": {
+    "errorcode": 431,
+    "errortext": "Unable to find account 405 in domain id=f02a19f1-003d-4401-8272-65e0e16aee4e. No permissions is removed"
+  },
+  "mixed-domain-no-mapping": {},
+  "own-account-noop": {
+    "success": true
+  },
+  "owner-still-implicit": {},
+  "domainadmin-grant": {
+    "success": true
+  },
+  "typed-rows": {
+    "count": 2,
+    "networkpermission": [
+      {
+        "networkid": "1589449c-d56e-4087-af12-e25fdbe39349",
+        "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+        "domain": "qa-gn1575-31-main",
+        "account": "qa-gn1575-31-peer",
+        "accountid": "102f11f5-6de2-402d-aa44-0b5dc7cbb0d9"
+      },
+      {
+        "networkid": "1589449c-d56e-4087-af12-e25fdbe39349",
+        "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+        "domain": "qa-gn1575-31-main",
+        "account": "PrjAcct-qa-gn1575-31-project-93",
+        "accountid": "302eb593-9402-4a2b-ae99-30d23563a463",
+        "project": "qa-gn1575-31-project",
+        "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1"
+      }
+    ]
+  },
+  "duplicate-idempotent": {
+    "success": true
+  },
+  "duplicate-no-new-row": {
+    "count": 2,
+    "networkpermission": [
+      {
+        "networkid": "1589449c-d56e-4087-af12-e25fdbe39349",
+        "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+        "domain": "qa-gn1575-31-main",
+        "account": "qa-gn1575-31-peer",
+        "accountid": "102f11f5-6de2-402d-aa44-0b5dc7cbb0d9"
+      },
+      {
+        "networkid": "1589449c-d56e-4087-af12-e25fdbe39349",
+        "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+        "domain": "qa-gn1575-31-main",
+        "account": "PrjAcct-qa-gn1575-31-project-93",
+        "accountid": "302eb593-9402-4a2b-ae99-30d23563a463",
+        "project": "qa-gn1575-31-project",
+        "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1"
+      }
+    ]
+  },
+  "remove-project-id": {
+    "success": true
+  },
+  "only-peer": {
+    "count": 1,
+    "networkpermission": [
+      {
+        "networkid": "1589449c-d56e-4087-af12-e25fdbe39349",
+        "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+        "domain": "qa-gn1575-31-main",
+        "account": "qa-gn1575-31-peer",
+        "accountid": "102f11f5-6de2-402d-aa44-0b5dc7cbb0d9"
+      }
+    ]
+  },
+  "reset-l2": {
+    "success": true
+  },
+  "reset-verified": {}
+}

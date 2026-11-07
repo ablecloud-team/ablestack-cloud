@@ -1,0 +1,330 @@
+{
+  "records": [
+    {
+      "requestId": "20580.3948",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "c00cbfae-a846-4071-af4d-eaa24f4d5a5b",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3949",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "networkid": "c00cbfae-a846-4071-af4d-eaa24f4d5a5b",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "state": "Enabled",
+        "guestiptype": "Isolated",
+        "forvpc": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3950",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "57d5169f-9570-443a-a562-1b94c6ffe85e",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3951",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "45d7e6ae-91f3-4394-8da9-2a5d6fd5f30c",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3952",
+      "command": "listPhysicalNetworks",
+      "method": "GET",
+      "params": {
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listPhysicalNetworks"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3953",
+      "command": "listTrafficTypes",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listTrafficTypes"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3954",
+      "command": "listNetworkServiceProviders",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listNetworkServiceProviders"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3955",
+      "command": "listVirtualRouterElements",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVirtualRouterElements"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3956",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "c00cbfae-a846-4071-af4d-eaa24f4d5a5b",
+        "name": "qa-gn1562-31-nosnat",
+        "networkofferingid": "45d7e6ae-91f3-4394-8da9-2a5d6fd5f30c"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38"
+      }
+    },
+    {
+      "requestId": "20580.3957",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "jobstatus": 0
+      }
+    },
+    {
+      "requestId": "20580.3959",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "jobstatus": 0
+      }
+    },
+    {
+      "requestId": "20580.3960",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "jobstatus": 0
+      }
+    },
+    {
+      "requestId": "20580.3962",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "jobstatus": 0
+      }
+    },
+    {
+      "requestId": "20580.3963",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "jobstatus": 0
+      }
+    },
+    {
+      "requestId": "20580.3965",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "jobstatus": 0
+      }
+    },
+    {
+      "requestId": "20580.3967",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "jobstatus": 0
+      }
+    },
+    {
+      "requestId": "20580.3968",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "jobstatus": 0
+      }
+    },
+    {
+      "requestId": "20580.3970",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "jobstatus": 0
+      }
+    },
+    {
+      "requestId": "20580.3971",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "jobstatus": 0
+      }
+    },
+    {
+      "requestId": "20580.3974",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "jobstatus": 0
+      }
+    },
+    {
+      "requestId": "20580.3976",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "8c803a4b-062f-4938-916f-499f31536c38",
+        "jobstatus": 1
+      }
+    },
+    {
+      "requestId": "20580.3977",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "c00cbfae-a846-4071-af4d-eaa24f4d5a5b",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3978",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "c00cbfae-a846-4071-af4d-eaa24f4d5a5b",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3983",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "c00cbfae-a846-4071-af4d-eaa24f4d5a5b",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3991",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "c00cbfae-a846-4071-af4d-eaa24f4d5a5b",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "status": 200
+    }
+  ],
+  "cursor": 1041
+}

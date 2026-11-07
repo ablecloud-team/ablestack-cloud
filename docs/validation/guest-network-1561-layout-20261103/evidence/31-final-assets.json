@@ -1,0 +1,19 @@
+{
+  "scripts": [
+    "http://10.10.31.10:8080/client/js/chunk-6859226a.799923f7.js",
+    "http://10.10.31.10:8080/client/js/chunk-7c99e964.a5923a78.js",
+    "http://10.10.31.10:8080/client/js/chunk-6bb25a91.0485649c.js",
+    "http://10.10.31.10:8080/client/js/chunk-43c1a101.0690e84b.js",
+    "http://10.10.31.10:8080/client/js/less.min.js",
+    "http://10.10.31.10:8080/client/js/vendors.8dcc915b.js",
+    "http://10.10.31.10:8080/client/js/app.6db8c219.js"
+  ],
+  "styles": [
+    "http://10.10.31.10:8080/client/css/vendors.eb47fec1.css",
+    "http://10.10.31.10:8080/client/css/app.cf3078b0.css",
+    "http://10.10.31.10:8080/client/css/chunk-6859226a.0b43ce34.css",
+    "http://10.10.31.10:8080/client/css/chunk-7c99e964.0b99f558.css",
+    "http://10.10.31.10:8080/client/css/chunk-6bb25a91.f2d932ee.css",
+    "http://10.10.31.10:8080/client/css/chunk-43c1a101.46da725c.css"
+  ]
+}

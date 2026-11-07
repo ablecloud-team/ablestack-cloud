@@ -1,0 +1,52 @@
+{
+  "listNetworks": {
+    "baselineCount": 9,
+    "currentCount": 15,
+    "fields": [
+      "id",
+      "name",
+      "type",
+      "networkofferingid",
+      "cidr",
+      "gateway",
+      "netmask",
+      "acltype",
+      "account",
+      "domainid",
+      "projectid",
+      "details"
+    ],
+    "differences": [],
+    "serviceArrayOrderOnly": 0
+  },
+  "listVirtualMachines": {
+    "baselineCount": 55,
+    "currentCount": 56,
+    "fields": [
+      "id",
+      "name",
+      "displayname",
+      "serviceofferingid",
+      "templateid",
+      "account",
+      "domainid",
+      "projectid"
+    ],
+    "differences": [],
+    "serviceArrayOrderOnly": 0
+  },
+  "listNetworkOfferings": {
+    "baselineCount": 15,
+    "currentCount": 15,
+    "fields": [
+      "id",
+      "name",
+      "displaytext",
+      "traffictype",
+      "guestiptype",
+      "service"
+    ],
+    "differences": [],
+    "serviceArrayOrderOnly": 2
+  }
+}

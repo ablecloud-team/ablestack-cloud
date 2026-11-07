@@ -1,0 +1,31 @@
+{
+  "conditions": 96,
+  "groups": 8,
+  "document_overflows": 0,
+  "modal_overflows": 0,
+  "viewports": [
+    [
+      1280,
+      900
+    ],
+    [
+      768,
+      1024
+    ],
+    [
+      390,
+      844
+    ]
+  ],
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "views": [
+    "list",
+    "add",
+    "edit",
+    "delete"
+  ],
+  "original_jpeg_count": 100
+}

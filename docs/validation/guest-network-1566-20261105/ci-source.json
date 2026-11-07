@@ -1,0 +1,68 @@
+{
+  "sourceHead": "59a5c92934f9c09535755a3bbaacf7366cdf4367",
+  "checks": [
+    {
+      "name": "build",
+      "status": "completed",
+      "conclusion": "failure",
+      "details_url": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/41984527982/job/127102380875"
+    },
+    {
+      "name": "Run pre-commit",
+      "status": "in_progress",
+      "conclusion": null,
+      "details_url": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/41984527792/job/127102309053"
+    },
+    {
+      "name": "triage",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/41984527902/job/127102063516"
+    },
+    {
+      "name": "triage",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "details_url": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/41984525073/job/127102054401"
+    }
+  ],
+  "actions": [
+    {
+      "conclusion": "",
+      "databaseId": 41984527792,
+      "event": "pull_request",
+      "headSha": "59a5c92934f9c09535755a3bbaacf7366cdf4367",
+      "name": "Lint",
+      "status": "in_progress",
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/41984527792"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 41984527902,
+      "event": "pull_request",
+      "headSha": "59a5c92934f9c09535755a3bbaacf7366cdf4367",
+      "name": "PR Merge Conflict Check",
+      "status": "completed",
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/41984527902"
+    },
+    {
+      "conclusion": "failure",
+      "databaseId": 41984527982,
+      "event": "pull_request",
+      "headSha": "59a5c92934f9c09535755a3bbaacf7366cdf4367",
+      "name": "License Check",
+      "status": "completed",
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/41984527982"
+    },
+    {
+      "conclusion": "cancelled",
+      "databaseId": 41984525073,
+      "event": "pull_request_target",
+      "headSha": "59a5c92934f9c09535755a3bbaacf7366cdf4367",
+      "name": "PR Merge Conflict Check",
+      "status": "completed",
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/41984525073"
+    }
+  ],
+  "manuallyStartedFullBuilds": 0
+}

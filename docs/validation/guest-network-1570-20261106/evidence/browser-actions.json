@@ -1,0 +1,388 @@
+[
+  {
+    "cluster": 31,
+    "action": "create-ui",
+    "variant": "nat",
+    "name": "qa-gn1570-31-nat",
+    "href": "#/guestnetwork/caea7915-8bed-4265-94e5-22748cbee88e?networkreturn={}"
+  },
+  {
+    "cluster": 32,
+    "action": "create-ui",
+    "variant": "nat",
+    "name": "qa-gn1570-32-nat",
+    "href": "#/guestnetwork/9b477162-d921-4015-9f76-16475a067428?networkreturn={}"
+  },
+  {
+    "cluster": 31,
+    "action": "create-ui",
+    "variant": "nosnat",
+    "name": "qa-gn1570-31-nosnat",
+    "href": "#/guestnetwork/eac5e03a-07c9-4d23-99ec-0f74d5c5349f?networkreturn={}"
+  },
+  {
+    "cluster": 32,
+    "action": "create-ui",
+    "variant": "nosnat",
+    "name": "qa-gn1570-32-nosnat",
+    "href": "#/guestnetwork/a96e6e1e-315a-4cf3-8e2a-01421a5e302e?networkreturn={}"
+  },
+  {
+    "cluster": 31,
+    "action": "create-ui",
+    "variant": "vpc",
+    "name": "qa-gn1570-31-vpc",
+    "href": "#/guestnetwork/b51cf142-4a0d-4131-b690-28f04704552c?networkreturn={}"
+  },
+  {
+    "cluster": 31,
+    "action": "create-ui",
+    "variant": "static",
+    "name": "qa-gn1570-31-static",
+    "href": "#/guestnetwork/0fa185ab-1fc1-4e89-bd23-eec3e97269bb?networkreturn={}"
+  },
+  {
+    "cluster": 32,
+    "action": "create-ui",
+    "variant": "vpc",
+    "name": "qa-gn1570-32-vpc",
+    "href": "#/guestnetwork/3f6c1cf3-c33f-41b4-bb5c-6b2149b7e1db?networkreturn={}"
+  },
+  {
+    "cluster": 32,
+    "action": "create-ui",
+    "variant": "static",
+    "name": "qa-gn1570-32-static",
+    "href": "#/guestnetwork/9c753cf2-e3e5-4b18-8a9b-42547bf22270?networkreturn={}"
+  },
+  {
+    "cluster": 31,
+    "action": "router-link",
+    "href": "/router/4e9c0835-3bbd-41a4-afa8-582e0d615c5f"
+  },
+  {
+    "cluster": 31,
+    "action": "egress-rule-ui",
+    "protocol": "tcp",
+    "row": "\t10.171.31.0/24\t10.10.31.10/32\tTCP\t8080\t8080\t"
+  },
+  {
+    "cluster": 32,
+    "action": "egress-rule-ui",
+    "protocol": "tcp",
+    "row": "\t10.171.32.0/24\t10.10.32.10/32\tTCP\t8080\t8080\t"
+  },
+  {
+    "cluster": 31,
+    "action": "egress-rule-ui",
+    "protocol": "udp",
+    "row": "\t10.171.31.0/24\t10.10.31.10/32\tUDP\t53\t53\t"
+  },
+  {
+    "cluster": 31,
+    "action": "egress-rule-ui",
+    "protocol": "icmp",
+    "row": "\t10.171.31.0/24\t10.10.31.10/32\tICMP\t8\t0\t"
+  },
+  {
+    "cluster": 31,
+    "action": "egress-all-ui",
+    "row": "\t10.171.31.0/24\t10.10.31.10/32\t모두\tAll\tAll\t"
+  },
+  {
+    "cluster": 31,
+    "action": "egress-bulk-delete-ui",
+    "remaining": "\t10.171.31.0/24\t10.10.31.10/32\tTCP\t8080\t8080\t"
+  },
+  {
+    "cluster": 32,
+    "action": "vpc-acl-ui",
+    "expected": "6309f131-1c2d-4428-8469-e19a8dc9890e"
+  },
+  {
+    "cluster": 31,
+    "action": "nosnat-guest-ranges",
+    "tabs": [
+      "상세",
+      "송신 규칙",
+      "Public IP 주소",
+      "가상 라우터",
+      "VNF 기기",
+      "게스트 IP 주소 범위",
+      "네트워크 권한",
+      "이벤트",
+      "코멘트"
+    ]
+  },
+  {
+    "cluster": 31,
+    "action": "static-routing-firewall",
+    "tabs": [
+      "상세",
+      "IPv4 라우팅 방화벽",
+      "가상 라우터",
+      "VNF 기기",
+      "네트워크 권한",
+      "이벤트",
+      "코멘트"
+    ]
+  },
+  {
+    "cluster": 32,
+    "action": "nosnat-guest-ranges",
+    "tabs": [
+      "상세",
+      "송신 규칙",
+      "Public IP 주소",
+      "가상 라우터",
+      "VNF 기기",
+      "게스트 IP 주소 범위",
+      "네트워크 권한",
+      "이벤트",
+      "코멘트"
+    ]
+  },
+  {
+    "cluster": 32,
+    "action": "static-routing-firewall",
+    "tabs": [
+      "상세",
+      "IPv4 라우팅 방화벽",
+      "가상 라우터",
+      "VNF 기기",
+      "네트워크 권한",
+      "이벤트",
+      "코멘트"
+    ]
+  },
+  {
+    "cluster": 32,
+    "action": "egress-remove-for-packet-test",
+    "protocol": "tcp",
+    "port": 8080
+  },
+  {
+    "cluster": 32,
+    "action": "egress-rule-ui",
+    "protocol": "tcp",
+    "row": "\t10.171.32.0/24\t10.10.32.10/32\tTCP\t8080\t8080\t"
+  },
+  {
+    "cluster": 32,
+    "action": "egress-restore-after-packet-test",
+    "protocol": "tcp",
+    "port": 8080
+  },
+  {
+    "cluster": 31,
+    "action": "description-dns-update-ui",
+    "description": "#1570 NAT 수정과 NIC 유지 확인",
+    "dns1": "9.9.9.9"
+  },
+  {
+    "cluster": 32,
+    "action": "static-bgp-deep-link-fallback",
+    "path": "/guestnetwork/9c753cf2-e3e5-4b18-8a9b-42547bf22270?tab=details"
+  },
+  {
+    "cluster": 31,
+    "action": "vpc-incompatible-preflight",
+    "blocked": true,
+    "compatibleAfterSwitch": true
+  },
+  {
+    "cluster": 32,
+    "action": "public-ip-acquire-ui",
+    "requested": "10.10.32.104"
+  },
+  {
+    "cluster": 31,
+    "action": "dynamic-routed-unavailable",
+    "status": 530,
+    "reason": "Cannot allocate AS number"
+  },
+  {
+    "cluster": 32,
+    "action": "source-nat-submit",
+    "ip": "10.10.32.104"
+  },
+  {
+    "cluster": 31,
+    "action": "create-ui",
+    "variant": "delete",
+    "name": "qa-gn1570-31-delete",
+    "href": "#/guestnetwork/f98e0e36-d1e7-4dde-aaa4-0bb92f0ecc06?networkreturn={}"
+  },
+  {
+    "cluster": 31,
+    "action": "delete-empty-ui",
+    "href": "#/guestnetwork/f98e0e36-d1e7-4dde-aaa4-0bb92f0ecc06?networkreturn={}"
+  },
+  {
+    "cluster": 32,
+    "action": "source-nat-complete",
+    "ip": "10.10.32.104",
+    "prior": "10.10.32.165"
+  },
+  {
+    "cluster": 32,
+    "action": "prior-public-ip-release-ui",
+    "ip": "10.10.32.165"
+  },
+  {
+    "cluster": 31,
+    "action": "network-restart-ui",
+    "network": "guestnetwork/caea7915-8bed-4265-94e5-22748cbee88e",
+    "cleanup": false,
+    "livepatch": false
+  },
+  {
+    "cluster": 32,
+    "action": "admin-only-comment-ui",
+    "text": "#1570 확인용 NAT 시험망"
+  },
+  {
+    "cluster": 32,
+    "action": "network-tag-ui",
+    "key": "qa-issue",
+    "value": "1570"
+  },
+  {
+    "cluster": 32,
+    "action": "events-ui",
+    "tabs": [
+      "상세",
+      "송신 규칙",
+      "Public IP 주소",
+      "가상 라우터",
+      "VNF 기기",
+      "네트워크 권한",
+      "이벤트",
+      "코멘트"
+    ]
+  },
+  {
+    "cluster": 31,
+    "action": "vnf-association-empty-ui"
+  },
+  {
+    "cluster": 31,
+    "action": "network-permissions-ui",
+    "tabs": [
+      "상세",
+      "송신 규칙",
+      "Public IP 주소",
+      "가상 라우터",
+      "VNF 기기",
+      "네트워크 권한",
+      "이벤트",
+      "코멘트"
+    ]
+  },
+  {
+    "cluster": 31,
+    "action": "related-vm-list-ui",
+    "path": "/vm?networkid=caea7915-8bed-4265-94e5-22748cbee88e"
+  },
+  {
+    "cluster": 31,
+    "action": "vm-nic-breadcrumb-roundtrip-ui",
+    "network": "guestnetwork/caea7915-8bed-4265-94e5-22748cbee88e"
+  },
+  {
+    "cluster": 32,
+    "action": "unsupported-tab-fallback",
+    "tab": "ip.v6.firewall",
+    "path": "/guestnetwork/9b477162-d921-4015-9f76-16475a067428?tab=details"
+  },
+  {
+    "cluster": 32,
+    "action": "unsupported-tab-fallback",
+    "tab": "network.policy",
+    "path": "/guestnetwork/9b477162-d921-4015-9f76-16475a067428?tab=details"
+  },
+  {
+    "cluster": 32,
+    "action": "unsupported-tab-fallback",
+    "tab": "tungsten.logical.router",
+    "path": "/guestnetwork/9b477162-d921-4015-9f76-16475a067428?tab=details"
+  },
+  {
+    "cluster": 32,
+    "action": "unsupported-tab-fallback",
+    "tab": "custom.actions",
+    "path": "/guestnetwork/9b477162-d921-4015-9f76-16475a067428?tab=details"
+  },
+  {
+    "cluster": 32,
+    "action": "vpc-tier-tabs",
+    "tabs": []
+  },
+  {
+    "cluster": 32,
+    "action": "theme-switch-and-route",
+    "light": true,
+    "dark": true,
+    "refresh": true
+  },
+  {
+    "cluster": 32,
+    "action": "owner-ui-role",
+    "tabs": [
+      "상세",
+      "송신 규칙",
+      "Public IP 주소",
+      "VNF 기기",
+      "네트워크 권한",
+      "이벤트",
+      "코멘트"
+    ],
+    "adminOnlyCommentVisible": false
+  },
+  {
+    "cluster": 32,
+    "action": "owner-router-direct-link",
+    "path": "/guestnetwork/9b477162-d921-4015-9f76-16475a067428?tab=details"
+  },
+  {
+    "cluster": 31,
+    "action": "offering-update-submit",
+    "offering": "067395f5-fd05-42a5-b655-657a84846caa"
+  },
+  {
+    "cluster": 31,
+    "action": "offering-update-complete",
+    "offering": "067395f5-fd05-42a5-b655-657a84846caa"
+  },
+  {
+    "cluster": 31,
+    "action": "list-search-four-isolated",
+    "count": 4,
+    "keyword": "qa-gn1570-31"
+  },
+  {
+    "cluster": 31,
+    "action": "final-router-tab",
+    "row": " \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n "
+  },
+  {
+    "cluster": 31,
+    "action": "owner-ui-role",
+    "tabs": [
+      "상세",
+      "송신 규칙",
+      "Public IP 주소",
+      "VNF 기기",
+      "네트워크 권한",
+      "이벤트",
+      "코멘트"
+    ],
+    "routerHidden": true
+  },
+  {
+    "cluster": 32,
+    "action": "mobile-breadcrumb-back",
+    "width": 390,
+    "dark": true
+  }
+]

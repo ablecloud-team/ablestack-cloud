@@ -1,0 +1,24 @@
+{
+  "version": "HAProxy version 2.6.12-1+deb12u3 2025/10/03 - https://haproxy.org/\nStatus: long-term supported branch - will stop receiving fixes around Q2 2027.\nKnown bugs: http://www.haproxy.org/bugs/bugs-2.6.12.html\nRunning on: Linux 6.1.0-52-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.180-1 (2026-08-03) x86_64\n",
+  "configFiles": {
+    "/etc/haproxy/haproxy.cfg": "# Licensed to the Apache Software Foundation (ASF) under one\n# or more contributor license agreements.  See the NOTICE file\n# distributed with this work for additional information\n# regarding copyright ownership.  The ASF licenses this file\n# to you under the Apache License, Version 2.0 (the\n# \"License\"); you may not use this file except in compliance\n# with the License.  You may obtain a copy of the License at\n#\n#   http://www.apache.org/licenses/LICENSE-2.0\n#\n# Unless required by applicable law or agreed to in writing,\n# software distributed under the License is distributed on an\n# \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n# KIND, either express or implied.  See the License for the\n# specific language governing permissions and limitations\n# under the License.\n\nglobal\n\tlog 127.0.0.1:3914   local0 info\n\tchroot /var/lib/haproxy\n\tuser haproxy\n\tgroup haproxy\n\tdaemon\n\ndefaults\n\tlog     global\n\tmode    tcp\n\toption  dontlognull\n\tretries 3\n\toption redispatch\n\toption forwardfor\n\tstats enable\n\tstats uri     /admin?stats\n\tstats realm   Haproxy\\ Statistics\n\tstats auth    [REDACTED]\n\toption httpclose\n\ttimeout connect      5000\n\ttimeout client      50000\n\ttimeout server      50000\n\n\nlisten cloud-default\n\tbind 0.0.0.0:35999\n\toption transparent\n"
+  },
+  "rangeSyntax": {
+    "-1": {
+      "exit": 0,
+      "stdout": "Configuration file is valid\n",
+      "stderr": ""
+    },
+    "0": {
+      "exit": 0,
+      "stdout": "Configuration file is valid\n",
+      "stderr": ""
+    },
+    "1": {
+      "exit": 0,
+      "stdout": "Configuration file is valid\n",
+      "stderr": ""
+    }
+  },
+  "backendHttp": "QA-GN1566-31 HTTP backend\n"
+}

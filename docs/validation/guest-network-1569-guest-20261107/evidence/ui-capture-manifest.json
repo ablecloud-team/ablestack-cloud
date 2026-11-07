@@ -1,0 +1,122 @@
+[
+  {
+    "label": "31-shared-vm-nic-light",
+    "width": 1280,
+    "height": 1000,
+    "documentWidth": 1270,
+    "documentHeight": 1000,
+    "dark": false,
+    "url": "http://10.10.31.10:8080/client/#/vm/e0ab98ea-2495-4f86-871f-ebd61786dbd3?tab=nics",
+    "imageWidth": 1270,
+    "imageHeight": 1000,
+    "sha256": "810d04b4631fcd4cbc0d6cb4bef76fe68847c7d879acda06c5cccb2e3e242328"
+  },
+  {
+    "label": "32-nosnat-vm-nic-dark",
+    "width": 1280,
+    "height": 1000,
+    "documentWidth": 1270,
+    "documentHeight": 1000,
+    "dark": true,
+    "url": "http://10.10.32.10:8080/client/#/vm/23dbc3f4-4378-4fef-9420-959d724ae98e?tab=nics",
+    "imageWidth": 1270,
+    "imageHeight": 1000,
+    "sha256": "e5468a47221635817aea445c44ec63d79c7ea9c512ed5828ea2d9464ca8962be"
+  },
+  {
+    "label": "31-shared-guest-addresses-light",
+    "width": 1440,
+    "height": 1000,
+    "documentWidth": 1430,
+    "documentHeight": 1000,
+    "dark": false,
+    "url": "http://10.10.31.10:8080/client/#/guestnetwork/0346f16d-8a02-4fb6-860a-cc380def63f4?tab=public.ip.addresses",
+    "imageWidth": 1430,
+    "imageHeight": 1000,
+    "sha256": "799201588d4d1b578fbb1cf1ce5c16bb7c7e0effe3aad3e9187f072d16b99044"
+  },
+  {
+    "label": "31-shared-router-host-light",
+    "width": 1440,
+    "height": 1000,
+    "documentWidth": 1430,
+    "documentHeight": 1000,
+    "dark": false,
+    "url": "http://10.10.31.10:8080/client/#/guestnetwork/0346f16d-8a02-4fb6-860a-cc380def63f4?tab=virtual.routers",
+    "imageWidth": 1430,
+    "imageHeight": 1000,
+    "sha256": "70c124cfd192b0486e33ab9abfcc2a226c375d4096b0e042eef2ac6b998cc449"
+  },
+  {
+    "label": "32-shared-assigned-addresses-dark",
+    "width": 1440,
+    "height": 1000,
+    "documentWidth": 1430,
+    "documentHeight": 1000,
+    "dark": true,
+    "url": "http://10.10.32.10:8080/client/#/guestnetwork/eb1c8ca5-d19b-49a7-9de5-5575549a2b6e?tab=public.ip.addresses",
+    "imageWidth": 1430,
+    "imageHeight": 1000,
+    "sha256": "1451283c814f085e12e7d700ba21b23243d59cccf0589de989e57e1dab05f179"
+  },
+  {
+    "label": "32-shared-router-host-dark",
+    "width": 1440,
+    "height": 1000,
+    "documentWidth": 1430,
+    "documentHeight": 1000,
+    "dark": true,
+    "url": "http://10.10.32.10:8080/client/#/guestnetwork/eb1c8ca5-d19b-49a7-9de5-5575549a2b6e?tab=virtual.routers",
+    "imageWidth": 1430,
+    "imageHeight": 1000,
+    "sha256": "ab9fa1f8e084be50bbb1952bcee6b854be6a91b64ebc4dd0359def6cab315756"
+  },
+  {
+    "label": "32-nosnat-router-host-dark",
+    "width": 1440,
+    "height": 1000,
+    "documentWidth": 1430,
+    "documentHeight": 1000,
+    "dark": true,
+    "url": "http://10.10.32.10:8080/client/#/guestnetwork/28a009ed-333e-4968-8a8e-3f5b2f9ca667?tab=virtual.routers",
+    "imageWidth": 1430,
+    "imageHeight": 1000,
+    "sha256": "e7ad4e5ec697774d2726acefa57fb754ed37a75bd4c77ccc48174d2736d01568"
+  },
+  {
+    "label": "32-nosnat-vm-pair-dark",
+    "width": 1440,
+    "height": 1000,
+    "documentWidth": 1430,
+    "documentHeight": 1000,
+    "dark": true,
+    "url": "http://10.10.32.10:8080/client/#/vm?networkid=28a009ed-333e-4968-8a8e-3f5b2f9ca667",
+    "imageWidth": 1430,
+    "imageHeight": 1000,
+    "sha256": "5315ababcfd384108cd2ec89476857893d1150987206a954ea69e53bc58517bc"
+  },
+  {
+    "label": "31-shared-vm-pair-light",
+    "width": 1440,
+    "height": 1000,
+    "documentWidth": 1430,
+    "documentHeight": 1000,
+    "dark": false,
+    "url": "http://10.10.31.10:8080/client/#/vm?networkid=0346f16d-8a02-4fb6-860a-cc380def63f4",
+    "imageWidth": 1430,
+    "imageHeight": 1000,
+    "sha256": "42b6888607c325b612af2ce9e7dc4c467bed82c2aea8ffb25132d87e54e21183"
+  },
+  {
+    "label": "32-shared-vm-pair-dark",
+    "width": 1440,
+    "height": 1000,
+    "documentWidth": 1430,
+    "documentHeight": 1000,
+    "dark": true,
+    "url": "http://10.10.32.10:8080/client/#/vm?networkid=eb1c8ca5-d19b-49a7-9de5-5575549a2b6e",
+    "imageWidth": 1430,
+    "imageHeight": 1000,
+    "sha256": "eae1657e516f43b1e95cab0407938fa7be8af43f4e32d49ee2000019086b29b0"
+  }
+]

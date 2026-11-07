@@ -1,0 +1,60 @@
+[INFO] Scanning for projects...
+[WARNING]
+[WARNING] Some problems were encountered while building the effective model for org.apache.cloudstack:cloud-plugin-hypervisor-kvm:jar:4.23.0.0
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.json:json:jar -> duplicate declaration of version (?) @ line 130, column 21
+[WARNING]
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING]
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING]
+[INFO]
+[INFO] ------------------< org.apache.cloudstack:cloud-core >------------------
+[INFO] Building Apache CloudStack Core 4.23.0.0
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-core ---
+[INFO]
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-core ---
+[INFO]
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-core ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 46 resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-core ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-core ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 4 resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-core ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-core ---
+[INFO]
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.cloud.network.HAProxyConfiguratorTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.756 s - in com.cloud.network.HAProxyConfiguratorTest
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO]
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-core ---
+[INFO] Building jar: /home/ablecloud/work/dhslove/cloud-epic-1554/core/target/cloud-core-4.23.0.0.jar
+[INFO]
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-core ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  11.517 s
+[INFO] Finished at: 2026-11-05T16:04:07+09:00
+[INFO] ------------------------------------------------------------------------

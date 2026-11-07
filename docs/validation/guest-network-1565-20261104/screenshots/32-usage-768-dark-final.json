@@ -1,0 +1,29 @@
+{
+  "body": null,
+  "colors": [],
+  "content": null,
+  "dark": true,
+  "dialog": null,
+  "documentWidth": 758,
+  "dpr": 1,
+  "focus": {
+    "label": "업데이트",
+    "tag": "BUTTON"
+  },
+  "footer": null,
+  "header": null,
+  "height": 1024,
+  "main": {
+    "bottom": 1024,
+    "height": 841,
+    "left": 80,
+    "right": 758,
+    "top": 183,
+    "width": 678,
+    "x": 80,
+    "y": 183
+  },
+  "primaryButton": null,
+  "width": 768,
+  "image_sha256": "41a172bf07a791cbcc5baa891709a4b6caf725c0605cd069879cabfd84acd1b2"
+}

@@ -1,0 +1,232 @@
+- complementary:
+  - menu:
+    - menuitem "dashboard 대시보드":
+      - link "dashboard 대시보드":
+        - /url: "#/dashboard"
+        - img "dashboard":
+        - generic: 대시보드
+    - img "cloud":
+    - generic: 컴퓨트
+    - img "hdd":
+    - generic: 스토리지
+    - img "wifi":
+    - generic: 네트워크
+    - img "picture":
+    - generic: 이미지
+    - img "lock":
+    - generic: 키 관리
+    - menuitem "schedule 이벤트":
+      - link "schedule 이벤트":
+        - /url: "#/event"
+        - img "schedule":
+        - generic: 이벤트
+    - menuitem "project 프로젝트":
+      - link "project 프로젝트":
+        - /url: "#/project"
+        - img "project":
+        - generic: 프로젝트
+    - menuitem "idcard 역할":
+      - link "idcard 역할":
+        - /url: "#/role"
+        - img "idcard":
+        - generic: 역할
+    - menuitem "team 계정":
+      - link "team 계정":
+        - /url: "#/account"
+        - img "team":
+        - generic: 계정
+    - menuitem "block 도메인":
+      - link "block 도메인":
+        - /url: "#/domain"
+        - img "block":
+        - generic: 도메인
+    - img "bank":
+    - generic: 인프라스트럭쳐
+    - img "shopping":
+    - generic: 서비스 오퍼링
+    - img "setting":
+    - generic: 구성
+    - menuitem "appstore-add 확장":
+      - link "appstore-add 확장":
+        - /url: "#/extension"
+        - img "appstore-add":
+        - generic: 확장
+    - img "tool":
+    - generic: 도구
+    - menuitem "read API 문서":
+      - link "read API 문서":
+        - /url: "#/apidocs/"
+        - img "read":
+        - generic: API 문서
+- generic: 페이지 스타일 설정
+- button "닫기" [active]:
+  - img "close":
+- heading "페이지 스타일 설정" [level=3]
+- radio
+- radio [checked]
+- img "check":
+- heading "테마 색상" [level=3]
+- radio
+- img "check"
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- separator
+- heading "네비게이션 설정" [level=3]
+- generic: 배경색
+- textbox [disabled]: "#ffffff"
+- generic: 텍스트 색상
+- textbox [disabled]: "#000000"
+- separator
+- alert:
+  - img "exclamation-circle":
+  - generic: "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요."
+- button "download 세팅값 다운로드(json)":
+  - img "download":
+  - generic: 세팅값 다운로드(json)
+- button "undo 기본값으로 재설정":
+  - img "undo":
+  - generic: 기본값으로 재설정
+- img "menu-unfold":
+- combobox
+- img "project":
+- text: 기본 보기
+- img "translation":
+- button "알림":
+  - img "bell":
+  - superscript:
+    - paragraph: "9"
+- generic: AC
+- generic: admin cloud
+- main:
+  - link "home":
+    - /url: "#/"
+    - img "home":
+  - text: /
+  - link "가상머신용 네트워크":
+    - /url: "#/guestnetwork"
+  - text: /
+  - generic: qa-gn1580-32-shared
+  - link "question-circle":
+    - /url: http://docs.ablecloud.io/latest/adminguide/networking_and_traffic.html#adding-an-additional-guest-network
+    - img "question-circle":
+  - button "reload 업데이트":
+    - img "reload":
+    - generic: 업데이트
+  - button "down 작업":
+    - img "down":
+    - generic: 작업
+  - img "edit":
+  - img "apartment":
+  - heading "qa-gn1580-32-shared" [level=4]
+  - generic: Shared
+  - generic: vlan://4094
+  - separator
+  - generic: 상태
+  - generic: 구성 완료
+  - generic: 아이디
+  - button "아이디 복사":
+    - img "barcode":
+  - link "bc678b24-fdda-4392-9a18-9ca61e93be84":
+    - /url: javascript:;
+  - generic: 설명
+  - generic: "VLAN 4094 · #1580 shared 검증"
+  - generic: 네트워크 오퍼링
+  - img "wifi":
+  - link "기본 공유 네트워크오퍼링":
+    - /url: "#/networkoffering/c0586d85-1ab3-41ba-8c6a-455ce47d6c3b"
+  - generic: Zone
+  - img "global":
+  - link "Zone":
+    - /url: "#/zone/991d2f57-0f37-4445-b956-09773d064816"
+  - generic: 계정
+  - img "user":
+  - link "admin":
+    - /url: "#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935"
+  - generic: 도메인
+  - img "block":
+  - link "ROOT":
+    - /url: "#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details"
+  - generic: 생성일
+  - img "calendar":
+  - text: 2026. 11. 4. 오후 3:45:18
+  - separator
+  - link "cloud-server 가상머신 보기":
+    - /url: "#/vm?networkid=bc678b24-fdda-4392-9a18-9ca61e93be84"
+    - button "cloud-server 가상머신 보기":
+      - img "cloud-server":
+      - generic: 가상머신 보기
+  - separator
+  - strong: 태그
+  - button "reload 태그 새로고침":
+    - img "reload":
+    - generic: 태그 새로고침
+  - generic: 태그가 없습니다.
+  - button "plus 새 태그":
+    - img "plus":
+    - generic: 새 태그
+  - tablist:
+    - tab "상세" [selected]
+    - tab "IP Addresses"
+    - tab "가상 라우터"
+    - tab "VNF 기기"
+    - tab "게스트 IP 주소 범위"
+    - tab "네트워크 권한"
+    - tab "이벤트"
+    - tab "코멘트"
+  - tabpanel "상세":
+    - list:
+      - strong: 이름
+      - generic: qa-gn1580-32-shared
+      - strong: 아이디
+      - generic: bc678b24-fdda-4392-9a18-9ca61e93be84
+      - strong: 설명
+      - generic: "VLAN 4094 · #1580 shared 검증"
+      - strong: 유형
+      - generic: Shared
+      - strong: 트래픽 유형
+      - generic: Guest
+      - strong: VLAN/VNI
+      - generic: "4094"
+      - strong: 브로드 캐스트
+      - generic: vlan://4094
+      - strong: CIDR
+      - generic: 172.30.32.0/24
+      - strong: 넷마스크
+      - generic: 255.255.255.0
+      - strong: 게이트웨이
+      - generic: 172.30.32.1
+      - strong: 영구적
+      - generic: "false"
+      - strong: 재시작 필요
+      - generic: "false"
+      - strong: Redundant 라우터
+      - generic: "false"
+      - strong: 네트워크 도메인
+      - generic: cs2cloud.internal
+      - strong: Zone
+      - generic: Zone
+      - strong: 계정
+      - generic: admin
+      - strong: 도메인
+      - generic: ROOT
+      - strong: DNS 1
+      - generic: 8.8.8.8
+      - strong: Public 인터페이스 MTU
+      - generic: "1500"
+- alert:
+  - img "exclamation-circle":
+  - generic: 조치가 필요한 경보
+  - generic: (2건)
+  - generic: "-"
+  - generic: 주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.
+  - button "세부 경보 내용 확인":
+    - generic: 세부 경보 내용 확인
+  - button "경보 규칙으로 이동":
+    - generic: 경보 규칙으로 이동
+  - button "닫기":
+    - img "close":

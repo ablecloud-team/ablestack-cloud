@@ -1,0 +1,91 @@
+{
+  "nic": {
+    "code": null,
+    "error": null,
+    "rows": [
+      {
+        "id": "d4c62668-1082-499a-8a11-81d038926589",
+        "networkid": "6c01f969-51ef-47fc-8ff7-443540dcb3be",
+        "type": "Shared",
+        "isdefault": true,
+        "ipaddress": "10.175.32.58"
+      },
+      {
+        "id": "9b43f6e2-5a8d-4a37-8289-849d19afa812",
+        "networkid": "a8671ac8-edb2-403e-9950-1ce49af7597e",
+        "type": "Isolated",
+        "isdefault": false,
+        "ipaddress": "10.174.32.189"
+      }
+    ],
+    "count": 2,
+    "success": null
+  },
+  "peer-use-isolated": {
+    "code": null,
+    "error": null,
+    "rows": [],
+    "count": null,
+    "success": null
+  },
+  "peer-use-l2": {
+    "code": null,
+    "error": null,
+    "rows": [],
+    "count": null,
+    "success": null
+  },
+  "project-use-isolated": {
+    "code": null,
+    "error": null,
+    "rows": [],
+    "count": null,
+    "success": null
+  },
+  "peer-visible-isolated": {
+    "code": null,
+    "error": null,
+    "rows": [],
+    "count": null,
+    "success": null
+  },
+  "peer-visible-vms": {
+    "code": null,
+    "error": null,
+    "rows": [
+      {
+        "id": "d8f6f7e2-007d-4ee9-a7ac-28be9469d288",
+        "account": "qa-gn1575-32-peer",
+        "name": "qa-gn1575-32-peer-vm",
+        "domainid": "e90c8b40-f85b-4043-82e5-86e245607e28",
+        "domainpath": "ROOT/qa-gn1575-32-main",
+        "displayname": "qa-gn1575-32-peer-vm",
+        "ipaddress": "10.175.32.58",
+        "state": "Running"
+      }
+    ],
+    "count": 1,
+    "success": null
+  },
+  "peer-events": {
+    "code": 531,
+    "error": "Caller does not have permission to operate with provided resource.",
+    "rows": [],
+    "count": null,
+    "success": null
+  },
+  "permission-map": {
+    "code": null,
+    "error": null,
+    "rows": [],
+    "count": null,
+    "success": null
+  },
+  "l2-map": {
+    "code": null,
+    "error": null,
+    "rows": [],
+    "count": null,
+    "success": null
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "cluster": 31,
+  "label": "31-request-failure-shared",
+  "records": [
+    {
+      "cluster": 31,
+      "requestId": "45752.835",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+        "name": "qa-gn1558-31-shared-renamed",
+        "displaytext": "<b>태그가 아닌 설명</b>\n<img alt=\"문자 그대로\"> & \"따옴표\" / 특수문자 #1558"
+      },
+      "status": 500
+    }
+  ],
+  "expected": {
+    "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+    "name": "qa-gn1558-31-shared-renamed",
+    "displaytext": "<b>태그가 아닌 설명</b>\n<img alt=\"문자 그대로\"> & \"따옴표\" / 특수문자 #1558"
+  },
+  "retained_input": "<b>태그가 아닌 설명</b>\n<img alt=\"문자 그대로\"> & \"따옴표\" / 특수문자 #1558",
+  "old_display": [
+    {
+      "html_children": 0,
+      "text": "—"
+    },
+    {
+      "html_children": 0,
+      "text": "—"
+    }
+  ],
+  "responses": [
+    {
+      "request": {
+        "cluster": 31,
+        "requestId": "45752.835",
+        "command": "updateNetwork",
+        "method": "POST",
+        "params": {
+          "command": "updateNetwork",
+          "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+          "name": "qa-gn1558-31-shared-renamed",
+          "displaytext": "<b>태그가 아닌 설명</b>\n<img alt=\"문자 그대로\"> & \"따옴표\" / 특수문자 #1558"
+        },
+        "status": 500
+      },
+      "result": {
+        "updatenetworkresponse": {
+          "errorcode": 530,
+          "errortext": "QA description request refusal (synthetic; not sent to server)"
+        }
+      }
+    }
+  ]
+}

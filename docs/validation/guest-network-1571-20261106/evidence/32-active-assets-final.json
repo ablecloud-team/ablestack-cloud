@@ -1,0 +1,28 @@
+{
+  "WEB-INF": true,
+  "http": 200,
+  "indexSha256": "a9ee2aabf3984e5296847cf4cd68084c15480165cc25e835510dae740e77231c",
+  "jarSha256": "53895b2fa85d4c4ddafe35d870e383108a3861301d3ee3a2b2aa52a2112aed6a",
+  "markers": {
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true,
+    "network-delete-dialog": true,
+    "network-mutation-status": true,
+    "network-permissions": true,
+    "message.network.permission.effect": true,
+    "offering-services": true,
+    "offering.clone.customize": true,
+    "network-vnf-appliances": true,
+    "guest-feature-notice": true,
+    "conditional-rule-form": true,
+    "network-routers-toolbar": true,
+    "network-source-nat-dialog": true,
+    "network-choice-alert": true,
+    "l2-details-notice": true,
+    "l2-pvlan-options": true,
+    "label.public.ip.vpn.show.key": true,
+    "message.public.ip.lb.uncertain": true
+  },
+  "moldPid": "974019"
+}

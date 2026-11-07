@@ -1,0 +1,74 @@
+{
+  "records": [
+    {
+      "requestId": "49180.2216",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "903d1def-9929-4755-82ec-69296b6847fd",
+        "command": "listNetworks"
+      },
+      "status": 200,
+      "result": {
+        "count": 1
+      }
+    },
+    {
+      "requestId": "49180.2217",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "903d1def-9929-4755-82ec-69296b6847fd",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 2
+      }
+    },
+    {
+      "requestId": "49180.2218",
+      "command": "createVlanIpRange",
+      "method": "POST",
+      "params": {
+        "command": "createVlanIpRange",
+        "networkid": "903d1def-9929-4755-82ec-69296b6847fd",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "forvirtualnetwork": "false",
+        "startip": "172.27.31.15",
+        "endip": "172.27.31.25",
+        "gateway": "172.27.31.1",
+        "netmask": "255.255.255.0"
+      },
+      "status": 431,
+      "result": {
+        "errorcode": 431,
+        "errortext": "The IP range already has IPs that overlap with the new range. Please specify a different start IP/end IP."
+      }
+    }
+  ],
+  "cursor": 8797,
+  "dialog": "IP 주소 범위 추가\nThe IP range already has IPs that overlap with the new range. Please specify a different start IP/end IP.\n인터넷 프로토콜\nIPv4\nIPv6\nIPv4 + IPv6\nIPv4\n\n종료 IP를 비우면 시작 IP 한 개를 사용합니다.\n\nIPv4 시작 IP\nIPv4 종료 IP\n게이트웨이\n넷마스크\n취소\n확인",
+  "values": [
+    {
+      "name": "IPv4 시작 IP",
+      "value": "172.27.31.15"
+    },
+    {
+      "name": "IPv4 종료 IP",
+      "value": "172.27.31.25"
+    },
+    {
+      "name": "게이트웨이",
+      "value": "172.27.31.1"
+    },
+    {
+      "name": "넷마스크",
+      "value": "255.255.255.0"
+    }
+  ]
+}

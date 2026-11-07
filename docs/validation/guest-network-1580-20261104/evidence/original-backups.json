@@ -1,0 +1,80 @@
+[
+  {
+    "host": "31-1",
+    "source": {
+      "folder": "/root/qa-gn1580-backup-20261104-154050",
+      "jar": "cloud-plugin-hypervisor-kvm-4.23.0.0-ABLESTACK.Mold.jar"
+    },
+    "wsl_folder": "/home/ablecloud/work/guest-network-1580-validation/backups-original/31-1",
+    "sha256": {
+      "qemu": "2f611a0e92cdc36f145fde62995fca226437be70e3de830c86a6582d8a640f78",
+      "modifyvlan.sh": "b2a0f4e15dbf408e2a6ba77df7918c3eefa29b0808c4fcf187ded3883e3e5a4a",
+      "cloud-plugin-hypervisor-kvm-4.23.0.0-ABLESTACK.Mold.jar": "1217b17ff46e2b70284d4128938ec29cf49e74e1c73e22f46522092b6da3aa93"
+    }
+  },
+  {
+    "host": "31-2",
+    "source": {
+      "folder": "/root/qa-gn1580-backup-20261104-154127",
+      "jar": "cloud-plugin-hypervisor-kvm-4.23.0.0-ABLESTACK.Mold.jar"
+    },
+    "wsl_folder": "/home/ablecloud/work/guest-network-1580-validation/backups-original/31-2",
+    "sha256": {
+      "qemu": "2f611a0e92cdc36f145fde62995fca226437be70e3de830c86a6582d8a640f78",
+      "modifyvlan.sh": "b2a0f4e15dbf408e2a6ba77df7918c3eefa29b0808c4fcf187ded3883e3e5a4a",
+      "cloud-plugin-hypervisor-kvm-4.23.0.0-ABLESTACK.Mold.jar": "73220cbffb2cfb0a143dec2aa8b869aea5a9875db53a61b94f399fc353efc216"
+    }
+  },
+  {
+    "host": "31-3",
+    "source": {
+      "folder": "/root/qa-gn1580-backup-20261104-154131",
+      "jar": "cloud-plugin-hypervisor-kvm-4.23.0.0-ABLESTACK.Mold.jar"
+    },
+    "wsl_folder": "/home/ablecloud/work/guest-network-1580-validation/backups-original/31-3",
+    "sha256": {
+      "qemu": "2f611a0e92cdc36f145fde62995fca226437be70e3de830c86a6582d8a640f78",
+      "modifyvlan.sh": "b2a0f4e15dbf408e2a6ba77df7918c3eefa29b0808c4fcf187ded3883e3e5a4a",
+      "cloud-plugin-hypervisor-kvm-4.23.0.0-ABLESTACK.Mold.jar": "bdb47d161eda5fddad5dff4445ef5eee5ef5b02bf9b852cf5b63c562a4d7179d"
+    }
+  },
+  {
+    "host": "32-1",
+    "source": {
+      "folder": "/root/qa-gn1580-backup-20261104-154135",
+      "jar": "cloud-plugin-hypervisor-kvm-4.23.0.0.jar"
+    },
+    "wsl_folder": "/home/ablecloud/work/guest-network-1580-validation/backups-original/32-1",
+    "sha256": {
+      "cloud-plugin-hypervisor-kvm-4.23.0.0.jar": "996c448a1ad10674468efe61c75725acdbcc28a8e64c1bc5c5fd9b26c06f1d00",
+      "qemu": "2f611a0e92cdc36f145fde62995fca226437be70e3de830c86a6582d8a640f78",
+      "modifyvlan.sh": "b2a0f4e15dbf408e2a6ba77df7918c3eefa29b0808c4fcf187ded3883e3e5a4a"
+    }
+  },
+  {
+    "host": "32-2",
+    "source": {
+      "folder": "/root/qa-gn1580-backup-20261104-154140",
+      "jar": "cloud-plugin-hypervisor-kvm-4.23.0.0.jar"
+    },
+    "wsl_folder": "/home/ablecloud/work/guest-network-1580-validation/backups-original/32-2",
+    "sha256": {
+      "cloud-plugin-hypervisor-kvm-4.23.0.0.jar": "458b83bee9ee0b0bef047e5dc5c103184f499405f24b86854b7ec2c1bd8978f4",
+      "qemu": "2f611a0e92cdc36f145fde62995fca226437be70e3de830c86a6582d8a640f78",
+      "modifyvlan.sh": "b2a0f4e15dbf408e2a6ba77df7918c3eefa29b0808c4fcf187ded3883e3e5a4a"
+    }
+  },
+  {
+    "host": "32-3",
+    "source": {
+      "folder": "/root/qa-gn1580-backup-20261104-154144",
+      "jar": "cloud-plugin-hypervisor-kvm-4.23.0.0.jar"
+    },
+    "wsl_folder": "/home/ablecloud/work/guest-network-1580-validation/backups-original/32-3",
+    "sha256": {
+      "cloud-plugin-hypervisor-kvm-4.23.0.0.jar": "2a1e9045e850482ab36dcfa104c12a4db97ee35d07f8730af170372c7b97816e",
+      "qemu": "2f611a0e92cdc36f145fde62995fca226437be70e3de830c86a6582d8a640f78",
+      "modifyvlan.sh": "b2a0f4e15dbf408e2a6ba77df7918c3eefa29b0808c4fcf187ded3883e3e5a4a"
+    }
+  }
+]

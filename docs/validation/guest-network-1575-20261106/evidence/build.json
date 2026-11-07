@@ -1,0 +1,69 @@
+{
+  "source": "c5515483d8c8324b89751ac655bd129929307ca7",
+  "build": {
+    "exit": 0,
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ]
+  },
+  "lint": {
+    "exit": 0,
+    "command": [
+      "npx",
+      "vue-cli-service",
+      "lint",
+      "--no-fix",
+      "src/components/view/AnnotationsTab.vue",
+      "src/components/view/EventsTab.vue",
+      "src/components/view/InstanceNicsNetworkSelectListView.vue",
+      "src/components/view/NicNetworkSelectForm.vue",
+      "src/components/view/ResourceTags.vue",
+      "src/config/section/network.js",
+      "src/utils/detailTabData.js",
+      "src/utils/resourceTags.js",
+      "src/views/compute/DeployVM.vue",
+      "src/views/compute/VmNicsTab.vue",
+      "src/views/network/CreateNetworkPermission.vue",
+      "src/views/network/FirewallRules.vue",
+      "src/views/network/LoadBalancing.vue",
+      "src/views/network/NetworkPermissions.vue",
+      "src/views/network/PortForwarding.vue",
+      "tests/unit/components/view/ResourceTags.spec.js",
+      "tests/unit/views/compute/VmNicsTab.spec.js",
+      "src/components/view/RuleTagsDialog.vue",
+      "src/utils/networkPermissions.js",
+      "tests/unit/views/network/NetworkPermissions.spec.js"
+    ]
+  },
+  "tests": {
+    "exit": 0,
+    "command": [
+      "npm",
+      "run",
+      "test:unit",
+      "--",
+      "--runInBand",
+      "--coverage=false",
+      "tests/unit/views/network",
+      "tests/unit/views/AutogenGuestNetworkSearch.spec.js",
+      "tests/unit/views/GuestNetworkTab.spec.js",
+      "tests/unit/utils/guestNetworkSearch.spec.js",
+      "tests/unit/components/GuestNetworkSummary.spec.js",
+      "tests/unit/utils/networkMutation.spec.js",
+      "tests/unit/utils/listRefreshMixin.spec.js",
+      "VmNicsTab",
+      "vmNicActions",
+      "SharedDetailTabs",
+      "ResourceTags",
+      "DeployVM"
+    ],
+    "summary": [
+      "Test Suites: 28 passed, 28 total",
+      "Tests:       493 passed, 493 total",
+      "Snapshots:   0 total",
+      "Time:        99.668s"
+    ]
+  }
+}

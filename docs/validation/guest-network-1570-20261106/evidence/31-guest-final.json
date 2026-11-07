@@ -1,0 +1,98 @@
+{
+  "nat": {
+    "network": "caea7915-8bed-4265-94e5-22748cbee88e",
+    "vm": "0f2ccdef-031c-41d1-b993-fb6edfdb1d39",
+    "host": "10.10.31.2",
+    "nicIp": "10.171.31.248",
+    "sshExit": 0,
+    "guest": {
+      "addresses": [
+        {
+          "ifindex": 1,
+          "ifname": "lo",
+          "flags": [
+            "LOOPBACK",
+            "UP",
+            "LOWER_UP"
+          ],
+          "mtu": 65536,
+          "qdisc": "noqueue",
+          "operstate": "UNKNOWN",
+          "group": "default",
+          "txqlen": 1000,
+          "addr_info": [
+            {
+              "family": "inet",
+              "local": "127.0.0.1",
+              "prefixlen": 8,
+              "scope": "host",
+              "label": "lo",
+              "valid_life_time": 4294967295,
+              "preferred_life_time": 4294967295
+            }
+          ]
+        },
+        {
+          "ifindex": 2,
+          "ifname": "ens3",
+          "flags": [
+            "BROADCAST",
+            "MULTICAST",
+            "UP",
+            "LOWER_UP"
+          ],
+          "mtu": 1500,
+          "qdisc": "fq_codel",
+          "operstate": "UP",
+          "group": "default",
+          "txqlen": 1000,
+          "altnames": [
+            "enp0s3"
+          ],
+          "addr_info": [
+            {
+              "family": "inet",
+              "local": "10.171.31.248",
+              "prefixlen": 24,
+              "broadcast": "10.171.31.255",
+              "scope": "global",
+              "noprefixroute": true,
+              "label": "ens3",
+              "valid_life_time": 4294967295,
+              "preferred_life_time": 4294967295
+            }
+          ]
+        }
+      ],
+      "routes": [
+        {
+          "dst": "default",
+          "gateway": "10.171.31.1",
+          "dev": "ens3",
+          "protocol": "dhcp",
+          "prefsrc": "10.171.31.248",
+          "metric": 100,
+          "flags": []
+        },
+        {
+          "dst": "10.171.31.0/24",
+          "dev": "ens3",
+          "protocol": "kernel",
+          "scope": "link",
+          "prefsrc": "10.171.31.248",
+          "metric": 100,
+          "flags": []
+        }
+      ],
+      "resolvers": [
+        "search qa-gn1570-31.example.invalid",
+        "nameserver 10.171.31.1",
+        "nameserver 1.1.1.1"
+      ],
+      "gatewayPing": 0,
+      "moldHttpStatus": "HTTP/1.1 200 OK",
+      "addressMatchesNic": true,
+      "defaultGatewayMatchesNic": true
+    }
+  }
+}

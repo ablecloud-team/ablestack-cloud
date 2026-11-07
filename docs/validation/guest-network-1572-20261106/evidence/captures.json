@@ -1,0 +1,192 @@
+[
+  {
+    "label": "31-vm-standard-list-light",
+    "width": 1280,
+    "height": 900,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/vm?keyword=qa-gn1572-31&q=qa-gn1572-31&page=1&pagesize=20",
+    "sha256": "6d49375a380057468f355fa1ac9b30f1cd78e3f6a7a94ac7d4eed6db7ccdf6f6"
+  },
+  {
+    "label": "32-shared-list-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork?q=qa-gn1572-32&keyword=qa-gn1572-32&page=1&pagesize=20",
+    "sha256": "7a133971c06da39b91ee4d918d3570414fd19eeeefd49606ef567d3087fa9e0d"
+  },
+  {
+    "label": "32-shared-create-account-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork",
+    "sha256": "daebdb1ebb339e1b01bea3513379aa9dc5a046352904b144607c6a88488beb04"
+  },
+  {
+    "label": "32-shared-domain-children-tablet-dark",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork",
+    "sha256": "083734ed9cda5643e18688c5c0a4f66cbffbf022824fd65a884a8229f6ababff"
+  },
+  {
+    "label": "31-shared-related-offering-tablet-light",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/guestnetwork",
+    "sha256": "8d79906a1ed4cf2e50da0da1d2a599c7e36de83968a773cbbdf0204fd99acee9"
+  },
+  {
+    "label": "32-shared-owner-linked-tablet-dark",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork?q=qa-gn1572-32&keyword=qa-gn1572-32&page=1&pagesize=20",
+    "sha256": "6daec752a533ae9a2d642c5f3091afb0ba479fa8362f64559987007e705f255f"
+  },
+  {
+    "label": "32-shared-child-list-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork?q=qa-gn1572-32&keyword=qa-gn1572-32&page=1&pagesize=20",
+    "sha256": "5036f3f26d5f464772476b5a1646be2d6ae35442747bbe52f1c23cfa84b01452"
+  },
+  {
+    "label": "32-shared-all-scope-detail-dark",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork/a06138fb-771e-4a3a-b6aa-6679cd3b7b04?tab=details",
+    "sha256": "27296063088b0a371745d82768c4a9db5a4ce8c03b95228feb8a8de0a4a0c67d"
+  },
+  {
+    "label": "31-shared-domain-scope-detail-light",
+    "width": 1280,
+    "height": 900,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/guestnetwork/c323222c-62b0-46fd-8ac1-bc4ff571a321?tab=details",
+    "sha256": "30d98764bc8218c354500663c05208dc2a93da2578041616b5720ab2bd7c3729"
+  },
+  {
+    "label": "31-shared-guest-addresses-light",
+    "width": 1280,
+    "height": 900,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/guestnetwork/ab30a829-8936-4058-836f-d66ed7d4db90?tab=public.ip.addresses",
+    "sha256": "38bc8407b1c4e127f7364d8acccc7d205bf3188adbc67a81c6a5a77113c6f1af"
+  },
+  {
+    "label": "32-shared-router-tablet-dark",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork/edcc66a7-ad24-4252-a96b-b202833845c4?tab=virtual.routers",
+    "sha256": "e0c465d96f1b7a841a0404e021d303b35a855bbe89c708daa9c473f4fabc74a8"
+  },
+  {
+    "label": "31-vm-standard-nic-shared-light",
+    "width": 1280,
+    "height": 900,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/vm/51adf683-9400-4824-94bb-202f16054d51?tab=nics",
+    "sha256": "03ea347a652e11a139b3d0b643988f92ba4915a3da70553d1198d9ca1eeb5f6f"
+  },
+  {
+    "label": "31-shared-secondary-nic-light",
+    "width": 1280,
+    "height": 900,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/vm/51adf683-9400-4824-94bb-202f16054d51?tab=nics",
+    "sha256": "83f963d9ac7115eb4069beaa63c47afe2c0d5626b77fafaed4dda66b9cafaccc"
+  },
+  {
+    "label": "32-shared-nic-dialog-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/vm/f28b97da-4a6c-4a1e-b3ce-9a966a4e86ef?tab=nics",
+    "sha256": "fb57817219a5ce571c604098b9417e8a891b2b9eee19a065dc85b97931aca0c3"
+  },
+  {
+    "label": "32-shared-range-edit-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork/edcc66a7-ad24-4252-a96b-b202833845c4?tab=guest.ip.range",
+    "sha256": "c6912588ae92256ab8e0f0a0db9f647698222316c4bf2bc1a2a72b7fa54edae6"
+  },
+  {
+    "label": "31-shared-dns-no-zone-tablet-light",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/guestnetwork/ab30a829-8936-4058-836f-d66ed7d4db90?tab=details",
+    "sha256": "2cf1f31191890273f5a72df025ef787a133a2fac2f14680e69882262638527a0"
+  },
+  {
+    "label": "32-shared-dual-input-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork",
+    "sha256": "11ac41314026ed0d51ffe6f1917ce39ef173bbaf0c5b78194c531be7ed191564"
+  },
+  {
+    "label": "32-shared-dual-detail-tablet-dark",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork/e6aa59e1-4f2a-4d41-82aa-26bd082b8548?networkreturn={%22q%22:%22qa-gn1572-32%22,%22keyword%22:%22qa-gn1572-32%22,%22page%22:%221%22,%22pagesize%22:%2220%22}",
+    "sha256": "196c15c5be68b8d653b219bced2521b1b5945cbb52e64561509fc13387c48e3d"
+  },
+  {
+    "label": "31-shared-update-no-source-nat-light",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/guestnetwork/ab30a829-8936-4058-836f-d66ed7d4db90?tab=details",
+    "sha256": "1976cf48e9c2034920f6536605632fc1969080367012403d9ac76d2a5d1981e8"
+  }
+]

@@ -1,0 +1,2123 @@
+[
+  {
+    "c": 31,
+    "key": "nosnat",
+    "mode": "light",
+    "w": 1280,
+    "h": 900,
+    "view": "list",
+    "themeResult": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 2015
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": false,
+      "dialog": null,
+      "documentWidth": 1270,
+      "height": 900,
+      "table": {
+        "bottom": 450.6875,
+        "height": 172.6875,
+        "left": 751.5625,
+        "right": 1222.984375,
+        "top": 278,
+        "width": 471.421875,
+        "x": 751.5625,
+        "y": 278
+      },
+      "texts": [
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "172.26.31.10 – 172.26.31.20"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "게이트웨이: 172.26.31.1 · 255.255.255.0"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "—"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "172.26.31.80 – 172.26.31.84"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "게이트웨이: 172.26.31.1 · 255.255.255.0"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "—"
+        }
+      ],
+      "toolbar": {
+        "bottom": 266,
+        "height": 32,
+        "left": 751.5625,
+        "right": 1222.984375,
+        "top": 234,
+        "width": 471.421875,
+        "x": 751.5625,
+        "y": 234
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/670c6673-068d-4436-b57c-b09acce6b65f?tab=guest.ip.range",
+      "width": 1280
+    }
+  },
+  {
+    "c": 31,
+    "key": "nosnat",
+    "mode": "light",
+    "w": 1280,
+    "h": 900,
+    "view": "add",
+    "themeResult": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 2015
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": false,
+      "dialog": {
+        "body": {
+          "bottom": 690,
+          "height": 490,
+          "left": 161,
+          "right": 1119,
+          "top": 200,
+          "width": 958,
+          "x": 161,
+          "y": 200
+        },
+        "bodyClientWidth": 958,
+        "bodyScrollWidth": 958,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 739,
+              "height": 32,
+              "left": 967.46875,
+              "right": 1025.234375,
+              "top": 707,
+              "width": 57.765625,
+              "x": 967.46875,
+              "y": 707
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 739,
+              "height": 32,
+              "left": 1033.234375,
+              "right": 1091,
+              "top": 707,
+              "width": 57.765625,
+              "x": 1033.234375,
+              "y": 707
+            },
+            "text": "확인"
+          }
+        ],
+        "fields": [
+          {
+            "label": "인터넷 프로토콜",
+            "rect": {
+              "bottom": 286,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 224,
+              "width": 902,
+              "x": 189,
+              "y": 224
+            }
+          },
+          {
+            "label": "IPv4 시작 IP",
+            "rect": {
+              "bottom": 428,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 366,
+              "width": 902,
+              "x": 189,
+              "y": 366
+            }
+          },
+          {
+            "label": "IPv4 종료 IP",
+            "rect": {
+              "bottom": 502,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 440,
+              "width": 902,
+              "x": 189,
+              "y": 440
+            }
+          },
+          {
+            "label": "게이트웨이",
+            "rect": {
+              "bottom": 576,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 514,
+              "width": 902,
+              "x": 189,
+              "y": 514
+            }
+          },
+          {
+            "label": "넷마스크",
+            "rect": {
+              "bottom": 650,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 588,
+              "width": 902,
+              "x": 189,
+              "y": 588
+            }
+          }
+        ],
+        "footer": {
+          "bottom": 755,
+          "height": 65,
+          "left": 161,
+          "right": 1119,
+          "top": 690,
+          "width": 958,
+          "x": 161,
+          "y": 690
+        },
+        "rect": {
+          "bottom": 756,
+          "height": 612,
+          "left": 160,
+          "right": 1120,
+          "top": 144,
+          "width": 960,
+          "x": 160,
+          "y": 144
+        }
+      },
+      "documentWidth": 1270,
+      "height": 900,
+      "table": {
+        "bottom": 450.6875,
+        "height": 172.6875,
+        "left": 751.5625,
+        "right": 1222.984375,
+        "top": 278,
+        "width": 471.421875,
+        "x": 751.5625,
+        "y": 278
+      },
+      "texts": [
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "인터넷 프로토콜"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgba(0, 0, 0, 0.85)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgba(0, 0, 0, 0.65)",
+          "text": "종료 IP를 비우면 시작 IP 한 개를 사용합니다."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "IPv4 시작 IP"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "IPv4 종료 IP"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "게이트웨이"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "넷마스크"
+        }
+      ],
+      "toolbar": {
+        "bottom": 266,
+        "height": 32,
+        "left": 751.5625,
+        "right": 1222.984375,
+        "top": 234,
+        "width": 471.421875,
+        "x": 751.5625,
+        "y": 234
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/670c6673-068d-4436-b57c-b09acce6b65f?tab=guest.ip.range",
+      "width": 1280
+    }
+  },
+  {
+    "c": 31,
+    "key": "nosnat",
+    "mode": "light",
+    "w": 1280,
+    "h": 900,
+    "view": "edit",
+    "themeResult": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 2015
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": false,
+      "dialog": {
+        "body": {
+          "bottom": 690,
+          "height": 490,
+          "left": 161,
+          "right": 1119,
+          "top": 200,
+          "width": 958,
+          "x": 161,
+          "y": 200
+        },
+        "bodyClientWidth": 958,
+        "bodyScrollWidth": 958,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 739,
+              "height": 32,
+              "left": 967.46875,
+              "right": 1025.234375,
+              "top": 707,
+              "width": 57.765625,
+              "x": 967.46875,
+              "y": 707
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 739,
+              "height": 32,
+              "left": 1033.234375,
+              "right": 1091,
+              "top": 707,
+              "width": 57.765625,
+              "x": 1033.234375,
+              "y": 707
+            },
+            "text": "확인"
+          }
+        ],
+        "fields": [
+          {
+            "label": "인터넷 프로토콜",
+            "rect": {
+              "bottom": 286,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 224,
+              "width": 902,
+              "x": 189,
+              "y": 224
+            }
+          },
+          {
+            "label": "IPv4 시작 IP",
+            "rect": {
+              "bottom": 428,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 366,
+              "width": 902,
+              "x": 189,
+              "y": 366
+            }
+          },
+          {
+            "label": "IPv4 종료 IP",
+            "rect": {
+              "bottom": 502,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 440,
+              "width": 902,
+              "x": 189,
+              "y": 440
+            }
+          },
+          {
+            "label": "게이트웨이",
+            "rect": {
+              "bottom": 576,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 514,
+              "width": 902,
+              "x": 189,
+              "y": 514
+            }
+          },
+          {
+            "label": "넷마스크",
+            "rect": {
+              "bottom": 650,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 588,
+              "width": 902,
+              "x": 189,
+              "y": 588
+            }
+          }
+        ],
+        "footer": {
+          "bottom": 755,
+          "height": 65,
+          "left": 161,
+          "right": 1119,
+          "top": 690,
+          "width": 958,
+          "x": 161,
+          "y": 690
+        },
+        "rect": {
+          "bottom": 756,
+          "height": 612,
+          "left": 160,
+          "right": 1120,
+          "top": 144,
+          "width": 960,
+          "x": 160,
+          "y": 144
+        }
+      },
+      "documentWidth": 1270,
+      "height": 900,
+      "table": {
+        "bottom": 450.6875,
+        "height": 172.6875,
+        "left": 751.5625,
+        "right": 1222.984375,
+        "top": 278,
+        "width": 471.421875,
+        "x": 751.5625,
+        "y": 278
+      },
+      "texts": [
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "인터넷 프로토콜"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgba(0, 0, 0, 0.85)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgba(0, 0, 0, 0.65)",
+          "text": "종료 IP를 비우면 시작 IP 한 개를 사용합니다."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "IPv4 시작 IP"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "IPv4 종료 IP"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "게이트웨이"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "넷마스크"
+        }
+      ],
+      "toolbar": {
+        "bottom": 266,
+        "height": 32,
+        "left": 751.5625,
+        "right": 1222.984375,
+        "top": 234,
+        "width": 471.421875,
+        "x": 751.5625,
+        "y": 234
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/670c6673-068d-4436-b57c-b09acce6b65f?tab=guest.ip.range",
+      "width": 1280
+    }
+  },
+  {
+    "c": 31,
+    "key": "nosnat",
+    "mode": "light",
+    "w": 1280,
+    "h": 900,
+    "view": "delete",
+    "themeResult": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 2015
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": false,
+      "dialog": {
+        "body": {
+          "bottom": 507,
+          "height": 124,
+          "left": 401,
+          "right": 879,
+          "top": 383,
+          "width": 478,
+          "x": 401,
+          "y": 383
+        },
+        "bodyClientWidth": 478,
+        "bodyScrollWidth": 478,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 556,
+              "height": 32,
+              "left": 732.34375,
+              "right": 790.109375,
+              "top": 524,
+              "width": 57.765625,
+              "x": 732.34375,
+              "y": 524
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 556,
+              "height": 32,
+              "left": 806.109375,
+              "right": 851,
+              "top": 524,
+              "width": 44.890625,
+              "x": 806.109375,
+              "y": 524
+            },
+            "text": "예"
+          }
+        ],
+        "fields": [],
+        "footer": {
+          "bottom": 572,
+          "height": 65,
+          "left": 401,
+          "right": 879,
+          "top": 507,
+          "width": 478,
+          "x": 401,
+          "y": 507
+        },
+        "rect": {
+          "bottom": 573,
+          "height": 246,
+          "left": 400,
+          "right": 880,
+          "top": 327,
+          "width": 480,
+          "x": 400,
+          "y": 327
+        }
+      },
+      "documentWidth": 1270,
+      "height": 900,
+      "table": {
+        "bottom": 450.6875,
+        "height": 172.6875,
+        "left": 751.5625,
+        "right": 1222.984375,
+        "top": 278,
+        "width": 471.421875,
+        "x": 751.5625,
+        "y": 278
+      },
+      "texts": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "text": "현재 IP 주소 범위를 삭제하시겠습니까?"
+        }
+      ],
+      "toolbar": {
+        "bottom": 266,
+        "height": 32,
+        "left": 751.5625,
+        "right": 1222.984375,
+        "top": 234,
+        "width": 471.421875,
+        "x": 751.5625,
+        "y": 234
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/670c6673-068d-4436-b57c-b09acce6b65f?tab=guest.ip.range",
+      "width": 1280
+    }
+  },
+  {
+    "c": 31,
+    "key": "nosnat",
+    "mode": "light",
+    "w": 768,
+    "h": 1024,
+    "view": "list",
+    "themeResult": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 2015
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": false,
+      "dialog": null,
+      "documentWidth": 758,
+      "height": 1024,
+      "table": {
+        "bottom": 1420.1875,
+        "height": 172.6875,
+        "left": 286.234375,
+        "right": 711,
+        "top": 1247.5,
+        "width": 424.765625,
+        "x": 286.234375,
+        "y": 1247.5
+      },
+      "texts": [
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "172.26.31.10 – 172.26.31.20"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "게이트웨이: 172.26.31.1 · 255.255.255.0"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "—"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "172.26.31.80 – 172.26.31.84"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "게이트웨이: 172.26.31.1 · 255.255.255.0"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "—"
+        }
+      ],
+      "toolbar": {
+        "bottom": 1235.5,
+        "height": 32,
+        "left": 286.234375,
+        "right": 711,
+        "top": 1203.5,
+        "width": 424.765625,
+        "x": 286.234375,
+        "y": 1203.5
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/670c6673-068d-4436-b57c-b09acce6b65f?tab=guest.ip.range",
+      "width": 768
+    }
+  },
+  {
+    "c": 31,
+    "key": "nosnat",
+    "mode": "light",
+    "w": 768,
+    "h": 1024,
+    "view": "add",
+    "themeResult": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 2015
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": false,
+      "dialog": {
+        "body": {
+          "bottom": 752,
+          "height": 490,
+          "left": 25,
+          "right": 743,
+          "top": 262,
+          "width": 718,
+          "x": 25,
+          "y": 262
+        },
+        "bodyClientWidth": 718,
+        "bodyScrollWidth": 718,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 801,
+              "height": 32,
+              "left": 591.46875,
+              "right": 649.234375,
+              "top": 769,
+              "width": 57.765625,
+              "x": 591.46875,
+              "y": 769
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 801,
+              "height": 32,
+              "left": 657.234375,
+              "right": 715,
+              "top": 769,
+              "width": 57.765625,
+              "x": 657.234375,
+              "y": 769
+            },
+            "text": "확인"
+          }
+        ],
+        "fields": [
+          {
+            "label": "인터넷 프로토콜",
+            "rect": {
+              "bottom": 348,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 286,
+              "width": 662,
+              "x": 53,
+              "y": 286
+            }
+          },
+          {
+            "label": "IPv4 시작 IP",
+            "rect": {
+              "bottom": 490,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 428,
+              "width": 662,
+              "x": 53,
+              "y": 428
+            }
+          },
+          {
+            "label": "IPv4 종료 IP",
+            "rect": {
+              "bottom": 564,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 502,
+              "width": 662,
+              "x": 53,
+              "y": 502
+            }
+          },
+          {
+            "label": "게이트웨이",
+            "rect": {
+              "bottom": 638,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 576,
+              "width": 662,
+              "x": 53,
+              "y": 576
+            }
+          },
+          {
+            "label": "넷마스크",
+            "rect": {
+              "bottom": 712,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 650,
+              "width": 662,
+              "x": 53,
+              "y": 650
+            }
+          }
+        ],
+        "footer": {
+          "bottom": 817,
+          "height": 65,
+          "left": 25,
+          "right": 743,
+          "top": 752,
+          "width": 718,
+          "x": 25,
+          "y": 752
+        },
+        "rect": {
+          "bottom": 818,
+          "height": 612,
+          "left": 24,
+          "right": 744,
+          "top": 206,
+          "width": 720,
+          "x": 24,
+          "y": 206
+        }
+      },
+      "documentWidth": 758,
+      "height": 1024,
+      "table": {
+        "bottom": 761.1875,
+        "height": 172.6875,
+        "left": 286.234375,
+        "right": 711,
+        "top": 588.5,
+        "width": 424.765625,
+        "x": 286.234375,
+        "y": 588.5
+      },
+      "texts": [
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "인터넷 프로토콜"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgba(0, 0, 0, 0.85)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgba(0, 0, 0, 0.65)",
+          "text": "종료 IP를 비우면 시작 IP 한 개를 사용합니다."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "IPv4 시작 IP"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "IPv4 종료 IP"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "게이트웨이"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "넷마스크"
+        }
+      ],
+      "toolbar": {
+        "bottom": 576.5,
+        "height": 32,
+        "left": 286.234375,
+        "right": 711,
+        "top": 544.5,
+        "width": 424.765625,
+        "x": 286.234375,
+        "y": 544.5
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/670c6673-068d-4436-b57c-b09acce6b65f?tab=guest.ip.range",
+      "width": 768
+    }
+  },
+  {
+    "c": 31,
+    "key": "nosnat",
+    "mode": "light",
+    "w": 768,
+    "h": 1024,
+    "view": "edit",
+    "themeResult": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 2015
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": false,
+      "dialog": {
+        "body": {
+          "bottom": 752,
+          "height": 490,
+          "left": 25,
+          "right": 743,
+          "top": 262,
+          "width": 718,
+          "x": 25,
+          "y": 262
+        },
+        "bodyClientWidth": 718,
+        "bodyScrollWidth": 718,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 801,
+              "height": 32,
+              "left": 591.46875,
+              "right": 649.234375,
+              "top": 769,
+              "width": 57.765625,
+              "x": 591.46875,
+              "y": 769
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 801,
+              "height": 32,
+              "left": 657.234375,
+              "right": 715,
+              "top": 769,
+              "width": 57.765625,
+              "x": 657.234375,
+              "y": 769
+            },
+            "text": "확인"
+          }
+        ],
+        "fields": [
+          {
+            "label": "인터넷 프로토콜",
+            "rect": {
+              "bottom": 348,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 286,
+              "width": 662,
+              "x": 53,
+              "y": 286
+            }
+          },
+          {
+            "label": "IPv4 시작 IP",
+            "rect": {
+              "bottom": 490,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 428,
+              "width": 662,
+              "x": 53,
+              "y": 428
+            }
+          },
+          {
+            "label": "IPv4 종료 IP",
+            "rect": {
+              "bottom": 564,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 502,
+              "width": 662,
+              "x": 53,
+              "y": 502
+            }
+          },
+          {
+            "label": "게이트웨이",
+            "rect": {
+              "bottom": 638,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 576,
+              "width": 662,
+              "x": 53,
+              "y": 576
+            }
+          },
+          {
+            "label": "넷마스크",
+            "rect": {
+              "bottom": 712,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 650,
+              "width": 662,
+              "x": 53,
+              "y": 650
+            }
+          }
+        ],
+        "footer": {
+          "bottom": 817,
+          "height": 65,
+          "left": 25,
+          "right": 743,
+          "top": 752,
+          "width": 718,
+          "x": 25,
+          "y": 752
+        },
+        "rect": {
+          "bottom": 818,
+          "height": 612,
+          "left": 24,
+          "right": 744,
+          "top": 206,
+          "width": 720,
+          "x": 24,
+          "y": 206
+        }
+      },
+      "documentWidth": 758,
+      "height": 1024,
+      "table": {
+        "bottom": 719.1875,
+        "height": 172.6875,
+        "left": 286.234375,
+        "right": 711,
+        "top": 546.5,
+        "width": 424.765625,
+        "x": 286.234375,
+        "y": 546.5
+      },
+      "texts": [
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "인터넷 프로토콜"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgba(0, 0, 0, 0.85)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgba(0, 0, 0, 0.65)",
+          "text": "종료 IP를 비우면 시작 IP 한 개를 사용합니다."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "IPv4 시작 IP"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "IPv4 종료 IP"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "게이트웨이"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "넷마스크"
+        }
+      ],
+      "toolbar": {
+        "bottom": 534.5,
+        "height": 32,
+        "left": 286.234375,
+        "right": 711,
+        "top": 502.5,
+        "width": 424.765625,
+        "x": 286.234375,
+        "y": 502.5
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/670c6673-068d-4436-b57c-b09acce6b65f?tab=guest.ip.range",
+      "width": 768
+    }
+  },
+  {
+    "c": 31,
+    "key": "nosnat",
+    "mode": "light",
+    "w": 768,
+    "h": 1024,
+    "view": "delete",
+    "themeResult": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 2015
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": false,
+      "dialog": {
+        "body": {
+          "bottom": 569,
+          "height": 124,
+          "left": 145,
+          "right": 623,
+          "top": 445,
+          "width": 478,
+          "x": 145,
+          "y": 445
+        },
+        "bodyClientWidth": 478,
+        "bodyScrollWidth": 478,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 618,
+              "height": 32,
+              "left": 476.34375,
+              "right": 534.109375,
+              "top": 586,
+              "width": 57.765625,
+              "x": 476.34375,
+              "y": 586
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 618,
+              "height": 32,
+              "left": 550.109375,
+              "right": 595,
+              "top": 586,
+              "width": 44.890625,
+              "x": 550.109375,
+              "y": 586
+            },
+            "text": "예"
+          }
+        ],
+        "fields": [],
+        "footer": {
+          "bottom": 634,
+          "height": 65,
+          "left": 145,
+          "right": 623,
+          "top": 569,
+          "width": 478,
+          "x": 145,
+          "y": 569
+        },
+        "rect": {
+          "bottom": 635,
+          "height": 246,
+          "left": 144,
+          "right": 624,
+          "top": 389,
+          "width": 480,
+          "x": 144,
+          "y": 389
+        }
+      },
+      "documentWidth": 758,
+      "height": 1024,
+      "table": {
+        "bottom": 719.1875,
+        "height": 172.6875,
+        "left": 286.234375,
+        "right": 711,
+        "top": 546.5,
+        "width": 424.765625,
+        "x": 286.234375,
+        "y": 546.5
+      },
+      "texts": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "text": "현재 IP 주소 범위를 삭제하시겠습니까?"
+        }
+      ],
+      "toolbar": {
+        "bottom": 534.5,
+        "height": 32,
+        "left": 286.234375,
+        "right": 711,
+        "top": 502.5,
+        "width": 424.765625,
+        "x": 286.234375,
+        "y": 502.5
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/670c6673-068d-4436-b57c-b09acce6b65f?tab=guest.ip.range",
+      "width": 768
+    }
+  },
+  {
+    "c": 31,
+    "key": "nosnat",
+    "mode": "light",
+    "w": 390,
+    "h": 844,
+    "view": "list",
+    "themeResult": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 2015
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": false,
+      "dialog": null,
+      "documentWidth": 380,
+      "height": 844,
+      "table": {
+        "bottom": 817.1875,
+        "height": 172.6875,
+        "left": 37,
+        "right": 333,
+        "top": 644.5,
+        "width": 296,
+        "x": 37,
+        "y": 644.5
+      },
+      "texts": [
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "172.26.31.10 – 172.26.31.20"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "게이트웨이: 172.26.31.1 · 255.255.255.0"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "—"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "172.26.31.80 – 172.26.31.84"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "게이트웨이: 172.26.31.1 · 255.255.255.0"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "—"
+        }
+      ],
+      "toolbar": {
+        "bottom": 632.5,
+        "height": 32,
+        "left": 37,
+        "right": 333,
+        "top": 600.5,
+        "width": 296,
+        "x": 37,
+        "y": 600.5
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/670c6673-068d-4436-b57c-b09acce6b65f?tab=guest.ip.range",
+      "width": 390
+    }
+  },
+  {
+    "c": 31,
+    "key": "nosnat",
+    "mode": "light",
+    "w": 390,
+    "h": 844,
+    "view": "add",
+    "themeResult": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 2015
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": false,
+      "dialog": {
+        "body": {
+          "bottom": 654,
+          "height": 474,
+          "left": 13,
+          "right": 377,
+          "top": 180,
+          "width": 364,
+          "x": 13,
+          "y": 180
+        },
+        "bodyClientWidth": 364,
+        "bodyScrollWidth": 364,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 703,
+              "height": 32,
+              "left": 237.46875,
+              "right": 295.234375,
+              "top": 671,
+              "width": 57.765625,
+              "x": 237.46875,
+              "y": 671
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 703,
+              "height": 32,
+              "left": 303.234375,
+              "right": 361,
+              "top": 671,
+              "width": 57.765625,
+              "x": 303.234375,
+              "y": 671
+            },
+            "text": "확인"
+          }
+        ],
+        "fields": [
+          {
+            "label": "인터넷 프로토콜",
+            "rect": {
+              "bottom": 258,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 196,
+              "width": 332,
+              "x": 29,
+              "y": 196
+            }
+          },
+          {
+            "label": "IPv4 시작 IP",
+            "rect": {
+              "bottom": 400,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 338,
+              "width": 332,
+              "x": 29,
+              "y": 338
+            }
+          },
+          {
+            "label": "IPv4 종료 IP",
+            "rect": {
+              "bottom": 474,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 412,
+              "width": 332,
+              "x": 29,
+              "y": 412
+            }
+          },
+          {
+            "label": "게이트웨이",
+            "rect": {
+              "bottom": 548,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 486,
+              "width": 332,
+              "x": 29,
+              "y": 486
+            }
+          },
+          {
+            "label": "넷마스크",
+            "rect": {
+              "bottom": 622,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 560,
+              "width": 332,
+              "x": 29,
+              "y": 560
+            }
+          }
+        ],
+        "footer": {
+          "bottom": 719,
+          "height": 65,
+          "left": 13,
+          "right": 377,
+          "top": 654,
+          "width": 364,
+          "x": 13,
+          "y": 654
+        },
+        "rect": {
+          "bottom": 720,
+          "height": 596,
+          "left": 12,
+          "right": 378,
+          "top": 124,
+          "width": 366,
+          "x": 12,
+          "y": 124
+        }
+      },
+      "documentWidth": 380,
+      "height": 844,
+      "table": {
+        "bottom": 766.1875,
+        "height": 172.6875,
+        "left": 37,
+        "right": 333,
+        "top": 593.5,
+        "width": 296,
+        "x": 37,
+        "y": 593.5
+      },
+      "texts": [
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "인터넷 프로토콜"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgba(0, 0, 0, 0.85)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgba(0, 0, 0, 0.65)",
+          "text": "종료 IP를 비우면 시작 IP 한 개를 사용합니다."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "IPv4 시작 IP"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "IPv4 종료 IP"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "게이트웨이"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "넷마스크"
+        }
+      ],
+      "toolbar": {
+        "bottom": 581.5,
+        "height": 32,
+        "left": 37,
+        "right": 333,
+        "top": 549.5,
+        "width": 296,
+        "x": 37,
+        "y": 549.5
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/670c6673-068d-4436-b57c-b09acce6b65f?tab=guest.ip.range",
+      "width": 390
+    }
+  },
+  {
+    "c": 31,
+    "key": "nosnat",
+    "mode": "light",
+    "w": 390,
+    "h": 844,
+    "view": "edit",
+    "themeResult": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 2015
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": false,
+      "dialog": {
+        "body": {
+          "bottom": 654,
+          "height": 474,
+          "left": 13,
+          "right": 377,
+          "top": 180,
+          "width": 364,
+          "x": 13,
+          "y": 180
+        },
+        "bodyClientWidth": 364,
+        "bodyScrollWidth": 364,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 703,
+              "height": 32,
+              "left": 237.46875,
+              "right": 295.234375,
+              "top": 671,
+              "width": 57.765625,
+              "x": 237.46875,
+              "y": 671
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 703,
+              "height": 32,
+              "left": 303.234375,
+              "right": 361,
+              "top": 671,
+              "width": 57.765625,
+              "x": 303.234375,
+              "y": 671
+            },
+            "text": "확인"
+          }
+        ],
+        "fields": [
+          {
+            "label": "인터넷 프로토콜",
+            "rect": {
+              "bottom": 258,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 196,
+              "width": 332,
+              "x": 29,
+              "y": 196
+            }
+          },
+          {
+            "label": "IPv4 시작 IP",
+            "rect": {
+              "bottom": 400,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 338,
+              "width": 332,
+              "x": 29,
+              "y": 338
+            }
+          },
+          {
+            "label": "IPv4 종료 IP",
+            "rect": {
+              "bottom": 474,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 412,
+              "width": 332,
+              "x": 29,
+              "y": 412
+            }
+          },
+          {
+            "label": "게이트웨이",
+            "rect": {
+              "bottom": 548,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 486,
+              "width": 332,
+              "x": 29,
+              "y": 486
+            }
+          },
+          {
+            "label": "넷마스크",
+            "rect": {
+              "bottom": 622,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 560,
+              "width": 332,
+              "x": 29,
+              "y": 560
+            }
+          }
+        ],
+        "footer": {
+          "bottom": 719,
+          "height": 65,
+          "left": 13,
+          "right": 377,
+          "top": 654,
+          "width": 364,
+          "x": 13,
+          "y": 654
+        },
+        "rect": {
+          "bottom": 720,
+          "height": 596,
+          "left": 12,
+          "right": 378,
+          "top": 124,
+          "width": 366,
+          "x": 12,
+          "y": 124
+        }
+      },
+      "documentWidth": 380,
+      "height": 844,
+      "table": {
+        "bottom": 765.1875,
+        "height": 172.6875,
+        "left": 37,
+        "right": 333,
+        "top": 592.5,
+        "width": 296,
+        "x": 37,
+        "y": 592.5
+      },
+      "texts": [
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "인터넷 프로토콜"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgba(0, 0, 0, 0.85)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgba(0, 0, 0, 0.65)",
+          "text": "종료 IP를 비우면 시작 IP 한 개를 사용합니다."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "IPv4 시작 IP"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "IPv4 종료 IP"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "게이트웨이"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "넷마스크"
+        }
+      ],
+      "toolbar": {
+        "bottom": 580.5,
+        "height": 32,
+        "left": 37,
+        "right": 333,
+        "top": 548.5,
+        "width": 296,
+        "x": 37,
+        "y": 548.5
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/670c6673-068d-4436-b57c-b09acce6b65f?tab=guest.ip.range",
+      "width": 390
+    }
+  },
+  {
+    "c": 31,
+    "key": "nosnat",
+    "mode": "light",
+    "w": 390,
+    "h": 844,
+    "view": "delete",
+    "themeResult": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 2015
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": false,
+      "dialog": {
+        "body": {
+          "bottom": 471,
+          "height": 108,
+          "left": 13,
+          "right": 377,
+          "top": 363,
+          "width": 364,
+          "x": 13,
+          "y": 363
+        },
+        "bodyClientWidth": 364,
+        "bodyScrollWidth": 364,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 520,
+              "height": 32,
+              "left": 242.34375,
+              "right": 300.109375,
+              "top": 488,
+              "width": 57.765625,
+              "x": 242.34375,
+              "y": 488
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 520,
+              "height": 32,
+              "left": 316.109375,
+              "right": 361,
+              "top": 488,
+              "width": 44.890625,
+              "x": 316.109375,
+              "y": 488
+            },
+            "text": "예"
+          }
+        ],
+        "fields": [],
+        "footer": {
+          "bottom": 536,
+          "height": 65,
+          "left": 13,
+          "right": 377,
+          "top": 471,
+          "width": 364,
+          "x": 13,
+          "y": 471
+        },
+        "rect": {
+          "bottom": 537,
+          "height": 230,
+          "left": 12,
+          "right": 378,
+          "top": 307,
+          "width": 366,
+          "x": 12,
+          "y": 307
+        }
+      },
+      "documentWidth": 380,
+      "height": 844,
+      "table": {
+        "bottom": 765.1875,
+        "height": 172.6875,
+        "left": 37,
+        "right": 333,
+        "top": 592.5,
+        "width": 296,
+        "x": 37,
+        "y": 592.5
+      },
+      "texts": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "text": "현재 IP 주소 범위를 삭제하시겠습니까?"
+        }
+      ],
+      "toolbar": {
+        "bottom": 580.5,
+        "height": 32,
+        "left": 37,
+        "right": 333,
+        "top": 548.5,
+        "width": 296,
+        "x": 37,
+        "y": 548.5
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/670c6673-068d-4436-b57c-b09acce6b65f?tab=guest.ip.range",
+      "width": 390
+    }
+  }
+]

@@ -1,0 +1,702 @@
+[INFO] Scanning for projects...
+[WARNING]
+[WARNING] Some problems were encountered while building the effective model for org.apache.cloudstack:cloud-plugin-hypervisor-kvm:jar:4.23.0.0
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.json:json:jar -> duplicate declaration of version (?) @ line 130, column 21
+[WARNING]
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING]
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING]
+[INFO]
+[INFO] ------------------< org.apache.cloudstack:cloud-api >-------------------
+[INFO] Building Apache CloudStack API 4.23.0.0
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-api ---
+[INFO]
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-api ---
+[INFO]
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-api ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 4 resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-api ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-api ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /home/ablecloud/work/dhslove/cloud-epic-1554/api/src/test/resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-api ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 234 source files to /home/ablecloud/work/dhslove/cloud-epic-1554/api/target/test-classes
+[INFO]
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-api ---
+[INFO]
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.cloud.user.AccountTypeTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.044 s - in com.cloud.user.AccountTypeTest
+[INFO] Running com.cloud.host.ControlStateTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s - in com.cloud.host.ControlStateTest
+[INFO] Running com.cloud.deploy.DataCenterDeploymentTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in com.cloud.deploy.DataCenterDeploymentTest
+[INFO] Running com.cloud.vm.KvmTpmConfigTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.575 s - in com.cloud.vm.KvmTpmConfigTest
+[INFO] Running com.cloud.vm.TpmDeployApiTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.cloud.vm.TpmDeployApiTest
+[INFO] Running com.cloud.agent.api.to.LoadBalancerTOTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in com.cloud.agent.api.to.LoadBalancerTOTest
+[INFO] Running com.cloud.agent.api.storage.OVFHelperTest
+[Fatal Error] :1:1053: Content is not allowed in trailing section.
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.219 s - in com.cloud.agent.api.storage.OVFHelperTest
+[INFO] Running com.cloud.cpu.CPUTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in com.cloud.cpu.CPUTest
+[INFO] Running com.cloud.network.NetworksTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s - in com.cloud.network.NetworksTest
+[INFO] Running com.cloud.network.router.VirtualRouterAutoScaleTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in com.cloud.network.router.VirtualRouterAutoScaleTest
+[INFO] Running com.cloud.network.NetworkTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.cloud.network.NetworkTest
+[INFO] Running com.cloud.network.VNFTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.919 s - in com.cloud.network.VNFTest
+[INFO] Running com.cloud.network.as.AutoScalePolicyTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in com.cloud.network.as.AutoScalePolicyTest
+[INFO] Running com.cloud.network.as.AutoScaleVmGroupTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in com.cloud.network.as.AutoScaleVmGroupTest
+[INFO] Running com.cloud.network.IsolationMethodTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s - in com.cloud.network.IsolationMethodTest
+[INFO] Running com.cloud.storage.VolumeAllocationCloneTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s - in com.cloud.storage.VolumeAllocationCloneTest
+[INFO] Running com.cloud.storage.VolumeAllocationLifecycleTest
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s - in com.cloud.storage.VolumeAllocationLifecycleTest
+[INFO] Running com.cloud.storage.VolumeAllocationPolicyTest
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s - in com.cloud.storage.VolumeAllocationPolicyTest
+[INFO] Running com.cloud.storage.StorageTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.cloud.storage.StorageTest
+[INFO] Running org.apache.cloudstack.context.CallContextTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.842 s - in org.apache.cloudstack.context.CallContextTest
+[INFO] Running org.apache.cloudstack.dns.DnsRecordTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.02 s - in org.apache.cloudstack.dns.DnsRecordTest
+[INFO] Running org.apache.cloudstack.acl.RuleTest
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.868 s - in org.apache.cloudstack.acl.RuleTest
+[INFO] Running org.apache.cloudstack.acl.RoleTypeTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.112 s - in org.apache.cloudstack.acl.RoleTypeTest
+[INFO] Running org.apache.cloudstack.extension.ExtensionCustomActionTest
+[INFO] Tests run: 35, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.177 s - in org.apache.cloudstack.extension.ExtensionCustomActionTest
+[INFO] Running org.apache.cloudstack.extension.CustomActionResultResponseTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.extension.CustomActionResultResponseTest
+[INFO] Running org.apache.cloudstack.api.BaseCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.BaseCmdTest
+[INFO] Running org.apache.cloudstack.api.response.ServiceOfferingDiskInheritanceResponseTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.025 s - in org.apache.cloudstack.api.response.ServiceOfferingDiskInheritanceResponseTest
+[INFO] Running org.apache.cloudstack.api.response.KubernetesUserVmResponseTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.039 s - in org.apache.cloudstack.api.response.KubernetesUserVmResponseTest
+[INFO] Running org.apache.cloudstack.api.response.ASNumberResponseTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.response.ASNumberResponseTest
+[INFO] Running org.apache.cloudstack.api.response.StatsResponseTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.236 s - in org.apache.cloudstack.api.response.StatsResponseTest
+[INFO] Running org.apache.cloudstack.api.response.AutoScaleVmGroupOperationalResponseTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.045 s - in org.apache.cloudstack.api.response.AutoScaleVmGroupOperationalResponseTest
+[INFO] Running org.apache.cloudstack.api.response.UserVmBackupGuardResponseTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.107 s - in org.apache.cloudstack.api.response.UserVmBackupGuardResponseTest
+[INFO] Running org.apache.cloudstack.api.response.ASNRangeResponseTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.response.ASNRangeResponseTest
+[INFO] Running org.apache.cloudstack.api.response.BgpPeerResponseTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.response.BgpPeerResponseTest
+[INFO] Running org.apache.cloudstack.api.response.HostResponseTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.response.HostResponseTest
+[INFO] Running org.apache.cloudstack.api.response.Ipv4RouteResponseTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.response.Ipv4RouteResponseTest
+[INFO] Running org.apache.cloudstack.api.response.LoginCmdResponseTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.response.LoginCmdResponseTest
+[INFO] Running org.apache.cloudstack.api.response.VnfNicResponseTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.response.VnfNicResponseTest
+[INFO] Running org.apache.cloudstack.api.response.NetworkOfferingLbResponseTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.response.NetworkOfferingLbResponseTest
+[INFO] Running org.apache.cloudstack.api.response.VnfTemplateResponseTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.response.VnfTemplateResponseTest
+[INFO] Running org.apache.cloudstack.api.response.AttachedIsoResponseTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.response.AttachedIsoResponseTest
+[INFO] Running org.apache.cloudstack.api.response.Ipv4SubnetForGuestNetworkResponseTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.response.Ipv4SubnetForGuestNetworkResponseTest
+[INFO] Running org.apache.cloudstack.api.response.InstanceGroupMemberResponseTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.response.InstanceGroupMemberResponseTest
+[INFO] Running org.apache.cloudstack.api.response.DataCenterIpv4SubnetResponseTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.response.DataCenterIpv4SubnetResponseTest
+[INFO] Running org.apache.cloudstack.api.response.VolumeForImportResponseTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.response.VolumeForImportResponseTest
+[INFO] Running org.apache.cloudstack.api.ApiCommandResourceTypeTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.ApiCommandResourceTypeTest
+[INFO] Running org.apache.cloudstack.api.command.admin.volume.ImportVolumeCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.611 s - in org.apache.cloudstack.api.command.admin.volume.ImportVolumeCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.volume.ListVolumesForImportCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.027 s - in org.apache.cloudstack.api.command.admin.volume.ListVolumesForImportCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.volume.UnmanageVolumeCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.385 s - in org.apache.cloudstack.api.command.admin.volume.UnmanageVolumeCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.resource.PurgeExpungedResourcesCmdTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.211 s - in org.apache.cloudstack.api.command.admin.resource.PurgeExpungedResourcesCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.resource.ListCapacityCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.admin.resource.ListCapacityCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.systemvm.PatchSystemVMCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.281 s - in org.apache.cloudstack.api.command.admin.systemvm.PatchSystemVMCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.gpu.DeleteVgpuProfileCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.gpu.DeleteVgpuProfileCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.gpu.CreateVgpuProfileCmdTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s - in org.apache.cloudstack.api.command.admin.gpu.CreateVgpuProfileCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.gpu.DiscoverGpuDevicesCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.admin.gpu.DiscoverGpuDevicesCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.gpu.DeleteGpuDeviceCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.admin.gpu.DeleteGpuDeviceCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.gpu.UpdateGpuDeviceCmdTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.admin.gpu.UpdateGpuDeviceCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.gpu.UpdateVgpuProfileCmdTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.admin.gpu.UpdateVgpuProfileCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.gpu.ListGpuDevicesCmdByAdminTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.gpu.ListGpuDevicesCmdByAdminTest
+[INFO] Running org.apache.cloudstack.api.command.admin.gpu.UpdateGpuCardCmdTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.admin.gpu.UpdateGpuCardCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.gpu.CreateGpuCardCmdTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.admin.gpu.CreateGpuCardCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.gpu.CreateGpuDeviceCmdTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s - in org.apache.cloudstack.api.command.admin.gpu.CreateGpuDeviceCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.gpu.ManageGpuDeviceCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.gpu.ManageGpuDeviceCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.gpu.UnmanageGpuDeviceCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.gpu.UnmanageGpuDeviceCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.gpu.DeleteGpuCardCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.gpu.DeleteGpuCardCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.zone.CreateZoneCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.zone.CreateZoneCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.guest.UpdateGuestOsCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.guest.UpdateGuestOsCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.guest.AddGuestOsCategoryCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.admin.guest.AddGuestOsCategoryCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.guest.UpdateGuestOsCategoryCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.guest.UpdateGuestOsCategoryCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.user.UpdateUserCmdTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s - in org.apache.cloudstack.api.command.admin.user.UpdateUserCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.user.RegisterUserKeysCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.064 s - in org.apache.cloudstack.api.command.admin.user.RegisterUserKeysCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.user.CreateUserCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s - in org.apache.cloudstack.api.command.admin.user.CreateUserCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.account.CreateAccountCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.084 s - in org.apache.cloudstack.api.command.admin.account.CreateAccountCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.vm.MigrateVirtualMachineWithVolumeCmdTest
+15:19:57.582 [main] ERROR org.apache.cloudstack.api.command.admin.vm.MigrateVirtualMachineWithVolumeCmd - Unable to find the host with ID [1].
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.625 s - in org.apache.cloudstack.api.command.admin.vm.MigrateVirtualMachineWithVolumeCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.vm.AssignVMCmdTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.vm.AssignVMCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.vm.DeployVMCmdByAdminTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 s - in org.apache.cloudstack.api.command.admin.vm.DeployVMCmdByAdminTest
+[INFO] Running org.apache.cloudstack.api.command.admin.domain.ListDomainsCmdTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.146 s - in org.apache.cloudstack.api.command.admin.domain.ListDomainsCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.template.ListTemplatesCmdByAdminTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s - in org.apache.cloudstack.api.command.admin.template.ListTemplatesCmdByAdminTest
+[INFO] Running org.apache.cloudstack.api.command.admin.vlan.UpdateVlanIpRangeCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.159 s - in org.apache.cloudstack.api.command.admin.vlan.UpdateVlanIpRangeCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.iso.ListIsosCmdByAdminTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s - in org.apache.cloudstack.api.command.admin.iso.ListIsosCmdByAdminTest
+[INFO] Running org.apache.cloudstack.api.command.admin.annotation.AddAnnotationCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.admin.annotation.AddAnnotationCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.vpc.CreateVPCCmdByAdminTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.156 s - in org.apache.cloudstack.api.command.admin.vpc.CreateVPCCmdByAdminTest
+[INFO] Running org.apache.cloudstack.api.command.admin.vpc.CloneVpcOfferingCmdTest
+[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.172 s - in org.apache.cloudstack.api.command.admin.vpc.CloneVpcOfferingCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.vpc.CreateVPCOfferingCmdTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.admin.vpc.CreateVPCOfferingCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.backup.CloneBackupOfferingCmdTest
+[INFO] Tests run: 24, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.199 s - in org.apache.cloudstack.api.command.admin.backup.CloneBackupOfferingCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.outofbandmanagement.HostDevicePartitionApiTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.outofbandmanagement.HostDevicePartitionApiTest
+[INFO] Running org.apache.cloudstack.api.command.admin.config.UpdateCfgCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.089 s - in org.apache.cloudstack.api.command.admin.config.UpdateCfgCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.network.ReleaseDedicatedIpv4SubnetForZoneCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.187 s - in org.apache.cloudstack.api.command.admin.network.ReleaseDedicatedIpv4SubnetForZoneCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.network.DeleteIpv4SubnetForGuestNetworkCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.network.DeleteIpv4SubnetForGuestNetworkCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.network.ListIpv4SubnetsForZoneCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.network.ListIpv4SubnetsForZoneCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.network.CreateIpv4SubnetForGuestNetworkCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.096 s - in org.apache.cloudstack.api.command.admin.network.CreateIpv4SubnetForGuestNetworkCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.network.CloneNetworkOfferingCmdTest
+[INFO] Tests run: 28, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.139 s - in org.apache.cloudstack.api.command.admin.network.CloneNetworkOfferingCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.network.DeleteIpv4SubnetForZoneCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s - in org.apache.cloudstack.api.command.admin.network.DeleteIpv4SubnetForZoneCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.network.UpdateNetworkUsageCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.network.UpdateNetworkUsageCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.network.UpdateIpv4SubnetForZoneCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s - in org.apache.cloudstack.api.command.admin.network.UpdateIpv4SubnetForZoneCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.network.DedicateIpv4SubnetForZoneCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s - in org.apache.cloudstack.api.command.admin.network.DedicateIpv4SubnetForZoneCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.network.CreateIpv4SubnetForZoneCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.admin.network.CreateIpv4SubnetForZoneCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.network.bgp.CreateBgpPeerCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.09 s - in org.apache.cloudstack.api.command.admin.network.bgp.CreateBgpPeerCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.network.bgp.ChangeBgpPeersForVpcCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.096 s - in org.apache.cloudstack.api.command.admin.network.bgp.ChangeBgpPeersForVpcCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.network.bgp.UpdateBgpPeerCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.admin.network.bgp.UpdateBgpPeerCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.network.bgp.DeleteBgpPeerCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.network.bgp.DeleteBgpPeerCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.network.bgp.ReleaseDedicatedBgpPeerCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.network.bgp.ReleaseDedicatedBgpPeerCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.network.bgp.ChangeBgpPeersForNetworkCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.134 s - in org.apache.cloudstack.api.command.admin.network.bgp.ChangeBgpPeersForNetworkCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.network.bgp.ListBgpPeersCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.admin.network.bgp.ListBgpPeersCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.network.bgp.DedicateBgpPeerCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.admin.network.bgp.DedicateBgpPeerCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.network.ListIpv4SubnetsForGuestNetworkCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.network.ListIpv4SubnetsForGuestNetworkCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.cluster.ListClustersCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.142 s - in org.apache.cloudstack.api.command.admin.cluster.ListClustersCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.bgp.CreateASNRangeCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.116 s - in org.apache.cloudstack.api.command.admin.bgp.CreateASNRangeCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.bgp.ReleaseASNumberCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.041 s - in org.apache.cloudstack.api.command.admin.bgp.ReleaseASNumberCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.bgp.DeleteASNRangeCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.bgp.DeleteASNRangeCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.bgp.ListASNRangesCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.bgp.ListASNRangesCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.storage.UpdateObjectStoragePoolCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.142 s - in org.apache.cloudstack.api.command.admin.storage.UpdateObjectStoragePoolCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.storage.ListStoragePoolObjectsCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.054 s - in org.apache.cloudstack.api.command.admin.storage.ListStoragePoolObjectsCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.storage.FindStoragePoolsForMigrationCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.admin.storage.FindStoragePoolsForMigrationCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.storage.ListImageStoreObjectsCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s - in org.apache.cloudstack.api.command.admin.storage.ListImageStoreObjectsCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.storage.MigrateResourcesToAnotherSecondaryStorageCmdTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.086 s - in org.apache.cloudstack.api.command.admin.storage.MigrateResourcesToAnotherSecondaryStorageCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.storage.AddObjectStoragePoolCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.042 s - in org.apache.cloudstack.api.command.admin.storage.AddObjectStoragePoolCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.storage.DownloadImageStoreObjectCmdTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.114 s - in org.apache.cloudstack.api.command.admin.storage.DownloadImageStoreObjectCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.storage.CreateSecondaryStagingStoreCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.storage.CreateSecondaryStagingStoreCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.storage.DeleteObjectStoragePoolCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.023 s - in org.apache.cloudstack.api.command.admin.storage.DeleteObjectStoragePoolCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.offering.CreateServiceOfferingCmdTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s - in org.apache.cloudstack.api.command.admin.offering.CreateServiceOfferingCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.offering.CreateNetworkOfferingCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.offering.CreateNetworkOfferingCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.offering.CreateDiskOfferingCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.offering.CreateDiskOfferingCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.offering.UpdateServiceOfferingCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.admin.offering.UpdateServiceOfferingCmdTest
+[INFO] Running org.apache.cloudstack.api.command.admin.offering.CloneServiceOfferingCmdTest
+[INFO] Tests run: 46, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.127 s - in org.apache.cloudstack.api.command.admin.offering.CloneServiceOfferingCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.volume.CheckAndRepairVolumeCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.volume.CheckAndRepairVolumeCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.resource.UpdateResourceCountCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.resource.UpdateResourceCountCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.resource.UpdateResourceLimitCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.resource.UpdateResourceLimitCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.resource.ListResourceLimitsCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.resource.ListResourceLimitsCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.gpu.ListVgpuProfilesCmdTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.gpu.ListVgpuProfilesCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.gpu.ListGpuDevicesCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.gpu.ListGpuDevicesCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.gpu.ListGpuCardsCmdTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.user.gpu.ListGpuCardsCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.bucket.CreateBucketCmdTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.bucket.CreateBucketCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.guest.ListGuestOsCategoriesCmdTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.guest.ListGuestOsCategoriesCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.account.ListAccountsCmdTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.account.ListAccountsCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.vm.VmCloneBatchResponseTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.vm.VmCloneBatchResponseTest
+[INFO] Running org.apache.cloudstack.api.command.user.vm.VmCreationSourceApiContractTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.01 s - in org.apache.cloudstack.api.command.user.vm.VmCreationSourceApiContractTest
+[INFO] Running org.apache.cloudstack.api.command.user.vm.CloneVMCmdTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.user.vm.CloneVMCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.vm.ListVMsCmdTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.362 s - in org.apache.cloudstack.api.command.user.vm.ListVMsCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.vm.DeleteVMScheduleCmdTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.051 s - in org.apache.cloudstack.api.command.user.vm.DeleteVMScheduleCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.vm.DeployVMCmdTest
+15:20:01.280 [main] ERROR org.apache.cloudstack.api.command.user.vm.DeployVMCmd - bootmode must be specified for the VM with boot type: UEFI. Valid values are: [LEGACY, SECURE]
+15:20:01.288 [main] ERROR org.apache.cloudstack.api.command.user.vm.DeployVMCmd - Invalid bootmode: INVALID specified for VM: null. Valid values are: [LEGACY, SECURE]
+[INFO] Tests run: 55, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.392 s - in org.apache.cloudstack.api.command.user.vm.DeployVMCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.vm.UpdateVMScheduleCmdTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.041 s - in org.apache.cloudstack.api.command.user.vm.UpdateVMScheduleCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.vm.GetVirtualMachineGuestNetworkStateCmdTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.054 s - in org.apache.cloudstack.api.command.user.vm.GetVirtualMachineGuestNetworkStateCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.vm.CreateVMScheduleCmdTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s - in org.apache.cloudstack.api.command.user.vm.CreateVMScheduleCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.vm.UpdateVMGroupParametersTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s - in org.apache.cloudstack.api.command.user.vm.UpdateVMGroupParametersTest
+[INFO] Running org.apache.cloudstack.api.command.user.vm.ListVMScheduleCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s - in org.apache.cloudstack.api.command.user.vm.ListVMScheduleCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.consoleproxy.ListConsoleSessionsCmdTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.188 s - in org.apache.cloudstack.api.command.user.consoleproxy.ListConsoleSessionsCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.userdata.RegisterCniConfigurationCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.075 s - in org.apache.cloudstack.api.command.user.userdata.RegisterCniConfigurationCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.userdata.LinkUserDataToTemplateCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.11 s - in org.apache.cloudstack.api.command.user.userdata.LinkUserDataToTemplateCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.userdata.DeleteUserDataCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s - in org.apache.cloudstack.api.command.user.userdata.DeleteUserDataCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.userdata.RegisterUserDataCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.022 s - in org.apache.cloudstack.api.command.user.userdata.RegisterUserDataCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.userdata.DeleteCniConfigurationCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.userdata.DeleteCniConfigurationCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.userdata.ListUserDataCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s - in org.apache.cloudstack.api.command.user.userdata.ListUserDataCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.template.UpdateTemplateCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.template.UpdateTemplateCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.template.CreateTemplateCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.template.CreateTemplateCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.template.RegisterTemplateCmdTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s - in org.apache.cloudstack.api.command.user.template.RegisterTemplateCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.template.CopyTemplateCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.user.template.CopyTemplateCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.template.CopyTemplateCmdByAdminTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.user.template.CopyTemplateCmdByAdminTest
+[INFO] Running org.apache.cloudstack.api.command.user.template.RegisterTemplateCmdByAdminTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s - in org.apache.cloudstack.api.command.user.template.RegisterTemplateCmdByAdminTest
+[INFO] Running org.apache.cloudstack.api.command.user.template.ListTemplatesCmdTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s - in org.apache.cloudstack.api.command.user.template.ListTemplatesCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.iso.RegisterIsoCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.user.iso.RegisterIsoCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.iso.ListIsosCmdTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s - in org.apache.cloudstack.api.command.user.iso.ListIsosCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.snapshot.ListSnapshotsCmdTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.snapshot.ListSnapshotsCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.snapshot.ListSnapshotPoliciesCmdTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.138 s - in org.apache.cloudstack.api.command.user.snapshot.ListSnapshotPoliciesCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.snapshot.SnapshotPolicyIntentTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.user.snapshot.SnapshotPolicyIntentTest
+[INFO] Running org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotPolicyCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotPolicyCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.snapshot.CopySnapshotCmdTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.157 s - in org.apache.cloudstack.api.command.user.snapshot.CopySnapshotCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.dns.DisassociateDnsZoneFromNetworkCmdTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.049 s - in org.apache.cloudstack.api.command.user.dns.DisassociateDnsZoneFromNetworkCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.dns.ListDnsServersCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.user.dns.ListDnsServersCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.dns.UpdateDnsServerCmdTest
+15:20:02.558 [main] ERROR org.apache.cloudstack.api.command.user.dns.UpdateDnsServerCmd - Failed to update DNS server
+java.lang.RuntimeException: Update failed
+	at org.apache.cloudstack.api.command.user.dns.UpdateDnsServerCmd.execute(UpdateDnsServerCmd.java:126) ~[classes/:?]
+	at org.apache.cloudstack.api.command.user.dns.UpdateDnsServerCmdTest.testExecuteThrowsException(UpdateDnsServerCmdTest.java:143) ~[test-classes/:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
+	at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:?]
+	at java.lang.reflect.Method.invoke(Method.java:569) ~[?:?]
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.statements.ExpectException.evaluate(ExpectException.java:19) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:27) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413) ~[junit-4.13.2.jar:4.13.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:365) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:273) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:238) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:159) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.invokeProviderInSameClassLoader(ForkedBooter.java:384) ~[surefire-booter-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:345) ~[surefire-booter-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:126) ~[surefire-booter-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:418) ~[surefire-booter-2.22.2.jar:2.22.2]
+15:20:02.620 [main] ERROR org.apache.cloudstack.api.command.user.dns.UpdateDnsServerCmd - Failed to update DNS server
+org.apache.cloudstack.api.ServerApiException: Failed to update DNS server
+	at org.apache.cloudstack.api.command.user.dns.UpdateDnsServerCmd.execute(UpdateDnsServerCmd.java:132) ~[classes/:?]
+	at org.apache.cloudstack.api.command.user.dns.UpdateDnsServerCmdTest.testExecuteReturnsNull(UpdateDnsServerCmdTest.java:136) ~[test-classes/:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
+	at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:?]
+	at java.lang.reflect.Method.invoke(Method.java:569) ~[?:?]
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.statements.ExpectException.evaluate(ExpectException.java:19) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:27) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413) ~[junit-4.13.2.jar:4.13.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:365) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:273) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:238) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:159) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.invokeProviderInSameClassLoader(ForkedBooter.java:384) ~[surefire-booter-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:345) ~[surefire-booter-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:126) ~[surefire-booter-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:418) ~[surefire-booter-2.22.2.jar:2.22.2]
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.073 s - in org.apache.cloudstack.api.command.user.dns.UpdateDnsServerCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.dns.AssociateDnsZoneToNetworkCmdTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s - in org.apache.cloudstack.api.command.user.dns.AssociateDnsZoneToNetworkCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.dns.AddDnsServerCmdTest
+15:20:02.634 [main] ERROR org.apache.cloudstack.api.command.user.dns.AddDnsServerCmd - Failed to add DNS server
+java.lang.RuntimeException: Connection refused
+	at org.apache.cloudstack.api.command.user.dns.AddDnsServerCmd.execute(AddDnsServerCmd.java:138) ~[classes/:?]
+	at org.apache.cloudstack.api.command.user.dns.AddDnsServerCmdTest.testExecuteThrowsException(AddDnsServerCmdTest.java:132) ~[test-classes/:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
+	at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:?]
+	at java.lang.reflect.Method.invoke(Method.java:569) ~[?:?]
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.statements.ExpectException.evaluate(ExpectException.java:19) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:27) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413) ~[junit-4.13.2.jar:4.13.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:365) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:273) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:238) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:159) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.invokeProviderInSameClassLoader(ForkedBooter.java:384) ~[surefire-booter-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:345) ~[surefire-booter-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:126) ~[surefire-booter-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:418) ~[surefire-booter-2.22.2.jar:2.22.2]
+15:20:02.640 [main] ERROR org.apache.cloudstack.api.command.user.dns.AddDnsServerCmd - Failed to add DNS server
+org.apache.cloudstack.api.ServerApiException: Failed to add DNS server
+	at org.apache.cloudstack.api.command.user.dns.AddDnsServerCmd.execute(AddDnsServerCmd.java:144) ~[classes/:?]
+	at org.apache.cloudstack.api.command.user.dns.AddDnsServerCmdTest.testExecuteReturnsNull(AddDnsServerCmdTest.java:125) ~[test-classes/:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
+	at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:?]
+	at java.lang.reflect.Method.invoke(Method.java:569) ~[?:?]
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.statements.ExpectException.evaluate(ExpectException.java:19) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:27) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413) ~[junit-4.13.2.jar:4.13.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:365) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:273) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:238) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:159) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.invokeProviderInSameClassLoader(ForkedBooter.java:384) ~[surefire-booter-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:345) ~[surefire-booter-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:126) ~[surefire-booter-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:418) ~[surefire-booter-2.22.2.jar:2.22.2]
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s - in org.apache.cloudstack.api.command.user.dns.AddDnsServerCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.dns.UpdateDnsZoneCmdTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.046 s - in org.apache.cloudstack.api.command.user.dns.UpdateDnsZoneCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.dns.CreateDnsZoneCmdTest
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s - in org.apache.cloudstack.api.command.user.dns.CreateDnsZoneCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.dns.ListDnsProvidersCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.dns.ListDnsProvidersCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.dns.DeleteDnsServerCmdTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s - in org.apache.cloudstack.api.command.user.dns.DeleteDnsServerCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.dns.ListDnsRecordsCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.dns.ListDnsRecordsCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.dns.ListDnsZonesCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.dns.ListDnsZonesCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.dns.DeleteDnsRecordCmdTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s - in org.apache.cloudstack.api.command.user.dns.DeleteDnsRecordCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.dns.DeleteDnsZoneCmdTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s - in org.apache.cloudstack.api.command.user.dns.DeleteDnsZoneCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.dns.CreateDnsRecordCmdTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.dns.CreateDnsRecordCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.vpc.CreateVPCCmdTest
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.029 s - in org.apache.cloudstack.api.command.user.vpc.CreateVPCCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.vpc.UpdateVPCCmdTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s - in org.apache.cloudstack.api.command.user.vpc.UpdateVPCCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.schedule.ResourceSchedulePermissionTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s - in org.apache.cloudstack.api.command.user.schedule.ResourceSchedulePermissionTest
+[INFO] Running org.apache.cloudstack.api.command.user.project.CreateProjectCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.project.CreateProjectCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.backup.ListBackupScheduleCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.085 s - in org.apache.cloudstack.api.command.user.backup.ListBackupScheduleCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.config.CapabilitiesSnapshotPolicyTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.user.config.CapabilitiesSnapshotPolicyTest
+[INFO] Running org.apache.cloudstack.api.command.user.firewall.CreateFirewallRuleCmdTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.048 s - in org.apache.cloudstack.api.command.user.firewall.CreateFirewallRuleCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.firewall.CreateEgressFirewallRuleCmdTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.162 s - in org.apache.cloudstack.api.command.user.firewall.CreateEgressFirewallRuleCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.network.CreateNetworkCmdTest
+[INFO] Tests run: 32, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.029 s - in org.apache.cloudstack.api.command.user.network.CreateNetworkCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.network.UpdateNetworkCmdTest
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s - in org.apache.cloudstack.api.command.user.network.UpdateNetworkCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.network.ListNetworkProtocolsCmdTest
+{0=Echo reply}
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s - in org.apache.cloudstack.api.command.user.network.ListNetworkProtocolsCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.network.routing.DeleteRoutingFirewallRuleCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.051 s - in org.apache.cloudstack.api.command.user.network.routing.DeleteRoutingFirewallRuleCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.network.routing.ListRoutingFirewallRulesCmdTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.04 s - in org.apache.cloudstack.api.command.user.network.routing.ListRoutingFirewallRulesCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.network.routing.CreateRoutingFirewallRuleCmdTest
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s - in org.apache.cloudstack.api.command.user.network.routing.CreateRoutingFirewallRuleCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.network.routing.UpdateRoutingFirewallRuleCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s - in org.apache.cloudstack.api.command.user.network.routing.UpdateRoutingFirewallRuleCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.bgp.ListASNumbersCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.083 s - in org.apache.cloudstack.api.command.user.bgp.ListASNumbersCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.offering.ListDiskOfferingsCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.offering.ListDiskOfferingsCmdTest
+[INFO] Running org.apache.cloudstack.api.command.user.offering.ListServiceOfferingsCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.user.offering.ListServiceOfferingsCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.AddSecondaryStorageCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.042 s - in org.apache.cloudstack.api.command.test.AddSecondaryStorageCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.UpdateVmNicIpTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.038 s - in org.apache.cloudstack.api.command.test.UpdateVmNicIpTest
+[INFO] Running org.apache.cloudstack.api.command.test.AddNetworkServiceProviderCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.044 s - in org.apache.cloudstack.api.command.test.AddNetworkServiceProviderCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.ResetVMUserDataCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s - in org.apache.cloudstack.api.command.test.ResetVMUserDataCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.CreateRoleCmdTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s - in org.apache.cloudstack.api.command.test.CreateRoleCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.CreateSnapshotCmdTest
+15:20:03.580 [main] ERROR org.apache.cloudstack.api.command.test.CreateSnapshotCmdTest$1 - Failed to create Snapshot due to an internal error creating Snapshot for volume 2b1059e7-8545-448d-afd4-79243dea96d2
+org.apache.cloudstack.api.ServerApiException: Snapshot from volume [2b1059e7-8545-448d-afd4-79243dea96d2] was not found in database.
+	at org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd.execute(CreateSnapshotCmd.java:266) ~[classes/:?]
+	at org.apache.cloudstack.api.command.test.CreateSnapshotCmdTest.testCreateFailure(CreateSnapshotCmdTest.java:138) ~[test-classes/:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
+	at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:?]
+	at java.lang.reflect.Method.invoke(Method.java:569) ~[?:?]
+	at junit.framework.TestCase.runTest(TestCase.java:177) ~[junit-4.13.2.jar:4.13.2]
+	at junit.framework.TestCase.runBare(TestCase.java:142) ~[junit-4.13.2.jar:4.13.2]
+	at junit.framework.TestResult$1.protect(TestResult.java:122) ~[junit-4.13.2.jar:4.13.2]
+	at junit.framework.TestResult.runProtected(TestResult.java:142) ~[junit-4.13.2.jar:4.13.2]
+	at junit.framework.TestResult.run(TestResult.java:125) ~[junit-4.13.2.jar:4.13.2]
+	at junit.framework.TestCase.run(TestCase.java:130) ~[junit-4.13.2.jar:4.13.2]
+	at junit.framework.TestSuite.runTest(TestSuite.java:241) ~[junit-4.13.2.jar:4.13.2]
+	at junit.framework.TestSuite.run(TestSuite.java:236) ~[junit-4.13.2.jar:4.13.2]
+	at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:90) ~[junit-4.13.2.jar:4.13.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:365) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:273) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:238) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:159) ~[surefire-junit4-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.invokeProviderInSameClassLoader(ForkedBooter.java:384) ~[surefire-booter-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:345) ~[surefire-booter-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:126) ~[surefire-booter-2.22.2.jar:2.22.2]
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:418) ~[surefire-booter-2.22.2.jar:2.22.2]
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.066 s - in org.apache.cloudstack.api.command.test.CreateSnapshotCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.UpdateCfgCmdTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.test.UpdateCfgCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.CreateAutoScaleVmGroupCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.089 s - in org.apache.cloudstack.api.command.test.CreateAutoScaleVmGroupCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.AddIpToVmNicTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.202 s - in org.apache.cloudstack.api.command.test.AddIpToVmNicTest
+[INFO] Running org.apache.cloudstack.api.command.test.AddClusterCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.046 s - in org.apache.cloudstack.api.command.test.AddClusterCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.RegionCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.119 s - in org.apache.cloudstack.api.command.test.RegionCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.UpdateConditionCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.078 s - in org.apache.cloudstack.api.command.test.UpdateConditionCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.UpdateHostPasswordCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.test.UpdateHostPasswordCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.AddAccountToProjectCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.103 s - in org.apache.cloudstack.api.command.test.AddAccountToProjectCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.AddHostCmdTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s - in org.apache.cloudstack.api.command.test.AddHostCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.ScaleVMCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.test.ScaleVMCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.AddVpnUserCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.102 s - in org.apache.cloudstack.api.command.test.AddVpnUserCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.CreateAutoScaleVmProfileCmdTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.048 s - in org.apache.cloudstack.api.command.test.CreateAutoScaleVmProfileCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.UsageCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.04 s - in org.apache.cloudstack.api.command.test.UsageCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.ActivateProjectCmdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.test.ActivateProjectCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.UpdateAutoScaleVmProfileCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.test.UpdateAutoScaleVmProfileCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.ImportRoleCmdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s - in org.apache.cloudstack.api.command.test.ImportRoleCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.UpdateRoleCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.test.UpdateRoleCmdTest
+[INFO] Running org.apache.cloudstack.api.command.test.ListCfgCmdTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.test.ListCfgCmdTest
+[INFO] Running org.apache.cloudstack.api.command.offering.DomainAndZoneIdResolverTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.091 s - in org.apache.cloudstack.api.command.offering.DomainAndZoneIdResolverTest
+[INFO] Running org.apache.cloudstack.usage.UsageUnitTypesTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s - in org.apache.cloudstack.usage.UsageUnitTypesTest
+[INFO] Running org.apache.cloudstack.network.BgpPeerTOTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.network.BgpPeerTOTest
+[INFO] Running org.apache.cloudstack.cluster.ClusterDrsAlgorithmTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.065 s - in org.apache.cloudstack.cluster.ClusterDrsAlgorithmTest
+[INFO] Running org.apache.cloudstack.storage.volume.VolumeOnStorageTOTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.storage.volume.VolumeOnStorageTOTest
+[INFO] Running org.apache.cloudstack.storage.template.VnfTemplateUtilsTest
+[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.443 s - in org.apache.cloudstack.storage.template.VnfTemplateUtilsTest
+[INFO] Running org.apache.cloudstack.storage.object.BucketUsageStatusTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s - in org.apache.cloudstack.storage.object.BucketUsageStatusTest
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 1129, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO]
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-api ---
+[INFO] Building jar: /home/ablecloud/work/dhslove/cloud-epic-1554/api/target/cloud-api-4.23.0.0.jar
+[INFO]
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-api ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO]
+[INFO] --- maven-jar-plugin:3.2.0:test-jar (default) @ cloud-api ---
+[INFO] Building jar: /home/ablecloud/work/dhslove/cloud-epic-1554/api/target/cloud-api-4.23.0.0-tests.jar
+[INFO]
+[INFO] --- maven-install-plugin:2.3.1:install (default-install) @ cloud-api ---
+[INFO] Installing /home/ablecloud/work/dhslove/cloud-epic-1554/api/target/cloud-api-4.23.0.0.jar to /home/ablecloud/.m2/repository/org/apache/cloudstack/cloud-api/4.23.0.0/cloud-api-4.23.0.0.jar
+[INFO] Installing /home/ablecloud/work/dhslove/cloud-epic-1554/api/pom.xml to /home/ablecloud/.m2/repository/org/apache/cloudstack/cloud-api/4.23.0.0/cloud-api-4.23.0.0.pom
+[INFO] Installing /home/ablecloud/work/dhslove/cloud-epic-1554/api/target/cloud-api-4.23.0.0-tests.jar to /home/ablecloud/.m2/repository/org/apache/cloudstack/cloud-api/4.23.0.0/cloud-api-4.23.0.0-tests.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  33.403 s
+[INFO] Finished at: 2026-11-05T15:20:07+09:00
+[INFO] ------------------------------------------------------------------------

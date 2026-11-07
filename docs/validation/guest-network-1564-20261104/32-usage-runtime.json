@@ -1,0 +1,15 @@
+{
+  "pid": "763514",
+  "service": "active",
+  "classpath": "/usr/share/cloudstack-usage/*:/usr/share/cloudstack-usage/lib/*:/usr/share/cloudstack-mysql-ha/lib/*:/etc/cloudstack/usage",
+  "matchingParserJars": [
+    {
+      "jar": "/usr/share/cloudstack-usage/cloud-usage-4.23.0.0.jar",
+      "sha256": "6fd9be1aab59987368217c8f589fc4440f3fb5b2303ed1ef5adb63a45809f6fd",
+      "classSha256": "78acd2b8558beff69911564c8284fd2bd5bfe0c056af902d1924294acbf98cf5"
+    }
+  ],
+  "startupErrors": [],
+  "cycleErrors": [],
+  "schedulerLines": []
+}

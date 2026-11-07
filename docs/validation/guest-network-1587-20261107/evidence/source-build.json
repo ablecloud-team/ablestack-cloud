@@ -1,0 +1,31 @@
+{
+  "sourceCommit": "ff201db10bd6cda39e0cda01107bac43eeb92390",
+  "sourceFilesSha256": {
+    "ui/src/utils/apiMetadata.js": "22278ed3780c72d72c38f243c2ab6569d8b1f6e4684f179ce93fab3e5b059025",
+    "ui/src/store/modules/user.js": "e2278b43ac441ae0f19391a88a63640802f40d785c58bb2abb7d8136a73d272f",
+    "ui/src/components/header/ProjectMenu.vue": "fb8a300d2376e6947659e8941f7d4224ae019539097e1c1496834a6cf74e83e0",
+    "ui/tests/unit/projectApiMetadata.spec.js": "5fbbc1702f3fc71c8ae1abb532aa90349a9be2092b1df38aa920fc6201206bd0"
+  },
+  "sourceMap": false,
+  "build": {
+    "exit": 0,
+    "command": "npm run build",
+    "productionSourceMap": false
+  },
+  "lint": {
+    "exit": 0,
+    "scope": [
+      "ui/src/utils/apiMetadata.js",
+      "ui/src/store/modules/user.js",
+      "ui/src/components/header/ProjectMenu.vue",
+      "ui/tests/unit/projectApiMetadata.spec.js"
+    ]
+  },
+  "unitTests": {
+    "suites": 2,
+    "tests": 27,
+    "passed": 27,
+    "coverageCollected": false,
+    "command": "CI=true npm run test:unit -- --runTestsByPath tests/unit/projectApiMetadata.spec.js tests/unit/optionalDiscovery.spec.js --runInBand --watch=false --forceExit --coverage=false"
+  }
+}

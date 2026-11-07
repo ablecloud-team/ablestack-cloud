@@ -1,0 +1,114 @@
+{
+  "cases": [
+    {
+      "type": "isolated",
+      "network": "1171cd96-ad12-420e-88d0-70636b7bdb7d",
+      "request": {
+        "id": "1171cd96-ad12-420e-88d0-70636b7bdb7d"
+      },
+      "receipt": {
+        "deletenetworkresponse": {
+          "jobid": "368349a8-428d-43e6-9658-148be5cccda1"
+        }
+      },
+      "result": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 530,
+          "jobresulttype": "object",
+          "jobresult": {
+            "errorcode": 530,
+            "errortext": "Cannot delete network 1171cd96-ad12-420e-88d0-70636b7bdb7d: virtual machine af12d504-97dc-4f36-b59e-027c66a74344 is Running and still has a NIC in this network. Detach the NIC or expunge the VM, then retry only this network."
+          },
+          "jobinstancetype": "Network",
+          "jobinstanceid": "1171cd96-ad12-420e-88d0-70636b7bdb7d",
+          "created": "2026-11-06T02:00:13+0900",
+          "completed": "2026-11-06T02:00:13+0900",
+          "jobid": "368349a8-428d-43e6-9658-148be5cccda1",
+          "jobstatus": 2
+        }
+      },
+      "networkVmNicUnchanged": true
+    },
+    {
+      "type": "l2",
+      "network": "ecf3ac29-e12b-467e-ade0-47026f663ff4",
+      "request": {
+        "id": "ecf3ac29-e12b-467e-ade0-47026f663ff4"
+      },
+      "receipt": {
+        "deletenetworkresponse": {
+          "jobid": "3586e6df-29a5-49f0-b112-abd6a3188aca"
+        }
+      },
+      "result": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 530,
+          "jobresulttype": "object",
+          "jobresult": {
+            "errorcode": 530,
+            "errortext": "Cannot delete network ecf3ac29-e12b-467e-ade0-47026f663ff4: virtual machine af12d504-97dc-4f36-b59e-027c66a74344 is Running and still has a NIC in this network. Detach the NIC or expunge the VM, then retry only this network."
+          },
+          "jobinstancetype": "Network",
+          "jobinstanceid": "ecf3ac29-e12b-467e-ade0-47026f663ff4",
+          "created": "2026-11-06T02:00:15+0900",
+          "completed": "2026-11-06T02:00:15+0900",
+          "jobid": "3586e6df-29a5-49f0-b112-abd6a3188aca",
+          "jobstatus": 2
+        }
+      },
+      "networkVmNicUnchanged": true
+    },
+    {
+      "type": "shared",
+      "network": "4401793f-ab5b-4e45-a5c1-adb4c53bc986",
+      "request": {
+        "id": "4401793f-ab5b-4e45-a5c1-adb4c53bc986"
+      },
+      "receipt": {
+        "deletenetworkresponse": {
+          "jobid": "2207fc27-97e0-4db4-be76-aa424dd11e37"
+        }
+      },
+      "result": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 530,
+          "jobresulttype": "object",
+          "jobresult": {
+            "errorcode": 530,
+            "errortext": "Cannot delete network 4401793f-ab5b-4e45-a5c1-adb4c53bc986: virtual machine af12d504-97dc-4f36-b59e-027c66a74344 is Running and still has a NIC in this network. Detach the NIC or expunge the VM, then retry only this network."
+          },
+          "jobinstancetype": "Network",
+          "jobinstanceid": "4401793f-ab5b-4e45-a5c1-adb4c53bc986",
+          "created": "2026-11-06T02:00:18+0900",
+          "completed": "2026-11-06T02:00:18+0900",
+          "jobid": "2207fc27-97e0-4db4-be76-aa424dd11e37",
+          "jobstatus": 2
+        }
+      },
+      "networkVmNicUnchanged": true
+    }
+  ],
+  "forcedDeletes": 0,
+  "status": "PASS"
+}

@@ -1,0 +1,76 @@
+{
+  "body": {
+    "bottom": 692,
+    "height": 429,
+    "left": 386,
+    "right": 884,
+    "top": 263,
+    "width": 498,
+    "x": 386,
+    "y": 263
+  },
+  "bodyClientHeight": 429,
+  "bodyClientWidth": 498,
+  "bodyScrollHeight": 429,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 498,
+  "colors": [
+    {
+      "background": "rgb(255, 248, 230)",
+      "color": "rgb(92, 59, 0)",
+      "text": "현재 가상머신을 시작하시겠습니까?"
+    }
+  ],
+  "content": {
+    "bottom": 692,
+    "height": 484,
+    "left": 386,
+    "right": 884,
+    "top": 208,
+    "width": 498,
+    "x": 386,
+    "y": 208
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1270,
+    "top": 0,
+    "width": 1270,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "INPUT"
+  },
+  "footer": null,
+  "header": {
+    "bottom": 263,
+    "height": 55,
+    "left": 386,
+    "right": 884,
+    "top": 208,
+    "width": 498,
+    "x": 386,
+    "y": 208
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 749,
+    "left": 256,
+    "right": 1270,
+    "top": 151,
+    "width": 1014,
+    "x": 256,
+    "y": 151
+  },
+  "primaryButton": null,
+  "width": 1280,
+  "image_sha256": "d7805ca3bc411fe9da287534328587b0eb932c11703bf2fffa7cfa631528e1af"
+}

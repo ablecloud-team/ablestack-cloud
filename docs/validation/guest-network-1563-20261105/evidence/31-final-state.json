@@ -1,0 +1,205 @@
+{
+  "cluster": 31,
+  "status": "PASS",
+  "source": "15e73de0834b61b29b79c376fecf1e744f783b78",
+  "operationalResources": {
+    "listNetworks": {
+      "rows": 22,
+      "preserved": true,
+      "fields": [
+        "id",
+        "name",
+        "type",
+        "networkofferingid",
+        "physicalnetworkid",
+        "cidr",
+        "gateway",
+        "dns1",
+        "dns2",
+        "related",
+        "displaynetwork",
+        "account",
+        "domainid",
+        "projectid"
+      ],
+      "sha256": "f4185528523852826ca658fafa80a6e2f3b3d4564717cc258018149c5a7a854e"
+    },
+    "listVirtualMachines": {
+      "rows": 121,
+      "preserved": true,
+      "fields": [
+        "id",
+        "name",
+        "state",
+        "hostid",
+        "templateid",
+        "serviceofferingid"
+      ],
+      "sha256": "9dd1890d9eeb8118551f64cf33c137cd2519ec6d5ea5f190876bb1d548f57605"
+    },
+    "listNetworkOfferings": {
+      "rows": 24,
+      "preserved": true,
+      "fields": [
+        "id",
+        "name",
+        "state",
+        "guestiptype",
+        "tags",
+        "serviceofferingid",
+        "specifyvlan",
+        "specifyipranges"
+      ],
+      "sha256": "02125446daba5227c0b7c094a1bf59c9b7c43e002703175d241235ec79e8f544"
+    },
+    "listPhysicalNetworks": {
+      "rows": 1,
+      "preserved": true,
+      "fields": [
+        "id",
+        "name",
+        "state",
+        "vlan",
+        "tags",
+        "zoneid"
+      ],
+      "sha256": "1a83193ccb9481c991f11a34b8fb6912386dffad224ec221f7c0206bca533390"
+    }
+  },
+  "hiddenCopies": 0,
+  "qaVlanAllocations": [
+    [
+      "qa-gn1563-31-physical-a",
+      "3101",
+      "allocated",
+      "NULL",
+      "1"
+    ],
+    [
+      "qa-gn1563-31-physical-a",
+      "3102",
+      "free",
+      "NULL",
+      "0"
+    ],
+    [
+      "qa-gn1563-31-physical-b",
+      "3103",
+      "free",
+      "NULL",
+      "0"
+    ],
+    [
+      "qa-gn1563-31-physical-b",
+      "3104",
+      "allocated",
+      "NULL",
+      "1"
+    ]
+  ],
+  "userOriginalVlanReleased": true,
+  "accountNetworkCounts": "admin\t4\t4\nqa-gn1563-31-user\t1\t1\n",
+  "zoneAllocationState": "Enabled",
+  "originalHostTagsPreserved": true,
+  "resources": {
+    "networks": [
+      {
+        "id": "2490904e-181d-46fd-97c3-753b216f6982",
+        "name": "qa-gn1563-31-user-review",
+        "account": "qa-gn1563-31-user",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "type": "Isolated",
+        "state": "Implemented",
+        "related": "2490904e-181d-46fd-97c3-753b216f6982",
+        "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+        "networkofferingid": "76485569-6950-4874-9be8-c6e7521ee737",
+        "cidr": "10.74.31.0/24",
+        "gateway": "10.74.31.1",
+        "broadcasturi": "vlan://3104"
+      },
+      {
+        "id": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+        "name": "qa-gn1563-31-review",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "type": "Isolated",
+        "state": "Implemented",
+        "related": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+        "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+        "networkofferingid": "8d6db1d1-1b50-42f5-90f2-c9f633ed1fb5",
+        "cidr": "10.73.31.0/24",
+        "gateway": "10.73.31.1",
+        "broadcasturi": "vlan://3101"
+      }
+    ],
+    "routers": [
+      {
+        "id": "82bec686-484f-460a-a7c9-5a280030ccf9",
+        "name": "r-885-VM",
+        "state": "Running",
+        "hostid": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+        "hostname": "ablecube31-2",
+        "guestnetworkid": "2490904e-181d-46fd-97c3-753b216f6982",
+        "guestipaddress": "10.74.31.1"
+      },
+      {
+        "id": "4000a4b3-bb19-4de9-b9cc-9f441f4e9551",
+        "name": "r-884-VM",
+        "state": "Running",
+        "hostid": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+        "hostname": "ablecube31-2",
+        "guestnetworkid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+        "guestipaddress": "10.73.31.1"
+      }
+    ],
+    "vm": {
+      "id": "ffbc46a3-7278-4b61-8203-60fc0ab2ecf1",
+      "name": "qa-gn1563-31-vm",
+      "state": "Running",
+      "hostid": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+      "hostname": "ablecube31-2",
+      "nic": [
+        {
+          "id": "b4d82a91-a403-4c09-9810-b24dc74846c4",
+          "networkid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "networkname": "qa-gn1563-31-review",
+          "netmask": "255.255.255.0",
+          "gateway": "10.73.31.1",
+          "ipaddress": "10.73.31.94",
+          "isolationuri": "vlan://3101",
+          "broadcasturi": "vlan://3101",
+          "traffictype": "Guest",
+          "type": "Isolated",
+          "isdefault": true,
+          "macaddress": "02:1f:01:d9:00:02",
+          "secondaryip": [],
+          "extradhcpoption": [],
+          "deviceid": "0",
+          "enabled": true
+        }
+      ]
+    },
+    "physical": {
+      "a": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+      "b": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4"
+    },
+    "offerings": {
+      "a": "79d92ef0-8257-4a08-9cc2-060819485c77",
+      "b": "76485569-6950-4874-9be8-c6e7521ee737",
+      "resume-a": "8d6db1d1-1b50-42f5-90f2-c9f633ed1fb5"
+    },
+    "systemOfferings": {
+      "ready": "a4ad9e4d-48b5-497d-809f-415c68c79c71",
+      "resume": "05bbee0b-efd5-49e3-801b-5e9c9a6c7328"
+    },
+    "userAccount": {
+      "id": "82a46f57-aa9b-48d6-946f-e968f2753aa3",
+      "name": "qa-gn1563-31-user",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    "addedHostTags": [
+      "qa-gn1563-31-ready",
+      "qa-gn1563-31-resume-ready"
+    ]
+  }
+}

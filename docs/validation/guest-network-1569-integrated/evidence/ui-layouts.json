@@ -1,0 +1,828 @@
+[
+  {
+    "label": "31-egress-rule-tablet-light",
+    "width": 768,
+    "height": 1024,
+    "dark": false,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "footer": {
+      "bottom": 785,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 720,
+      "width": 718,
+      "x": 25,
+      "y": 720
+    },
+    "primaryButton": {
+      "bottom": 769,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 737,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 737
+    },
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "취소"
+      },
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "추가"
+      }
+    ],
+    "path": "#/guestnetwork/9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0?tab=egress.rules",
+    "sha256": "29a2d86a59b1dcccd3d324ffea9e1f6219976dab34c18776cdc3174a88d69255"
+  },
+  {
+    "label": "31-guest-list-desktop-light",
+    "width": 1280,
+    "height": 900,
+    "dark": false,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dialog": null,
+    "footer": null,
+    "primaryButton": null,
+    "colors": [],
+    "path": "#/guestnetwork?q=qa-gn1569-31&keyword=qa-gn1569-31&page=1&pagesize=20",
+    "sha256": "3245849e31212e294f969442a9392812312f63b832d9a61144e7f1eb3aeec47e"
+  },
+  {
+    "label": "31-l2-details-desktop-light",
+    "width": 1280,
+    "height": 900,
+    "dark": false,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dialog": null,
+    "footer": null,
+    "primaryButton": null,
+    "colors": [],
+    "path": "#/guestnetwork/9103d235-6ff9-42b7-ad1f-0225d21f507a",
+    "sha256": "9174fbadc852499f288fc09998ac7615b69bf136dc2f0510db3f28fa43a2ac66"
+  },
+  {
+    "label": "31-nat-create-tablet-light",
+    "width": 768,
+    "height": 1024,
+    "dark": false,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "취소"
+      },
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "확인"
+      }
+    ],
+    "path": "#/guestnetwork",
+    "sha256": "d305a7b730db4c1f6e22aa0e1adcb0229886c335f82b2daaed9e8824efab91fb"
+  },
+  {
+    "label": "31-nosnat-range-tablet-light",
+    "width": 768,
+    "height": 1024,
+    "dark": false,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dialog": null,
+    "footer": null,
+    "primaryButton": null,
+    "colors": [],
+    "path": "#/guestnetwork/b056b626-fe5e-4b75-ba17-78e421162dd7?networkreturn={%22page%22:%221%22,%22pagesize%22:%2220%22}&tab=guest.ip.range",
+    "sha256": "ad514f7aeb1ecaf1028da58ad6c0928e30680b57eb365c683c4f3ae16cb4200f"
+  },
+  {
+    "label": "31-offering-change-tablet-light",
+    "width": 768,
+    "height": 1024,
+    "dark": false,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 585.15625,
+      "right": 715,
+      "top": 879,
+      "width": 129.84375,
+      "x": 585.15625,
+      "y": 879
+    },
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "변경 내용을 확인한 뒤 적용하세요. 적용 직전에 변경 자격과 현재 네트워크를 다시 확인합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "취소"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "뒤로"
+      },
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "오퍼링 변경 적용"
+      }
+    ],
+    "path": "#/guestnetwork/9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0?networkreturn={%22q%22:%22qa-gn1569-31%22,%22keyword%22:%22qa-gn1569-31%22,%22page%22:%221%22,%22pagesize%22:%2220%22}",
+    "sha256": "f7d3089319a8d8d17578e8a4cb4062ef01c3849025d6569adf9c8245cde2dd22"
+  },
+  {
+    "label": "31-port-forward-edit-tablet-light",
+    "width": 768,
+    "height": 1024,
+    "dark": false,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "취소"
+      },
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "확인"
+      }
+    ],
+    "path": "#/publicip/e6978afb-a4ee-4512-8fb5-a06fe6477a83?tab=portforwarding",
+    "sha256": "ec45fc3f5dd851402c1047ece471853e4a1ecdb87078ba36e36ce12cdd3fd4d9"
+  },
+  {
+    "label": "31-vm-nic-standard-desktop-light",
+    "width": 1280,
+    "height": 900,
+    "dark": false,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dialog": null,
+    "footer": null,
+    "primaryButton": null,
+    "colors": [],
+    "path": "#/vm/ee5d34e7-fab2-4159-af9d-a28a55f87ebb?tab=nics",
+    "sha256": "1bef7162e0e82911f83fdad39f987080a4bff5773ed8e1cea8928be2bf7bbbbc"
+  },
+  {
+    "label": "32-egress-rule-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "dark": true,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "footer": {
+      "bottom": 687,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 622,
+      "width": 364,
+      "x": 13,
+      "y": 622
+    },
+    "primaryButton": {
+      "bottom": 671,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 639,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 639
+    },
+    "colors": [
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "취소"
+      },
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "추가"
+      }
+    ],
+    "path": "#/guestnetwork/75ccea08-34d0-48b6-80a9-006202b76e39?tab=egress.rules",
+    "sha256": "acd11e26604bf51fbedcf03142c52d9ad4f4dc546fd0f94ee0d5eab1df9889ee"
+  },
+  {
+    "label": "32-guest-list-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "dark": true,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dialog": null,
+    "footer": null,
+    "primaryButton": null,
+    "colors": [],
+    "path": "#/guestnetwork?page=1&pagesize=20",
+    "sha256": "6e1e1c3a04cb2563b6adf7ac0bdb6e1d4624832f6fe37de4c9b5e8b62a2663bd"
+  },
+  {
+    "label": "32-ingress-firewall-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "dark": true,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "footer": {
+      "bottom": 751.5,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 686.5,
+      "width": 364,
+      "x": 13,
+      "y": 686.5
+    },
+    "primaryButton": {
+      "bottom": 735.5,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 703.5,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 703.5
+    },
+    "colors": [
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "취소"
+      },
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "확인"
+      }
+    ],
+    "path": "#/publicip/3718e606-1ab1-48db-a660-7486d8dfc172?tab=firewall",
+    "sha256": "39c45c2f8b192d44a6e94539b7a1e5b7331043af332270ee470210790096bad5"
+  },
+  {
+    "label": "32-l2-details-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "dark": true,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dialog": null,
+    "footer": null,
+    "primaryButton": null,
+    "colors": [],
+    "path": "#/guestnetwork/aefaf6fa-4255-4b64-9f28-2da2a25ea711",
+    "sha256": "062ae1b8498d064e2dc868878be901447e79dd9ee8e65eac727ec290c7db5238"
+  },
+  {
+    "label": "32-nat-create-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "dark": true,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "colors": [
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "취소"
+      },
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "확인"
+      }
+    ],
+    "path": "#/guestnetwork",
+    "sha256": "529d9d40a3cc08b459ef70251e4dbb31204b3af1375694f81ba6b99ceca9ffa3"
+  },
+  {
+    "label": "32-network-update-final-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "dark": true,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "기존 네트워크 CIDR 안에서 가상머신에 할당할 IP 범위를 지정합니다. 오퍼링 전환 시 CIDR 변경과는 다른 작업입니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "DNS는 주소 계열별로 두 값을 함께 저장합니다. 두 값을 모두 비우면 Zone 기본 DNS를 사용합니다. DNS 1을 비울 때는 DNS 2도 함께 비워 주세요."
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "취소"
+      },
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "확인"
+      }
+    ],
+    "path": "#/guestnetwork/75ccea08-34d0-48b6-80a9-006202b76e39?tab=details",
+    "sha256": "91cbffeeb4873f0f64ebce6bb12e8db64cf4549788e07d7808b87ef4b0dc6a32"
+  },
+  {
+    "label": "32-offering-change-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "dark": true,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 231.15625,
+      "right": 361,
+      "top": 783,
+      "width": 129.84375,
+      "x": 231.15625,
+      "y": 783
+    },
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "변경 내용을 확인한 뒤 적용하세요. 적용 직전에 변경 자격과 현재 네트워크를 다시 확인합니다."
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "취소"
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "뒤로"
+      },
+      {
+        "background": "rgb(8, 86, 182)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "오퍼링 변경 적용"
+      }
+    ],
+    "path": "#/guestnetwork/75ccea08-34d0-48b6-80a9-006202b76e39?networkreturn={%22q%22:%22qa-gn1569-32%22,%22keyword%22:%22qa-gn1569-32%22,%22page%22:%221%22,%22pagesize%22:%2220%22}",
+    "sha256": "73bc42f16c4355d3d3e4b367e3258f854d63974dd85921579591cfed1603553a"
+  },
+  {
+    "label": "32-restart-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "dark": true,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "footer": {
+      "bottom": 784,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 719,
+      "width": 364,
+      "x": 13,
+      "y": 719
+    },
+    "primaryButton": {
+      "bottom": 768,
+      "height": 32,
+      "left": 235,
+      "right": 361,
+      "top": 736,
+      "width": 126,
+      "x": 235,
+      "y": 736
+    },
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "재시작 중 네트워크 통신이 끊길 수 있습니다. 선택한 모든 대상이 적합할 때 실행하며 네트워크별로 결과를 추적합니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "요소 재생성 또는 이중화 전환을 선택하면 Live Patch는 해제됩니다. 옵션은 모든 대상에 동일하게 적용되며 실행과 재시도 중 유지됩니다."
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "닫기"
+      },
+      {
+        "background": "rgb(8, 86, 182)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "네트워크 재시작"
+      }
+    ],
+    "path": "#/guestnetwork/75ccea08-34d0-48b6-80a9-006202b76e39?tab=details",
+    "sha256": "7d76a9c11e26eb166c990a3a87577c7353f27c83618d3ba4012a1fba9ab52d2f"
+  },
+  {
+    "label": "32-route-switch-shared-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "dark": true,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dialog": null,
+    "footer": null,
+    "primaryButton": null,
+    "colors": [],
+    "path": "#/guestnetwork/eb1c8ca5-d19b-49a7-9de5-5575549a2b6e?tab=guest.ip.range",
+    "sha256": "36217ae29fef337c3345672d6ba72bd3e592c739267dc7bd68905ec94e4312d8"
+  },
+  {
+    "label": "32-shared-range-tablet-dark",
+    "width": 768,
+    "height": 1024,
+    "dark": true,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "DNS는 주소 계열별로 두 값을 함께 저장합니다. 두 값을 모두 비우면 Zone 기본 DNS를 사용합니다. DNS 1을 비울 때는 DNS 2도 함께 비워 주세요."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "취소"
+      },
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "확인"
+      }
+    ],
+    "path": "#/guestnetwork/eb1c8ca5-d19b-49a7-9de5-5575549a2b6e?networkreturn={%22page%22:%221%22,%22pagesize%22:%2220%22}&tab=guest.ip.range",
+    "sha256": "0baee7b3d7e33b81897a2dc8bf92098419d163a1a23a52ec61b434cab0b24139"
+  },
+  {
+    "label": "32-vm-l2-connect-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "dark": true,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "footer": {
+      "bottom": 759.5,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 694.5,
+      "width": 364,
+      "x": 13,
+      "y": 694.5
+    },
+    "primaryButton": {
+      "bottom": 743.5,
+      "height": 32,
+      "left": 218.28125,
+      "right": 361,
+      "top": 711.5,
+      "width": 142.71875,
+      "x": 218.28125,
+      "y": 711.5
+    },
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "기본값으로 설정"
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "취소"
+      },
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "기존 네트워크 연결"
+      }
+    ],
+    "path": "#/vm/d67429be-281f-443d-8ee6-ed7b7683e09d?tab=nics",
+    "sha256": "90b383951fc9915a25f32be41f1727f2d1f6de1de99a0103b268970a7006d984"
+  },
+  {
+    "label": "32-vm-nic-standard-tablet-dark",
+    "width": 768,
+    "height": 1024,
+    "dark": true,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dialog": null,
+    "footer": null,
+    "primaryButton": null,
+    "colors": [],
+    "path": "#/vm/d67429be-281f-443d-8ee6-ed7b7683e09d?tab=nics",
+    "sha256": "adea2f8c5b0dd50905ca912b9f01b4fda89cad4c1e76e4a948f692d7e82d1203"
+  }
+]

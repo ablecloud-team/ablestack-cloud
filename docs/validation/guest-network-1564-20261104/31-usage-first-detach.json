@@ -1,0 +1,111 @@
+{
+  "phase": "first",
+  "action": "detach",
+  "vmid": "c88978be-7e03-4451-ae80-c932ab4022fb",
+  "networkid": "00cb5c3a-198a-449f-915d-e3b9d6212f66",
+  "nic": {
+    "id": "8b80fdf0-8cda-4264-80c4-f74b4db4b7d0",
+    "networkid": "00cb5c3a-198a-449f-915d-e3b9d6212f66",
+    "networkname": "qa-gn1564-31-shared-false",
+    "netmask": "255.255.255.0",
+    "gateway": "10.46.31.1",
+    "ipaddress": "10.46.31.18",
+    "isolationuri": "vlan://3600",
+    "broadcasturi": "vlan://3600",
+    "traffictype": "Guest",
+    "type": "Shared",
+    "isdefault": false,
+    "macaddress": "02:1f:01:c6:00:01",
+    "secondaryip": [],
+    "extradhcpoption": [],
+    "deviceid": "1",
+    "enabled": true
+  },
+  "operation": {
+    "virtualmachine": {
+      "id": "c88978be-7e03-4451-ae80-c932ab4022fb",
+      "name": "qa-gn1564-31-usage-review",
+      "displayname": "qa-gn1564-31-usage-review",
+      "account": "admin",
+      "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+      "username": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "created": "2026-11-04T19:45:11+0900",
+      "lastupdated": "2026-11-04T19:45:18+0900",
+      "state": "Running",
+      "haenable": true,
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "zonename": "Zone",
+      "hostid": "384871b9-7c75-4717-a673-e96a76abeb71",
+      "hostname": "ablecube31-3",
+      "hostcontrolstate": "Enabled",
+      "volumemutationblockedreason": "",
+      "guestosid": "9708b6ac-b253-11f1-a895-0024814c313f",
+      "securitygroup": [],
+      "nic": [
+        {
+          "id": "53a9a160-caf7-4076-a89d-50bfffbf78cf",
+          "networkid": "6c6223b6-8d8e-4fd3-b6e2-bab27272abf1",
+          "networkname": "qa-gn1564-31-l2",
+          "isolationuri": "vlan://3605",
+          "broadcasturi": "vlan://3605",
+          "traffictype": "Guest",
+          "type": "L2",
+          "isdefault": true,
+          "macaddress": "02:1f:01:cb:00:01",
+          "secondaryip": [],
+          "extradhcpoption": [],
+          "deviceid": "0",
+          "enabled": true
+        }
+      ],
+      "hypervisor": "KVM",
+      "instancename": "i-2-865-VM",
+      "details": {
+        "tpmversion": "NONE",
+        "rootDiskController": "osdefault"
+      },
+      "clonefastsourcepowerallowed": false,
+      "clonefastpowerallowed": false,
+      "affinitygroup": [],
+      "displayvm": true,
+      "isdynamicallyscalable": true,
+      "deleteprotection": false,
+      "ostypeid": "9708b6ac-b253-11f1-a895-0024814c313f",
+      "osdisplayname": "Rocky Linux 9",
+      "pooltype": "SharedMountPoint",
+      "receivedbytes": 0,
+      "sentbytes": 0,
+      "vbmcport": "None",
+      "qemuagentversion": "9.0.0",
+      "kvdoenable": false,
+      "kvdoinuse": false,
+      "arch": "x86_64",
+      "vbmcstatus": "Unallocated",
+      "tags": [],
+      "hasannotations": false
+    }
+  },
+  "events": [
+    {
+      "id": 9548,
+      "ip": "10.46.31.18",
+      "ipId": 429,
+      "type": "NET.IPASSIGN",
+      "hidden": "false",
+      "created": "2026-11-04 10:54:31.000000",
+      "accountId": 2
+    },
+    {
+      "id": 9553,
+      "ip": "10.46.31.18",
+      "ipId": 429,
+      "type": "NET.IPRELEASE",
+      "hidden": "true",
+      "created": "2026-11-04 11:01:54.000000",
+      "accountId": 2
+    }
+  ]
+}

@@ -1,0 +1,423 @@
+[
+  {
+    "c": 31,
+    "name": "firewall-ui-tag-created-before-deploy",
+    "path": "/publicip/e6978afb-a4ee-4512-8fb5-a06fe6477a83?tab=firewall",
+    "type": "FirewallRule",
+    "id": "945ee00c-6128-4226-b067-5243605e8ea1"
+  },
+  {
+    "c": 31,
+    "name": "role-direct-url-baseline",
+    "path": "/dashboard",
+    "who": "child",
+    "allow": "shared",
+    "deny": "shared-domain-only",
+    "visibleDenied": false
+  },
+  {
+    "c": 32,
+    "name": "role-direct-url-baseline",
+    "path": "/dashboard",
+    "who": "nonmember",
+    "allow": "shared-domain-only",
+    "deny": "shared-project",
+    "visibleDenied": false
+  },
+  {
+    "c": 31,
+    "name": "grant-account-project",
+    "path": "/guestnetwork/34015e1d-ca40-4d05-a4de-ba26172009e1?tab=network.permissions",
+    "role": "DomainAdmin"
+  },
+  {
+    "c": 32,
+    "name": "grant-account-project",
+    "path": "/guestnetwork/a8671ac8-edb2-403e-9950-1ce49af7597e?tab=network.permissions",
+    "role": "User"
+  },
+  {
+    "c": 31,
+    "name": "grantee-network-visible-management-hidden",
+    "path": "/guestnetwork/34015e1d-ca40-4d05-a4de-ba26172009e1?tab=events"
+  },
+  {
+    "c": 32,
+    "name": "grantee-network-visible-management-hidden",
+    "path": "/guestnetwork/a8671ac8-edb2-403e-9950-1ce49af7597e?tab=events"
+  },
+  {
+    "c": 31,
+    "name": "attach-isolated-as-default",
+    "path": "/vm/aca6699e-3ccf-4788-9b14-ad04e1bc8723?tab=nics",
+    "rows": [
+      "        - row \"qa-gn1575-31-isolated Isolated 기본 0 10.174.31.100 02:1f:01:e7:00:03 활성화 연결 해제 작업\":",
+      "        - row \"qa-gn1575-31-shared Shared 1 10.175.31.60 1e:1f:20:00:02:14 활성화 연결 해제 작업\":"
+    ]
+  },
+  {
+    "c": 32,
+    "name": "attach-isolated-as-secondary",
+    "path": "/vm/d8f6f7e2-007d-4ee9-a7ac-28be9469d288?tab=nics",
+    "rows": [
+      "        - row \"qa-gn1575-32-shared Shared 기본 0 10.175.32.58 1e:01:6d:00:02:2a 활성화 연결 해제 작업\":",
+      "        - row \"qa-gn1575-32-isolated Isolated 1 10.174.32.189 02:01:01:7a:00:03 활성화 연결 해제 작업\":"
+    ]
+  },
+  {
+    "c": 32,
+    "name": "related-vm-list-grantee-only",
+    "path": "/vm?networkid=a8671ac8-edb2-403e-9950-1ce49af7597e",
+    "ownerVmVisible": false
+  },
+  {
+    "c": 32,
+    "name": "vm-wizard-allowed-network",
+    "path": "/action/deployVirtualMachine?networkid=a8671ac8-edb2-403e-9950-1ce49af7597e"
+  },
+  {
+    "c": 31,
+    "name": "revoke-account-existing-nic",
+    "path": "/guestnetwork/34015e1d-ca40-4d05-a4de-ba26172009e1?tab=network.permissions"
+  },
+  {
+    "c": 32,
+    "name": "reset-permissions-existing-nic",
+    "path": "/guestnetwork/a8671ac8-edb2-403e-9950-1ce49af7597e?tab=network.permissions"
+  },
+  {
+    "c": 31,
+    "name": "revoked-network-nic-remains-without-link",
+    "path": "/vm/aca6699e-3ccf-4788-9b14-ad04e1bc8723?tab=nics",
+    "noLink": true,
+    "row": "qa-gn1575-31-isolated\nIsolated\t1\t10.174.31.100\n02:1f:01:e7:00:03\t활성화\t\n연결 해제"
+  },
+  {
+    "c": 32,
+    "name": "revoked-network-nic-remains-without-link",
+    "path": "/vm/d8f6f7e2-007d-4ee9-a7ac-28be9469d288?tab=nics",
+    "noLink": true,
+    "row": "qa-gn1575-32-isolated\nIsolated\t1\t10.174.32.189\n02:01:01:7a:00:03\t활성화\t\n연결 해제"
+  },
+  {
+    "c": 31,
+    "name": "detached-and-revoked-network-not-offered",
+    "path": "/vm/aca6699e-3ccf-4788-9b14-ad04e1bc8723?tab=nics",
+    "opts": [
+      "        - option \"d1179d24-5c84-4280-9469-985ee9f7b339\"",
+      "        - option \"ce1944fc-cfce-42d4-883b-14be3a802d27\""
+    ]
+  },
+  {
+    "c": 32,
+    "name": "member-project-network-events-no-external-grant",
+    "path": "/guestnetwork/c2b9b132-ca97-4357-a67b-618e4718561d?tab=events",
+    "projectId": "45e7e7d0-4f35-4682-b1c2-c05586700c1e",
+    "absent": true
+  },
+  {
+    "c": 32,
+    "name": "project-comment-added-literal",
+    "path": "/guestnetwork/c2b9b132-ca97-4357-a67b-618e4718561d?tab=comments",
+    "literal": true
+  },
+  {
+    "c": 32,
+    "name": "project-comment-removed",
+    "path": "/guestnetwork/c2b9b132-ca97-4357-a67b-618e4718561d?tab=comments"
+  },
+  {
+    "c": 31,
+    "name": "dark-tab-switch-and-event-search",
+    "path": "/guestnetwork/34015e1d-ca40-4d05-a4de-ba26172009e1?tab=events",
+    "dark": true
+  },
+  {
+    "c": 31,
+    "name": "admin-only-comment-literal",
+    "path": "/guestnetwork/34015e1d-ca40-4d05-a4de-ba26172009e1?tab=comments",
+    "literal": true
+  },
+  {
+    "c": 31,
+    "name": "admin-comment-visibility-and-delete",
+    "path": "/guestnetwork/34015e1d-ca40-4d05-a4de-ba26172009e1?tab=comments"
+  },
+  {
+    "c": 31,
+    "name": "mobile-detail-breadcrumb-restores-search",
+    "path": "/guestnetwork?q=qa-gn1575-31-isolated&keyword=qa-gn1575-31-isolated&page=1&pagesize=20",
+    "q": "qa-gn1575-31-isolated",
+    "dark": true
+  },
+  {
+    "c": 31,
+    "name": "l2-peer-grant",
+    "path": "/guestnetwork/1589449c-d56e-4087-af12-e25fdbe39349?tab=network.permissions"
+  },
+  {
+    "c": 32,
+    "name": "l2-peer-grant",
+    "path": "/guestnetwork/d31f4831-dd41-42da-9d12-d9fabe903897?tab=network.permissions"
+  },
+  {
+    "c": 31,
+    "name": "l2-attach-candidate-ip-disabled",
+    "path": "/vm/aca6699e-3ccf-4788-9b14-ad04e1bc8723?tab=nics"
+  },
+  {
+    "c": 32,
+    "name": "l2-attach-candidate-ip-disabled",
+    "path": "/vm/d8f6f7e2-007d-4ee9-a7ac-28be9469d288?tab=nics"
+  },
+  {
+    "c": 31,
+    "name": "l2-nic-attached",
+    "path": "/vm/aca6699e-3ccf-4788-9b14-ad04e1bc8723?tab=nics",
+    "row": "qa-gn1575-31-l2\nL2\t1\tCloud IP 관리 안 함\n02:1f:01:e8:00:01\t활성화\t\n연결 해제"
+  },
+  {
+    "c": 32,
+    "name": "l2-nic-attached",
+    "path": "/vm/d8f6f7e2-007d-4ee9-a7ac-28be9469d288?tab=nics",
+    "row": "qa-gn1575-32-l2\nL2\t2\tCloud IP 관리 안 함\n02:01:01:7b:00:01\t활성화\t\n연결 해제"
+  },
+  {
+    "c": 32,
+    "name": "tag-ui-create-remove",
+    "path": "/publicip/3718e606-1ab1-48db-a660-7486d8dfc172?tab=firewall",
+    "id": "d9d93008-c4e5-443b-b8c9-e6f83ccd7d60",
+    "type": "FirewallRule"
+  },
+  {
+    "c": 32,
+    "name": "invalid-target-draft-preserved",
+    "path": "/guestnetwork/a8671ac8-edb2-403e-9950-1ce49af7597e?tab=network.permissions",
+    "draftPreserved": true
+  },
+  {
+    "c": 32,
+    "name": "invalid-target-corrected-in-same-dialog",
+    "path": "/guestnetwork/a8671ac8-edb2-403e-9950-1ce49af7597e?tab=network.permissions"
+  },
+  {
+    "c": 31,
+    "name": "vm-wizard-owner-selected-network",
+    "path": "/action/deployVirtualMachine"
+  },
+  {
+    "c": 31,
+    "name": "vm-wizard-account-change-cleared-old-selection",
+    "path": "/action/deployVirtualMachine",
+    "oldGone": true
+  },
+  {
+    "c": 31,
+    "name": "vm-wizard-project-change-exact-candidates",
+    "path": "/action/deployVirtualMachine",
+    "scopeRows": [
+      "    - button \"7 네트워크 인스턴스를 연결할 네트워크를 하나 이상 선택하세요. 여기에서 새 네트워크를 만들 수도 있습니다. 여기에서 새 네트워크를 생성할 수도 있습니다. search 새로운 네트워크 생성 네트워크 게스트 유형 VPC VM 오토스케일링 지원 Expand row apartment qa-gn1575-31-shared-project Shared No Expand row apartment qa-gn1575-31-shared-all Shared No Expand row apartment qa-gn1575-31-project L2 No Expand row apartment qa-gn1575-31-isolated Isolated Yes 전체 4 개 항목 left 1 right 10 / 쪽\":",
+      "          - row \"Expand row apartment qa-gn1575-31-shared-project Shared No\":",
+      "          - row \"Expand row apartment qa-gn1575-31-shared-all Shared No\":",
+      "          - row \"Expand row apartment qa-gn1575-31-project L2 No\":",
+      "          - row \"Expand row apartment qa-gn1575-31-isolated Isolated Yes\":"
+    ]
+  },
+  {
+    "c": 31,
+    "name": "vm-wizard-descendant-domain-scope",
+    "path": "/action/deployVirtualMachine",
+    "scopeRows": [
+      "    - button \"7 네트워크 인스턴스를 연결할 네트워크를 하나 이상 선택하세요. 여기에서 새 네트워크를 만들 수도 있습니다. 여기에서 새 네트워크를 생성할 수도 있습니다. search 새로운 네트워크 생성 네트워크 게스트 유형 VPC VM 오토스케일링 지원 Expand row apartment qa-gn1575-31-child-isolated Isolated Yes Expand row apartment qa-gn1575-31-shared-all Shared No Expand row apartment qa-gn1575-31-shared Shared No 전체 3 개 항목 left 1 right 10 / 쪽\":",
+      "          - row \"Expand row apartment qa-gn1575-31-child-isolated Isolated Yes\":",
+      "          - row \"Expand row apartment qa-gn1575-31-shared-all Shared No\":",
+      "          - row \"Expand row apartment qa-gn1575-31-shared Shared No\":"
+    ]
+  },
+  {
+    "c": 32,
+    "name": "public-ip-specific-events",
+    "path": "/publicip/3718e606-1ab1-48db-a660-7486d8dfc172?tab=events",
+    "rows": [
+      "    - textbox \"관련 자원 이벤트 검색\":",
+      "      - listitem: 전체 5개 항목 중 1-5 표시"
+    ]
+  },
+  {
+    "c": 32,
+    "name": "shared-specified-vlan-owner-read-no-grant",
+    "path": "/guestnetwork/9f6e6a73-a5df-41ed-91b2-19dd5a2ccebe"
+  },
+  {
+    "c": 31,
+    "name": "domain-admin-descendant-permission-read",
+    "path": "/guestnetwork/7363462e-e0ad-47ba-9edb-25eed6e085a8?tab=network.permissions"
+  },
+  {
+    "c": 32,
+    "name": "theme-dark-retained-on-public-ip-tab",
+    "path": "/guestnetwork/a8671ac8-edb2-403e-9950-1ce49af7597e?tab=public.ip.addresses",
+    "dark": true
+  },
+  {
+    "c": 32,
+    "name": "network-related-links-exact",
+    "path": "/guestnetwork/a8671ac8-edb2-403e-9950-1ce49af7597e?tab=virtual.routers",
+    "zone": true,
+    "domain": true,
+    "account": true,
+    "offering": true,
+    "vm": true,
+    "ip": true,
+    "routerLinks": [
+      "#/router/e591e905-475b-4ca3-b065-b74f923b8fdc"
+    ]
+  },
+  {
+    "c": 31,
+    "name": "grantee-events-denied-retry-no-rows",
+    "path": "/guestnetwork/1589449c-d56e-4087-af12-e25fdbe39349?tab=events",
+    "rows": 0
+  },
+  {
+    "c": 31,
+    "name": "final-tag-ui-submit",
+    "path": "/publicip/e6978afb-a4ee-4512-8fb5-a06fe6477a83?tab=portforwarding",
+    "id": "7cccd5ff-31da-44af-b00d-58ad7dae8961",
+    "type": "PortForwardingRule"
+  },
+  {
+    "c": 31,
+    "name": "final-pf-tag-visible",
+    "path": "/publicip/e6978afb-a4ee-4512-8fb5-a06fe6477a83?tab=portforwarding",
+    "id": "7cccd5ff-31da-44af-b00d-58ad7dae8961",
+    "type": "PortForwardingRule"
+  },
+  {
+    "c": 32,
+    "name": "final-tag-ui-submit",
+    "path": "/publicip/3718e606-1ab1-48db-a660-7486d8dfc172?tab=portforwarding",
+    "id": "e250649b-709c-4c61-a6a1-639b56d1b861",
+    "type": "PortForwardingRule"
+  },
+  {
+    "c": 32,
+    "name": "final-pf-tag-visible",
+    "path": "/publicip/3718e606-1ab1-48db-a660-7486d8dfc172?tab=portforwarding",
+    "id": "e250649b-709c-4c61-a6a1-639b56d1b861",
+    "type": "PortForwardingRule"
+  },
+  {
+    "c": 31,
+    "name": "final-tag-ui-delete-verified",
+    "path": "/publicip/e6978afb-a4ee-4512-8fb5-a06fe6477a83?tab=portforwarding",
+    "id": "7cccd5ff-31da-44af-b00d-58ad7dae8961",
+    "type": "PortForwardingRule"
+  },
+  {
+    "c": 32,
+    "name": "final-tag-ui-delete-verified",
+    "path": "/publicip/3718e606-1ab1-48db-a660-7486d8dfc172?tab=portforwarding",
+    "id": "e250649b-709c-4c61-a6a1-639b56d1b861",
+    "type": "PortForwardingRule"
+  },
+  {
+    "c": 31,
+    "name": "final-tag-ui-submit",
+    "path": "/publicip/e6978afb-a4ee-4512-8fb5-a06fe6477a83?tab=firewall",
+    "id": "945ee00c-6128-4226-b067-5243605e8ea1",
+    "type": "FirewallRule"
+  },
+  {
+    "c": 31,
+    "name": "final-tag-ui-delete-verified",
+    "path": "/publicip/e6978afb-a4ee-4512-8fb5-a06fe6477a83?tab=firewall",
+    "id": "945ee00c-6128-4226-b067-5243605e8ea1",
+    "type": "FirewallRule"
+  },
+  {
+    "c": 31,
+    "name": "final-tag-ui-submit",
+    "path": "/publicip/e6978afb-a4ee-4512-8fb5-a06fe6477a83?tab=loadbalancing",
+    "id": "5596469f-ba7c-49ca-9afa-b4395885491f",
+    "type": "LoadBalancer"
+  },
+  {
+    "c": 31,
+    "name": "final-tag-ui-delete-verified",
+    "path": "/publicip/e6978afb-a4ee-4512-8fb5-a06fe6477a83?tab=loadbalancing",
+    "id": "5596469f-ba7c-49ca-9afa-b4395885491f",
+    "type": "LoadBalancer"
+  },
+  {
+    "c": 32,
+    "name": "final-tag-ui-submit",
+    "path": "/publicip/3718e606-1ab1-48db-a660-7486d8dfc172?tab=firewall",
+    "id": "d9d93008-c4e5-443b-b8c9-e6f83ccd7d60",
+    "type": "FirewallRule"
+  },
+  {
+    "c": 32,
+    "name": "final-tag-ui-delete-verified",
+    "path": "/publicip/3718e606-1ab1-48db-a660-7486d8dfc172?tab=firewall",
+    "id": "d9d93008-c4e5-443b-b8c9-e6f83ccd7d60",
+    "type": "FirewallRule"
+  },
+  {
+    "c": 32,
+    "name": "final-tag-ui-submit",
+    "path": "/publicip/3718e606-1ab1-48db-a660-7486d8dfc172?tab=loadbalancing",
+    "id": "c0c317fa-8210-403b-b740-49923b433be0",
+    "type": "LoadBalancer"
+  },
+  {
+    "c": 32,
+    "name": "final-tag-ui-delete-verified",
+    "path": "/publicip/3718e606-1ab1-48db-a660-7486d8dfc172?tab=loadbalancing",
+    "id": "c0c317fa-8210-403b-b740-49923b433be0",
+    "type": "LoadBalancer"
+  },
+  {
+    "c": 31,
+    "name": "final-header-tag-add-remove",
+    "path": "/guestnetwork/34015e1d-ca40-4d05-a4de-ba26172009e1",
+    "type": "Network",
+    "id": "34015e1d-ca40-4d05-a4de-ba26172009e1"
+  },
+  {
+    "c": 31,
+    "name": "final-header-tag-add-remove",
+    "path": "/publicip/e6978afb-a4ee-4512-8fb5-a06fe6477a83",
+    "type": "PublicIpAddress",
+    "id": "e6978afb-a4ee-4512-8fb5-a06fe6477a83"
+  },
+  {
+    "c": 32,
+    "name": "final-header-tag-add-remove",
+    "path": "/guestnetwork/a8671ac8-edb2-403e-9950-1ce49af7597e",
+    "type": "Network",
+    "id": "a8671ac8-edb2-403e-9950-1ce49af7597e"
+  },
+  {
+    "c": 32,
+    "name": "final-header-tag-add-remove",
+    "path": "/publicip/3718e606-1ab1-48db-a660-7486d8dfc172",
+    "type": "PublicIpAddress",
+    "id": "3718e606-1ab1-48db-a660-7486d8dfc172"
+  },
+  {
+    "c": 31,
+    "name": "final-review-permissions",
+    "path": "/guestnetwork/34015e1d-ca40-4d05-a4de-ba26172009e1?tab=network.permissions"
+  },
+  {
+    "c": 32,
+    "name": "final-review-nic-state",
+    "path": "/vm/d8f6f7e2-007d-4ee9-a7ac-28be9469d288?tab=nics",
+    "rows": [
+      "        - row \"qa-gn1575-32-shared Shared 기본 0 10.175.32.58 1e:01:6d:00:02:2a 활성화 연결 해제 작업\":",
+      "        - row \"qa-gn1575-32-isolated Isolated 1 10.174.32.189 02:01:01:7a:00:03 활성화 연결 해제 작업\":",
+      "        - row \"qa-gn1575-32-l2 L2 2 Cloud IP 관리 안 함 02:01:01:7b:00:01 활성화 연결 해제 작업\":"
+    ]
+  }
+]

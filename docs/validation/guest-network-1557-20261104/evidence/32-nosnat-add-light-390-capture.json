@@ -1,0 +1,94 @@
+{
+  "body": {
+    "bottom": 654,
+    "height": 474,
+    "left": 13,
+    "right": 377,
+    "top": 180,
+    "width": 364,
+    "x": 13,
+    "y": 180
+  },
+  "bodyClientHeight": 474,
+  "bodyClientWidth": 364,
+  "bodyScrollHeight": 474,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 364,
+  "colors": [
+    {
+      "background": "rgb(9, 105, 218)",
+      "color": "rgb(255, 255, 255)",
+      "text": "확인"
+    }
+  ],
+  "content": {
+    "bottom": 720,
+    "height": 596,
+    "left": 12,
+    "right": 378,
+    "top": 124,
+    "width": 366,
+    "x": 12,
+    "y": 124
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 844,
+    "height": 844,
+    "left": 0,
+    "right": 390,
+    "top": 0,
+    "width": 390,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 380,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": {
+    "bottom": 719,
+    "height": 65,
+    "left": 13,
+    "right": 377,
+    "top": 654,
+    "width": 364,
+    "x": 13,
+    "y": 654
+  },
+  "header": {
+    "bottom": 180,
+    "height": 55,
+    "left": 13,
+    "right": 377,
+    "top": 125,
+    "width": 364,
+    "x": 13,
+    "y": 125
+  },
+  "height": 844,
+  "main": {
+    "bottom": 844,
+    "height": 643,
+    "left": 0,
+    "right": 380,
+    "top": 201,
+    "width": 380,
+    "x": 0,
+    "y": 201
+  },
+  "primaryButton": {
+    "bottom": 703,
+    "height": 32,
+    "left": 303.234375,
+    "right": 361,
+    "top": 671,
+    "width": 57.765625,
+    "x": 303.234375,
+    "y": 671
+  },
+  "width": 390,
+  "image_sha256": "fb489d9057aa14eb146bc367ff68257b1214e58726a1aa913430c76bb2f93222"
+}

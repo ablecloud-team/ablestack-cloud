@@ -1,0 +1,39 @@
+{
+  "count": 1,
+  "storagepool": [
+    {
+      "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "zonename": "Zone",
+      "podid": "6c4b9931-7684-4ba0-bcd6-9d8e97fd6cad",
+      "podname": "Pod",
+      "name": "Primary",
+      "ipaddress": "scvm1,scvm2,scvm3",
+      "path": "rbd",
+      "created": "2026-09-17T11:12:08+0900",
+      "type": "RBD",
+      "clusterid": "722e6930-cfc8-4143-83b1-680b7348d1e9",
+      "clustername": "Cluster",
+      "capacitybytes": 13322485297149,
+      "disksizetotal": 13322485297149,
+      "disksizeallocated": 5478297894912,
+      "disksizeused": 660698755601,
+      "tags": "rbd",
+      "istagarule": false,
+      "state": "Up",
+      "scope": "CLUSTER",
+      "overprovisionfactor": "1.0",
+      "hypervisor": "KVM",
+      "provider": "ABLESTACK",
+      "storagecapabilities": {
+        "VOLUME_SNAPSHOT_QUIESCEVM": "false"
+      },
+      "managed": false,
+      "details": {
+        "provider": "ABLESTACK",
+        "kvm.ha.on.storage.heartbeat": "true"
+      },
+      "hasannotations": false
+    }
+  ]
+}

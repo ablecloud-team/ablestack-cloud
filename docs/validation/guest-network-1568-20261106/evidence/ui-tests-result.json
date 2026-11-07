@@ -1,0 +1,18 @@
+{
+  "exit": 0,
+  "command": [
+    "npm",
+    "run",
+    "test:unit",
+    "--",
+    "--runInBand",
+    "--coverage=false",
+    "tests/unit/views/network",
+    "tests/unit/views/AutogenGuestNetworkSearch.spec.js",
+    "tests/unit/views/GuestNetworkTab.spec.js",
+    "tests/unit/utils/guestNetworkSearch.spec.js",
+    "tests/unit/components/GuestNetworkSummary.spec.js",
+    "tests/unit/utils/networkMutation.spec.js",
+    "tests/unit/utils/listRefreshMixin.spec.js"
+  ]
+}

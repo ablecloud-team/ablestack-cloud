@@ -1,0 +1,99 @@
+{
+  "body": {
+    "bottom": 690.5,
+    "height": 367,
+    "left": 25,
+    "right": 743,
+    "top": 323.5,
+    "width": 718,
+    "x": 25,
+    "y": 323.5
+  },
+  "bodyClientHeight": 367,
+  "bodyClientWidth": 718,
+  "bodyScrollHeight": 367,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 718,
+  "colors": [
+    {
+      "background": "rgba(250, 173, 20, 0.14)",
+      "color": "rgb(255, 231, 163)",
+      "text": "선택한 네트워크를 일반 삭제합니다. 연결된 가상머신·NIC가 있으면 먼저 분리하세요. 실패해도 강제 삭제로 자동 재시도하지 않습니다."
+    },
+    {
+      "background": "rgb(9, 105, 218)",
+      "color": "rgb(255, 255, 255)",
+      "text": "확인"
+    }
+  ],
+  "content": {
+    "bottom": 756.5,
+    "height": 489,
+    "left": 24,
+    "right": 744,
+    "top": 267.5,
+    "width": 720,
+    "x": 24,
+    "y": 267.5
+  },
+  "dark": true,
+  "dialog": {
+    "bottom": 1024,
+    "height": 1024,
+    "left": 0,
+    "right": 768,
+    "top": 0,
+    "width": 768,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 758,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": {
+    "bottom": 755.5,
+    "height": 65,
+    "left": 25,
+    "right": 743,
+    "top": 690.5,
+    "width": 718,
+    "x": 25,
+    "y": 690.5
+  },
+  "header": {
+    "bottom": 323.5,
+    "height": 55,
+    "left": 25,
+    "right": 743,
+    "top": 268.5,
+    "width": 718,
+    "x": 25,
+    "y": 268.5
+  },
+  "height": 1024,
+  "main": {
+    "bottom": 1024,
+    "height": 900,
+    "left": 80,
+    "right": 758,
+    "top": 124,
+    "width": 678,
+    "x": 80,
+    "y": 124
+  },
+  "primaryButton": {
+    "bottom": 739.5,
+    "height": 32,
+    "left": 657.234375,
+    "right": 715,
+    "top": 707.5,
+    "width": 57.765625,
+    "x": 657.234375,
+    "y": 707.5
+  },
+  "width": 768,
+  "image_sha256": "928323e9c5a40d58338cf32fc884a1503c4ad5013cab66e82b43da71da184e88"
+}

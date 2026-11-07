@@ -1,0 +1,139 @@
+{
+  "nic": {
+    "code": null,
+    "error": null,
+    "rows": [
+      {
+        "id": "44f37ef9-0fdd-4306-92bf-0d3aed8b6e1c",
+        "networkid": "45d3e8ae-925d-497b-963f-f99ea587d419",
+        "type": "Shared",
+        "isdefault": false,
+        "ipaddress": "10.175.31.60"
+      },
+      {
+        "id": "5f8884fe-00f2-4bc0-bfd9-52013b0be19c",
+        "networkid": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+        "type": "Isolated",
+        "isdefault": true,
+        "ipaddress": "10.174.31.100"
+      }
+    ],
+    "count": 2,
+    "success": null
+  },
+  "peer-use-isolated": {
+    "code": null,
+    "error": null,
+    "rows": [
+      {
+        "id": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+        "account": "qa-gn1575-31-owner",
+        "name": "qa-gn1575-31-isolated",
+        "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+        "domainpath": "ROOT/qa-gn1575-31-main",
+        "acltype": "Account",
+        "type": "Isolated",
+        "state": "Implemented"
+      }
+    ],
+    "count": 1,
+    "success": null
+  },
+  "peer-use-l2": {
+    "code": null,
+    "error": null,
+    "rows": [],
+    "count": null,
+    "success": null
+  },
+  "project-use-isolated": {
+    "code": null,
+    "error": null,
+    "rows": [
+      {
+        "id": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+        "account": "qa-gn1575-31-owner",
+        "name": "qa-gn1575-31-isolated",
+        "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+        "domainpath": "ROOT/qa-gn1575-31-main",
+        "acltype": "Account",
+        "type": "Isolated",
+        "state": "Implemented"
+      }
+    ],
+    "count": 1,
+    "success": null
+  },
+  "peer-visible-isolated": {
+    "code": null,
+    "error": null,
+    "rows": [
+      {
+        "id": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+        "account": "qa-gn1575-31-owner",
+        "name": "qa-gn1575-31-isolated",
+        "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+        "domainpath": "ROOT/qa-gn1575-31-main",
+        "acltype": "Account",
+        "type": "Isolated",
+        "state": "Implemented"
+      }
+    ],
+    "count": 1,
+    "success": null
+  },
+  "peer-visible-vms": {
+    "code": null,
+    "error": null,
+    "rows": [
+      {
+        "id": "aca6699e-3ccf-4788-9b14-ad04e1bc8723",
+        "account": "qa-gn1575-31-peer",
+        "name": "qa-gn1575-31-peer-vm",
+        "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+        "domainpath": "ROOT/qa-gn1575-31-main",
+        "displayname": "qa-gn1575-31-peer-vm",
+        "ipaddress": "10.174.31.100",
+        "state": "Running"
+      }
+    ],
+    "count": 1,
+    "success": null
+  },
+  "peer-events": {
+    "code": 531,
+    "error": "Caller does not have permission to operate with provided resource.",
+    "rows": [],
+    "count": null,
+    "success": null
+  },
+  "permission-map": {
+    "code": null,
+    "error": null,
+    "rows": [
+      {
+        "networkid": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+        "accountid": "102f11f5-6de2-402d-aa44-0b5dc7cbb0d9",
+        "account": "qa-gn1575-31-peer",
+        "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e"
+      },
+      {
+        "networkid": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+        "accountid": "302eb593-9402-4a2b-ae99-30d23563a463",
+        "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+        "account": "PrjAcct-qa-gn1575-31-project-93",
+        "project": "qa-gn1575-31-project",
+        "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e"
+      }
+    ],
+    "count": 2,
+    "success": null
+  },
+  "l2-map": {
+    "code": null,
+    "error": null,
+    "rows": [],
+    "count": null,
+    "success": null
+  }
+}

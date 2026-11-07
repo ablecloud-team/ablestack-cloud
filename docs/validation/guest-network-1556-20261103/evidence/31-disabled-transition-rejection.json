@@ -1,0 +1,22 @@
+{
+  "queryasyncjobresultresponse": {
+    "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+    "account": "admin",
+    "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+    "domainpath": "ROOT",
+    "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+    "cmd": "org.apache.cloudstack.api.command.admin.network.UpdateNetworkCmdByAdmin",
+    "jobprocstatus": 0,
+    "jobresultcode": 431,
+    "jobresulttype": "object",
+    "jobresult": {
+      "errorcode": 431,
+      "errortext": "Network offering with specified id is not in Enabled state, can't upgrade to it"
+    },
+    "jobinstancetype": "Network",
+    "created": "2026-11-03T12:32:35+0900",
+    "completed": "2026-11-03T12:32:35+0900",
+    "jobid": "dcf08e23-2185-4758-b9fb-00d5154bcdee",
+    "jobstatus": 2
+  }
+}

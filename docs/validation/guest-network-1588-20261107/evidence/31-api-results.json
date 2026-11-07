@@ -1,0 +1,423 @@
+[
+  {
+    "case": "domainadmin-discovery-own",
+    "command": "listApis",
+    "params": {
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "apiCount": 519,
+    "networkApis": {
+      "createNetwork": true,
+      "updateNetwork": true,
+      "addNicToVirtualMachine": true,
+      "removeNicFromVirtualMachine": true
+    },
+    "rootOnlyCreateZone": false
+  },
+  {
+    "case": "domainadmin-discovery-child",
+    "command": "listApis",
+    "params": {
+      "projectid": "a9119ae8-35f7-4524-a208-0cdb3b1d590f"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "apiCount": 519,
+    "networkApis": {
+      "createNetwork": true,
+      "updateNetwork": true,
+      "addNicToVirtualMachine": true,
+      "removeNicFromVirtualMachine": true
+    },
+    "rootOnlyCreateZone": false
+  },
+  {
+    "case": "domainadmin-create-apiNetwork",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-31-prj-1588-api-l2",
+      "displaytext": "GN1588 domain scope apiNetwork",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193",
+      "acltype": "Account"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "case": "domainadmin-update-apiNetwork",
+    "command": "updateNetwork",
+    "params": {
+      "id": "39e5b141-b9e0-499e-862d-9b4d29f6a734",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "displaytext": "API1588 saved apiNetwork"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "a69c225f-9930-42c1-8bf5-75032a7caa29",
+    "jobStatus": 1,
+    "jobResultCode": 0
+  },
+  {
+    "case": "domainadmin-create-childNetwork",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-31-1588-child-l2",
+      "displaytext": "GN1588 domain scope childNetwork",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "projectid": "a9119ae8-35f7-4524-a208-0cdb3b1d590f",
+      "networkofferingid": "b84ffe4a-bb50-49d3-ad5e-822c85b0faa1",
+      "acltype": "Account"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "case": "domainadmin-update-childNetwork",
+    "command": "updateNetwork",
+    "params": {
+      "id": "7717d494-7e80-49fb-a445-c814642ccde1",
+      "projectid": "a9119ae8-35f7-4524-a208-0cdb3b1d590f",
+      "displaytext": "API1588 saved childNetwork"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "64723ecd-7c46-4009-9b36-5e7149682a99",
+    "jobStatus": 1,
+    "jobResultCode": 0
+  },
+  {
+    "case": "domainadmin-nic-add",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "625141be-7145-4557-9d8f-731500c61cb0",
+      "networkid": "39e5b141-b9e0-499e-862d-9b4d29f6a734",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "5e6ed6c2-b5ba-4298-b958-66fb73dc9748",
+    "jobStatus": 1,
+    "jobResultCode": 0
+  },
+  {
+    "case": "domainadmin-nic-remove",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "625141be-7145-4557-9d8f-731500c61cb0",
+      "nicid": "2f3fa380-3951-489a-82d9-10f466c908fe",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "0c03a24c-643a-4946-a7f3-69512428fff2",
+    "jobStatus": 1,
+    "jobResultCode": 0
+  },
+  {
+    "case": "domainadmin-specified-shared-denied",
+    "command": "updateNetwork",
+    "params": {
+      "id": "a758c862-e03e-4df1-81b9-4443b76b74ab",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "displaytext": "Expected rejected"
+    },
+    "accepted": false,
+    "errorCode": 531,
+    "errorText": "Shared network Network {\"id\": 535, \"name\": \"qa-gn1569-31-prj-shared\", \"uuid\": \"a758c862-e03e-4df1-81b9-4443b76b74ab\", \"networkofferingid\": 93} with specifyvlan=true can only be operated by root admin",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "case": "domainadmin-outside-denied-listApis",
+    "command": "listApis",
+    "params": {
+      "projectid": "115290de-b12e-4c13-b227-fd02c33fdd76"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'listApis' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "case": "domainadmin-outside-denied-listNetworks",
+    "command": "listNetworks",
+    "params": {
+      "id": "a65bbe05-b430-4279-a55a-ce2fae3db0f6",
+      "projectid": "115290de-b12e-4c13-b227-fd02c33fdd76",
+      "listall": "true"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'listNetworks' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "case": "domainadmin-outside-denied-createNetwork",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-31-1588-foreign-denied",
+      "displaytext": "Expected rejected",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "projectid": "115290de-b12e-4c13-b227-fd02c33fdd76",
+      "networkofferingid": "6cf0abeb-ae2d-418f-9bf3-3cfe440960ff",
+      "acltype": "Account"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'createNetwork' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "case": "domainadmin-outside-denied-updateNetwork",
+    "command": "updateNetwork",
+    "params": {
+      "id": "a65bbe05-b430-4279-a55a-ce2fae3db0f6",
+      "projectid": "115290de-b12e-4c13-b227-fd02c33fdd76",
+      "displaytext": "Expected rejected"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'updateNetwork' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "case": "domainadmin-outside-denied-addNicToVirtualMachine",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "625141be-7145-4557-9d8f-731500c61cb0",
+      "networkid": "a65bbe05-b430-4279-a55a-ce2fae3db0f6",
+      "projectid": "115290de-b12e-4c13-b227-fd02c33fdd76"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'addNicToVirtualMachine' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "case": "peer-denied-listApis",
+    "command": "listApis",
+    "params": {
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [listApis] does not exist or is not available for this account/user in project [4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "case": "peer-denied-createNetwork",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-31-1588-peer-denied",
+      "displaytext": "Expected rejected",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193",
+      "acltype": "Account"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [createNetwork] does not exist or is not available for this account/user in project [4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "case": "peer-denied-updateNetwork",
+    "command": "updateNetwork",
+    "params": {
+      "id": "39e5b141-b9e0-499e-862d-9b4d29f6a734",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "displaytext": "Expected rejected"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [updateNetwork] does not exist or is not available for this account/user in project [4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "case": "peer-denied-addNicToVirtualMachine",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "625141be-7145-4557-9d8f-731500c61cb0",
+      "networkid": "39e5b141-b9e0-499e-862d-9b4d29f6a734",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [addNicToVirtualMachine] does not exist or is not available for this account/user in project [4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "case": "outsider-denied-listApis",
+    "command": "listApis",
+    "params": {
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [listApis] does not exist or is not available for this account/user in project [4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "case": "outsider-denied-createNetwork",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-31-1588-outsider-denied",
+      "displaytext": "Expected rejected",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193",
+      "acltype": "Account"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [createNetwork] does not exist or is not available for this account/user in project [4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "case": "outsider-denied-updateNetwork",
+    "command": "updateNetwork",
+    "params": {
+      "id": "39e5b141-b9e0-499e-862d-9b4d29f6a734",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "displaytext": "Expected rejected"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [updateNetwork] does not exist or is not available for this account/user in project [4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "case": "outsider-denied-addNicToVirtualMachine",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "625141be-7145-4557-9d8f-731500c61cb0",
+      "networkid": "39e5b141-b9e0-499e-862d-9b4d29f6a734",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [addNicToVirtualMachine] does not exist or is not available for this account/user in project [4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "case": "owner-discovery",
+    "command": "listApis",
+    "params": {
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "apiCount": 465,
+    "networkApis": {
+      "createNetwork": true,
+      "updateNetwork": true,
+      "addNicToVirtualMachine": true,
+      "removeNicFromVirtualMachine": true
+    },
+    "rootOnlyCreateZone": false
+  },
+  {
+    "case": "member-discovery",
+    "command": "listApis",
+    "params": {
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "apiCount": 465,
+    "networkApis": {
+      "createNetwork": true,
+      "updateNetwork": true,
+      "addNicToVirtualMachine": true,
+      "removeNicFromVirtualMachine": true
+    },
+    "rootOnlyCreateZone": false
+  },
+  {
+    "case": "readonly-known-1589-listApis",
+    "command": "listApis",
+    "params": {
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'listApis' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "case": "readonly-known-1589-updateNetwork",
+    "command": "updateNetwork",
+    "params": {
+      "id": "39e5b141-b9e0-499e-862d-9b4d29f6a734",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "displaytext": "Expected rejected"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'updateNetwork' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  }
+]

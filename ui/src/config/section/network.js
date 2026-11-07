@@ -22,6 +22,14 @@ import { isAdmin, isAdminOrDomainAdmin } from '@/role'
 import { isZoneCreated } from '@/utils/zone'
 import { escapeHtml } from '@/utils/util'
 import { vueProps } from '@/vue-app'
+import { usablePublicIp } from '@/utils/publicIpRules'
+import { hasVpc } from '@/utils/networkTabs'
+import { canWriteGuestFeature, showGuestFeature } from '@/utils/conditionalGuestNetwork'
+import { guestIpRangeVisible } from '@/utils/guestIpRanges'
+import { restartableNetworkType, networkRestartParams } from '@/utils/networkRestart'
+import { migrationVisible } from '@/utils/networkMigration'
+import { networkBusy } from '@/utils/networkLifecycle'
+import { canReadNetworkPermissions } from '@/utils/networkPermissions'
 
 const activeFastCloneStatuses = ['pending', 'running']
 const fastCloneOperationBlockedLabel = 'message.sharedmountpoint.clone.flatten.in.progress'
@@ -61,13 +69,14 @@ export default {
         return fields
       },
       details: () => {
-        const fields = ['name', 'id', 'description', 'type', 'traffictype', 'vpcid', 'vlan', 'cidr', 'ip6cidr', 'netmask', 'gateway', 'asnumber',
+        const fields = ['name', 'id', 'displaytext', 'type', 'traffictype', 'vpcid', 'vlan', 'cidr', 'ip6cidr', 'netmask', 'gateway', 'asnumber',
           'aclname', 'ispersistent', 'restartrequired', 'reservediprange', 'redundantrouter', 'networkdomain', 'egressdefaultpolicy', 'zonename',
           'account', 'domainpath', 'associatednetwork', 'associatednetworkid', 'ip4routing', 'ip6firewall', 'ip6routing', 'ip6routes',
           'dns1', 'dns2', 'ip6dns1', 'ip6dns2', 'publicmtu', 'privatemtu', 'dnszone', 'dnssubdomain']
         if (isAdmin()) {
           const vlanIndex = fields.findIndex(detail => detail === 'vlan')
           fields.splice(vlanIndex + 1, 0, 'broadcasturi')
+          fields.push('hideipaddressusage')
           fields.push({
             field: 'keepmacaddressonpublicnic',
             customTitle: 'keep.mac.address.on.public.nic'
@@ -76,7 +85,7 @@ export default {
         return fields
       },
       filters: ['all', 'account', 'domainpath', 'shared'],
-      searchFilters: ['keyword', 'zoneid', 'domainid', 'account', 'type', 'restartrequired', 'displaynetwork', 'tags'],
+      searchFilters: () => ['keyword', 'zoneid', 'domainid', 'account', 'type', 'networkofferingid', ...('listPhysicalNetworks' in store.getters.apis ? ['physicalnetworkid'] : []), 'forvpc', 'restartrequired', ...(isAdmin() ? ['displaynetwork'] : []), 'tags'],
       related: [{
         name: 'vm',
         title: 'label.instances',
@@ -88,31 +97,24 @@ export default {
       }, {
         name: 'egress.rules',
         component: shallowRef(defineAsyncComponent(() => import('@/views/network/EgressRulesTab.vue'))),
-        show: (record, route, user) => { return record.type === 'Isolated' && !record.ip4routing && !('vpcname' in record) && 'listEgressFirewallRules' in store.getters.apis && (['Admin', 'DomainAdmin'].includes(user.roletype) || record.account === user.account || record.projectid) }
+        show: (record, route, user) => { return record.type === 'Isolated' && !record.ip4routing && !hasVpc(record) && 'listEgressFirewallRules' in store.getters.apis && (['Admin', 'DomainAdmin'].includes(user.roletype) || record.account === user.account || record.projectid) }
       }, {
         name: 'bgp.peers',
-        component: shallowRef(defineAsyncComponent(() => import('@/views/infra/zone/BgpPeersTab.vue'))),
-        show: (record, route, user) => { return !record.vpcid && ['Admin'].includes(user.roletype) && record.ip4routing === 'Dynamic' }
+        component: shallowRef(defineAsyncComponent(() => import('@/views/network/NetworkBgpPeers.vue'))),
+        show: (record, route, user) => showGuestFeature('bgp.peers', record, store.getters, user)
       }, {
         name: 'routing.firewall',
         component: shallowRef(defineAsyncComponent(() => import('@/views/network/RoutingFirewallRulesTab.vue'))),
-        show: (record, route, user) => { return record.type === 'Isolated' && record.ip4routing && !('vpcname' in record) && 'listRoutingFirewallRules' in store.getters.apis && (['Admin', 'DomainAdmin'].includes(user.roletype) || record.account === user.account || record.projectid) }
-      }, {
-        name: 'bgp.peers',
-        component: shallowRef(defineAsyncComponent(() => import('@/views/infra/zone/BgpPeersTab.vue'))),
-        show: (record, route, user) => { return !record.vpcid && ['Admin'].includes(user.roletype) && record.ip4routing === 'Dynamic' }
-      }, {
-        name: 'routing.firewall',
-        component: shallowRef(defineAsyncComponent(() => import('@/views/network/RoutingFirewallRulesTab.vue'))),
-        show: (record, route, user) => { return record.type === 'Isolated' && record.ip4routing && !('vpcname' in record) && 'listRoutingFirewallRules' in store.getters.apis && (['Admin', 'DomainAdmin'].includes(user.roletype) || record.account === user.account || record.projectid) }
+        show: (record, route, user) => showGuestFeature('routing.firewall', record, store.getters, user)
       }, {
         name: 'ip.v6.firewall',
         component: shallowRef(defineAsyncComponent(() => import('@/views/network/Ipv6FirewallRulesTab.vue'))),
-        show: (record, route, user) => { return record.type === 'Isolated' && ['IPv6', 'DualStack'].includes(record.internetprotocol) && !('vpcid' in record) && 'listIpv6FirewallRules' in store.getters.apis && (['Admin', 'DomainAdmin'].includes(user.roletype) || record.account === user.account || record.projectid) }
+        show: (record, route, user) => showGuestFeature('ip.v6.firewall', record, store.getters, user)
       }, {
-        name: (record) => { return record.type === 'Shared' ? 'ip.addresses' : 'public.ip.addresses' },
+        name: 'public.ip.addresses',
+        label: record => record.type === 'Shared' ? 'ipaddress' : 'public.ip.addresses',
         component: shallowRef(defineAsyncComponent(() => import('@/views/network/IpAddressesTab.vue'))),
-        show: (record, route, user) => { return 'listPublicIpAddresses' in store.getters.apis && (record.type === 'Shared' || (record.type === 'Isolated' && !record.ip4routing && !('vpcname' in record) && (['Admin', 'DomainAdmin'].includes(user.roletype) || record.account === user.account || record.projectid))) }
+        show: (record, route, user) => { return 'listPublicIpAddresses' in store.getters.apis && (record.type === 'Shared' || (record.type === 'Isolated' && !record.ip4routing && !hasVpc(record) && (['Admin', 'DomainAdmin'].includes(user.roletype) || record.account === user.account || record.projectid))) }
       }, {
         name: 'virtual.routers',
         component: shallowRef(defineAsyncComponent(() => import('@/views/network/RoutersTab.vue'))),
@@ -120,35 +122,27 @@ export default {
       }, {
         name: 'vnf.appliances',
         component: shallowRef(defineAsyncComponent(() => import('@/views/network/VnfAppliancesTab.vue'))),
-        show: () => { return 'listVnfAppliances' in store.getters.apis }
+        show: (record, route, user) => showGuestFeature('vnf.appliances', record, store.getters, user)
       }, {
         name: 'guest.ip.range',
         component: shallowRef(defineAsyncComponent(() => import('@/views/network/GuestIpRanges.vue'))),
-        show: (record) => { return 'listVlanIpRanges' in store.getters.apis && (record.type === 'Shared' || (record.service && record.service.filter(x => x.name === 'SourceNat').count === 0)) }
+        show: record => guestIpRangeVisible(record, store.getters.apis)
       }, {
         name: 'network.policy',
         component: shallowRef(defineAsyncComponent(() => import('@/views/network/tungsten/NetworkPolicyTab.vue'))),
-        show: (record) => {
-          return ('listTungstenFabricPolicy' in store.getters.apis) && (record.broadcasturi === 'tf://tf' && record.type !== 'Shared')
-        }
+        show: (record, route, user) => showGuestFeature('network.policy', record, store.getters, user)
       }, {
         name: 'tungsten.logical.router',
         component: shallowRef(defineAsyncComponent(() => import('@/views/network/tungsten/LogicalRouterTab.vue'))),
-        show: (record) => {
-          return ('listTungstenFabricLogicalRouter' in store.getters.apis) && (record.broadcasturi === 'tf://tf' && record.type !== 'Shared')
-        }
+        show: (record, route, user) => showGuestFeature('tungsten.logical.router', record, store.getters, user)
       }, {
         name: 'network.permissions',
         component: shallowRef(defineAsyncComponent(() => import('@/views/network/NetworkPermissions.vue'))),
-        show: (record, route, user) => { return 'listNetworkPermissions' in store.getters.apis && record.acltype === 'Account' && !('vpcid' in record) && (['Admin', 'DomainAdmin'].includes(user.roletype) || record.account === user.account) && !record.projectid }
+        show: (record, route, user) => canReadNetworkPermissions(record, store.getters, user)
       }, {
         name: 'custom.actions',
         component: shallowRef(defineAsyncComponent(() => import('@/views/extension/RunCustomAction.vue'))),
-        show: (record) => {
-          return 'runCustomAction' in store.getters.apis &&
-            'listCustomActions' in store.getters.apis &&
-            record.service && record.service.some(s => s.name === 'CustomAction')
-        }
+        show: (record, route, user) => showGuestFeature('custom.actions', record, store.getters, user)
       },
       {
         name: 'events',
@@ -163,6 +157,7 @@ export default {
       actions: [
         {
           api: 'createNetwork',
+          standardDialogSize: 'lg',
           icon: 'plus-outlined',
           label: 'label.add.network',
           docHelp: 'adminguide/networking_and_traffic.html#configure-guest-traffic-in-an-advanced-zone',
@@ -183,22 +178,30 @@ export default {
           label: 'label.update.network',
           dataView: true,
           disabled: (record, user) => {
-            return (!record.projectid && (record.account !== user.userInfo.account && !['Admin', 'DomainAdmin'].includes(user.userInfo.roletype))) ||
+            return networkBusy(record) || (!record.projectid && (record.account !== user.userInfo.account && !['Admin', 'DomainAdmin'].includes(user.userInfo.roletype))) ||
               (record.type === 'Shared' && record.specifyvlan && !['Admin'].includes(user.userInfo.roletype))
           },
           popup: true,
+          selfManagedDialog: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/network/UpdateNetwork.vue')))
+        },
+        {
+          api: 'migrateNetwork',
+          icon: 'swap-outlined',
+          label: 'label.network.migration',
+          dataView: true,
+          popup: true,
+          selfManagedDialog: true,
+          show: record => migrationVisible(record, store.getters),
+          component: shallowRef(defineAsyncComponent(() => import('@/views/network/MigrateNetwork.vue')))
         },
         {
           api: 'restartNetwork',
           icon: 'sync-outlined',
           label: 'label.restart.network',
+          toolbarLabel: 'label.restart.network',
           message: 'message.restart.network',
           dataView: true,
-          disabled: (record, user) => {
-            return (!record.projectid && (record.account !== user.userInfo.account && !['Admin', 'DomainAdmin'].includes(user.userInfo.roletype))) ||
-              (record.type === 'Shared' && record.specifyvlan && !['Admin'].includes(user.userInfo.roletype))
-          },
           args: (record, store, isGroupAction) => {
             var fields = []
             if (isGroupAction || record.vpcid == null) {
@@ -210,10 +213,13 @@ export default {
             fields.push('livepatch')
             return fields
           },
-          show: (record) => record.type !== 'L2',
+          show: restartableNetworkType,
+          groupShow: records => records.some(restartableNetworkType),
           groupAction: true,
           popup: true,
-          groupMap: (selection, values) => { return selection.map(x => { return { id: x, cleanup: values.cleanup, makeredundant: values.makeredundant } }) }
+          selfManagedDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/network/RestartNetwork.vue'))),
+          groupMap: (selection, values) => selection.map(id => networkRestartParams(id, values))
         },
         {
           api: 'replaceNetworkACLList',
@@ -239,12 +245,9 @@ export default {
           icon: 'thunderbolt-outlined',
           label: 'label.run.custom.action',
           dataView: true,
-          show: (record) => {
-            return 'runCustomAction' in store.getters.apis &&
-              'listCustomActions' in store.getters.apis &&
-              record.service && record.service.some(s => s.name === 'CustomAction')
-          },
+          show: record => canWriteGuestFeature('custom.actions', 'runCustomAction', record, store.getters),
           popup: true,
+          standardDialogSize: 'lg',
           component: shallowRef(defineAsyncComponent(() => import('@/views/extension/RunCustomAction.vue')))
         },
         {
@@ -253,10 +256,11 @@ export default {
           label: 'label.action.associate.dns.zone',
           dataView: true,
           show: (record, store) => {
-            return (record.type === 'Shared' && record.dnszone === undefined &&
+            return (record.type === 'Shared' && !record.dnszone &&
               (record.account === store.userInfo.account || isAdminOrDomainAdmin(store.userInfo.roletype)))
           },
           popup: true,
+          standardDialogSize: 'md',
           component: shallowRef(defineAsyncComponent(() => import('@/views/network/dns/AssociateDnsZone.vue')))
         },
         {
@@ -267,8 +271,9 @@ export default {
           dataView: true,
           popup: true,
           args: ['networkid'],
+          standardDialogSize: 'md',
           show: (record, store) => {
-            return record.dnszone !== undefined && record.type === 'Shared' &&
+            return !!record.dnszone && record.type === 'Shared' &&
               (record.account === store.userInfo.account || isAdminOrDomainAdmin(store.userInfo.roletype))
           },
           mapping: {
@@ -281,15 +286,18 @@ export default {
           api: 'deleteNetwork',
           icon: 'delete-outlined',
           label: 'label.action.delete.network',
-          message: 'message.action.delete.network',
+          toolbarLabel: 'label.action.delete.network',
+          message: 'message.network.operation.delete.standard',
           dataView: true,
+          args: [],
           disabled: (record, user) => {
             return (!record.projectid && (record.account !== user.userInfo.account && !['Admin', 'DomainAdmin'].includes(user.userInfo.roletype))) ||
               (record.type === 'Shared' && record.specifyvlan && !['Admin'].includes(user.userInfo.roletype))
           },
           groupAction: true,
           popup: true,
-          groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
+          selfManagedDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/network/DeleteNetwork.vue')))
         }
       ]
     },
@@ -874,7 +882,7 @@ export default {
         fields.push(...['domain', 'zonename'])
         return fields
       },
-      details: ['ipaddress', 'id', 'associatednetworkname', 'networkid', 'issourcenat', 'isstaticnat', 'virtualmachinename', 'vmipaddress', 'vlan', 'allocated', 'account', 'domain', 'zonename'],
+      details: ['ipaddress', 'id', 'associatednetworkname', 'networkid', 'vpcname', 'issystem', 'issourcenat', 'isstaticnat', 'virtualmachinename', 'vmipaddress', 'vlan', 'allocated', 'account', 'domain', 'zonename'],
       filters: ['allocated', 'reserved', 'free'],
       component: shallowRef(() => import('@/views/network/PublicIpResource.vue')),
       tabs: [{
@@ -883,7 +891,7 @@ export default {
       }, {
         name: 'firewall',
         component: shallowRef(defineAsyncComponent(() => import('@/views/network/FirewallRules.vue'))),
-        networkServiceFilter: networkService => networkService.filter(x => x.name === 'Firewall').length > 0,
+        show: () => 'listFirewallRules' in store.getters.apis,
         groupAction: true,
         popup: true,
         groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
@@ -891,15 +899,15 @@ export default {
       {
         name: 'portforwarding',
         component: shallowRef(defineAsyncComponent(() => import('@/views/network/PortForwarding.vue'))),
-        networkServiceFilter: networkService => networkService.filter(x => x.name === 'PortForwarding').length > 0
+        show: () => 'listPortForwardingRules' in store.getters.apis
       }, {
         name: 'loadbalancing',
         component: shallowRef(defineAsyncComponent(() => import('@/views/network/LoadBalancing.vue'))),
-        networkServiceFilter: networkService => networkService.filter(x => x.name === 'Lb').length > 0
+        show: () => 'listLoadBalancerRules' in store.getters.apis
       }, {
         name: 'vpn',
         component: shallowRef(defineAsyncComponent(() => import('@/views/network/VpnDetails.vue'))),
-        show: (record) => { return record.issourcenat || record.virtualmachinetype === 'DomainRouter' || !record.hasrules }
+        show: () => 'listRemoteAccessVpns' in store.getters.apis || 'listVpnGateways' in store.getters.apis
       },
       {
         name: 'events',
@@ -918,8 +926,9 @@ export default {
           label: 'label.action.enable.static.nat',
           docHelp: 'adminguide/networking_and_traffic.html#enabling-or-disabling-static-nat',
           dataView: true,
-          show: (record) => { return record.state === 'Allocated' && !record.virtualmachineid && !record.issourcenat },
+          show: (record) => { return usablePublicIp(record) && !record.virtualmachineid && !record.issourcenat },
           popup: true,
+          standardDialogSize: 'lg',
           component: shallowRef(defineAsyncComponent(() => import('@/views/network/EnableStaticNat.vue')))
         },
         {
@@ -927,9 +936,10 @@ export default {
           icon: 'minus-circle-outlined',
           label: 'label.action.disable.static.nat',
           message: 'message.action.disable.static.nat',
+          standardDialogSize: 'md',
           docHelp: 'adminguide/networking_and_traffic.html#enabling-or-disabling-static-nat',
           dataView: true,
-          show: (record) => { return record.virtualmachineid },
+          show: (record) => usablePublicIp(record) && !!record.isstaticnat,
           args: ['ipaddressid'],
           mapping: {
             ipaddressid: {
@@ -959,6 +969,7 @@ export default {
           dataView: true,
           show: (record) => { return record.state === 'Free' },
           popup: true,
+          standardDialogSize: 'md',
           component: shallowRef(defineAsyncComponent(() => import('@/views/network/ReservePublicIP.vue')))
         },
         {

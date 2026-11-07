@@ -1,0 +1,99 @@
+{
+  "body": {
+    "bottom": 738,
+    "height": 586,
+    "left": 161,
+    "right": 1119,
+    "top": 152,
+    "width": 958,
+    "x": 161,
+    "y": 152
+  },
+  "bodyClientHeight": 586,
+  "bodyClientWidth": 958,
+  "bodyScrollHeight": 586,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 958,
+  "colors": [
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(75, 85, 99)",
+      "text": "L2 · Zone · admin"
+    },
+    {
+      "background": "rgb(9, 105, 218)",
+      "color": "rgb(255, 255, 255)",
+      "text": "확인"
+    }
+  ],
+  "content": {
+    "bottom": 804,
+    "height": 708,
+    "left": 160,
+    "right": 1120,
+    "top": 96,
+    "width": 960,
+    "x": 160,
+    "y": 96
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1280,
+    "top": 0,
+    "width": 1280,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "TEXTAREA"
+  },
+  "footer": {
+    "bottom": 803,
+    "height": 65,
+    "left": 161,
+    "right": 1119,
+    "top": 738,
+    "width": 958,
+    "x": 161,
+    "y": 738
+  },
+  "header": {
+    "bottom": 152,
+    "height": 55,
+    "left": 161,
+    "right": 1119,
+    "top": 97,
+    "width": 958,
+    "x": 161,
+    "y": 97
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 776,
+    "left": 256,
+    "right": 1270,
+    "top": 124,
+    "width": 1014,
+    "x": 256,
+    "y": 124
+  },
+  "primaryButton": {
+    "bottom": 787,
+    "height": 32,
+    "left": 1033.234375,
+    "right": 1091,
+    "top": 755,
+    "width": 57.765625,
+    "x": 1033.234375,
+    "y": 755
+  },
+  "width": 1280,
+  "image_sha256": "a68b4eac30f82851384d0e0e5cec5d6b8bd0d52bb819cd8bff966dad83dfe61d"
+}

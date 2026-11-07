@@ -1,0 +1,164 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+*/
+
+[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.apache.cloudstack:cloud-plugin-hypervisor-kvm:jar:4.23.0.0
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.json:json:jar -> duplicate declaration of version (?) @ line 130, column 21
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] 
+[INFO] -----------------< org.apache.cloudstack:cloud-usage >------------------
+[INFO] Building Apache CloudStack Usage Server 4.23.0.0
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-usage ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-usage ---
+[INFO] 
+[INFO] --- maven-antrun-plugin:1.8:run (generate-resource) @ cloud-usage ---
+[INFO] Executing tasks
+
+main:
+     [copy] Copying 3 files to /home/ablecloud/work/dhslove/cloud-epic-1554/usage/target/transformed
+[INFO] Executed tasks
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-usage ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-usage ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 24 source files to /home/ablecloud/work/dhslove/cloud-epic-1554/usage/target/classes
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-usage ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 8 resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-usage ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 6 source files to /home/ablecloud/work/dhslove/cloud-epic-1554/usage/target/test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-usage ---
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.cloud.usage.parser.IPAddressUsageParserTest
+[ERROR] Tests run: 4, Failures: 3, Errors: 0, Skipped: 0, Time elapsed: 3.414 s <<< FAILURE! - in com.cloud.usage.parser.IPAddressUsageParserTest
+[ERROR] reuseEndingHiddenDoesNotHideEarlierIncludedTime(com.cloud.usage.parser.IPAddressUsageParserTest)  Time elapsed: 0.034 s  <<< FAILURE!
+org.mockito.exceptions.verification.TooFewActualInvocations: 
+
+usageDao.persist(
+    <Capturing argument: UsageVO>
+);
+Wanted 2 times:
+-> at com.cloud.usage.parser.IPAddressUsageParserTest.parse(IPAddressUsageParserTest.java:73)
+But was 1 time:
+-> at com.cloud.usage.parser.IPAddressUsageParser.createUsageRecord(IPAddressUsageParser.java:150)
+
+	at com.cloud.usage.parser.IPAddressUsageParserTest.parse(IPAddressUsageParserTest.java:73)
+	at com.cloud.usage.parser.IPAddressUsageParserTest.reuseEndingHiddenDoesNotHideEarlierIncludedTime(IPAddressUsageParserTest.java:94)
+
+[ERROR] daoOrderingDoesNotChooseTheExportFlag(com.cloud.usage.parser.IPAddressUsageParserTest)  Time elapsed: 0.019 s  <<< FAILURE!
+org.mockito.exceptions.verification.TooFewActualInvocations: 
+
+usageDao.persist(
+    <Capturing argument: UsageVO>
+);
+Wanted 2 times:
+-> at com.cloud.usage.parser.IPAddressUsageParserTest.parse(IPAddressUsageParserTest.java:73)
+But was 1 time:
+-> at com.cloud.usage.parser.IPAddressUsageParser.createUsageRecord(IPAddressUsageParser.java:150)
+
+	at com.cloud.usage.parser.IPAddressUsageParserTest.parse(IPAddressUsageParserTest.java:73)
+	at com.cloud.usage.parser.IPAddressUsageParserTest.daoOrderingDoesNotChooseTheExportFlag(IPAddressUsageParserTest.java:103)
+
+[ERROR] includedHiddenIncludedReuseKeepsSeparateExportTotals(com.cloud.usage.parser.IPAddressUsageParserTest)  Time elapsed: 0.017 s  <<< FAILURE!
+org.mockito.exceptions.verification.TooFewActualInvocations: 
+
+usageDao.persist(
+    <Capturing argument: UsageVO>
+);
+Wanted 2 times:
+-> at com.cloud.usage.parser.IPAddressUsageParserTest.parse(IPAddressUsageParserTest.java:73)
+But was 1 time:
+-> at com.cloud.usage.parser.IPAddressUsageParser.createUsageRecord(IPAddressUsageParser.java:150)
+
+	at com.cloud.usage.parser.IPAddressUsageParserTest.parse(IPAddressUsageParserTest.java:73)
+	at com.cloud.usage.parser.IPAddressUsageParserTest.includedHiddenIncludedReuseKeepsSeparateExportTotals(IPAddressUsageParserTest.java:84)
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   IPAddressUsageParserTest.daoOrderingDoesNotChooseTheExportFlag:103->parse:73 
+usageDao.persist(
+    <Capturing argument: UsageVO>
+);
+Wanted 2 times:
+-> at com.cloud.usage.parser.IPAddressUsageParserTest.parse(IPAddressUsageParserTest.java:73)
+But was 1 time:
+-> at com.cloud.usage.parser.IPAddressUsageParser.createUsageRecord(IPAddressUsageParser.java:150)
+
+[ERROR]   IPAddressUsageParserTest.includedHiddenIncludedReuseKeepsSeparateExportTotals:84->parse:73 
+usageDao.persist(
+    <Capturing argument: UsageVO>
+);
+Wanted 2 times:
+-> at com.cloud.usage.parser.IPAddressUsageParserTest.parse(IPAddressUsageParserTest.java:73)
+But was 1 time:
+-> at com.cloud.usage.parser.IPAddressUsageParser.createUsageRecord(IPAddressUsageParser.java:150)
+
+[ERROR]   IPAddressUsageParserTest.reuseEndingHiddenDoesNotHideEarlierIncludedTime:94->parse:73 
+usageDao.persist(
+    <Capturing argument: UsageVO>
+);
+Wanted 2 times:
+-> at com.cloud.usage.parser.IPAddressUsageParserTest.parse(IPAddressUsageParserTest.java:73)
+But was 1 time:
+-> at com.cloud.usage.parser.IPAddressUsageParser.createUsageRecord(IPAddressUsageParser.java:150)
+
+[INFO] 
+[ERROR] Tests run: 4, Failures: 3, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  20.406 s
+[INFO] Finished at: 2026-11-04T20:54:53+09:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:2.22.2:test (default-test) on project cloud-usage: There are test failures.
+[ERROR] 
+[ERROR] Please refer to /home/ablecloud/work/dhslove/cloud-epic-1554/usage/target/surefire-reports for the individual test results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

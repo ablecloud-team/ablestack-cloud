@@ -250,6 +250,35 @@ public class ProjectRoleManagerImpl extends ManagerBase implements ProjectRoleSe
     }
 
     @Override
+    public List<ProjectRolePermission> findCurrentUserProjectRolePermissions(Long projectId) {
+        validateProjectId(projectId);
+        if (!isEnabled()) {
+            throw new PermissionDeniedException("Dynamic project roles are not enabled");
+        }
+        User user = getCurrentUser();
+        if (user == null) {
+            throw new PermissionDeniedException("Project role lookup requires an authenticated user");
+        }
+        ProjectAccount membership = projAccDao.findByProjectIdUserId(projectId, user.getAccountId(), user.getId());
+        if (membership == null) {
+            membership = projAccDao.findByProjectIdAccountId(projectId, user.getAccountId());
+        }
+        if (membership == null) {
+            throw new PermissionDeniedException("User/Account not part of project");
+        }
+        Long roleId = membership.getProjectRoleId();
+        if (roleId == null) {
+            return Collections.emptyList();
+        }
+        ProjectRoleVO role = projRoleDao.findById(roleId);
+        if (role == null || !projectId.equals(role.getProjectId())) {
+            throw new PermissionDeniedException("Assigned project role is not available in this project");
+        }
+        List<? extends ProjectRolePermission> permissions = projRolePermissionsDao.findAllByRoleIdSorted(roleId, projectId);
+        return permissions == null ? Collections.emptyList() : new ArrayList<>(permissions);
+    }
+
+    @Override
     public List<ProjectRole> findProjectRolesByName(Long projectId, String roleName) {
         List<? extends ProjectRole> roles = null;
         checkAccess(projectId);

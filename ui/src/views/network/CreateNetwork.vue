@@ -18,9 +18,11 @@
 <template>
   <a-spin :spinning="loading" class="form-layout">
     <a-tabs v-model:activeKey="defaultNetworkTypeTabKey" :animated="false" v-if="!loading">
-      <a-tab-pane :tab="$t('label.isolated')" key="1" v-if="isAdvancedZoneWithoutSGAvailable">
+      <a-tab-pane :tab="$t('label.isolated')" key="1" :disabled="Object.values(formBusy).some(Boolean) && defaultNetworkTypeTabKey !== '1'" v-if="isAdvancedZoneWithoutSGAvailable">
         <CreateIsolatedNetworkForm
           ref="isolated"
+          :active="defaultNetworkTypeTabKey === '1'"
+          @busy="value => { formBusy['1'] = value }"
           :loading="loading"
           :resource="resource"
           :submit-handler="submitHandler"
@@ -28,9 +30,11 @@
           @refresh-data="refreshParent"
           @refresh="handleRefresh"/>
       </a-tab-pane>
-      <a-tab-pane :tab="$t('label.l2')" key="3">
+      <a-tab-pane :tab="$t('label.l2')" key="3" :disabled="Object.values(formBusy).some(Boolean) && defaultNetworkTypeTabKey !== '3'">
         <CreateL2NetworkForm
           ref="l2"
+          :active="defaultNetworkTypeTabKey === '3'"
+          @busy="value => { formBusy['3'] = value }"
           :loading="loading"
           :resource="resource"
           :submit-handler="submitHandler"
@@ -38,9 +42,11 @@
           @refresh-data="refreshParent"
           @refresh="handleRefresh"/>
       </a-tab-pane>
-      <a-tab-pane :tab="$t('label.shared')" key="2">
+      <a-tab-pane :tab="$t('label.network.lifecycle.type.shared')" key="2" :disabled="Object.values(formBusy).some(Boolean) && defaultNetworkTypeTabKey !== '2'">
         <CreateSharedNetworkForm
           ref="shared"
+          :active="defaultNetworkTypeTabKey === '2'"
+          @busy="value => { formBusy['2'] = value }"
           :loading="loading"
           :resource="resource"
           :submit-handler="submitHandler"
@@ -77,18 +83,24 @@ export default {
       isAdvancedZoneWithoutSGAvailable: false,
       defaultNetworkTypeTabKey: '1',
       loading: false,
+      formBusy: {},
       actionZones: [],
-      actionZoneLoading: false
+      actionZoneLoading: false,
+      zoneRequest: 0,
+      initialized: false
+    }
+  },
+  computed: {
+    effectiveZoneId () {
+      return (this.submitHandler || this.$route.name === 'deployVirtualMachine' || this.$route.path.startsWith('/backup'))
+        ? this.resource?.zoneid
+        : undefined
     }
   },
   watch: {
-    resource: {
-      deep: true,
-      handler () {
-        this.fetchData()
-      }
-    }
+    effectiveZoneId () { this.fetchData() }
   },
+  beforeUnmount () { this.zoneRequest++ },
   created () {
     this.fetchData()
   },
@@ -97,36 +109,26 @@ export default {
       const form = { 1: 'isolated', 2: 'shared', 3: 'l2' }[this.defaultNetworkTypeTabKey]
       if (this.$refs[form]) this.$refs[form].handleSubmit()
     },
-    fetchData () {
-      const promises = []
-      promises.push(this.fetchActionZoneData())
-      Promise.all(promises).then(() => {
-        this.isAdvancedZoneWithoutSGAvailable = false
-        this.defaultNetworkTypeTabKey = '2'
-
-        for (const i in this.actionZones) {
-          const zone = this.actionZones[i]
-          if (zone.networktype === 'Advanced' && zone.securitygroupsenabled !== true) {
-            this.isAdvancedZoneWithoutSGAvailable = true
-            this.defaultNetworkTypeTabKey = '1'
-            return
-          }
-        }
-      })
-    },
-    fetchActionZoneData () {
-      this.loading = true
-      const params = {}
-      if (this.resource?.zoneid && (this.submitHandler || this.$route.name === 'deployVirtualMachine' || this.$route.path.startsWith('/backup'))) {
-        params.id = this.resource.zoneid
-      }
+    async fetchData () {
+      const request = ++this.zoneRequest
+      this.loading = !this.initialized
       this.actionZoneLoading = true
-      return getAPI('listZones', params).then(json => {
-        this.actionZones = json.listzonesresponse.zone
-      }).finally(() => {
-        this.actionZoneLoading = false
-        this.loading = false
-      })
+      try {
+        const params = this.effectiveZoneId ? { id: this.effectiveZoneId } : {}
+        const json = await getAPI('listZones', params, { preserveOnFailure: true })
+        if (request !== this.zoneRequest) return
+        this.actionZones = json.listzonesresponse.zone || []
+        this.isAdvancedZoneWithoutSGAvailable = this.actionZones.some(zone =>
+          zone.networktype === 'Advanced' && zone.securitygroupsenabled !== true)
+        if (!this.initialized || (this.defaultNetworkTypeTabKey === '1' && !this.isAdvancedZoneWithoutSGAvailable)) {
+          this.defaultNetworkTypeTabKey = this.isAdvancedZoneWithoutSGAvailable ? '1' : '2'
+        }
+        this.initialized = true
+      } catch (error) {
+        if (request === this.zoneRequest) this.$notifyError(error)
+      } finally {
+        if (request === this.zoneRequest) this.loading = this.actionZoneLoading = false
+      }
     },
     handleRefresh () {
     },
@@ -142,9 +144,7 @@ export default {
 
 <style scoped lang="scss">
   .form-layout {
-    width: 80vw;
-    @media (min-width: 700px) {
-      width: 600px;
-    }
+    width: 100%;
+    min-width: 0;
   }
 </style>

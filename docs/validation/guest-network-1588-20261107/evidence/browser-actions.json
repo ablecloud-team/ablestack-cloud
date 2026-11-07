@@ -1,0 +1,241 @@
+[
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "switch-own-project",
+    "completed": true,
+    "networkCount": 17
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "create-l2",
+    "completed": true
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "switch-own-project",
+    "completed": true,
+    "networkCount": 18
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "create-l2",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "update-l2",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "tabs-breadcrumb",
+    "completed": true
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "update-l2",
+    "completed": true
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "tabs-breadcrumb",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "ui-nic-attach",
+    "completed": true,
+    "kept": true
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "ui-nic-attach",
+    "completed": true,
+    "kept": true
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "post-deploy-child-project-selected",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "child-to-default",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "default-to-own-after-query-deploy",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "specified-vlan-shared-ui-root-only",
+    "completed": true,
+    "disabled": true
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "mobile-network-update-form",
+    "completed": true,
+    "width": 390
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "post-deploy-child-project-selected",
+    "completed": true
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "switch-project",
+    "completed": true,
+    "target": "기본 보기"
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "switch-project",
+    "completed": true,
+    "target": "qa-gn1569-32-project"
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "foreign-network-direct-ui-denied",
+    "completed": true,
+    "resourceDetailsVisible": false
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "foreign-network-direct-ui-denied",
+    "completed": true,
+    "resourceDetailsVisible": false
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "specified-vlan-shared-ui-root-only",
+    "completed": true,
+    "disabled": true
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "mobile-network-update-form",
+    "completed": true,
+    "width": 390
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "mobile-child-project-switch",
+    "completed": true,
+    "width": 390
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "mobile-child-default-own-roundtrip",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "mobile-default-own-roundtrip",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "mobile-vm-nic-and-dialog",
+    "completed": true,
+    "width": 390
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "mobile-vm-nic-and-dialog",
+    "completed": true,
+    "width": 390
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "final-review-screen",
+    "completed": true,
+    "testResourcesKept": true,
+    "viewportOverrideCleared": true
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "final-review-screen",
+    "completed": true,
+    "testResourcesKept": true,
+    "viewportOverrideCleared": true
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "new-ui-mobile-child-switch",
+    "completed": true
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "new-ui-mobile-search-child-switch",
+    "completed": true
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "new-ui-search-clear-default",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "new-ui-mobile-default-own-roundtrip",
+    "completed": true
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "new-ui-mobile-default-own-roundtrip",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "new-ui-final-review-screen",
+    "completed": true,
+    "resourcesKept": true,
+    "viewportOverrideCleared": true
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "new-ui-final-review-screen",
+    "completed": true,
+    "resourcesKept": true,
+    "viewportOverrideCleared": true
+  }
+]

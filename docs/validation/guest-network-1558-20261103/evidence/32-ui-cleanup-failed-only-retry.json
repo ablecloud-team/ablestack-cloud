@@ -1,0 +1,95 @@
+{
+  "cluster": 32,
+  "label": "32-ui-cleanup-failed-only-retry",
+  "records": [
+    {
+      "cluster": 32,
+      "requestId": "43796.4463",
+      "command": "deleteNetwork",
+      "method": "POST",
+      "params": {
+        "command": "deleteNetwork",
+        "id": "897b203b-5ee6-4e13-ad50-a295bbb6cb02"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.4464",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "c977dd7f-62c8-4a15-96d8-506fb252c160",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.4466",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "status": 200
+    }
+  ],
+  "selected_ids": [
+    "897b203b-5ee6-4e13-ad50-a295bbb6cb02"
+  ],
+  "responses": [
+    {
+      "request": {
+        "cluster": 32,
+        "requestId": "43796.4463",
+        "command": "deleteNetwork",
+        "method": "POST",
+        "params": {
+          "command": "deleteNetwork",
+          "id": "897b203b-5ee6-4e13-ad50-a295bbb6cb02"
+        },
+        "status": 200
+      },
+      "result": {
+        "deletenetworkresponse": {
+          "jobid": "c977dd7f-62c8-4a15-96d8-506fb252c160"
+        }
+      }
+    },
+    {
+      "request": {
+        "cluster": 32,
+        "requestId": "43796.4464",
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobid": "c977dd7f-62c8-4a15-96d8-506fb252c160",
+          "command": "queryAsyncJobResult"
+        },
+        "status": 200
+      },
+      "result": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobinstancetype": "Network",
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-11-03T17:27:48+0900",
+          "jobid": "c977dd7f-62c8-4a15-96d8-506fb252c160",
+          "jobstatus": 0
+        }
+      }
+    }
+  ]
+}

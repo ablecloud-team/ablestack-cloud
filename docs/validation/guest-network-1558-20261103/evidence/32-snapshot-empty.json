@@ -1,0 +1,132 @@
+{
+  "api": [
+    {
+      "id": "397a6ff2-b78b-4c1b-af75-eff6d61b4b64",
+      "name": "qa-gn1558-32-shared-renamed",
+      "displaytext": "",
+      "type": "Shared",
+      "state": "Setup",
+      "networkofferingid": "c0586d85-1ab3-41ba-8c6a-455ce47d6c3b",
+      "cidr": "10.244.32.0/24",
+      "gateway": "10.244.32.1",
+      "vlan": "732",
+      "account": null,
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "dns1": "8.8.8.8",
+      "dns2": null
+    },
+    {
+      "id": "3f82dd0d-a774-4478-a4fa-8dad9783023a",
+      "name": "qa-gn1558-32-l2-empty-renamed",
+      "displaytext": "",
+      "type": "L2",
+      "state": "Setup",
+      "networkofferingid": "4a711c03-f9bd-4989-96fc-ea38ca9e79a1",
+      "cidr": null,
+      "gateway": null,
+      "vlan": "742",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "dns1": "8.8.8.8",
+      "dns2": null
+    },
+    {
+      "id": "897b203b-5ee6-4e13-ad50-a295bbb6cb02",
+      "name": "qa-gn1558-32-isolated-renamed",
+      "displaytext": "",
+      "type": "Isolated",
+      "state": "Allocated",
+      "networkofferingid": "e8d9487d-f70b-451f-8a58-7d26e8bfdc79",
+      "cidr": "10.245.32.0/24",
+      "gateway": "10.245.32.1",
+      "vlan": null,
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "dns1": "8.8.8.8",
+      "dns2": null
+    },
+    {
+      "id": "0ecfc27d-e3d1-4200-a5af-3128077e59d9",
+      "name": "qa-gn1558-32-shared-new",
+      "displaytext": "새 생성 설명 · shared\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\"",
+      "type": "Shared",
+      "state": "Setup",
+      "networkofferingid": "c0586d85-1ab3-41ba-8c6a-455ce47d6c3b",
+      "cidr": "10.242.32.0/24",
+      "gateway": "10.242.32.1",
+      "vlan": "772",
+      "account": null,
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "dns1": "8.8.8.8",
+      "dns2": null
+    },
+    {
+      "id": "83bc4f53-7eda-405a-9556-fbcf9270551e",
+      "name": "qa-gn1558-32-l2-new",
+      "displaytext": "새 생성 설명 · l2\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\"",
+      "type": "L2",
+      "state": "Setup",
+      "networkofferingid": "4a711c03-f9bd-4989-96fc-ea38ca9e79a1",
+      "cidr": null,
+      "gateway": null,
+      "vlan": "782",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "dns1": "8.8.8.8",
+      "dns2": null
+    },
+    {
+      "id": "b309da3c-0838-43ac-9598-48de2c402686",
+      "name": "qa-gn1558-32-isolated-new",
+      "displaytext": "새 생성 설명 · isolated\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\"",
+      "type": "Isolated",
+      "state": "Allocated",
+      "networkofferingid": "e8d9487d-f70b-451f-8a58-7d26e8bfdc79",
+      "cidr": "10.243.32.0/24",
+      "gateway": "10.243.32.1",
+      "vlan": null,
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "dns1": "8.8.8.8",
+      "dns2": null
+    }
+  ],
+  "db": [
+    {
+      "id": "0ecfc27d-e3d1-4200-a5af-3128077e59d9",
+      "name": "qa-gn1558-32-shared-new",
+      "state": "Setup",
+      "displaytext": "새 생성 설명 · shared\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\""
+    },
+    {
+      "id": "397a6ff2-b78b-4c1b-af75-eff6d61b4b64",
+      "name": "qa-gn1558-32-shared-renamed",
+      "state": "Setup",
+      "displaytext": ""
+    },
+    {
+      "id": "3f82dd0d-a774-4478-a4fa-8dad9783023a",
+      "name": "qa-gn1558-32-l2-empty-renamed",
+      "state": "Setup",
+      "displaytext": ""
+    },
+    {
+      "id": "83bc4f53-7eda-405a-9556-fbcf9270551e",
+      "name": "qa-gn1558-32-l2-new",
+      "state": "Setup",
+      "displaytext": "새 생성 설명 · l2\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\""
+    },
+    {
+      "id": "897b203b-5ee6-4e13-ad50-a295bbb6cb02",
+      "name": "qa-gn1558-32-isolated-renamed",
+      "state": "Allocated",
+      "displaytext": ""
+    },
+    {
+      "id": "b309da3c-0838-43ac-9598-48de2c402686",
+      "name": "qa-gn1558-32-isolated-new",
+      "state": "Allocated",
+      "displaytext": "새 생성 설명 · isolated\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\""
+    }
+  ]
+}

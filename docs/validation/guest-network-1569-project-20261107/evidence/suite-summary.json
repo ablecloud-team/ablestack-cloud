@@ -1,0 +1,144 @@
+{
+  "sourceCommit": "0985c15bb30e81ca4aae2945eb8e68117bd9cf22",
+  "projectRoleWriteCases": 140,
+  "crossOwnerDeniedCases": 4,
+  "finalReadonlyDiagnosticCases": 12,
+  "uiUniqueCaptures": 24,
+  "perCluster": {
+    "31": {
+      "apiSummary": {
+        "admin": {
+          "cases": 10,
+          "accepted": 10,
+          "denied": 0,
+          "codes": []
+        },
+        "domainadmin": {
+          "cases": 10,
+          "accepted": 9,
+          "denied": 1,
+          "codes": [
+            531
+          ]
+        },
+        "owner": {
+          "cases": 10,
+          "accepted": 9,
+          "denied": 1,
+          "codes": [
+            531
+          ]
+        },
+        "member": {
+          "cases": 10,
+          "accepted": 9,
+          "denied": 1,
+          "codes": [
+            531
+          ]
+        },
+        "readonly": {
+          "cases": 10,
+          "accepted": 0,
+          "denied": 10,
+          "codes": [
+            401
+          ]
+        },
+        "peer": {
+          "cases": 10,
+          "accepted": 0,
+          "denied": 10,
+          "codes": [
+            432
+          ]
+        },
+        "outsider": {
+          "cases": 10,
+          "accepted": 0,
+          "denied": 10,
+          "codes": [
+            432
+          ]
+        }
+      },
+      "projectNetworks": 15,
+      "projectVms": 1,
+      "allQa": {
+        "qaNetworks": 19,
+        "qaUserVms": 5
+      }
+    },
+    "32": {
+      "apiSummary": {
+        "admin": {
+          "cases": 10,
+          "accepted": 10,
+          "denied": 0,
+          "codes": []
+        },
+        "domainadmin": {
+          "cases": 10,
+          "accepted": 9,
+          "denied": 1,
+          "codes": [
+            531
+          ]
+        },
+        "owner": {
+          "cases": 10,
+          "accepted": 9,
+          "denied": 1,
+          "codes": [
+            531
+          ]
+        },
+        "member": {
+          "cases": 10,
+          "accepted": 9,
+          "denied": 1,
+          "codes": [
+            531
+          ]
+        },
+        "readonly": {
+          "cases": 10,
+          "accepted": 0,
+          "denied": 10,
+          "codes": [
+            401
+          ]
+        },
+        "peer": {
+          "cases": 10,
+          "accepted": 0,
+          "denied": 10,
+          "codes": [
+            432
+          ]
+        },
+        "outsider": {
+          "cases": 10,
+          "accepted": 0,
+          "denied": 10,
+          "codes": [
+            432
+          ]
+        }
+      },
+      "projectNetworks": 16,
+      "projectVms": 1,
+      "allQa": {
+        "qaNetworks": 20,
+        "qaUserVms": 6
+      }
+    }
+  },
+  "knownDefects": [
+    1587,
+    1588,
+    1589
+  ],
+  "sourceChanged": false,
+  "deployedThisTurn": false
+}

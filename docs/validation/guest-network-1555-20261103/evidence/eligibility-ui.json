@@ -1,0 +1,22 @@
+[
+  {
+    "cluster": 31,
+    "type": "L2",
+    "dnsFieldCount": 0
+  },
+  {
+    "cluster": 31,
+    "type": "VPC tier",
+    "dnsFieldCount": 0
+  },
+  {
+    "cluster": 32,
+    "type": "L2",
+    "dnsFieldCount": 0
+  },
+  {
+    "cluster": 32,
+    "type": "VPC tier",
+    "dnsFieldCount": 0
+  }
+]

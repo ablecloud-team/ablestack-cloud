@@ -1,0 +1,5 @@
+{
+  "exit": 0,
+  "command": "mvn -pl server -Dtest=ProjectRoleAuthorizationTest,DomainCheckerProjectRoleTest,ProjectRoleManagerImplTest -Drat.skip=true -Dcheckstyle.skip=true package",
+  "fullCloudBuild": false
+}

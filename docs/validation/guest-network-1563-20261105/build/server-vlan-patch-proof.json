@@ -1,0 +1,15 @@
+{
+  "oldJarSha256": "f542159d7d186554387ba5290e4f4a2be1a52a44cece143fa50fe76cffbdc0cb",
+  "newJarSha256": "4159fc0d5dc3c32c023a0d2d801f2a8635164dcc575f733e25fa4b889c13f2a9",
+  "changedEntries": [
+    "com/cloud/network/NetworkMigrationManagerImpl.class"
+  ],
+  "preservedEntries": 204656,
+  "classSha256": {
+    "com/cloud/network/NetworkMigrationManagerImpl.class": "7e4bf244b664ede480385fac48502e08081b7d32e34a591466ff2ffbfc885571"
+  },
+  "sourceFiles": {
+    "server/src/main/java/com/cloud/network/NetworkMigrationManagerImpl.java": "fda0b750c747594abfb783d6154508f88f858a133168e63d1bdb566e317c4732"
+  },
+  "sourceHead": "a2cfdf989c26f0e78dab48d6d2d50b8cd7006453"
+}

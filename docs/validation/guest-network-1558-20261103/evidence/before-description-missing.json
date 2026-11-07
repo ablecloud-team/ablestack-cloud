@@ -1,0 +1,142 @@
+[
+  {
+    "cluster": 31,
+    "type": "isolated",
+    "description_label_present": false,
+    "labels": [
+      "이름",
+      "아이디",
+      "유형",
+      "트래픽 유형",
+      "CIDR",
+      "넷마스크",
+      "게이트웨이",
+      "영구적 ",
+      "재시작 필요",
+      "Redundant 라우터",
+      "네트워크 도메인",
+      "기본 송신 정책",
+      "Zone",
+      "계정",
+      "도메인",
+      "DNS 1",
+      "Public 인터페이스 MTU",
+      "Private 인터페이스 MTU",
+      "공용 NIC의 MAC 주소 유지"
+    ]
+  },
+  {
+    "cluster": 31,
+    "type": "l2",
+    "description_label_present": false,
+    "labels": [
+      "이름",
+      "아이디",
+      "유형",
+      "트래픽 유형",
+      "VLAN/VNI",
+      "브로드 캐스트",
+      "영구적 ",
+      "재시작 필요",
+      "Redundant 라우터",
+      "Zone",
+      "계정",
+      "도메인",
+      "DNS 1"
+    ]
+  },
+  {
+    "cluster": 31,
+    "type": "shared",
+    "description_label_present": false,
+    "labels": [
+      "이름",
+      "아이디",
+      "유형",
+      "트래픽 유형",
+      "VLAN/VNI",
+      "브로드 캐스트",
+      "CIDR",
+      "넷마스크",
+      "게이트웨이",
+      "영구적 ",
+      "재시작 필요",
+      "Redundant 라우터",
+      "네트워크 도메인",
+      "Zone",
+      "도메인",
+      "DNS 1",
+      "Public 인터페이스 MTU"
+    ]
+  },
+  {
+    "cluster": 32,
+    "type": "isolated",
+    "description_label_present": false,
+    "labels": [
+      "이름",
+      "아이디",
+      "유형",
+      "트래픽 유형",
+      "CIDR",
+      "넷마스크",
+      "게이트웨이",
+      "영구적 ",
+      "재시작 필요",
+      "Redundant 라우터",
+      "네트워크 도메인",
+      "기본 송신 정책",
+      "Zone",
+      "계정",
+      "도메인",
+      "DNS 1",
+      "Public 인터페이스 MTU",
+      "Private 인터페이스 MTU",
+      "공용 NIC의 MAC 주소 유지"
+    ]
+  },
+  {
+    "cluster": 32,
+    "type": "l2",
+    "description_label_present": false,
+    "labels": [
+      "이름",
+      "아이디",
+      "유형",
+      "트래픽 유형",
+      "VLAN/VNI",
+      "브로드 캐스트",
+      "영구적 ",
+      "재시작 필요",
+      "Redundant 라우터",
+      "Zone",
+      "계정",
+      "도메인",
+      "DNS 1"
+    ]
+  },
+  {
+    "cluster": 32,
+    "type": "shared",
+    "description_label_present": false,
+    "labels": [
+      "이름",
+      "아이디",
+      "유형",
+      "트래픽 유형",
+      "VLAN/VNI",
+      "브로드 캐스트",
+      "CIDR",
+      "넷마스크",
+      "게이트웨이",
+      "영구적 ",
+      "재시작 필요",
+      "Redundant 라우터",
+      "네트워크 도메인",
+      "Zone",
+      "도메인",
+      "DNS 1",
+      "Public 인터페이스 MTU"
+    ]
+  }
+]

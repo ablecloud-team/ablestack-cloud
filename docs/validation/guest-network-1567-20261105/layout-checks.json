@@ -1,0 +1,7634 @@
+[
+  {
+    "label": "31-update-isolated-light-1280",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 1354,
+    "bodyScrollTop": 644,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "advancedSwitches": [
+      null,
+      null
+    ],
+    "bodyWidth": 948,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+  },
+  {
+    "label": "31-update-isolated-light-768",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 1464,
+    "bodyScrollTop": 754,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 900,
+      "left": 80,
+      "right": 758,
+      "top": 124,
+      "width": 678,
+      "x": 80,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "advancedSwitches": [
+      null,
+      null
+    ],
+    "bodyWidth": 708,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+  },
+  {
+    "label": "31-update-isolated-light-390",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 1761,
+    "bodyScrollTop": 1063,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 676,
+      "left": 0,
+      "right": 380,
+      "top": 168,
+      "width": 380,
+      "x": 0,
+      "y": 168
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "advancedSwitches": [
+      null,
+      null
+    ],
+    "bodyWidth": 354,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+  },
+  {
+    "label": "31-update-shared-light-1280",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 1041,
+    "bodyScrollTop": 331,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "advancedSwitches": [
+      "IP 사용량 내보내기 제외",
+      null
+    ],
+    "bodyWidth": 948,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "31-update-shared-light-768",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 1129,
+    "bodyScrollTop": 419,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 900,
+      "left": 80,
+      "right": 758,
+      "top": 124,
+      "width": 678,
+      "x": 80,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "advancedSwitches": [
+      "IP 사용량 내보내기 제외",
+      null
+    ],
+    "bodyWidth": 708,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "31-update-shared-light-390",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 1379,
+    "bodyScrollTop": 681,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 676,
+      "left": 0,
+      "right": 380,
+      "top": 168,
+      "width": 380,
+      "x": 0,
+      "y": 168
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "advancedSwitches": [
+      "IP 사용량 내보내기 제외",
+      null
+    ],
+    "bodyWidth": 354,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "31-update-l2-light-1280",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 747,
+    "bodyScrollTop": 37,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "advancedSwitches": [
+      null
+    ],
+    "bodyWidth": 948,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "31-update-l2-light-768",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 813,
+    "bodyScrollTop": 103,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 900,
+      "left": 80,
+      "right": 758,
+      "top": 124,
+      "width": 678,
+      "x": 80,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "advancedSwitches": [
+      null
+    ],
+    "bodyWidth": 708,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "31-update-l2-light-390",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 929,
+    "bodyScrollTop": 231,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 676,
+      "left": 0,
+      "right": 380,
+      "top": 168,
+      "width": 380,
+      "x": 0,
+      "y": 168
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "advancedSwitches": [
+      null
+    ],
+    "bodyWidth": 354,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "32-update-isolated-light-1280",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 1354,
+    "bodyScrollTop": 644,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "advancedSwitches": [
+      null,
+      null
+    ],
+    "bodyWidth": 948,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+  },
+  {
+    "label": "32-update-isolated-light-768",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 1464,
+    "bodyScrollTop": 754,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 841,
+      "left": 80,
+      "right": 758,
+      "top": 183,
+      "width": 678,
+      "x": 80,
+      "y": 183
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "advancedSwitches": [
+      null,
+      null
+    ],
+    "bodyWidth": 708,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+  },
+  {
+    "label": "32-update-isolated-light-390",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 1761,
+    "bodyScrollTop": 1063,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "advancedSwitches": [
+      null,
+      null
+    ],
+    "bodyWidth": 354,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+  },
+  {
+    "label": "31-delete-light-1280",
+    "body": {
+      "bottom": 628.5,
+      "height": 367,
+      "left": 281,
+      "right": 999,
+      "top": 261.5,
+      "width": 718,
+      "x": 281,
+      "y": 261.5
+    },
+    "bodyClientHeight": 367,
+    "bodyClientWidth": 718,
+    "bodyScrollHeight": 367,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 718,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 삭제"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+      }
+    ],
+    "content": {
+      "bottom": 694.5,
+      "height": 489,
+      "left": 280,
+      "right": 1000,
+      "top": 205.5,
+      "width": 720,
+      "x": 280,
+      "y": 205.5
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 693.5,
+      "height": 65,
+      "left": 281,
+      "right": 999,
+      "top": 628.5,
+      "width": 718,
+      "x": 281,
+      "y": 628.5
+    },
+    "header": {
+      "bottom": 261.5,
+      "height": 55,
+      "left": 281,
+      "right": 999,
+      "top": 206.5,
+      "width": 718,
+      "x": 281,
+      "y": 206.5
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 677.5,
+      "height": 32,
+      "left": 913.234375,
+      "right": 971,
+      "top": 645.5,
+      "width": 57.765625,
+      "x": 913.234375,
+      "y": 645.5
+    },
+    "width": 1280,
+    "advancedSwitches": [],
+    "bodyWidth": 718,
+    "policy": "고급 작업 안내이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다.강제 삭제강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+  },
+  {
+    "label": "31-delete-light-768",
+    "body": {
+      "bottom": 690.5,
+      "height": 367,
+      "left": 25,
+      "right": 743,
+      "top": 323.5,
+      "width": 718,
+      "x": 25,
+      "y": 323.5
+    },
+    "bodyClientHeight": 367,
+    "bodyClientWidth": 718,
+    "bodyScrollHeight": 367,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 718,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 삭제"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+      }
+    ],
+    "content": {
+      "bottom": 756.5,
+      "height": 489,
+      "left": 24,
+      "right": 744,
+      "top": 267.5,
+      "width": 720,
+      "x": 24,
+      "y": 267.5
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 755.5,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 690.5,
+      "width": 718,
+      "x": 25,
+      "y": 690.5
+    },
+    "header": {
+      "bottom": 323.5,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 268.5,
+      "width": 718,
+      "x": 25,
+      "y": 268.5
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 900,
+      "left": 80,
+      "right": 758,
+      "top": 124,
+      "width": 678,
+      "x": 80,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 739.5,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 707.5,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 707.5
+    },
+    "width": 768,
+    "advancedSwitches": [],
+    "bodyWidth": 718,
+    "policy": "고급 작업 안내이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다.강제 삭제강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+  },
+  {
+    "label": "31-delete-light-390",
+    "body": {
+      "bottom": 636.5,
+      "height": 439,
+      "left": 13,
+      "right": 377,
+      "top": 197.5,
+      "width": 364,
+      "x": 13,
+      "y": 197.5
+    },
+    "bodyClientHeight": 439,
+    "bodyClientWidth": 364,
+    "bodyScrollHeight": 439,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 364,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 삭제"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+      }
+    ],
+    "content": {
+      "bottom": 702.5,
+      "height": 561,
+      "left": 12,
+      "right": 378,
+      "top": 141.5,
+      "width": 366,
+      "x": 12,
+      "y": 141.5
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 701.5,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 636.5,
+      "width": 364,
+      "x": 13,
+      "y": 636.5
+    },
+    "header": {
+      "bottom": 197.5,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 142.5,
+      "width": 364,
+      "x": 13,
+      "y": 142.5
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 676,
+      "left": 0,
+      "right": 380,
+      "top": 168,
+      "width": 380,
+      "x": 0,
+      "y": 168
+    },
+    "primaryButton": {
+      "bottom": 685.5,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 653.5,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 653.5
+    },
+    "width": 390,
+    "advancedSwitches": [],
+    "bodyWidth": 364,
+    "policy": "고급 작업 안내이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다.강제 삭제강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+  },
+  {
+    "label": "32-update-shared-light-1280",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 1041,
+    "bodyScrollTop": 331,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "advancedSwitches": [
+      "IP 사용량 내보내기 제외",
+      null
+    ],
+    "bodyWidth": 948,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "32-update-shared-light-768",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 1129,
+    "bodyScrollTop": 419,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 841,
+      "left": 80,
+      "right": 758,
+      "top": 183,
+      "width": 678,
+      "x": 80,
+      "y": 183
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "advancedSwitches": [
+      "IP 사용량 내보내기 제외",
+      null
+    ],
+    "bodyWidth": 708,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "32-update-shared-light-390",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 1379,
+    "bodyScrollTop": 681,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "advancedSwitches": [
+      "IP 사용량 내보내기 제외",
+      null
+    ],
+    "bodyWidth": 354,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "32-update-l2-light-1280",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 747,
+    "bodyScrollTop": 37,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "advancedSwitches": [
+      null
+    ],
+    "bodyWidth": 948,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "32-update-l2-light-768",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 813,
+    "bodyScrollTop": 103,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 841,
+      "left": 80,
+      "right": 758,
+      "top": 183,
+      "width": 678,
+      "x": 80,
+      "y": 183
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "advancedSwitches": [
+      null
+    ],
+    "bodyWidth": 708,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "32-update-l2-light-390",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 929,
+    "bodyScrollTop": 231,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "advancedSwitches": [
+      null
+    ],
+    "bodyWidth": 354,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "32-delete-light-1280",
+    "body": {
+      "bottom": 628.5,
+      "height": 367,
+      "left": 281,
+      "right": 999,
+      "top": 261.5,
+      "width": 718,
+      "x": 281,
+      "y": 261.5
+    },
+    "bodyClientHeight": 367,
+    "bodyClientWidth": 718,
+    "bodyScrollHeight": 367,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 718,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 삭제"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+      }
+    ],
+    "content": {
+      "bottom": 694.5,
+      "height": 489,
+      "left": 280,
+      "right": 1000,
+      "top": 205.5,
+      "width": 720,
+      "x": 280,
+      "y": 205.5
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 693.5,
+      "height": 65,
+      "left": 281,
+      "right": 999,
+      "top": 628.5,
+      "width": 718,
+      "x": 281,
+      "y": 628.5
+    },
+    "header": {
+      "bottom": 261.5,
+      "height": 55,
+      "left": 281,
+      "right": 999,
+      "top": 206.5,
+      "width": 718,
+      "x": 281,
+      "y": 206.5
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": {
+      "bottom": 677.5,
+      "height": 32,
+      "left": 913.234375,
+      "right": 971,
+      "top": 645.5,
+      "width": 57.765625,
+      "x": 913.234375,
+      "y": 645.5
+    },
+    "width": 1280,
+    "advancedSwitches": [],
+    "bodyWidth": 718,
+    "policy": "고급 작업 안내이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다.강제 삭제강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+  },
+  {
+    "label": "32-delete-light-768",
+    "body": {
+      "bottom": 690.5,
+      "height": 367,
+      "left": 25,
+      "right": 743,
+      "top": 323.5,
+      "width": 718,
+      "x": 25,
+      "y": 323.5
+    },
+    "bodyClientHeight": 367,
+    "bodyClientWidth": 718,
+    "bodyScrollHeight": 367,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 718,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 삭제"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+      }
+    ],
+    "content": {
+      "bottom": 756.5,
+      "height": 489,
+      "left": 24,
+      "right": 744,
+      "top": 267.5,
+      "width": 720,
+      "x": 24,
+      "y": 267.5
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 755.5,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 690.5,
+      "width": 718,
+      "x": 25,
+      "y": 690.5
+    },
+    "header": {
+      "bottom": 323.5,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 268.5,
+      "width": 718,
+      "x": 25,
+      "y": 268.5
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 841,
+      "left": 80,
+      "right": 758,
+      "top": 183,
+      "width": 678,
+      "x": 80,
+      "y": 183
+    },
+    "primaryButton": {
+      "bottom": 739.5,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 707.5,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 707.5
+    },
+    "width": 768,
+    "advancedSwitches": [],
+    "bodyWidth": 718,
+    "policy": "고급 작업 안내이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다.강제 삭제강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+  },
+  {
+    "label": "32-delete-light-390",
+    "body": {
+      "bottom": 636.5,
+      "height": 439,
+      "left": 13,
+      "right": 377,
+      "top": 197.5,
+      "width": 364,
+      "x": 13,
+      "y": 197.5
+    },
+    "bodyClientHeight": 439,
+    "bodyClientWidth": 364,
+    "bodyScrollHeight": 439,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 364,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 삭제"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+      }
+    ],
+    "content": {
+      "bottom": 702.5,
+      "height": 561,
+      "left": 12,
+      "right": 378,
+      "top": 141.5,
+      "width": 366,
+      "x": 12,
+      "y": 141.5
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 701.5,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 636.5,
+      "width": 364,
+      "x": 13,
+      "y": 636.5
+    },
+    "header": {
+      "bottom": 197.5,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 142.5,
+      "width": 364,
+      "x": 13,
+      "y": 142.5
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": {
+      "bottom": 685.5,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 653.5,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 653.5
+    },
+    "width": 390,
+    "advancedSwitches": [],
+    "bodyWidth": 364,
+    "policy": "고급 작업 안내이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다.강제 삭제강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+  },
+  {
+    "label": "31-update-isolated-dark-1280",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 1354,
+    "bodyScrollTop": 644,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "advancedSwitches": [
+      null,
+      null
+    ],
+    "bodyWidth": 948,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+  },
+  {
+    "label": "31-update-isolated-dark-768",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 1464,
+    "bodyScrollTop": 754,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 900,
+      "left": 80,
+      "right": 758,
+      "top": 124,
+      "width": 678,
+      "x": 80,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "advancedSwitches": [
+      null,
+      null
+    ],
+    "bodyWidth": 708,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+  },
+  {
+    "label": "31-update-isolated-dark-390",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 1761,
+    "bodyScrollTop": 1063,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 676,
+      "left": 0,
+      "right": 380,
+      "top": 168,
+      "width": 380,
+      "x": 0,
+      "y": 168
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "advancedSwitches": [
+      null,
+      null
+    ],
+    "bodyWidth": 354,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+  },
+  {
+    "label": "31-update-shared-dark-1280",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 1041,
+    "bodyScrollTop": 331,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "advancedSwitches": [
+      "IP 사용량 내보내기 제외",
+      null
+    ],
+    "bodyWidth": 948,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "31-update-shared-dark-768",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 1129,
+    "bodyScrollTop": 419,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 900,
+      "left": 80,
+      "right": 758,
+      "top": 124,
+      "width": 678,
+      "x": 80,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "advancedSwitches": [
+      "IP 사용량 내보내기 제외",
+      null
+    ],
+    "bodyWidth": 708,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "31-update-shared-dark-390",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 1379,
+    "bodyScrollTop": 681,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 676,
+      "left": 0,
+      "right": 380,
+      "top": 168,
+      "width": 380,
+      "x": 0,
+      "y": 168
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "advancedSwitches": [
+      "IP 사용량 내보내기 제외",
+      null
+    ],
+    "bodyWidth": 354,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "31-update-l2-dark-1280",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 747,
+    "bodyScrollTop": 37,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "advancedSwitches": [
+      null
+    ],
+    "bodyWidth": 948,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "31-update-l2-dark-768",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 813,
+    "bodyScrollTop": 103,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 900,
+      "left": 80,
+      "right": 758,
+      "top": 124,
+      "width": 678,
+      "x": 80,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "advancedSwitches": [
+      null
+    ],
+    "bodyWidth": 708,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "31-update-l2-dark-390",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 929,
+    "bodyScrollTop": 231,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 676,
+      "left": 0,
+      "right": 380,
+      "top": 168,
+      "width": 380,
+      "x": 0,
+      "y": 168
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "advancedSwitches": [
+      null
+    ],
+    "bodyWidth": 354,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "31-delete-dark-1280",
+    "body": {
+      "bottom": 628.5,
+      "height": 367,
+      "left": 281,
+      "right": 999,
+      "top": 261.5,
+      "width": 718,
+      "x": 281,
+      "y": 261.5
+    },
+    "bodyClientHeight": 367,
+    "bodyClientWidth": 718,
+    "bodyScrollHeight": 367,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 718,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 삭제"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+      }
+    ],
+    "content": {
+      "bottom": 694.5,
+      "height": 489,
+      "left": 280,
+      "right": 1000,
+      "top": 205.5,
+      "width": 720,
+      "x": 280,
+      "y": 205.5
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 693.5,
+      "height": 65,
+      "left": 281,
+      "right": 999,
+      "top": 628.5,
+      "width": 718,
+      "x": 281,
+      "y": 628.5
+    },
+    "header": {
+      "bottom": 261.5,
+      "height": 55,
+      "left": 281,
+      "right": 999,
+      "top": 206.5,
+      "width": 718,
+      "x": 281,
+      "y": 206.5
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 677.5,
+      "height": 32,
+      "left": 913.234375,
+      "right": 971,
+      "top": 645.5,
+      "width": 57.765625,
+      "x": 913.234375,
+      "y": 645.5
+    },
+    "width": 1280,
+    "advancedSwitches": [],
+    "bodyWidth": 718,
+    "policy": "고급 작업 안내이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다.강제 삭제강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+  },
+  {
+    "label": "31-delete-dark-768",
+    "body": {
+      "bottom": 690.5,
+      "height": 367,
+      "left": 25,
+      "right": 743,
+      "top": 323.5,
+      "width": 718,
+      "x": 25,
+      "y": 323.5
+    },
+    "bodyClientHeight": 367,
+    "bodyClientWidth": 718,
+    "bodyScrollHeight": 367,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 718,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 삭제"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+      }
+    ],
+    "content": {
+      "bottom": 756.5,
+      "height": 489,
+      "left": 24,
+      "right": 744,
+      "top": 267.5,
+      "width": 720,
+      "x": 24,
+      "y": 267.5
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 755.5,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 690.5,
+      "width": 718,
+      "x": 25,
+      "y": 690.5
+    },
+    "header": {
+      "bottom": 323.5,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 268.5,
+      "width": 718,
+      "x": 25,
+      "y": 268.5
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 900,
+      "left": 80,
+      "right": 758,
+      "top": 124,
+      "width": 678,
+      "x": 80,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 739.5,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 707.5,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 707.5
+    },
+    "width": 768,
+    "advancedSwitches": [],
+    "bodyWidth": 718,
+    "policy": "고급 작업 안내이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다.강제 삭제강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+  },
+  {
+    "label": "31-delete-dark-390",
+    "body": {
+      "bottom": 636.5,
+      "height": 439,
+      "left": 13,
+      "right": 377,
+      "top": 197.5,
+      "width": 364,
+      "x": 13,
+      "y": 197.5
+    },
+    "bodyClientHeight": 439,
+    "bodyClientWidth": 364,
+    "bodyScrollHeight": 439,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 364,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 삭제"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+      }
+    ],
+    "content": {
+      "bottom": 702.5,
+      "height": 561,
+      "left": 12,
+      "right": 378,
+      "top": 141.5,
+      "width": 366,
+      "x": 12,
+      "y": 141.5
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 701.5,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 636.5,
+      "width": 364,
+      "x": 13,
+      "y": 636.5
+    },
+    "header": {
+      "bottom": 197.5,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 142.5,
+      "width": 364,
+      "x": 13,
+      "y": 142.5
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 676,
+      "left": 0,
+      "right": 380,
+      "top": 168,
+      "width": 380,
+      "x": 0,
+      "y": 168
+    },
+    "primaryButton": {
+      "bottom": 685.5,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 653.5,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 653.5
+    },
+    "width": 390,
+    "advancedSwitches": [],
+    "bodyWidth": 364,
+    "policy": "고급 작업 안내이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다.강제 삭제강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+  },
+  {
+    "label": "32-update-isolated-dark-1280",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 1354,
+    "bodyScrollTop": 644,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "advancedSwitches": [
+      null,
+      null
+    ],
+    "bodyWidth": 948,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+  },
+  {
+    "label": "32-update-isolated-dark-768",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 1464,
+    "bodyScrollTop": 754,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 841,
+      "left": 80,
+      "right": 758,
+      "top": 183,
+      "width": 678,
+      "x": 80,
+      "y": 183
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "advancedSwitches": [
+      null,
+      null
+    ],
+    "bodyWidth": 708,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+  },
+  {
+    "label": "32-update-isolated-dark-390",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 1761,
+    "bodyScrollTop": 1063,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "advancedSwitches": [
+      null,
+      null
+    ],
+    "bodyWidth": 354,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+  },
+  {
+    "label": "32-update-shared-dark-1280",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 1041,
+    "bodyScrollTop": 331,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "advancedSwitches": [
+      "IP 사용량 내보내기 제외",
+      null
+    ],
+    "bodyWidth": 948,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "32-update-shared-dark-768",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 1129,
+    "bodyScrollTop": 419,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 841,
+      "left": 80,
+      "right": 758,
+      "top": 183,
+      "width": 678,
+      "x": 80,
+      "y": 183
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "advancedSwitches": [
+      "IP 사용량 내보내기 제외",
+      null
+    ],
+    "bodyWidth": 708,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "32-update-shared-dark-390",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 1379,
+    "bodyScrollTop": 681,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "advancedSwitches": [
+      "IP 사용량 내보내기 제외",
+      null
+    ],
+    "bodyWidth": 354,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "32-update-l2-dark-1280",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 747,
+    "bodyScrollTop": 37,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "advancedSwitches": [
+      null
+    ],
+    "bodyWidth": 948,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "32-update-l2-dark-768",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 813,
+    "bodyScrollTop": 103,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 841,
+      "left": 80,
+      "right": 758,
+      "top": 183,
+      "width": 678,
+      "x": 80,
+      "y": 183
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "advancedSwitches": [
+      null
+    ],
+    "bodyWidth": 708,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "32-update-l2-dark-390",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 929,
+    "bodyScrollTop": 231,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "advancedSwitches": [
+      null
+    ],
+    "bodyWidth": 354,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "32-delete-dark-1280",
+    "body": {
+      "bottom": 628.5,
+      "height": 367,
+      "left": 281,
+      "right": 999,
+      "top": 261.5,
+      "width": 718,
+      "x": 281,
+      "y": 261.5
+    },
+    "bodyClientHeight": 367,
+    "bodyClientWidth": 718,
+    "bodyScrollHeight": 367,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 718,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 삭제"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+      }
+    ],
+    "content": {
+      "bottom": 694.5,
+      "height": 489,
+      "left": 280,
+      "right": 1000,
+      "top": 205.5,
+      "width": 720,
+      "x": 280,
+      "y": 205.5
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 693.5,
+      "height": 65,
+      "left": 281,
+      "right": 999,
+      "top": 628.5,
+      "width": 718,
+      "x": 281,
+      "y": 628.5
+    },
+    "header": {
+      "bottom": 261.5,
+      "height": 55,
+      "left": 281,
+      "right": 999,
+      "top": 206.5,
+      "width": 718,
+      "x": 281,
+      "y": 206.5
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": {
+      "bottom": 677.5,
+      "height": 32,
+      "left": 913.234375,
+      "right": 971,
+      "top": 645.5,
+      "width": 57.765625,
+      "x": 913.234375,
+      "y": 645.5
+    },
+    "width": 1280,
+    "advancedSwitches": [],
+    "bodyWidth": 718,
+    "policy": "고급 작업 안내이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다.강제 삭제강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+  },
+  {
+    "label": "32-delete-dark-768",
+    "body": {
+      "bottom": 690.5,
+      "height": 367,
+      "left": 25,
+      "right": 743,
+      "top": 323.5,
+      "width": 718,
+      "x": 25,
+      "y": 323.5
+    },
+    "bodyClientHeight": 367,
+    "bodyClientWidth": 718,
+    "bodyScrollHeight": 367,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 718,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 삭제"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+      }
+    ],
+    "content": {
+      "bottom": 756.5,
+      "height": 489,
+      "left": 24,
+      "right": 744,
+      "top": 267.5,
+      "width": 720,
+      "x": 24,
+      "y": 267.5
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 755.5,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 690.5,
+      "width": 718,
+      "x": 25,
+      "y": 690.5
+    },
+    "header": {
+      "bottom": 323.5,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 268.5,
+      "width": 718,
+      "x": 25,
+      "y": 268.5
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 841,
+      "left": 80,
+      "right": 758,
+      "top": 183,
+      "width": 678,
+      "x": 80,
+      "y": 183
+    },
+    "primaryButton": {
+      "bottom": 739.5,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 707.5,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 707.5
+    },
+    "width": 768,
+    "advancedSwitches": [],
+    "bodyWidth": 718,
+    "policy": "고급 작업 안내이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다.강제 삭제강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+  },
+  {
+    "label": "32-delete-dark-390",
+    "body": {
+      "bottom": 636.5,
+      "height": 439,
+      "left": 13,
+      "right": 377,
+      "top": 197.5,
+      "width": 364,
+      "x": 13,
+      "y": 197.5
+    },
+    "bodyClientHeight": 439,
+    "bodyClientWidth": 364,
+    "bodyScrollHeight": 439,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 364,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 삭제"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+      }
+    ],
+    "content": {
+      "bottom": 702.5,
+      "height": 561,
+      "left": 12,
+      "right": 378,
+      "top": 141.5,
+      "width": 366,
+      "x": 12,
+      "y": 141.5
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 701.5,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 636.5,
+      "width": 364,
+      "x": 13,
+      "y": 636.5
+    },
+    "header": {
+      "bottom": 197.5,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 142.5,
+      "width": 364,
+      "x": 13,
+      "y": 142.5
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": {
+      "bottom": 685.5,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 653.5,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 653.5
+    },
+    "width": 390,
+    "advancedSwitches": [],
+    "bodyWidth": 364,
+    "policy": "고급 작업 안내이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다.강제 삭제강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+  },
+  {
+    "label": "32-user-update-dark-1280",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 1150,
+    "bodyScrollTop": 440,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 822,
+      "left": 256,
+      "right": 1270,
+      "top": 78,
+      "width": 1014,
+      "x": 256,
+      "y": 78
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "advancedSwitches": [],
+    "bodyWidth": 948,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+  },
+  {
+    "label": "31-user-update-dark-1280",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 1150,
+    "bodyScrollTop": 440,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 822,
+      "left": 256,
+      "right": 1270,
+      "top": 78,
+      "width": 1014,
+      "x": 256,
+      "y": 78
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "advancedSwitches": [],
+    "bodyWidth": 948,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+  },
+  {
+    "label": "31-domainadmin-update-dark-1280",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 1150,
+    "bodyScrollTop": 440,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 822,
+      "left": 256,
+      "right": 1270,
+      "top": 78,
+      "width": 1014,
+      "x": 256,
+      "y": 78
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "advancedSwitches": [],
+    "bodyWidth": 948,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+  },
+  {
+    "label": "32-domainadmin-update-dark-1280",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 1150,
+    "bodyScrollTop": 440,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 822,
+      "left": 256,
+      "right": 1270,
+      "top": 78,
+      "width": 1014,
+      "x": 256,
+      "y": 78
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "advancedSwitches": [],
+    "bodyWidth": 948,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+  },
+  {
+    "label": "31-empty-delete-isolated-dark-1280",
+    "body": {
+      "bottom": 628.5,
+      "height": 367,
+      "left": 281,
+      "right": 999,
+      "top": 261.5,
+      "width": 718,
+      "x": 281,
+      "y": 261.5
+    },
+    "bodyClientHeight": 367,
+    "bodyClientWidth": 718,
+    "bodyScrollHeight": 367,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 718,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 삭제"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+      }
+    ],
+    "content": {
+      "bottom": 694.5,
+      "height": 489,
+      "left": 280,
+      "right": 1000,
+      "top": 205.5,
+      "width": 720,
+      "x": 280,
+      "y": 205.5
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 693.5,
+      "height": 65,
+      "left": 281,
+      "right": 999,
+      "top": 628.5,
+      "width": 718,
+      "x": 281,
+      "y": 628.5
+    },
+    "header": {
+      "bottom": 261.5,
+      "height": 55,
+      "left": 281,
+      "right": 999,
+      "top": 206.5,
+      "width": 718,
+      "x": 281,
+      "y": 206.5
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 677.5,
+      "height": 32,
+      "left": 913.234375,
+      "right": 971,
+      "top": 645.5,
+      "width": 57.765625,
+      "x": 913.234375,
+      "y": 645.5
+    },
+    "width": 1280,
+    "advancedSwitches": [],
+    "bodyWidth": 718,
+    "policy": "고급 작업 안내이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다.강제 삭제강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+  },
+  {
+    "label": "31-bulk-delete-policy-light-1280",
+    "body": {
+      "bottom": 741.5,
+      "height": 593,
+      "left": 281,
+      "right": 999,
+      "top": 148.5,
+      "width": 718,
+      "x": 281,
+      "y": 148.5
+    },
+    "bodyClientHeight": 593,
+    "bodyClientWidth": 718,
+    "bodyScrollHeight": 593,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 718,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 삭제"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+      }
+    ],
+    "content": {
+      "bottom": 807.5,
+      "height": 715,
+      "left": 280,
+      "right": 1000,
+      "top": 92.5,
+      "width": 720,
+      "x": 280,
+      "y": 92.5
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 806.5,
+      "height": 65,
+      "left": 281,
+      "right": 999,
+      "top": 741.5,
+      "width": 718,
+      "x": 281,
+      "y": 741.5
+    },
+    "header": {
+      "bottom": 148.5,
+      "height": 55,
+      "left": 281,
+      "right": 999,
+      "top": 93.5,
+      "width": 718,
+      "x": 281,
+      "y": 93.5
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 790.5,
+      "height": 32,
+      "left": 913.234375,
+      "right": 971,
+      "top": 758.5,
+      "width": 57.765625,
+      "x": 913.234375,
+      "y": 758.5
+    },
+    "width": 1280,
+    "advancedSwitches": [],
+    "bodyWidth": 718,
+    "policy": "고급 작업 안내이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다.강제 삭제강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+  },
+  {
+    "label": "32-bulk-delete-policy-light-390",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 807,
+    "bodyScrollTop": 109,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 삭제"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "advancedSwitches": [],
+    "bodyWidth": 354,
+    "policy": "고급 작업 안내이 화면에서는 일반 삭제만 실행합니다. 실패한 작업을 자동으로 강제 삭제하지 않습니다.강제 삭제강제 삭제는 별도 절차입니다. 작업 결과와 라우터·IP·호스트 네트워크의 정리 상태를 각각 확인해야 합니다."
+  },
+  {
+    "label": "31-review-update-shared-light-1280",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 1041,
+    "bodyScrollTop": 331,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "advancedSwitches": [
+      "IP 사용량 내보내기 제외",
+      null
+    ],
+    "bodyWidth": 948,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.L2·Shared의 주소 범위는 해당 네트워크의 IP 주소 범위에서 관리합니다."
+  },
+  {
+    "label": "32-review-update-isolated-dark-390",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 1761,
+    "bodyScrollTop": 1063,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환 시 CIDR 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "네트워크 ID 변경"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다."
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "advancedSwitches": [
+      null,
+      null
+    ],
+    "bodyWidth": 354,
+    "policy": "고급 작업 안내이 화면은 일반 네트워크 수정에 사용합니다. 고급 작업은 대상과 영향·복구 계획을 별도로 검토한 뒤 API로 진행합니다.강제 업데이트강제 업데이트는 오퍼링의 서비스 제거와 라우터 상태 검사에 영향을 줄 수 있으므로 일반 수정에서 선택하지 않습니다.오퍼링 전환 시 CIDR 변경오퍼링 전환에 따른 주소 체계 변경은 연결 VM·NIC·IP와 라우터 영향을 검토한 뒤 별도로 진행합니다.네트워크 ID 변경ID 변경은 기존 상세 링크와 외부 자동화 참조에 영향을 줍니다. 변경 전후 ID를 기록하고 참조를 갱신해야 합니다.가상머신 IP 할당 범위의 수정과 오퍼링 전환 시 CIDR 변경은 서로 다른 작업입니다."
+  }
+]

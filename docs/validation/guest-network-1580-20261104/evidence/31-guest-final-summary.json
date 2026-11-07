@@ -1,0 +1,38 @@
+{
+  "nosnat": {
+    "guest_ssh_exit": 0,
+    "same_host": true,
+    "router_guest_ip": "172.28.31.10",
+    "guest": {
+      "addresses": {
+        "exit": 0,
+        "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"::1\",\"prefixlen\":128,\"scope\":\"host\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"ifname\":\"ens3\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"fq_codel\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"1e:1f:a6:00:01:8e\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"altnames\":[\"enp0s3\"],\"addr_info\":[{\"family\":\"inet\",\"local\":\"172.28.31.18\",\"prefixlen\":24,\"broadcast\":\"172.28.31.255\",\"scope\":\"global\",\"noprefixroute\":true,\"label\":\"ens3\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"fe80::1c1f:a6ff:fe00:18e\",\"prefixlen\":64,\"scope\":\"link\",\"noprefixroute\":true,\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]\n",
+        "stderr": ""
+      },
+      "router_ping": {
+        "exit": 0,
+        "stdout": "PING 172.28.31.10 (172.28.31.10) 56(84) bytes of data.\n64 bytes from 172.28.31.10: icmp_seq=1 ttl=64 time=0.220 ms\n64 bytes from 172.28.31.10: icmp_seq=2 ttl=64 time=0.375 ms\n\n--- 172.28.31.10 ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss, time 1033ms\nrtt min/avg/max/mdev = 0.220/0.297/0.375/0.077 ms\n",
+        "stderr": ""
+      }
+    },
+    "ssh_error": "Warning: Permanently added '[169.254.113.214]:3922' (ED25519) to the list of known hosts.\nWarning: Permanently added '172.28.31.18' (ED25519) to the list of known hosts.\n"
+  },
+  "shared": {
+    "guest_ssh_exit": 0,
+    "same_host": true,
+    "router_guest_ip": "172.30.31.10",
+    "guest": {
+      "addresses": {
+        "exit": 0,
+        "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"::1\",\"prefixlen\":128,\"scope\":\"host\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"ifname\":\"ens3\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"fq_codel\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"1e:1f:6d:00:01:99\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"altnames\":[\"enp0s3\"],\"addr_info\":[{\"family\":\"inet\",\"local\":\"172.30.31.18\",\"prefixlen\":24,\"broadcast\":\"172.30.31.255\",\"scope\":\"global\",\"noprefixroute\":true,\"label\":\"ens3\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"fe80::1c1f:6dff:fe00:199\",\"prefixlen\":64,\"scope\":\"link\",\"noprefixroute\":true,\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]\n",
+        "stderr": ""
+      },
+      "router_ping": {
+        "exit": 0,
+        "stdout": "PING 172.30.31.10 (172.30.31.10) 56(84) bytes of data.\n64 bytes from 172.30.31.10: icmp_seq=1 ttl=64 time=0.175 ms\n64 bytes from 172.30.31.10: icmp_seq=2 ttl=64 time=0.227 ms\n\n--- 172.30.31.10 ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss, time 1054ms\nrtt min/avg/max/mdev = 0.175/0.201/0.227/0.026 ms\n",
+        "stderr": ""
+      }
+    },
+    "ssh_error": "Warning: Permanently added '[169.254.126.214]:3922' (ED25519) to the list of known hosts.\nWarning: Permanently added '172.30.31.18' (ED25519) to the list of known hosts.\n"
+  }
+}

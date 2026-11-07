@@ -1,0 +1,6520 @@
+[
+  {
+    "label": "31-dialog-off-1280-light-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 836,
+    "bodyScrollTop": 126,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "포함"
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "detail": {
+      "bottom": 1537,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 1445,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 1445
+    },
+    "setting": {
+      "bottom": 634,
+      "height": 118,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "settingLabel": {
+      "bottom": 546,
+      "height": 30,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "switch": {
+      "bottom": 629,
+      "height": 22,
+      "left": 189,
+      "right": 233,
+      "top": 607,
+      "width": 44,
+      "x": 189,
+      "y": 607
+    }
+  },
+  {
+    "label": "31-dialog-on-1280-light-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 836,
+    "bodyScrollTop": 126,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "제외"
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": "IP 사용량 내보내기 제외",
+      "tag": "BUTTON"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "detail": {
+      "bottom": 1537,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 1445,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 1445
+    },
+    "setting": {
+      "bottom": 634,
+      "height": 118,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "settingLabel": {
+      "bottom": 546,
+      "height": 30,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "switch": {
+      "bottom": 629,
+      "height": 22,
+      "left": 189,
+      "right": 233,
+      "top": 607,
+      "width": 44,
+      "x": 189,
+      "y": 607
+    }
+  },
+  {
+    "label": "31-detail-1280-light-final",
+    "body": null,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      }
+    ],
+    "content": null,
+    "dark": false,
+    "dialog": null,
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BUTTON"
+    },
+    "footer": null,
+    "header": null,
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": null,
+    "width": 1280,
+    "detail": {
+      "bottom": 841,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 749,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 749
+    }
+  },
+  {
+    "label": "31-dialog-off-768-light-final",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 858,
+    "bodyScrollTop": 148,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "포함"
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 900,
+      "left": 80,
+      "right": 758,
+      "top": 124,
+      "width": 678,
+      "x": 80,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "detail": {
+      "bottom": 2484.5,
+      "height": 92,
+      "left": 286.234375,
+      "right": 711,
+      "top": 2392.5,
+      "width": 424.765625,
+      "x": 286.234375,
+      "y": 2392.5
+    },
+    "setting": {
+      "bottom": 696,
+      "height": 118,
+      "left": 53,
+      "right": 705,
+      "top": 578,
+      "width": 652,
+      "x": 53,
+      "y": 578
+    },
+    "settingLabel": {
+      "bottom": 608,
+      "height": 30,
+      "left": 53,
+      "right": 705,
+      "top": 578,
+      "width": 652,
+      "x": 53,
+      "y": 578
+    },
+    "switch": {
+      "bottom": 691,
+      "height": 22,
+      "left": 53,
+      "right": 97,
+      "top": 669,
+      "width": 44,
+      "x": 53,
+      "y": 669
+    }
+  },
+  {
+    "label": "31-dialog-on-768-light-final",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 858,
+    "bodyScrollTop": 148,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "제외"
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": "IP 사용량 내보내기 제외",
+      "tag": "BUTTON"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 900,
+      "left": 80,
+      "right": 758,
+      "top": 124,
+      "width": 678,
+      "x": 80,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "detail": {
+      "bottom": 2484.5,
+      "height": 92,
+      "left": 286.234375,
+      "right": 711,
+      "top": 2392.5,
+      "width": 424.765625,
+      "x": 286.234375,
+      "y": 2392.5
+    },
+    "setting": {
+      "bottom": 696,
+      "height": 118,
+      "left": 53,
+      "right": 705,
+      "top": 578,
+      "width": 652,
+      "x": 53,
+      "y": 578
+    },
+    "settingLabel": {
+      "bottom": 608,
+      "height": 30,
+      "left": 53,
+      "right": 705,
+      "top": 578,
+      "width": 652,
+      "x": 53,
+      "y": 578
+    },
+    "switch": {
+      "bottom": 691,
+      "height": 22,
+      "left": 53,
+      "right": 97,
+      "top": 669,
+      "width": 44,
+      "x": 53,
+      "y": 669
+    }
+  },
+  {
+    "label": "31-detail-768-light-final",
+    "body": null,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      }
+    ],
+    "content": null,
+    "dark": false,
+    "dialog": null,
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BODY"
+    },
+    "footer": null,
+    "header": null,
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 900,
+      "left": 80,
+      "right": 758,
+      "top": 124,
+      "width": 678,
+      "x": 80,
+      "y": 124
+    },
+    "primaryButton": null,
+    "width": 768,
+    "detail": {
+      "bottom": 964.5,
+      "height": 92,
+      "left": 286.234375,
+      "right": 711,
+      "top": 872.5,
+      "width": 424.765625,
+      "x": 286.234375,
+      "y": 872.5
+    }
+  },
+  {
+    "label": "31-dialog-off-390-light-final",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 976,
+    "bodyScrollTop": 278,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "포함"
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 676,
+      "left": 0,
+      "right": 380,
+      "top": 168,
+      "width": 380,
+      "x": 0,
+      "y": 168
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "detail": {
+      "bottom": 2388.5,
+      "height": 136,
+      "left": 37,
+      "right": 333,
+      "top": 2252.5,
+      "width": 296,
+      "x": 37,
+      "y": 2252.5
+    },
+    "setting": {
+      "bottom": 608,
+      "height": 162,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "settingLabel": {
+      "bottom": 476,
+      "height": 30,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "switch": {
+      "bottom": 603,
+      "height": 22,
+      "left": 29,
+      "right": 73,
+      "top": 581,
+      "width": 44,
+      "x": 29,
+      "y": 581
+    }
+  },
+  {
+    "label": "31-dialog-on-390-light-final",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 976,
+    "bodyScrollTop": 278,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "제외"
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": "IP 사용량 내보내기 제외",
+      "tag": "BUTTON"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 676,
+      "left": 0,
+      "right": 380,
+      "top": 168,
+      "width": 380,
+      "x": 0,
+      "y": 168
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "detail": {
+      "bottom": 2388.5,
+      "height": 136,
+      "left": 37,
+      "right": 333,
+      "top": 2252.5,
+      "width": 296,
+      "x": 37,
+      "y": 2252.5
+    },
+    "setting": {
+      "bottom": 608,
+      "height": 162,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "settingLabel": {
+      "bottom": 476,
+      "height": 30,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "switch": {
+      "bottom": 603,
+      "height": 22,
+      "left": 29,
+      "right": 73,
+      "top": 581,
+      "width": 44,
+      "x": 29,
+      "y": 581
+    }
+  },
+  {
+    "label": "31-detail-390-light-final",
+    "body": null,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      }
+    ],
+    "content": null,
+    "dark": false,
+    "dialog": null,
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BODY"
+    },
+    "footer": null,
+    "header": null,
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 676,
+      "left": 0,
+      "right": 380,
+      "top": 168,
+      "width": 380,
+      "x": 0,
+      "y": 168
+    },
+    "primaryButton": null,
+    "width": 390,
+    "detail": {
+      "bottom": 794.5,
+      "height": 136,
+      "left": 37,
+      "right": 333,
+      "top": 658.5,
+      "width": 296,
+      "x": 37,
+      "y": 658.5
+    }
+  },
+  {
+    "label": "31-dialog-off-1280-dark-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 836,
+    "bodyScrollTop": 126,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "포함"
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "detail": {
+      "bottom": 851,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 759,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 759
+    },
+    "setting": {
+      "bottom": 634,
+      "height": 118,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "settingLabel": {
+      "bottom": 546,
+      "height": 30,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "switch": {
+      "bottom": 629,
+      "height": 22,
+      "left": 189,
+      "right": 233,
+      "top": 607,
+      "width": 44,
+      "x": 189,
+      "y": 607
+    }
+  },
+  {
+    "label": "31-dialog-on-1280-dark-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 836,
+    "bodyScrollTop": 126,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "제외"
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": "IP 사용량 내보내기 제외",
+      "tag": "BUTTON"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "detail": {
+      "bottom": 851,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 759,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 759
+    },
+    "setting": {
+      "bottom": 634,
+      "height": 118,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "settingLabel": {
+      "bottom": 546,
+      "height": 30,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "switch": {
+      "bottom": 629,
+      "height": 22,
+      "left": 189,
+      "right": 233,
+      "top": 607,
+      "width": 44,
+      "x": 189,
+      "y": 607
+    }
+  },
+  {
+    "label": "31-detail-1280-dark-final",
+    "body": null,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      }
+    ],
+    "content": null,
+    "dark": true,
+    "dialog": null,
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BUTTON"
+    },
+    "footer": null,
+    "header": null,
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": null,
+    "width": 1280,
+    "detail": {
+      "bottom": 851,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 759,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 759
+    }
+  },
+  {
+    "label": "31-dialog-off-768-dark-final",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 858,
+    "bodyScrollTop": 148,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "포함"
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 900,
+      "left": 80,
+      "right": 758,
+      "top": 124,
+      "width": 678,
+      "x": 80,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "detail": {
+      "bottom": 1802.5,
+      "height": 92,
+      "left": 286.234375,
+      "right": 711,
+      "top": 1710.5,
+      "width": 424.765625,
+      "x": 286.234375,
+      "y": 1710.5
+    },
+    "setting": {
+      "bottom": 696,
+      "height": 118,
+      "left": 53,
+      "right": 705,
+      "top": 578,
+      "width": 652,
+      "x": 53,
+      "y": 578
+    },
+    "settingLabel": {
+      "bottom": 608,
+      "height": 30,
+      "left": 53,
+      "right": 705,
+      "top": 578,
+      "width": 652,
+      "x": 53,
+      "y": 578
+    },
+    "switch": {
+      "bottom": 691,
+      "height": 22,
+      "left": 53,
+      "right": 97,
+      "top": 669,
+      "width": 44,
+      "x": 53,
+      "y": 669
+    }
+  },
+  {
+    "label": "31-dialog-on-768-dark-final",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 858,
+    "bodyScrollTop": 148,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "제외"
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": "IP 사용량 내보내기 제외",
+      "tag": "BUTTON"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 900,
+      "left": 80,
+      "right": 758,
+      "top": 124,
+      "width": 678,
+      "x": 80,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "detail": {
+      "bottom": 1802.5,
+      "height": 92,
+      "left": 286.234375,
+      "right": 711,
+      "top": 1710.5,
+      "width": 424.765625,
+      "x": 286.234375,
+      "y": 1710.5
+    },
+    "setting": {
+      "bottom": 696,
+      "height": 118,
+      "left": 53,
+      "right": 705,
+      "top": 578,
+      "width": 652,
+      "x": 53,
+      "y": 578
+    },
+    "settingLabel": {
+      "bottom": 608,
+      "height": 30,
+      "left": 53,
+      "right": 705,
+      "top": 578,
+      "width": 652,
+      "x": 53,
+      "y": 578
+    },
+    "switch": {
+      "bottom": 691,
+      "height": 22,
+      "left": 53,
+      "right": 97,
+      "top": 669,
+      "width": 44,
+      "x": 53,
+      "y": 669
+    }
+  },
+  {
+    "label": "31-detail-768-dark-final",
+    "body": null,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      }
+    ],
+    "content": null,
+    "dark": true,
+    "dialog": null,
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BODY"
+    },
+    "footer": null,
+    "header": null,
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 900,
+      "left": 80,
+      "right": 758,
+      "top": 124,
+      "width": 678,
+      "x": 80,
+      "y": 124
+    },
+    "primaryButton": null,
+    "width": 768,
+    "detail": {
+      "bottom": 974.5,
+      "height": 92,
+      "left": 286.234375,
+      "right": 711,
+      "top": 882.5,
+      "width": 424.765625,
+      "x": 286.234375,
+      "y": 882.5
+    }
+  },
+  {
+    "label": "31-dialog-off-390-dark-final",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 976,
+    "bodyScrollTop": 278,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "포함"
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 676,
+      "left": 0,
+      "right": 380,
+      "top": 168,
+      "width": 380,
+      "x": 0,
+      "y": 168
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "detail": {
+      "bottom": 2404.5,
+      "height": 136,
+      "left": 37,
+      "right": 333,
+      "top": 2268.5,
+      "width": 296,
+      "x": 37,
+      "y": 2268.5
+    },
+    "setting": {
+      "bottom": 608,
+      "height": 162,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "settingLabel": {
+      "bottom": 476,
+      "height": 30,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "switch": {
+      "bottom": 603,
+      "height": 22,
+      "left": 29,
+      "right": 73,
+      "top": 581,
+      "width": 44,
+      "x": 29,
+      "y": 581
+    }
+  },
+  {
+    "label": "31-dialog-on-390-dark-final",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 976,
+    "bodyScrollTop": 278,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "제외"
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": "IP 사용량 내보내기 제외",
+      "tag": "BUTTON"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 676,
+      "left": 0,
+      "right": 380,
+      "top": 168,
+      "width": 380,
+      "x": 0,
+      "y": 168
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "detail": {
+      "bottom": 2404.5,
+      "height": 136,
+      "left": 37,
+      "right": 333,
+      "top": 2268.5,
+      "width": 296,
+      "x": 37,
+      "y": 2268.5
+    },
+    "setting": {
+      "bottom": 608,
+      "height": 162,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "settingLabel": {
+      "bottom": 476,
+      "height": 30,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "switch": {
+      "bottom": 603,
+      "height": 22,
+      "left": 29,
+      "right": 73,
+      "top": 581,
+      "width": 44,
+      "x": 29,
+      "y": 581
+    }
+  },
+  {
+    "label": "31-detail-390-dark-final",
+    "body": null,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      }
+    ],
+    "content": null,
+    "dark": true,
+    "dialog": null,
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BODY"
+    },
+    "footer": null,
+    "header": null,
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 676,
+      "left": 0,
+      "right": 380,
+      "top": 168,
+      "width": 380,
+      "x": 0,
+      "y": 168
+    },
+    "primaryButton": null,
+    "width": 390,
+    "detail": {
+      "bottom": 804.5,
+      "height": 136,
+      "left": 37,
+      "right": 333,
+      "top": 668.5,
+      "width": 296,
+      "x": 37,
+      "y": 668.5
+    }
+  },
+  {
+    "label": "32-dialog-off-1280-light-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 836,
+    "bodyScrollTop": 126,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "포함"
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "detail": {
+      "bottom": 1564,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 1472,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 1472
+    },
+    "setting": {
+      "bottom": 634,
+      "height": 118,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "settingLabel": {
+      "bottom": 546,
+      "height": 30,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "switch": {
+      "bottom": 629,
+      "height": 22,
+      "left": 189,
+      "right": 233,
+      "top": 607,
+      "width": 44,
+      "x": 189,
+      "y": 607
+    }
+  },
+  {
+    "label": "32-dialog-on-1280-light-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 836,
+    "bodyScrollTop": 126,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "제외"
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": "IP 사용량 내보내기 제외",
+      "tag": "BUTTON"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "detail": {
+      "bottom": 1564,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 1472,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 1472
+    },
+    "setting": {
+      "bottom": 634,
+      "height": 118,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "settingLabel": {
+      "bottom": 546,
+      "height": 30,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "switch": {
+      "bottom": 629,
+      "height": 22,
+      "left": 189,
+      "right": 233,
+      "top": 607,
+      "width": 44,
+      "x": 189,
+      "y": 607
+    }
+  },
+  {
+    "label": "32-detail-1280-light-final",
+    "body": null,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      }
+    ],
+    "content": null,
+    "dark": false,
+    "dialog": null,
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BUTTON"
+    },
+    "footer": null,
+    "header": null,
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": null,
+    "width": 1280,
+    "detail": {
+      "bottom": 841,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 749,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 749
+    }
+  },
+  {
+    "label": "32-dialog-off-768-light-final",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 858,
+    "bodyScrollTop": 148,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "포함"
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 841,
+      "left": 80,
+      "right": 758,
+      "top": 183,
+      "width": 678,
+      "x": 80,
+      "y": 183
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "detail": {
+      "bottom": 2543.5,
+      "height": 92,
+      "left": 286.234375,
+      "right": 711,
+      "top": 2451.5,
+      "width": 424.765625,
+      "x": 286.234375,
+      "y": 2451.5
+    },
+    "setting": {
+      "bottom": 696,
+      "height": 118,
+      "left": 53,
+      "right": 705,
+      "top": 578,
+      "width": 652,
+      "x": 53,
+      "y": 578
+    },
+    "settingLabel": {
+      "bottom": 608,
+      "height": 30,
+      "left": 53,
+      "right": 705,
+      "top": 578,
+      "width": 652,
+      "x": 53,
+      "y": 578
+    },
+    "switch": {
+      "bottom": 691,
+      "height": 22,
+      "left": 53,
+      "right": 97,
+      "top": 669,
+      "width": 44,
+      "x": 53,
+      "y": 669
+    }
+  },
+  {
+    "label": "32-dialog-on-768-light-final",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 858,
+    "bodyScrollTop": 148,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "제외"
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": "IP 사용량 내보내기 제외",
+      "tag": "BUTTON"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 841,
+      "left": 80,
+      "right": 758,
+      "top": 183,
+      "width": 678,
+      "x": 80,
+      "y": 183
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "detail": {
+      "bottom": 2543.5,
+      "height": 92,
+      "left": 286.234375,
+      "right": 711,
+      "top": 2451.5,
+      "width": 424.765625,
+      "x": 286.234375,
+      "y": 2451.5
+    },
+    "setting": {
+      "bottom": 696,
+      "height": 118,
+      "left": 53,
+      "right": 705,
+      "top": 578,
+      "width": 652,
+      "x": 53,
+      "y": 578
+    },
+    "settingLabel": {
+      "bottom": 608,
+      "height": 30,
+      "left": 53,
+      "right": 705,
+      "top": 578,
+      "width": 652,
+      "x": 53,
+      "y": 578
+    },
+    "switch": {
+      "bottom": 691,
+      "height": 22,
+      "left": 53,
+      "right": 97,
+      "top": 669,
+      "width": 44,
+      "x": 53,
+      "y": 669
+    }
+  },
+  {
+    "label": "32-detail-768-light-final",
+    "body": null,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      }
+    ],
+    "content": null,
+    "dark": false,
+    "dialog": null,
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BODY"
+    },
+    "footer": null,
+    "header": null,
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 841,
+      "left": 80,
+      "right": 758,
+      "top": 183,
+      "width": 678,
+      "x": 80,
+      "y": 183
+    },
+    "primaryButton": null,
+    "width": 768,
+    "detail": {
+      "bottom": 964.5,
+      "height": 92,
+      "left": 286.234375,
+      "right": 711,
+      "top": 872.5,
+      "width": 424.765625,
+      "x": 286.234375,
+      "y": 872.5
+    }
+  },
+  {
+    "label": "32-dialog-off-390-light-final",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 976,
+    "bodyScrollTop": 278,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "포함"
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "detail": {
+      "bottom": 2410.5,
+      "height": 136,
+      "left": 37,
+      "right": 333,
+      "top": 2274.5,
+      "width": 296,
+      "x": 37,
+      "y": 2274.5
+    },
+    "setting": {
+      "bottom": 608,
+      "height": 162,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "settingLabel": {
+      "bottom": 476,
+      "height": 30,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "switch": {
+      "bottom": 603,
+      "height": 22,
+      "left": 29,
+      "right": 73,
+      "top": 581,
+      "width": 44,
+      "x": 29,
+      "y": 581
+    }
+  },
+  {
+    "label": "32-dialog-on-390-light-final",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 976,
+    "bodyScrollTop": 278,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "제외"
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": "IP 사용량 내보내기 제외",
+      "tag": "BUTTON"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "detail": {
+      "bottom": 2410.5,
+      "height": 136,
+      "left": 37,
+      "right": 333,
+      "top": 2274.5,
+      "width": 296,
+      "x": 37,
+      "y": 2274.5
+    },
+    "setting": {
+      "bottom": 608,
+      "height": 162,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "settingLabel": {
+      "bottom": 476,
+      "height": 30,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "switch": {
+      "bottom": 603,
+      "height": 22,
+      "left": 29,
+      "right": 73,
+      "top": 581,
+      "width": 44,
+      "x": 29,
+      "y": 581
+    }
+  },
+  {
+    "label": "32-detail-390-light-final",
+    "body": null,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      }
+    ],
+    "content": null,
+    "dark": false,
+    "dialog": null,
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BODY"
+    },
+    "footer": null,
+    "header": null,
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": null,
+    "width": 390,
+    "detail": {
+      "bottom": 810.5,
+      "height": 136,
+      "left": 37,
+      "right": 333,
+      "top": 674.5,
+      "width": 296,
+      "x": 37,
+      "y": 674.5
+    }
+  },
+  {
+    "label": "32-dialog-off-1280-dark-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 836,
+    "bodyScrollTop": 126,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "포함"
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "detail": {
+      "bottom": 851,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 759,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 759
+    },
+    "setting": {
+      "bottom": 634,
+      "height": 118,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "settingLabel": {
+      "bottom": 546,
+      "height": 30,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "switch": {
+      "bottom": 629,
+      "height": 22,
+      "left": 189,
+      "right": 233,
+      "top": 607,
+      "width": 44,
+      "x": 189,
+      "y": 607
+    }
+  },
+  {
+    "label": "32-dialog-on-1280-dark-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 836,
+    "bodyScrollTop": 126,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "제외"
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": "IP 사용량 내보내기 제외",
+      "tag": "BUTTON"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "detail": {
+      "bottom": 851,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 759,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 759
+    },
+    "setting": {
+      "bottom": 634,
+      "height": 118,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "settingLabel": {
+      "bottom": 546,
+      "height": 30,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "switch": {
+      "bottom": 629,
+      "height": 22,
+      "left": 189,
+      "right": 233,
+      "top": 607,
+      "width": 44,
+      "x": 189,
+      "y": 607
+    }
+  },
+  {
+    "label": "32-detail-1280-dark-final",
+    "body": null,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      }
+    ],
+    "content": null,
+    "dark": true,
+    "dialog": null,
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BUTTON"
+    },
+    "footer": null,
+    "header": null,
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": null,
+    "width": 1280,
+    "detail": {
+      "bottom": 851,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 759,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 759
+    }
+  },
+  {
+    "label": "32-dialog-off-768-dark-final",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 858,
+    "bodyScrollTop": 148,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "포함"
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 841,
+      "left": 80,
+      "right": 758,
+      "top": 183,
+      "width": 678,
+      "x": 80,
+      "y": 183
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "detail": {
+      "bottom": 1834.5,
+      "height": 92,
+      "left": 286.234375,
+      "right": 711,
+      "top": 1742.5,
+      "width": 424.765625,
+      "x": 286.234375,
+      "y": 1742.5
+    },
+    "setting": {
+      "bottom": 696,
+      "height": 118,
+      "left": 53,
+      "right": 705,
+      "top": 578,
+      "width": 652,
+      "x": 53,
+      "y": 578
+    },
+    "settingLabel": {
+      "bottom": 608,
+      "height": 30,
+      "left": 53,
+      "right": 705,
+      "top": 578,
+      "width": 652,
+      "x": 53,
+      "y": 578
+    },
+    "switch": {
+      "bottom": 691,
+      "height": 22,
+      "left": 53,
+      "right": 97,
+      "top": 669,
+      "width": 44,
+      "x": 53,
+      "y": 669
+    }
+  },
+  {
+    "label": "32-dialog-on-768-dark-final",
+    "body": {
+      "bottom": 862,
+      "height": 710,
+      "left": 25,
+      "right": 743,
+      "top": 152,
+      "width": 718,
+      "x": 25,
+      "y": 152
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 708,
+    "bodyScrollHeight": 858,
+    "bodyScrollTop": 148,
+    "bodyScrollWidth": 708,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "제외"
+      }
+    ],
+    "content": {
+      "bottom": 928,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 96,
+      "width": 720,
+      "x": 24,
+      "y": 96
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 1024,
+      "height": 1024,
+      "left": 0,
+      "right": 768,
+      "top": 0,
+      "width": 768,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": "IP 사용량 내보내기 제외",
+      "tag": "BUTTON"
+    },
+    "footer": {
+      "bottom": 927,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 862,
+      "width": 718,
+      "x": 25,
+      "y": 862
+    },
+    "header": {
+      "bottom": 152,
+      "height": 55,
+      "left": 25,
+      "right": 743,
+      "top": 97,
+      "width": 718,
+      "x": 25,
+      "y": 97
+    },
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 841,
+      "left": 80,
+      "right": 758,
+      "top": 183,
+      "width": 678,
+      "x": 80,
+      "y": 183
+    },
+    "primaryButton": {
+      "bottom": 911,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 879,
+      "width": 57.765625,
+      "x": 657.234375,
+      "y": 879
+    },
+    "width": 768,
+    "detail": {
+      "bottom": 1834.5,
+      "height": 92,
+      "left": 286.234375,
+      "right": 711,
+      "top": 1742.5,
+      "width": 424.765625,
+      "x": 286.234375,
+      "y": 1742.5
+    },
+    "setting": {
+      "bottom": 696,
+      "height": 118,
+      "left": 53,
+      "right": 705,
+      "top": 578,
+      "width": 652,
+      "x": 53,
+      "y": 578
+    },
+    "settingLabel": {
+      "bottom": 608,
+      "height": 30,
+      "left": 53,
+      "right": 705,
+      "top": 578,
+      "width": 652,
+      "x": 53,
+      "y": 578
+    },
+    "switch": {
+      "bottom": 691,
+      "height": 22,
+      "left": 53,
+      "right": 97,
+      "top": 669,
+      "width": 44,
+      "x": 53,
+      "y": 669
+    }
+  },
+  {
+    "label": "32-detail-768-dark-final",
+    "body": null,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      }
+    ],
+    "content": null,
+    "dark": true,
+    "dialog": null,
+    "documentWidth": 758,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BODY"
+    },
+    "footer": null,
+    "header": null,
+    "height": 1024,
+    "main": {
+      "bottom": 1024,
+      "height": 841,
+      "left": 80,
+      "right": 758,
+      "top": 183,
+      "width": 678,
+      "x": 80,
+      "y": 183
+    },
+    "primaryButton": null,
+    "width": 768,
+    "detail": {
+      "bottom": 974.5,
+      "height": 92,
+      "left": 286.234375,
+      "right": 711,
+      "top": 882.5,
+      "width": 424.765625,
+      "x": 286.234375,
+      "y": 882.5
+    }
+  },
+  {
+    "label": "32-dialog-off-390-dark-final",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 976,
+    "bodyScrollTop": 278,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "포함"
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "detail": {
+      "bottom": 2410.5,
+      "height": 136,
+      "left": 37,
+      "right": 333,
+      "top": 2274.5,
+      "width": 296,
+      "x": 37,
+      "y": 2274.5
+    },
+    "setting": {
+      "bottom": 608,
+      "height": 162,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "settingLabel": {
+      "bottom": 476,
+      "height": 30,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "switch": {
+      "bottom": 603,
+      "height": 22,
+      "left": 29,
+      "right": 73,
+      "top": 581,
+      "width": 44,
+      "x": 29,
+      "y": 581
+    }
+  },
+  {
+    "label": "32-dialog-on-390-dark-final",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 976,
+    "bodyScrollTop": 278,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "제외"
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": "IP 사용량 내보내기 제외",
+      "tag": "BUTTON"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "detail": {
+      "bottom": 2410.5,
+      "height": 136,
+      "left": 37,
+      "right": 333,
+      "top": 2274.5,
+      "width": 296,
+      "x": 37,
+      "y": 2274.5
+    },
+    "setting": {
+      "bottom": 608,
+      "height": 162,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "settingLabel": {
+      "bottom": 476,
+      "height": 30,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "switch": {
+      "bottom": 603,
+      "height": 22,
+      "left": 29,
+      "right": 73,
+      "top": 581,
+      "width": 44,
+      "x": 29,
+      "y": 581
+    }
+  },
+  {
+    "label": "32-detail-390-dark-final",
+    "body": null,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      }
+    ],
+    "content": null,
+    "dark": true,
+    "dialog": null,
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BODY"
+    },
+    "footer": null,
+    "header": null,
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": null,
+    "width": 390,
+    "detail": {
+      "bottom": 810.5,
+      "height": 136,
+      "left": 37,
+      "right": 333,
+      "top": 674.5,
+      "width": 296,
+      "x": 37,
+      "y": 674.5
+    }
+  },
+  {
+    "label": "31-mobile-submit-true-final",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 976,
+    "bodyScrollTop": 278,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "제외"
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": "IP 사용량 내보내기 제외",
+      "tag": "BUTTON"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 676,
+      "left": 0,
+      "right": 380,
+      "top": 168,
+      "width": 380,
+      "x": 0,
+      "y": 168
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "detail": {
+      "bottom": 804.5,
+      "height": 136,
+      "left": 37,
+      "right": 333,
+      "top": 668.5,
+      "width": 296,
+      "x": 37,
+      "y": 668.5
+    },
+    "setting": {
+      "bottom": 608,
+      "height": 162,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "settingLabel": {
+      "bottom": 476,
+      "height": 30,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "switch": {
+      "bottom": 603,
+      "height": 22,
+      "left": 29,
+      "right": 73,
+      "top": 581,
+      "width": 44,
+      "x": 29,
+      "y": 581
+    }
+  },
+  {
+    "label": "32-mobile-submit-true-final",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "left": 13,
+      "right": 377,
+      "top": 68,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyClientHeight": 698,
+    "bodyClientWidth": 354,
+    "bodyScrollHeight": 976,
+    "bodyScrollTop": 278,
+    "bodyScrollWidth": 354,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "제외"
+      }
+    ],
+    "content": {
+      "bottom": 832,
+      "height": 820,
+      "left": 12,
+      "right": 378,
+      "top": 12,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 844,
+      "height": 844,
+      "left": 0,
+      "right": 390,
+      "top": 0,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": "IP 사용량 내보내기 제외",
+      "tag": "BUTTON"
+    },
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "header": {
+      "bottom": 68,
+      "height": 55,
+      "left": 13,
+      "right": 377,
+      "top": 13,
+      "width": 364,
+      "x": 13,
+      "y": 13
+    },
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": {
+      "bottom": 815,
+      "height": 32,
+      "left": 303.234375,
+      "right": 361,
+      "top": 783,
+      "width": 57.765625,
+      "x": 303.234375,
+      "y": 783
+    },
+    "width": 390,
+    "detail": {
+      "bottom": 810.5,
+      "height": 136,
+      "left": 37,
+      "right": 333,
+      "top": 674.5,
+      "width": 296,
+      "x": 37,
+      "y": 674.5
+    },
+    "setting": {
+      "bottom": 608,
+      "height": 162,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "settingLabel": {
+      "bottom": 476,
+      "height": 30,
+      "left": 29,
+      "right": 351,
+      "top": 446,
+      "width": 322,
+      "x": 29,
+      "y": 446
+    },
+    "switch": {
+      "bottom": 603,
+      "height": 22,
+      "left": 29,
+      "right": 73,
+      "top": 581,
+      "width": 44,
+      "x": 29,
+      "y": 581
+    }
+  },
+  {
+    "label": "31-related-vm-list-final",
+    "body": null,
+    "colors": [],
+    "content": null,
+    "dark": true,
+    "dialog": null,
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BODY"
+    },
+    "footer": null,
+    "header": null,
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 676,
+      "left": 0,
+      "right": 380,
+      "top": 168,
+      "width": 380,
+      "x": 0,
+      "y": 168
+    },
+    "primaryButton": null,
+    "width": 390
+  },
+  {
+    "label": "32-related-vm-list-final",
+    "body": null,
+    "colors": [],
+    "content": null,
+    "dark": true,
+    "dialog": null,
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BODY"
+    },
+    "footer": null,
+    "header": null,
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": null,
+    "width": 390
+  },
+  {
+    "label": "31-vm-nic-visible-with-exclusion-final",
+    "body": null,
+    "colors": [],
+    "content": null,
+    "dark": true,
+    "dialog": null,
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": null,
+    "header": null,
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 676,
+      "left": 0,
+      "right": 380,
+      "top": 168,
+      "width": 380,
+      "x": 0,
+      "y": 168
+    },
+    "primaryButton": null,
+    "width": 390
+  },
+  {
+    "label": "32-vm-nic-visible-with-exclusion-final",
+    "body": null,
+    "colors": [],
+    "content": null,
+    "dark": true,
+    "dialog": null,
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": null,
+    "header": null,
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": null,
+    "width": 390
+  },
+  {
+    "label": "31-vm-standard-volumes-final",
+    "body": null,
+    "colors": [],
+    "content": null,
+    "dark": true,
+    "dialog": null,
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": null,
+    "header": null,
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 676,
+      "left": 0,
+      "right": 380,
+      "top": 168,
+      "width": 380,
+      "x": 0,
+      "y": 168
+    },
+    "primaryButton": null,
+    "width": 390
+  },
+  {
+    "label": "32-vm-standard-volumes-final",
+    "body": null,
+    "colors": [],
+    "content": null,
+    "dark": true,
+    "dialog": null,
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "DIV"
+    },
+    "footer": null,
+    "header": null,
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": null,
+    "width": 390
+  },
+  {
+    "label": "31-mobile-submit-false-final",
+    "body": null,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      }
+    ],
+    "content": null,
+    "dark": true,
+    "dialog": null,
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BUTTON"
+    },
+    "footer": null,
+    "header": null,
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 676,
+      "left": 0,
+      "right": 380,
+      "top": 168,
+      "width": 380,
+      "x": 0,
+      "y": 168
+    },
+    "primaryButton": null,
+    "width": 390,
+    "detail": {
+      "bottom": 794.5,
+      "height": 136,
+      "left": 37,
+      "right": 333,
+      "top": 658.5,
+      "width": 296,
+      "x": 37,
+      "y": 658.5
+    }
+  },
+  {
+    "label": "32-mobile-submit-false-final",
+    "body": null,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      }
+    ],
+    "content": null,
+    "dark": true,
+    "dialog": null,
+    "documentWidth": 380,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BUTTON"
+    },
+    "footer": null,
+    "header": null,
+    "height": 844,
+    "main": {
+      "bottom": 844,
+      "height": 643,
+      "left": 0,
+      "right": 380,
+      "top": 201,
+      "width": 380,
+      "x": 0,
+      "y": 201
+    },
+    "primaryButton": null,
+    "width": 390,
+    "detail": {
+      "bottom": 794.5,
+      "height": 136,
+      "left": 37,
+      "right": 333,
+      "top": 658.5,
+      "width": 296,
+      "x": 37,
+      "y": 658.5
+    }
+  },
+  {
+    "label": "31-User-restricted-final",
+    "body": null,
+    "colors": [],
+    "content": null,
+    "dark": false,
+    "dialog": null,
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BODY"
+    },
+    "footer": null,
+    "header": null,
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 822,
+      "left": 256,
+      "right": 1270,
+      "top": 78,
+      "width": 1014,
+      "x": 256,
+      "y": 78
+    },
+    "primaryButton": null,
+    "width": 1280
+  },
+  {
+    "label": "31-DomainAdmin-restricted-final",
+    "body": null,
+    "colors": [],
+    "content": null,
+    "dark": false,
+    "dialog": null,
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BODY"
+    },
+    "footer": null,
+    "header": null,
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 822,
+      "left": 256,
+      "right": 1270,
+      "top": 78,
+      "width": 1014,
+      "x": 256,
+      "y": 78
+    },
+    "primaryButton": null,
+    "width": 1280
+  },
+  {
+    "label": "32-User-restricted-final",
+    "body": null,
+    "colors": [],
+    "content": null,
+    "dark": false,
+    "dialog": null,
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BODY"
+    },
+    "footer": null,
+    "header": null,
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 822,
+      "left": 256,
+      "right": 1270,
+      "top": 78,
+      "width": 1014,
+      "x": 256,
+      "y": 78
+    },
+    "primaryButton": null,
+    "width": 1280
+  },
+  {
+    "label": "32-DomainAdmin-restricted-final",
+    "body": null,
+    "colors": [],
+    "content": null,
+    "dark": false,
+    "dialog": null,
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BODY"
+    },
+    "footer": null,
+    "header": null,
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 822,
+      "left": 256,
+      "right": 1270,
+      "top": 78,
+      "width": 1014,
+      "x": 256,
+      "y": 78
+    },
+    "primaryButton": null,
+    "width": 1280
+  },
+  {
+    "label": "31-l2-not-applicable-final",
+    "body": {
+      "bottom": 716,
+      "height": 542,
+      "left": 161,
+      "right": 1119,
+      "top": 174,
+      "width": 958,
+      "x": 161,
+      "y": 174
+    },
+    "bodyClientHeight": 542,
+    "bodyClientWidth": 958,
+    "bodyScrollHeight": 542,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 958,
+    "colors": [],
+    "content": {
+      "bottom": 782,
+      "height": 664,
+      "left": 160,
+      "right": 1120,
+      "top": 118,
+      "width": 960,
+      "x": 160,
+      "y": 118
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 781,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 716,
+      "width": 958,
+      "x": 161,
+      "y": 716
+    },
+    "header": {
+      "bottom": 174,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 119,
+      "width": 958,
+      "x": 161,
+      "y": 119
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 765,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 733,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 733
+    },
+    "width": 1280
+  },
+  {
+    "label": "32-l2-not-applicable-final",
+    "body": {
+      "bottom": 716,
+      "height": 542,
+      "left": 161,
+      "right": 1119,
+      "top": 174,
+      "width": 958,
+      "x": 161,
+      "y": 174
+    },
+    "bodyClientHeight": 542,
+    "bodyClientWidth": 958,
+    "bodyScrollHeight": 542,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 958,
+    "colors": [],
+    "content": {
+      "bottom": 782,
+      "height": 664,
+      "left": 160,
+      "right": 1120,
+      "top": 118,
+      "width": 960,
+      "x": 160,
+      "y": 118
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 781,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 716,
+      "width": 958,
+      "x": 161,
+      "y": 716
+    },
+    "header": {
+      "bottom": 174,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 119,
+      "width": 958,
+      "x": 161,
+      "y": 119
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": {
+      "bottom": 765,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 733,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 733
+    },
+    "width": 1280
+  },
+  {
+    "label": "31-isolated-not-applicable-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 1047,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 948,
+    "colors": [],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280
+  },
+  {
+    "label": "32-isolated-not-applicable-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 1047,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 948,
+    "colors": [],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280
+  },
+  {
+    "label": "31-shared-domain-scope-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 836,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "제외"
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "detail": {
+      "bottom": 1476,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 1384,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 1384
+    },
+    "setting": {
+      "bottom": 760,
+      "height": 118,
+      "left": 189,
+      "right": 1081,
+      "top": 642,
+      "width": 892,
+      "x": 189,
+      "y": 642
+    },
+    "settingLabel": {
+      "bottom": 672,
+      "height": 30,
+      "left": 189,
+      "right": 1081,
+      "top": 642,
+      "width": 892,
+      "x": 189,
+      "y": 642
+    },
+    "switch": {
+      "bottom": 755,
+      "height": 22,
+      "left": 189,
+      "right": 233,
+      "top": 733,
+      "width": 44,
+      "x": 189,
+      "y": 733
+    }
+  },
+  {
+    "label": "31-shared-all-scope-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 836,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "포함"
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "detail": {
+      "bottom": 1454,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 1362,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 1362
+    },
+    "setting": {
+      "bottom": 760,
+      "height": 118,
+      "left": 189,
+      "right": 1081,
+      "top": 642,
+      "width": 892,
+      "x": 189,
+      "y": 642
+    },
+    "settingLabel": {
+      "bottom": 672,
+      "height": 30,
+      "left": 189,
+      "right": 1081,
+      "top": 642,
+      "width": 892,
+      "x": 189,
+      "y": 642
+    },
+    "switch": {
+      "bottom": 755,
+      "height": 22,
+      "left": 189,
+      "right": 233,
+      "top": 733,
+      "width": 44,
+      "x": 189,
+      "y": 733
+    }
+  },
+  {
+    "label": "32-shared-domain-scope-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 836,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "제외"
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "detail": {
+      "bottom": 1503,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 1411,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 1411
+    },
+    "setting": {
+      "bottom": 760,
+      "height": 118,
+      "left": 189,
+      "right": 1081,
+      "top": 642,
+      "width": 892,
+      "x": 189,
+      "y": 642
+    },
+    "settingLabel": {
+      "bottom": 672,
+      "height": 30,
+      "left": 189,
+      "right": 1081,
+      "top": 642,
+      "width": 892,
+      "x": 189,
+      "y": 642
+    },
+    "switch": {
+      "bottom": 755,
+      "height": 22,
+      "left": 189,
+      "right": 233,
+      "top": 733,
+      "width": 44,
+      "x": 189,
+      "y": 733
+    }
+  },
+  {
+    "label": "32-shared-all-scope-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 836,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "포함"
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "detail": {
+      "bottom": 1481,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 1389,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 1389
+    },
+    "setting": {
+      "bottom": 760,
+      "height": 118,
+      "left": 189,
+      "right": 1081,
+      "top": 642,
+      "width": 892,
+      "x": 189,
+      "y": 642
+    },
+    "settingLabel": {
+      "bottom": 672,
+      "height": 30,
+      "left": 189,
+      "right": 1081,
+      "top": 642,
+      "width": 892,
+      "x": 189,
+      "y": 642
+    },
+    "switch": {
+      "bottom": 755,
+      "height": 22,
+      "left": 189,
+      "right": 233,
+      "top": 733,
+      "width": 44,
+      "x": 189,
+      "y": 733
+    }
+  },
+  {
+    "label": "31-shared-project-scope-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 836,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "포함"
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "detail": {
+      "bottom": 1476,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 1384,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 1384
+    },
+    "setting": {
+      "bottom": 760,
+      "height": 118,
+      "left": 189,
+      "right": 1081,
+      "top": 642,
+      "width": 892,
+      "x": 189,
+      "y": 642
+    },
+    "settingLabel": {
+      "bottom": 672,
+      "height": 30,
+      "left": 189,
+      "right": 1081,
+      "top": 642,
+      "width": 892,
+      "x": 189,
+      "y": 642
+    },
+    "switch": {
+      "bottom": 755,
+      "height": 22,
+      "left": 189,
+      "right": 233,
+      "top": 733,
+      "width": 44,
+      "x": 189,
+      "y": 733
+    }
+  },
+  {
+    "label": "32-shared-project-scope-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 836,
+    "bodyScrollTop": 0,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "포함"
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "detail": {
+      "bottom": 1503,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 1411,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 1411
+    },
+    "setting": {
+      "bottom": 760,
+      "height": 118,
+      "left": 189,
+      "right": 1081,
+      "top": 642,
+      "width": 892,
+      "x": 189,
+      "y": 642
+    },
+    "settingLabel": {
+      "bottom": 672,
+      "height": 30,
+      "left": 189,
+      "right": 1081,
+      "top": 642,
+      "width": 892,
+      "x": 189,
+      "y": 642
+    },
+    "switch": {
+      "bottom": 755,
+      "height": 22,
+      "left": 189,
+      "right": 233,
+      "top": 733,
+      "width": 44,
+      "x": 189,
+      "y": 733
+    }
+  },
+  {
+    "label": "31-shared-create-help-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 1828,
+    "bodyScrollTop": 1118,
+    "bodyScrollWidth": 948,
+    "colors": [],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280
+  },
+  {
+    "label": "32-shared-create-help-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 1828,
+    "bodyScrollTop": 650,
+    "bodyScrollWidth": 948,
+    "colors": [],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280
+  },
+  {
+    "label": "31-review-network-list-final",
+    "body": null,
+    "colors": [],
+    "content": null,
+    "dark": false,
+    "dialog": null,
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BODY"
+    },
+    "footer": null,
+    "header": null,
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": null,
+    "width": 1280
+  },
+  {
+    "label": "31-review-update-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 836,
+    "bodyScrollTop": 126,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "포함"
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 776,
+      "left": 256,
+      "right": 1270,
+      "top": 124,
+      "width": 1014,
+      "x": 256,
+      "y": 124
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "detail": {
+      "bottom": 1537,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 1445,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 1445
+    },
+    "setting": {
+      "bottom": 634,
+      "height": 118,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "settingLabel": {
+      "bottom": 546,
+      "height": 30,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "switch": {
+      "bottom": 629,
+      "height": 22,
+      "left": 189,
+      "right": 233,
+      "top": 607,
+      "width": 44,
+      "x": 189,
+      "y": 607
+    }
+  },
+  {
+    "label": "32-review-network-list-final",
+    "body": null,
+    "colors": [],
+    "content": null,
+    "dark": false,
+    "dialog": null,
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "BODY"
+    },
+    "footer": null,
+    "header": null,
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": null,
+    "width": 1280
+  },
+  {
+    "label": "32-review-update-final",
+    "body": {
+      "bottom": 800,
+      "height": 710,
+      "left": 161,
+      "right": 1119,
+      "top": 90,
+      "width": 958,
+      "x": 161,
+      "y": 90
+    },
+    "bodyClientHeight": 710,
+    "bodyClientWidth": 948,
+    "bodyScrollHeight": 836,
+    "bodyScrollTop": 126,
+    "bodyScrollWidth": 948,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgba(0, 0, 0, 0.65)",
+        "fontSize": "14px",
+        "text": "포함"
+      }
+    ],
+    "content": {
+      "bottom": 866,
+      "height": 832,
+      "left": 160,
+      "right": 1120,
+      "top": 34,
+      "width": 960,
+      "x": 160,
+      "y": 34
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "documentWidth": 1270,
+    "dpr": 1,
+    "focus": {
+      "label": null,
+      "tag": "INPUT"
+    },
+    "footer": {
+      "bottom": 865,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 800,
+      "width": 958,
+      "x": 161,
+      "y": 800
+    },
+    "header": {
+      "bottom": 90,
+      "height": 55,
+      "left": 161,
+      "right": 1119,
+      "top": 35,
+      "width": 958,
+      "x": 161,
+      "y": 35
+    },
+    "height": 900,
+    "main": {
+      "bottom": 900,
+      "height": 749,
+      "left": 256,
+      "right": 1270,
+      "top": 151,
+      "width": 1014,
+      "x": 256,
+      "y": 151
+    },
+    "primaryButton": {
+      "bottom": 849,
+      "height": 32,
+      "left": 1033.234375,
+      "right": 1091,
+      "top": 817,
+      "width": 57.765625,
+      "x": 1033.234375,
+      "y": 817
+    },
+    "width": 1280,
+    "detail": {
+      "bottom": 1564,
+      "height": 92,
+      "left": 751.5625,
+      "right": 1222.984375,
+      "top": 1472,
+      "width": 471.421875,
+      "x": 751.5625,
+      "y": 1472
+    },
+    "setting": {
+      "bottom": 634,
+      "height": 118,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "settingLabel": {
+      "bottom": 546,
+      "height": 30,
+      "left": 189,
+      "right": 1081,
+      "top": 516,
+      "width": 892,
+      "x": 189,
+      "y": 516
+    },
+    "switch": {
+      "bottom": 629,
+      "height": 22,
+      "left": 189,
+      "right": 233,
+      "top": 607,
+      "width": 44,
+      "x": 189,
+      "y": 607
+    }
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "prefix": "qa-gn1566-32",
+  "activeResiduals": {
+    "vms": 0,
+    "nics": 0,
+    "routers": 0,
+    "volumes": 0,
+    "networks": 0,
+    "offerings": 0
+  },
+  "networks": 1,
+  "vms": 1,
+  "routers": 1,
+  "offerings": 5,
+  "forcedDeletes": 0,
+  "status": "PASS"
+}

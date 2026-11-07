@@ -1,0 +1,5 @@
+{
+  "exit": 0,
+  "command": "mvn -pl plugins/acl/project-role-based -Dtest=ProjectRoleBasedApiAccessCheckerTest -Drat.skip=true package",
+  "fullCloudBuild": false
+}

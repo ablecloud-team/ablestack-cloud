@@ -1,0 +1,7 @@
+{
+  "retain_test_networks": true,
+  "retain_test_rules": true,
+  "reason": "User requested final UI review before separate deletion instruction",
+  "cleanup_authorized_after_review": false,
+  "clusters": [31, 32]
+}

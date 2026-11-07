@@ -1,0 +1,948 @@
+{
+  "31": [
+    {
+      "case": "owner-create-personal-l2",
+      "command": "createNetwork",
+      "params": {
+        "name": "qa-gn1569-31-reg-personal-share",
+        "displaytext": "GN1569 grant/revoke review",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193",
+        "acltype": "Account"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": null
+    },
+    {
+      "case": "initial-permissions-empty",
+      "command": "listNetworkPermissions",
+      "params": {
+        "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {}
+    },
+    {
+      "case": "nonowner-grant-denied",
+      "command": "createNetworkPermissions",
+      "params": {
+        "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+        "accountids": "def86464-faa3-40ca-a6f4-d45c0e345dfb"
+      },
+      "accepted": false,
+      "expected": false,
+      "pass_": true,
+      "errorCode": 531,
+      "errorText": "network Network {\"id\": 573, \"name\": \"qa-gn1569-31-reg-personal-share\", \"uuid\": \"0bb7a305-e2c0-4fd6-af30-5f8aec0b720d\", \"networkofferingid\": 94} cannot be operated by normal user Account [{\"accountName\":\"qa-gn1569-31-peer\",\"id\":425,\"uuid\":\"def86464-faa3-40ca-a6f4-d45c0e345dfb\"}]",
+      "result": null
+    },
+    {
+      "case": "mixed-domain-grant-denied",
+      "command": "createNetworkPermissions",
+      "params": {
+        "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+        "accountids": "def86464-faa3-40ca-a6f4-d45c0e345dfb,42ed312e-2298-4e98-8308-bbe824fd6889"
+      },
+      "accepted": false,
+      "expected": false,
+      "pass_": true,
+      "errorCode": 431,
+      "errorText": "Unable to find account 427 in domain id=f3772036-4b8f-41fd-83f2-b71751950364. No permissions is removed",
+      "result": null
+    },
+    {
+      "case": "atomic-rejection-empty",
+      "command": "listNetworkPermissions",
+      "params": {
+        "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {}
+    },
+    {
+      "case": "project-external-share-denied",
+      "command": "createNetworkPermissions",
+      "params": {
+        "networkid": "1a7c7bc5-b487-4acb-92d7-391c0198c0dc",
+        "accountids": "def86464-faa3-40ca-a6f4-d45c0e345dfb"
+      },
+      "accepted": false,
+      "expected": false,
+      "pass_": true,
+      "errorCode": 431,
+      "errorText": "Update network permissions is an invalid operation on network qa-gn1569-31-reg-l2. Project owned networks cannot be shared outside network.",
+      "result": null
+    },
+    {
+      "case": "grant-project-and-account",
+      "command": "createNetworkPermissions",
+      "params": {
+        "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+        "projectids": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "accountids": "def86464-faa3-40ca-a6f4-d45c0e345dfb"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": null
+    },
+    {
+      "case": "typed-permissions-two-rows",
+      "command": "listNetworkPermissions",
+      "params": {
+        "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {
+        "count": 2,
+        "networkpermission": [
+          {
+            "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "account": "qa-gn1569-31-peer",
+            "accountid": "def86464-faa3-40ca-a6f4-d45c0e345dfb"
+          },
+          {
+            "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "account": "PrjAcct-qa-gn1569-31-project-105",
+            "accountid": "8237aaf2-de22-4e22-8938-3a0bfba9b7c7",
+            "project": "qa-gn1569-31-project",
+            "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+          }
+        ]
+      }
+    },
+    {
+      "case": "duplicate-idempotent",
+      "command": "createNetworkPermissions",
+      "params": {
+        "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+        "accounts": "qa-gn1569-31-peer"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": null
+    },
+    {
+      "case": "duplicate-no-row-growth",
+      "command": "listNetworkPermissions",
+      "params": {
+        "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {
+        "count": 2,
+        "networkpermission": [
+          {
+            "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "account": "qa-gn1569-31-peer",
+            "accountid": "def86464-faa3-40ca-a6f4-d45c0e345dfb"
+          },
+          {
+            "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "account": "PrjAcct-qa-gn1569-31-project-105",
+            "accountid": "8237aaf2-de22-4e22-8938-3a0bfba9b7c7",
+            "project": "qa-gn1569-31-project",
+            "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+          }
+        ]
+      }
+    },
+    {
+      "case": "project-member-can-read-granted",
+      "command": "listNetworks",
+      "params": {
+        "id": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "listall": "true"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {
+        "count": 1,
+        "network": [
+          {
+            "id": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+            "name": "qa-gn1569-31-reg-personal-share",
+            "displaytext": "GN1569 grant/revoke review",
+            "broadcastdomaintype": "Vlan",
+            "traffictype": "Guest",
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193",
+            "networkofferingname": "qa-gn1569-31-prj-l2-auto",
+            "networkofferingdisplaytext": "Project permission tests, auto allocated VLAN",
+            "networkofferingconservemode": true,
+            "networkofferingavailability": "Optional",
+            "issystem": false,
+            "state": "Allocated",
+            "related": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+            "dns1": "8.8.8.8",
+            "type": "L2",
+            "acltype": "Account",
+            "account": "qa-gn1569-31-owner",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "domainpath": "ROOT/qa-gn1569-31-domain",
+            "service": [],
+            "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+            "restartrequired": false,
+            "specifyvlan": false,
+            "specifyipranges": false,
+            "canusefordeploy": true,
+            "ispersistent": false,
+            "tags": [],
+            "strechedl2subnet": false,
+            "redundantrouter": false,
+            "supportsvmautoscaling": false,
+            "created": "2026-11-07T22:58:27+0900",
+            "receivedbytes": 0,
+            "sentbytes": 0,
+            "publicmtu": 1500,
+            "privatemtu": 1500,
+            "hasannotations": false
+          }
+        ]
+      }
+    },
+    {
+      "case": "recipient-cannot-modify-owner-network",
+      "command": "updateNetwork",
+      "params": {
+        "id": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+        "displaytext": "EXPECTED DENIED"
+      },
+      "accepted": false,
+      "expected": false,
+      "pass_": true,
+      "errorCode": 531,
+      "errorText": "Caller does not have permission to operate with provided resource.",
+      "result": null
+    },
+    {
+      "case": "project-existing-nic-attach",
+      "command": "addNicToVirtualMachine",
+      "params": {
+        "virtualmachineid": "625141be-7145-4557-9d8f-731500c61cb0",
+        "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": null
+    },
+    {
+      "case": "revoke-project",
+      "command": "removeNetworkPermissions",
+      "params": {
+        "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+        "projectids": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": null
+    },
+    {
+      "case": "only-account-remains",
+      "command": "listNetworkPermissions",
+      "params": {
+        "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {
+        "count": 1,
+        "networkpermission": [
+          {
+            "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "account": "qa-gn1569-31-peer",
+            "accountid": "def86464-faa3-40ca-a6f4-d45c0e345dfb"
+          }
+        ]
+      }
+    },
+    {
+      "case": "project-network-hidden-after-revoke",
+      "command": "listNetworks",
+      "params": {
+        "id": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "listall": "true"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {}
+    },
+    {
+      "case": "new-connection-denied-after-revoke",
+      "command": "addNicToVirtualMachine",
+      "params": {
+        "virtualmachineid": "625141be-7145-4557-9d8f-731500c61cb0",
+        "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+      },
+      "accepted": false,
+      "expected": false,
+      "pass_": true,
+      "errorCode": 530,
+      "errorText": "Unable to use network with id= 0bb7a305-e2c0-4fd6-af30-5f8aec0b720d, permission denied",
+      "result": null
+    },
+    {
+      "case": "reset-permissions",
+      "command": "resetNetworkPermissions",
+      "params": {
+        "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": null
+    },
+    {
+      "case": "reset-empty",
+      "command": "listNetworkPermissions",
+      "params": {
+        "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {}
+    },
+    {
+      "case": "domainadmin-review-grant",
+      "command": "createNetworkPermissions",
+      "params": {
+        "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+        "projectids": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "accountids": "def86464-faa3-40ca-a6f4-d45c0e345dfb"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": null
+    },
+    {
+      "case": "review-permissions-read",
+      "command": "listNetworkPermissions",
+      "params": {
+        "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {
+        "count": 2,
+        "networkpermission": [
+          {
+            "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "account": "qa-gn1569-31-peer",
+            "accountid": "def86464-faa3-40ca-a6f4-d45c0e345dfb"
+          },
+          {
+            "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "account": "PrjAcct-qa-gn1569-31-project-105",
+            "accountid": "8237aaf2-de22-4e22-8938-3a0bfba9b7c7",
+            "project": "qa-gn1569-31-project",
+            "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+          }
+        ]
+      }
+    },
+    {
+      "case": "review-network-visible",
+      "command": "listNetworks",
+      "params": {
+        "id": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "listall": "true"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {
+        "count": 1,
+        "network": [
+          {
+            "id": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+            "name": "qa-gn1569-31-reg-personal-share",
+            "displaytext": "GN1569 grant/revoke review",
+            "broadcastdomaintype": "Vlan",
+            "traffictype": "Guest",
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193",
+            "networkofferingname": "qa-gn1569-31-prj-l2-auto",
+            "networkofferingdisplaytext": "Project permission tests, auto allocated VLAN",
+            "networkofferingconservemode": true,
+            "networkofferingavailability": "Optional",
+            "issystem": false,
+            "state": "Implemented",
+            "related": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+            "dns1": "8.8.8.8",
+            "type": "L2",
+            "acltype": "Account",
+            "account": "qa-gn1569-31-owner",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "domainpath": "ROOT/qa-gn1569-31-domain",
+            "service": [],
+            "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+            "restartrequired": false,
+            "specifyvlan": false,
+            "specifyipranges": false,
+            "canusefordeploy": true,
+            "ispersistent": false,
+            "tags": [],
+            "strechedl2subnet": false,
+            "redundantrouter": false,
+            "supportsvmautoscaling": false,
+            "created": "2026-11-07T22:58:27+0900",
+            "receivedbytes": 0,
+            "sentbytes": 0,
+            "publicmtu": 1500,
+            "privatemtu": 1500,
+            "hasannotations": false
+          }
+        ]
+      }
+    }
+  ],
+  "32": [
+    {
+      "case": "owner-create-personal-l2",
+      "command": "createNetwork",
+      "params": {
+        "name": "qa-gn1569-32-reg-personal-share",
+        "displaytext": "GN1569 grant/revoke review",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+        "acltype": "Account"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": null
+    },
+    {
+      "case": "initial-permissions-empty",
+      "command": "listNetworkPermissions",
+      "params": {
+        "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {}
+    },
+    {
+      "case": "nonowner-grant-denied",
+      "command": "createNetworkPermissions",
+      "params": {
+        "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+        "accountids": "59b361c8-ffd2-4106-9ee4-af6c36b1e8e4"
+      },
+      "accepted": false,
+      "expected": false,
+      "pass_": true,
+      "errorCode": 531,
+      "errorText": "network Network {\"id\": 459, \"name\": \"qa-gn1569-32-reg-personal-share\", \"uuid\": \"d5ebfabd-d845-4411-9266-d6d16efe7587\", \"networkofferingid\": 83} cannot be operated by normal user Account [{\"accountName\":\"qa-gn1569-32-peer\",\"id\":237,\"uuid\":\"59b361c8-ffd2-4106-9ee4-af6c36b1e8e4\"}]",
+      "result": null
+    },
+    {
+      "case": "mixed-domain-grant-denied",
+      "command": "createNetworkPermissions",
+      "params": {
+        "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+        "accountids": "59b361c8-ffd2-4106-9ee4-af6c36b1e8e4,3e19459c-35fe-44e9-915a-67372a0746bc"
+      },
+      "accepted": false,
+      "expected": false,
+      "pass_": true,
+      "errorCode": 431,
+      "errorText": "Unable to find account 239 in domain id=a051d20d-2c05-43d5-833e-e231a80b12f7. No permissions is removed",
+      "result": null
+    },
+    {
+      "case": "atomic-rejection-empty",
+      "command": "listNetworkPermissions",
+      "params": {
+        "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {}
+    },
+    {
+      "case": "project-external-share-denied",
+      "command": "createNetworkPermissions",
+      "params": {
+        "networkid": "8e90bb7a-8fca-469b-accc-8a33c349b611",
+        "accountids": "59b361c8-ffd2-4106-9ee4-af6c36b1e8e4"
+      },
+      "accepted": false,
+      "expected": false,
+      "pass_": true,
+      "errorCode": 431,
+      "errorText": "Update network permissions is an invalid operation on network qa-gn1569-32-reg-l2. Project owned networks cannot be shared outside network.",
+      "result": null
+    },
+    {
+      "case": "grant-project-and-account",
+      "command": "createNetworkPermissions",
+      "params": {
+        "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+        "projectids": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+        "accountids": "59b361c8-ffd2-4106-9ee4-af6c36b1e8e4"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": null
+    },
+    {
+      "case": "typed-permissions-two-rows",
+      "command": "listNetworkPermissions",
+      "params": {
+        "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {
+        "count": 2,
+        "networkpermission": [
+          {
+            "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "account": "qa-gn1569-32-peer",
+            "accountid": "59b361c8-ffd2-4106-9ee4-af6c36b1e8e4"
+          },
+          {
+            "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "account": "PrjAcct-qa-gn1569-32-project-64",
+            "accountid": "573dbe66-2390-49ba-a697-635ef05899bf",
+            "project": "qa-gn1569-32-project",
+            "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+          }
+        ]
+      }
+    },
+    {
+      "case": "duplicate-idempotent",
+      "command": "createNetworkPermissions",
+      "params": {
+        "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+        "accounts": "qa-gn1569-32-peer"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": null
+    },
+    {
+      "case": "duplicate-no-row-growth",
+      "command": "listNetworkPermissions",
+      "params": {
+        "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {
+        "count": 2,
+        "networkpermission": [
+          {
+            "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "account": "qa-gn1569-32-peer",
+            "accountid": "59b361c8-ffd2-4106-9ee4-af6c36b1e8e4"
+          },
+          {
+            "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "account": "PrjAcct-qa-gn1569-32-project-64",
+            "accountid": "573dbe66-2390-49ba-a697-635ef05899bf",
+            "project": "qa-gn1569-32-project",
+            "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+          }
+        ]
+      }
+    },
+    {
+      "case": "project-member-can-read-granted",
+      "command": "listNetworks",
+      "params": {
+        "id": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+        "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+        "listall": "true"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {
+        "count": 1,
+        "network": [
+          {
+            "id": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+            "name": "qa-gn1569-32-reg-personal-share",
+            "displaytext": "GN1569 grant/revoke review",
+            "broadcastdomaintype": "Vlan",
+            "traffictype": "Guest",
+            "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+            "zonename": "Zone",
+            "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+            "networkofferingname": "qa-gn1569-32-prj-l2-auto",
+            "networkofferingdisplaytext": "Project permission tests, auto allocated VLAN",
+            "networkofferingconservemode": true,
+            "networkofferingavailability": "Optional",
+            "issystem": false,
+            "state": "Allocated",
+            "related": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+            "dns1": "8.8.8.8",
+            "type": "L2",
+            "acltype": "Account",
+            "account": "qa-gn1569-32-owner",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "domainpath": "ROOT/qa-gn1569-32-domain",
+            "service": [],
+            "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+            "restartrequired": false,
+            "specifyvlan": false,
+            "specifyipranges": false,
+            "canusefordeploy": true,
+            "ispersistent": false,
+            "tags": [],
+            "strechedl2subnet": false,
+            "redundantrouter": false,
+            "supportsvmautoscaling": false,
+            "created": "2026-11-07T22:59:28+0900",
+            "receivedbytes": 0,
+            "sentbytes": 0,
+            "publicmtu": 1500,
+            "privatemtu": 1500,
+            "hasannotations": false
+          }
+        ]
+      }
+    },
+    {
+      "case": "recipient-cannot-modify-owner-network",
+      "command": "updateNetwork",
+      "params": {
+        "id": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+        "displaytext": "EXPECTED DENIED"
+      },
+      "accepted": false,
+      "expected": false,
+      "pass_": true,
+      "errorCode": 531,
+      "errorText": "Caller does not have permission to operate with provided resource.",
+      "result": null
+    },
+    {
+      "case": "project-existing-nic-attach",
+      "command": "addNicToVirtualMachine",
+      "params": {
+        "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+        "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+        "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": null
+    },
+    {
+      "case": "revoke-project",
+      "command": "removeNetworkPermissions",
+      "params": {
+        "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+        "projectids": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": null
+    },
+    {
+      "case": "only-account-remains",
+      "command": "listNetworkPermissions",
+      "params": {
+        "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {
+        "count": 1,
+        "networkpermission": [
+          {
+            "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "account": "qa-gn1569-32-peer",
+            "accountid": "59b361c8-ffd2-4106-9ee4-af6c36b1e8e4"
+          }
+        ]
+      }
+    },
+    {
+      "case": "project-network-hidden-after-revoke",
+      "command": "listNetworks",
+      "params": {
+        "id": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+        "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+        "listall": "true"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {}
+    },
+    {
+      "case": "new-connection-denied-after-revoke",
+      "command": "addNicToVirtualMachine",
+      "params": {
+        "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+        "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+        "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+      },
+      "accepted": false,
+      "expected": false,
+      "pass_": true,
+      "errorCode": 530,
+      "errorText": "Unable to use network with id= d5ebfabd-d845-4411-9266-d6d16efe7587, permission denied",
+      "result": null
+    },
+    {
+      "case": "reset-permissions",
+      "command": "resetNetworkPermissions",
+      "params": {
+        "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": null
+    },
+    {
+      "case": "reset-empty",
+      "command": "listNetworkPermissions",
+      "params": {
+        "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {}
+    },
+    {
+      "case": "domainadmin-review-grant",
+      "command": "createNetworkPermissions",
+      "params": {
+        "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+        "projectids": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+        "accountids": "59b361c8-ffd2-4106-9ee4-af6c36b1e8e4"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": null
+    },
+    {
+      "case": "review-permissions-read",
+      "command": "listNetworkPermissions",
+      "params": {
+        "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {
+        "count": 2,
+        "networkpermission": [
+          {
+            "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "account": "qa-gn1569-32-peer",
+            "accountid": "59b361c8-ffd2-4106-9ee4-af6c36b1e8e4"
+          },
+          {
+            "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "account": "PrjAcct-qa-gn1569-32-project-64",
+            "accountid": "573dbe66-2390-49ba-a697-635ef05899bf",
+            "project": "qa-gn1569-32-project",
+            "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+          }
+        ]
+      }
+    },
+    {
+      "case": "review-network-visible",
+      "command": "listNetworks",
+      "params": {
+        "id": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+        "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+        "listall": "true"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "result": {
+        "count": 1,
+        "network": [
+          {
+            "id": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+            "name": "qa-gn1569-32-reg-personal-share",
+            "displaytext": "GN1569 grant/revoke review",
+            "broadcastdomaintype": "Vlan",
+            "traffictype": "Guest",
+            "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+            "zonename": "Zone",
+            "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+            "networkofferingname": "qa-gn1569-32-prj-l2-auto",
+            "networkofferingdisplaytext": "Project permission tests, auto allocated VLAN",
+            "networkofferingconservemode": true,
+            "networkofferingavailability": "Optional",
+            "issystem": false,
+            "state": "Implemented",
+            "related": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+            "dns1": "8.8.8.8",
+            "type": "L2",
+            "acltype": "Account",
+            "account": "qa-gn1569-32-owner",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "domainpath": "ROOT/qa-gn1569-32-domain",
+            "service": [],
+            "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+            "restartrequired": false,
+            "specifyvlan": false,
+            "specifyipranges": false,
+            "canusefordeploy": true,
+            "ispersistent": false,
+            "tags": [],
+            "strechedl2subnet": false,
+            "redundantrouter": false,
+            "supportsvmautoscaling": false,
+            "created": "2026-11-07T22:59:28+0900",
+            "receivedbytes": 0,
+            "sentbytes": 0,
+            "publicmtu": 1500,
+            "privatemtu": 1500,
+            "hasannotations": false
+          }
+        ]
+      }
+    }
+  ]
+}

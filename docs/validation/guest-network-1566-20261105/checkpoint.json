@@ -1,0 +1,20 @@
+{
+  "status": "UI_PENDING_APP_RESTART",
+  "issue": 1566,
+  "deployed": false,
+  "UIValidated": false,
+  "apiTests": 1129,
+  "serverTests": 29,
+  "uiTests": 21,
+  "apiBuild": 0,
+  "serverBuild": 0,
+  "uiLint": 0,
+  "uiBuild": 0,
+  "apiCheckstyleExistingErrors": 6,
+  "serverCheckstyleExistingErrors": 62,
+  "changedJavaCheckstyleErrors": [],
+  "previousActiveResiduals": 0,
+  "retainedSeedOfferings": 2,
+  "newNetworks": 0,
+  "protectedMainPreserved": true
+}

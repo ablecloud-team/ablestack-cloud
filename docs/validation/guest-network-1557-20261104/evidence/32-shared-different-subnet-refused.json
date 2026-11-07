@@ -1,0 +1,109 @@
+{
+  "records": [
+    {
+      "requestId": "40480.8538",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "10",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 1
+      }
+    },
+    {
+      "requestId": "40480.8541",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "10",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 1
+      }
+    },
+    {
+      "requestId": "40480.8545",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "command": "listNetworks"
+      },
+      "status": 200,
+      "result": {
+        "count": 1
+      }
+    },
+    {
+      "requestId": "40480.8546",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 1
+      }
+    },
+    {
+      "requestId": "40480.8547",
+      "command": "createVlanIpRange",
+      "method": "POST",
+      "params": {
+        "command": "createVlanIpRange",
+        "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "forvirtualnetwork": "false",
+        "startip": "172.28.32.30",
+        "endip": "172.28.32.34",
+        "gateway": "172.28.32.1",
+        "netmask": "255.255.255.0"
+      },
+      "status": 530,
+      "result": {
+        "errorcode": 530,
+        "errortext": "Unable to update on DB, due to: Data truncation: Data too long for column 'cidr' at row 1"
+      }
+    }
+  ],
+  "cursor": 5549,
+  "dialog": "IP 주소 범위 추가\nUnable to update on DB, due to: Data truncation: Data too long for column 'cidr' at row 1\n인터넷 프로토콜\nIPv4\nIPv6\nIPv4 + IPv6\nIPv4\n\n종료 IP를 비우면 시작 IP 한 개를 사용합니다.\n\nIPv4 시작 IP\nIPv4 종료 IP\n게이트웨이\n넷마스크\n취소\n확인",
+  "values": [
+    {
+      "name": "IPv4 시작 IP",
+      "value": "172.28.32.30"
+    },
+    {
+      "name": "IPv4 종료 IP",
+      "value": "172.28.32.34"
+    },
+    {
+      "name": "게이트웨이",
+      "value": "172.28.32.1"
+    },
+    {
+      "name": "넷마스크",
+      "value": "255.255.255.0"
+    }
+  ],
+  "scope": "32 legacy DB schema; tracked in #1572; not PASS"
+}

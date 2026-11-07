@@ -164,13 +164,13 @@ public class IvsVifDriver extends VifDriverBase {
             }
         }
         String brName = "";
-        brName = generateVnetBrName(nic, vNetId);
+        brName = protocol.equals(Networks.BroadcastDomainType.Vxlan.scheme()) ? "br" + nic + "-" + vNetId : generateVnetBrName(nic, vNetId);
         createVnet(vNetId, nic, brName, protocol);
         return brName;
     }
 
     private String generateVnetBrName(String pifName, String vnetId) {
-        return "br" + pifName + "-" + vnetId;
+        return VlanBridgeName.forVlan(pifName, vnetId);
     }
 
     private void createVnet(String vnetId, String pif, String brName, String protocol) throws InternalErrorException {
@@ -187,7 +187,8 @@ public class IvsVifDriver extends VifDriverBase {
 
             final String result = command.execute();
             if (result != null) {
-                throw new InternalErrorException("Failed to create vnet " + vnetId + ": " + result);
+                throw new InternalErrorException("Failed to create vnet " + vnetId + " on pif " + pif
+                        + " (bridge=" + brName + ", length=" + brName.length() + "): " + result);
             }
         }
     }
@@ -234,6 +235,8 @@ public class IvsVifDriver extends VifDriverBase {
                 scriptPath = _modifyVxlanPath;
             } else {
                 scriptPath = _modifyVlanPath;
+                // The script resolves the parent from the ownership marker or actual VLAN member.
+                pName = "undefined";
             }
 
             final Script command = new Script(scriptPath, _timeout, logger);

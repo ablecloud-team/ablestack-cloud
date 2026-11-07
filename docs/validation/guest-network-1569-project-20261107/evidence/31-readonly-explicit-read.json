@@ -1,0 +1,17 @@
+{
+  "listApis": {
+    "errorCode": 401,
+    "errorText": "The given command 'listApis' either does not exist, is not available for user.",
+    "count": null
+  },
+  "listNetworks": {
+    "errorCode": 401,
+    "errorText": "The given command 'listNetworks' either does not exist, is not available for user.",
+    "count": null
+  },
+  "listVirtualMachines": {
+    "errorCode": 401,
+    "errorText": "The given command 'listVirtualMachines' either does not exist, is not available for user.",
+    "count": null
+  }
+}

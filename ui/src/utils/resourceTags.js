@@ -19,7 +19,7 @@ let activeIdentity
 export const tagOperationBlocked = state => ['preparing', 'submitting', 'pending', 'retrying', 'unknown'].includes(state?.status)
 export function tagIdentity (store) {
   const user = store.getters.userInfo || {}
-  return JSON.stringify([store.getters.server, user.id, user.accountid, user.account, user.domainid, user.roletype, store.state?.user?.token])
+  return JSON.stringify([store.getters.server, user.id, user.accountid, user.account, user.domainid, user.roleid, user.roletype, store.state?.user?.token])
 }
 export function tagContext (store, resource, type) {
   return JSON.stringify([tagIdentity(store), store.getters.project?.id || '', !!store.getters.allProjects,

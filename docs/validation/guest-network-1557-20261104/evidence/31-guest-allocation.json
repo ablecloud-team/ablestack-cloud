@@ -1,0 +1,99 @@
+{
+  "shared": {
+    "vm": {
+      "id": "a9731a85-4b3a-45f4-acb0-b3c197e7e1a9",
+      "name": "qa-gn1557-31-shared-temp",
+      "state": "Running",
+      "instancename": "i-2-856-VM",
+      "hostid": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+      "hostname": "ablecube31-2"
+    },
+    "nic": {
+      "id": "7ead55cd-3815-4a06-ac9f-b9f0fc322a8f",
+      "networkid": "903d1def-9929-4755-82ec-69296b6847fd",
+      "networkname": "qa-gn1557-31-shared",
+      "netmask": "255.255.255.0",
+      "gateway": "172.27.31.1",
+      "ipaddress": "172.27.31.31",
+      "isolationuri": "vlan://651",
+      "broadcasturi": "vlan://651",
+      "traffictype": "Guest",
+      "type": "Shared",
+      "isdefault": true,
+      "macaddress": "1e:1f:37:00:01:3d",
+      "ip6gateway": "fd31:1557::1",
+      "ip6cidr": "fd31:1557::/64",
+      "ip6address": "fd31:1557::1c1f:37ff:fe00:13d",
+      "secondaryip": [],
+      "extradhcpoption": [],
+      "deviceid": "0",
+      "enabled": true
+    },
+    "router": "78ab4835-3b3e-4d4e-b0bd-b66d328aa8ab",
+    "router_guest_ip": "172.27.31.10",
+    "same_host": true,
+    "guest_ssh_exit": 0,
+    "guest_stderr": "Warning: Permanently added '172.27.31.31' (ED25519) to the list of known hosts.\n",
+    "guest": {
+      "addresses": {
+        "exit": 0,
+        "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"::1\",\"prefixlen\":128,\"scope\":\"host\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"ifname\":\"ens3\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"fq_codel\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"1e:1f:37:00:01:3d\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"altnames\":[\"enp0s3\"],\"addr_info\":[{\"family\":\"inet\",\"local\":\"172.27.31.31\",\"prefixlen\":24,\"broadcast\":\"172.27.31.255\",\"scope\":\"global\",\"noprefixroute\":true,\"label\":\"ens3\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"fe80::1c1f:37ff:fe00:13d\",\"prefixlen\":64,\"scope\":\"link\",\"noprefixroute\":true,\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]\n",
+        "stderr": ""
+      },
+      "router_ping": {
+        "exit": 0,
+        "stdout": "PING 172.27.31.10 (172.27.31.10) 56(84) bytes of data.\n64 bytes from 172.27.31.10: icmp_seq=1 ttl=64 time=0.191 ms\n64 bytes from 172.27.31.10: icmp_seq=2 ttl=64 time=0.202 ms\n\n--- 172.27.31.10 ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss, time 1044ms\nrtt min/avg/max/mdev = 0.191/0.196/0.202/0.005 ms\n",
+        "stderr": ""
+      }
+    },
+    "storage": " Type   Device   Target   Source\n------------------------------------------------------------------------------\n file   disk     sda      /mnt/glue-gfs/ec2e8747-98f0-4970-bb08-c1c0070491ab\n file   cdrom    hdc      -\n file   cdrom    hdd      -\n\n",
+    "router_dhcp": "/var/lib/misc/dnsmasq.leases:0 1e:1f:37:00:01:3d 172.27.31.31 qa-gn1557-31-shared-temp *\n/etc/dhcphosts.txt:1e:1f:37:00:01:3d,172.27.31.31,qa-gn1557-31-shared-temp,infinite\n"
+  },
+  "nosnat": {
+    "vm": {
+      "id": "845447ac-82e8-4e99-a338-8da56b208d5d",
+      "name": "qa-gn1557-31-nosnat-temp",
+      "state": "Running",
+      "instancename": "i-2-855-VM",
+      "hostid": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+      "hostname": "ablecube31-2"
+    },
+    "nic": {
+      "id": "7f55d624-5483-411e-85eb-2af380d4673f",
+      "networkid": "670c6673-068d-4436-b57c-b09acce6b65f",
+      "networkname": "qa-gn1557-31-nosnat",
+      "netmask": "255.255.255.0",
+      "gateway": "172.26.31.1",
+      "ipaddress": "172.26.31.31",
+      "isolationuri": "vlan://641",
+      "broadcasturi": "vlan://641",
+      "traffictype": "Guest",
+      "type": "Isolated",
+      "isdefault": true,
+      "macaddress": "1e:1f:cd:00:01:38",
+      "secondaryip": [],
+      "extradhcpoption": [],
+      "deviceid": "0",
+      "enabled": true
+    },
+    "router": "1e3c0e5b-36a5-45e3-be94-0fa39b225aed",
+    "router_guest_ip": "172.26.31.10",
+    "same_host": true,
+    "guest_ssh_exit": 0,
+    "guest_stderr": "Warning: Permanently added '172.26.31.31' (ED25519) to the list of known hosts.\n",
+    "guest": {
+      "addresses": {
+        "exit": 0,
+        "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"::1\",\"prefixlen\":128,\"scope\":\"host\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"ifname\":\"ens3\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"fq_codel\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"1e:1f:cd:00:01:38\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"altnames\":[\"enp0s3\"],\"addr_info\":[{\"family\":\"inet\",\"local\":\"172.26.31.31\",\"prefixlen\":24,\"broadcast\":\"172.26.31.255\",\"scope\":\"global\",\"noprefixroute\":true,\"label\":\"ens3\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"fe80::1c1f:cdff:fe00:138\",\"prefixlen\":64,\"scope\":\"link\",\"noprefixroute\":true,\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]\n",
+        "stderr": ""
+      },
+      "router_ping": {
+        "exit": 0,
+        "stdout": "PING 172.26.31.10 (172.26.31.10) 56(84) bytes of data.\n64 bytes from 172.26.31.10: icmp_seq=1 ttl=64 time=0.149 ms\n64 bytes from 172.26.31.10: icmp_seq=2 ttl=64 time=0.255 ms\n\n--- 172.26.31.10 ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss, time 1062ms\nrtt min/avg/max/mdev = 0.149/0.202/0.255/0.053 ms\n",
+        "stderr": ""
+      }
+    },
+    "storage": " Type   Device   Target   Source\n------------------------------------------------------------------------------\n file   disk     sda      /mnt/glue-gfs/9238dac4-1271-4874-8b74-bdb0c7068d7a\n file   cdrom    hdc      -\n file   cdrom    hdd      -\n\n",
+    "router_dhcp": "/var/lib/misc/dnsmasq.leases:0 1e:1f:cd:00:01:38 172.26.31.31 qa-gn1557-31-nosnat-temp 01:1e:1f:cd:00:01:38\n/etc/dhcphosts.txt:1e:1f:cd:00:01:38,172.26.31.31,qa-gn1557-31-nosnat-temp,infinite\n"
+  }
+}

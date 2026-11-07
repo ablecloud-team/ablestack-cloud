@@ -1,0 +1,17 @@
+{
+  "source_commit": "c5cb61fe8222fffdcf4cdeff99d4cc9eccd19566",
+  "original_jar_sha256": "0bccb75c638b3256fcef6906b2b5548edbc55d568e2a5b72bb246f037a2da143",
+  "jar_sha256": "bf86655eabf89e663937b32ac31a6cd79aae7330b1071b66568979d1e3641a9d",
+  "patched_classes": {
+    "com/cloud/network/NetworkModelImpl.class": "6bc456ebb3bd760b77f48907c38919dd467115b1a49d55f58355f23d50c049a1",
+    "com/cloud/network/NetworkModelImpl$1.class": "386c3904951b6dac0ee7b8d40390c68421dc5eeef0631e72bd798f5115a62135"
+  },
+  "other_entries_unchanged": 204655,
+  "backup": "/dev/shm/gn1557-jar-20261104-102128/backup/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+  "old_pid": "563197",
+  "new_pid": "564767",
+  "http": 200,
+  "web_inf_present": true,
+  "remote_stage": "/dev/shm/gn1557-jar-20261104-102128",
+  "durable_wsl_backup": "/home/ablecloud/work/guest-network-1557-validation/backups/before-0bccb75c638b.jar"
+}

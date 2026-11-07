@@ -1,0 +1,207 @@
+{
+  "cluster": 32,
+  "networks": [
+    {
+      "key": "shared-false",
+      "id": "3f5c2ba2-a9a7-44cd-a2de-e7a3fd326f58",
+      "name": "qa-gn1564-32-shared-false",
+      "type": "Shared",
+      "state": "Setup",
+      "acltype": "Account",
+      "subdomainaccess": null,
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "projectid": null,
+      "details": {
+        "hideIpAddressUsage": "false"
+      },
+      "vlan": "3600",
+      "cidr": "10.46.32.0/24",
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/3f5c2ba2-a9a7-44cd-a2de-e7a3fd326f58"
+    },
+    {
+      "key": "shared-true",
+      "id": "18e421b7-1c53-4744-9088-4e3a02a8da6b",
+      "name": "qa-gn1564-32-shared-true",
+      "type": "Shared",
+      "state": "Setup",
+      "acltype": "Account",
+      "subdomainaccess": null,
+      "account": "qa-gn1564-32-user",
+      "domainid": "14308a02-a543-4ebc-b788-c1c6647aecd9",
+      "projectid": null,
+      "details": {
+        "hideIpAddressUsage": "true"
+      },
+      "vlan": "3601",
+      "cidr": "10.47.32.0/24",
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/18e421b7-1c53-4744-9088-4e3a02a8da6b"
+    },
+    {
+      "key": "shared-domain",
+      "id": "5f48ef29-5b0f-4c77-bb32-10db998bd85b",
+      "name": "qa-gn1564-32-shared-domain",
+      "type": "Shared",
+      "state": "Setup",
+      "acltype": "Domain",
+      "subdomainaccess": true,
+      "account": null,
+      "domainid": "14308a02-a543-4ebc-b788-c1c6647aecd9",
+      "projectid": null,
+      "details": {
+        "hideIpAddressUsage": "true"
+      },
+      "vlan": "3602",
+      "cidr": "10.48.32.0/24",
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/5f48ef29-5b0f-4c77-bb32-10db998bd85b"
+    },
+    {
+      "key": "shared-all",
+      "id": "cf2a3736-472e-4cb5-877d-d6dc61cf2619",
+      "name": "qa-gn1564-32-shared-all",
+      "type": "Shared",
+      "state": "Setup",
+      "acltype": "Domain",
+      "subdomainaccess": true,
+      "account": null,
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "projectid": null,
+      "details": {},
+      "vlan": "3603",
+      "cidr": "10.49.32.0/24",
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/cf2a3736-472e-4cb5-877d-d6dc61cf2619"
+    },
+    {
+      "key": "shared-project",
+      "id": "7e9cd42c-00c0-4696-81f5-f796e3cd1286",
+      "name": "qa-gn1564-32-shared-project",
+      "type": "Shared",
+      "state": "Setup",
+      "acltype": "Account",
+      "subdomainaccess": null,
+      "account": null,
+      "domainid": "14308a02-a543-4ebc-b788-c1c6647aecd9",
+      "projectid": "f1813810-b851-46ce-b9ab-9e6cba6f5062",
+      "details": {},
+      "vlan": "3604",
+      "cidr": "10.50.32.0/24",
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/7e9cd42c-00c0-4696-81f5-f796e3cd1286"
+    },
+    {
+      "key": "l2",
+      "id": "701c6021-4bd0-4953-b936-3dbb52bff02e",
+      "name": "qa-gn1564-32-l2",
+      "type": "L2",
+      "state": "Setup",
+      "acltype": "Account",
+      "subdomainaccess": null,
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "projectid": null,
+      "details": {},
+      "vlan": "3605",
+      "cidr": null,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/701c6021-4bd0-4953-b936-3dbb52bff02e"
+    },
+    {
+      "key": "isolated",
+      "id": "abcd944a-dcf8-4d7d-86e6-f15504518329",
+      "name": "qa-gn1564-32-isolated",
+      "type": "Isolated",
+      "state": "Allocated",
+      "acltype": "Account",
+      "subdomainaccess": null,
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "projectid": null,
+      "details": {},
+      "vlan": null,
+      "cidr": "10.51.32.0/24",
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/abcd944a-dcf8-4d7d-86e6-f15504518329"
+    }
+  ],
+  "vm": {
+    "id": "006b2ece-6313-44e6-a248-db517aa69a7d",
+    "name": "qa-gn1564-32-usage-review",
+    "state": "Running",
+    "instancename": "i-2-355-VM",
+    "hostid": "bfe795b1-8fde-4361-bd1d-af421ab2bdc5",
+    "hostname": "ablecube32-1",
+    "nic": [
+      {
+        "id": "e6b19a67-98d5-4d66-9ebc-f21d6a1b47f4",
+        "networkid": "701c6021-4bd0-4953-b936-3dbb52bff02e",
+        "networkname": "qa-gn1564-32-l2",
+        "isolationuri": "vlan://3605",
+        "broadcasturi": "vlan://3605",
+        "traffictype": "Guest",
+        "type": "L2",
+        "isdefault": true,
+        "macaddress": "02:01:01:60:00:01",
+        "secondaryip": [],
+        "extradhcpoption": [],
+        "deviceid": "0",
+        "enabled": true
+      },
+      {
+        "id": "96e54187-a05d-4106-99eb-8b87c34f5648",
+        "networkid": "3f5c2ba2-a9a7-44cd-a2de-e7a3fd326f58",
+        "networkname": "qa-gn1564-32-shared-false",
+        "netmask": "255.255.255.0",
+        "gateway": "10.46.32.1",
+        "ipaddress": "10.46.32.18",
+        "isolationuri": "vlan://3600",
+        "broadcasturi": "vlan://3600",
+        "traffictype": "Guest",
+        "type": "Shared",
+        "isdefault": false,
+        "macaddress": "02:01:01:5b:00:03",
+        "secondaryip": [],
+        "extradhcpoption": [],
+        "deviceid": "1",
+        "enabled": true
+      }
+    ],
+    "pooltype": "RBD"
+  },
+  "volumes": [
+    {
+      "id": "be1c017a-4c21-4f3c-9480-7b5283c8beb0",
+      "name": "ROOT-355",
+      "type": "ROOT",
+      "state": "Ready",
+      "storage": "Primary",
+      "storagetype": "shared",
+      "virtualmachineid": "006b2ece-6313-44e6-a248-db517aa69a7d"
+    }
+  ],
+  "routers": [
+    {
+      "id": "a4e6b79f-ed19-4d7d-8562-215e4907edc0",
+      "state": "Running",
+      "hostId": 1,
+      "instance": "r-356-VM"
+    }
+  ],
+  "domain": "14308a02-a543-4ebc-b788-c1c6647aecd9",
+  "project": "f1813810-b851-46ce-b9ab-9e6cba6f5062",
+  "actors": {
+    "domainadmin": {
+      "id": "f370a834-ec97-40cc-acc4-ea2b1e4d4166",
+      "account": "qa-gn1564-32-domainadmin",
+      "username": "qa-gn1564-32-domainadmin",
+      "domainid": "14308a02-a543-4ebc-b788-c1c6647aecd9",
+      "domain": "/qa-gn1564-32/",
+      "type": 2
+    },
+    "user-a": {
+      "id": "6776f660-5b0b-476a-862e-6ee5faef72ab",
+      "account": "qa-gn1564-32-user",
+      "username": "qa-gn1564-32-user",
+      "domainid": "14308a02-a543-4ebc-b788-c1c6647aecd9",
+      "domain": "/qa-gn1564-32/",
+      "type": 0
+    }
+  },
+  "keepUntilUserDeletionInstruction": true
+}

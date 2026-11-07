@@ -1,0 +1,73 @@
+{
+  "nic": {
+    "code": null,
+    "error": null,
+    "rows": [
+      {
+        "id": "44f37ef9-0fdd-4306-92bf-0d3aed8b6e1c",
+        "networkid": "45d3e8ae-925d-497b-963f-f99ea587d419",
+        "type": "Shared",
+        "isdefault": true,
+        "ipaddress": "10.175.31.60"
+      }
+    ],
+    "count": 1,
+    "success": null
+  },
+  "peer-use-isolated": {
+    "code": null,
+    "error": null,
+    "rows": [],
+    "count": null,
+    "success": null
+  },
+  "peer-use-l2": {
+    "code": null,
+    "error": null,
+    "rows": [],
+    "count": null,
+    "success": null
+  },
+  "project-use-isolated": {
+    "code": null,
+    "error": null,
+    "rows": [],
+    "count": null,
+    "success": null
+  },
+  "peer-visible-isolated": {
+    "code": null,
+    "error": null,
+    "rows": [],
+    "count": null,
+    "success": null
+  },
+  "peer-visible-vms": {
+    "code": null,
+    "error": null,
+    "rows": [],
+    "count": null,
+    "success": null
+  },
+  "peer-events": {
+    "code": 531,
+    "error": "Caller does not have permission to operate with provided resource.",
+    "rows": [],
+    "count": null,
+    "success": null
+  },
+  "permission-map": {
+    "code": null,
+    "error": null,
+    "rows": [],
+    "count": null,
+    "success": null
+  },
+  "l2-map": {
+    "code": null,
+    "error": null,
+    "rows": [],
+    "count": null,
+    "success": null
+  }
+}

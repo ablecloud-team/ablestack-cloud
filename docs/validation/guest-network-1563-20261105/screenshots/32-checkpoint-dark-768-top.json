@@ -1,0 +1,104 @@
+{
+  "body": {
+    "bottom": 800,
+    "height": 710,
+    "left": 25,
+    "right": 743,
+    "top": 90,
+    "width": 718,
+    "x": 25,
+    "y": 90
+  },
+  "bodyClientHeight": 710,
+  "bodyClientWidth": 708,
+  "bodyScrollHeight": 1431,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 708,
+  "colors": [
+    {
+      "background": "rgba(255, 77, 79, 0.14)",
+      "color": "rgb(255, 210, 210)",
+      "text": "Failed to implement destination network services: Destination network services c"
+    },
+    {
+      "background": "rgba(250, 173, 20, 0.14)",
+      "color": "rgb(255, 231, 163)",
+      "text": "서버에 남은 이전 작업을 재개합니다. 목적 오퍼링과 물리망은 이전 실패의 값으로 고정되며 새 대상을 선택할 수 없습니다."
+    },
+    {
+      "background": "rgb(85, 85, 85)",
+      "color": "rgba(255, 255, 255, 0.65)",
+      "text": "이전 작업 재개"
+    }
+  ],
+  "content": {
+    "bottom": 866,
+    "height": 832,
+    "left": 24,
+    "right": 744,
+    "top": 34,
+    "width": 720,
+    "x": 24,
+    "y": 34
+  },
+  "dark": true,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 768,
+    "top": 0,
+    "width": 768,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 758,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": {
+    "bottom": 865,
+    "height": 65,
+    "left": 25,
+    "right": 743,
+    "top": 800,
+    "width": 718,
+    "x": 25,
+    "y": 800
+  },
+  "header": {
+    "bottom": 90,
+    "height": 55,
+    "left": 25,
+    "right": 743,
+    "top": 35,
+    "width": 718,
+    "x": 25,
+    "y": 35
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 717,
+    "left": 80,
+    "right": 758,
+    "top": 183,
+    "width": 678,
+    "x": 80,
+    "y": 183
+  },
+  "primaryButton": {
+    "bottom": 849,
+    "height": 32,
+    "left": 598.046875,
+    "right": 715,
+    "top": 817,
+    "width": 116.953125,
+    "x": 598.046875,
+    "y": 817
+  },
+  "width": 768,
+  "image_sha256": "4f0eb273072cf809d9f63cf8edc739505b71bd61edde1eb2cb32aaec12af2226"
+}

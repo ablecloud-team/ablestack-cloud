@@ -1,0 +1,17 @@
+{
+  "baselineCommit": "4be8ec3a8f8b9e48c1aee663ddebf0dd3562e24f",
+  "functionalSource": "59a5c92934f9c09535755a3bbaacf7366cdf4367",
+  "baselineUnknown": 3544,
+  "sourceUnknown": 3551,
+  "addedUnknown": [
+    "docs/validation/guest-network-1566-20261105/api-build.exit",
+    "docs/validation/guest-network-1566-20261105/module-checkstyle.exit",
+    "docs/validation/guest-network-1566-20261105/server-build.exit",
+    "docs/validation/guest-network-1566-20261105/server-checkstyle.exit",
+    "docs/validation/guest-network-1566-20261105/ui-build.exit",
+    "docs/validation/guest-network-1566-20261105/ui-lint.exit",
+    "docs/validation/guest-network-1566-20261105/ui-tests.exit"
+  ],
+  "removedUnknown": [],
+  "correction": "Seven issue-1566 scalar exit files removed; exit results are represented in JSON."
+}

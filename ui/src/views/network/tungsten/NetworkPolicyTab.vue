@@ -17,16 +17,12 @@
 
 <template>
   <div>
-    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <a-button
-      :disabled="!('applyTungstenFabricPolicy' in $store.getters.apis)"
-      type="dashed"
-      style="width: 100%; margin-bottom: 15px"
-      @click="onShowAction">
-      <template #icon><plus-outlined /></template>
-      {{ $t('label.apply.tungsten.network.policy') }}
-    </a-button>
+    <NetworkRulesToolbar :can-add="canWrite('applyTungstenFabricPolicy')" :loading="fetchLoading" @add="onShowAction" @refresh="fetchData">
+      <template #add-label>{{ $t('label.apply.tungsten.network.policy') }}</template>
+    </NetworkRulesToolbar>
+    <a-alert v-if="listRefreshFailed" type="warning" show-icon :message="$t('message.guest.feature.load.failed')" />
     <a-table
+      :scroll="{ x: 560 }"
       size="small"
       :loading="fetchLoading"
       :columns="columns"
@@ -36,7 +32,7 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'actions'">
           <a-popconfirm
-            v-if="'removeTungstenFabricPolicy' in $store.getters.apis"
+            v-if="canWrite('removeTungstenFabricPolicy')"
             placement="topRight"
             :title="$t('message.confirm.remove.network.policy')"
             :ok-text="$t('label.yes')"
@@ -69,13 +65,17 @@
         </template>
       </a-pagination>
     </div>
-    <a-modal
+    <MoldDialog
+      size="md"
       v-if="showAction"
       :visible="showAction"
       :title="$t('label.apply.tungsten.network.policy')"
-      :maskClosable="false"
-      :footer="null"
-      @cancel="showAction = false">
+            :footer="null"
+      :closable="!submitLoading"
+      @cancel="!submitLoading && (showAction = false)">
+      <a-alert v-if="candidateFailed" type="warning" show-icon :message="$t('message.guest.feature.load.failed')">
+        <template #action><a-button size="small" @click="onShowAction">{{ $t('label.refresh') }}</a-button></template>
+      </a-alert>
       <div v-ctrl-enter="handleSubmit">
         <a-form :ref="formRef" :model="form" :rules="rules" layout="vertical">
           <a-form-item name="policyuuid" ref="policyuuid">
@@ -93,26 +93,29 @@
             <template #label>
               <tooltip-label :title="$t('label.majorsequence')" :tooltip="apiParams.majorsequence.description"/>
             </template>
-            <a-input v-model:value="form.majorsequence" :placeholder="apiParams.majorsequence.description" />
+            <a-input-number :min="0" :max="2147483647" :precision="0" v-model:value="form.majorsequence" :placeholder="apiParams.majorsequence.description" />
           </a-form-item>
           <a-form-item name="minorsequence" ref="minorsequence">
             <template #label>
               <tooltip-label :title="$t('label.minorsequence')" :tooltip="apiParams.minorsequence.description"/>
             </template>
-            <a-input v-model:value="form.minorsequence" :placeholder="apiParams.minorsequence.description" />
+            <a-input-number :min="0" :max="2147483647" :precision="0" v-model:value="form.minorsequence" :placeholder="apiParams.minorsequence.description" />
           </a-form-item>
         </a-form>
 
         <div :span="24" class="action-button">
           <a-button @click="() => { showAction = false }">{{ $t('label.cancel') }}</a-button>
-          <a-button type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+          <a-button type="primary" :loading="submitLoading" :disabled="!canWrite('applyTungstenFabricPolicy') || networks.loading || candidateFailed || !form.policyuuid" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
         </div>
       </div>
-    </a-modal>
+    </MoldDialog>
   </div>
 </template>
 
 <script>
+import MoldDialog from '@/components/view/MoldDialog'
+import NetworkRulesToolbar from '@/components/view/NetworkRulesToolbar'
+import { canWriteGuestFeature } from '@/utils/conditionalGuestNetwork'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { ref, reactive, toRaw } from 'vue'
@@ -123,7 +126,12 @@ import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
   name: 'NetworkPolicyTab',
-  components: { TooltipButton, TooltipLabel },
+  components: {
+    MoldDialog,
+    NetworkRulesToolbar,
+    TooltipButton,
+    TooltipLabel
+  },
   mixins: [listRefreshMixin(['fetchData']), mixinDevice],
   props: {
     resource: {
@@ -141,6 +149,7 @@ export default {
       deleteLoading: false,
       submitLoading: false,
       showAction: false,
+      candidateFailed: false,
       page: 1,
       pageSize: this.$store.getters.defaultListViewPageSize,
       itemCount: 0,
@@ -185,6 +194,13 @@ export default {
     }
   },
   methods: {
+    canWrite (command) {
+      const getters = this.$store.getters
+      if (this.$route.meta.name !== 'guestnetwork') return command in getters.apis
+      // Candidate list commands only accept a zone; they cannot enforce an account or project filter.
+      return getters.userInfo?.roletype === 'Admin' && !getters.project?.id && !this.listRefreshFailed &&
+        canWriteGuestFeature('network.policy', command, this.resource, getters)
+    },
     initForm () {
       this.formRef = ref()
       this.form = reactive({
@@ -243,12 +259,17 @@ export default {
     },
     onShowAction () {
       this.initForm()
+      if (!this.canWrite('applyTungstenFabricPolicy')) return
+      this.candidateFailed = false
       this.showAction = true
       this.networks.loading = true
       this.networks.opts = []
       getAPI('listTungstenFabricPolicy', { listall: true, zoneid: this.resource.zoneid }).then(json => {
         this.networks.opts = json?.listtungstenfabricpolicyresponse?.policy || []
-        this.form.networkuuid = this.networks.opts[0]?.uuid || null
+        this.networks.opts = this.networks.opts.filter(row => row.uuid && !this.dataSource.some(used => used.uuid === row.uuid))
+        this.form.policyuuid = null
+      }).catch(() => {
+        this.candidateFailed = true
       }).finally(() => {
         this.networks.loading = false
       })
@@ -264,11 +285,12 @@ export default {
       this.fetchData()
     },
     handleSubmit () {
-      if (this.submitLoading) return
+      if (this.submitLoading || this.candidateFailed || this.networks.loading || !this.canWrite('applyTungstenFabricPolicy')) return
       this.submitLoading = true
 
       this.formRef.value.validate().then(() => {
         const values = toRaw(this.form)
+        if (!this.networks.opts.some(row => row.uuid === values.policyuuid)) return
 
         const params = {}
         params.zoneid = this.resource.zoneid
@@ -280,9 +302,9 @@ export default {
         const match = this.networks.opts.filter(network => network.uuid === values.policyuuid)
         const resourceName = match[0]?.name || values.policyuuid
 
-        postAPI('applyTungstenFabricPolicy', params).then(json => {
+        return postAPI('applyTungstenFabricPolicy', params).then(json => {
           const jobId = json?.applytungstenfabricpolicyresponse?.jobid
-          this.$pollJob({
+          return this.$pollJob({
             jobId,
             title: this.$t('label.apply.tungsten.network.policy'),
             description: resourceName,
@@ -298,21 +320,20 @@ export default {
             action: {
               isFetchData: false
             }
+          }).then(result => {
+            if (result.jobstatus === 1) this.showAction = false
           })
         }).catch(error => {
           this.$notifyError(error)
-        }).finally(() => {
-          this.showAction = false
-          this.submitLoading = false
         })
       }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
+        if (error.errorFields?.[0]) this.formRef.value.scrollToField(error.errorFields[0].name)
       }).finally(() => {
         this.submitLoading = false
       })
     },
     removeNetworkPolicy (record) {
-      if (this.deleteLoading) return
+      if (this.deleteLoading || !this.canWrite('removeTungstenFabricPolicy')) return
       this.deleteLoading = true
       const params = {}
       params.zoneid = this.resource.zoneid
@@ -321,7 +342,7 @@ export default {
 
       postAPI('removeTungstenFabricPolicy', params).then(json => {
         const jobId = json?.removetungstenfabricpolicyresponse?.jobid
-        this.$pollJob({
+        return this.$pollJob({
           jobId,
           title: this.$t('label.action.remove.network.policy'),
           description: record.name || record.uuid,

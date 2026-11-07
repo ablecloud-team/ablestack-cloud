@@ -1,0 +1,99 @@
+{
+  "body": {
+    "bottom": 717,
+    "height": 544,
+    "left": 161,
+    "right": 1119,
+    "top": 173,
+    "width": 958,
+    "x": 161,
+    "y": 173
+  },
+  "bodyClientHeight": 544,
+  "bodyClientWidth": 958,
+  "bodyScrollHeight": 544,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 958,
+  "colors": [
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(75, 85, 99)",
+      "text": "L2 · Zone · admin"
+    },
+    {
+      "background": "rgb(8, 86, 182)",
+      "color": "rgb(255, 255, 255)",
+      "text": "확인"
+    }
+  ],
+  "content": {
+    "bottom": 783,
+    "height": 666,
+    "left": 160,
+    "right": 1120,
+    "top": 117,
+    "width": 960,
+    "x": 160,
+    "y": 117
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1280,
+    "top": 0,
+    "width": 1280,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "BUTTON"
+  },
+  "footer": {
+    "bottom": 782,
+    "height": 65,
+    "left": 161,
+    "right": 1119,
+    "top": 717,
+    "width": 958,
+    "x": 161,
+    "y": 717
+  },
+  "header": {
+    "bottom": 173,
+    "height": 55,
+    "left": 161,
+    "right": 1119,
+    "top": 118,
+    "width": 958,
+    "x": 161,
+    "y": 118
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 749,
+    "left": 256,
+    "right": 1270,
+    "top": 151,
+    "width": 1014,
+    "x": 256,
+    "y": 151
+  },
+  "primaryButton": {
+    "bottom": 766,
+    "height": 32,
+    "left": 1033.234375,
+    "right": 1091,
+    "top": 734,
+    "width": 57.765625,
+    "x": 1033.234375,
+    "y": 734
+  },
+  "width": 1280,
+  "image_sha256": "138459da56936b1eeb57535fca55686f1270e0754621d175e8c43dc836f49c1e"
+}

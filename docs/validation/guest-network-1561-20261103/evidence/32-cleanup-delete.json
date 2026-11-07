@@ -1,0 +1,74 @@
+[
+  {
+    "id": "0043a541-ace0-4cb6-9a7e-941b3a296315",
+    "result": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domainpath": "ROOT",
+        "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+        "cmd": "org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "success": true
+        },
+        "jobinstancetype": "Network",
+        "created": "2026-11-03T18:20:45+0900",
+        "completed": "2026-11-03T18:20:46+0900",
+        "jobid": "2980d49e-70fa-4249-86de-45caaeb53ddd",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "id": "a5af37c5-032e-434c-badc-3ea95939c3de",
+    "result": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domainpath": "ROOT",
+        "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+        "cmd": "org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "success": true
+        },
+        "jobinstancetype": "Network",
+        "created": "2026-11-03T18:20:48+0900",
+        "completed": "2026-11-03T18:20:48+0900",
+        "jobid": "5955326b-bf23-4ba7-af25-3bf3a92b30d4",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "id": "ad365a9b-7ac2-40f4-8df8-b028fc10fc3a",
+    "result": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domainpath": "ROOT",
+        "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+        "cmd": "org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "success": true
+        },
+        "jobinstancetype": "Network",
+        "created": "2026-11-03T18:20:50+0900",
+        "completed": "2026-11-03T18:20:50+0900",
+        "jobid": "9a9d7dc8-8771-4c5c-acd9-5e2f00d64804",
+        "jobstatus": 1
+      }
+    }
+  }
+]

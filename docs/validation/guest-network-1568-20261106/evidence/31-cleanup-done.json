@@ -1,0 +1,14 @@
+{
+  "prefix": "qa-gn1563-31",
+  "activeResiduals": {
+    "vms": 0,
+    "nics": 0,
+    "routers": 0,
+    "volumes": 0,
+    "accounts": 0,
+    "networks": 0,
+    "offerings": 0
+  },
+  "forcedDeletes": 0,
+  "status": "PASS"
+}

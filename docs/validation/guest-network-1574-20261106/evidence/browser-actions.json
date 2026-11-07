@@ -1,0 +1,183 @@
+[
+  {
+    "cluster": 31,
+    "action": "vm-standard-reference",
+    "path": "/guestnetwork/763f1092-f1eb-4372-a965-0c844eaa1862?tab=routing.firewall"
+  },
+  {
+    "cluster": 31,
+    "action": "routed-rule-invalid-CIDR-blocked",
+    "path": "/guestnetwork/763f1092-f1eb-4372-a965-0c844eaa1862?tab=routing.firewall"
+  },
+  {
+    "cluster": 31,
+    "action": "routed-rule-created",
+    "path": "/guestnetwork/763f1092-f1eb-4372-a965-0c844eaa1862?tab=routing.firewall",
+    "port": 49174
+  },
+  {
+    "cluster": 32,
+    "action": "theme-switch-immediate-dark",
+    "path": "/guestnetwork/e1b5ecd9-f260-46bd-b26f-5692fa5033d2?tab=routing.firewall"
+  },
+  {
+    "cluster": 32,
+    "action": "routed-rule-created",
+    "path": "/guestnetwork/e1b5ecd9-f260-46bd-b26f-5692fa5033d2?tab=routing.firewall",
+    "port": 49174
+  },
+  {
+    "cluster": 31,
+    "action": "routed-rule-deleted",
+    "path": "/guestnetwork/763f1092-f1eb-4372-a965-0c844eaa1862?tab=routing.firewall",
+    "port": 49174
+  },
+  {
+    "cluster": 32,
+    "action": "routed-rule-deleted",
+    "path": "/guestnetwork/e1b5ecd9-f260-46bd-b26f-5692fa5033d2?tab=routing.firewall",
+    "port": 49174
+  },
+  {
+    "cluster": 31,
+    "action": "routed-rule-retained",
+    "path": "/guestnetwork/763f1092-f1eb-4372-a965-0c844eaa1862?tab=routing.firewall",
+    "port": 49175
+  },
+  {
+    "cluster": 31,
+    "action": "vnf-running-associated-nic",
+    "path": "/guestnetwork/20d91adc-7e3d-49b1-91a7-26a85c008770?tab=vnf.appliances"
+  },
+  {
+    "cluster": 32,
+    "action": "routed-rule-retained",
+    "path": "/guestnetwork/e1b5ecd9-f260-46bd-b26f-5692fa5033d2?tab=routing.firewall",
+    "port": 49175
+  },
+  {
+    "cluster": 32,
+    "action": "vnf-running-associated-nic",
+    "path": "/guestnetwork/fffda682-bdb8-4046-a0d6-53b6f74a9fe8?tab=vnf.appliances"
+  },
+  {
+    "cluster": 31,
+    "action": "vnf-appliance-link",
+    "path": "/vnfapp/f21e54bf-f6dc-4e3a-b631-68de7ffdcb78"
+  },
+  {
+    "cluster": 31,
+    "action": "vnf-template-link",
+    "path": "/template/b6170cce-bc78-4403-a525-666409dc8c51"
+  },
+  {
+    "cluster": 32,
+    "action": "vnf-appliance-link",
+    "path": "/vnfapp/24349aef-a1ec-4543-a0f4-4786bcac4d00"
+  },
+  {
+    "cluster": 32,
+    "action": "vnf-template-link",
+    "path": "/template/988540bc-63e7-469e-936d-a985b6a23b62"
+  },
+  {
+    "cluster": 31,
+    "action": "shared-vnf-empty",
+    "path": "/guestnetwork/47551606-0ec9-4f45-8689-d5d597ed3791?tab=vnf.appliances"
+  },
+  {
+    "cluster": 31,
+    "action": "l2-vnf-empty",
+    "path": "/guestnetwork/f9c5467e-2b27-4dc8-a69d-5a9dfd22fd7c?tab=vnf.appliances"
+  },
+  {
+    "cluster": 31,
+    "action": "unsupported-deep-link",
+    "path": "/guestnetwork/763f1092-f1eb-4372-a965-0c844eaa1862?tab=details",
+    "requested": "bgp.peers",
+    "networkType": "static"
+  },
+  {
+    "cluster": 31,
+    "action": "unsupported-deep-link",
+    "path": "/guestnetwork/20d91adc-7e3d-49b1-91a7-26a85c008770?tab=details",
+    "requested": "ip.v6.firewall",
+    "networkType": "isolated"
+  },
+  {
+    "cluster": 31,
+    "action": "unsupported-deep-link",
+    "path": "/guestnetwork/f9c5467e-2b27-4dc8-a69d-5a9dfd22fd7c?tab=details",
+    "requested": "network.policy",
+    "networkType": "l2"
+  },
+  {
+    "cluster": 31,
+    "action": "unsupported-deep-link",
+    "path": "/guestnetwork/47551606-0ec9-4f45-8689-d5d597ed3791?tab=details",
+    "requested": "tungsten.logical.router",
+    "networkType": "shared"
+  },
+  {
+    "cluster": 31,
+    "action": "unsupported-deep-link",
+    "path": "/guestnetwork/20d91adc-7e3d-49b1-91a7-26a85c008770?tab=details",
+    "requested": "custom.actions",
+    "networkType": "isolated"
+  },
+  {
+    "cluster": 32,
+    "action": "shared-vnf-empty",
+    "path": "/guestnetwork/bd0289a6-1f12-4295-b475-3e4313c0e20b?tab=vnf.appliances"
+  },
+  {
+    "cluster": 32,
+    "action": "l2-vnf-empty",
+    "path": "/guestnetwork/faca87e8-d73d-43ba-921e-47610cbfde49?tab=vnf.appliances"
+  },
+  {
+    "cluster": 32,
+    "action": "unsupported-deep-link",
+    "path": "/guestnetwork/e1b5ecd9-f260-46bd-b26f-5692fa5033d2?tab=details",
+    "requested": "bgp.peers",
+    "networkType": "static"
+  },
+  {
+    "cluster": 32,
+    "action": "unsupported-deep-link",
+    "path": "/guestnetwork/fffda682-bdb8-4046-a0d6-53b6f74a9fe8?tab=details",
+    "requested": "ip.v6.firewall",
+    "networkType": "isolated"
+  },
+  {
+    "cluster": 32,
+    "action": "unsupported-deep-link",
+    "path": "/guestnetwork/faca87e8-d73d-43ba-921e-47610cbfde49?tab=details",
+    "requested": "network.policy",
+    "networkType": "l2"
+  },
+  {
+    "cluster": 32,
+    "action": "unsupported-deep-link",
+    "path": "/guestnetwork/bd0289a6-1f12-4295-b475-3e4313c0e20b?tab=details",
+    "requested": "tungsten.logical.router",
+    "networkType": "shared"
+  },
+  {
+    "cluster": 32,
+    "action": "unsupported-deep-link",
+    "path": "/guestnetwork/fffda682-bdb8-4046-a0d6-53b6f74a9fe8?tab=details",
+    "requested": "custom.actions",
+    "networkType": "isolated"
+  },
+  {
+    "cluster": 31,
+    "action": "vnf-manual-refresh",
+    "path": "/guestnetwork/20d91adc-7e3d-49b1-91a7-26a85c008770?tab=vnf.appliances"
+  },
+  {
+    "cluster": 32,
+    "action": "breadcrumb-network-detail-to-list-dark",
+    "path": "/guestnetwork"
+  }
+]

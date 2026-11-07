@@ -1,0 +1,3266 @@
+[
+  {
+    "cluster": 31,
+    "label": "31-reference-vm-light-1440",
+    "switchResult": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 813
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 172,
+          "height": 29,
+          "left": 281,
+          "right": 838,
+          "top": 143,
+          "width": 557,
+          "x": 281,
+          "y": 143
+        },
+        "text": "/가상머신/GFS-TEST-VM업데이트/"
+      },
+      "dark": false,
+      "height": 1000,
+      "panels": [
+        {
+          "id": "rc-tabs-1-panel-details",
+          "label": "rc-tabs-1-tab-details"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 1430,
+      "tabs": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-1-panel-details",
+          "id": "rc-tabs-1-tab-details",
+          "rect": {
+            "bottom": 286,
+            "height": 22,
+            "left": 637,
+            "right": 662.765625,
+            "top": 264,
+            "width": 25.765625,
+            "x": 637,
+            "y": 264
+          },
+          "selected": "true",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-guestnetwork",
+          "id": "rc-tabs-1-tab-guestnetwork",
+          "rect": {
+            "bottom": 340,
+            "height": 22,
+            "left": 637,
+            "right": 678.171875,
+            "top": 318,
+            "width": 41.171875,
+            "x": 637,
+            "y": 318
+          },
+          "selected": "false",
+          "text": "IP 구성"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-stats",
+          "id": "rc-tabs-1-tab-stats",
+          "rect": {
+            "bottom": 394,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 372,
+            "width": 38.640625,
+            "x": 637,
+            "y": 372
+          },
+          "selected": "false",
+          "text": "메트릭"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-processes",
+          "id": "rc-tabs-1-tab-processes",
+          "rect": {
+            "bottom": 448,
+            "height": 22,
+            "left": 637,
+            "right": 688.53125,
+            "top": 426,
+            "width": 51.53125,
+            "x": 637,
+            "y": 426
+          },
+          "selected": "false",
+          "text": "프로세스"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-schedules",
+          "id": "rc-tabs-1-tab-schedules",
+          "rect": {
+            "bottom": 502,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 480,
+            "width": 38.640625,
+            "x": 637,
+            "y": 480
+          },
+          "selected": "false",
+          "text": "스케줄"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-cdrom",
+          "id": "rc-tabs-1-tab-cdrom",
+          "rect": {
+            "bottom": 556,
+            "height": 22,
+            "left": 637,
+            "right": 658.71875,
+            "top": 534,
+            "width": 21.71875,
+            "x": 637,
+            "y": 534
+          },
+          "selected": "false",
+          "text": "ISO"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-volumes",
+          "id": "rc-tabs-1-tab-volumes",
+          "rect": {
+            "bottom": 610,
+            "height": 22,
+            "left": 637,
+            "right": 662.765625,
+            "top": 588,
+            "width": 25.765625,
+            "x": 637,
+            "y": 588
+          },
+          "selected": "false",
+          "text": "볼륨"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-nics",
+          "id": "rc-tabs-1-tab-nics",
+          "rect": {
+            "bottom": 664,
+            "height": 22,
+            "left": 637,
+            "right": 659.875,
+            "top": 642,
+            "width": 22.875,
+            "x": 637,
+            "y": 642
+          },
+          "selected": "false",
+          "text": "NIC"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-settings",
+          "id": "rc-tabs-1-tab-settings",
+          "rect": {
+            "bottom": 718,
+            "height": 22,
+            "left": 637,
+            "right": 662.765625,
+            "top": 696,
+            "width": 25.765625,
+            "x": 637,
+            "y": 696
+          },
+          "selected": "false",
+          "text": "설정"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-hostdevices",
+          "id": "rc-tabs-1-tab-hostdevices",
+          "rect": {
+            "bottom": 772,
+            "height": 22,
+            "left": 637,
+            "right": 705.25,
+            "top": 750,
+            "width": 68.25,
+            "x": 637,
+            "y": 750
+          },
+          "selected": "false",
+          "text": "호스트 장치"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-vmsnapshots",
+          "id": "rc-tabs-1-tab-vmsnapshots",
+          "rect": {
+            "bottom": 826,
+            "height": 22,
+            "left": 637,
+            "right": 700.75,
+            "top": 804,
+            "width": 63.75,
+            "x": 637,
+            "y": 804
+          },
+          "selected": "false",
+          "text": "VM 스냅샷"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-events",
+          "id": "rc-tabs-1-tab-events",
+          "rect": {
+            "bottom": 880,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 858,
+            "width": 38.640625,
+            "x": 637,
+            "y": 858
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-comments",
+          "id": "rc-tabs-1-tab-comments",
+          "rect": {
+            "bottom": 934,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 912,
+            "width": 38.640625,
+            "x": 637,
+            "y": 912
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vm/05f940bb-5ca7-4f58-8e41-ed8440758f0b",
+      "width": 1440
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "31-reference-vm-light-768",
+    "switchResult": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 813
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 194,
+          "height": 51,
+          "left": 105,
+          "right": 414,
+          "top": 143,
+          "width": 309,
+          "x": 105,
+          "y": 143
+        },
+        "text": "/가상머신/GFS-TEST-VM업데이트/"
+      },
+      "dark": false,
+      "height": 1024,
+      "panels": [
+        {
+          "id": "rc-tabs-1-panel-details",
+          "label": "rc-tabs-1-tab-details"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 758,
+      "tabs": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-1-panel-details",
+          "id": "rc-tabs-1-tab-details",
+          "rect": {
+            "bottom": 1642.75,
+            "height": 22,
+            "left": 125,
+            "right": 150.765625,
+            "top": 1620.75,
+            "width": 25.765625,
+            "x": 125,
+            "y": 1620.75
+          },
+          "selected": "true",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-guestnetwork",
+          "id": "rc-tabs-1-tab-guestnetwork",
+          "rect": {
+            "bottom": 1696.75,
+            "height": 22,
+            "left": 125,
+            "right": 166.171875,
+            "top": 1674.75,
+            "width": 41.171875,
+            "x": 125,
+            "y": 1674.75
+          },
+          "selected": "false",
+          "text": "IP 구성"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-stats",
+          "id": "rc-tabs-1-tab-stats",
+          "rect": {
+            "bottom": 1750.75,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1728.75,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1728.75
+          },
+          "selected": "false",
+          "text": "메트릭"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-processes",
+          "id": "rc-tabs-1-tab-processes",
+          "rect": {
+            "bottom": 1804.75,
+            "height": 22,
+            "left": 125,
+            "right": 176.53125,
+            "top": 1782.75,
+            "width": 51.53125,
+            "x": 125,
+            "y": 1782.75
+          },
+          "selected": "false",
+          "text": "프로세스"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-schedules",
+          "id": "rc-tabs-1-tab-schedules",
+          "rect": {
+            "bottom": 1858.75,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1836.75,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1836.75
+          },
+          "selected": "false",
+          "text": "스케줄"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-cdrom",
+          "id": "rc-tabs-1-tab-cdrom",
+          "rect": {
+            "bottom": 1912.75,
+            "height": 22,
+            "left": 125,
+            "right": 146.71875,
+            "top": 1890.75,
+            "width": 21.71875,
+            "x": 125,
+            "y": 1890.75
+          },
+          "selected": "false",
+          "text": "ISO"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-volumes",
+          "id": "rc-tabs-1-tab-volumes",
+          "rect": {
+            "bottom": 1966.75,
+            "height": 22,
+            "left": 125,
+            "right": 150.765625,
+            "top": 1944.75,
+            "width": 25.765625,
+            "x": 125,
+            "y": 1944.75
+          },
+          "selected": "false",
+          "text": "볼륨"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-nics",
+          "id": "rc-tabs-1-tab-nics",
+          "rect": {
+            "bottom": 2020.75,
+            "height": 22,
+            "left": 125,
+            "right": 147.875,
+            "top": 1998.75,
+            "width": 22.875,
+            "x": 125,
+            "y": 1998.75
+          },
+          "selected": "false",
+          "text": "NIC"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-settings",
+          "id": "rc-tabs-1-tab-settings",
+          "rect": {
+            "bottom": 2074.75,
+            "height": 22,
+            "left": 125,
+            "right": 150.765625,
+            "top": 2052.75,
+            "width": 25.765625,
+            "x": 125,
+            "y": 2052.75
+          },
+          "selected": "false",
+          "text": "설정"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-hostdevices",
+          "id": "rc-tabs-1-tab-hostdevices",
+          "rect": {
+            "bottom": 2128.75,
+            "height": 22,
+            "left": 125,
+            "right": 193.25,
+            "top": 2106.75,
+            "width": 68.25,
+            "x": 125,
+            "y": 2106.75
+          },
+          "selected": "false",
+          "text": "호스트 장치"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-vmsnapshots",
+          "id": "rc-tabs-1-tab-vmsnapshots",
+          "rect": {
+            "bottom": 2182.75,
+            "height": 22,
+            "left": 125,
+            "right": 188.75,
+            "top": 2160.75,
+            "width": 63.75,
+            "x": 125,
+            "y": 2160.75
+          },
+          "selected": "false",
+          "text": "VM 스냅샷"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-events",
+          "id": "rc-tabs-1-tab-events",
+          "rect": {
+            "bottom": 2236.75,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 2214.75,
+            "width": 38.640625,
+            "x": 125,
+            "y": 2214.75
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-comments",
+          "id": "rc-tabs-1-tab-comments",
+          "rect": {
+            "bottom": 2290.75,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 2268.75,
+            "width": 38.640625,
+            "x": 125,
+            "y": 2268.75
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vm/05f940bb-5ca7-4f58-8e41-ed8440758f0b",
+      "width": 768
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "31-reference-vm-light-390",
+    "switchResult": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 813
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 216,
+          "height": 29,
+          "left": 25,
+          "right": 357,
+          "top": 187,
+          "width": 332,
+          "x": 25,
+          "y": 187
+        },
+        "text": "/가상머신/GFS-TEST-VM업데이트/"
+      },
+      "dark": false,
+      "height": 844,
+      "panels": [
+        {
+          "id": "rc-tabs-1-panel-details",
+          "label": "rc-tabs-1-tab-details"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-top",
+      "scrollWidth": 380,
+      "tabs": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-1-panel-details",
+          "id": "rc-tabs-1-tab-details",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 37,
+            "right": 62.765625,
+            "top": 1736.75,
+            "width": 25.765625,
+            "x": 37,
+            "y": 1736.75
+          },
+          "selected": "true",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-guestnetwork",
+          "id": "rc-tabs-1-tab-guestnetwork",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 94.765625,
+            "right": 135.9375,
+            "top": 1736.75,
+            "width": 41.171875,
+            "x": 94.765625,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "IP 구성"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-stats",
+          "id": "rc-tabs-1-tab-stats",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 167.9375,
+            "right": 206.578125,
+            "top": 1736.75,
+            "width": 38.640625,
+            "x": 167.9375,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "메트릭"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-processes",
+          "id": "rc-tabs-1-tab-processes",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 238.578125,
+            "right": 290.109375,
+            "top": 1736.75,
+            "width": 51.53125,
+            "x": 238.578125,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "프로세스"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-schedules",
+          "id": "rc-tabs-1-tab-schedules",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 322.109375,
+            "right": 360.75,
+            "top": 1736.75,
+            "width": 38.640625,
+            "x": 322.109375,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "스케줄"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-cdrom",
+          "id": "rc-tabs-1-tab-cdrom",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 392.75,
+            "right": 414.46875,
+            "top": 1736.75,
+            "width": 21.71875,
+            "x": 392.75,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "ISO"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-volumes",
+          "id": "rc-tabs-1-tab-volumes",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 446.46875,
+            "right": 472.234375,
+            "top": 1736.75,
+            "width": 25.765625,
+            "x": 446.46875,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "볼륨"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-nics",
+          "id": "rc-tabs-1-tab-nics",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 504.234375,
+            "right": 527.109375,
+            "top": 1736.75,
+            "width": 22.875,
+            "x": 504.234375,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "NIC"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-settings",
+          "id": "rc-tabs-1-tab-settings",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 559.109375,
+            "right": 584.875,
+            "top": 1736.75,
+            "width": 25.765625,
+            "x": 559.109375,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "설정"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-hostdevices",
+          "id": "rc-tabs-1-tab-hostdevices",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 616.875,
+            "right": 685.125,
+            "top": 1736.75,
+            "width": 68.25,
+            "x": 616.875,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "호스트 장치"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-vmsnapshots",
+          "id": "rc-tabs-1-tab-vmsnapshots",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 717.125,
+            "right": 780.875,
+            "top": 1736.75,
+            "width": 63.75,
+            "x": 717.125,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "VM 스냅샷"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-events",
+          "id": "rc-tabs-1-tab-events",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 812.875,
+            "right": 851.515625,
+            "top": 1736.75,
+            "width": 38.640625,
+            "x": 812.875,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-comments",
+          "id": "rc-tabs-1-tab-comments",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 883.515625,
+            "right": 922.15625,
+            "top": 1736.75,
+            "width": 38.640625,
+            "x": 883.515625,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vm/05f940bb-5ca7-4f58-8e41-ed8440758f0b",
+      "width": 390
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "31-reference-vm-dark-1440",
+    "switchResult": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1879
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 172,
+          "height": 29,
+          "left": 281,
+          "right": 838,
+          "top": 143,
+          "width": 557,
+          "x": 281,
+          "y": 143
+        },
+        "text": "/가상머신/GFS-TEST-VM업데이트/"
+      },
+      "dark": true,
+      "height": 1000,
+      "panels": [
+        {
+          "id": "rc-tabs-1-panel-details",
+          "label": "rc-tabs-1-tab-details"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 1430,
+      "tabs": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-1-panel-details",
+          "id": "rc-tabs-1-tab-details",
+          "rect": {
+            "bottom": 286,
+            "height": 22,
+            "left": 637,
+            "right": 662.765625,
+            "top": 264,
+            "width": 25.765625,
+            "x": 637,
+            "y": 264
+          },
+          "selected": "true",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-guestnetwork",
+          "id": "rc-tabs-1-tab-guestnetwork",
+          "rect": {
+            "bottom": 340,
+            "height": 22,
+            "left": 637,
+            "right": 678.171875,
+            "top": 318,
+            "width": 41.171875,
+            "x": 637,
+            "y": 318
+          },
+          "selected": "false",
+          "text": "IP 구성"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-stats",
+          "id": "rc-tabs-1-tab-stats",
+          "rect": {
+            "bottom": 394,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 372,
+            "width": 38.640625,
+            "x": 637,
+            "y": 372
+          },
+          "selected": "false",
+          "text": "메트릭"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-processes",
+          "id": "rc-tabs-1-tab-processes",
+          "rect": {
+            "bottom": 448,
+            "height": 22,
+            "left": 637,
+            "right": 688.53125,
+            "top": 426,
+            "width": 51.53125,
+            "x": 637,
+            "y": 426
+          },
+          "selected": "false",
+          "text": "프로세스"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-schedules",
+          "id": "rc-tabs-1-tab-schedules",
+          "rect": {
+            "bottom": 502,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 480,
+            "width": 38.640625,
+            "x": 637,
+            "y": 480
+          },
+          "selected": "false",
+          "text": "스케줄"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-cdrom",
+          "id": "rc-tabs-1-tab-cdrom",
+          "rect": {
+            "bottom": 556,
+            "height": 22,
+            "left": 637,
+            "right": 658.71875,
+            "top": 534,
+            "width": 21.71875,
+            "x": 637,
+            "y": 534
+          },
+          "selected": "false",
+          "text": "ISO"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-volumes",
+          "id": "rc-tabs-1-tab-volumes",
+          "rect": {
+            "bottom": 610,
+            "height": 22,
+            "left": 637,
+            "right": 662.765625,
+            "top": 588,
+            "width": 25.765625,
+            "x": 637,
+            "y": 588
+          },
+          "selected": "false",
+          "text": "볼륨"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-nics",
+          "id": "rc-tabs-1-tab-nics",
+          "rect": {
+            "bottom": 664,
+            "height": 22,
+            "left": 637,
+            "right": 659.875,
+            "top": 642,
+            "width": 22.875,
+            "x": 637,
+            "y": 642
+          },
+          "selected": "false",
+          "text": "NIC"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-settings",
+          "id": "rc-tabs-1-tab-settings",
+          "rect": {
+            "bottom": 718,
+            "height": 22,
+            "left": 637,
+            "right": 662.765625,
+            "top": 696,
+            "width": 25.765625,
+            "x": 637,
+            "y": 696
+          },
+          "selected": "false",
+          "text": "설정"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-hostdevices",
+          "id": "rc-tabs-1-tab-hostdevices",
+          "rect": {
+            "bottom": 772,
+            "height": 22,
+            "left": 637,
+            "right": 705.25,
+            "top": 750,
+            "width": 68.25,
+            "x": 637,
+            "y": 750
+          },
+          "selected": "false",
+          "text": "호스트 장치"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-vmsnapshots",
+          "id": "rc-tabs-1-tab-vmsnapshots",
+          "rect": {
+            "bottom": 826,
+            "height": 22,
+            "left": 637,
+            "right": 700.75,
+            "top": 804,
+            "width": 63.75,
+            "x": 637,
+            "y": 804
+          },
+          "selected": "false",
+          "text": "VM 스냅샷"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-events",
+          "id": "rc-tabs-1-tab-events",
+          "rect": {
+            "bottom": 880,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 858,
+            "width": 38.640625,
+            "x": 637,
+            "y": 858
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-comments",
+          "id": "rc-tabs-1-tab-comments",
+          "rect": {
+            "bottom": 934,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 912,
+            "width": 38.640625,
+            "x": 637,
+            "y": 912
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vm/05f940bb-5ca7-4f58-8e41-ed8440758f0b",
+      "width": 1440
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "31-reference-vm-dark-768",
+    "switchResult": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1879
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 194,
+          "height": 51,
+          "left": 105,
+          "right": 414,
+          "top": 143,
+          "width": 309,
+          "x": 105,
+          "y": 143
+        },
+        "text": "/가상머신/GFS-TEST-VM업데이트/"
+      },
+      "dark": true,
+      "height": 1024,
+      "panels": [
+        {
+          "id": "rc-tabs-1-panel-details",
+          "label": "rc-tabs-1-tab-details"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 758,
+      "tabs": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-1-panel-details",
+          "id": "rc-tabs-1-tab-details",
+          "rect": {
+            "bottom": 1642.75,
+            "height": 22,
+            "left": 125,
+            "right": 150.765625,
+            "top": 1620.75,
+            "width": 25.765625,
+            "x": 125,
+            "y": 1620.75
+          },
+          "selected": "true",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-guestnetwork",
+          "id": "rc-tabs-1-tab-guestnetwork",
+          "rect": {
+            "bottom": 1696.75,
+            "height": 22,
+            "left": 125,
+            "right": 166.171875,
+            "top": 1674.75,
+            "width": 41.171875,
+            "x": 125,
+            "y": 1674.75
+          },
+          "selected": "false",
+          "text": "IP 구성"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-stats",
+          "id": "rc-tabs-1-tab-stats",
+          "rect": {
+            "bottom": 1750.75,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1728.75,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1728.75
+          },
+          "selected": "false",
+          "text": "메트릭"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-processes",
+          "id": "rc-tabs-1-tab-processes",
+          "rect": {
+            "bottom": 1804.75,
+            "height": 22,
+            "left": 125,
+            "right": 176.53125,
+            "top": 1782.75,
+            "width": 51.53125,
+            "x": 125,
+            "y": 1782.75
+          },
+          "selected": "false",
+          "text": "프로세스"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-schedules",
+          "id": "rc-tabs-1-tab-schedules",
+          "rect": {
+            "bottom": 1858.75,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1836.75,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1836.75
+          },
+          "selected": "false",
+          "text": "스케줄"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-cdrom",
+          "id": "rc-tabs-1-tab-cdrom",
+          "rect": {
+            "bottom": 1912.75,
+            "height": 22,
+            "left": 125,
+            "right": 146.71875,
+            "top": 1890.75,
+            "width": 21.71875,
+            "x": 125,
+            "y": 1890.75
+          },
+          "selected": "false",
+          "text": "ISO"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-volumes",
+          "id": "rc-tabs-1-tab-volumes",
+          "rect": {
+            "bottom": 1966.75,
+            "height": 22,
+            "left": 125,
+            "right": 150.765625,
+            "top": 1944.75,
+            "width": 25.765625,
+            "x": 125,
+            "y": 1944.75
+          },
+          "selected": "false",
+          "text": "볼륨"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-nics",
+          "id": "rc-tabs-1-tab-nics",
+          "rect": {
+            "bottom": 2020.75,
+            "height": 22,
+            "left": 125,
+            "right": 147.875,
+            "top": 1998.75,
+            "width": 22.875,
+            "x": 125,
+            "y": 1998.75
+          },
+          "selected": "false",
+          "text": "NIC"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-settings",
+          "id": "rc-tabs-1-tab-settings",
+          "rect": {
+            "bottom": 2074.75,
+            "height": 22,
+            "left": 125,
+            "right": 150.765625,
+            "top": 2052.75,
+            "width": 25.765625,
+            "x": 125,
+            "y": 2052.75
+          },
+          "selected": "false",
+          "text": "설정"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-hostdevices",
+          "id": "rc-tabs-1-tab-hostdevices",
+          "rect": {
+            "bottom": 2128.75,
+            "height": 22,
+            "left": 125,
+            "right": 193.25,
+            "top": 2106.75,
+            "width": 68.25,
+            "x": 125,
+            "y": 2106.75
+          },
+          "selected": "false",
+          "text": "호스트 장치"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-vmsnapshots",
+          "id": "rc-tabs-1-tab-vmsnapshots",
+          "rect": {
+            "bottom": 2182.75,
+            "height": 22,
+            "left": 125,
+            "right": 188.75,
+            "top": 2160.75,
+            "width": 63.75,
+            "x": 125,
+            "y": 2160.75
+          },
+          "selected": "false",
+          "text": "VM 스냅샷"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-events",
+          "id": "rc-tabs-1-tab-events",
+          "rect": {
+            "bottom": 2236.75,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 2214.75,
+            "width": 38.640625,
+            "x": 125,
+            "y": 2214.75
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-comments",
+          "id": "rc-tabs-1-tab-comments",
+          "rect": {
+            "bottom": 2290.75,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 2268.75,
+            "width": 38.640625,
+            "x": 125,
+            "y": 2268.75
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vm/05f940bb-5ca7-4f58-8e41-ed8440758f0b",
+      "width": 768
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "31-reference-vm-dark-390",
+    "switchResult": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1879
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 216,
+          "height": 29,
+          "left": 25,
+          "right": 357,
+          "top": 187,
+          "width": 332,
+          "x": 25,
+          "y": 187
+        },
+        "text": "/가상머신/GFS-TEST-VM업데이트/"
+      },
+      "dark": true,
+      "height": 844,
+      "panels": [
+        {
+          "id": "rc-tabs-1-panel-details",
+          "label": "rc-tabs-1-tab-details"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-top",
+      "scrollWidth": 380,
+      "tabs": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-1-panel-details",
+          "id": "rc-tabs-1-tab-details",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 37,
+            "right": 62.765625,
+            "top": 1736.75,
+            "width": 25.765625,
+            "x": 37,
+            "y": 1736.75
+          },
+          "selected": "true",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-guestnetwork",
+          "id": "rc-tabs-1-tab-guestnetwork",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 94.765625,
+            "right": 135.9375,
+            "top": 1736.75,
+            "width": 41.171875,
+            "x": 94.765625,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "IP 구성"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-stats",
+          "id": "rc-tabs-1-tab-stats",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 167.9375,
+            "right": 206.578125,
+            "top": 1736.75,
+            "width": 38.640625,
+            "x": 167.9375,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "메트릭"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-processes",
+          "id": "rc-tabs-1-tab-processes",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 238.578125,
+            "right": 290.109375,
+            "top": 1736.75,
+            "width": 51.53125,
+            "x": 238.578125,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "프로세스"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-schedules",
+          "id": "rc-tabs-1-tab-schedules",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 322.109375,
+            "right": 360.75,
+            "top": 1736.75,
+            "width": 38.640625,
+            "x": 322.109375,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "스케줄"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-cdrom",
+          "id": "rc-tabs-1-tab-cdrom",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 392.75,
+            "right": 414.46875,
+            "top": 1736.75,
+            "width": 21.71875,
+            "x": 392.75,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "ISO"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-volumes",
+          "id": "rc-tabs-1-tab-volumes",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 446.46875,
+            "right": 472.234375,
+            "top": 1736.75,
+            "width": 25.765625,
+            "x": 446.46875,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "볼륨"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-nics",
+          "id": "rc-tabs-1-tab-nics",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 504.234375,
+            "right": 527.109375,
+            "top": 1736.75,
+            "width": 22.875,
+            "x": 504.234375,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "NIC"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-settings",
+          "id": "rc-tabs-1-tab-settings",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 559.109375,
+            "right": 584.875,
+            "top": 1736.75,
+            "width": 25.765625,
+            "x": 559.109375,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "설정"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-hostdevices",
+          "id": "rc-tabs-1-tab-hostdevices",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 616.875,
+            "right": 685.125,
+            "top": 1736.75,
+            "width": 68.25,
+            "x": 616.875,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "호스트 장치"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-vmsnapshots",
+          "id": "rc-tabs-1-tab-vmsnapshots",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 717.125,
+            "right": 780.875,
+            "top": 1736.75,
+            "width": 63.75,
+            "x": 717.125,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "VM 스냅샷"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-events",
+          "id": "rc-tabs-1-tab-events",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 812.875,
+            "right": 851.515625,
+            "top": 1736.75,
+            "width": 38.640625,
+            "x": 812.875,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-1-panel-comments",
+          "id": "rc-tabs-1-tab-comments",
+          "rect": {
+            "bottom": 1758.75,
+            "height": 22,
+            "left": 883.515625,
+            "right": 922.15625,
+            "top": 1736.75,
+            "width": 38.640625,
+            "x": 883.515625,
+            "y": 1736.75
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vm/05f940bb-5ca7-4f58-8e41-ed8440758f0b",
+      "width": 390
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "32-reference-vm-light-1440",
+    "switchResult": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 783
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 199,
+          "height": 29,
+          "left": 281,
+          "right": 838,
+          "top": 170,
+          "width": 557,
+          "x": 281,
+          "y": 170
+        },
+        "text": "/가상머신/ShareVolume-VM-1업데이트/"
+      },
+      "dark": false,
+      "height": 1000,
+      "panels": [
+        {
+          "id": "rc-tabs-2-panel-details",
+          "label": "rc-tabs-2-tab-details"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 1430,
+      "tabs": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-2-panel-details",
+          "id": "rc-tabs-2-tab-details",
+          "rect": {
+            "bottom": 313,
+            "height": 22,
+            "left": 637,
+            "right": 662.765625,
+            "top": 291,
+            "width": 25.765625,
+            "x": 637,
+            "y": 291
+          },
+          "selected": "true",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-guestnetwork",
+          "id": "rc-tabs-2-tab-guestnetwork",
+          "rect": {
+            "bottom": 367,
+            "height": 22,
+            "left": 637,
+            "right": 678.171875,
+            "top": 345,
+            "width": 41.171875,
+            "x": 637,
+            "y": 345
+          },
+          "selected": "false",
+          "text": "IP 구성"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-stats",
+          "id": "rc-tabs-2-tab-stats",
+          "rect": {
+            "bottom": 421,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 399,
+            "width": 38.640625,
+            "x": 637,
+            "y": 399
+          },
+          "selected": "false",
+          "text": "메트릭"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-processes",
+          "id": "rc-tabs-2-tab-processes",
+          "rect": {
+            "bottom": 475,
+            "height": 22,
+            "left": 637,
+            "right": 688.53125,
+            "top": 453,
+            "width": 51.53125,
+            "x": 637,
+            "y": 453
+          },
+          "selected": "false",
+          "text": "프로세스"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-schedules",
+          "id": "rc-tabs-2-tab-schedules",
+          "rect": {
+            "bottom": 529,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 507,
+            "width": 38.640625,
+            "x": 637,
+            "y": 507
+          },
+          "selected": "false",
+          "text": "스케줄"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-cdrom",
+          "id": "rc-tabs-2-tab-cdrom",
+          "rect": {
+            "bottom": 583,
+            "height": 22,
+            "left": 637,
+            "right": 658.71875,
+            "top": 561,
+            "width": 21.71875,
+            "x": 637,
+            "y": 561
+          },
+          "selected": "false",
+          "text": "ISO"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-volumes",
+          "id": "rc-tabs-2-tab-volumes",
+          "rect": {
+            "bottom": 637,
+            "height": 22,
+            "left": 637,
+            "right": 662.765625,
+            "top": 615,
+            "width": 25.765625,
+            "x": 637,
+            "y": 615
+          },
+          "selected": "false",
+          "text": "볼륨"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-nics",
+          "id": "rc-tabs-2-tab-nics",
+          "rect": {
+            "bottom": 691,
+            "height": 22,
+            "left": 637,
+            "right": 659.875,
+            "top": 669,
+            "width": 22.875,
+            "x": 637,
+            "y": 669
+          },
+          "selected": "false",
+          "text": "NIC"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-settings",
+          "id": "rc-tabs-2-tab-settings",
+          "rect": {
+            "bottom": 745,
+            "height": 22,
+            "left": 637,
+            "right": 662.765625,
+            "top": 723,
+            "width": 25.765625,
+            "x": 637,
+            "y": 723
+          },
+          "selected": "false",
+          "text": "설정"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-hostdevices",
+          "id": "rc-tabs-2-tab-hostdevices",
+          "rect": {
+            "bottom": 799,
+            "height": 22,
+            "left": 637,
+            "right": 705.25,
+            "top": 777,
+            "width": 68.25,
+            "x": 637,
+            "y": 777
+          },
+          "selected": "false",
+          "text": "호스트 장치"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-vmsnapshots",
+          "id": "rc-tabs-2-tab-vmsnapshots",
+          "rect": {
+            "bottom": 853,
+            "height": 22,
+            "left": 637,
+            "right": 700.75,
+            "top": 831,
+            "width": 63.75,
+            "x": 637,
+            "y": 831
+          },
+          "selected": "false",
+          "text": "VM 스냅샷"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-events",
+          "id": "rc-tabs-2-tab-events",
+          "rect": {
+            "bottom": 907,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 885,
+            "width": 38.640625,
+            "x": 637,
+            "y": 885
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-comments",
+          "id": "rc-tabs-2-tab-comments",
+          "rect": {
+            "bottom": 961,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 939,
+            "width": 38.640625,
+            "x": 637,
+            "y": 939
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.32.10:8080/client/#/vm/d76c74bc-c7cc-4793-9401-fb889e7b227b",
+      "width": 1440
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "32-reference-vm-light-768",
+    "switchResult": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 783
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 253,
+          "height": 51,
+          "left": 105,
+          "right": 414,
+          "top": 202,
+          "width": 309,
+          "x": 105,
+          "y": 202
+        },
+        "text": "/가상머신/ShareVolume-VM-1업데이트/"
+      },
+      "dark": false,
+      "height": 1024,
+      "panels": [
+        {
+          "id": "rc-tabs-2-panel-details",
+          "label": "rc-tabs-2-tab-details"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 758,
+      "tabs": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-2-panel-details",
+          "id": "rc-tabs-2-tab-details",
+          "rect": {
+            "bottom": 1701.75,
+            "height": 22,
+            "left": 125,
+            "right": 150.765625,
+            "top": 1679.75,
+            "width": 25.765625,
+            "x": 125,
+            "y": 1679.75
+          },
+          "selected": "true",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-guestnetwork",
+          "id": "rc-tabs-2-tab-guestnetwork",
+          "rect": {
+            "bottom": 1755.75,
+            "height": 22,
+            "left": 125,
+            "right": 166.171875,
+            "top": 1733.75,
+            "width": 41.171875,
+            "x": 125,
+            "y": 1733.75
+          },
+          "selected": "false",
+          "text": "IP 구성"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-stats",
+          "id": "rc-tabs-2-tab-stats",
+          "rect": {
+            "bottom": 1809.75,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1787.75,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1787.75
+          },
+          "selected": "false",
+          "text": "메트릭"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-processes",
+          "id": "rc-tabs-2-tab-processes",
+          "rect": {
+            "bottom": 1863.75,
+            "height": 22,
+            "left": 125,
+            "right": 176.53125,
+            "top": 1841.75,
+            "width": 51.53125,
+            "x": 125,
+            "y": 1841.75
+          },
+          "selected": "false",
+          "text": "프로세스"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-schedules",
+          "id": "rc-tabs-2-tab-schedules",
+          "rect": {
+            "bottom": 1917.75,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1895.75,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1895.75
+          },
+          "selected": "false",
+          "text": "스케줄"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-cdrom",
+          "id": "rc-tabs-2-tab-cdrom",
+          "rect": {
+            "bottom": 1971.75,
+            "height": 22,
+            "left": 125,
+            "right": 146.71875,
+            "top": 1949.75,
+            "width": 21.71875,
+            "x": 125,
+            "y": 1949.75
+          },
+          "selected": "false",
+          "text": "ISO"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-volumes",
+          "id": "rc-tabs-2-tab-volumes",
+          "rect": {
+            "bottom": 2025.75,
+            "height": 22,
+            "left": 125,
+            "right": 150.765625,
+            "top": 2003.75,
+            "width": 25.765625,
+            "x": 125,
+            "y": 2003.75
+          },
+          "selected": "false",
+          "text": "볼륨"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-nics",
+          "id": "rc-tabs-2-tab-nics",
+          "rect": {
+            "bottom": 2079.75,
+            "height": 22,
+            "left": 125,
+            "right": 147.875,
+            "top": 2057.75,
+            "width": 22.875,
+            "x": 125,
+            "y": 2057.75
+          },
+          "selected": "false",
+          "text": "NIC"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-settings",
+          "id": "rc-tabs-2-tab-settings",
+          "rect": {
+            "bottom": 2133.75,
+            "height": 22,
+            "left": 125,
+            "right": 150.765625,
+            "top": 2111.75,
+            "width": 25.765625,
+            "x": 125,
+            "y": 2111.75
+          },
+          "selected": "false",
+          "text": "설정"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-hostdevices",
+          "id": "rc-tabs-2-tab-hostdevices",
+          "rect": {
+            "bottom": 2187.75,
+            "height": 22,
+            "left": 125,
+            "right": 193.25,
+            "top": 2165.75,
+            "width": 68.25,
+            "x": 125,
+            "y": 2165.75
+          },
+          "selected": "false",
+          "text": "호스트 장치"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-vmsnapshots",
+          "id": "rc-tabs-2-tab-vmsnapshots",
+          "rect": {
+            "bottom": 2241.75,
+            "height": 22,
+            "left": 125,
+            "right": 188.75,
+            "top": 2219.75,
+            "width": 63.75,
+            "x": 125,
+            "y": 2219.75
+          },
+          "selected": "false",
+          "text": "VM 스냅샷"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-events",
+          "id": "rc-tabs-2-tab-events",
+          "rect": {
+            "bottom": 2295.75,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 2273.75,
+            "width": 38.640625,
+            "x": 125,
+            "y": 2273.75
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-comments",
+          "id": "rc-tabs-2-tab-comments",
+          "rect": {
+            "bottom": 2349.75,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 2327.75,
+            "width": 38.640625,
+            "x": 125,
+            "y": 2327.75
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.32.10:8080/client/#/vm/d76c74bc-c7cc-4793-9401-fb889e7b227b",
+      "width": 768
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "32-reference-vm-light-390",
+    "switchResult": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 783
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 271,
+          "height": 51,
+          "left": 25,
+          "right": 357,
+          "top": 220,
+          "width": 332,
+          "x": 25,
+          "y": 220
+        },
+        "text": "/가상머신/ShareVolume-VM-1업데이트/"
+      },
+      "dark": false,
+      "height": 844,
+      "panels": [
+        {
+          "id": "rc-tabs-2-panel-details",
+          "label": "rc-tabs-2-tab-details"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-top",
+      "scrollWidth": 380,
+      "tabs": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-2-panel-details",
+          "id": "rc-tabs-2-tab-details",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 37,
+            "right": 62.765625,
+            "top": 1791.75,
+            "width": 25.765625,
+            "x": 37,
+            "y": 1791.75
+          },
+          "selected": "true",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-guestnetwork",
+          "id": "rc-tabs-2-tab-guestnetwork",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 94.765625,
+            "right": 135.9375,
+            "top": 1791.75,
+            "width": 41.171875,
+            "x": 94.765625,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "IP 구성"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-stats",
+          "id": "rc-tabs-2-tab-stats",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 167.9375,
+            "right": 206.578125,
+            "top": 1791.75,
+            "width": 38.640625,
+            "x": 167.9375,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "메트릭"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-processes",
+          "id": "rc-tabs-2-tab-processes",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 238.578125,
+            "right": 290.109375,
+            "top": 1791.75,
+            "width": 51.53125,
+            "x": 238.578125,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "프로세스"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-schedules",
+          "id": "rc-tabs-2-tab-schedules",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 322.109375,
+            "right": 360.75,
+            "top": 1791.75,
+            "width": 38.640625,
+            "x": 322.109375,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "스케줄"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-cdrom",
+          "id": "rc-tabs-2-tab-cdrom",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 392.75,
+            "right": 414.46875,
+            "top": 1791.75,
+            "width": 21.71875,
+            "x": 392.75,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "ISO"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-volumes",
+          "id": "rc-tabs-2-tab-volumes",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 446.46875,
+            "right": 472.234375,
+            "top": 1791.75,
+            "width": 25.765625,
+            "x": 446.46875,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "볼륨"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-nics",
+          "id": "rc-tabs-2-tab-nics",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 504.234375,
+            "right": 527.109375,
+            "top": 1791.75,
+            "width": 22.875,
+            "x": 504.234375,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "NIC"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-settings",
+          "id": "rc-tabs-2-tab-settings",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 559.109375,
+            "right": 584.875,
+            "top": 1791.75,
+            "width": 25.765625,
+            "x": 559.109375,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "설정"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-hostdevices",
+          "id": "rc-tabs-2-tab-hostdevices",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 616.875,
+            "right": 685.125,
+            "top": 1791.75,
+            "width": 68.25,
+            "x": 616.875,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "호스트 장치"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-vmsnapshots",
+          "id": "rc-tabs-2-tab-vmsnapshots",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 717.125,
+            "right": 780.875,
+            "top": 1791.75,
+            "width": 63.75,
+            "x": 717.125,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "VM 스냅샷"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-events",
+          "id": "rc-tabs-2-tab-events",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 812.875,
+            "right": 851.515625,
+            "top": 1791.75,
+            "width": 38.640625,
+            "x": 812.875,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-comments",
+          "id": "rc-tabs-2-tab-comments",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 883.515625,
+            "right": 922.15625,
+            "top": 1791.75,
+            "width": 38.640625,
+            "x": 883.515625,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.32.10:8080/client/#/vm/d76c74bc-c7cc-4793-9401-fb889e7b227b",
+      "width": 390
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "32-reference-vm-dark-1440",
+    "switchResult": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1852
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 199,
+          "height": 29,
+          "left": 281,
+          "right": 838,
+          "top": 170,
+          "width": 557,
+          "x": 281,
+          "y": 170
+        },
+        "text": "/가상머신/ShareVolume-VM-1업데이트/"
+      },
+      "dark": true,
+      "height": 1000,
+      "panels": [
+        {
+          "id": "rc-tabs-2-panel-details",
+          "label": "rc-tabs-2-tab-details"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 1430,
+      "tabs": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-2-panel-details",
+          "id": "rc-tabs-2-tab-details",
+          "rect": {
+            "bottom": 313,
+            "height": 22,
+            "left": 637,
+            "right": 662.765625,
+            "top": 291,
+            "width": 25.765625,
+            "x": 637,
+            "y": 291
+          },
+          "selected": "true",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-guestnetwork",
+          "id": "rc-tabs-2-tab-guestnetwork",
+          "rect": {
+            "bottom": 367,
+            "height": 22,
+            "left": 637,
+            "right": 678.171875,
+            "top": 345,
+            "width": 41.171875,
+            "x": 637,
+            "y": 345
+          },
+          "selected": "false",
+          "text": "IP 구성"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-stats",
+          "id": "rc-tabs-2-tab-stats",
+          "rect": {
+            "bottom": 421,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 399,
+            "width": 38.640625,
+            "x": 637,
+            "y": 399
+          },
+          "selected": "false",
+          "text": "메트릭"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-processes",
+          "id": "rc-tabs-2-tab-processes",
+          "rect": {
+            "bottom": 475,
+            "height": 22,
+            "left": 637,
+            "right": 688.53125,
+            "top": 453,
+            "width": 51.53125,
+            "x": 637,
+            "y": 453
+          },
+          "selected": "false",
+          "text": "프로세스"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-schedules",
+          "id": "rc-tabs-2-tab-schedules",
+          "rect": {
+            "bottom": 529,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 507,
+            "width": 38.640625,
+            "x": 637,
+            "y": 507
+          },
+          "selected": "false",
+          "text": "스케줄"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-cdrom",
+          "id": "rc-tabs-2-tab-cdrom",
+          "rect": {
+            "bottom": 583,
+            "height": 22,
+            "left": 637,
+            "right": 658.71875,
+            "top": 561,
+            "width": 21.71875,
+            "x": 637,
+            "y": 561
+          },
+          "selected": "false",
+          "text": "ISO"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-volumes",
+          "id": "rc-tabs-2-tab-volumes",
+          "rect": {
+            "bottom": 637,
+            "height": 22,
+            "left": 637,
+            "right": 662.765625,
+            "top": 615,
+            "width": 25.765625,
+            "x": 637,
+            "y": 615
+          },
+          "selected": "false",
+          "text": "볼륨"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-nics",
+          "id": "rc-tabs-2-tab-nics",
+          "rect": {
+            "bottom": 691,
+            "height": 22,
+            "left": 637,
+            "right": 659.875,
+            "top": 669,
+            "width": 22.875,
+            "x": 637,
+            "y": 669
+          },
+          "selected": "false",
+          "text": "NIC"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-settings",
+          "id": "rc-tabs-2-tab-settings",
+          "rect": {
+            "bottom": 745,
+            "height": 22,
+            "left": 637,
+            "right": 662.765625,
+            "top": 723,
+            "width": 25.765625,
+            "x": 637,
+            "y": 723
+          },
+          "selected": "false",
+          "text": "설정"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-hostdevices",
+          "id": "rc-tabs-2-tab-hostdevices",
+          "rect": {
+            "bottom": 799,
+            "height": 22,
+            "left": 637,
+            "right": 705.25,
+            "top": 777,
+            "width": 68.25,
+            "x": 637,
+            "y": 777
+          },
+          "selected": "false",
+          "text": "호스트 장치"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-vmsnapshots",
+          "id": "rc-tabs-2-tab-vmsnapshots",
+          "rect": {
+            "bottom": 853,
+            "height": 22,
+            "left": 637,
+            "right": 700.75,
+            "top": 831,
+            "width": 63.75,
+            "x": 637,
+            "y": 831
+          },
+          "selected": "false",
+          "text": "VM 스냅샷"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-events",
+          "id": "rc-tabs-2-tab-events",
+          "rect": {
+            "bottom": 907,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 885,
+            "width": 38.640625,
+            "x": 637,
+            "y": 885
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-comments",
+          "id": "rc-tabs-2-tab-comments",
+          "rect": {
+            "bottom": 961,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 939,
+            "width": 38.640625,
+            "x": 637,
+            "y": 939
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.32.10:8080/client/#/vm/d76c74bc-c7cc-4793-9401-fb889e7b227b",
+      "width": 1440
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "32-reference-vm-dark-768",
+    "switchResult": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1852
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 253,
+          "height": 51,
+          "left": 105,
+          "right": 414,
+          "top": 202,
+          "width": 309,
+          "x": 105,
+          "y": 202
+        },
+        "text": "/가상머신/ShareVolume-VM-1업데이트/"
+      },
+      "dark": true,
+      "height": 1024,
+      "panels": [
+        {
+          "id": "rc-tabs-2-panel-details",
+          "label": "rc-tabs-2-tab-details"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 758,
+      "tabs": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-2-panel-details",
+          "id": "rc-tabs-2-tab-details",
+          "rect": {
+            "bottom": 1701.75,
+            "height": 22,
+            "left": 125,
+            "right": 150.765625,
+            "top": 1679.75,
+            "width": 25.765625,
+            "x": 125,
+            "y": 1679.75
+          },
+          "selected": "true",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-guestnetwork",
+          "id": "rc-tabs-2-tab-guestnetwork",
+          "rect": {
+            "bottom": 1755.75,
+            "height": 22,
+            "left": 125,
+            "right": 166.171875,
+            "top": 1733.75,
+            "width": 41.171875,
+            "x": 125,
+            "y": 1733.75
+          },
+          "selected": "false",
+          "text": "IP 구성"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-stats",
+          "id": "rc-tabs-2-tab-stats",
+          "rect": {
+            "bottom": 1809.75,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1787.75,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1787.75
+          },
+          "selected": "false",
+          "text": "메트릭"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-processes",
+          "id": "rc-tabs-2-tab-processes",
+          "rect": {
+            "bottom": 1863.75,
+            "height": 22,
+            "left": 125,
+            "right": 176.53125,
+            "top": 1841.75,
+            "width": 51.53125,
+            "x": 125,
+            "y": 1841.75
+          },
+          "selected": "false",
+          "text": "프로세스"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-schedules",
+          "id": "rc-tabs-2-tab-schedules",
+          "rect": {
+            "bottom": 1917.75,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1895.75,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1895.75
+          },
+          "selected": "false",
+          "text": "스케줄"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-cdrom",
+          "id": "rc-tabs-2-tab-cdrom",
+          "rect": {
+            "bottom": 1971.75,
+            "height": 22,
+            "left": 125,
+            "right": 146.71875,
+            "top": 1949.75,
+            "width": 21.71875,
+            "x": 125,
+            "y": 1949.75
+          },
+          "selected": "false",
+          "text": "ISO"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-volumes",
+          "id": "rc-tabs-2-tab-volumes",
+          "rect": {
+            "bottom": 2025.75,
+            "height": 22,
+            "left": 125,
+            "right": 150.765625,
+            "top": 2003.75,
+            "width": 25.765625,
+            "x": 125,
+            "y": 2003.75
+          },
+          "selected": "false",
+          "text": "볼륨"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-nics",
+          "id": "rc-tabs-2-tab-nics",
+          "rect": {
+            "bottom": 2079.75,
+            "height": 22,
+            "left": 125,
+            "right": 147.875,
+            "top": 2057.75,
+            "width": 22.875,
+            "x": 125,
+            "y": 2057.75
+          },
+          "selected": "false",
+          "text": "NIC"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-settings",
+          "id": "rc-tabs-2-tab-settings",
+          "rect": {
+            "bottom": 2133.75,
+            "height": 22,
+            "left": 125,
+            "right": 150.765625,
+            "top": 2111.75,
+            "width": 25.765625,
+            "x": 125,
+            "y": 2111.75
+          },
+          "selected": "false",
+          "text": "설정"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-hostdevices",
+          "id": "rc-tabs-2-tab-hostdevices",
+          "rect": {
+            "bottom": 2187.75,
+            "height": 22,
+            "left": 125,
+            "right": 193.25,
+            "top": 2165.75,
+            "width": 68.25,
+            "x": 125,
+            "y": 2165.75
+          },
+          "selected": "false",
+          "text": "호스트 장치"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-vmsnapshots",
+          "id": "rc-tabs-2-tab-vmsnapshots",
+          "rect": {
+            "bottom": 2241.75,
+            "height": 22,
+            "left": 125,
+            "right": 188.75,
+            "top": 2219.75,
+            "width": 63.75,
+            "x": 125,
+            "y": 2219.75
+          },
+          "selected": "false",
+          "text": "VM 스냅샷"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-events",
+          "id": "rc-tabs-2-tab-events",
+          "rect": {
+            "bottom": 2295.75,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 2273.75,
+            "width": 38.640625,
+            "x": 125,
+            "y": 2273.75
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-comments",
+          "id": "rc-tabs-2-tab-comments",
+          "rect": {
+            "bottom": 2349.75,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 2327.75,
+            "width": 38.640625,
+            "x": 125,
+            "y": 2327.75
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.32.10:8080/client/#/vm/d76c74bc-c7cc-4793-9401-fb889e7b227b",
+      "width": 768
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "32-reference-vm-dark-390",
+    "switchResult": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1852
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 271,
+          "height": 51,
+          "left": 25,
+          "right": 357,
+          "top": 220,
+          "width": 332,
+          "x": 25,
+          "y": 220
+        },
+        "text": "/가상머신/ShareVolume-VM-1업데이트/"
+      },
+      "dark": true,
+      "height": 844,
+      "panels": [
+        {
+          "id": "rc-tabs-2-panel-details",
+          "label": "rc-tabs-2-tab-details"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-top",
+      "scrollWidth": 380,
+      "tabs": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-2-panel-details",
+          "id": "rc-tabs-2-tab-details",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 37,
+            "right": 62.765625,
+            "top": 1791.75,
+            "width": 25.765625,
+            "x": 37,
+            "y": 1791.75
+          },
+          "selected": "true",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-guestnetwork",
+          "id": "rc-tabs-2-tab-guestnetwork",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 94.765625,
+            "right": 135.9375,
+            "top": 1791.75,
+            "width": 41.171875,
+            "x": 94.765625,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "IP 구성"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-stats",
+          "id": "rc-tabs-2-tab-stats",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 167.9375,
+            "right": 206.578125,
+            "top": 1791.75,
+            "width": 38.640625,
+            "x": 167.9375,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "메트릭"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-processes",
+          "id": "rc-tabs-2-tab-processes",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 238.578125,
+            "right": 290.109375,
+            "top": 1791.75,
+            "width": 51.53125,
+            "x": 238.578125,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "프로세스"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-schedules",
+          "id": "rc-tabs-2-tab-schedules",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 322.109375,
+            "right": 360.75,
+            "top": 1791.75,
+            "width": 38.640625,
+            "x": 322.109375,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "스케줄"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-cdrom",
+          "id": "rc-tabs-2-tab-cdrom",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 392.75,
+            "right": 414.46875,
+            "top": 1791.75,
+            "width": 21.71875,
+            "x": 392.75,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "ISO"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-volumes",
+          "id": "rc-tabs-2-tab-volumes",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 446.46875,
+            "right": 472.234375,
+            "top": 1791.75,
+            "width": 25.765625,
+            "x": 446.46875,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "볼륨"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-nics",
+          "id": "rc-tabs-2-tab-nics",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 504.234375,
+            "right": 527.109375,
+            "top": 1791.75,
+            "width": 22.875,
+            "x": 504.234375,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "NIC"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-settings",
+          "id": "rc-tabs-2-tab-settings",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 559.109375,
+            "right": 584.875,
+            "top": 1791.75,
+            "width": 25.765625,
+            "x": 559.109375,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "설정"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-hostdevices",
+          "id": "rc-tabs-2-tab-hostdevices",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 616.875,
+            "right": 685.125,
+            "top": 1791.75,
+            "width": 68.25,
+            "x": 616.875,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "호스트 장치"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-vmsnapshots",
+          "id": "rc-tabs-2-tab-vmsnapshots",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 717.125,
+            "right": 780.875,
+            "top": 1791.75,
+            "width": 63.75,
+            "x": 717.125,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "VM 스냅샷"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-events",
+          "id": "rc-tabs-2-tab-events",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 812.875,
+            "right": 851.515625,
+            "top": 1791.75,
+            "width": 38.640625,
+            "x": 812.875,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-2-panel-comments",
+          "id": "rc-tabs-2-tab-comments",
+          "rect": {
+            "bottom": 1813.75,
+            "height": 22,
+            "left": 883.515625,
+            "right": 922.15625,
+            "top": 1791.75,
+            "width": 38.640625,
+            "x": 883.515625,
+            "y": 1791.75
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.32.10:8080/client/#/vm/d76c74bc-c7cc-4793-9401-fb889e7b227b",
+      "width": 390
+    }
+  }
+]

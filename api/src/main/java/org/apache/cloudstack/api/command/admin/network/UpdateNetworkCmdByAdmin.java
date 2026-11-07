@@ -33,9 +33,6 @@ public class UpdateNetworkCmdByAdmin extends UpdateNetworkCmd implements AdminCm
     private Boolean hideIpAddressUsage;
 
     public Boolean getHideIpAddressUsage() {
-        if (hideIpAddressUsage == null) {
-            return false;
-        }
         return hideIpAddressUsage;
     }
 }

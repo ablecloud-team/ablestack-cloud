@@ -1,0 +1,99 @@
+{
+  "body": {
+    "bottom": 718,
+    "height": 546,
+    "left": 281,
+    "right": 999,
+    "top": 172,
+    "width": 718,
+    "x": 281,
+    "y": 172
+  },
+  "bodyClientHeight": 546,
+  "bodyClientWidth": 718,
+  "bodyScrollHeight": 546,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 718,
+  "colors": [
+    {
+      "background": "rgb(255, 241, 240)",
+      "color": "rgb(112, 27, 27)",
+      "text": "0~2147483647 정수입니다(API Integer와 DB unsigned Integer의 공통 범위). 빈 입력은 기존 값 유지, 0은 제"
+    },
+    {
+      "background": "rgb(8, 86, 182)",
+      "color": "rgb(255, 255, 255)",
+      "text": "확인"
+    }
+  ],
+  "content": {
+    "bottom": 784,
+    "height": 668,
+    "left": 280,
+    "right": 1000,
+    "top": 116,
+    "width": 720,
+    "x": 280,
+    "y": 116
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1280,
+    "top": 0,
+    "width": 1280,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "BUTTON"
+  },
+  "footer": {
+    "bottom": 783,
+    "height": 65,
+    "left": 281,
+    "right": 999,
+    "top": 718,
+    "width": 718,
+    "x": 281,
+    "y": 718
+  },
+  "header": {
+    "bottom": 172,
+    "height": 55,
+    "left": 281,
+    "right": 999,
+    "top": 117,
+    "width": 718,
+    "x": 281,
+    "y": 117
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 776,
+    "left": 256,
+    "right": 1270,
+    "top": 124,
+    "width": 1014,
+    "x": 256,
+    "y": 124
+  },
+  "primaryButton": {
+    "bottom": 767,
+    "height": 32,
+    "left": 913.234375,
+    "right": 971,
+    "top": 735,
+    "width": 57.765625,
+    "x": 913.234375,
+    "y": 735
+  },
+  "width": 1280,
+  "image_sha256": "89ddcb5d49f434020fe481295cd8767699dea37be7b9619f26fb75ca1c89c8ca"
+}

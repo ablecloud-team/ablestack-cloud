@@ -1,0 +1,121 @@
+{
+  "listNetworks": {
+    "existing_count": 9,
+    "missing": [],
+    "changed": []
+  },
+  "listNetworkOfferings": {
+    "existing_count": 15,
+    "missing": [],
+    "changed": []
+  },
+  "listVirtualMachines": {
+    "existing_count": 55,
+    "missing": [],
+    "changed": []
+  },
+  "listRouters": {
+    "existing_count": 3,
+    "missing": [],
+    "changed": []
+  },
+  "listPhysicalNetworks": {
+    "existing_count": 1,
+    "missing": [],
+    "changed": []
+  },
+  "listVPCs": {
+    "existing_count": 1,
+    "missing": [],
+    "changed": []
+  },
+  "ui_jobs": [
+    {
+      "trace": "32-ui-trace-detach-nic.json",
+      "command": "removeNicFromVirtualMachine",
+      "jobid": "451a15ce-fe36-4d9a-800e-8d75861acda3",
+      "status": 1,
+      "error": null
+    },
+    {
+      "trace": "32-ui-trace-migration-final.json",
+      "command": "migrateVirtualMachine",
+      "jobid": "d9173ab6-c8af-4b53-bdcc-699e27a4df3f",
+      "status": 1,
+      "error": null
+    },
+    {
+      "trace": "32-ui-trace-reboot.json",
+      "command": "rebootVirtualMachine",
+      "jobid": "6ac6bddb-0ca9-4005-8128-df9d24e75604",
+      "status": 1,
+      "error": null
+    },
+    {
+      "trace": "32-ui-trace-shared-reboot.json",
+      "command": "rebootVirtualMachine",
+      "jobid": "0f81a1b7-5725-4d52-b884-18235f50ed2c",
+      "status": 1,
+      "error": null
+    }
+  ],
+  "hosts": {
+    "1": {
+      "classes": {
+        "com/cloud/hypervisor/kvm/resource/BridgeVifDriver.class": "4f27594d054128b8fe8afeff4032c537db79cd469a2dc073c252f3cca5396791",
+        "com/cloud/hypervisor/kvm/resource/IvsVifDriver.class": "14b4494e2683076d19ee5393565084ec0857033c8be214c28c4a7872ec10fc61",
+        "com/cloud/hypervisor/kvm/resource/VlanBridgeName.class": "9f9bedba44bca871266f8371a6ac96d6a30648b0ed2f1aea13e6bde354097d8a",
+        "com/cloud/hypervisor/kvm/resource/LibvirtComputingResource.class": "9d9b43a3fab75916a540312f52fd7936173c31b06bb4e5e4112bc03c8ab27f14"
+      },
+      "script_sha256": "6ec5b77f25cd2bd9d4db1703cca5c7baddeef2768a02c54e6f854a8278733028",
+      "hook_sha256": "8eb0b796c2d2608a9dc7f6c565cc6fc9d05460af97ddbade6faae10251854529",
+      "service": "active",
+      "existing_domains_preserved": 9,
+      "missing_domains": [],
+      "changed_domain_xml": [],
+      "backup": "/root/qa-gn1580-backup-20261104-160201",
+      "other_jar_entries_preserved": 529,
+      "hook_functions_preserved": 20
+    },
+    "2": {
+      "classes": {
+        "com/cloud/hypervisor/kvm/resource/BridgeVifDriver.class": "4f27594d054128b8fe8afeff4032c537db79cd469a2dc073c252f3cca5396791",
+        "com/cloud/hypervisor/kvm/resource/IvsVifDriver.class": "14b4494e2683076d19ee5393565084ec0857033c8be214c28c4a7872ec10fc61",
+        "com/cloud/hypervisor/kvm/resource/VlanBridgeName.class": "9f9bedba44bca871266f8371a6ac96d6a30648b0ed2f1aea13e6bde354097d8a",
+        "com/cloud/hypervisor/kvm/resource/LibvirtComputingResource.class": "9d9b43a3fab75916a540312f52fd7936173c31b06bb4e5e4112bc03c8ab27f14"
+      },
+      "script_sha256": "6ec5b77f25cd2bd9d4db1703cca5c7baddeef2768a02c54e6f854a8278733028",
+      "hook_sha256": "8eb0b796c2d2608a9dc7f6c565cc6fc9d05460af97ddbade6faae10251854529",
+      "service": "active",
+      "existing_domains_preserved": 8,
+      "missing_domains": [],
+      "changed_domain_xml": [],
+      "backup": "/root/qa-gn1580-backup-20261104-160206",
+      "other_jar_entries_preserved": 529,
+      "hook_functions_preserved": 20
+    },
+    "3": {
+      "classes": {
+        "com/cloud/hypervisor/kvm/resource/BridgeVifDriver.class": "4f27594d054128b8fe8afeff4032c537db79cd469a2dc073c252f3cca5396791",
+        "com/cloud/hypervisor/kvm/resource/IvsVifDriver.class": "14b4494e2683076d19ee5393565084ec0857033c8be214c28c4a7872ec10fc61",
+        "com/cloud/hypervisor/kvm/resource/VlanBridgeName.class": "9f9bedba44bca871266f8371a6ac96d6a30648b0ed2f1aea13e6bde354097d8a",
+        "com/cloud/hypervisor/kvm/resource/LibvirtComputingResource.class": "9d9b43a3fab75916a540312f52fd7936173c31b06bb4e5e4112bc03c8ab27f14"
+      },
+      "script_sha256": "6ec5b77f25cd2bd9d4db1703cca5c7baddeef2768a02c54e6f854a8278733028",
+      "hook_sha256": "8eb0b796c2d2608a9dc7f6c565cc6fc9d05460af97ddbade6faae10251854529",
+      "service": "active",
+      "existing_domains_preserved": 14,
+      "missing_domains": [],
+      "changed_domain_xml": [],
+      "backup": "/root/qa-gn1580-backup-20261104-160212",
+      "other_jar_entries_preserved": 529,
+      "hook_functions_preserved": 20
+    }
+  },
+  "management": {
+    "WEB_INF": true,
+    "index_sha256": "186bfefb5d738ff26b7bfc62adb5421989f80e1a37360a9a1c281ada302d0f43",
+    "management_jar_sha256": "58d8aaf66db1c5c68dca70bfdac064dfce55a9928ef764e3279ab2a56f674561",
+    "http": "200"
+  }
+}

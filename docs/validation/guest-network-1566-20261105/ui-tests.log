@@ -1,0 +1,64 @@
+
+> cloudstack-ui@4.22.0 test:unit
+> vue-cli-service test:unit --runTestsByPath tests/unit/views/network/NetworkOfferingLb.spec.js --coverage=false
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+  console.warn ../../ablestack-cloud-europa-release/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+
+  console.warn ../../ablestack-cloud-europa-release/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+  console.warn ../../ablestack-cloud-europa-release/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+
+  console.warn ../../ablestack-cloud-europa-release/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+  console.warn ../../ablestack-cloud-europa-release/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+
+  console.warn ../../ablestack-cloud-europa-release/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+  console.warn ../../ablestack-cloud-europa-release/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+
+  console.warn ../../ablestack-cloud-europa-release/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+PASS tests/unit/views/network/NetworkOfferingLb.spec.js
+  ✓ VirtualRouter HAProxy service is eligible (3ms)
+  ✓ VpcVirtualRouter HAProxy service is eligible (1ms)
+  ✓ InternalLbVm HAProxy service is eligible (1ms)
+  ✓ unsupported combinations provide a reason
+  ✓ unsupported combinations provide a reason (1ms)
+  ✓ unsupported combinations provide a reason
+  ✓ unsupported combinations provide a reason
+  ✓ unsupported combinations provide a reason (1ms)
+  ✓ API integer boundary 0 is preserved (1ms)
+  ✓ API integer boundary 1 is preserved (1ms)
+  ✓ API integer boundary 2147483647 is preserved
+  ✓ invalid maxconnections -1 is rejected (3ms)
+  ✓ invalid maxconnections 1.1 is rejected (1ms)
+  ✓ invalid maxconnections 2147483648 is rejected (1ms)
+  ✓ invalid maxconnections text is rejected (1ms)
+  ✓ unknown and blank are omitted; false is distinct; unchanged fields are absent
+  ✓ no-change save does not write (233ms)
+  ✓ false-only edit submits exactly id and false, and verifies persisted value (167ms)
+  ✓ write/read failures preserve draft and do not report success (158ms)
+  ✓ failed initial read cannot save unknown defaults (160ms)
+  ✓ late old resource response does not replace current target (171ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       21 passed, 21 total
+Snapshots:   0 total
+Time:        12.525s
+Ran all test suites within paths "tests/unit/views/network/NetworkOfferingLb.spec.js".
+  console.warn ../../ablestack-cloud-europa-release/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+
+  console.warn ../../ablestack-cloud-europa-release/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "LaptopOutlined" has already been registered in target app.

@@ -22,7 +22,7 @@
         <a-select
           v-focus="true"
           @change="handleTierSelect"
-          v-model:value="vpcTiers"
+          v-model:value="selectedVpcTier"
           :placeholder="$t('label.select.tier')"
           showSearch
           optionFilterProp="label"
@@ -44,7 +44,7 @@
     </div>
 
     <a-table
-      :scroll="{ y: 225 }"
+      :scroll="{ x: 640, y: 225 }"
       style="margin-top: 20px"
       size="small"
       :loading="loading"
@@ -60,18 +60,18 @@
           <a-select
             v-if="nicsList.length && selectedVm && selectedVm === record.id"
             class="nic-select"
-            :defaultValue="selectedNic.ipaddress"
+            v-model:value="selectedNic"
             showSearch
             optionFilterProp="label"
             :filterOption="(input, option) => {
               return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }">
             <a-select-option
-              @click="selectedNic = item"
               v-for="item in nicsList"
-              :key="item.id"
-              :label="item.ipaddress">
-              {{ item.ipaddress }}
+              :key="item"
+              :value="item"
+              :label="item">
+              {{ item }}
             </a-select-option>
           </a-select>
         </template>
@@ -106,7 +106,7 @@
 
     <div class="list__footer">
       <a-button @click="handleClose">{{ $t('label.cancel') }}</a-button>
-      <a-button @click="handleSubmit" type="primary" :disabled="!selectedVm || !selectedNic">{{ $t('label.ok') }}</a-button>
+      <a-button @click="handleSubmit" type="primary" :loading="submitting" :disabled="loading || nicLoading || !selectedVm || !nicsList.includes(selectedNic)">{{ $t('label.ok') }}</a-button>
     </div>
   </div>
 
@@ -114,6 +114,7 @@
 
 <script>
 import { getAPI, postAPI } from '@/api'
+import { publicIpNicAddresses, publicIpScope } from '@/utils/publicIpRules'
 import Status from '@/components/widgets/Status'
 
 export default {
@@ -130,6 +131,10 @@ export default {
   data () {
     return {
       loading: false,
+      nicLoading: false,
+      submitting: false,
+      vmRequest: 0,
+      nicRequest: 0,
       vmsList: [],
       selectedVm: null,
       nicsList: [],
@@ -167,7 +172,6 @@ export default {
       ],
       tiersSelect: false,
       networksList: [],
-      vpcTiers: [],
       selectedVpcTier: null,
       page: 1,
       pageSize: 10,
@@ -178,110 +182,98 @@ export default {
     this.fetchData()
   },
   methods: {
-    fetchData () {
-      if (this.resource.vpcid) {
-        this.handleTiers()
-        if (this.selectedVpcTier) this.fetchDataTiers(this.selectedVpcTier)
-        return
-      }
-
-      this.loading = true
-      getAPI('listVirtualMachines', {
-        page: this.page,
-        pageSize: this.pageSize,
-        listAll: true,
-        networkid: this.resource.associatednetworkid,
-        keyword: this.searchQuery
-      }).then(response => {
-        this.vmCount = response.listvirtualmachinesresponse.count
-        this.vmsList = response.listvirtualmachinesresponse.virtualmachine || []
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.loading = false
-      })
-    },
-    fetchDataTiers (e) {
-      this.loading = true
-      getAPI('listVirtualMachines', {
-        page: this.page,
-        pageSize: this.pageSize,
-        listAll: true,
-        networkid: e,
-        vpcid: this.resource.vpcid,
-        keyword: this.searchQuery
-      }).then(response => {
-        this.vmsList = response.listvirtualmachinesresponse.virtualmachine || []
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.loading = false
-      })
-    },
-    fetchNics (e) {
-      this.selectedVm = e.target.value
+    clearTarget () {
+      this.nicRequest++
+      this.selectedVm = null
+      this.selectedNic = null
       this.nicsList = []
+      this.nicLoading = false
+    },
+    async fetchData () {
+      const request = ++this.vmRequest
+      const ip = this.resource
+      const current = () => request === this.vmRequest && ip.id === this.resource.id
+      this.clearTarget()
       this.loading = true
-      getAPI('listNics', {
-        virtualmachineid: this.selectedVm,
-        networkid: this.resource.associatednetworkid || this.selectedVpcTier
-      }).then(response => {
-        this.nicsList = response.listnicsresponse.nic || []
-
-        let secondaryIps = this.nicsList.map(item => item.secondaryip)
-
-        if (secondaryIps[0]) {
-          secondaryIps = secondaryIps[0]
-          this.nicsList = [...this.nicsList, ...secondaryIps]
+      this.vmsList = []
+      this.vmCount = 0
+      try {
+        if (ip.vpcid && !this.tiersSelect) {
+          this.tiersSelect = true
+          const json = await getAPI('listNetworks', { ...publicIpScope(ip), vpcid: ip.vpcid, supportedservices: 'StaticNat', listall: true })
+          if (!current()) return
+          this.networksList = (json.listnetworksresponse.network || []).filter(network => network.vpcid === ip.vpcid &&
+            (!ip.associatednetworkid || ip.isportable || network.id === ip.associatednetworkid))
+          this.selectedVpcTier = this.networksList.find(network => network.id === ip.associatednetworkid)?.id || null
         }
-
-        this.selectedNic = this.nicsList[0]
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.loading = false
-      })
+        const networkId = ip.vpcid ? this.selectedVpcTier : ip.associatednetworkid
+        if (!networkId) return
+        const json = await getAPI('listVirtualMachines', {
+          ...publicIpScope(ip),
+          page: this.page,
+          pagesize: this.pageSize,
+          listall: true,
+          networkid: networkId,
+          state: 'Present',
+          keyword: this.searchQuery
+        })
+        if (!current()) return
+        this.vmCount = json.listvirtualmachinesresponse.count || 0
+        this.vmsList = json.listvirtualmachinesresponse.virtualmachine || []
+      } catch (error) {
+        if (current()) this.$notifyError(error)
+      } finally {
+        if (current()) this.loading = false
+      }
     },
-    fetchNetworks () {
-      this.loading = true
-      getAPI('listNetworks', {
-        vpcid: this.resource.vpcid,
-        isrecursive: true,
-        supportedservices: 'StaticNat'
-      }).then(response => {
-        this.networksList = response.listnetworksresponse.network
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.loading = false
-      })
+    async fetchNics (event) {
+      this.clearTarget()
+      const vmId = event.target.value
+      const request = this.nicRequest
+      const ipId = this.resource.id
+      const networkId = this.resource.vpcid ? this.selectedVpcTier : this.resource.associatednetworkid
+      if (!networkId || !this.vmsList.some(vm => vm.id === vmId)) return
+      this.selectedVm = vmId
+      this.nicLoading = true
+      const current = () => request === this.nicRequest && ipId === this.resource.id
+      try {
+        const json = await getAPI('listNics', { virtualmachineid: vmId, networkid: networkId })
+        if (!current()) return
+        this.nicsList = publicIpNicAddresses(json.listnicsresponse.nic, networkId)
+        this.selectedNic = this.nicsList[0] || null
+      } catch (error) {
+        if (current()) this.$notifyError(error)
+      } finally {
+        if (current()) this.nicLoading = false
+      }
     },
-    handleSubmit () {
-      this.loading = true
-      postAPI('enableStaticNat', {
-        ipaddressid: this.resource.id,
-        virtualmachineid: this.selectedVm,
-        vmguestip: this.selectedNic.ipaddress,
-        networkid: this.selectedVpcTier
-      }).then(() => {
-        this.parentFetchData()
+    async handleSubmit () {
+      if (this.loading || this.nicLoading || this.submitting || !this.selectedVm || !this.nicsList.includes(this.selectedNic)) return
+      const ip = this.resource
+      const networkId = ip.vpcid ? this.selectedVpcTier : ip.associatednetworkid
+      if (!networkId || !this.$store.getters.apis.enableStaticNat) return
+      this.submitting = true
+      try {
+        await postAPI('enableStaticNat', {
+          ipaddressid: ip.id,
+          virtualmachineid: this.selectedVm,
+          vmguestip: this.selectedNic,
+          networkid: networkId
+        })
         this.handleClose()
-      }).catch(error => {
+        this.parentFetchData()
+      } catch (error) {
         this.$notifyError(error)
-      }).finally(() => {
-        this.loading = false
-      })
+      } finally {
+        this.submitting = false
+      }
     },
     handleClose () {
       this.$emit('close-action')
     },
-    handleTiers () {
-      this.tiersSelect = true
-      this.fetchNetworks()
-    },
-    handleTierSelect (tier) {
-      this.selectedVpcTier = tier
-      this.fetchDataTiers(tier)
+    handleTierSelect () {
+      this.page = 1
+      this.fetchData()
     },
     changePage (page, pageSize) {
       this.page = page
@@ -299,26 +291,21 @@ export default {
 
 <style scoped lang="scss">
   .list-static-nat {
-    width: 95vw;
-
-    @media (min-width: 1000px) {
-      width: 900px;
-    }
+    width: 100%;
+    min-width: 0;
   }
 
   .list {
     &__header {
       display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
 
       .ant-select {
         min-width: 200px;
       }
 
       &__col {
-
-        &:not(:last-child) {
-          margin-right: 20px;
-        }
 
         &--full {
           flex: 1;

@@ -1,0 +1,167 @@
+{
+  "before": [
+    "172.26.31.10 – 172.26.31.20게이트웨이: 172.26.31.1 · 255.255.255.0—641",
+    "172.26.31.30 – 172.26.31.34게이트웨이: 172.26.31.1 · 255.255.255.0—641"
+  ],
+  "failed": {
+    "rows": [
+      "172.26.31.10 – 172.26.31.20게이트웨이: 172.26.31.1 · 255.255.255.0—641",
+      "172.26.31.30 – 172.26.31.34게이트웨이: 172.26.31.1 · 255.255.255.0—641"
+    ],
+    "addEnabled": false,
+    "layout": {
+      "alerts": [
+        {
+          "rect": {
+            "bottom": 322,
+            "height": 40,
+            "left": 868.234375,
+            "right": 1623,
+            "top": 282,
+            "width": 754.765625,
+            "x": 868.234375,
+            "y": 282
+          },
+          "text": "목록을 갱신하지 못했습니다. 마지막 정상 데이터를 표시하며 자동으로 다시 시도합니다."
+        }
+      ],
+      "dark": false,
+      "dialog": null,
+      "documentWidth": 1670,
+      "height": 841,
+      "table": {
+        "bottom": 506.6875,
+        "height": 172.6875,
+        "left": 868.234375,
+        "right": 1623,
+        "top": 334,
+        "width": 754.765625,
+        "x": 868.234375,
+        "y": 334
+      },
+      "texts": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "text": "목록을 갱신하지 못했습니다. 마지막 정상 데이터를 표시하며 자동으로 다시 시도합니다."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "172.26.31.10 – 172.26.31.20"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "게이트웨이: 172.26.31.1 · 255.255.255.0"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "—"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "172.26.31.30 – 172.26.31.34"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "게이트웨이: 172.26.31.1 · 255.255.255.0"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "text": "—"
+        }
+      ],
+      "toolbar": {
+        "bottom": 270,
+        "height": 32,
+        "left": 868.234375,
+        "right": 1623,
+        "top": 238,
+        "width": 754.765625,
+        "x": 868.234375,
+        "y": 238
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/670c6673-068d-4436-b57c-b09acce6b65f?tab=guest.ip.range",
+      "width": 1680
+    }
+  },
+  "recovered": true,
+  "synthetic": true,
+  "fault": {
+    "cursor": 6852,
+    "skip": 0,
+    "continued": 0,
+    "injected": 1
+  },
+  "records": [
+    {
+      "requestId": "49180.1910",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "670c6673-068d-4436-b57c-b09acce6b65f",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "10",
+        "command": "listVlanIpRanges"
+      },
+      "status": 500,
+      "result": {
+        "errorcode": 530,
+        "errortext": "QA range read failure (synthetic response)"
+      }
+    },
+    {
+      "requestId": "49180.1912",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "670c6673-068d-4436-b57c-b09acce6b65f",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "10",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 2
+      }
+    }
+  ],
+  "cursor": 6861
+}

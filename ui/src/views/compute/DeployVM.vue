@@ -59,6 +59,7 @@
                   <div style="margin-top: 15px">
                     {{ $t('label.assigning.vms') }}
                     <ownership-selection
+                      safe-scope
                       @fetch-owner="fetchOwnerOptions"/>
                   </div>
                 </template>
@@ -663,12 +664,15 @@
                     </div>
                     <div v-if="vm.templateid && templateNics && templateNics.length > 0">
                       <instance-nics-network-select-list-view
+                        :key="deploymentNetworkScope"
                         :nics="templateNics"
                         :zoneid="selectedZone"
+                        :owner="params.networks.options"
                         @select="handleNicsNetworkSelection" />
                     </div>
                     <div v-show="!(vm.templateid && templateNics && templateNics.length > 0)" >
                       <network-selection
+                        :key="deploymentNetworkScope"
                         :items="options.networks"
                         :row-count="rowCount.networks"
                         :value="networkOfferingIds"
@@ -1181,7 +1185,7 @@
             <div class="card-footer" v-if="isMobile()">
               <deploy-buttons
                 :loading="loading.deploy"
-                :disabled="diskPlanIncomplete || userDataSelectionBlocked"
+                :disabled="diskPlanIncomplete || userDataSelectionBlocked || deploymentOwnerPending"
                 :deployButtonText="form.startvm ? $t('label.launch.vm') : $t('label.create.vm')"
                 :deployButtonMenuOptions="deployMenuOptions"
                 @handle-cancel="() => $router.back()"
@@ -1206,7 +1210,7 @@
             <template #footer-content>
               <deploy-buttons
                 :loading="loading.deploy"
-                :disabled="diskPlanIncomplete || userDataSelectionBlocked"
+                :disabled="diskPlanIncomplete || userDataSelectionBlocked || deploymentOwnerPending"
                 :deployButtonText="form.startvm ? $t('label.launch.vm') : $t('label.create.vm')"
                 :deployButtonMenuOptions="deployMenuOptions"
                 @handle-cancel="() => $router.back()"
@@ -1488,6 +1492,8 @@ export default {
       initDataConfig: {},
       defaultnetworkid: '',
       networkConfig: [],
+      deploymentNetworkVersion: 0,
+      deploymentOwnerPending: false,
       dataNetworkCreated: [],
       userdataTabKey: 'userdataregistered',
       dataPreFill: {},
@@ -1533,6 +1539,11 @@ export default {
   },
   computed: {
     groupOwnerKey () { return vmGroupOwnerKey(this.owner) },
+    deploymentNetworkScope () {
+      const { userInfo, project, apis } = this.$store.getters
+      return JSON.stringify([this.zoneId, this.groupOwnerKey, this.deploymentOwnerPending, project?.id, userInfo?.id, userInfo?.roleid,
+        userInfo?.domainid, this.$store.state?.user?.token, !!apis?.listNetworks])
+    },
     groupLookupReady () { return vmGroupLookupReady(this.groupLookupState, this.owner) },
     creationSourceExecutionProfile () {
       return this.sourceConfiguration.mode === 'manual'
@@ -2112,9 +2123,14 @@ export default {
     }
   },
   watch: {
+    deploymentNetworkScope () {
+      this.clearDeploymentNetworks()
+      if (this.zoneSelected && this.zone?.id === this.zoneId) this.fetchNetwork()
+    },
     groupOwnerKey () { this.form.group = null; this.fetchInstaceGroups() },
     '$store.getters.apis.listInstanceGroups' () { this.fetchInstaceGroups() },
     '$store.getters.project.id' (projectid) {
+      this.deploymentOwnerPending = false
       this.owner = projectid ? { projectid } : { account: this.$store.getters.userInfo.account, domainid: this.$store.getters.userInfo.domainid }
     },
     sourceConfiguration: { deep: true, handler () { this.sourceConfirmed = false; this.sourceAcknowledged = false } },
@@ -2401,6 +2417,7 @@ export default {
     this.updateDeployViewportHeight()
   },
   beforeUnmount () {
+    this.deploymentNetworkVersion++
     this.groupLookup.dispose()
     if (this.deployResizeObserver) this.deployResizeObserver.disconnect()
   },
@@ -2675,7 +2692,48 @@ export default {
     },
     fetchNetwork () {
       const param = this.params.networks
-      this.fetchOptions(param, 'networks')
+      return this.fetchOptions(param, 'networks')
+    },
+    clearDeploymentNetworks () {
+      this.deploymentNetworkVersion++
+      this.options.networks = []
+      this.rowCount.networks = 0
+      this.loading.networks = false
+      this.form.networkids = []
+      this.form.defaultnetworkid = undefined
+      this.defaultnetworkid = undefined
+      this.networks = []
+      this.networkConfig = []
+      this.nicToNetworkSelection = []
+      for (const nic of this.templateNics || []) {
+        delete nic.selectednetworkid
+        delete nic.selectednetworkname
+      }
+    },
+    async fetchDeploymentNetworks (param) {
+      const version = ++this.deploymentNetworkVersion
+      const scope = this.deploymentNetworkScope
+      const current = () => version === this.deploymentNetworkVersion && scope === this.deploymentNetworkScope
+      const options = { ...param.options, listall: true, ignoreproject: true }
+      if (this.queryNetworkId) options.id = this.queryNetworkId
+      if (this.deploymentOwnerPending || !options.zoneid || !('listNetworks' in this.$store.getters.apis)) return
+      this.loading.networks = true
+      try {
+        const response = await getAPI(param.list, options, { preserveOnFailure: true })
+        if (!current()) return
+        const body = response?.listnetworksresponse
+        const rows = body?.network ?? []
+        if (!body || body.errorcode || !Array.isArray(rows) || rows.some(row => row.zoneid !== options.zoneid)) {
+          throw new Error('Invalid deployment network response')
+        }
+        this.rowCount.networks = Number(body.count ?? rows.length)
+        this.options.networks = rows
+        return response
+      } catch (error) {
+        if (current()) this.$notifyError(error)
+      } finally {
+        if (current()) this.loading.networks = false
+      }
     },
     fetchKmsKeys () {
       if (!this.zoneId) {
@@ -3076,8 +3134,10 @@ export default {
     },
     handleSubmit (e) {
       console.log('wizard submit')
-      if (this.loading.deploy || this.userDataSelectionBlocked) return
+      if (this.loading.deploy || this.userDataSelectionBlocked || this.deploymentOwnerPending) return
+      const networkScope = this.deploymentNetworkScope
       this.formRef.value.validate().then(async () => {
+        if (networkScope !== this.deploymentNetworkScope) return
         const values = toRaw(this.form)
         const ownerKey = vmGroupOwnerKey(this.owner)
         if (!vmGroupOwner(this.owner)) {
@@ -3626,27 +3686,17 @@ export default {
       })
     },
     fetchOwnerOptions (OwnerOptions) {
-      this.owner = { projectid: null, domainid: null, account: null }
-      if (OwnerOptions.selectedAccountType === 'Account') {
-        if (!OwnerOptions.selectedAccount) {
-          if (this.isCreationSource) this.clearCreationSource()
-          return
-        }
-        this.owner.account = OwnerOptions.selectedAccount
-        this.owner.domainid = OwnerOptions.selectedDomain
-        this.owner.projectid = null
-      } else if (OwnerOptions.selectedAccountType === 'Project') {
-        if (!OwnerOptions.selectedProject) {
-          if (this.isCreationSource) this.clearCreationSource()
-          return
-        }
-        this.owner.account = null
-        this.owner.domainid = null
-        this.owner.projectid = OwnerOptions.selectedProject
+      if (this.isNormalUserOrProject) return
+      this.deploymentOwnerPending = !OwnerOptions.ready
+      if (!OwnerOptions.ready) {
+        if (this.isCreationSource) this.clearCreationSource()
+        return
       }
-      if (OwnerOptions.initialized) {
-        this.resetData()
-      }
+      const previous = this.groupOwnerKey
+      this.owner = OwnerOptions.selectedAccountType === 'Project'
+        ? { projectid: OwnerOptions.selectedProject }
+        : { account: OwnerOptions.selectedAccount, domainid: OwnerOptions.selectedDomain }
+      if (previous !== this.groupOwnerKey) this.resetData()
     },
     fetchZones (zoneId, listZoneAllow) {
       this.zones = []
@@ -3676,6 +3726,7 @@ export default {
       })
     },
     fetchOptions (param, name, exclude) {
+      if (name === 'networks' && !exclude?.includes(name)) return this.fetchDeploymentNetworks(param)
       if (name === 'diskOfferings' && !exclude?.includes(name)) return fetchDeploymentDiskOfferings(this, param)
       if (name === 'affinityGroups' && !exclude?.includes(name)) return fetchAffinityGroupOptions(this, param)
       return new Promise((resolve, reject) => {
@@ -3966,9 +4017,6 @@ export default {
     async fetchZoneOptions () {
       let guestOsFetch = null
       for (const [name, param] of Object.entries(this.params)) {
-        if (this.queryNetworkId && name === 'networks') {
-          param.options = { id: this.queryNetworkId }
-        }
         const shouldLoad = !('isLoad' in param) || param.isLoad
         if (!shouldLoad) continue
         if (this.isModernImageSelection && name === 'guestOsCategories') {
@@ -4140,10 +4188,10 @@ export default {
         nics.sort(function (a, b) {
           return a.InstanceID - b.InstanceID
         })
+        for (const nic of nics) nic.id = nic.InstanceID
         if (this.options.networks && this.options.networks.length > 0) {
           for (var i = 0; i < nics.length; ++i) {
             var nic = nics[i]
-            nic.id = nic.InstanceID
             var network = this.options.networks[Math.min(i, this.options.networks.length - 1)]
             nic.selectednetworkid = network.id
             nic.selectednetworkname = network.name

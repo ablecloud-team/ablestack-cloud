@@ -19,9 +19,14 @@
   <div>
     <autogen-view @change-resource="changeResource">
       <template #resource>
+        <a-alert v-if="contextFailed" type="warning" show-icon :message="$t('message.guest.feature.load.failed')">
+          <template #action><a-button size="small" @click="fetchData">{{ $t('label.refresh') }}</a-button></template>
+        </a-alert>
         <resource-view
           v-if="isPublicIpAddress && 'id' in resource"
+          :key="resource.id"
           :loading="loading"
+          :managed-network-context="true"
           :resource="resource"
           :historyTab="activeTab"
           :tabs="tabs"
@@ -35,7 +40,8 @@
 
 <script>
 import { shallowRef, defineAsyncComponent } from 'vue'
-import { getAPI } from '@api'
+import { getAPI } from '@/api'
+import { publicIpRemoteVpn, publicIpRuleTabs, publicIpScope, publicIpService, usablePublicIp } from '@/utils/publicIpRules'
 import { mixinDevice } from '@/utils/mixin.js'
 import eventBus from '@/config/eventBus'
 import AutogenView from '@/views/AutogenView.vue'
@@ -50,6 +56,11 @@ export default {
   data () {
     return {
       loading: false,
+      contextFailed: false,
+      contextNetwork: null,
+      contextVpc: null,
+      contextCounts: {},
+      tabRequestVersion: 0,
       selectedRowKeys: [],
       actions: [],
       resource: {},
@@ -83,7 +94,8 @@ export default {
   mixins: [mixinDevice],
   provide: function () {
     return {
-      parentFetchData: this.fetchData(),
+      parentFetchData: this.fetchData,
+      publicIpRemoteVpnAllowed: () => publicIpRemoteVpn(this.resource, this.contextNetwork, this.contextVpc),
       parentToggleLoading: this.toggleLoading
     }
   },
@@ -107,180 +119,77 @@ export default {
       this.fetchData()
     }
   },
+  beforeUnmount () { this.tabRequestVersion++ },
   methods: {
     async fetchData () {
       if (Object.keys(this.resource).length === 0) {
         return
       }
 
+      const version = ++this.tabRequestVersion
+      const resource = this.resource
       this.loading = true
-      await this.filterTabs()
-      await this.fetchAction()
-      this.loading = false
-    },
-    async filterTabs () {
-      // Public IPs in Free state have nothing
-      if (['Free', 'Reserved'].includes(this.resource.state)) {
+      this.contextFailed = false
+      try {
+        const tabs = await this.filterTabs(resource)
+        if (version !== this.tabRequestVersion || resource.id !== this.resource.id) return
+        this.tabs = Array.isArray(tabs) ? tabs : tabs.tabs
+        this.contextNetwork = tabs.network || null
+        this.contextVpc = tabs.vpc || null
+        this.contextCounts = tabs.counts || {}
+        this.fetchAction()
+      } catch (error) {
+        if (version !== this.tabRequestVersion || resource.id !== this.resource.id) return
         this.tabs = this.defaultTabs
-        return
+        this.contextFailed = true
+        this.contextNetwork = null
+        this.contextVpc = null
+        this.contextCounts = {}
+        if (this.fetchAction) this.fetchAction()
+        this.$notifyError(error)
+      } finally {
+        if (version === this.tabRequestVersion && resource.id === this.resource.id) this.loading = false
       }
-      if (this.resource && this.resource.vpcid) {
-        const vpc = await this.fetchVpc()
-        const hasFirewallCapability = this.hasVpcFirewallCapability(vpc)
-
-        // VPC IPs with source nat have only VPN when VPC offering conserve mode = false
-        if (this.resource.issourcenat && vpc?.vpcofferingconservemode === false) {
-          const tabs = this.defaultTabs.concat(this.$route.meta.tabs.filter(tab => tab.name === 'vpn'))
-          this.tabs = hasFirewallCapability ? this.addFirewallTab(tabs) : tabs
-          return
-        }
-
-        // VPC IPs with static nat keep existing VPN behavior; show firewall only when capability exists
-        if (this.resource.isstaticnat) {
-          let tabs = this.$route.meta.tabs
-          if (hasFirewallCapability) {
-            tabs = this.addFirewallTab(tabs).map(tab => {
-              if (tab.name !== 'firewall') {
-                return tab
-              }
-              const staticNatFirewallTab = { ...tab }
-              delete staticNatFirewallTab.networkServiceFilter
-              return staticNatFirewallTab
-            })
-          } else {
-            tabs = tabs.filter(tab => tab.name !== 'firewall')
-          }
-          this.tabs = tabs
-          return
-        }
-
-        // VPC IPs have all tabs; firewall is shown only if VPC has firewall capability
-        let tabs = this.$route.meta.tabs
-        if (!hasFirewallCapability) {
-          tabs = tabs.filter(tab => tab.name !== 'firewall')
-        }
-
-        const network = await this.fetchNetwork()
-        if (network && network.networkofferingconservemode) {
-          // VPC IPs with source nat have only VPN when VPC offering conserve mode = false
-          if (this.resource.issourcenat && vpc?.vpcofferingconservemode === false) {
-            this.tabs = this.defaultTabs.concat(this.$route.meta.tabs.filter(tab => tab.name === 'vpn'))
-          } else {
-            this.tabs = tabs
-          }
-          return
-        }
-
-        this.portFWRuleCount = await this.fetchPortFWRule()
-        this.loadBalancerRuleCount = await this.fetchLoadBalancerRule()
-
-        // VPC IPs with PF only have PF (and firewall)
-        if (this.portFWRuleCount > 0) {
-          tabs = tabs.filter(tab => tab.name !== 'loadbalancing')
-        }
-
-        // VPC IPs with LB rules only have LB (and firewall)
-        if (this.loadBalancerRuleCount > 0) {
-          tabs = tabs.filter(tab => tab.name !== 'portforwarding')
-        }
-        this.tabs = tabs
-        return
+    },
+    async filterTabs (resource = this.resource) {
+      const [network, vpc] = usablePublicIp(resource) ? await Promise.all([
+        resource.associatednetworkid ? this.readContext('listNetworks', 'network', resource.associatednetworkid, resource) : null,
+        resource.vpcid ? this.readContext('listVPCs', 'vpc', resource.vpcid, resource) : null
+      ]) : [null, null]
+      const counts = {}
+      const conserve = network?.networkofferingconservemode ?? vpc?.vpcofferingconservemode
+      const needsRuleCounts = (vpc && conserve !== true) || resource.hasrules
+      if (usablePublicIp(resource) && needsRuleCounts && !resource.isstaticnat && !resource.issourcenat) {
+        const apis = this.$store.getters.apis
+        const [pf, lb] = await Promise.all([
+          'listPortForwardingRules' in apis ? this.readRuleCount('listPortForwardingRules', { ipaddressid: resource.id }, resource) : null,
+          'listLoadBalancerRules' in apis ? this.readRuleCount('listLoadBalancerRules', { publicipid: resource.id }, resource) : null
+        ])
+        Object.assign(counts, { pf, lb })
       }
-
-      // Regular guest networks with Source Nat have everything
-      if (this.resource && !this.resource.vpcid && this.resource.issourcenat) {
-        this.tabs = this.$route.meta.tabs
-        return
-      }
-      // Regular guest networks with Static Nat only have Firewall
-      if (this.resource && !this.resource.vpcid && this.resource.isstaticnat) {
-        this.tabs = this.defaultTabs.concat(this.$route.meta.tabs.filter(tab => tab.name === 'firewall'))
-        return
-      }
-
-      // Regular guest networks have all tabs
-      if (this.resource && !this.resource.vpcid) {
-        this.tabs = this.$route.meta.tabs
-      }
+      const keys = publicIpRuleTabs(resource, network, vpc, counts)
+      // Site-to-site gateways remain separate from remote access and use a VPC address.
+      if (vpc && !resource.isstaticnat && publicIpService(vpc, 'Vpn') && !keys.includes('vpn')) keys.splice(keys.indexOf('events'), 0, 'vpn')
+      return { tabs: this.$route.meta.tabs.filter(tab => keys.includes(tab.name)), network, vpc, counts }
     },
     fetchAction () {
-      this.actions = this.$route.meta.actions || []
-    },
-    addFirewallTab (tabs) {
-      const firewallTab = this.$route.meta.tabs.find(tab => tab.name === 'firewall')
-      if (!firewallTab || tabs.some(tab => tab.name === 'firewall')) {
-        return tabs
-      }
-      return tabs.concat(firewallTab)
-    },
-    hasVpcFirewallCapability (vpc) {
-      const services = vpc?.service || []
-      return Array.isArray(services) && services.some(service => (service?.name || '').toLowerCase() === 'firewall')
-    },
-    fetchVpc () {
-      if (!this.resource.vpcid) {
-        return null
-      }
-      return new Promise((resolve, reject) => {
-        getAPI('listVPCs', {
-          id: this.resource.vpcid
-        }).then(json => {
-          const vpc = json.listvpcsresponse?.vpc?.[0] || null
-          resolve(vpc)
-        }).catch(e => {
-          reject(e)
-        })
+      this.actions = (this.$route.meta.actions || []).filter(action => {
+        if (action.api !== 'enableStaticNat') return true
+        return !this.contextFailed && publicIpService(this.contextVpc || this.contextNetwork, 'StaticNat') &&
+          (!this.resource.hasrules || (this.contextCounts.pf === 0 && this.contextCounts.lb === 0))
       })
     },
-    fetchNetwork () {
-      if (!this.resource.associatednetworkid) {
-        return null
-      }
-      return new Promise((resolve, reject) => {
-        getAPI('listNetworks', {
-          listAll: true,
-          projectid: this.resource.projectid,
-          id: this.resource.associatednetworkid
-        }).then(json => {
-          const network = json.listnetworksresponse?.network?.[0] || null
-          resolve(network)
-        }).catch(e => {
-          reject(e)
-        })
-      })
+    async readContext (api, key, id, ip) {
+      const json = await getAPI(api, { ...publicIpScope(ip), id, listall: true }, { preserveOnFailure: true })
+      const record = json[api.toLowerCase() + 'response']?.[key]?.find(row => row.id === id)
+      if (!record) throw new Error(this.$t('message.guest.feature.load.failed'))
+      return record
     },
-    fetchPortFWRule () {
-      return new Promise((resolve, reject) => {
-        getAPI('listPortForwardingRules', {
-          listAll: true,
-          ipaddressid: this.resource.id,
-          page: 1,
-          pagesize: 1
-        }).then(json => {
-          const portFWRuleCount = json.listportforwardingrulesresponse.count || 0
-          resolve(portFWRuleCount)
-        }).catch(e => {
-          reject(e)
-        })
-      })
-    },
-    fetchLoadBalancerRule () {
-      return new Promise((resolve, reject) => {
-        getAPI('listLoadBalancerRules', {
-          listAll: true,
-          publicipid: this.resource.id,
-          page: 1,
-          pagesize: 1
-        }).then(json => {
-          const loadBalancerRuleCount = json.listloadbalancerrulesresponse.count || 0
-          resolve(loadBalancerRuleCount)
-        }).catch(e => {
-          reject(e)
-        })
-      })
+    async readRuleCount (api, params, ip) {
+      const json = await getAPI(api, { ...publicIpScope(ip), ...params, page: 1, pagesize: 1 }, { preserveOnFailure: true })
+      return json[api.toLowerCase() + 'response']?.count || 0
     },
     changeResource (resource) {
-      console.log(resource)
       this.resource = resource
     },
     toggleLoading () {

@@ -1,0 +1,54 @@
+{
+  "source": "bd3ea8fd3bc6b188be167e6cacd0f3082a3b5aaf",
+  "localUiTests": 497,
+  "ui-lint": {
+    "exit": 0,
+    "command": [
+      "npx",
+      "vue-cli-service",
+      "lint",
+      "--no-fix",
+      "src/components/CheckBoxSelectPair.vue",
+      "src/composables/useServiceCapabilityParams.js",
+      "src/config/section/offering.js",
+      "src/views/offering/AddNetworkOffering.vue",
+      "src/views/offering/CloneNetworkOffering.vue",
+      "src/views/offering/NetworkOfferingUsage.vue",
+      "tests/unit/views/network/NetworkOfferingLb.spec.js",
+      "src/utils/networkOfferingForm.js",
+      "src/views/offering/NetworkOfferingServices.vue",
+      "tests/unit/views/network/NetworkOfferingForm.spec.js"
+    ]
+  },
+  "ui-tests": {
+    "exit": 0,
+    "command": [
+      "npm",
+      "run",
+      "test:unit",
+      "--",
+      "--runInBand",
+      "--coverage=false",
+      "tests/unit/views/network",
+      "tests/unit/views/AutogenGuestNetworkSearch.spec.js",
+      "tests/unit/views/GuestNetworkTab.spec.js",
+      "tests/unit/utils/guestNetworkSearch.spec.js",
+      "tests/unit/components/GuestNetworkSummary.spec.js",
+      "tests/unit/utils/networkMutation.spec.js",
+      "tests/unit/utils/listRefreshMixin.spec.js",
+      "VmNicsTab",
+      "vmNicActions",
+      "SharedDetailTabs",
+      "ResourceTags",
+      "DeployVM"
+    ]
+  },
+  "ui-build": {
+    "exit": 0,
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ]
+  }
+}

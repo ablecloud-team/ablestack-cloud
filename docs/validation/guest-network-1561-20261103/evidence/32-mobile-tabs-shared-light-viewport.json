@@ -1,0 +1,29 @@
+{
+  "body": null,
+  "colors": [],
+  "content": null,
+  "dark": false,
+  "dialog": null,
+  "documentWidth": 380,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": null,
+  "header": null,
+  "height": 844,
+  "main": {
+    "bottom": 844,
+    "height": 643,
+    "left": 0,
+    "right": 380,
+    "top": 201,
+    "width": 380,
+    "x": 0,
+    "y": 201
+  },
+  "primaryButton": null,
+  "width": 390,
+  "image_sha256": "0149e9962e752ef75e40854f8865697a877e9982ad03486c6d34170c4c3463d2"
+}

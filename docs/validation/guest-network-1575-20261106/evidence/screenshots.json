@@ -1,0 +1,430 @@
+[
+  {
+    "label": "31-vm-standard-baseline",
+    "width": 1280,
+    "height": 900,
+    "dark": false,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "path": "#/vm/f587e18a-573d-417f-8563-a1f6b5fc0cd7?tab=nics",
+    "sha256": "1e4615147a308cfda4bd8f011fee40a2dff81f0340bc0e37fdd7c4852d56412e",
+    "sampledContrast": []
+  },
+  {
+    "label": "31-domainadmin-permission-grant",
+    "width": 1280,
+    "height": 900,
+    "dark": false,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "path": "#/guestnetwork/34015e1d-ca40-4d05-a4de-ba26172009e1?tab=network.permissions",
+    "sha256": "36faf7458802a80352d1078b596a9153e3c00d37717c76149de8db29b227cbce",
+    "sampledContrast": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(31, 41, 55)",
+        "fontSize": "14px",
+        "text": "qa-gn1575-31-isolated · qa-gn1575-31-main · qa-gn1575-31-owner",
+        "contrast": 14.68
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(31, 41, 55)",
+        "fontSize": "14px",
+        "text": "이 네트워크와 같은 도메인의 활성 계정 또는 프로젝트를 선택하세요.",
+        "contrast": 14.68
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "취소",
+        "contrast": 7.56
+      },
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "확인",
+        "contrast": 5.19
+      }
+    ]
+  },
+  {
+    "label": "32-owner-permission-mobile",
+    "width": 390,
+    "height": 844,
+    "dark": false,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "path": "#/guestnetwork/a8671ac8-edb2-403e-9950-1ce49af7597e?tab=network.permissions",
+    "sha256": "44c6711e91fed3b1f590539fc05dd77cfb351e448d43f9fd5062dafc1ce709e1",
+    "sampledContrast": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(31, 41, 55)",
+        "fontSize": "14px",
+        "text": "qa-gn1575-32-isolated · qa-gn1575-32-main · qa-gn1575-32-owner",
+        "contrast": 14.68
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(31, 41, 55)",
+        "fontSize": "14px",
+        "text": "이 네트워크와 같은 도메인의 활성 계정 또는 프로젝트를 선택하세요.",
+        "contrast": 14.68
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "취소",
+        "contrast": 7.56
+      },
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "확인",
+        "contrast": 5.19
+      }
+    ]
+  },
+  {
+    "label": "31-peer-nic-attach-tablet",
+    "width": 768,
+    "height": 1024,
+    "dark": false,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "path": "#/vm/aca6699e-3ccf-4788-9b14-ad04e1bc8723?tab=nics",
+    "sha256": "7aaa9f84d430f8b549c762df0ee4f26b3a81b03c836390df1fb276054f057f9d",
+    "sampledContrast": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "기본값으로 설정",
+        "contrast": 7.56
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "취소",
+        "contrast": 7.56
+      },
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "기존 네트워크 연결",
+        "contrast": 5.19
+      }
+    ]
+  },
+  {
+    "label": "32-peer-deploy-candidate",
+    "width": 1280,
+    "height": 900,
+    "dark": false,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "path": "#/action/deployVirtualMachine?networkid=a8671ac8-edb2-403e-9950-1ce49af7597e",
+    "sha256": "1fa11b9220f3b0842fd851e4dfa929b86e9972eb22f5f3798275bd176603ecda",
+    "sampledContrast": []
+  },
+  {
+    "label": "31-permission-revoke",
+    "width": 768,
+    "height": 1024,
+    "dark": false,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "path": "#/guestnetwork/34015e1d-ca40-4d05-a4de-ba26172009e1?tab=network.permissions",
+    "sha256": "40a31741220d781511f2d814071d76edafa733d4f531d6dfc8746e45fd162279",
+    "sampledContrast": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(31, 41, 55)",
+        "fontSize": "14px",
+        "text": "공유 권한은 새 배포와 NIC 연결에 적용됩니다. 회수 또는 초기화 후에도 기존 NIC는 분리되지 않습니다. 연결된 VM은 가상머신 보기에서 확인할 수 있습니다.",
+        "contrast": 14.68
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(31, 41, 55)",
+        "fontSize": "14px",
+        "text": "qa-gn1575-31-peer",
+        "contrast": 14.68
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(31, 41, 55)",
+        "fontSize": "14px",
+        "text": "message.confirm.remove.network.permission",
+        "contrast": 14.68
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "취소",
+        "contrast": 7.56
+      },
+      {
+        "background": "rgb(180, 35, 24)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "확인",
+        "contrast": 6.57
+      }
+    ]
+  },
+  {
+    "label": "32-retained-nic-after-reset",
+    "width": 1280,
+    "height": 900,
+    "dark": false,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "path": "#/vm/d8f6f7e2-007d-4ee9-a7ac-28be9469d288?tab=nics",
+    "sha256": "e525d508caa3296260a4de0109a428d759bf2b3bc1d6d13b394750ce83310815",
+    "sampledContrast": []
+  },
+  {
+    "label": "31-permission-tab-desktop-dark",
+    "width": 1280,
+    "height": 900,
+    "dark": true,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "path": "#/guestnetwork/34015e1d-ca40-4d05-a4de-ba26172009e1?tab=network.permissions",
+    "sha256": "80bd33efc443f9e4f1eee5b09dc1469422ebdcd34ac7836f31fb54f1e99e99f9",
+    "sampledContrast": []
+  },
+  {
+    "label": "31-permission-dialog-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "dark": true,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "path": "#/guestnetwork/34015e1d-ca40-4d05-a4de-ba26172009e1?tab=network.permissions",
+    "sha256": "f1b08c92ea4eba213da5c2ff3da24708f655217633e530f93b9f380cb8bf867f",
+    "sampledContrast": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(240, 243, 246)",
+        "fontSize": "14px",
+        "text": "qa-gn1575-31-isolated · qa-gn1575-31-main · qa-gn1575-31-owner",
+        "contrast": 13.35
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(240, 243, 246)",
+        "fontSize": "14px",
+        "text": "이 네트워크와 같은 도메인의 활성 계정 또는 프로젝트를 선택하세요.",
+        "contrast": 13.35
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "취소",
+        "contrast": 8.47
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "확인",
+        "contrast": 4.25
+      }
+    ]
+  },
+  {
+    "label": "31-network-events-tablet-dark",
+    "width": 768,
+    "height": 1024,
+    "dark": true,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "path": "#/guestnetwork/34015e1d-ca40-4d05-a4de-ba26172009e1?tab=events",
+    "sha256": "091d0a1b6b40c13d5795c36c68acef67e1863ba5c718d1deacf529e7db0668df",
+    "sampledContrast": []
+  },
+  {
+    "label": "31-network-admin-comment-dark",
+    "width": 1280,
+    "height": 900,
+    "dark": true,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "path": "#/guestnetwork/34015e1d-ca40-4d05-a4de-ba26172009e1?tab=comments",
+    "sha256": "8ed5206e2bef75ec27ce8dddcc6e950c56485370dd039a2d924dde3c993145d6",
+    "sampledContrast": []
+  },
+  {
+    "label": "31-network-list-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "dark": true,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "path": "#/guestnetwork?q=qa-gn1575-31-isolated&keyword=qa-gn1575-31-isolated&page=1&pagesize=20",
+    "sha256": "4fc0405b47cfb0938cb9381922ccb69c69bf98ae3fcea78ba3aa384ca26b1f51",
+    "sampledContrast": []
+  },
+  {
+    "label": "31-network-detail-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "dark": true,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "path": "#/guestnetwork/34015e1d-ca40-4d05-a4de-ba26172009e1?networkreturn={%22q%22:%22qa-gn1575-31-isolated%22,%22keyword%22:%22qa-gn1575-31-isolated%22,%22page%22:%221%22,%22pagesize%22:%2220%22}",
+    "sha256": "24335f23046c56c7683aeb6aa808242f77fd8cda2c97533d0040d64a2be045c8",
+    "sampledContrast": []
+  },
+  {
+    "label": "32-invalid-account-retry-mobile",
+    "width": 390,
+    "height": 844,
+    "dark": false,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "path": "#/guestnetwork/a8671ac8-edb2-403e-9950-1ce49af7597e?tab=network.permissions",
+    "sha256": "35e92555270901d5c098c971dfece01bb9488fbe78391a319b1f84ac1c15237e",
+    "sampledContrast": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(31, 41, 55)",
+        "fontSize": "14px",
+        "text": "qa-gn1575-32-isolated · qa-gn1575-32-main · qa-gn1575-32-owner",
+        "contrast": 14.68
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(31, 41, 55)",
+        "fontSize": "14px",
+        "text": "이 네트워크와 같은 도메인의 활성 계정 또는 프로젝트를 선택하세요.",
+        "contrast": 14.68
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "취소",
+        "contrast": 7.56
+      },
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "확인",
+        "contrast": 5.19
+      }
+    ]
+  },
+  {
+    "label": "32-permission-dialog-tablet-dark",
+    "width": 768,
+    "height": 1024,
+    "dark": true,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "path": "#/guestnetwork/a8671ac8-edb2-403e-9950-1ce49af7597e?tab=network.permissions",
+    "sha256": "f257337bc3501a1028068d234908c69c3b35857b362698b79a3a0789da022567",
+    "sampledContrast": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(240, 243, 246)",
+        "fontSize": "14px",
+        "text": "qa-gn1575-32-isolated · qa-gn1575-32-main · qa-gn1575-32-owner",
+        "contrast": 13.35
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(240, 243, 246)",
+        "fontSize": "14px",
+        "text": "이 네트워크와 같은 도메인의 활성 계정 또는 프로젝트를 선택하세요.",
+        "contrast": 13.35
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "취소",
+        "contrast": 8.47
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "확인",
+        "contrast": 4.25
+      }
+    ]
+  },
+  {
+    "label": "31-final-pf-tags-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "dark": true,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "path": "#/publicip/e6978afb-a4ee-4512-8fb5-a06fe6477a83?tab=portforwarding",
+    "sha256": "f8661a44cada3487b4dfe2b7a38f702b4396c69efb1ccf30ffec3d1bd34e79c6",
+    "sampledContrast": [
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "완료",
+        "contrast": 5.19
+      }
+    ]
+  },
+  {
+    "label": "32-final-pf-tags-tablet-light",
+    "width": 768,
+    "height": 1024,
+    "dark": false,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "path": "#/publicip/3718e606-1ab1-48db-a660-7486d8dfc172?tab=portforwarding",
+    "sha256": "8a74685f3d014b849e9d418ee197e8bd9bea9ad600e70e0e7fe9705b140efc90",
+    "sampledContrast": [
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "완료",
+        "contrast": 5.19
+      }
+    ]
+  },
+  {
+    "label": "31-final-permission-tab-dark",
+    "width": 1280,
+    "height": 900,
+    "dark": true,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "path": "#/guestnetwork/34015e1d-ca40-4d05-a4de-ba26172009e1?tab=network.permissions",
+    "sha256": "81995e96c7337ea46ccf3f54a2bed47af021681aa4e939514f6aaa3a9b531285",
+    "sampledContrast": []
+  },
+  {
+    "label": "32-final-review-nics-light",
+    "width": 1280,
+    "height": 900,
+    "dark": false,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "path": "#/vm/d8f6f7e2-007d-4ee9-a7ac-28be9469d288?tab=nics",
+    "sha256": "37452b3589f33ebec2f87381304c4fc96c612c8b538cb616f5ecfe36aaed1c0c",
+    "sampledContrast": []
+  }
+]

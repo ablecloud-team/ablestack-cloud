@@ -1,0 +1,227 @@
+[
+  {
+    "cluster": 32,
+    "action": "create-ui",
+    "name": "account"
+  },
+  {
+    "cluster": 31,
+    "action": "create-ui",
+    "name": "account"
+  },
+  {
+    "cluster": 31,
+    "action": "create-ui",
+    "name": "domain"
+  },
+  {
+    "cluster": 32,
+    "action": "create-ui",
+    "name": "domain"
+  },
+  {
+    "cluster": 32,
+    "action": "create-ui",
+    "name": "project"
+  },
+  {
+    "cluster": 32,
+    "action": "create-ui",
+    "name": "all"
+  },
+  {
+    "cluster": 31,
+    "action": "create-ui",
+    "name": "project"
+  },
+  {
+    "cluster": 31,
+    "action": "create-ui",
+    "name": "all"
+  },
+  {
+    "cluster": 31,
+    "action": "create-ui",
+    "name": "related"
+  },
+  {
+    "cluster": 31,
+    "action": "shared-nic-add",
+    "scope": "all",
+    "address": "198.19.31.13"
+  },
+  {
+    "cluster": 31,
+    "action": "shared-address-allocated",
+    "address": "198.19.31.13"
+  },
+  {
+    "cluster": 31,
+    "action": "shared-nic-remove-submitted",
+    "address": "198.19.31.13"
+  },
+  {
+    "cluster": 32,
+    "action": "shared-nic-add-submitted",
+    "scope": "all"
+  },
+  {
+    "cluster": 31,
+    "action": "shared-address-released",
+    "address": "198.19.31.13"
+  },
+  {
+    "cluster": 32,
+    "action": "shared-address-allocated",
+    "address": "198.19.32.18"
+  },
+  {
+    "cluster": 32,
+    "action": "shared-address-released",
+    "address": "198.19.32.18"
+  },
+  {
+    "cluster": 32,
+    "action": "range-overlap-blocked",
+    "start": "198.19.32.85",
+    "end": "198.19.32.90"
+  },
+  {
+    "cluster": 32,
+    "action": "range-add",
+    "start": "198.19.32.87",
+    "end": "198.19.32.90"
+  },
+  {
+    "cluster": 32,
+    "action": "range-edit",
+    "end": "198.19.32.91"
+  },
+  {
+    "cluster": 32,
+    "action": "range-delete"
+  },
+  {
+    "cluster": 32,
+    "action": "used-range-delete-blocked"
+  },
+  {
+    "cluster": 31,
+    "action": "range-add",
+    "start": "198.19.31.87",
+    "end": "198.19.31.90"
+  },
+  {
+    "cluster": 31,
+    "action": "range-edit-retained",
+    "end": "198.19.31.91"
+  },
+  {
+    "cluster": 31,
+    "action": "dns-zone-empty-retry"
+  },
+  {
+    "cluster": 32,
+    "action": "dual-missing-ipv6-dns-blocked"
+  },
+  {
+    "cluster": 32,
+    "action": "create-ui",
+    "name": "dual"
+  },
+  {
+    "cluster": 31,
+    "action": "create-ui",
+    "name": "dual"
+  },
+  {
+    "cluster": 32,
+    "action": "instant-theme-and-navigation"
+  },
+  {
+    "cluster": 32,
+    "action": "owner-shared-list"
+  },
+  {
+    "cluster": 32,
+    "action": "create-ui",
+    "name": "related"
+  },
+  {
+    "cluster": 32,
+    "action": "owner-linked-write-implicit-scope"
+  },
+  {
+    "cluster": 32,
+    "action": "owner-project-candidate"
+  },
+  {
+    "cluster": 31,
+    "action": "create-ui",
+    "name": "nosub"
+  },
+  {
+    "cluster": 31,
+    "action": "pvlan-same-id-blocked"
+  },
+  {
+    "cluster": 31,
+    "action": "create-ui",
+    "name": "pvlan"
+  },
+  {
+    "cluster": 31,
+    "action": "pvlan-transition-cleared"
+  },
+  {
+    "cluster": 31,
+    "action": "shared-update-description-no-nat"
+  },
+  {
+    "cluster": 32,
+    "action": "child-domain-only"
+  },
+  {
+    "cluster": 31,
+    "action": "shared-detail-tab",
+    "tab": "VNF 기기"
+  },
+  {
+    "cluster": 31,
+    "action": "shared-detail-tab",
+    "tab": "네트워크 권한"
+  },
+  {
+    "cluster": 32,
+    "action": "mobile-breadcrumb-return"
+  },
+  {
+    "cluster": 31,
+    "action": "shared-detail-tab",
+    "tab": "이벤트"
+  },
+  {
+    "cluster": 31,
+    "action": "shared-detail-tab",
+    "tab": "코멘트"
+  },
+  {
+    "cluster": 31,
+    "action": "final-domain-scope",
+    "label": "도메인"
+  },
+  {
+    "cluster": 32,
+    "action": "final-root-wide-scope",
+    "label": "모두"
+  },
+  {
+    "cluster": 32,
+    "action": "final-fixed-range-family-dark-contrast",
+    "bg": "rgb(34, 40, 47)",
+    "dark": true,
+    "fg": "rgba(255, 255, 255, 0.65)",
+    "ratio": 7.128935659391724,
+    "text": "IPv4"
+  }
+]

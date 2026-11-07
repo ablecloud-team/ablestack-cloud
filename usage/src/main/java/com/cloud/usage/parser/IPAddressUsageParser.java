@@ -73,7 +73,9 @@ public class IPAddressUsageParser extends UsageParser {
         for (UsageIPAddressVO usageIp : usageIPAddress) {
             long IpId = usageIp.getIpId();
 
-            String key = "" + IpId;
+            // Reusing an IP in one aggregation period may cross an export-policy change.
+            // Keep both durations and their visibility separate instead of using the last flag.
+            String key = IpId + "_" + usageIp.isHidden();
 
             // store the info in the IP map
             IPMap.put(key, new IpInfo(usageIp.getZoneId(), IpId, usageIp.getAddress(), usageIp.isSourceNat(), usageIp.isSystem(), usageIp.isHidden()));

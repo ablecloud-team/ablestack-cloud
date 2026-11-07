@@ -1,0 +1,22 @@
+{
+  "Network": {
+    "uuid": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+    "remainingTemporaryTags": 0
+  },
+  "PublicIpAddress": {
+    "uuid": "e6978afb-a4ee-4512-8fb5-a06fe6477a83",
+    "remainingTemporaryTags": 0
+  },
+  "FirewallRule": {
+    "uuid": "945ee00c-6128-4226-b067-5243605e8ea1",
+    "remainingTemporaryTags": 0
+  },
+  "PortForwardingRule": {
+    "uuid": "7cccd5ff-31da-44af-b00d-58ad7dae8961",
+    "remainingTemporaryTags": 0
+  },
+  "LoadBalancer": {
+    "uuid": "5596469f-ba7c-49ca-9afa-b4395885491f",
+    "remainingTemporaryTags": 0
+  }
+}

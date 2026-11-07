@@ -1,0 +1,345 @@
+{
+  "31": {
+    "initial": {
+      "failedLb": {
+        "count": 1,
+        "loadbalancerrule": [
+          {
+            "id": "739c314f-a5a9-418c-bc6c-6040a77f9046",
+            "name": "qa-gn1569-31-reg-lb",
+            "description": "GN1569 LB API/UI review",
+            "publicipid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+            "publicip": "10.10.31.110",
+            "publicport": "18569",
+            "privateport": "18569",
+            "algorithm": "leastconn",
+            "networkid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+            "cidrlist": "192.0.2.156/32",
+            "account": "qa-gn1569-31-owner",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "domainpath": "ROOT/qa-gn1569-31-domain",
+            "state": "Add",
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "backendssl": false,
+            "tags": [],
+            "fordisplay": true
+          }
+        ]
+      },
+      "explicitTcpLb": {
+        "count": 1,
+        "loadbalancerrule": [
+          {
+            "id": "46b0048d-e3e9-48df-8df9-eebbcf465404",
+            "name": "qa-gn1569-31-reg-lb-tcp",
+            "description": "GN1569 LB explicit TCP API/UI review",
+            "publicipid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+            "publicip": "10.10.31.110",
+            "publicport": "18572",
+            "privateport": "18572",
+            "algorithm": "leastconn",
+            "networkid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+            "cidrlist": "192.0.2.156/32",
+            "account": "qa-gn1569-31-owner",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "domainpath": "ROOT/qa-gn1569-31-domain",
+            "state": "Active",
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "protocol": "tcp",
+            "backendssl": false,
+            "tags": [],
+            "fordisplay": true
+          }
+        ]
+      },
+      "noZoneTungsten": {
+        "listtungstenfabricprovidersresponse": {}
+      },
+      "validZoneTungsten": {
+        "listtungstenfabricprovidersresponse": {
+          "uuidList": [],
+          "errorcode": 530,
+          "cserrorcode": 9999,
+          "errortext": "Cannot invoke \"com.cloud.network.TungstenProvider.getZoneId()\" because \"tungstenProvider\" is null"
+        }
+      },
+      "validZone": {
+        "count": 1,
+        "zone": [
+          {
+            "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "name": "Zone",
+            "dns1": "8.8.8.8",
+            "internaldns1": "8.8.8.8",
+            "guestcidraddress": "10.1.1.0/24",
+            "networktype": "Advanced",
+            "securitygroupsenabled": false,
+            "gputotal": 0,
+            "gpuused": 0,
+            "allocationstate": "Enabled",
+            "zonetoken": "0a05f36f-1f83-3ac8-b7a3-907bc3448217",
+            "dhcpprovider": "VirtualRouter",
+            "localstorageenabled": false,
+            "tags": [],
+            "resourcedetails": {
+              "vm.configdrive.force.host.cache.use": "false"
+            },
+            "allowuserspecifyvrmtu": false,
+            "routerprivateinterfacemaxmtu": 1500,
+            "routerpublicinterfacemaxmtu": 1500,
+            "type": "Core",
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "asnrange": "",
+            "routedmodeenabled": true,
+            "hasannotations": false
+          }
+        ]
+      }
+    },
+    "afterUI": {
+      "count": 1,
+      "loadbalancerrule": [
+        {
+          "id": "739c314f-a5a9-418c-bc6c-6040a77f9046",
+          "name": "qa-gn1569-31-reg-lb",
+          "description": "GN1569 LB API/UI review",
+          "publicipid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+          "publicip": "10.10.31.110",
+          "publicport": "18569",
+          "privateport": "18569",
+          "algorithm": "roundrobin",
+          "networkid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+          "cidrlist": "192.0.2.156/32",
+          "account": "qa-gn1569-31-owner",
+          "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+          "domain": "qa-gn1569-31-domain",
+          "domainpath": "ROOT/qa-gn1569-31-domain",
+          "state": "Add",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "backendssl": false,
+          "tags": [],
+          "fordisplay": true
+        }
+      ]
+    },
+    "apiFailure": [
+      {
+        "case": "lb-update",
+        "command": "updateLoadBalancerRule",
+        "params": {
+          "id": "739c314f-a5a9-418c-bc6c-6040a77f9046",
+          "algorithm": "leastconn",
+          "description": "GN1569 LB API/UI review"
+        },
+        "accepted": false,
+        "expected": true,
+        "pass_": false,
+        "errorCode": 530,
+        "errorText": "Cannot invoke \"String.equals(Object)\" because the return value of \"com.cloud.network.dao.LoadBalancerVO.getLbProtocol()\" is null",
+        "seconds": 4.04
+      }
+    ],
+    "tungstenFailure": [
+      {
+        "case": "gate-listTungstenFabricProviders",
+        "command": "listTungstenFabricProviders",
+        "params": {
+          "listall": "true",
+          "page": 1,
+          "pagesize": 500,
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+        },
+        "accepted": false,
+        "expected": true,
+        "pass_": false,
+        "errorCode": 530,
+        "errorText": "Cannot invoke \"com.cloud.network.TungstenProvider.getZoneId()\" because \"tungstenProvider\" is null",
+        "result": {
+          "uuidList": [],
+          "errorcode": 530,
+          "cserrorcode": 9999,
+          "errortext": "Cannot invoke \"com.cloud.network.TungstenProvider.getZoneId()\" because \"tungstenProvider\" is null"
+        },
+        "knownDefect": "empty Tungsten provider lookup"
+      }
+    ]
+  },
+  "32": {
+    "initial": {
+      "failedLb": {
+        "count": 1,
+        "loadbalancerrule": [
+          {
+            "id": "3cc2a1c8-4362-44fd-9bd7-aeddd77c6f5e",
+            "name": "qa-gn1569-32-reg-lb",
+            "description": "GN1569 LB API/UI review",
+            "publicipid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+            "publicip": "10.10.32.170",
+            "publicport": "18569",
+            "privateport": "18569",
+            "algorithm": "leastconn",
+            "networkid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+            "cidrlist": "192.0.2.156/32",
+            "account": "qa-gn1569-32-owner",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "domainpath": "ROOT/qa-gn1569-32-domain",
+            "state": "Add",
+            "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+            "zonename": "Zone",
+            "backendssl": false,
+            "tags": [],
+            "fordisplay": true
+          }
+        ]
+      },
+      "explicitTcpLb": {
+        "count": 1,
+        "loadbalancerrule": [
+          {
+            "id": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce",
+            "name": "qa-gn1569-32-reg-lb-tcp",
+            "description": "GN1569 LB explicit TCP API/UI review",
+            "publicipid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+            "publicip": "10.10.32.170",
+            "publicport": "18572",
+            "privateport": "18572",
+            "algorithm": "leastconn",
+            "networkid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+            "cidrlist": "192.0.2.156/32",
+            "account": "qa-gn1569-32-owner",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "domainpath": "ROOT/qa-gn1569-32-domain",
+            "state": "Active",
+            "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+            "zonename": "Zone",
+            "protocol": "tcp",
+            "backendssl": false,
+            "tags": [],
+            "fordisplay": true
+          }
+        ]
+      },
+      "noZoneTungsten": {
+        "listtungstenfabricprovidersresponse": {}
+      },
+      "validZoneTungsten": {
+        "listtungstenfabricprovidersresponse": {
+          "uuidList": [],
+          "errorcode": 530,
+          "cserrorcode": 9999,
+          "errortext": "Cannot invoke \"com.cloud.network.TungstenProvider.getZoneId()\" because \"tungstenProvider\" is null"
+        }
+      },
+      "validZone": {
+        "count": 1,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone",
+            "dns1": "8.8.8.8",
+            "internaldns1": "8.8.8.8",
+            "guestcidraddress": "10.1.1.0/24",
+            "networktype": "Advanced",
+            "securitygroupsenabled": false,
+            "gputotal": 0,
+            "gpuused": 0,
+            "allocationstate": "Enabled",
+            "zonetoken": "9ce71b6a-e1c8-38b1-b962-5ac8457ff9f0",
+            "dhcpprovider": "VirtualRouter",
+            "localstorageenabled": false,
+            "tags": [],
+            "resourcedetails": {
+              "resourceHAEnabled": "true"
+            },
+            "allowuserspecifyvrmtu": false,
+            "routerprivateinterfacemaxmtu": 1500,
+            "routerpublicinterfacemaxmtu": 1500,
+            "type": "Core",
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "asnrange": "",
+            "routedmodeenabled": true,
+            "hasannotations": false
+          }
+        ]
+      }
+    },
+    "afterUI": {
+      "count": 1,
+      "loadbalancerrule": [
+        {
+          "id": "3cc2a1c8-4362-44fd-9bd7-aeddd77c6f5e",
+          "name": "qa-gn1569-32-reg-lb",
+          "description": "GN1569 LB API/UI review",
+          "publicipid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+          "publicip": "10.10.32.170",
+          "publicport": "18569",
+          "privateport": "18569",
+          "algorithm": "roundrobin",
+          "networkid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+          "cidrlist": "192.0.2.156/32",
+          "account": "qa-gn1569-32-owner",
+          "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+          "domain": "qa-gn1569-32-domain",
+          "domainpath": "ROOT/qa-gn1569-32-domain",
+          "state": "Add",
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "backendssl": false,
+          "tags": [],
+          "fordisplay": true
+        }
+      ]
+    },
+    "apiFailure": [
+      {
+        "case": "lb-update",
+        "command": "updateLoadBalancerRule",
+        "params": {
+          "id": "3cc2a1c8-4362-44fd-9bd7-aeddd77c6f5e",
+          "algorithm": "leastconn",
+          "description": "GN1569 LB API/UI review"
+        },
+        "accepted": false,
+        "expected": true,
+        "pass_": false,
+        "errorCode": 530,
+        "errorText": "Cannot invoke \"String.equals(Object)\" because the return value of \"com.cloud.network.dao.LoadBalancerVO.getLbProtocol()\" is null",
+        "seconds": 4.09,
+        "knownDefect": "nullable LB protocol update"
+      }
+    ],
+    "tungstenFailure": [
+      {
+        "case": "gate-listTungstenFabricProviders",
+        "command": "listTungstenFabricProviders",
+        "params": {
+          "listall": "true",
+          "page": 1,
+          "pagesize": 500,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+        },
+        "accepted": false,
+        "expected": true,
+        "pass_": false,
+        "errorCode": 530,
+        "errorText": "Cannot invoke \"com.cloud.network.TungstenProvider.getZoneId()\" because \"tungstenProvider\" is null",
+        "result": {
+          "uuidList": [],
+          "errorcode": 530,
+          "cserrorcode": 9999,
+          "errortext": "Cannot invoke \"com.cloud.network.TungstenProvider.getZoneId()\" because \"tungstenProvider\" is null"
+        },
+        "knownDefect": "empty Tungsten provider lookup"
+      }
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "nosnat": {
+    "guest_ssh_exit": 0,
+    "same_host": true,
+    "router_guest_ip": "172.28.32.10",
+    "guest": {
+      "addresses": {
+        "exit": 0,
+        "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"::1\",\"prefixlen\":128,\"scope\":\"host\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"ifname\":\"ens3\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"fq_codel\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"1e:01:9e:00:01:ac\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"altnames\":[\"enp0s3\"],\"addr_info\":[{\"family\":\"inet\",\"local\":\"172.28.32.18\",\"prefixlen\":24,\"broadcast\":\"172.28.32.255\",\"scope\":\"global\",\"noprefixroute\":true,\"label\":\"ens3\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"fe80::1c01:9eff:fe00:1ac\",\"prefixlen\":64,\"scope\":\"link\",\"noprefixroute\":true,\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]\n",
+        "stderr": ""
+      },
+      "router_ping": {
+        "exit": 0,
+        "stdout": "PING 172.28.32.10 (172.28.32.10) 56(84) bytes of data.\n64 bytes from 172.28.32.10: icmp_seq=1 ttl=64 time=0.169 ms\n64 bytes from 172.28.32.10: icmp_seq=2 ttl=64 time=0.334 ms\n\n--- 172.28.32.10 ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss, time 1032ms\nrtt min/avg/max/mdev = 0.169/0.251/0.334/0.082 ms\n",
+        "stderr": ""
+      }
+    },
+    "ssh_error": ""
+  },
+  "shared": {
+    "guest_ssh_exit": 255,
+    "same_host": true,
+    "router_guest_ip": "172.30.32.10",
+    "guest": null,
+    "ssh_error": "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\nIT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!\nSomeone could be eavesdropping on you right now (man-in-the-middle attack)!\nIt is also possible that a host key has just been changed.\nThe fingerprint for the ED25519 key sent by the remote host is\nSHA256:5b2g8VQebYdbe5wcqAaDxVS1zPbCNTL1ygHwu76is78.\nPlease contact your system administrator.\nAdd correct host key in /home/ablecloud/work/.qa-gn1580-private-20261104-32/guest-knownhosts to get rid of this message.\nOffending ED25519 key in /home/ablecloud/work/.qa-gn1580-private-20261104-32/guest-knownhosts:2\nHost key for 172.30.32.18 has changed and you have requested strict checking.\nHost key verification failed.\n"
+  }
+}

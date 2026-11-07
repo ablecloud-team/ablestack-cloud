@@ -1,0 +1,109 @@
+{
+  "body": {
+    "bottom": 800,
+    "height": 710,
+    "left": 161,
+    "right": 1119,
+    "top": 90,
+    "width": 958,
+    "x": 161,
+    "y": 90
+  },
+  "bodyClientHeight": 710,
+  "bodyClientWidth": 948,
+  "bodyScrollHeight": 998,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 948,
+  "colors": [
+    {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgb(197, 204, 212)",
+      "text": "Isolated · Zone · admin"
+    },
+    {
+      "background": "rgba(255, 77, 79, 0.14)",
+      "color": "rgb(255, 210, 210)",
+      "text": "작업은 완료되었으나 재조회한 이름 또는 설명이 요청과 다릅니다. 현재 작업 결과를 다시 확인하세요."
+    },
+    {
+      "background": "rgba(24, 144, 255, 0.14)",
+      "color": "rgb(214, 235, 255)",
+      "text": "수정 작업의 결과를 아직 확인하지 못했습니다. 작업 결과를 다시 조회하고 중복 요청은 보내지 마세요. 대화상자를 닫고 작업 상태를 확인할 수 있"
+    },
+    {
+      "background": "rgb(85, 85, 85)",
+      "color": "rgba(255, 255, 255, 0.65)",
+      "text": "확인"
+    }
+  ],
+  "content": {
+    "bottom": 866,
+    "height": 832,
+    "left": 160,
+    "right": 1120,
+    "top": 34,
+    "width": 960,
+    "x": 160,
+    "y": 34
+  },
+  "dark": true,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1280,
+    "top": 0,
+    "width": 1280,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "BODY"
+  },
+  "footer": {
+    "bottom": 865,
+    "height": 65,
+    "left": 161,
+    "right": 1119,
+    "top": 800,
+    "width": 958,
+    "x": 161,
+    "y": 800
+  },
+  "header": {
+    "bottom": 90,
+    "height": 55,
+    "left": 161,
+    "right": 1119,
+    "top": 35,
+    "width": 958,
+    "x": 161,
+    "y": 35
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 749,
+    "left": 256,
+    "right": 1270,
+    "top": 151,
+    "width": 1014,
+    "x": 256,
+    "y": 151
+  },
+  "primaryButton": {
+    "bottom": 849,
+    "height": 32,
+    "left": 1033.234375,
+    "right": 1091,
+    "top": 817,
+    "width": 57.765625,
+    "x": 1033.234375,
+    "y": 817
+  },
+  "width": 1280,
+  "image_sha256": "13ad8dd4bd7962b1decc7bb969eaace0355460e6f583aaa57ea1f7aaacbb9185"
+}

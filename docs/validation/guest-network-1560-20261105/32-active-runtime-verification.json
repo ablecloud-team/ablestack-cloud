@@ -1,0 +1,20 @@
+{
+  "activeCurrentBundleMarkers": {
+    "network-ip-vm-reference": true,
+    "network-ip-toolbar": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  },
+  "currentJsFilesScanned": 319,
+  "classSha256": {
+    "com/cloud/api/ApiDBUtils.class": "46b96d1294bc2b88dc2442d0f683a988a0301bec48864559308bb92cd9f664df",
+    "com/cloud/api/ApiResponseHelper.class": "9ad51801acf699f01e39b2c3fb0a3b68a3f9a09c499cb1034b31cc3881526d6c"
+  },
+  "jarSha256": "623e7c2d738347b9e1eb3ef630cb3e2cd4a94ef3e1aff6aaa206db003ac52350",
+  "indexSha256": "82885e22590fc45755474a192d44b1b218e9164c9ab2e8bd39eba348f0883779",
+  "moldPID": "858022",
+  "WEB-INF": true,
+  "sharedInstanceIdErrorsSinceKST": "2026-11-05 10:01:00",
+  "sharedInstanceIdErrors": []
+}

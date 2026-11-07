@@ -1,0 +1,209 @@
+{
+  "body": {
+    "bottom": 766,
+    "height": 698,
+    "left": 13,
+    "right": 377,
+    "top": 68,
+    "width": 364,
+    "x": 13,
+    "y": 68
+  },
+  "bodyClientHeight": 698,
+  "bodyClientWidth": 354,
+  "bodyScrollHeight": 2737,
+  "bodyScrollTop": 338,
+  "bodyScrollWidth": 354,
+  "colors": [
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(75, 85, 99)",
+      "text": "Isolated · Zone · admin"
+    },
+    {
+      "background": "rgb(240, 249, 235)",
+      "color": "rgb(31, 77, 29)",
+      "text": "요구 서비스와 제공자 설정이 일치합니다."
+    },
+    {
+      "background": "rgb(255, 248, 230)",
+      "color": "rgb(92, 59, 0)",
+      "text": "네트워크 오퍼링 변경 영향"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "검증용 no-SourceNat · VirtualRouter"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "b2c751b4-c6a5-40a3-b41e-39b776929e98"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "Enabled"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "Isolated"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "아니오"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "IPv4"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "—"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "Dhcp, Dns, Firewall, Lb, PortForwarding, StaticNat, UserData, Vpn"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "Dhcp: VirtualRouter; Dns: VirtualRouter; Firewall: VirtualRouter; Lb: VirtualRou"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "아니오"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "검증용 no-SourceNat · VirtualRouter · 변경 대상"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "948770b7-aaf1-48ac-adbb-629a8f3fb538"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "Enabled"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "Isolated"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "아니오"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "IPv4"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "—"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "Dhcp, Dns, Firewall, Lb, PortForwarding, StaticNat, UserData, Vpn"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "Dhcp: VirtualRouter; Dns: VirtualRouter; Firewall: VirtualRouter; Lb: VirtualRou"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgba(0, 0, 0, 0.65)",
+      "text": "아니오"
+    },
+    {
+      "background": "rgb(9, 105, 218)",
+      "color": "rgb(255, 255, 255)",
+      "text": "변경 내용 확인"
+    }
+  ],
+  "content": {
+    "bottom": 832,
+    "height": 820,
+    "left": 12,
+    "right": 378,
+    "top": 12,
+    "width": 366,
+    "x": 12,
+    "y": 12
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 844,
+    "height": 844,
+    "left": 0,
+    "right": 390,
+    "top": 0,
+    "width": 390,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 380,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "INPUT"
+  },
+  "footer": {
+    "bottom": 831,
+    "height": 65,
+    "left": 13,
+    "right": 377,
+    "top": 766,
+    "width": 364,
+    "x": 13,
+    "y": 766
+  },
+  "header": {
+    "bottom": 68,
+    "height": 55,
+    "left": 13,
+    "right": 377,
+    "top": 13,
+    "width": 364,
+    "x": 13,
+    "y": 13
+  },
+  "height": 844,
+  "main": {
+    "bottom": 844,
+    "height": 643,
+    "left": 0,
+    "right": 380,
+    "top": 201,
+    "width": 380,
+    "x": 0,
+    "y": 201
+  },
+  "primaryButton": {
+    "bottom": 815,
+    "height": 32,
+    "left": 244.046875,
+    "right": 361,
+    "top": 783,
+    "width": 116.953125,
+    "x": 244.046875,
+    "y": 783
+  },
+  "width": 390,
+  "image_sha256": "322136c016bb7d891887235b24d0ced2ca6c8de935a673ec6cf9c0479561cc8f"
+}

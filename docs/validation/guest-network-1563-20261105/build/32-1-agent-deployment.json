@@ -1,0 +1,48 @@
+{
+  "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0.jar",
+  "backup": "/root/qa-gn1563-agent-backup-20261105-230016",
+  "beforeJarSha256": "bd4b8aa4a81fdb87376f27d29fbfa4749444257fd5547f2cbf32531c5bbed345",
+  "afterJarSha256": "965af095c3460b57a67a71d5b962c6e2a2b2763edbbacd3cfcd421336278a669",
+  "changedEntries": [
+    "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtReplugNicCommandWrapper.class"
+  ],
+  "classSha256": "a88f9f059d0ad0b91ddd5c86c4bd89ae2fb092a43fb0c203baa32bcd4c5231e2",
+  "preservedEntryCount": 532,
+  "oldPID": "3940700",
+  "newPID": "1202719",
+  "before": {
+    "runningDomainXml": {
+      "scvm": "76cf6f8ce4c0d49ac5692908ad65b392577bd9dfd4c3a4d120f9e14de2c3aefb",
+      "i-2-22-VM": "5ed1bbeaa04590f435919c61cb53b82005a9a425b7837938f7be4f1ce8df15cb",
+      "i-2-21-VM": "ac5537ebb514bec6ceeb4d5767d1508a7f1347918eb16e3ab6cdc19fcac39ac2",
+      "ccvm": "22d56d8818e809dbb48abcc49100d1469b6bb99a80e01b3dce4f9a861eccc65d",
+      "i-2-65-VM": "adceb8ad38e0938bed0fc723177b0e1952d2546de90febe1a4ea11a7d576aeda",
+      "i-2-156-VM": "0f7f84a41f96cd383abde49cbe85bfb6e0b7d9922bffae9cf917103b0789b12e",
+      "r-276-VM": "ae948e3026e392a22faf9544c56048912d7db09252983b8dc35d9c7ef4437c07",
+      "i-2-278-VM": "fce5f0393b5d5b45164d78ccfef9a9565d8a4c921c05be7a1cb3c5b75b9d73ba",
+      "i-2-279-VM": "dd4f83d3d55dc6a5cac323c0c94e6d50098993cba09747fb8b7ae3ecac32b9f6"
+    },
+    "protectedFiles": {
+      "/etc/libvirt/hooks/qemu": "8eb0b796c2d2608a9dc7f6c565cc6fc9d05460af97ddbade6faae10251854529",
+      "/usr/share/cloudstack-common/scripts/vm/network/vnet/modifyvlan.sh": "6ec5b77f25cd2bd9d4db1703cca5c7baddeef2768a02c54e6f854a8278733028"
+    }
+  },
+  "after": {
+    "runningDomainXml": {
+      "scvm": "76cf6f8ce4c0d49ac5692908ad65b392577bd9dfd4c3a4d120f9e14de2c3aefb",
+      "i-2-22-VM": "5ed1bbeaa04590f435919c61cb53b82005a9a425b7837938f7be4f1ce8df15cb",
+      "i-2-21-VM": "ac5537ebb514bec6ceeb4d5767d1508a7f1347918eb16e3ab6cdc19fcac39ac2",
+      "ccvm": "22d56d8818e809dbb48abcc49100d1469b6bb99a80e01b3dce4f9a861eccc65d",
+      "i-2-65-VM": "adceb8ad38e0938bed0fc723177b0e1952d2546de90febe1a4ea11a7d576aeda",
+      "i-2-156-VM": "0f7f84a41f96cd383abde49cbe85bfb6e0b7d9922bffae9cf917103b0789b12e",
+      "r-276-VM": "ae948e3026e392a22faf9544c56048912d7db09252983b8dc35d9c7ef4437c07",
+      "i-2-278-VM": "fce5f0393b5d5b45164d78ccfef9a9565d8a4c921c05be7a1cb3c5b75b9d73ba",
+      "i-2-279-VM": "dd4f83d3d55dc6a5cac323c0c94e6d50098993cba09747fb8b7ae3ecac32b9f6"
+    },
+    "protectedFiles": {
+      "/etc/libvirt/hooks/qemu": "8eb0b796c2d2608a9dc7f6c565cc6fc9d05460af97ddbade6faae10251854529",
+      "/usr/share/cloudstack-common/scripts/vm/network/vnet/modifyvlan.sh": "6ec5b77f25cd2bd9d4db1703cca5c7baddeef2768a02c54e6f854a8278733028"
+    }
+  },
+  "source": "ec33bbc53101a554c4c9c1beb6665df8cddea2eb"
+}

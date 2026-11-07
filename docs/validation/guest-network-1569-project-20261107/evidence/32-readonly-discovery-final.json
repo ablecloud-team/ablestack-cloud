@@ -1,0 +1,20 @@
+{
+  "listApis": {
+    "errorCode": 401,
+    "count": null,
+    "errorText": "The given command 'listApis' either does not exist, is not available for user.",
+    "writes": []
+  },
+  "listNetworks": {
+    "errorCode": 401,
+    "count": null,
+    "errorText": "The given command 'listNetworks' either does not exist, is not available for user.",
+    "writes": []
+  },
+  "listVirtualMachines": {
+    "errorCode": 401,
+    "count": null,
+    "errorText": "The given command 'listVirtualMachines' either does not exist, is not available for user.",
+    "writes": []
+  }
+}

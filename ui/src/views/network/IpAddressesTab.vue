@@ -16,26 +16,33 @@
 // under the License.
 
 <template>
-  <div>
-    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
+  <div class="network-ip-tab">
     <a-spin :spinning="fetchLoading">
-      <a-button
-        :disabled="!('associateIpAddress' in $store.getters.apis) || resource.type === 'Shared'"
-        type="dashed"
-        style="width: 100%; margin-bottom: 15px"
-        @click="onShowAcquireIp">
-        <template #icon><plus-outlined /></template>
-        {{ $t('label.acquire.new.ip') }}
-      </a-button>
-      <a-button
-        v-if="(('disassociateIpAddress' in $store.getters.apis) && this.selectedRowKeys.length > 0)"
-        type="primary"
-        danger
-        style="width: 100%; margin-bottom: 15px"
-        @click="bulkActionConfirmation()">
-        <template #icon><delete-outlined /></template>
-        {{ $t('label.action.bulk.release.public.ip.address') }}
-      </a-button>
+      <div class="network-ip-toolbar">
+        <a-button
+          v-if="!isShared || canAcquireIp"
+          :disabled="!canAcquireIp"
+          type="primary"
+          @click="onShowAcquireIp">
+          <template #icon><plus-outlined /></template>
+          {{ $t('label.acquire.new.ip') }}
+        </a-button>
+        <a-button
+          v-if="(('disassociateIpAddress' in $store.getters.apis) && this.selectedRowKeys.length > 0)"
+          type="primary"
+          danger
+          @click="bulkActionConfirmation()">
+          <template #icon><delete-outlined /></template>
+          {{ $t('label.action.bulk.release.public.ip.address') }}
+        </a-button>
+        <a-button v-if="!isShared" :loading="fetchLoading || listRefreshing > 0" @click="fetchData">
+          <template #icon><reload-outlined /></template>
+          {{ $t('label.refresh') }}
+        </a-button>
+        <tooltip-button v-else :tooltip="$t('label.refresh')" icon="reload-outlined" :loading="fetchLoading || listRefreshing > 0" @onClick="fetchData" />
+      </div>
+      <a-alert v-if="isShared" type="info" show-icon class="network-ip-refresh-alert" :message="$t('message.shared.guest.addresses')" />
+      <a-alert v-if="listRefreshFailed" role="status" type="warning" show-icon class="network-ip-refresh-alert" :message="$t('message.list.refresh.stale')" />
       <div v-if="$route.path.startsWith('/vpc')">
         {{ $t('label.select.tier') + ':' }}
         <a-select
@@ -60,33 +67,32 @@
       </div>
       <a-table
         size="small"
-        style="overflow-y: auto"
-        :columns="columns"
+        :scroll="{ x: 860 }"
+        :columns="visibleColumns"
         :dataSource="ips"
         :rowKey="item => item.id"
-        :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
+        :rowSelection="canReleaseIps ? { selectedRowKeys, onChange: onSelectChange, getCheckboxProps: record => ({ disabled: !releasableIp(record) }) } : null"
         :pagination="false" >
         <template #bodyCell="{ column, text, record }">
           <template v-if="column.key === 'ipaddress'">
             <router-link v-if="record.forvirtualnetwork === true" :to="{ path: '/publicip/' + record.id }" >{{ text }}&nbsp;</router-link>
             <div v-else>{{ text }}</div>
-            <template v-if="record.issourcenat === true">
+            <template v-if="!isShared && record.issourcenat === true">
               <a-tag>{{ $t('label.sourcenat') }}</a-tag>
             </template>
-            <template v-else-if="record.isstaticnat === true">
+            <template v-else-if="!isShared && record.isstaticnat === true">
               <a-tag>{{ $t('label.staticnat') }}</a-tag>
             </template>
-            <template v-else-if="record.hasrules === false">
+            <template v-else-if="!isShared && record.hasrules === false">
               <tooltip-button
-                v-if="record.forvirtualnetwork === true"
+                v-if="canChangeSourceNat(record)"
                 :tooltip="$t('label.action.set.as.source.nat.ip')"
                 type="primary"
                 :danger="false"
                 icon="aim-outlined"
-                :disabled="!('updateNetwork' in $store.getters.apis)"
                 @onClick="showChangeSourceNat(record)"></tooltip-button>
             </template>
-            <template v-else><!-- -if="record.hasrules === true" -->
+            <template v-else-if="!isShared && record.hasrules === true">
               <Tooltip placement="topLeft" :title="$t('message.sourcenatip.change.inhibited')" >
                 <a-tag>{{ $t('label.hasrules') }}</a-tag>
               </Tooltip>
@@ -98,8 +104,7 @@
           </template>
 
           <template v-if="column.key === 'virtualmachineid'">
-            <desktop-outlined v-if="record.virtualmachineid" />
-            <router-link :to="{ path: getVmRouteUsingType(record) + record.virtualmachineid }" > {{ record.virtualmachinename || record.virtualmachineid }} </router-link>
+            <network-ip-vm-link :record="record" />
           </template>
 
           <template v-if="column.key === 'associatednetworkname'">
@@ -109,12 +114,11 @@
 
           <template v-if="column.key === 'actions'">
             <tooltip-button
-              v-if="record.issourcenat !== true && record.forvirtualnetwork === true"
+              v-if="canReleaseIps && releasableIp(record)"
               :tooltip="$t('label.action.release.ip')"
               type="primary"
               :danger="true"
               icon="delete-outlined"
-              :disabled="!('disassociateIpAddress' in $store.getters.apis)"
               @onClick="releaseIpAddress(record)" />
           </template>
         </template>
@@ -136,56 +140,58 @@
         </template>
       </a-pagination>
     </a-spin>
-    <a-modal
+    <MoldDialog
       v-if="showAcquireIp"
-      :visible="showAcquireIp"
+      class="network-acquire-dialog"
+      size="md"
+      focus-guard
       :title="$t('label.acquire.new.ip')"
-      :closable="true"
-      :footer="null"
-      @cancel="onCloseModal"
-      centered
-      width="450px">
-      <a-spin :spinning="acquireLoading" v-ctrl-enter="acquireIpAddress">
-        <a-alert :message="$t('message.action.acquire.ip')" type="warning" />
-        <a-form layout="vertical" style="margin-top: 10px">
-          <a-form-item :label="$t('label.ipaddress')">
-            <infinite-scroll-select
-              v-focus="true"
-              v-model:value="acquireIp"
-              api="listPublicIpAddresses"
-              :apiParams="listApiParamsForAssociate"
-              resourceType="publicipaddress"
-              optionValueKey="ipaddress"
-              :optionLabelFn="ip => ip.ipaddress + ' (' + ip.state + ')'"
-              defaultIcon="environment-outlined"
-              :autoSelectFirstOption="true"
-              @change-option-value="(ip) => acquireIp = ip" />
-          </a-form-item>
-          <div :span="24" class="action-button">
-            <a-button @click="onCloseModal">{{ $t('label.cancel') }}</a-button>
-            <a-button ref="submit" type="primary" @click="acquireIpAddress">{{ $t('label.ok') }}</a-button>
-          </div>
-        </a-form>
-      </a-spin>
-    </a-modal>
-    <a-modal
-      v-if="changeSourceNat"
-      :title="$t('message.sourcenatip.change.warning')"
-      :visible="changeSourceNat"
-      :closable="true"
-      :footer="null"
-      @cancel="cancelChangeSourceNat"
-      centered
-      :disabled="!('updateNetwork' in $store.getters.apis)"
-      width="450px">
-      <template>
-        <a-alert :message="$t('message.sourcenatip.change.warning')" type="warning" />
+      :closable="!networkMutationSubmitting"
+      :keyboard="!networkMutationSubmitting"
+      @cancel="onCloseModal">
+      <a-alert :message="$t('message.action.acquire.ip')" type="warning" show-icon />
+      <NetworkMutationStatus :operation="networkMutation" @recheck="recheckNetworkMutation" />
+      <a-form layout="vertical" style="margin-top: 16px" v-ctrl-enter="acquireIpAddress">
+        <a-form-item :label="$t('label.ipaddress')">
+          <infinite-scroll-select
+            v-focus="true"
+            v-model:value="acquireIp"
+            api="listPublicIpAddresses"
+            :apiParams="listApiParamsForAssociate"
+            resourceType="publicipaddress"
+            optionValueKey="ipaddress"
+            :optionLabelFn="ip => ip.ipaddress + ' (' + ip.state + ')'"
+            defaultIcon="environment-outlined"
+            :autoSelectFirstOption="true"
+            :disabled="networkMutationBlocked"
+            @change-option-value="ip => acquireIp = ip" />
+        </a-form-item>
+      </a-form>
+      <template #footer>
+        <a-button :disabled="networkMutationSubmitting" @click="onCloseModal">{{ $t('label.cancel') }}</a-button>
+        <a-button ref="submit" type="primary" :loading="networkMutationBusy" :disabled="networkMutationBlocked" @click="acquireIpAddress">{{ $t('label.ok') }}</a-button>
       </template>
-      <div :span="24" class="action-button">
-        <a-button @click="cancelChangeSourceNat">{{ $t('label.cancel') }}</a-button>
-        <a-button ref="submit" type="primary" @click="setSourceNatIp(record)">{{ $t('label.ok') }}</a-button>
-      </div>
-    </a-modal>
+    </MoldDialog>
+    <MoldDialog
+      v-if="sourceNatIp"
+      class="network-source-nat-dialog"
+      size="md"
+      focus-guard
+      :title="$t('label.action.set.as.source.nat.ip')"
+      :closable="!networkMutationBlocked"
+      :keyboard="!networkMutationBlocked"
+      @cancel="cancelChangeSourceNat">
+      <a-descriptions bordered size="small" :column="1">
+        <a-descriptions-item :label="$t('label.ipaddress')">{{ sourceNatIp.ipaddress }}</a-descriptions-item>
+        <a-descriptions-item :label="$t('label.network')">{{ resource.name }}</a-descriptions-item>
+      </a-descriptions>
+      <a-alert class="network-source-nat-warning" :message="$t('message.sourcenatip.change.warning')" type="warning" show-icon />
+      <NetworkMutationStatus :operation="networkMutation" @recheck="recheckNetworkMutation" />
+      <template #footer>
+        <a-button :disabled="networkMutationBlocked" @click="cancelChangeSourceNat">{{ $t('label.cancel') }}</a-button>
+        <a-button type="primary" :loading="networkMutationBusy" :disabled="networkMutationBlocked || !canChangeSourceNat(sourceNatIp)" @click="setSourceNatIp">{{ $t('label.ok') }}</a-button>
+      </template>
+    </MoldDialog>
     <bulk-action-view
       v-if="showConfirmationAction || showGroupActionModal"
       :showConfirmationAction="showConfirmationAction"
@@ -206,22 +212,31 @@
 
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import { networkMutationMixin } from '@/utils/networkMutation'
+import { networkBusy } from '@/utils/networkLifecycle'
+import { publicIpService, usablePublicIp } from '@/utils/publicIpRules'
+import NetworkMutationStatus from '@/components/view/NetworkMutationStatus'
+import MoldDialog from '@/components/view/MoldDialog'
 
 import { getAPI, postAPI } from '@/api'
 import Status from '@/components/widgets/Status'
+import NetworkIpVmLink from '@/components/widgets/NetworkIpVmLink'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import BulkActionView from '@/components/view/BulkActionView'
 import eventBus from '@/config/eventBus'
 import InfiniteScrollSelect from '@/components/widgets/InfiniteScrollSelect'
 
 export default {
-  mixins: [listRefreshMixin(['fetchData'])],
+  mixins: [listRefreshMixin(['fetchData']), networkMutationMixin],
   name: 'IpAddressesTab',
   components: {
+    NetworkIpVmLink,
     Status,
     TooltipButton,
     BulkActionView,
-    InfiniteScrollSelect
+    InfiniteScrollSelect,
+    NetworkMutationStatus,
+    MoldDialog
   },
   props: {
     resource: {
@@ -258,46 +273,57 @@ export default {
       columns: [
         {
           key: 'ipaddress',
+          width: 210,
           title: this.$t('label.ipaddress'),
           dataIndex: 'ipaddress'
         },
         {
           key: 'state',
+          width: 100,
           title: this.$t('label.state'),
           dataIndex: 'state'
         },
         {
           key: 'virtualmachineid',
+          width: 220,
           title: this.$t('label.vm'),
           dataIndex: 'virtualmachineid'
         },
         {
           key: 'associatednetworkname',
+          width: 220,
           title: this.$t('label.network'),
           dataIndex: 'associatednetworkname'
         },
         {
           key: 'actions',
+          width: 70,
           title: ''
         }
       ],
       showAcquireIp: false,
       acquireLoading: false,
       acquireIp: null,
-      changeSourceNat: false,
+      sourceNatIp: null,
       zoneExtNetProvider: ''
     }
   },
-  async created () {
-    await this.fetchZones()
+  created () {
     this.fetchData()
   },
   watch: {
     resource: {
       deep: true,
-      handler (newItem) {
+      handler (newItem, previous) {
         if (!newItem || !newItem.id) {
           return
+        }
+        if (newItem.id !== previous?.id) {
+          this.ips = []
+          this.totalIps = 0
+          this.sourceNatIp = null
+          this.showAcquireIp = false
+          this.resetSelection()
         }
         this.fetchData()
       }
@@ -305,6 +331,18 @@ export default {
   },
   inject: ['parentFetchData'],
   computed: {
+    isShared () { return this.resource.type === 'Shared' },
+    visibleColumns () { return this.isShared ? this.columns.filter(column => column.key !== 'actions') : this.columns },
+    isVpc () { return this.$route.path.startsWith('/vpc') },
+    sourceNatCommand () { return this.isVpc ? 'updateVPC' : 'updateNetwork' },
+    canAcquireIp () {
+      return 'associateIpAddress' in this.$store.getters.apis && !this.networkMutationBlocked &&
+        !this.listRefreshFailed && !networkBusy(this.resource) && (this.isVpc || publicIpService(this.resource, 'SourceNat'))
+    },
+    canReleaseIps () {
+      return 'disassociateIpAddress' in this.$store.getters.apis && this.resource.type !== 'Shared' &&
+        !this.networkMutationBlocked && !this.listRefreshFailed && !networkBusy(this.resource)
+    },
     listApiParams () {
       const params = {
         zoneid: this.resource.zoneid,
@@ -325,7 +363,7 @@ export default {
     }
   },
   methods: {
-    fetchData () {
+    async fetchData () {
       const listRequest = this.listRequestToken('fetchData')
       const params = {
         listall: true,
@@ -346,49 +384,42 @@ export default {
       } else {
         params.associatednetworkid = this.resource.id
       }
-      if (['nsx', 'netris'].includes(this.zoneExtNetProvider?.toLowerCase())) {
-        params.forprovider = true
-      }
       this.fetchLoading = !listRequest.loaded
-      return getAPI('listPublicIpAddresses', params).then(json => {
+      try {
+        if (!this.isShared) {
+          const zones = await getAPI('listZones', { id: this.resource.zoneid }, { preserveOnFailure: true })
+          if (!this.isListRequestCurrent('fetchData', listRequest)) return
+          this.zoneExtNetProvider = zones?.listzonesresponse?.zone?.[0]?.provider || null
+          if (['nsx', 'netris'].includes(this.zoneExtNetProvider?.toLowerCase())) params.forprovider = true
+        }
+        const json = await getAPI('listPublicIpAddresses', params, { preserveOnFailure: true })
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
-
         this.totalIps = json.listpublicipaddressesresponse.count || 0
         this.ips = json.listpublicipaddressesresponse.publicipaddress || []
-      }).finally(() => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
-
-        this.fetchLoading = false
-      }).catch(error => {
+        const ids = this.selectedRowKeys.filter(id => this.ips.some(ip => ip.id === id && this.releasableIp(ip)))
+        if (ids.length !== this.selectedRowKeys.length && !this.showGroupActionModal) this.setSelection(ids)
+      } catch (error) {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
         listRequest.failed = true
         this.listRefreshFailed = true
         if (!listRequest.loaded) this.$notifyError(error)
-      }).finally(() => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
-        this.fetchLoading = false
-      })
+      } finally {
+        if (this.isListRequestCurrent('fetchData', listRequest)) this.fetchLoading = false
+      }
     },
-    fetchZones () {
-      return new Promise((resolve, reject) => {
-        getAPI('listZones', {
-          id: this.resource.zoneid
-        }).then(json => {
-          this.zoneExtNetProvider = json?.listzonesresponse?.zone?.[0]?.provider || null
-          resolve(this.zoneExtNetProvider)
-        }).catch(reject)
-      })
+    releasableIp (ip) {
+      return usablePublicIp(ip) && ip.forvirtualnetwork === true && !ip.issourcenat &&
+        (this.isVpc ? ip.vpcid === this.resource.id : ip.associatednetworkid === this.resource.id)
     },
-    fetchListPublicIpAddress (state) {
-      return new Promise((resolve, reject) => {
-        getAPI('listPublicIpAddresses', this.listApiParams).then(json => {
-          const listPublicIps = json.listpublicipaddressesresponse.publicipaddress || []
-          resolve(listPublicIps)
-        }).catch(reject)
-      })
+    canChangeSourceNat (ip) {
+      return this.releasableIp(ip) && !ip.isstaticnat && ip.hasrules === false && !this.listRefreshFailed &&
+        this.sourceNatCommand in this.$store.getters.apis && !networkBusy(this.resource) &&
+        (this.isVpc || publicIpService(this.resource, 'SourceNat'))
     },
     handleTierSelect (tier) {
       this.vpcTier = tier
+      this.page = 1
+      this.resetSelection()
       this.fetchData()
     },
     setSelection (selection) {
@@ -398,110 +429,52 @@ export default {
         return selection.indexOf(item.id) !== -1
       }))
     },
-    setSourceNatIp (ipaddress) {
-      if (this.settingsourcenat) return
-      if (this.$route.path.startsWith('/vpc')) {
-        this.updateVpc(ipaddress)
-      } else {
-        this.updateNetwork(ipaddress)
-      }
-    },
-    updateNetwork (ipaddress) {
-      const params = {}
-      params.sourcenatipaddress = this.sourceNatIp.ipaddress
-      params.id = this.resource.id
-      this.settingsourcenat = true
-      postAPI('updateNetwork', params).then(response => {
-        this.fetchData()
-      }).catch(error => {
-        this.$notification.error({
-          message: `${this.$t('label.error')} ${error.response.status}`,
-          description: error.response.data.updatenetworkresponse.errortext || error.response.data.errorresponse.errortext,
-          duration: 0
-        })
-      }).finally(() => {
-        this.settingsourcenat = false
-        this.cancelChangeSourceNat()
-      })
-    },
-    updateVpc (ipaddress) {
-      const params = {}
-      params.sourcenatipaddress = this.sourceNatIp.ipaddress
-      params.id = this.resource.id
-      this.settingsourcenat = true
-      postAPI('updateVPC', params).then(response => {
-        this.fetchData()
-      }).catch(error => {
-        this.$notification.error({
-          message: `${this.$t('label.error')} ${error.response.status}`,
-          description: error.response.data.updatevpcresponse.errortext || error.response.data.errorresponse.errortext,
-          duration: 0
-        })
-      }).finally(() => {
-        this.settingsourcenat = false
-        this.cancelChangeSourceNat()
+    async setSourceNatIp () {
+      const ip = this.ips.find(row => row.id === this.sourceNatIp?.id)
+      if (!ip || !this.canChangeSourceNat(ip) || this.networkMutationBlocked) return
+      await this.submitNetworkMutation(this.sourceNatCommand, {
+        id: this.resource.id,
+        sourcenatipaddress: ip.ipaddress
+      }, async () => {
+        await this.fetchData()
+        this.sourceNatIp = null
       })
     },
     resetSelection () {
       this.setSelection([])
     },
     onSelectChange (selectedRowKeys, selectedRows) {
-      this.setSelection(selectedRowKeys)
+      this.setSelection(selectedRowKeys.filter(id => this.ips.some(ip => ip.id === id && this.releasableIp(ip))))
     },
     changePage (page, pageSize) {
+      this.resetSelection()
       this.page = page
       this.pageSize = pageSize
       this.fetchData()
     },
     changePageSize (currentPage, pageSize) {
+      this.resetSelection()
       this.page = currentPage
       this.pageSize = pageSize
       this.fetchData()
     },
     bulkActionConfirmation () {
+      if (!this.canReleaseIps || !this.selectedItems.length) return
       this.showConfirmationAction = true
       this.selectedColumns = this.columns.filter(column => {
         return !this.filterColumns.includes(column.title)
       })
       this.selectedItems = this.selectedItems.map(v => ({ ...v, status: 'InProgress' }))
     },
-    acquireIpAddress () {
-      if (this.acquireLoading) return
-      const params = {}
-      if (this.$route.path.startsWith('/vpc')) {
-        params.vpcid = this.resource.id
-        if (this.vpcTier) {
-          params.networkid = this.vpcTier
-        }
-      } else {
-        params.networkid = this.resource.id
-      }
+    async acquireIpAddress () {
+      if (!this.canAcquireIp) return
+      const params = this.$route.path.startsWith('/vpc')
+        ? { vpcid: this.resource.id, ...(this.vpcTier ? { networkid: this.vpcTier } : {}) }
+        : { networkid: this.resource.id }
       params.ipaddress = this.acquireIp
-      this.acquireLoading = true
-
-      postAPI('associateIpAddress', params).then(response => {
-        this.$pollJob({
-          jobId: response.associateipaddressresponse.jobid,
-          successMessage: `${this.$t('message.success.acquire.ip')} ${this.$t('label.for')} ${this.resource.name}`,
-          successMethod: () => {
-            this.fetchData()
-          },
-          errorMessage: this.$t('message.acquire.ip.failed'),
-          errorMethod: () => {
-            this.fetchData()
-          },
-          loadingMessage: `${this.$t('label.acquiring.ip')} ${this.$t('label.for')} ${this.resource.name} ${this.$t('label.is.in.progress')}`,
-          catchMessage: this.$t('error.fetching.async.job.result')
-        })
-        this.onCloseModal()
-      }).catch(error => {
-        this.$notification.error({
-          message: this.$t('message.request.failed'),
-          description: (error.response && error.response.headers && error.response.headers['x-description']) || error.message,
-          duration: 0
-        })
-      }).finally(() => {
-        this.acquireLoading = false
+      return this.submitNetworkMutation('associateIpAddress', params, async () => {
+        this.showAcquireIp = false
+        await this.fetchData()
       })
     },
     handleCancel () {
@@ -512,8 +485,10 @@ export default {
       this.selectedRowKeys = []
       this.parentFetchData()
     },
-    releaseIpAddresses (e) {
+    releaseIpAddresses () {
       this.showConfirmationAction = false
+      if (!this.canReleaseIps) return
+      this.selectedItems = this.selectedItems.filter(ip => this.ips.some(row => row.id === ip.id && this.releasableIp(row)))
       this.selectedColumns.splice(0, 0, {
         key: 'status',
         dataIndex: 'status',
@@ -524,7 +499,7 @@ export default {
           { text: 'Failed', value: 'failed' }
         ]
       })
-      if (this.selectedRowKeys.length > 0) {
+      if (this.selectedItems.length > 0) {
         this.showGroupActionModal = true
       }
       for (const ip of this.selectedItems) {
@@ -532,6 +507,7 @@ export default {
       }
     },
     releaseIpAddress (ip) {
+      if (!this.canReleaseIps || !this.releasableIp(ip)) return
       this.fetchLoading = true
       postAPI('disassociateIpAddress', {
         id: ip.id
@@ -569,35 +545,35 @@ export default {
         })
       })
     },
-    getVmRouteUsingType (record) {
-      switch (record.virtualmachinetype) {
-        case 'DomainRouter' : return '/router/'
-        case 'ConsoleProxy' :
-        case 'SecondaryStorageVm': return '/systemvm/'
-        default: return '/vm/'
-      }
-    },
     async onShowAcquireIp () {
+      if (!this.canAcquireIp) return
+      if (this.networkMutation?.status === 'success') { this.resetNetworkMutation(); this.acquireIp = null }
       this.showAcquireIp = true
     },
     onCloseModal () {
-      this.showAcquireIp = false
+      if (!this.networkMutationSubmitting) this.showAcquireIp = false
     },
     closeModal () {
       this.showConfirmationAction = false
     },
-    showChangeSourceNat (ipaddress) {
-      this.changeSourceNat = true
-      this.sourceNatIp = ipaddress
+    showChangeSourceNat (ip) {
+      if (!this.canChangeSourceNat(ip) || this.networkMutationBlocked) return
+      this.resetNetworkMutation()
+      this.sourceNatIp = ip
     },
     cancelChangeSourceNat () {
-      this.changeSourceNat = false
+      if (!this.networkMutationBlocked) this.sourceNatIp = null
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.network-ip-tab { min-width: 0; }
+.network-ip-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.network-ip-refresh-alert { margin-bottom: 16px; }
+.network-source-nat-warning { margin: 16px 0; }
+
 .list {
     max-height: 95vh;
     width: 95vw;

@@ -1,0 +1,17 @@
+{
+  "prefix": "qa-gn1564-32",
+  "networks": 7,
+  "vms": 1,
+  "routers": 1,
+  "actors": 2,
+  "projects": 1,
+  "domains": 1,
+  "activeResiduals": {
+    "routers": 0,
+    "userVms": 0,
+    "volumes": 0,
+    "networks": 0,
+    "networkNics": 0
+  },
+  "status": "PASS"
+}

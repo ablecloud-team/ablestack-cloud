@@ -1,0 +1,16 @@
+{
+  "syntheticInterceptionRemoved": true,
+  "viewportOverridesRemoved": true,
+  "theme": "light",
+  "tabs": [
+    {
+      "cluster": 31,
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/dc162011-420a-4207-aced-c7a2a77bdd56?tab=public.ip.addresses"
+    },
+    {
+      "cluster": 32,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/74da0389-6849-4e0d-acaf-229740f0c149?tab=public.ip.addresses"
+    }
+  ],
+  "matrixConditions": 24
+}

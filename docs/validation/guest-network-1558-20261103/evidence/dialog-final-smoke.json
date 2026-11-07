@@ -1,0 +1,18 @@
+[
+  {
+    "cluster": 31,
+    "type": "L2",
+    "width": 1280,
+    "height": 900,
+    "body_overflow": 0,
+    "footer_bottom": 803
+  },
+  {
+    "cluster": 32,
+    "type": "L2",
+    "width": 390,
+    "height": 844,
+    "body_overflow": 0,
+    "footer_bottom": 778
+  }
+]

@@ -1,0 +1,104 @@
+{
+  "body": {
+    "bottom": 862,
+    "height": 710,
+    "left": 25,
+    "right": 743,
+    "top": 152,
+    "width": 718,
+    "x": 25,
+    "y": 152
+  },
+  "bodyClientHeight": 710,
+  "bodyClientWidth": 708,
+  "bodyScrollHeight": 1501,
+  "bodyScrollTop": 658,
+  "bodyScrollWidth": 708,
+  "colors": [
+    {
+      "background": "rgba(250, 173, 20, 0.14)",
+      "color": "rgb(255, 231, 163)",
+      "text": "VPC 네트워크 오퍼링은 VPC 안에 네트워크를 생성할 때 사용할 수 있습니다."
+    },
+    {
+      "background": "rgba(255, 77, 79, 0.14)",
+      "color": "rgb(255, 210, 210)",
+      "text": "서비스·제공자 구성이 맞지 않아 적용할 수 없습니다. 다른 오퍼링을 선택하거나 관리자에게 아래 구성을 확인해 주세요."
+    },
+    {
+      "background": "rgb(85, 85, 85)",
+      "color": "rgba(255, 255, 255, 0.65)",
+      "text": "확인"
+    }
+  ],
+  "content": {
+    "bottom": 928,
+    "height": 832,
+    "left": 24,
+    "right": 744,
+    "top": 96,
+    "width": 720,
+    "x": 24,
+    "y": 96
+  },
+  "dark": true,
+  "dialog": {
+    "bottom": 1024,
+    "height": 1024,
+    "left": 0,
+    "right": 768,
+    "top": 0,
+    "width": 768,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 758,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "INPUT"
+  },
+  "footer": {
+    "bottom": 927,
+    "height": 65,
+    "left": 25,
+    "right": 743,
+    "top": 862,
+    "width": 718,
+    "x": 25,
+    "y": 862
+  },
+  "header": {
+    "bottom": 152,
+    "height": 55,
+    "left": 25,
+    "right": 743,
+    "top": 97,
+    "width": 718,
+    "x": 25,
+    "y": 97
+  },
+  "height": 1024,
+  "main": {
+    "bottom": 1024,
+    "height": 841,
+    "left": 80,
+    "right": 758,
+    "top": 183,
+    "width": 678,
+    "x": 80,
+    "y": 183
+  },
+  "primaryButton": {
+    "bottom": 911,
+    "height": 32,
+    "left": 657.234375,
+    "right": 715,
+    "top": 879,
+    "width": 57.765625,
+    "x": 657.234375,
+    "y": 879
+  },
+  "width": 768,
+  "image_sha256": "6266caf36821d270314ab4ff1cbfa8fcf245f64ff21c7241bd699a6971ae866d"
+}

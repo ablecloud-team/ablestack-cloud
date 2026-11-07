@@ -1,0 +1,98 @@
+{
+  "sourceIp": {
+    "id": "04de4618-4265-4bfc-9b4c-95bc88ac1c2c",
+    "ipaddress": "10.10.32.166",
+    "state": "Allocated",
+    "issourcenat": true,
+    "isstaticnat": false,
+    "issystem": false,
+    "hasrules": true,
+    "virtualmachineid": null,
+    "vmipaddress": null,
+    "associatednetworkid": "c2609e60-027e-4611-96a2-854e8e02c601"
+  },
+  "rulesIp": {
+    "id": "3718e606-1ab1-48db-a660-7486d8dfc172",
+    "ipaddress": "10.10.32.165",
+    "state": "Allocated",
+    "issourcenat": false,
+    "isstaticnat": false,
+    "issystem": false,
+    "hasrules": true,
+    "virtualmachineid": null,
+    "vmipaddress": null,
+    "associatednetworkid": "c2609e60-027e-4611-96a2-854e8e02c601"
+  },
+  "natIp": {
+    "id": "5b6fd789-f97f-4d64-bbc4-1b465488a45b",
+    "ipaddress": "10.10.32.164",
+    "state": "Allocated",
+    "issourcenat": false,
+    "isstaticnat": true,
+    "issystem": false,
+    "hasrules": false,
+    "virtualmachineid": "d1d6c031-2365-496f-9777-04d60d838ade",
+    "vmipaddress": "10.179.32.67",
+    "associatednetworkid": "c2609e60-027e-4611-96a2-854e8e02c601"
+  },
+  "vpnIp": {
+    "id": "a224e269-d6eb-4b4a-8130-bf2f8927f1c9",
+    "ipaddress": "10.10.32.163",
+    "state": "Allocated",
+    "issourcenat": false,
+    "isstaticnat": false,
+    "issystem": false,
+    "hasrules": false,
+    "virtualmachineid": null,
+    "vmipaddress": null,
+    "associatednetworkid": "c2609e60-027e-4611-96a2-854e8e02c601"
+  },
+  "firewall": [
+    {
+      "id": "5181108a-221d-4b86-9bd6-0a233c65c2e4",
+      "protocol": "tcp",
+      "startport": 49171,
+      "endport": 49171,
+      "cidrlist": "192.0.2.0/24",
+      "state": "Active"
+    }
+  ],
+  "pf": [
+    {
+      "id": "4114de98-f998-445a-ab96-a166b98472b2",
+      "protocol": "tcp",
+      "publicport": "49172",
+      "privateport": "22",
+      "virtualmachineid": "d1d6c031-2365-496f-9777-04d60d838ade",
+      "vmguestip": "10.179.32.67",
+      "state": "Active"
+    }
+  ],
+  "lb": [
+    {
+      "id": "2e3d273b-614c-4a9a-830a-9b0698f45d79",
+      "name": "qa-gn1573-32-lb",
+      "protocol": "tcp",
+      "publicport": "49173",
+      "privateport": "22",
+      "algorithm": "roundrobin",
+      "state": "Active",
+      "targets": [
+        {
+          "vm": "d1d6c031-2365-496f-9777-04d60d838ade",
+          "ips": [
+            "10.179.32.106"
+          ]
+        }
+      ]
+    }
+  ],
+  "vpn": [
+    {
+      "id": "8413c6e7-b8db-42bd-ab02-0b0e26cfaa05",
+      "publicip": "10.10.32.166",
+      "state": "Running",
+      "iprange": "10.1.2.2-10.1.2.8"
+    }
+  ]
+}

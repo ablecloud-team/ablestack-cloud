@@ -1,0 +1,94 @@
+{
+  "body": {
+    "bottom": 604,
+    "height": 318,
+    "left": 161,
+    "right": 1119,
+    "top": 286,
+    "width": 958,
+    "x": 161,
+    "y": 286
+  },
+  "bodyClientHeight": 318,
+  "bodyClientWidth": 958,
+  "bodyScrollHeight": 318,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 958,
+  "colors": [
+    {
+      "background": "rgb(9, 105, 218)",
+      "color": "rgb(255, 255, 255)",
+      "text": "실패 항목 재시도 (1)"
+    }
+  ],
+  "content": {
+    "bottom": 670,
+    "height": 440,
+    "left": 160,
+    "right": 1120,
+    "top": 230,
+    "width": 960,
+    "x": 160,
+    "y": 230
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1280,
+    "top": 0,
+    "width": 1280,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": {
+    "bottom": 669,
+    "height": 65,
+    "left": 161,
+    "right": 1119,
+    "top": 604,
+    "width": 958,
+    "x": 161,
+    "y": 604
+  },
+  "header": {
+    "bottom": 286,
+    "height": 55,
+    "left": 161,
+    "right": 1119,
+    "top": 231,
+    "width": 958,
+    "x": 161,
+    "y": 231
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 749,
+    "left": 256,
+    "right": 1270,
+    "top": 151,
+    "width": 1014,
+    "x": 256,
+    "y": 151
+  },
+  "primaryButton": {
+    "bottom": 653,
+    "height": 32,
+    "left": 941.328125,
+    "right": 1091,
+    "top": 621,
+    "width": 149.671875,
+    "x": 941.328125,
+    "y": 621
+  },
+  "width": 1280,
+  "image_sha256": "31023c63bf0e91ec203371f93980b22a54c2322ab419c5a98fc755f7c2d8ad82"
+}

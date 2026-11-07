@@ -1,0 +1,19 @@
+{
+  "changedEntries": [
+    "org/apache/cloudstack/api/response/NetworkOfferingResponse.class",
+    "com/cloud/network/HAProxyConfigurator.class",
+    "com/cloud/configuration/ConfigurationManagerImpl.class",
+    "com/cloud/api/query/dao/NetworkOfferingJoinDaoImpl.class"
+  ],
+  "preservedEntries": 204653,
+  "classSha256": {
+    "org/apache/cloudstack/api/response/NetworkOfferingResponse.class": "c05722e3c1d1c6748f0d32c6b4f9e9cee1ebe2cb57d35c07380dff23ff199207",
+    "com/cloud/api/query/dao/NetworkOfferingJoinDaoImpl.class": "665155dbaa7190b2647325c11e79648e0ede22971388126a5cae1572ac11fe1d",
+    "com/cloud/configuration/ConfigurationManagerImpl.class": "bcd1e46eefb7c520072b70118825948bcf1d3d5fc716679930c7fd493fe47ea5",
+    "com/cloud/network/HAProxyConfigurator.class": "1b43c720dc01eaae937cb23ba86140e0c37572d6535a94ad6c4e454813bc4585"
+  },
+  "oldJarSha256": "623e7c2d738347b9e1eb3ef630cb3e2cd4a94ef3e1aff6aaa206db003ac52350",
+  "newJarSha256": "7431b7c72b0f7c062a7ded600b3946ab36447e11ad16ddda416f17d98b802ca0",
+  "module": "cloud-server",
+  "sourceHead": "df1120d6392fdef58f64817ec9debe7d2ffdae8e"
+}

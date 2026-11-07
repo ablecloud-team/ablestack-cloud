@@ -1,0 +1,290 @@
+[
+  {
+    "label": "31-vm-list-standard-reference",
+    "width": 1280,
+    "height": 900,
+    "dark": false,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "path": "#/vm?keyword=qa-gn1576",
+    "sha256": "8ca10b83663e345f59d041bf128fa2aca7f3b122603b8533790df4fed6b2bbb4",
+    "colors": []
+  },
+  {
+    "label": "31-l2-create-tablet-light",
+    "width": 768,
+    "height": 1024,
+    "dark": false,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "path": "#/networkoffering?keyword=qa-gn1576",
+    "sha256": "f70b6a1e0cc2d1bdb718e50838863e256224a542726d5fce44950ef4c84f9bcc",
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "취소"
+      },
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "확인"
+      }
+    ]
+  },
+  {
+    "label": "31-isolated-clone-default-light",
+    "width": 1280,
+    "height": 900,
+    "dark": false,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "path": "#/networkoffering/d2382ff5-39d5-45c9-a188-852f31fb110a",
+    "sha256": "889593ae5fc8228e5c2fa0ed96f7374a42a3456d46662a87ef0adf36d33b02f8",
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "기본 복제는 원본의 서비스, 제공자와 접근 설정을 이어받습니다. 새 오퍼링의 가용성은 선택 사항으로 시작합니다. 같은 게스트 네트워크 유형의 설정을 바꾸려면 변경을 켜세요."
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "fontSize": "14px",
+        "text": "취소"
+      },
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "확인"
+      }
+    ]
+  },
+  {
+    "label": "32-l2-create-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "dark": true,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "path": "#/networkoffering?keyword=qa-gn1576",
+    "sha256": "80e20ecaf0b9e6a23c1891eb96abfbdaa91321c627157987f23bea665e4d473c",
+    "colors": [
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "취소"
+      },
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "확인"
+      }
+    ]
+  },
+  {
+    "label": "32-isolated-clone-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "dark": true,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "path": "#/networkoffering/05ecbd13-da61-482e-8700-be65dd8bb947",
+    "sha256": "5eccae3fec0583d4298ab263b3517e20c9c0ac792260990a1c8de222be006e57",
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "기본 복제는 원본의 서비스, 제공자와 접근 설정을 이어받습니다. 새 오퍼링의 가용성은 선택 사항으로 시작합니다. 같은 게스트 네트워크 유형의 설정을 바꾸려면 변경을 켜세요."
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "취소"
+      },
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "확인"
+      }
+    ]
+  },
+  {
+    "label": "32-shared-clone-tablet-dark",
+    "width": 768,
+    "height": 1024,
+    "dark": true,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "path": "#/networkoffering/da3b9962-36d5-440f-8352-423fd5de28c2",
+    "sha256": "28fe6d002ee2be00839e62c1ca088160952e2547f69d96980235655aeb5dbd0e",
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "기본 복제는 원본의 서비스, 제공자와 접근 설정을 이어받습니다. 새 오퍼링의 가용성은 선택 사항으로 시작합니다. 같은 게스트 네트워크 유형의 설정을 바꾸려면 변경을 켜세요."
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "Vpn"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "Dhcp"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "Dns"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "Firewall"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "Lb"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "UserData"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "SourceNat"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "StaticNat"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "PortForwarding"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "SecurityGroup"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "NetworkACL"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "Connectivity"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "CustomAction"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "text": "BaremetalPxeService"
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "fontSize": "14px",
+        "text": "취소"
+      },
+      {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "14px",
+        "text": "확인"
+      }
+    ]
+  },
+  {
+    "label": "31-services-desktop-light",
+    "width": 1280,
+    "height": 900,
+    "dark": false,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "path": "#/networkoffering/6ead1117-db83-444c-ae96-b445e55b699b?tab=offering.service.configuration",
+    "sha256": "cee718808f0473dbdadfe6bf06b05a18b36795cdc34e7da97b99e36496c6478b",
+    "colors": []
+  },
+  {
+    "label": "31-usage-tablet-light",
+    "width": 768,
+    "height": 1024,
+    "dark": false,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "path": "#/networkoffering/6ead1117-db83-444c-ae96-b445e55b699b?tab=network.offering.used.networks",
+    "sha256": "5490a7087c053539968951b186e4be84c8a15626ca91b6551496d76b1e26d81a",
+    "colors": []
+  },
+  {
+    "label": "32-usage-desktop-dark",
+    "width": 1280,
+    "height": 900,
+    "dark": true,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "path": "#/networkoffering/08777c92-e5c9-4661-b411-0e982a3684f3?tab=network.offering.used.networks",
+    "sha256": "6b5b851f7be9fb0ebb5ecbb471017c9f0cc3539d5218a380e6813b469a91b502",
+    "colors": []
+  },
+  {
+    "label": "32-offerings-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "dark": true,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "path": "#/networkoffering?keyword=qa-gn1576",
+    "sha256": "f20fbe319b528155b3457c227f802c4733f03f4806752f8b65dabfdad512196b",
+    "colors": []
+  },
+  {
+    "label": "32-services-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "dark": true,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "path": "#/networkoffering/08777c92-e5c9-4661-b411-0e982a3684f3?tab=offering.service.configuration",
+    "sha256": "4420a136b0ad9b0c905ce4a006cc4ecfbf1204fb20f0fac14601f57b8e83202c",
+    "colors": []
+  }
+]

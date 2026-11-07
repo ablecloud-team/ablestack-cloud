@@ -1,0 +1,107 @@
+{
+  "listNetworks": {
+    "existing_count": 22,
+    "missing": [],
+    "changed": []
+  },
+  "listNetworkOfferings": {
+    "existing_count": 24,
+    "missing": [],
+    "changed": []
+  },
+  "listVirtualMachines": {
+    "existing_count": 121,
+    "missing": [],
+    "changed": []
+  },
+  "listRouters": {
+    "existing_count": 12,
+    "missing": [],
+    "changed": []
+  },
+  "listPhysicalNetworks": {
+    "existing_count": 1,
+    "missing": [],
+    "changed": []
+  },
+  "listVPCs": {
+    "existing_count": 1,
+    "missing": [],
+    "changed": []
+  },
+  "ui_jobs": [
+    {
+      "trace": "31-ui-trace-detach-nic.json",
+      "command": "removeNicFromVirtualMachine",
+      "jobid": "645b4f34-1dce-4d66-9a47-0e3aaaef56e1",
+      "status": 1,
+      "error": null
+    },
+    {
+      "trace": "31-ui-trace-reboot.json",
+      "command": "rebootVirtualMachine",
+      "jobid": "54a5e455-5f4a-42b4-892b-d501d92a8f6b",
+      "status": 1,
+      "error": null
+    }
+  ],
+  "hosts": {
+    "1": {
+      "classes": {
+        "com/cloud/hypervisor/kvm/resource/BridgeVifDriver.class": "4f27594d054128b8fe8afeff4032c537db79cd469a2dc073c252f3cca5396791",
+        "com/cloud/hypervisor/kvm/resource/IvsVifDriver.class": "14b4494e2683076d19ee5393565084ec0857033c8be214c28c4a7872ec10fc61",
+        "com/cloud/hypervisor/kvm/resource/VlanBridgeName.class": "9f9bedba44bca871266f8371a6ac96d6a30648b0ed2f1aea13e6bde354097d8a",
+        "com/cloud/hypervisor/kvm/resource/LibvirtComputingResource.class": "0ed55b6ab94974d5deda4b48652d41cec3a0e7e1e3f55056fe3826006ef5811f"
+      },
+      "script_sha256": "6ec5b77f25cd2bd9d4db1703cca5c7baddeef2768a02c54e6f854a8278733028",
+      "hook_sha256": "8eb0b796c2d2608a9dc7f6c565cc6fc9d05460af97ddbade6faae10251854529",
+      "service": "active",
+      "existing_domains_preserved": 38,
+      "missing_domains": [],
+      "changed_domain_xml": [],
+      "backup": "/root/qa-gn1580-backup-20261104-160147",
+      "other_jar_entries_preserved": 531,
+      "hook_functions_preserved": 20
+    },
+    "2": {
+      "classes": {
+        "com/cloud/hypervisor/kvm/resource/BridgeVifDriver.class": "4f27594d054128b8fe8afeff4032c537db79cd469a2dc073c252f3cca5396791",
+        "com/cloud/hypervisor/kvm/resource/IvsVifDriver.class": "14b4494e2683076d19ee5393565084ec0857033c8be214c28c4a7872ec10fc61",
+        "com/cloud/hypervisor/kvm/resource/VlanBridgeName.class": "9f9bedba44bca871266f8371a6ac96d6a30648b0ed2f1aea13e6bde354097d8a",
+        "com/cloud/hypervisor/kvm/resource/LibvirtComputingResource.class": "0ed55b6ab94974d5deda4b48652d41cec3a0e7e1e3f55056fe3826006ef5811f"
+      },
+      "script_sha256": "6ec5b77f25cd2bd9d4db1703cca5c7baddeef2768a02c54e6f854a8278733028",
+      "hook_sha256": "8eb0b796c2d2608a9dc7f6c565cc6fc9d05460af97ddbade6faae10251854529",
+      "service": "active",
+      "existing_domains_preserved": 33,
+      "missing_domains": [],
+      "changed_domain_xml": [],
+      "backup": "/root/qa-gn1580-backup-20261104-160151",
+      "other_jar_entries_preserved": 531,
+      "hook_functions_preserved": 20
+    },
+    "3": {
+      "classes": {
+        "com/cloud/hypervisor/kvm/resource/BridgeVifDriver.class": "4f27594d054128b8fe8afeff4032c537db79cd469a2dc073c252f3cca5396791",
+        "com/cloud/hypervisor/kvm/resource/IvsVifDriver.class": "14b4494e2683076d19ee5393565084ec0857033c8be214c28c4a7872ec10fc61",
+        "com/cloud/hypervisor/kvm/resource/VlanBridgeName.class": "9f9bedba44bca871266f8371a6ac96d6a30648b0ed2f1aea13e6bde354097d8a",
+        "com/cloud/hypervisor/kvm/resource/LibvirtComputingResource.class": "0ed55b6ab94974d5deda4b48652d41cec3a0e7e1e3f55056fe3826006ef5811f"
+      },
+      "script_sha256": "6ec5b77f25cd2bd9d4db1703cca5c7baddeef2768a02c54e6f854a8278733028",
+      "hook_sha256": "8eb0b796c2d2608a9dc7f6c565cc6fc9d05460af97ddbade6faae10251854529",
+      "service": "active",
+      "existing_domains_preserved": 39,
+      "missing_domains": [],
+      "changed_domain_xml": [],
+      "backup": "/root/qa-gn1580-backup-20261104-160156",
+      "other_jar_entries_preserved": 531,
+      "hook_functions_preserved": 20
+    }
+  },
+  "management": {
+    "WEB_INF": true,
+    "index_sha256": "186bfefb5d738ff26b7bfc62adb5421989f80e1a37360a9a1c281ada302d0f43",
+    "management_jar_sha256": "58d8aaf66db1c5c68dca70bfdac064dfce55a9928ef764e3279ab2a56f674561",
+    "http": "200"
+  }
+}

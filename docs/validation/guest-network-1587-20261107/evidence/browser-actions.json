@@ -1,0 +1,184 @@
+[
+  {
+    "cluster": 31,
+    "role": "admin",
+    "action": "return-default",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "admin",
+    "action": "switch-project",
+    "completed": true
+  },
+  {
+    "cluster": 32,
+    "role": "admin",
+    "action": "return-default-and-switch-project",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "admin",
+    "action": "create-l2",
+    "completed": true,
+    "name": "qa-gn1569-31-prj-1587-l2"
+  },
+  {
+    "cluster": 32,
+    "role": "admin",
+    "action": "create-l2",
+    "completed": true,
+    "name": "qa-gn1569-32-prj-1587-l2"
+  },
+  {
+    "cluster": 31,
+    "role": "admin",
+    "action": "update-l2",
+    "completed": true,
+    "description": "UI1587 saved 31"
+  },
+  {
+    "cluster": 32,
+    "role": "admin",
+    "action": "update-l2",
+    "completed": true,
+    "description": "UI1587 saved 32"
+  },
+  {
+    "cluster": 31,
+    "role": "admin",
+    "action": "tabs-and-breadcrumb",
+    "completed": true
+  },
+  {
+    "cluster": 32,
+    "role": "admin",
+    "action": "tabs-and-breadcrumb",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "admin",
+    "action": "nic-attach",
+    "completed": true,
+    "defaultNicPreserved": true
+  },
+  {
+    "cluster": 32,
+    "role": "admin",
+    "action": "nic-attach",
+    "completed": true,
+    "defaultNicPreserved": true
+  },
+  {
+    "cluster": 31,
+    "role": "admin",
+    "action": "theme-light-to-dark",
+    "completed": true,
+    "url": "http://10.10.31.10:8080/client/#/vm/625141be-7145-4557-9d8f-731500c61cb0?tab=nics"
+  },
+  {
+    "cluster": 32,
+    "role": "admin",
+    "action": "theme-dark-to-light",
+    "completed": true
+  },
+  {
+    "cluster": 32,
+    "role": "admin",
+    "action": "theme-light-to-dark",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "admin",
+    "action": "mobile-network-detail-dialog",
+    "completed": true,
+    "width": 390,
+    "dark": true
+  },
+  {
+    "cluster": 32,
+    "role": "admin",
+    "action": "tablet-mobile-vm-nics",
+    "completed": true,
+    "widths": [
+      768,
+      390
+    ]
+  },
+  {
+    "cluster": 31,
+    "role": "admin",
+    "action": "mobile-project-roundtrip",
+    "completed": true,
+    "width": 390
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "project-roundtrip",
+    "completed": true
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "action": "project-roundtrip",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "member",
+    "action": "project-roundtrip",
+    "completed": true
+  },
+  {
+    "cluster": 32,
+    "role": "member",
+    "action": "project-roundtrip",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "admin",
+    "action": "fresh-login-project-switch",
+    "completed": true
+  },
+  {
+    "cluster": 32,
+    "role": "admin",
+    "action": "fresh-login-project-switch",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "admin",
+    "action": "reload-project-scope",
+    "completed": true,
+    "networkCount": 16
+  },
+  {
+    "cluster": 32,
+    "role": "admin",
+    "action": "reload-project-scope",
+    "completed": true,
+    "networkCount": 17
+  },
+  {
+    "cluster": 31,
+    "role": "admin",
+    "action": "theme-restored-light",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "admin",
+    "action": "responsive-light",
+    "completed": true,
+    "widths": [
+      1280,
+      390
+    ]
+  }
+]

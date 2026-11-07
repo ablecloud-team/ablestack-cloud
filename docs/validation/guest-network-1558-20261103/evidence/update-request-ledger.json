@@ -1,0 +1,489 @@
+{
+  "unique_UI_update_requests": 35,
+  "HTTP_200": 32,
+  "synthetic_request_refusals": 3,
+  "terminal_success_job_ids": [
+    "085cc31d-9074-40a3-84d5-db9c7f75a529",
+    "0ca026db-6071-47a2-b85d-e89bc60f391f",
+    "28dbac11-74bb-47c0-8bac-2c215cd4dcc7",
+    "2dfedbc0-c961-4702-8d32-97df1cffa00f",
+    "2ec1c179-f783-4a50-a2a2-eda40254efbd",
+    "385752a8-5dc6-4657-b787-b87fe7648040",
+    "488be84d-8195-45d9-a8b0-c85b9430649a",
+    "4e2f29c3-054d-4120-be76-b75783118833",
+    "5a3d6ce1-1234-491d-85db-ed11742769e8",
+    "67ca9344-84d9-46aa-a463-e461bfe471f5",
+    "827c31a8-dfd9-452e-a912-51c5b03ac8e4",
+    "85736919-f45b-4207-a87e-09be1a1faa06",
+    "86d52083-5629-4798-9341-0de29ae13415",
+    "8c62eead-d4fb-499e-ba71-bab410b7069c",
+    "9cb79e10-9da4-4ab3-aa4d-4a66734efe6c",
+    "a567237b-3aee-4687-8cf4-2c3664df5a61",
+    "ac136ecd-b5c2-468a-98dd-9a18354e18fc",
+    "be42bfb8-2df8-4035-9d24-e183a0211c36",
+    "c1b03538-01a6-4a03-9d6a-3ccb10cdc0b1",
+    "cab876b2-57b4-4326-8ef7-5926a4bacc57",
+    "d3edd9ca-54f0-47fb-a162-25021b916559",
+    "d3efcb73-6c18-4d3f-b159-c28bc2ee5774",
+    "d5fb3573-caad-486b-bb63-244ae4c2a87b",
+    "d996cab4-32a7-47cd-8025-496af0102170",
+    "db5d3ce6-a34b-4f48-9bea-3c45a03a1b51",
+    "df45e319-af9e-416b-a196-4f523ce2bcc3",
+    "e0a48e26-b794-42ed-a663-c06c67382cfb",
+    "e30828c9-8856-4566-afde-c2c9966194e9",
+    "e6de4366-0df8-498a-9624-5a8f7e1397d8",
+    "e8970850-5dbc-4532-9a6e-25386aaa5831",
+    "ec3625e4-468a-4a1f-b03c-7acf3eb22486",
+    "f41d0c0e-4366-472c-81b9-e8cafbf4d029"
+  ],
+  "requests": [
+    {
+      "cluster": 31,
+      "requestId": "45752.698",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "1e000c12-5af6-4aaf-abcc-0cf728cf9716",
+        "name": "qa-gn1558-31-isolated-renamed",
+        "displaytext": ""
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.720",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "1af37bd2-83db-436a-ae1e-b53b0ddfcf7b",
+        "name": "qa-gn1558-31-l2-renamed",
+        "displaytext": ""
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.740",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+        "name": "qa-gn1558-31-shared-renamed",
+        "displaytext": ""
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.1974",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "1bc4bd16-b21e-444a-a94d-87446d7a2b81",
+        "name": "qa-gn1558-31-l2-new",
+        "displaytext": "최종 번들 확인 · L2\n<b>문자 그대로</b> & \"설명\""
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "47580.1732",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "1e000c12-5af6-4aaf-abcc-0cf728cf9716",
+        "name": "qa-gn1558-31-isolated",
+        "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "47580.1753",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "1af37bd2-83db-436a-ae1e-b53b0ddfcf7b",
+        "name": "qa-gn1558-31-l2",
+        "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "47580.1784",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+        "name": "qa-gn1558-31-shared",
+        "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "47580.1812",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "1e000c12-5af6-4aaf-abcc-0cf728cf9716",
+        "name": "qa-gn1558-31-isolated-renamed"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "47580.1834",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "1af37bd2-83db-436a-ae1e-b53b0ddfcf7b",
+        "name": "qa-gn1558-31-l2-renamed"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.662",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+        "name": "qa-gn1558-31-shared-renamed"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.884",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+        "name": "qa-gn1558-31-shared-renamed",
+        "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.789",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "1e000c12-5af6-4aaf-abcc-0cf728cf9716",
+        "name": "qa-gn1558-31-isolated-renamed",
+        "displaytext": "<b>태그가 아닌 설명</b>\n<img alt=\"문자 그대로\"> & \"따옴표\" / 특수문자 #1558"
+      },
+      "status": 500
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.791",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "1e000c12-5af6-4aaf-abcc-0cf728cf9716",
+        "name": "qa-gn1558-31-isolated-renamed",
+        "displaytext": "<b>태그가 아닌 설명</b>\n<img alt=\"문자 그대로\"> & \"따옴표\" / 특수문자 #1558"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.813",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "1af37bd2-83db-436a-ae1e-b53b0ddfcf7b",
+        "name": "qa-gn1558-31-l2-renamed",
+        "displaytext": "<b>태그가 아닌 설명</b>\n<img alt=\"문자 그대로\"> & \"따옴표\" / 특수문자 #1558"
+      },
+      "status": 500
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.815",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "1af37bd2-83db-436a-ae1e-b53b0ddfcf7b",
+        "name": "qa-gn1558-31-l2-renamed",
+        "displaytext": "<b>태그가 아닌 설명</b>\n<img alt=\"문자 그대로\"> & \"따옴표\" / 특수문자 #1558"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.835",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+        "name": "qa-gn1558-31-shared-renamed",
+        "displaytext": "<b>태그가 아닌 설명</b>\n<img alt=\"문자 그대로\"> & \"따옴표\" / 특수문자 #1558"
+      },
+      "status": 500
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.837",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+        "name": "qa-gn1558-31-shared-renamed",
+        "displaytext": "<b>태그가 아닌 설명</b>\n<img alt=\"문자 그대로\"> & \"따옴표\" / 특수문자 #1558"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.906",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "1e000c12-5af6-4aaf-abcc-0cf728cf9716",
+        "name": "qa-gn1558-31-isolated-renamed",
+        "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.928",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "1af37bd2-83db-436a-ae1e-b53b0ddfcf7b",
+        "name": "qa-gn1558-31-l2-renamed",
+        "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.753",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "897b203b-5ee6-4e13-ad50-a295bbb6cb02",
+        "name": "qa-gn1558-32-isolated-renamed",
+        "displaytext": ""
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.776",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "3f82dd0d-a774-4478-a4fa-8dad9783023a",
+        "name": "qa-gn1558-32-l2-renamed",
+        "displaytext": ""
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.798",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "397a6ff2-b78b-4c1b-af75-eff6d61b4b64",
+        "name": "qa-gn1558-32-shared-renamed",
+        "displaytext": ""
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.818",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "3f82dd0d-a774-4478-a4fa-8dad9783023a",
+        "name": "qa-gn1558-32-l2-empty-renamed"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "29536.1828",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "897b203b-5ee6-4e13-ad50-a295bbb6cb02",
+        "name": "qa-gn1558-32-isolated",
+        "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "29536.1851",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "3f82dd0d-a774-4478-a4fa-8dad9783023a",
+        "name": "qa-gn1558-32-l2",
+        "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "29536.1877",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "397a6ff2-b78b-4c1b-af75-eff6d61b4b64",
+        "name": "qa-gn1558-32-shared",
+        "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.868",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "897b203b-5ee6-4e13-ad50-a295bbb6cb02",
+        "name": "qa-gn1558-32-isolated-renamed",
+        "displaytext": "<b>태그가 아닌 설명</b>\n<img alt=\"문자 그대로\"> & \"따옴표\" / 특수문자 #1558"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.913",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "3f82dd0d-a774-4478-a4fa-8dad9783023a",
+        "name": "qa-gn1558-32-l2-empty-renamed",
+        "displaytext": "<b>태그가 아닌 설명</b>\n<img alt=\"문자 그대로\"> & \"따옴표\" / 특수문자 #1558"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.937",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "397a6ff2-b78b-4c1b-af75-eff6d61b4b64",
+        "name": "qa-gn1558-32-shared-renamed",
+        "displaytext": "<b>태그가 아닌 설명</b>\n<img alt=\"문자 그대로\"> & \"따옴표\" / 특수문자 #1558"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.668",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "897b203b-5ee6-4e13-ad50-a295bbb6cb02",
+        "name": "qa-gn1558-32-isolated-renamed"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.691",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "3f82dd0d-a774-4478-a4fa-8dad9783023a",
+        "name": "qa-gn1558-32-l2-renamed"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.714",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "397a6ff2-b78b-4c1b-af75-eff6d61b4b64",
+        "name": "qa-gn1558-32-shared-renamed"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.980",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "897b203b-5ee6-4e13-ad50-a295bbb6cb02",
+        "name": "qa-gn1558-32-isolated-renamed",
+        "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.1005",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "3f82dd0d-a774-4478-a4fa-8dad9783023a",
+        "name": "qa-gn1558-32-l2-empty-renamed",
+        "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.1027",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "397a6ff2-b78b-4c1b-af75-eff6d61b4b64",
+        "name": "qa-gn1558-32-shared-renamed",
+        "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+      },
+      "status": 200
+    }
+  ]
+}

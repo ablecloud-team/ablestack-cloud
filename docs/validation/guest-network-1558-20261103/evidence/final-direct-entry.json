@@ -1,0 +1,116 @@
+[
+  {
+    "cluster": 31,
+    "type": "isolated",
+    "id": "a55eb2c4-56a3-4cd9-b10f-d6f7448ef523",
+    "name": "qa-gn1558-31-isolated-new",
+    "description": "새 생성 설명 · isolated\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\"",
+    "ui": [
+      {
+        "html_children": 0,
+        "text": "새 생성 설명 · isolated\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\""
+      },
+      {
+        "html_children": 0,
+        "text": "새 생성 설명 · isolated\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\""
+      }
+    ],
+    "direct_entry": true,
+    "reload": true
+  },
+  {
+    "cluster": 31,
+    "type": "l2",
+    "id": "1bc4bd16-b21e-444a-a94d-87446d7a2b81",
+    "name": "qa-gn1558-31-l2-new",
+    "description": "최종 번들 확인 · L2\n<b>문자 그대로</b> & \"설명\"",
+    "ui": [
+      {
+        "html_children": 0,
+        "text": "최종 번들 확인 · L2\n<b>문자 그대로</b> & \"설명\""
+      },
+      {
+        "html_children": 0,
+        "text": "최종 번들 확인 · L2\n<b>문자 그대로</b> & \"설명\""
+      }
+    ],
+    "direct_entry": true,
+    "reload": true
+  },
+  {
+    "cluster": 31,
+    "type": "shared",
+    "id": "04eef05e-7c2d-40e5-b1fb-144a7bc72393",
+    "name": "qa-gn1558-31-shared-new",
+    "description": "새 생성 설명 · shared\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\"",
+    "ui": [
+      {
+        "html_children": 0,
+        "text": "새 생성 설명 · shared\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\""
+      },
+      {
+        "html_children": 0,
+        "text": "새 생성 설명 · shared\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\""
+      }
+    ],
+    "direct_entry": true,
+    "reload": true
+  },
+  {
+    "cluster": 32,
+    "type": "isolated",
+    "id": "b309da3c-0838-43ac-9598-48de2c402686",
+    "name": "qa-gn1558-32-isolated-new",
+    "description": "새 생성 설명 · isolated\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\"",
+    "ui": [
+      {
+        "html_children": 0,
+        "text": "새 생성 설명 · isolated\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\""
+      },
+      {
+        "html_children": 0,
+        "text": "새 생성 설명 · isolated\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\""
+      }
+    ],
+    "direct_entry": true,
+    "reload": true
+  },
+  {
+    "cluster": 32,
+    "type": "l2",
+    "id": "83bc4f53-7eda-405a-9556-fbcf9270551e",
+    "name": "qa-gn1558-32-l2-new",
+    "description": "새 생성 설명 · l2\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\"",
+    "ui": [
+      {
+        "html_children": 0,
+        "text": "새 생성 설명 · l2\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\""
+      },
+      {
+        "html_children": 0,
+        "text": "새 생성 설명 · l2\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\""
+      }
+    ],
+    "direct_entry": true,
+    "reload": true
+  },
+  {
+    "cluster": 32,
+    "type": "shared",
+    "id": "0ecfc27d-e3d1-4200-a5af-3128077e59d9",
+    "name": "qa-gn1558-32-shared-new",
+    "description": "새 생성 설명 · shared\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\"",
+    "ui": [
+      {
+        "html_children": 0,
+        "text": "새 생성 설명 · shared\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\""
+      },
+      {
+        "html_children": 0,
+        "text": "새 생성 설명 · shared\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\""
+      }
+    ],
+    "direct_entry": true,
+    "reload": true
+  }
+]

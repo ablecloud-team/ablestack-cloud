@@ -1,0 +1,4482 @@
+{
+  "root": {
+    "user": {
+      "username": "admin",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domainpath": null,
+      "type": "1",
+      "roleid": null,
+      "roletype": null
+    },
+    "isolated": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-isolated",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Isolated",
+            "state": "Implemented"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-isolated",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Isolated",
+            "state": "Implemented"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "f587e18a-573d-417f-8563-a1f6b5fc0cd7",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-owner-vm",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "displayname": "qa-gn1575-31-owner-vm",
+            "ipaddress": "10.174.31.29",
+            "state": "Running"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "206b0aa4-d10f-4119-9989-21a864f556a4",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "type": "ANNOTATION.REMOVE",
+            "resourceid": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+            "resourcetype": "Network",
+            "state": "Completed"
+          },
+          {
+            "id": "9266c92c-4c39-4adc-9835-8ae574242476",
+            "account": "qa-gn1575-31-owner",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "type": "ANNOTATION.CREATE",
+            "resourceid": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+            "resourcetype": "Network",
+            "state": "Completed"
+          },
+          {
+            "id": "4116f485-2797-4a64-9052-ef452166fde3",
+            "account": "qa-gn1575-31-owner",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "type": "ZONE.VLAN.ASSIGN",
+            "resourceid": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+            "resourcetype": "Network",
+            "state": "Completed"
+          },
+          {
+            "id": "ffe51a8c-3310-4b93-b9a2-bb4bda8d99f5",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "type": "NETWORK.CREATE",
+            "resourceid": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+            "resourcetype": "Network",
+            "state": "Completed"
+          }
+        ],
+        "count": 4,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "l2": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "1589449c-d56e-4087-af12-e25fdbe39349",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-l2",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "L2",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "1589449c-d56e-4087-af12-e25fdbe39349",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-l2",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "L2",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "10343c85-985a-4608-9f1b-468aec18f0f6",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "type": "NETWORK.CREATE",
+            "resourceid": "1589449c-d56e-4087-af12-e25fdbe39349",
+            "resourcetype": "Network",
+            "state": "Completed"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "45d3e8ae-925d-497b-963f-f99ea587d419",
+            "name": "qa-gn1575-31-shared",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "45d3e8ae-925d-497b-963f-f99ea587d419",
+            "name": "qa-gn1575-31-shared",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "aca6699e-3ccf-4788-9b14-ad04e1bc8723",
+            "account": "qa-gn1575-31-peer",
+            "name": "qa-gn1575-31-peer-vm",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "displayname": "qa-gn1575-31-peer-vm",
+            "ipaddress": "10.175.31.60",
+            "state": "Running"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "8fecced5-9a4d-4827-9b4e-3d147627bd22",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "type": "NETWORK.CREATE",
+            "resourceid": "45d3e8ae-925d-497b-963f-f99ea587d419",
+            "resourcetype": "Network",
+            "state": "Completed"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "project": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "613f205a-7e49-41a5-81a7-9c600791f68b",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "name": "qa-gn1575-31-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "L2",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "613f205a-7e49-41a5-81a7-9c600791f68b",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "name": "qa-gn1575-31-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "L2",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "4519455f-8b79-4579-9986-b7784c68b9d9",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "type": "NETWORK.CREATE",
+            "resourceid": "613f205a-7e49-41a5-81a7-9c600791f68b",
+            "resourcetype": "Network",
+            "state": "Completed"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-all": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "ce1944fc-cfce-42d4-883b-14be3a802d27",
+            "name": "qa-gn1575-31-shared-all",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "ce1944fc-cfce-42d4-883b-14be3a802d27",
+            "name": "qa-gn1575-31-shared-all",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "8a973ef3-e479-4840-9e85-2f5bb1af1261",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "type": "NETWORK.CREATE",
+            "resourceid": "ce1944fc-cfce-42d4-883b-14be3a802d27",
+            "resourcetype": "Network",
+            "state": "Completed"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-domain-only": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "d1179d24-5c84-4280-9469-985ee9f7b339",
+            "name": "qa-gn1575-31-shared-domain-only",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "d1179d24-5c84-4280-9469-985ee9f7b339",
+            "name": "qa-gn1575-31-shared-domain-only",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "8471f010-fa98-46cd-bf3c-6ef7ebc94359",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "type": "NETWORK.CREATE",
+            "resourceid": "d1179d24-5c84-4280-9469-985ee9f7b339",
+            "resourcetype": "Network",
+            "state": "Completed"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-account": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "9a3d0f49-1357-4082-a473-6ec9c77edda0",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-shared-account",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "9a3d0f49-1357-4082-a473-6ec9c77edda0",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-shared-account",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "c33b3983-8fb2-40ef-b48a-288ef3d977c2",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "type": "NETWORK.CREATE",
+            "resourceid": "9a3d0f49-1357-4082-a473-6ec9c77edda0",
+            "resourcetype": "Network",
+            "state": "Completed"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-project": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "4192b423-7e47-4270-bd43-85694ba786fd",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "name": "qa-gn1575-31-shared-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "4192b423-7e47-4270-bd43-85694ba786fd",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "name": "qa-gn1575-31-shared-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "7ce55f3e-9929-4523-b787-7891d1024d70",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "type": "NETWORK.CREATE",
+            "resourceid": "4192b423-7e47-4270-bd43-85694ba786fd",
+            "resourcetype": "Network",
+            "state": "Completed"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "child-isolated": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "7363462e-e0ad-47ba-9edb-25eed6e085a8",
+            "account": "qa-gn1575-31-child",
+            "name": "qa-gn1575-31-child-isolated",
+            "domainid": "0f0ffa9d-469d-4a6b-958a-1bedd7599382",
+            "domainpath": "ROOT/qa-gn1575-31-main/qa-gn1575-31-child",
+            "acltype": "Account",
+            "type": "Isolated",
+            "state": "Allocated"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "7363462e-e0ad-47ba-9edb-25eed6e085a8",
+            "account": "qa-gn1575-31-child",
+            "name": "qa-gn1575-31-child-isolated",
+            "domainid": "0f0ffa9d-469d-4a6b-958a-1bedd7599382",
+            "domainpath": "ROOT/qa-gn1575-31-main/qa-gn1575-31-child",
+            "acltype": "Account",
+            "type": "Isolated",
+            "state": "Allocated"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "66f0376a-16e7-4e1e-bfb8-d128212a1041",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "type": "NETWORK.CREATE",
+            "resourceid": "7363462e-e0ad-47ba-9edb-25eed6e085a8",
+            "resourcetype": "Network",
+            "state": "Completed"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "projectMembership": {
+      "code": null,
+      "error": null,
+      "rows": [],
+      "count": null,
+      "success": null
+    }
+  },
+  "owner": {
+    "user": {
+      "username": "qa-gn1575-31-owner",
+      "account": "qa-gn1575-31-owner",
+      "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+      "domainpath": null,
+      "type": "0",
+      "roleid": null,
+      "roletype": null
+    },
+    "isolated": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-isolated",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Isolated",
+            "state": "Implemented"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-isolated",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Isolated",
+            "state": "Implemented"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "f587e18a-573d-417f-8563-a1f6b5fc0cd7",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-owner-vm",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "displayname": "qa-gn1575-31-owner-vm",
+            "ipaddress": "10.174.31.29",
+            "state": "Running"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "9266c92c-4c39-4adc-9835-8ae574242476",
+            "account": "qa-gn1575-31-owner",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "type": "ANNOTATION.CREATE",
+            "resourceid": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+            "resourcetype": "Network",
+            "state": "Completed"
+          },
+          {
+            "id": "4116f485-2797-4a64-9052-ef452166fde3",
+            "account": "qa-gn1575-31-owner",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "type": "ZONE.VLAN.ASSIGN",
+            "resourceid": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+            "resourcetype": "Network",
+            "state": "Completed"
+          }
+        ],
+        "count": 2,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "l2": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "1589449c-d56e-4087-af12-e25fdbe39349",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-l2",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "L2",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "1589449c-d56e-4087-af12-e25fdbe39349",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-l2",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "L2",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "45d3e8ae-925d-497b-963f-f99ea587d419",
+            "name": "qa-gn1575-31-shared",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "45d3e8ae-925d-497b-963f-f99ea587d419",
+            "name": "qa-gn1575-31-shared",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 489, \"name\": \"qa-gn1575-31-shared\", \"uuid\": \"45d3e8ae-925d-497b-963f-f99ea587d419\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User 53b53e37-bebd-49a7-8e0e-5bb9d1c56935 does not have permission to list annotations on the entity with uuid 45d3e8ae-925d-497b-963f-f99ea587d419 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "project": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "613f205a-7e49-41a5-81a7-9c600791f68b",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "name": "qa-gn1575-31-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "L2",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "613f205a-7e49-41a5-81a7-9c600791f68b",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "name": "qa-gn1575-31-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "L2",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "4519455f-8b79-4579-9986-b7784c68b9d9",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "type": "NETWORK.CREATE",
+            "resourceid": "613f205a-7e49-41a5-81a7-9c600791f68b",
+            "resourcetype": "Network",
+            "state": "Completed"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-all": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "ce1944fc-cfce-42d4-883b-14be3a802d27",
+            "name": "qa-gn1575-31-shared-all",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "ce1944fc-cfce-42d4-883b-14be3a802d27",
+            "name": "qa-gn1575-31-shared-all",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 491, \"name\": \"qa-gn1575-31-shared-all\", \"uuid\": \"ce1944fc-cfce-42d4-883b-14be3a802d27\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User 53b53e37-bebd-49a7-8e0e-5bb9d1c56935 does not have permission to list annotations on the entity with uuid ce1944fc-cfce-42d4-883b-14be3a802d27 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-domain-only": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "d1179d24-5c84-4280-9469-985ee9f7b339",
+            "name": "qa-gn1575-31-shared-domain-only",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "d1179d24-5c84-4280-9469-985ee9f7b339",
+            "name": "qa-gn1575-31-shared-domain-only",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 492, \"name\": \"qa-gn1575-31-shared-domain-only\", \"uuid\": \"d1179d24-5c84-4280-9469-985ee9f7b339\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User 53b53e37-bebd-49a7-8e0e-5bb9d1c56935 does not have permission to list annotations on the entity with uuid d1179d24-5c84-4280-9469-985ee9f7b339 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-account": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "9a3d0f49-1357-4082-a473-6ec9c77edda0",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-shared-account",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "9a3d0f49-1357-4082-a473-6ec9c77edda0",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-shared-account",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 493, \"name\": \"qa-gn1575-31-shared-account\", \"uuid\": \"9a3d0f49-1357-4082-a473-6ec9c77edda0\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-project": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "4192b423-7e47-4270-bd43-85694ba786fd",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "name": "qa-gn1575-31-shared-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "4192b423-7e47-4270-bd43-85694ba786fd",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "name": "qa-gn1575-31-shared-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 494, \"name\": \"qa-gn1575-31-shared-project\", \"uuid\": \"4192b423-7e47-4270-bd43-85694ba786fd\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "7ce55f3e-9929-4523-b787-7891d1024d70",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "type": "NETWORK.CREATE",
+            "resourceid": "4192b423-7e47-4270-bd43-85694ba786fd",
+            "resourcetype": "Network",
+            "state": "Completed"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "child-isolated": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "network Network {\"id\": 495, \"name\": \"qa-gn1575-31-child-isolated\", \"uuid\": \"7363462e-e0ad-47ba-9edb-25eed6e085a8\", \"networkofferingid\": 59} cannot be operated by normal user Account [{\"accountName\":\"qa-gn1575-31-owner\",\"id\":402,\"uuid\":\"f9f1de31-212d-4b5f-a18e-75c4463adfb0\"}]",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User 53b53e37-bebd-49a7-8e0e-5bb9d1c56935 does not have permission to list annotations on the entity with uuid 7363462e-e0ad-47ba-9edb-25eed6e085a8 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "projectMembership": {
+      "code": null,
+      "error": null,
+      "rows": [
+        {
+          "id": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+          "name": "qa-gn1575-31-project",
+          "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+          "state": "Active"
+        }
+      ],
+      "count": 1,
+      "success": null
+    }
+  },
+  "peer": {
+    "user": {
+      "username": "qa-gn1575-31-peer",
+      "account": "qa-gn1575-31-peer",
+      "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+      "domainpath": null,
+      "type": "0",
+      "roleid": null,
+      "roletype": null
+    },
+    "isolated": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "network Network {\"id\": 487, \"name\": \"qa-gn1575-31-isolated\", \"uuid\": \"34015e1d-ca40-4d05-a4de-ba26172009e1\", \"networkofferingid\": 59} cannot be operated by normal user Account [{\"accountName\":\"qa-gn1575-31-peer\",\"id\":403,\"uuid\":\"102f11f5-6de2-402d-aa44-0b5dc7cbb0d9\"}]",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User 9ff1c455-8ba9-4bb2-8168-442a9c1baa27 does not have permission to list annotations on the entity with uuid 34015e1d-ca40-4d05-a4de-ba26172009e1 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "l2": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "network Network {\"id\": 488, \"name\": \"qa-gn1575-31-l2\", \"uuid\": \"1589449c-d56e-4087-af12-e25fdbe39349\", \"networkofferingid\": 61} cannot be operated by normal user Account [{\"accountName\":\"qa-gn1575-31-peer\",\"id\":403,\"uuid\":\"102f11f5-6de2-402d-aa44-0b5dc7cbb0d9\"}]",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User 9ff1c455-8ba9-4bb2-8168-442a9c1baa27 does not have permission to list annotations on the entity with uuid 1589449c-d56e-4087-af12-e25fdbe39349 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "45d3e8ae-925d-497b-963f-f99ea587d419",
+            "name": "qa-gn1575-31-shared",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "45d3e8ae-925d-497b-963f-f99ea587d419",
+            "name": "qa-gn1575-31-shared",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 489, \"name\": \"qa-gn1575-31-shared\", \"uuid\": \"45d3e8ae-925d-497b-963f-f99ea587d419\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "aca6699e-3ccf-4788-9b14-ad04e1bc8723",
+            "account": "qa-gn1575-31-peer",
+            "name": "qa-gn1575-31-peer-vm",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "displayname": "qa-gn1575-31-peer-vm",
+            "ipaddress": "10.175.31.60",
+            "state": "Running"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User 9ff1c455-8ba9-4bb2-8168-442a9c1baa27 does not have permission to list annotations on the entity with uuid 45d3e8ae-925d-497b-963f-f99ea587d419 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "project": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "613f205a-7e49-41a5-81a7-9c600791f68b",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "name": "qa-gn1575-31-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "L2",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "613f205a-7e49-41a5-81a7-9c600791f68b",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "name": "qa-gn1575-31-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "L2",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "4519455f-8b79-4579-9986-b7784c68b9d9",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "type": "NETWORK.CREATE",
+            "resourceid": "613f205a-7e49-41a5-81a7-9c600791f68b",
+            "resourcetype": "Network",
+            "state": "Completed"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-all": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "ce1944fc-cfce-42d4-883b-14be3a802d27",
+            "name": "qa-gn1575-31-shared-all",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "ce1944fc-cfce-42d4-883b-14be3a802d27",
+            "name": "qa-gn1575-31-shared-all",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 491, \"name\": \"qa-gn1575-31-shared-all\", \"uuid\": \"ce1944fc-cfce-42d4-883b-14be3a802d27\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User 9ff1c455-8ba9-4bb2-8168-442a9c1baa27 does not have permission to list annotations on the entity with uuid ce1944fc-cfce-42d4-883b-14be3a802d27 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-domain-only": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "d1179d24-5c84-4280-9469-985ee9f7b339",
+            "name": "qa-gn1575-31-shared-domain-only",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "d1179d24-5c84-4280-9469-985ee9f7b339",
+            "name": "qa-gn1575-31-shared-domain-only",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 492, \"name\": \"qa-gn1575-31-shared-domain-only\", \"uuid\": \"d1179d24-5c84-4280-9469-985ee9f7b339\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User 9ff1c455-8ba9-4bb2-8168-442a9c1baa27 does not have permission to list annotations on the entity with uuid d1179d24-5c84-4280-9469-985ee9f7b339 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-account": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 493, \"name\": \"qa-gn1575-31-shared-account\", \"uuid\": \"9a3d0f49-1357-4082-a473-6ec9c77edda0\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User 9ff1c455-8ba9-4bb2-8168-442a9c1baa27 does not have permission to list annotations on the entity with uuid 9a3d0f49-1357-4082-a473-6ec9c77edda0 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-project": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "4192b423-7e47-4270-bd43-85694ba786fd",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "name": "qa-gn1575-31-shared-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "4192b423-7e47-4270-bd43-85694ba786fd",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "name": "qa-gn1575-31-shared-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 494, \"name\": \"qa-gn1575-31-shared-project\", \"uuid\": \"4192b423-7e47-4270-bd43-85694ba786fd\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "7ce55f3e-9929-4523-b787-7891d1024d70",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "type": "NETWORK.CREATE",
+            "resourceid": "4192b423-7e47-4270-bd43-85694ba786fd",
+            "resourcetype": "Network",
+            "state": "Completed"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "child-isolated": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "network Network {\"id\": 495, \"name\": \"qa-gn1575-31-child-isolated\", \"uuid\": \"7363462e-e0ad-47ba-9edb-25eed6e085a8\", \"networkofferingid\": 59} cannot be operated by normal user Account [{\"accountName\":\"qa-gn1575-31-peer\",\"id\":403,\"uuid\":\"102f11f5-6de2-402d-aa44-0b5dc7cbb0d9\"}]",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User 9ff1c455-8ba9-4bb2-8168-442a9c1baa27 does not have permission to list annotations on the entity with uuid 7363462e-e0ad-47ba-9edb-25eed6e085a8 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "projectMembership": {
+      "code": null,
+      "error": null,
+      "rows": [
+        {
+          "id": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+          "name": "qa-gn1575-31-project",
+          "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+          "state": "Active"
+        }
+      ],
+      "count": 1,
+      "success": null
+    }
+  },
+  "admin": {
+    "user": {
+      "username": "qa-gn1575-31-admin",
+      "account": "qa-gn1575-31-admin",
+      "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+      "domainpath": null,
+      "type": "2",
+      "roleid": null,
+      "roletype": null
+    },
+    "isolated": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-isolated",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Isolated",
+            "state": "Implemented"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-isolated",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Isolated",
+            "state": "Implemented"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "f587e18a-573d-417f-8563-a1f6b5fc0cd7",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-owner-vm",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "displayname": "qa-gn1575-31-owner-vm",
+            "ipaddress": "10.174.31.29",
+            "state": "Running"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "9266c92c-4c39-4adc-9835-8ae574242476",
+            "account": "qa-gn1575-31-owner",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "type": "ANNOTATION.CREATE",
+            "resourceid": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+            "resourcetype": "Network",
+            "state": "Completed"
+          },
+          {
+            "id": "4116f485-2797-4a64-9052-ef452166fde3",
+            "account": "qa-gn1575-31-owner",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "type": "ZONE.VLAN.ASSIGN",
+            "resourceid": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+            "resourcetype": "Network",
+            "state": "Completed"
+          }
+        ],
+        "count": 2,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "l2": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "1589449c-d56e-4087-af12-e25fdbe39349",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-l2",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "L2",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "1589449c-d56e-4087-af12-e25fdbe39349",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-l2",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "L2",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "45d3e8ae-925d-497b-963f-f99ea587d419",
+            "name": "qa-gn1575-31-shared",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "45d3e8ae-925d-497b-963f-f99ea587d419",
+            "name": "qa-gn1575-31-shared",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 489, \"name\": \"qa-gn1575-31-shared\", \"uuid\": \"45d3e8ae-925d-497b-963f-f99ea587d419\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "aca6699e-3ccf-4788-9b14-ad04e1bc8723",
+            "account": "qa-gn1575-31-peer",
+            "name": "qa-gn1575-31-peer-vm",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "displayname": "qa-gn1575-31-peer-vm",
+            "ipaddress": "10.175.31.60",
+            "state": "Running"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User aabacf64-4210-4ae7-8b7f-e822cc4c50b9 does not have permission to list annotations on the entity with uuid 45d3e8ae-925d-497b-963f-f99ea587d419 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "project": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "613f205a-7e49-41a5-81a7-9c600791f68b",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "name": "qa-gn1575-31-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "L2",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "613f205a-7e49-41a5-81a7-9c600791f68b",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "name": "qa-gn1575-31-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "L2",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "4519455f-8b79-4579-9986-b7784c68b9d9",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "type": "NETWORK.CREATE",
+            "resourceid": "613f205a-7e49-41a5-81a7-9c600791f68b",
+            "resourcetype": "Network",
+            "state": "Completed"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-all": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "ce1944fc-cfce-42d4-883b-14be3a802d27",
+            "name": "qa-gn1575-31-shared-all",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "ce1944fc-cfce-42d4-883b-14be3a802d27",
+            "name": "qa-gn1575-31-shared-all",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 491, \"name\": \"qa-gn1575-31-shared-all\", \"uuid\": \"ce1944fc-cfce-42d4-883b-14be3a802d27\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User aabacf64-4210-4ae7-8b7f-e822cc4c50b9 does not have permission to list annotations on the entity with uuid ce1944fc-cfce-42d4-883b-14be3a802d27 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-domain-only": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "d1179d24-5c84-4280-9469-985ee9f7b339",
+            "name": "qa-gn1575-31-shared-domain-only",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "d1179d24-5c84-4280-9469-985ee9f7b339",
+            "name": "qa-gn1575-31-shared-domain-only",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 492, \"name\": \"qa-gn1575-31-shared-domain-only\", \"uuid\": \"d1179d24-5c84-4280-9469-985ee9f7b339\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User aabacf64-4210-4ae7-8b7f-e822cc4c50b9 does not have permission to list annotations on the entity with uuid d1179d24-5c84-4280-9469-985ee9f7b339 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-account": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "9a3d0f49-1357-4082-a473-6ec9c77edda0",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-shared-account",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "9a3d0f49-1357-4082-a473-6ec9c77edda0",
+            "account": "qa-gn1575-31-owner",
+            "name": "qa-gn1575-31-shared-account",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 493, \"name\": \"qa-gn1575-31-shared-account\", \"uuid\": \"9a3d0f49-1357-4082-a473-6ec9c77edda0\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-project": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "4192b423-7e47-4270-bd43-85694ba786fd",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "name": "qa-gn1575-31-shared-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "4192b423-7e47-4270-bd43-85694ba786fd",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "name": "qa-gn1575-31-shared-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Account",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 494, \"name\": \"qa-gn1575-31-shared-project\", \"uuid\": \"4192b423-7e47-4270-bd43-85694ba786fd\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "7ce55f3e-9929-4523-b787-7891d1024d70",
+            "projectid": "926a0b5e-4629-4ec1-99cc-dcbc45e314f1",
+            "project": "qa-gn1575-31-project",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "type": "NETWORK.CREATE",
+            "resourceid": "4192b423-7e47-4270-bd43-85694ba786fd",
+            "resourcetype": "Network",
+            "state": "Completed"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "child-isolated": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "7363462e-e0ad-47ba-9edb-25eed6e085a8",
+            "account": "qa-gn1575-31-child",
+            "name": "qa-gn1575-31-child-isolated",
+            "domainid": "0f0ffa9d-469d-4a6b-958a-1bedd7599382",
+            "domainpath": "ROOT/qa-gn1575-31-main/qa-gn1575-31-child",
+            "acltype": "Account",
+            "type": "Isolated",
+            "state": "Allocated"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "7363462e-e0ad-47ba-9edb-25eed6e085a8",
+            "account": "qa-gn1575-31-child",
+            "name": "qa-gn1575-31-child-isolated",
+            "domainid": "0f0ffa9d-469d-4a6b-958a-1bedd7599382",
+            "domainpath": "ROOT/qa-gn1575-31-main/qa-gn1575-31-child",
+            "acltype": "Account",
+            "type": "Isolated",
+            "state": "Allocated"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "projectMembership": {
+      "code": null,
+      "error": null,
+      "rows": [],
+      "count": null,
+      "success": null
+    }
+  },
+  "child": {
+    "user": {
+      "username": "qa-gn1575-31-child",
+      "account": "qa-gn1575-31-child",
+      "domainid": "0f0ffa9d-469d-4a6b-958a-1bedd7599382",
+      "domainpath": null,
+      "type": "0",
+      "roleid": null,
+      "roletype": null
+    },
+    "isolated": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "network Network {\"id\": 487, \"name\": \"qa-gn1575-31-isolated\", \"uuid\": \"34015e1d-ca40-4d05-a4de-ba26172009e1\", \"networkofferingid\": 59} cannot be operated by normal user Account [{\"accountName\":\"qa-gn1575-31-child\",\"id\":405,\"uuid\":\"e1926d2b-3beb-44af-9d36-c6b90f80483c\"}]",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User d51df798-f2b9-4b81-8946-2744fb74a14d does not have permission to list annotations on the entity with uuid 34015e1d-ca40-4d05-a4de-ba26172009e1 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "l2": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "network Network {\"id\": 488, \"name\": \"qa-gn1575-31-l2\", \"uuid\": \"1589449c-d56e-4087-af12-e25fdbe39349\", \"networkofferingid\": 61} cannot be operated by normal user Account [{\"accountName\":\"qa-gn1575-31-child\",\"id\":405,\"uuid\":\"e1926d2b-3beb-44af-9d36-c6b90f80483c\"}]",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User d51df798-f2b9-4b81-8946-2744fb74a14d does not have permission to list annotations on the entity with uuid 1589449c-d56e-4087-af12-e25fdbe39349 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "45d3e8ae-925d-497b-963f-f99ea587d419",
+            "name": "qa-gn1575-31-shared",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "45d3e8ae-925d-497b-963f-f99ea587d419",
+            "name": "qa-gn1575-31-shared",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 489, \"name\": \"qa-gn1575-31-shared\", \"uuid\": \"45d3e8ae-925d-497b-963f-f99ea587d419\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User d51df798-f2b9-4b81-8946-2744fb74a14d does not have permission to list annotations on the entity with uuid 45d3e8ae-925d-497b-963f-f99ea587d419 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "project": {
+      "detail": {
+        "code": 432,
+        "error": "The API [listNetworks] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": 432,
+        "error": "The API [listNetworks] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Unable to use network with id= 613f205a-7e49-41a5-81a7-9c600791f68b, permission denied",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": 432,
+        "error": "The API [listVirtualMachines] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 432,
+        "error": "The API [listEvents] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 432,
+        "error": "The API [listAnnotations] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": 432,
+        "error": "The API [listTags] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-all": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "ce1944fc-cfce-42d4-883b-14be3a802d27",
+            "name": "qa-gn1575-31-shared-all",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "ce1944fc-cfce-42d4-883b-14be3a802d27",
+            "name": "qa-gn1575-31-shared-all",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 491, \"name\": \"qa-gn1575-31-shared-all\", \"uuid\": \"ce1944fc-cfce-42d4-883b-14be3a802d27\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User d51df798-f2b9-4b81-8946-2744fb74a14d does not have permission to list annotations on the entity with uuid ce1944fc-cfce-42d4-883b-14be3a802d27 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-domain-only": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 492, \"name\": \"qa-gn1575-31-shared-domain-only\", \"uuid\": \"d1179d24-5c84-4280-9469-985ee9f7b339\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User d51df798-f2b9-4b81-8946-2744fb74a14d does not have permission to list annotations on the entity with uuid d1179d24-5c84-4280-9469-985ee9f7b339 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-account": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 493, \"name\": \"qa-gn1575-31-shared-account\", \"uuid\": \"9a3d0f49-1357-4082-a473-6ec9c77edda0\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User d51df798-f2b9-4b81-8946-2744fb74a14d does not have permission to list annotations on the entity with uuid 9a3d0f49-1357-4082-a473-6ec9c77edda0 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-project": {
+      "detail": {
+        "code": 432,
+        "error": "The API [listNetworks] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": 432,
+        "error": "The API [listNetworks] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 494, \"name\": \"qa-gn1575-31-shared-project\", \"uuid\": \"4192b423-7e47-4270-bd43-85694ba786fd\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": 432,
+        "error": "The API [listVirtualMachines] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 432,
+        "error": "The API [listEvents] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 432,
+        "error": "The API [listAnnotations] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": 432,
+        "error": "The API [listTags] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "child-isolated": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "7363462e-e0ad-47ba-9edb-25eed6e085a8",
+            "account": "qa-gn1575-31-child",
+            "name": "qa-gn1575-31-child-isolated",
+            "domainid": "0f0ffa9d-469d-4a6b-958a-1bedd7599382",
+            "domainpath": "ROOT/qa-gn1575-31-main/qa-gn1575-31-child",
+            "acltype": "Account",
+            "type": "Isolated",
+            "state": "Allocated"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "7363462e-e0ad-47ba-9edb-25eed6e085a8",
+            "account": "qa-gn1575-31-child",
+            "name": "qa-gn1575-31-child-isolated",
+            "domainid": "0f0ffa9d-469d-4a6b-958a-1bedd7599382",
+            "domainpath": "ROOT/qa-gn1575-31-main/qa-gn1575-31-child",
+            "acltype": "Account",
+            "type": "Isolated",
+            "state": "Allocated"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "projectMembership": {
+      "code": null,
+      "error": null,
+      "rows": [],
+      "count": null,
+      "success": null
+    }
+  },
+  "outside": {
+    "user": {
+      "username": "qa-gn1575-31-outside",
+      "account": "qa-gn1575-31-outside",
+      "domainid": "358615de-fb59-4806-b4a2-6c4994eb25d2",
+      "domainpath": null,
+      "type": "0",
+      "roleid": null,
+      "roletype": null
+    },
+    "isolated": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "network Network {\"id\": 487, \"name\": \"qa-gn1575-31-isolated\", \"uuid\": \"34015e1d-ca40-4d05-a4de-ba26172009e1\", \"networkofferingid\": 59} cannot be operated by normal user Account [{\"accountName\":\"qa-gn1575-31-outside\",\"id\":406,\"uuid\":\"140ec093-9e2c-4b93-903d-00dd34edda2b\"}]",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User ffd0bf94-6105-41d2-8b9e-828a890c3722 does not have permission to list annotations on the entity with uuid 34015e1d-ca40-4d05-a4de-ba26172009e1 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "l2": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "network Network {\"id\": 488, \"name\": \"qa-gn1575-31-l2\", \"uuid\": \"1589449c-d56e-4087-af12-e25fdbe39349\", \"networkofferingid\": 61} cannot be operated by normal user Account [{\"accountName\":\"qa-gn1575-31-outside\",\"id\":406,\"uuid\":\"140ec093-9e2c-4b93-903d-00dd34edda2b\"}]",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User ffd0bf94-6105-41d2-8b9e-828a890c3722 does not have permission to list annotations on the entity with uuid 1589449c-d56e-4087-af12-e25fdbe39349 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 489, \"name\": \"qa-gn1575-31-shared\", \"uuid\": \"45d3e8ae-925d-497b-963f-f99ea587d419\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User ffd0bf94-6105-41d2-8b9e-828a890c3722 does not have permission to list annotations on the entity with uuid 45d3e8ae-925d-497b-963f-f99ea587d419 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "project": {
+      "detail": {
+        "code": 432,
+        "error": "The API [listNetworks] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": 432,
+        "error": "The API [listNetworks] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Unable to use network with id= 613f205a-7e49-41a5-81a7-9c600791f68b, permission denied",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": 432,
+        "error": "The API [listVirtualMachines] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 432,
+        "error": "The API [listEvents] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 432,
+        "error": "The API [listAnnotations] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": 432,
+        "error": "The API [listTags] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-all": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "ce1944fc-cfce-42d4-883b-14be3a802d27",
+            "name": "qa-gn1575-31-shared-all",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "ce1944fc-cfce-42d4-883b-14be3a802d27",
+            "name": "qa-gn1575-31-shared-all",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 491, \"name\": \"qa-gn1575-31-shared-all\", \"uuid\": \"ce1944fc-cfce-42d4-883b-14be3a802d27\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User ffd0bf94-6105-41d2-8b9e-828a890c3722 does not have permission to list annotations on the entity with uuid ce1944fc-cfce-42d4-883b-14be3a802d27 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-domain-only": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 492, \"name\": \"qa-gn1575-31-shared-domain-only\", \"uuid\": \"d1179d24-5c84-4280-9469-985ee9f7b339\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User ffd0bf94-6105-41d2-8b9e-828a890c3722 does not have permission to list annotations on the entity with uuid d1179d24-5c84-4280-9469-985ee9f7b339 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-account": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 493, \"name\": \"qa-gn1575-31-shared-account\", \"uuid\": \"9a3d0f49-1357-4082-a473-6ec9c77edda0\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User ffd0bf94-6105-41d2-8b9e-828a890c3722 does not have permission to list annotations on the entity with uuid 9a3d0f49-1357-4082-a473-6ec9c77edda0 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-project": {
+      "detail": {
+        "code": 432,
+        "error": "The API [listNetworks] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": 432,
+        "error": "The API [listNetworks] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 494, \"name\": \"qa-gn1575-31-shared-project\", \"uuid\": \"4192b423-7e47-4270-bd43-85694ba786fd\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": 432,
+        "error": "The API [listVirtualMachines] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 432,
+        "error": "The API [listEvents] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 432,
+        "error": "The API [listAnnotations] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": 432,
+        "error": "The API [listTags] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "child-isolated": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "network Network {\"id\": 495, \"name\": \"qa-gn1575-31-child-isolated\", \"uuid\": \"7363462e-e0ad-47ba-9edb-25eed6e085a8\", \"networkofferingid\": 59} cannot be operated by normal user Account [{\"accountName\":\"qa-gn1575-31-outside\",\"id\":406,\"uuid\":\"140ec093-9e2c-4b93-903d-00dd34edda2b\"}]",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User ffd0bf94-6105-41d2-8b9e-828a890c3722 does not have permission to list annotations on the entity with uuid 7363462e-e0ad-47ba-9edb-25eed6e085a8 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "projectMembership": {
+      "code": null,
+      "error": null,
+      "rows": [],
+      "count": null,
+      "success": null
+    }
+  },
+  "nonmember": {
+    "user": {
+      "username": "qa-gn1575-31-nonmember",
+      "account": "qa-gn1575-31-nonmember",
+      "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+      "domainpath": null,
+      "type": "0",
+      "roleid": null,
+      "roletype": null
+    },
+    "isolated": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "network Network {\"id\": 487, \"name\": \"qa-gn1575-31-isolated\", \"uuid\": \"34015e1d-ca40-4d05-a4de-ba26172009e1\", \"networkofferingid\": 59} cannot be operated by normal user Account [{\"accountName\":\"qa-gn1575-31-nonmember\",\"id\":408,\"uuid\":\"d270a7b4-68e6-4174-9af8-8fa0c43f433f\"}]",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User 473a4747-a1a2-4ef6-88d4-cde39be8b4a2 does not have permission to list annotations on the entity with uuid 34015e1d-ca40-4d05-a4de-ba26172009e1 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "l2": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "network Network {\"id\": 488, \"name\": \"qa-gn1575-31-l2\", \"uuid\": \"1589449c-d56e-4087-af12-e25fdbe39349\", \"networkofferingid\": 61} cannot be operated by normal user Account [{\"accountName\":\"qa-gn1575-31-nonmember\",\"id\":408,\"uuid\":\"d270a7b4-68e6-4174-9af8-8fa0c43f433f\"}]",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User 473a4747-a1a2-4ef6-88d4-cde39be8b4a2 does not have permission to list annotations on the entity with uuid 1589449c-d56e-4087-af12-e25fdbe39349 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "45d3e8ae-925d-497b-963f-f99ea587d419",
+            "name": "qa-gn1575-31-shared",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "45d3e8ae-925d-497b-963f-f99ea587d419",
+            "name": "qa-gn1575-31-shared",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 489, \"name\": \"qa-gn1575-31-shared\", \"uuid\": \"45d3e8ae-925d-497b-963f-f99ea587d419\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User 473a4747-a1a2-4ef6-88d4-cde39be8b4a2 does not have permission to list annotations on the entity with uuid 45d3e8ae-925d-497b-963f-f99ea587d419 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "project": {
+      "detail": {
+        "code": 432,
+        "error": "The API [listNetworks] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": 432,
+        "error": "The API [listNetworks] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Unable to use network with id= 613f205a-7e49-41a5-81a7-9c600791f68b, permission denied",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": 432,
+        "error": "The API [listVirtualMachines] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 432,
+        "error": "The API [listEvents] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 432,
+        "error": "The API [listAnnotations] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": 432,
+        "error": "The API [listTags] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-all": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "ce1944fc-cfce-42d4-883b-14be3a802d27",
+            "name": "qa-gn1575-31-shared-all",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "ce1944fc-cfce-42d4-883b-14be3a802d27",
+            "name": "qa-gn1575-31-shared-all",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domainpath": "ROOT",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 491, \"name\": \"qa-gn1575-31-shared-all\", \"uuid\": \"ce1944fc-cfce-42d4-883b-14be3a802d27\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User 473a4747-a1a2-4ef6-88d4-cde39be8b4a2 does not have permission to list annotations on the entity with uuid ce1944fc-cfce-42d4-883b-14be3a802d27 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-domain-only": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "d1179d24-5c84-4280-9469-985ee9f7b339",
+            "name": "qa-gn1575-31-shared-domain-only",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "d1179d24-5c84-4280-9469-985ee9f7b339",
+            "name": "qa-gn1575-31-shared-domain-only",
+            "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+            "domainpath": "ROOT/qa-gn1575-31-main",
+            "acltype": "Domain",
+            "type": "Shared",
+            "state": "Setup"
+          }
+        ],
+        "count": 1,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 492, \"name\": \"qa-gn1575-31-shared-domain-only\", \"uuid\": \"d1179d24-5c84-4280-9469-985ee9f7b339\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User 473a4747-a1a2-4ef6-88d4-cde39be8b4a2 does not have permission to list annotations on the entity with uuid d1179d24-5c84-4280-9469-985ee9f7b339 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-account": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 493, \"name\": \"qa-gn1575-31-shared-account\", \"uuid\": \"9a3d0f49-1357-4082-a473-6ec9c77edda0\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User 473a4747-a1a2-4ef6-88d4-cde39be8b4a2 does not have permission to list annotations on the entity with uuid 9a3d0f49-1357-4082-a473-6ec9c77edda0 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "shared-project": {
+      "detail": {
+        "code": 432,
+        "error": "The API [listNetworks] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": 432,
+        "error": "The API [listNetworks] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "Shared network Network {\"id\": 494, \"name\": \"qa-gn1575-31-shared-project\", \"uuid\": \"4192b423-7e47-4270-bd43-85694ba786fd\", \"networkofferingid\": 60} with specifyvlan=true can only be operated by root admin",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": 432,
+        "error": "The API [listVirtualMachines] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 432,
+        "error": "The API [listEvents] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 432,
+        "error": "The API [listAnnotations] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": 432,
+        "error": "The API [listTags] does not exist or is not available for this account/user in project [926a0b5e-4629-4ec1-99cc-dcbc45e314f1].",
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "child-isolated": {
+      "detail": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "deploy": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "permissions": {
+        "code": 531,
+        "error": "network Network {\"id\": 495, \"name\": \"qa-gn1575-31-child-isolated\", \"uuid\": \"7363462e-e0ad-47ba-9edb-25eed6e085a8\", \"networkofferingid\": 59} cannot be operated by normal user Account [{\"accountName\":\"qa-gn1575-31-nonmember\",\"id\":408,\"uuid\":\"d270a7b4-68e6-4174-9af8-8fa0c43f433f\"}]",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "vms": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "events": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "notes": {
+        "code": 531,
+        "error": "User 473a4747-a1a2-4ef6-88d4-cde39be8b4a2 does not have permission to list annotations on the entity with uuid 7363462e-e0ad-47ba-9edb-25eed6e085a8 of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "tags": {
+        "code": null,
+        "error": null,
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    },
+    "projectMembership": {
+      "code": null,
+      "error": null,
+      "rows": [],
+      "count": null,
+      "success": null
+    }
+  }
+}

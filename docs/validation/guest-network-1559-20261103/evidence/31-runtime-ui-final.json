@@ -1,0 +1,16 @@
+{
+  "files": 650,
+  "hash_mismatches": [],
+  "markers": {
+    "network-restart-results": true,
+    "message.network.restart.receipt": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  },
+  "WEB_INF": true,
+  "protected_files_unchanged": true,
+  "mold_pid_unchanged": true,
+  "http": 200,
+  "index_sha256": "a3293b424c06569cc1cc3565fb2496524e8ccf6108554bb3473e2960502f20b3"
+}

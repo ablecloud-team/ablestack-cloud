@@ -1,0 +1,27 @@
+{
+  "synthetic": true,
+  "injectedServiceMissing": true,
+  "records": [
+    {
+      "requestId": "40480.8668",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "1b6001c7-f30f-4b5b-8843-8b8e68b2720e",
+        "command": "listNetworks"
+      },
+      "status": 200,
+      "result": {
+        "count": 1
+      }
+    }
+  ],
+  "cursor": 6321,
+  "dialog": "IP 주소 범위 추가\n네트워크 또는 IP 범위 정보가 변경되었습니다. 목록을 새로 고친 뒤 다시 시도해 주세요.\n인터넷 프로토콜\nIPv4\nIPv4\n\n종료 IP를 비우면 시작 IP 한 개를 사용합니다.\n\nIPv4 시작 IP\nIPv4 종료 IP\n게이트웨이\n넷마스크\n취소\n확인",
+  "values": [
+    "172.26.32.90",
+    "172.26.32.94",
+    "172.26.32.1",
+    "255.255.255.0"
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "body": {
+    "bottom": 876,
+    "height": 797,
+    "left": 306,
+    "right": 964,
+    "top": 79,
+    "width": 658,
+    "x": 306,
+    "y": 79
+  },
+  "bodyClientHeight": 797,
+  "bodyClientWidth": 648,
+  "bodyScrollHeight": 1653,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 648,
+  "colors": [],
+  "content": {
+    "bottom": 876,
+    "height": 852,
+    "left": 306,
+    "right": 964,
+    "top": 24,
+    "width": 658,
+    "x": 306,
+    "y": 24
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1270,
+    "top": 0,
+    "width": 1270,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "TEXTAREA"
+  },
+  "footer": null,
+  "header": {
+    "bottom": 79,
+    "height": 55,
+    "left": 306,
+    "right": 964,
+    "top": 24,
+    "width": 658,
+    "x": 306,
+    "y": 24
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 776,
+    "left": 256,
+    "right": 1270,
+    "top": 124,
+    "width": 1014,
+    "x": 256,
+    "y": 124
+  },
+  "primaryButton": null,
+  "width": 1280,
+  "image_sha256": "7d0c4dffe799c19779584f02a2ed25d3a93c1e62028e1f2a24f14d72c9ebb24c"
+}

@@ -1,0 +1,172 @@
+{
+  "ui": {
+    "breadcrumb": {
+      "rect": {
+        "bottom": 172,
+        "height": 29,
+        "left": 281,
+        "right": 763,
+        "top": 143,
+        "width": 482,
+        "x": 281,
+        "y": 143
+      },
+      "text": "/가상머신용 네트워크/qa-gn1561-31-l2업데이트/"
+    },
+    "dark": false,
+    "height": 900,
+    "panels": [
+      {
+        "id": "rc-tabs-1-panel-network.permissions",
+        "label": "rc-tabs-1-tab-network.permissions"
+      }
+    ],
+    "position": "ant-tabs ant-tabs-left",
+    "scrollWidth": 1270,
+    "tabs": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-1-panel-details",
+        "id": "rc-tabs-1-tab-details",
+        "rect": {
+          "bottom": 290,
+          "height": 22,
+          "left": 590.328125,
+          "right": 616.09375,
+          "top": 268,
+          "width": 25.765625,
+          "x": 590.328125,
+          "y": 268
+        },
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-1-panel-vnf.appliances",
+        "id": "rc-tabs-1-tab-vnf.appliances",
+        "rect": {
+          "bottom": 344,
+          "height": 22,
+          "left": 590.328125,
+          "right": 645.9375,
+          "top": 322,
+          "width": 55.609375,
+          "x": 590.328125,
+          "y": 322
+        },
+        "selected": "false",
+        "text": "VNF 기기"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(24, 144, 255)",
+        "controls": "rc-tabs-1-panel-network.permissions",
+        "id": "rc-tabs-1-tab-network.permissions",
+        "rect": {
+          "bottom": 398,
+          "height": 22,
+          "left": 590.328125,
+          "right": 671.453125,
+          "top": 376,
+          "width": 81.125,
+          "x": 590.328125,
+          "y": 376
+        },
+        "selected": "true",
+        "text": "네트워크 권한"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-1-panel-events",
+        "id": "rc-tabs-1-tab-events",
+        "rect": {
+          "bottom": 452,
+          "height": 22,
+          "left": 590.328125,
+          "right": 628.96875,
+          "top": 430,
+          "width": 38.640625,
+          "x": 590.328125,
+          "y": 430
+        },
+        "selected": "false",
+        "text": "이벤트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-1-panel-comments",
+        "id": "rc-tabs-1-tab-comments",
+        "rect": {
+          "bottom": 506,
+          "height": 22,
+          "left": 590.328125,
+          "right": 628.96875,
+          "top": 484,
+          "width": 38.640625,
+          "x": 590.328125,
+          "y": 484
+        },
+        "selected": "false",
+        "text": "코멘트"
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/guestnetwork/7c72d59c-c31c-42dd-9c4e-049d3a97fc2e?tab=network.permissions",
+    "width": 1280
+  },
+  "records": [
+    {
+      "requestId": "13616.2513",
+      "command": "listNetworkPermissions",
+      "method": "GET",
+      "params": {
+        "networkid": "7c72d59c-c31c-42dd-9c4e-049d3a97fc2e",
+        "command": "listNetworkPermissions"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "13616.2514",
+      "command": "listTags",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "13616.2515",
+      "command": "listResourceIcon",
+      "method": "GET",
+      "params": {
+        "command": "listResourceIcon"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "13616.2516",
+      "command": "listResourceIcon",
+      "method": "GET",
+      "params": {
+        "command": "listResourceIcon"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "13616.2517",
+      "command": "listAccounts",
+      "method": "GET",
+      "params": {
+        "command": "listAccounts"
+      },
+      "status": 200
+    }
+  ]
+}

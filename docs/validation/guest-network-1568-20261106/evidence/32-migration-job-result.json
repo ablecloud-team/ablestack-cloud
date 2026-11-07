@@ -1,0 +1,279 @@
+{
+  "queryasyncjobresultresponse": {
+    "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+    "account": "admin",
+    "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+    "domainpath": "ROOT",
+    "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+    "cmd": "org.apache.cloudstack.api.command.admin.network.MigrateNetworkCmd",
+    "jobprocstatus": 0,
+    "jobresultcode": 0,
+    "jobresulttype": "object",
+    "jobresult": {
+      "network": {
+        "id": "1171cd96-ad12-420e-88d0-70636b7bdb7d",
+        "name": "qa-gn1568-32-isolated",
+        "displaytext": "#1568 retained UI review",
+        "broadcastdomaintype": "Vlan",
+        "traffictype": "Guest",
+        "gateway": "10.168.32.1",
+        "netmask": "255.255.255.0",
+        "cidr": "10.168.32.0/24",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "zonename": "Zone",
+        "networkofferingid": "90c1d117-4760-4e4f-a99f-52ee722d2622",
+        "networkofferingname": "qa-gn1568-32-migration-b-offering",
+        "networkofferingdisplaytext": "#1568 migration counter and job recovery",
+        "networkofferingconservemode": true,
+        "networkofferingavailability": "Optional",
+        "issystem": false,
+        "state": "Implemented",
+        "related": "1171cd96-ad12-420e-88d0-70636b7bdb7d",
+        "dns1": "8.8.8.8",
+        "type": "Isolated",
+        "acltype": "Account",
+        "account": "qa-gn1568-32-user",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "service": [
+          {
+            "name": "UserData",
+            "provider": [
+              {
+                "name": "VirtualRouter"
+              }
+            ],
+            "capability": []
+          },
+          {
+            "name": "Vpn",
+            "provider": [
+              {
+                "name": "VirtualRouter"
+              }
+            ],
+            "capability": [
+              {
+                "name": "SupportedVpnTypes",
+                "value": "pptp,l2tp,ipsec",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "VpnTypes",
+                "value": "remoteaccessvpn",
+                "canchooseservicecapability": false
+              }
+            ]
+          },
+          {
+            "name": "StaticNat",
+            "provider": [
+              {
+                "name": "VirtualRouter"
+              }
+            ],
+            "capability": [
+              {
+                "name": "ElasticIp",
+                "value": "false",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "AssociatePublicIP",
+                "value": "false",
+                "canchooseservicecapability": false
+              }
+            ]
+          },
+          {
+            "name": "PortForwarding",
+            "provider": [
+              {
+                "name": "VirtualRouter"
+              }
+            ],
+            "capability": [
+              {
+                "name": "SupportedProtocols",
+                "value": "tcp,udp",
+                "canchooseservicecapability": false
+              }
+            ]
+          },
+          {
+            "name": "Dns",
+            "provider": [
+              {
+                "name": "VirtualRouter"
+              }
+            ],
+            "capability": [
+              {
+                "name": "AllowDnsSuffixModification",
+                "value": "true",
+                "canchooseservicecapability": false
+              }
+            ]
+          },
+          {
+            "name": "Lb",
+            "provider": [
+              {
+                "name": "VirtualRouter"
+              }
+            ],
+            "capability": [
+              {
+                "name": "SupportedStickinessMethods",
+                "value": "[{\"methodname\":\"LbCookie\",\"paramlist\":[{\"paramname\":\"cookie-name\",\"required\":false,\"isflag\":false,\"description\":\" \"},{\"paramname\":\"mode\",\"required\":false,\"isflag\":false,\"description\":\" \"},{\"paramname\":\"nocache\",\"required\":false,\"isflag\":true,\"description\":\" \"},{\"paramname\":\"indirect\",\"required\":false,\"isflag\":true,\"description\":\" \"},{\"paramname\":\"postonly\",\"required\":false,\"isflag\":true,\"description\":\" \"},{\"paramname\":\"domain\",\"required\":false,\"isflag\":false,\"description\":\" \"}],\"description\":\"This is loadbalancer cookie based stickiness method.\"},{\"methodname\":\"AppCookie\",\"paramlist\":[{\"paramname\":\"cookie-name\",\"required\":false,\"isflag\":false,\"description\":\" \"},{\"paramname\":\"length\",\"required\":false,\"isflag\":false,\"description\":\" \"},{\"paramname\":\"holdtime\",\"required\":false,\"isflag\":false,\"description\":\" \"},{\"paramname\":\"request-learn\",\"required\":false,\"isflag\":true,\"description\":\" \"},{\"paramname\":\"prefix\",\"required\":false,\"isflag\":true,\"description\":\" \"},{\"paramname\":\"mode\",\"required\":false,\"isflag\":false,\"description\":\" \"}],\"description\":\"This is App session based sticky method. Define session stickiness on an existing application cookie. It can be used only for a specific http traffic\"},{\"methodname\":\"SourceBased\",\"paramlist\":[{\"paramname\":\"tablesize\",\"required\":false,\"isflag\":false,\"description\":\" \"},{\"paramname\":\"expire\",\"required\":false,\"isflag\":false,\"description\":\" \"}],\"description\":\"This is source based Stickiness method, it can be used for any type of protocol.\"}]",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "AutoScaleCounters",
+                "value": "[{\"methodname\":\"CPU\",\"paramlist\":[]},{\"methodname\":\"MEMORY\",\"paramlist\":[]},{\"methodname\":\"VIRTUALROUTER\",\"paramlist\":[]}]",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "SupportedLbAlgorithms",
+                "value": "roundrobin,leastconn,source",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "SupportedProtocols",
+                "value": "tcp, udp, tcp-proxy, ssl, http",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "SupportedLBIsolation",
+                "value": "dedicated",
+                "canchooseservicecapability": true
+              },
+              {
+                "name": "LbSchemes",
+                "value": "Public",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "SslTermination",
+                "value": "true",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "VmAutoScaling",
+                "value": "true",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "ElasticLb",
+                "value": "false",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "InlineMode",
+                "value": "false",
+                "canchooseservicecapability": false
+              }
+            ]
+          },
+          {
+            "name": "Dhcp",
+            "provider": [
+              {
+                "name": "VirtualRouter"
+              }
+            ],
+            "capability": [
+              {
+                "name": "DhcpAccrossMultipleSubnets",
+                "value": "true",
+                "canchooseservicecapability": false
+              }
+            ]
+          },
+          {
+            "name": "SourceNat",
+            "provider": [
+              {
+                "name": "VirtualRouter"
+              }
+            ],
+            "capability": [
+              {
+                "name": "SupportedSourceNatTypes",
+                "value": "peraccount",
+                "canchooseservicecapability": true
+              },
+              {
+                "name": "RedundantRouter",
+                "value": "false",
+                "canchooseservicecapability": true
+              }
+            ]
+          },
+          {
+            "name": "Firewall",
+            "provider": [
+              {
+                "name": "VirtualRouter"
+              }
+            ],
+            "capability": [
+              {
+                "name": "SupportedTrafficDirection",
+                "value": "ingress, egress",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "SupportedProtocols",
+                "value": "tcp,udp,icmp",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "MultipleIps",
+                "value": "true",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "SupportedEgressProtocols",
+                "value": "tcp,udp,icmp, all",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "TrafficStatistics",
+                "value": "per public ip",
+                "canchooseservicecapability": false
+              }
+            ]
+          }
+        ],
+        "networkdomain": "csd5cloud.internal",
+        "physicalnetworkid": "4844a0ce-98d1-48c0-a09a-17266163f933",
+        "restartrequired": false,
+        "specifyvlan": false,
+        "specifyipranges": false,
+        "canusefordeploy": true,
+        "ispersistent": false,
+        "tags": [],
+        "displaynetwork": true,
+        "strechedl2subnet": false,
+        "redundantrouter": false,
+        "supportsvmautoscaling": true,
+        "created": "2026-11-06T01:54:56+0900",
+        "receivedbytes": 0,
+        "sentbytes": 7904,
+        "egressdefaultpolicy": false,
+        "publicmtu": 1500,
+        "privatemtu": 1500,
+        "keepmacaddressonpublicnic": true,
+        "hasannotations": false
+      }
+    },
+    "jobinstancetype": "Network",
+    "jobinstanceid": "1171cd96-ad12-420e-88d0-70636b7bdb7d",
+    "created": "2026-11-06T02:22:35+0900",
+    "completed": "2026-11-06T02:23:22+0900",
+    "jobid": "a9ed6740-8cd2-44af-b796-453e9840f5d5",
+    "jobstatus": 1
+  }
+}

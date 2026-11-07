@@ -1,0 +1,48 @@
+{
+  "cutoff": "2026-11-04T09:51:12.816Z",
+  "sourceHead": "0599e57c9d286d54f423f3728c37091d2dfce459",
+  "cases": [
+    {
+      "cluster": 31,
+      "command": "listZones",
+      "paused": 1,
+      "destination": "http://10.10.31.10:8080/client/#/networkoffering/2c643246-508a-4446-a730-ca9214cc3281?projectid=-1&tab=network.offering.used.networks",
+      "status": "PASS"
+    },
+    {
+      "cluster": 31,
+      "command": "listDomains",
+      "paused": 1,
+      "destination": "http://10.10.31.10:8080/client/#/networkoffering/2c643246-508a-4446-a730-ca9214cc3281?projectid=-1&tab=network.offering.used.networks",
+      "status": "PASS"
+    },
+    {
+      "cluster": 31,
+      "command": "listAccounts",
+      "paused": 1,
+      "destination": "http://10.10.31.10:8080/client/#/networkoffering/2c643246-508a-4446-a730-ca9214cc3281?projectid=-1&tab=network.offering.used.networks",
+      "status": "PASS"
+    },
+    {
+      "cluster": 32,
+      "command": "listZones",
+      "paused": 1,
+      "destination": "http://10.10.32.10:8080/client/#/networkoffering/324d6a00-b081-46db-9533-72a323c0d734?projectid=-1&tab=network.offering.used.networks",
+      "status": "PASS"
+    },
+    {
+      "cluster": 32,
+      "command": "listDomains",
+      "paused": 1,
+      "destination": "http://10.10.32.10:8080/client/#/networkoffering/324d6a00-b081-46db-9533-72a323c0d734?projectid=-1&tab=network.offering.used.networks",
+      "status": "PASS"
+    },
+    {
+      "cluster": 32,
+      "command": "listAccounts",
+      "paused": 1,
+      "destination": "http://10.10.32.10:8080/client/#/networkoffering/324d6a00-b081-46db-9533-72a323c0d734?projectid=-1&tab=network.offering.used.networks",
+      "status": "PASS"
+    }
+  ]
+}

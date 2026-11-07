@@ -1,0 +1,342 @@
+{
+  "label": "migrated",
+  "network": {
+    "id": "1171cd96-ad12-420e-88d0-70636b7bdb7d",
+    "name": "qa-gn1568-32-isolated",
+    "displaytext": "#1568 retained UI review",
+    "broadcastdomaintype": "Vlan",
+    "traffictype": "Guest",
+    "gateway": "10.168.32.1",
+    "netmask": "255.255.255.0",
+    "cidr": "10.168.32.0/24",
+    "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+    "zonename": "Zone",
+    "networkofferingid": "90c1d117-4760-4e4f-a99f-52ee722d2622",
+    "networkofferingname": "qa-gn1568-32-migration-b-offering",
+    "networkofferingdisplaytext": "#1568 migration counter and job recovery",
+    "networkofferingconservemode": true,
+    "networkofferingavailability": "Optional",
+    "issystem": false,
+    "state": "Implemented",
+    "related": "1171cd96-ad12-420e-88d0-70636b7bdb7d",
+    "broadcasturi": "vlan://2031",
+    "dns1": "8.8.8.8",
+    "type": "Isolated",
+    "vlan": "2031",
+    "acltype": "Account",
+    "account": "qa-gn1568-32-user",
+    "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+    "domain": "ROOT",
+    "domainpath": "ROOT",
+    "service": [
+      {
+        "name": "UserData",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": []
+      },
+      {
+        "name": "Vpn",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "SupportedVpnTypes",
+            "value": "pptp,l2tp,ipsec",
+            "canchooseservicecapability": false
+          },
+          {
+            "name": "VpnTypes",
+            "value": "remoteaccessvpn",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "StaticNat",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "ElasticIp",
+            "value": "false",
+            "canchooseservicecapability": false
+          },
+          {
+            "name": "AssociatePublicIP",
+            "value": "false",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "PortForwarding",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "SupportedProtocols",
+            "value": "tcp,udp",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "Dns",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "AllowDnsSuffixModification",
+            "value": "true",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "Lb",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "SupportedStickinessMethods",
+            "value": "[{\"methodname\":\"LbCookie\",\"paramlist\":[{\"paramname\":\"cookie-name\",\"required\":false,\"isflag\":false,\"description\":\" \"},{\"paramname\":\"mode\",\"required\":false,\"isflag\":false,\"description\":\" \"},{\"paramname\":\"nocache\",\"required\":false,\"isflag\":true,\"description\":\" \"},{\"paramname\":\"indirect\",\"required\":false,\"isflag\":true,\"description\":\" \"},{\"paramname\":\"postonly\",\"required\":false,\"isflag\":true,\"description\":\" \"},{\"paramname\":\"domain\",\"required\":false,\"isflag\":false,\"description\":\" \"}],\"description\":\"This is loadbalancer cookie based stickiness method.\"},{\"methodname\":\"AppCookie\",\"paramlist\":[{\"paramname\":\"cookie-name\",\"required\":false,\"isflag\":false,\"description\":\" \"},{\"paramname\":\"length\",\"required\":false,\"isflag\":false,\"description\":\" \"},{\"paramname\":\"holdtime\",\"required\":false,\"isflag\":false,\"description\":\" \"},{\"paramname\":\"request-learn\",\"required\":false,\"isflag\":true,\"description\":\" \"},{\"paramname\":\"prefix\",\"required\":false,\"isflag\":true,\"description\":\" \"},{\"paramname\":\"mode\",\"required\":false,\"isflag\":false,\"description\":\" \"}],\"description\":\"This is App session based sticky method. Define session stickiness on an existing application cookie. It can be used only for a specific http traffic\"},{\"methodname\":\"SourceBased\",\"paramlist\":[{\"paramname\":\"tablesize\",\"required\":false,\"isflag\":false,\"description\":\" \"},{\"paramname\":\"expire\",\"required\":false,\"isflag\":false,\"description\":\" \"}],\"description\":\"This is source based Stickiness method, it can be used for any type of protocol.\"}]",
+            "canchooseservicecapability": false
+          },
+          {
+            "name": "AutoScaleCounters",
+            "value": "[{\"methodname\":\"CPU\",\"paramlist\":[]},{\"methodname\":\"MEMORY\",\"paramlist\":[]},{\"methodname\":\"VIRTUALROUTER\",\"paramlist\":[]}]",
+            "canchooseservicecapability": false
+          },
+          {
+            "name": "SupportedLbAlgorithms",
+            "value": "roundrobin,leastconn,source",
+            "canchooseservicecapability": false
+          },
+          {
+            "name": "SupportedProtocols",
+            "value": "tcp, udp, tcp-proxy, ssl, http",
+            "canchooseservicecapability": false
+          },
+          {
+            "name": "SupportedLBIsolation",
+            "value": "dedicated",
+            "canchooseservicecapability": true
+          },
+          {
+            "name": "LbSchemes",
+            "value": "Public",
+            "canchooseservicecapability": false
+          },
+          {
+            "name": "SslTermination",
+            "value": "true",
+            "canchooseservicecapability": false
+          },
+          {
+            "name": "VmAutoScaling",
+            "value": "true",
+            "canchooseservicecapability": false
+          },
+          {
+            "name": "ElasticLb",
+            "value": "false",
+            "canchooseservicecapability": false
+          },
+          {
+            "name": "InlineMode",
+            "value": "false",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "Dhcp",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "DhcpAccrossMultipleSubnets",
+            "value": "true",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "SourceNat",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "SupportedSourceNatTypes",
+            "value": "peraccount",
+            "canchooseservicecapability": true
+          },
+          {
+            "name": "RedundantRouter",
+            "value": "false",
+            "canchooseservicecapability": true
+          }
+        ]
+      },
+      {
+        "name": "Firewall",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "SupportedTrafficDirection",
+            "value": "ingress, egress",
+            "canchooseservicecapability": false
+          },
+          {
+            "name": "SupportedProtocols",
+            "value": "tcp,udp,icmp",
+            "canchooseservicecapability": false
+          },
+          {
+            "name": "MultipleIps",
+            "value": "true",
+            "canchooseservicecapability": false
+          },
+          {
+            "name": "SupportedEgressProtocols",
+            "value": "tcp,udp,icmp, all",
+            "canchooseservicecapability": false
+          },
+          {
+            "name": "TrafficStatistics",
+            "value": "per public ip",
+            "canchooseservicecapability": false
+          }
+        ]
+      }
+    ],
+    "networkdomain": "csd5cloud.internal",
+    "physicalnetworkid": "4844a0ce-98d1-48c0-a09a-17266163f933",
+    "restartrequired": false,
+    "specifyvlan": false,
+    "specifyipranges": false,
+    "canusefordeploy": true,
+    "ispersistent": false,
+    "tags": [],
+    "details": {},
+    "displaynetwork": true,
+    "strechedl2subnet": false,
+    "redundantrouter": false,
+    "supportsvmautoscaling": true,
+    "created": "2026-11-06T01:54:56+0900",
+    "receivedbytes": 0,
+    "sentbytes": 17096,
+    "egressdefaultpolicy": false,
+    "publicmtu": 1500,
+    "privatemtu": 1500,
+    "keepmacaddressonpublicnic": true,
+    "hasannotations": false
+  },
+  "vm": {
+    "id": "af12d504-97dc-4f36-b59e-027c66a74344",
+    "name": "qa-gn1568-32-review-vm",
+    "state": "Running",
+    "instancename": "i-213-373-VM",
+    "hostid": "05bc1189-abf8-4ec3-9ef5-02558863b628",
+    "hostname": "ablecube32-3"
+  },
+  "nic": {
+    "id": "8d60464a-440d-4a68-854f-1adf7ca6e815",
+    "networkid": "1171cd96-ad12-420e-88d0-70636b7bdb7d",
+    "networkname": "qa-gn1568-32-isolated",
+    "netmask": "255.255.255.0",
+    "gateway": "10.168.32.1",
+    "ipaddress": "10.168.32.107",
+    "isolationuri": "vlan://2031",
+    "broadcasturi": "vlan://2031",
+    "traffictype": "Guest",
+    "type": "Isolated",
+    "isdefault": true,
+    "macaddress": "02:01:01:73:00:01",
+    "secondaryip": [],
+    "extradhcpoption": [],
+    "deviceid": "0",
+    "enabled": true
+  },
+  "router": {
+    "id": "e03f5fa5-9e6c-4230-8adf-824a418545e9",
+    "name": "r-378-VM",
+    "hostid": "05bc1189-abf8-4ec3-9ef5-02558863b628",
+    "hostname": "ablecube32-3",
+    "guestnetworkid": "1171cd96-ad12-420e-88d0-70636b7bdb7d",
+    "guestipaddress": "10.168.32.1",
+    "state": "Running"
+  },
+  "sameHost": true,
+  "guestSshExit": 0,
+  "guestSshStderr": "",
+  "guest": {
+    "addresses": {
+      "exit": 0,
+      "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"::1\",\"prefixlen\":128,\"scope\":\"host\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":3,\"ifname\":\"ens4\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"fq_codel\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:01:01:74:00:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"altnames\":[\"enp0s4\"],\"addr_info\":[]},{\"ifindex\":4,\"ifname\":\"ens5\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"fq_codel\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"1e:01:bd:00:02:14\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"altnames\":[\"enp0s5\"],\"addr_info\":[]},{\"ifindex\":5,\"ifname\":\"ens3\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"fq_codel\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:01:01:73:00:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"altnames\":[\"enp0s3\"],\"addr_info\":[{\"family\":\"inet\",\"local\":\"10.168.32.107\",\"prefixlen\":24,\"broadcast\":\"10.168.32.255\",\"scope\":\"global\",\"noprefixroute\":true,\"label\":\"ens3\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"fe80::1:1ff:fe73:1\",\"prefixlen\":64,\"scope\":\"link\",\"noprefixroute\":true,\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]\n",
+      "stderr": ""
+    },
+    "routes": {
+      "exit": 0,
+      "stdout": "[{\"dst\":\"default\",\"gateway\":\"10.168.32.1\",\"dev\":\"ens3\",\"protocol\":\"dhcp\",\"prefsrc\":\"10.168.32.107\",\"metric\":100,\"flags\":[]},{\"dst\":\"10.168.32.0/24\",\"dev\":\"ens3\",\"protocol\":\"kernel\",\"scope\":\"link\",\"prefsrc\":\"10.168.32.107\",\"metric\":100,\"flags\":[]}]\n",
+      "stderr": ""
+    },
+    "gatewayPing": {
+      "exit": 0,
+      "stdout": "PING 10.168.32.1 (10.168.32.1) 56(84) bytes of data.\n64 bytes from 10.168.32.1: icmp_seq=1 ttl=64 time=0.163 ms\n64 bytes from 10.168.32.1: icmp_seq=2 ttl=64 time=0.201 ms\n\n--- 10.168.32.1 ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss, time 1030ms\nrtt min/avg/max/mdev = 0.163/0.182/0.201/0.019 ms\n",
+      "stderr": ""
+    }
+  },
+  "hostRuntime": {
+    "interfaces": [
+      {
+        "mac": "02:01:01:74:00:01",
+        "source": {
+          "bridge": "brlhfblgjc-2020"
+        }
+      },
+      {
+        "mac": "1e:01:bd:00:02:14",
+        "source": {
+          "bridge": "brlhfblgjc-2021"
+        }
+      },
+      {
+        "mac": "02:01:01:73:00:01",
+        "source": {
+          "bridge": "brlhfblgjc-2031"
+        }
+      }
+    ],
+    "storage": " Type    Device   Target   Source\n------------------------------------------------------------------------------\n block   disk     sda      /dev/rbd/rbd/760885ea-c352-40f4-b0df-44bba5525a85\n file    cdrom    hdc      -\n file    cdrom    hdd      -\n\n"
+  }
+}

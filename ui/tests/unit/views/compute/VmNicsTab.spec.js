@@ -62,10 +62,10 @@ test('failed refresh preserves data and blocks writes; recovery clears the warni
 })
 test('candidate pagination keeps VM ownership and excludes attached networks', async () => {
   const wrapper = mount(); await flush()
-  getAPI.mockImplementation(async (api, params) => params.canusefordeploy ? { listnetworksresponse: { count: 3, network: params.page === 1 ? [{ id: 'l2', state: 'Setup' }, { id: 'first', state: 'Allocated' }] : [{ id: 'second', state: 'Implemented' }] } } : responses(api, params))
+  getAPI.mockImplementation(async (api, params) => params.canusefordeploy ? { listnetworksresponse: { count: 3, network: (params.page === 1 ? [{ id: 'l2', state: 'Setup' }, { id: 'first', state: 'Allocated' }] : [{ id: 'second', state: 'Implemented' }]).map(row => ({ ...row, zoneid: 'zone' })) } } : responses(api, params))
   await wrapper.vm.openAttach()
   expect(wrapper.vm.candidates.map(n => n.id)).toEqual(['first', 'second'])
-  expect(getAPI).toHaveBeenCalledWith('listNetworks', expect.objectContaining({ page: 2, account: 'admin', domainid: 'domain', zoneid: 'zone', canusefordeploy: true }))
+  expect(getAPI).toHaveBeenCalledWith('listNetworks', expect.objectContaining({ page: 2, account: 'admin', domainid: 'domain', zoneid: 'zone', canusefordeploy: true }), { preserveOnFailure: true })
   wrapper.unmount()
 })
 test('refresh leaves the open creation form resource stable and VM switch closes it', async () => {
@@ -75,6 +75,25 @@ test('refresh leaves the open creation form resource stable and VM switch closes
   expect(wrapper.vm.formVm).toBe(original)
   await wrapper.setProps({ resource: { ...vm, id: 'next' } }); await flush()
   expect(wrapper.vm.form).toBe(''); expect(wrapper.vm.loading).toBe(false)
+  wrapper.unmount()
+})
+
+test('a late candidate response cannot repopulate a closed and reopened attachment dialog', async () => {
+  const wrapper = mount(); await flush()
+  let resolveOld
+  getAPI.mockImplementation(async (api, params) => params.canusefordeploy
+    ? new Promise(resolve => { resolveOld = resolve })
+    : responses(api, params))
+  const old = wrapper.vm.openAttach()
+  wrapper.vm.closeForm()
+  getAPI.mockImplementation(async (api, params) => params.canusefordeploy
+    ? { listnetworksresponse: { count: 0 } }
+    : responses(api, params))
+  await wrapper.vm.openAttach()
+  resolveOld({ listnetworksresponse: { count: 1, network: [{ id: 'stale', zoneid: 'zone', state: 'Setup' }] } })
+  await old
+  expect(wrapper.vm.candidates).toEqual([])
+  expect(wrapper.vm.candidatesLoading).toBe(false)
   wrapper.unmount()
 })
 

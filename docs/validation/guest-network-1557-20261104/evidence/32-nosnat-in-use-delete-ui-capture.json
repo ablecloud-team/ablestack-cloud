@@ -1,0 +1,104 @@
+{
+  "body": {
+    "bottom": 539,
+    "height": 188,
+    "left": 401,
+    "right": 879,
+    "top": 351,
+    "width": 478,
+    "x": 401,
+    "y": 351
+  },
+  "bodyClientHeight": 188,
+  "bodyClientWidth": 478,
+  "bodyScrollHeight": 188,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 478,
+  "colors": [
+    {
+      "background": "rgb(255, 248, 230)",
+      "color": "rgb(92, 59, 0)",
+      "text": "현재 IP 주소 범위를 삭제하시겠습니까?"
+    },
+    {
+      "background": "rgb(255, 241, 240)",
+      "color": "rgb(112, 27, 27)",
+      "text": "1  Ips are in use. Cannot delete this vlan"
+    },
+    {
+      "background": "rgb(180, 35, 24)",
+      "color": "rgb(255, 255, 255)",
+      "text": "예"
+    }
+  ],
+  "content": {
+    "bottom": 605,
+    "height": 310,
+    "left": 400,
+    "right": 880,
+    "top": 295,
+    "width": 480,
+    "x": 400,
+    "y": 295
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1280,
+    "top": 0,
+    "width": 1280,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": {
+    "bottom": 604,
+    "height": 65,
+    "left": 401,
+    "right": 879,
+    "top": 539,
+    "width": 478,
+    "x": 401,
+    "y": 539
+  },
+  "header": {
+    "bottom": 351,
+    "height": 55,
+    "left": 401,
+    "right": 879,
+    "top": 296,
+    "width": 478,
+    "x": 401,
+    "y": 296
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 749,
+    "left": 256,
+    "right": 1270,
+    "top": 151,
+    "width": 1014,
+    "x": 256,
+    "y": 151
+  },
+  "primaryButton": {
+    "bottom": 588,
+    "height": 32,
+    "left": 806.109375,
+    "right": 851,
+    "top": 556,
+    "width": 44.890625,
+    "x": 806.109375,
+    "y": 556
+  },
+  "width": 1280,
+  "image_sha256": "82d79b52afa960f071b6e0bddf73699cc77fa3da2195c34cca29afe0663c8270"
+}

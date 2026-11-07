@@ -1,0 +1,1466 @@
+[
+  {
+    "cluster": 31,
+    "type": "isolated",
+    "mode": "dark",
+    "width": 1280,
+    "height": 900,
+    "field": {
+      "client_width": 890,
+      "font_size": "14px",
+      "rect": {
+        "bottom": 374,
+        "height": 98,
+        "left": 189,
+        "right": 1081,
+        "top": 276,
+        "width": 892,
+        "x": 189,
+        "y": 276
+      },
+      "scroll_width": 890,
+      "tag": "TEXTAREA",
+      "value": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    },
+    "layout": {
+      "body": {
+        "bottom": 800,
+        "height": 710,
+        "left": 161,
+        "right": 1119,
+        "top": 90,
+        "width": 958,
+        "x": 161,
+        "y": 90
+      },
+      "bodyClientHeight": 710,
+      "bodyClientWidth": 948,
+      "bodyScrollHeight": 892,
+      "bodyScrollTop": 0,
+      "bodyScrollWidth": 948,
+      "colors": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "Isolated · Zone · admin"
+        },
+        {
+          "background": "rgb(9, 105, 218)",
+          "color": "rgb(255, 255, 255)",
+          "text": "확인"
+        }
+      ],
+      "content": {
+        "bottom": 866,
+        "height": 832,
+        "left": 160,
+        "right": 1120,
+        "top": 34,
+        "width": 960,
+        "x": 160,
+        "y": 34
+      },
+      "dark": true,
+      "dialog": {
+        "bottom": 900,
+        "height": 900,
+        "left": 0,
+        "right": 1280,
+        "top": 0,
+        "width": 1280,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 1270,
+      "dpr": 1,
+      "focus": {
+        "label": null,
+        "tag": "TEXTAREA"
+      },
+      "footer": {
+        "bottom": 865,
+        "height": 65,
+        "left": 161,
+        "right": 1119,
+        "top": 800,
+        "width": 958,
+        "x": 161,
+        "y": 800
+      },
+      "header": {
+        "bottom": 90,
+        "height": 55,
+        "left": 161,
+        "right": 1119,
+        "top": 35,
+        "width": 958,
+        "x": 161,
+        "y": 35
+      },
+      "height": 900,
+      "main": {
+        "bottom": 900,
+        "height": 776,
+        "left": 256,
+        "right": 1270,
+        "top": 124,
+        "width": 1014,
+        "x": 256,
+        "y": 124
+      },
+      "primaryButton": {
+        "bottom": 849,
+        "height": 32,
+        "left": 1033.234375,
+        "right": 1091,
+        "top": 817,
+        "width": 57.765625,
+        "x": 1033.234375,
+        "y": 817
+      },
+      "width": 1280
+    }
+  },
+  {
+    "cluster": 31,
+    "type": "isolated",
+    "mode": "dark",
+    "width": 768,
+    "height": 1024,
+    "field": {
+      "client_width": 650,
+      "font_size": "14px",
+      "rect": {
+        "bottom": 458,
+        "height": 120,
+        "left": 53,
+        "right": 705,
+        "top": 338,
+        "width": 652,
+        "x": 53,
+        "y": 338
+      },
+      "scroll_width": 650,
+      "tag": "TEXTAREA",
+      "value": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    },
+    "layout": {
+      "body": {
+        "bottom": 862,
+        "height": 710,
+        "left": 25,
+        "right": 743,
+        "top": 152,
+        "width": 718,
+        "x": 25,
+        "y": 152
+      },
+      "bodyClientHeight": 710,
+      "bodyClientWidth": 708,
+      "bodyScrollHeight": 936,
+      "bodyScrollTop": 0,
+      "bodyScrollWidth": 708,
+      "colors": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "Isolated · Zone · admin"
+        },
+        {
+          "background": "rgb(9, 105, 218)",
+          "color": "rgb(255, 255, 255)",
+          "text": "확인"
+        }
+      ],
+      "content": {
+        "bottom": 928,
+        "height": 832,
+        "left": 24,
+        "right": 744,
+        "top": 96,
+        "width": 720,
+        "x": 24,
+        "y": 96
+      },
+      "dark": true,
+      "dialog": {
+        "bottom": 1024,
+        "height": 1024,
+        "left": 0,
+        "right": 768,
+        "top": 0,
+        "width": 768,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 758,
+      "dpr": 1,
+      "focus": {
+        "label": null,
+        "tag": "TEXTAREA"
+      },
+      "footer": {
+        "bottom": 927,
+        "height": 65,
+        "left": 25,
+        "right": 743,
+        "top": 862,
+        "width": 718,
+        "x": 25,
+        "y": 862
+      },
+      "header": {
+        "bottom": 152,
+        "height": 55,
+        "left": 25,
+        "right": 743,
+        "top": 97,
+        "width": 718,
+        "x": 25,
+        "y": 97
+      },
+      "height": 1024,
+      "main": {
+        "bottom": 1024,
+        "height": 900,
+        "left": 80,
+        "right": 758,
+        "top": 124,
+        "width": 678,
+        "x": 80,
+        "y": 124
+      },
+      "primaryButton": {
+        "bottom": 911,
+        "height": 32,
+        "left": 657.234375,
+        "right": 715,
+        "top": 879,
+        "width": 57.765625,
+        "x": 657.234375,
+        "y": 879
+      },
+      "width": 768
+    }
+  },
+  {
+    "cluster": 31,
+    "type": "isolated",
+    "mode": "dark",
+    "width": 390,
+    "height": 844,
+    "field": {
+      "client_width": 310,
+      "font_size": "14px",
+      "rect": {
+        "bottom": 366,
+        "height": 120,
+        "left": 29,
+        "right": 351,
+        "top": 246,
+        "width": 322,
+        "x": 29,
+        "y": 246
+      },
+      "scroll_width": 310,
+      "tag": "TEXTAREA",
+      "value": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    },
+    "layout": {
+      "body": {
+        "bottom": 766,
+        "height": 698,
+        "left": 13,
+        "right": 377,
+        "top": 68,
+        "width": 364,
+        "x": 13,
+        "y": 68
+      },
+      "bodyClientHeight": 698,
+      "bodyClientWidth": 354,
+      "bodyScrollHeight": 1010,
+      "bodyScrollTop": 0,
+      "bodyScrollWidth": 354,
+      "colors": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "Isolated · Zone · admin"
+        },
+        {
+          "background": "rgb(9, 105, 218)",
+          "color": "rgb(255, 255, 255)",
+          "text": "확인"
+        }
+      ],
+      "content": {
+        "bottom": 832,
+        "height": 820,
+        "left": 12,
+        "right": 378,
+        "top": 12,
+        "width": 366,
+        "x": 12,
+        "y": 12
+      },
+      "dark": true,
+      "dialog": {
+        "bottom": 844,
+        "height": 844,
+        "left": 0,
+        "right": 390,
+        "top": 0,
+        "width": 390,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 380,
+      "dpr": 1,
+      "focus": {
+        "label": null,
+        "tag": "TEXTAREA"
+      },
+      "footer": {
+        "bottom": 831,
+        "height": 65,
+        "left": 13,
+        "right": 377,
+        "top": 766,
+        "width": 364,
+        "x": 13,
+        "y": 766
+      },
+      "header": {
+        "bottom": 68,
+        "height": 55,
+        "left": 13,
+        "right": 377,
+        "top": 13,
+        "width": 364,
+        "x": 13,
+        "y": 13
+      },
+      "height": 844,
+      "main": {
+        "bottom": 844,
+        "height": 676,
+        "left": 0,
+        "right": 380,
+        "top": 168,
+        "width": 380,
+        "x": 0,
+        "y": 168
+      },
+      "primaryButton": {
+        "bottom": 815,
+        "height": 32,
+        "left": 303.234375,
+        "right": 361,
+        "top": 783,
+        "width": 57.765625,
+        "x": 303.234375,
+        "y": 783
+      },
+      "width": 390
+    }
+  },
+  {
+    "cluster": 31,
+    "type": "isolated",
+    "mode": "light",
+    "width": 1280,
+    "height": 900,
+    "field": {
+      "client_width": 890,
+      "font_size": "14px",
+      "rect": {
+        "bottom": 374,
+        "height": 98,
+        "left": 189,
+        "right": 1081,
+        "top": 276,
+        "width": 892,
+        "x": 189,
+        "y": 276
+      },
+      "scroll_width": 890,
+      "tag": "TEXTAREA",
+      "value": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    },
+    "layout": {
+      "body": {
+        "bottom": 800,
+        "height": 710,
+        "left": 161,
+        "right": 1119,
+        "top": 90,
+        "width": 958,
+        "x": 161,
+        "y": 90
+      },
+      "bodyClientHeight": 710,
+      "bodyClientWidth": 948,
+      "bodyScrollHeight": 892,
+      "bodyScrollTop": 0,
+      "bodyScrollWidth": 948,
+      "colors": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "Isolated · Zone · admin"
+        },
+        {
+          "background": "rgb(9, 105, 218)",
+          "color": "rgb(255, 255, 255)",
+          "text": "확인"
+        }
+      ],
+      "content": {
+        "bottom": 866,
+        "height": 832,
+        "left": 160,
+        "right": 1120,
+        "top": 34,
+        "width": 960,
+        "x": 160,
+        "y": 34
+      },
+      "dark": false,
+      "dialog": {
+        "bottom": 900,
+        "height": 900,
+        "left": 0,
+        "right": 1280,
+        "top": 0,
+        "width": 1280,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 1270,
+      "dpr": 1,
+      "focus": {
+        "label": null,
+        "tag": "TEXTAREA"
+      },
+      "footer": {
+        "bottom": 865,
+        "height": 65,
+        "left": 161,
+        "right": 1119,
+        "top": 800,
+        "width": 958,
+        "x": 161,
+        "y": 800
+      },
+      "header": {
+        "bottom": 90,
+        "height": 55,
+        "left": 161,
+        "right": 1119,
+        "top": 35,
+        "width": 958,
+        "x": 161,
+        "y": 35
+      },
+      "height": 900,
+      "main": {
+        "bottom": 900,
+        "height": 776,
+        "left": 256,
+        "right": 1270,
+        "top": 124,
+        "width": 1014,
+        "x": 256,
+        "y": 124
+      },
+      "primaryButton": {
+        "bottom": 849,
+        "height": 32,
+        "left": 1033.234375,
+        "right": 1091,
+        "top": 817,
+        "width": 57.765625,
+        "x": 1033.234375,
+        "y": 817
+      },
+      "width": 1280
+    }
+  },
+  {
+    "cluster": 31,
+    "type": "isolated",
+    "mode": "light",
+    "width": 768,
+    "height": 1024,
+    "field": {
+      "client_width": 650,
+      "font_size": "14px",
+      "rect": {
+        "bottom": 458,
+        "height": 120,
+        "left": 53,
+        "right": 705,
+        "top": 338,
+        "width": 652,
+        "x": 53,
+        "y": 338
+      },
+      "scroll_width": 650,
+      "tag": "TEXTAREA",
+      "value": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    },
+    "layout": {
+      "body": {
+        "bottom": 862,
+        "height": 710,
+        "left": 25,
+        "right": 743,
+        "top": 152,
+        "width": 718,
+        "x": 25,
+        "y": 152
+      },
+      "bodyClientHeight": 710,
+      "bodyClientWidth": 708,
+      "bodyScrollHeight": 936,
+      "bodyScrollTop": 0,
+      "bodyScrollWidth": 708,
+      "colors": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "Isolated · Zone · admin"
+        },
+        {
+          "background": "rgb(9, 105, 218)",
+          "color": "rgb(255, 255, 255)",
+          "text": "확인"
+        }
+      ],
+      "content": {
+        "bottom": 928,
+        "height": 832,
+        "left": 24,
+        "right": 744,
+        "top": 96,
+        "width": 720,
+        "x": 24,
+        "y": 96
+      },
+      "dark": false,
+      "dialog": {
+        "bottom": 1024,
+        "height": 1024,
+        "left": 0,
+        "right": 768,
+        "top": 0,
+        "width": 768,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 758,
+      "dpr": 1,
+      "focus": {
+        "label": null,
+        "tag": "TEXTAREA"
+      },
+      "footer": {
+        "bottom": 927,
+        "height": 65,
+        "left": 25,
+        "right": 743,
+        "top": 862,
+        "width": 718,
+        "x": 25,
+        "y": 862
+      },
+      "header": {
+        "bottom": 152,
+        "height": 55,
+        "left": 25,
+        "right": 743,
+        "top": 97,
+        "width": 718,
+        "x": 25,
+        "y": 97
+      },
+      "height": 1024,
+      "main": {
+        "bottom": 1024,
+        "height": 900,
+        "left": 80,
+        "right": 758,
+        "top": 124,
+        "width": 678,
+        "x": 80,
+        "y": 124
+      },
+      "primaryButton": {
+        "bottom": 911,
+        "height": 32,
+        "left": 657.234375,
+        "right": 715,
+        "top": 879,
+        "width": 57.765625,
+        "x": 657.234375,
+        "y": 879
+      },
+      "width": 768
+    }
+  },
+  {
+    "cluster": 31,
+    "type": "isolated",
+    "mode": "light",
+    "width": 390,
+    "height": 844,
+    "field": {
+      "client_width": 310,
+      "font_size": "14px",
+      "rect": {
+        "bottom": 366,
+        "height": 120,
+        "left": 29,
+        "right": 351,
+        "top": 246,
+        "width": 322,
+        "x": 29,
+        "y": 246
+      },
+      "scroll_width": 310,
+      "tag": "TEXTAREA",
+      "value": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    },
+    "layout": {
+      "body": {
+        "bottom": 766,
+        "height": 698,
+        "left": 13,
+        "right": 377,
+        "top": 68,
+        "width": 364,
+        "x": 13,
+        "y": 68
+      },
+      "bodyClientHeight": 698,
+      "bodyClientWidth": 354,
+      "bodyScrollHeight": 1010,
+      "bodyScrollTop": 0,
+      "bodyScrollWidth": 354,
+      "colors": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "Isolated · Zone · admin"
+        },
+        {
+          "background": "rgb(9, 105, 218)",
+          "color": "rgb(255, 255, 255)",
+          "text": "확인"
+        }
+      ],
+      "content": {
+        "bottom": 832,
+        "height": 820,
+        "left": 12,
+        "right": 378,
+        "top": 12,
+        "width": 366,
+        "x": 12,
+        "y": 12
+      },
+      "dark": false,
+      "dialog": {
+        "bottom": 844,
+        "height": 844,
+        "left": 0,
+        "right": 390,
+        "top": 0,
+        "width": 390,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 380,
+      "dpr": 1,
+      "focus": {
+        "label": null,
+        "tag": "TEXTAREA"
+      },
+      "footer": {
+        "bottom": 831,
+        "height": 65,
+        "left": 13,
+        "right": 377,
+        "top": 766,
+        "width": 364,
+        "x": 13,
+        "y": 766
+      },
+      "header": {
+        "bottom": 68,
+        "height": 55,
+        "left": 13,
+        "right": 377,
+        "top": 13,
+        "width": 364,
+        "x": 13,
+        "y": 13
+      },
+      "height": 844,
+      "main": {
+        "bottom": 844,
+        "height": 676,
+        "left": 0,
+        "right": 380,
+        "top": 168,
+        "width": 380,
+        "x": 0,
+        "y": 168
+      },
+      "primaryButton": {
+        "bottom": 815,
+        "height": 32,
+        "left": 303.234375,
+        "right": 361,
+        "top": 783,
+        "width": 57.765625,
+        "x": 303.234375,
+        "y": 783
+      },
+      "width": 390
+    }
+  },
+  {
+    "cluster": 32,
+    "type": "shared",
+    "mode": "light",
+    "width": 1280,
+    "height": 900,
+    "field": {
+      "client_width": 890,
+      "font_size": "14px",
+      "rect": {
+        "bottom": 374,
+        "height": 98,
+        "left": 189,
+        "right": 1081,
+        "top": 276,
+        "width": 892,
+        "x": 189,
+        "y": 276
+      },
+      "scroll_width": 890,
+      "tag": "TEXTAREA",
+      "value": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    },
+    "layout": {
+      "body": {
+        "bottom": 800,
+        "height": 710,
+        "left": 161,
+        "right": 1119,
+        "top": 90,
+        "width": 958,
+        "x": 161,
+        "y": 90
+      },
+      "bodyClientHeight": 710,
+      "bodyClientWidth": 948,
+      "bodyScrollHeight": 756,
+      "bodyScrollTop": 0,
+      "bodyScrollWidth": 948,
+      "colors": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "Shared · Zone · "
+        },
+        {
+          "background": "rgb(9, 105, 218)",
+          "color": "rgb(255, 255, 255)",
+          "text": "확인"
+        }
+      ],
+      "content": {
+        "bottom": 866,
+        "height": 832,
+        "left": 160,
+        "right": 1120,
+        "top": 34,
+        "width": 960,
+        "x": 160,
+        "y": 34
+      },
+      "dark": false,
+      "dialog": {
+        "bottom": 900,
+        "height": 900,
+        "left": 0,
+        "right": 1280,
+        "top": 0,
+        "width": 1280,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 1270,
+      "dpr": 1,
+      "focus": {
+        "label": null,
+        "tag": "TEXTAREA"
+      },
+      "footer": {
+        "bottom": 865,
+        "height": 65,
+        "left": 161,
+        "right": 1119,
+        "top": 800,
+        "width": 958,
+        "x": 161,
+        "y": 800
+      },
+      "header": {
+        "bottom": 90,
+        "height": 55,
+        "left": 161,
+        "right": 1119,
+        "top": 35,
+        "width": 958,
+        "x": 161,
+        "y": 35
+      },
+      "height": 900,
+      "main": {
+        "bottom": 900,
+        "height": 749,
+        "left": 256,
+        "right": 1270,
+        "top": 151,
+        "width": 1014,
+        "x": 256,
+        "y": 151
+      },
+      "primaryButton": {
+        "bottom": 849,
+        "height": 32,
+        "left": 1033.234375,
+        "right": 1091,
+        "top": 817,
+        "width": 57.765625,
+        "x": 1033.234375,
+        "y": 817
+      },
+      "width": 1280
+    }
+  },
+  {
+    "cluster": 32,
+    "type": "shared",
+    "mode": "light",
+    "width": 768,
+    "height": 1024,
+    "field": {
+      "client_width": 650,
+      "font_size": "14px",
+      "rect": {
+        "bottom": 458,
+        "height": 120,
+        "left": 53,
+        "right": 705,
+        "top": 338,
+        "width": 652,
+        "x": 53,
+        "y": 338
+      },
+      "scroll_width": 650,
+      "tag": "TEXTAREA",
+      "value": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    },
+    "layout": {
+      "body": {
+        "bottom": 862,
+        "height": 710,
+        "left": 25,
+        "right": 743,
+        "top": 152,
+        "width": 718,
+        "x": 25,
+        "y": 152
+      },
+      "bodyClientHeight": 710,
+      "bodyClientWidth": 708,
+      "bodyScrollHeight": 800,
+      "bodyScrollTop": 0,
+      "bodyScrollWidth": 708,
+      "colors": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "Shared · Zone · "
+        },
+        {
+          "background": "rgb(9, 105, 218)",
+          "color": "rgb(255, 255, 255)",
+          "text": "확인"
+        }
+      ],
+      "content": {
+        "bottom": 928,
+        "height": 832,
+        "left": 24,
+        "right": 744,
+        "top": 96,
+        "width": 720,
+        "x": 24,
+        "y": 96
+      },
+      "dark": false,
+      "dialog": {
+        "bottom": 1024,
+        "height": 1024,
+        "left": 0,
+        "right": 768,
+        "top": 0,
+        "width": 768,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 758,
+      "dpr": 1,
+      "focus": {
+        "label": null,
+        "tag": "TEXTAREA"
+      },
+      "footer": {
+        "bottom": 927,
+        "height": 65,
+        "left": 25,
+        "right": 743,
+        "top": 862,
+        "width": 718,
+        "x": 25,
+        "y": 862
+      },
+      "header": {
+        "bottom": 152,
+        "height": 55,
+        "left": 25,
+        "right": 743,
+        "top": 97,
+        "width": 718,
+        "x": 25,
+        "y": 97
+      },
+      "height": 1024,
+      "main": {
+        "bottom": 1024,
+        "height": 841,
+        "left": 80,
+        "right": 758,
+        "top": 183,
+        "width": 678,
+        "x": 80,
+        "y": 183
+      },
+      "primaryButton": {
+        "bottom": 911,
+        "height": 32,
+        "left": 657.234375,
+        "right": 715,
+        "top": 879,
+        "width": 57.765625,
+        "x": 657.234375,
+        "y": 879
+      },
+      "width": 768
+    }
+  },
+  {
+    "cluster": 32,
+    "type": "shared",
+    "mode": "light",
+    "width": 390,
+    "height": 844,
+    "field": {
+      "client_width": 310,
+      "font_size": "14px",
+      "rect": {
+        "bottom": 366,
+        "height": 120,
+        "left": 29,
+        "right": 351,
+        "top": 246,
+        "width": 322,
+        "x": 29,
+        "y": 246
+      },
+      "scroll_width": 310,
+      "tag": "TEXTAREA",
+      "value": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    },
+    "layout": {
+      "body": {
+        "bottom": 766,
+        "height": 698,
+        "left": 13,
+        "right": 377,
+        "top": 68,
+        "width": 364,
+        "x": 13,
+        "y": 68
+      },
+      "bodyClientHeight": 698,
+      "bodyClientWidth": 354,
+      "bodyScrollHeight": 874,
+      "bodyScrollTop": 0,
+      "bodyScrollWidth": 354,
+      "colors": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "Shared · Zone · "
+        },
+        {
+          "background": "rgb(9, 105, 218)",
+          "color": "rgb(255, 255, 255)",
+          "text": "확인"
+        }
+      ],
+      "content": {
+        "bottom": 832,
+        "height": 820,
+        "left": 12,
+        "right": 378,
+        "top": 12,
+        "width": 366,
+        "x": 12,
+        "y": 12
+      },
+      "dark": false,
+      "dialog": {
+        "bottom": 844,
+        "height": 844,
+        "left": 0,
+        "right": 390,
+        "top": 0,
+        "width": 390,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 380,
+      "dpr": 1,
+      "focus": {
+        "label": null,
+        "tag": "TEXTAREA"
+      },
+      "footer": {
+        "bottom": 831,
+        "height": 65,
+        "left": 13,
+        "right": 377,
+        "top": 766,
+        "width": 364,
+        "x": 13,
+        "y": 766
+      },
+      "header": {
+        "bottom": 68,
+        "height": 55,
+        "left": 13,
+        "right": 377,
+        "top": 13,
+        "width": 364,
+        "x": 13,
+        "y": 13
+      },
+      "height": 844,
+      "main": {
+        "bottom": 844,
+        "height": 643,
+        "left": 0,
+        "right": 380,
+        "top": 201,
+        "width": 380,
+        "x": 0,
+        "y": 201
+      },
+      "primaryButton": {
+        "bottom": 815,
+        "height": 32,
+        "left": 303.234375,
+        "right": 361,
+        "top": 783,
+        "width": 57.765625,
+        "x": 303.234375,
+        "y": 783
+      },
+      "width": 390
+    }
+  },
+  {
+    "cluster": 32,
+    "type": "shared",
+    "mode": "dark",
+    "width": 1280,
+    "height": 900,
+    "field": {
+      "client_width": 890,
+      "font_size": "14px",
+      "rect": {
+        "bottom": 374,
+        "height": 98,
+        "left": 189,
+        "right": 1081,
+        "top": 276,
+        "width": 892,
+        "x": 189,
+        "y": 276
+      },
+      "scroll_width": 890,
+      "tag": "TEXTAREA",
+      "value": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    },
+    "layout": {
+      "body": {
+        "bottom": 800,
+        "height": 710,
+        "left": 161,
+        "right": 1119,
+        "top": 90,
+        "width": 958,
+        "x": 161,
+        "y": 90
+      },
+      "bodyClientHeight": 710,
+      "bodyClientWidth": 948,
+      "bodyScrollHeight": 756,
+      "bodyScrollTop": 0,
+      "bodyScrollWidth": 948,
+      "colors": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "Shared · Zone · "
+        },
+        {
+          "background": "rgb(9, 105, 218)",
+          "color": "rgb(255, 255, 255)",
+          "text": "확인"
+        }
+      ],
+      "content": {
+        "bottom": 866,
+        "height": 832,
+        "left": 160,
+        "right": 1120,
+        "top": 34,
+        "width": 960,
+        "x": 160,
+        "y": 34
+      },
+      "dark": true,
+      "dialog": {
+        "bottom": 900,
+        "height": 900,
+        "left": 0,
+        "right": 1280,
+        "top": 0,
+        "width": 1280,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 1270,
+      "dpr": 1,
+      "focus": {
+        "label": null,
+        "tag": "TEXTAREA"
+      },
+      "footer": {
+        "bottom": 865,
+        "height": 65,
+        "left": 161,
+        "right": 1119,
+        "top": 800,
+        "width": 958,
+        "x": 161,
+        "y": 800
+      },
+      "header": {
+        "bottom": 90,
+        "height": 55,
+        "left": 161,
+        "right": 1119,
+        "top": 35,
+        "width": 958,
+        "x": 161,
+        "y": 35
+      },
+      "height": 900,
+      "main": {
+        "bottom": 900,
+        "height": 749,
+        "left": 256,
+        "right": 1270,
+        "top": 151,
+        "width": 1014,
+        "x": 256,
+        "y": 151
+      },
+      "primaryButton": {
+        "bottom": 849,
+        "height": 32,
+        "left": 1033.234375,
+        "right": 1091,
+        "top": 817,
+        "width": 57.765625,
+        "x": 1033.234375,
+        "y": 817
+      },
+      "width": 1280
+    }
+  },
+  {
+    "cluster": 32,
+    "type": "shared",
+    "mode": "dark",
+    "width": 768,
+    "height": 1024,
+    "field": {
+      "client_width": 650,
+      "font_size": "14px",
+      "rect": {
+        "bottom": 458,
+        "height": 120,
+        "left": 53,
+        "right": 705,
+        "top": 338,
+        "width": 652,
+        "x": 53,
+        "y": 338
+      },
+      "scroll_width": 650,
+      "tag": "TEXTAREA",
+      "value": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    },
+    "layout": {
+      "body": {
+        "bottom": 862,
+        "height": 710,
+        "left": 25,
+        "right": 743,
+        "top": 152,
+        "width": 718,
+        "x": 25,
+        "y": 152
+      },
+      "bodyClientHeight": 710,
+      "bodyClientWidth": 708,
+      "bodyScrollHeight": 800,
+      "bodyScrollTop": 0,
+      "bodyScrollWidth": 708,
+      "colors": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "Shared · Zone · "
+        },
+        {
+          "background": "rgb(9, 105, 218)",
+          "color": "rgb(255, 255, 255)",
+          "text": "확인"
+        }
+      ],
+      "content": {
+        "bottom": 928,
+        "height": 832,
+        "left": 24,
+        "right": 744,
+        "top": 96,
+        "width": 720,
+        "x": 24,
+        "y": 96
+      },
+      "dark": true,
+      "dialog": {
+        "bottom": 1024,
+        "height": 1024,
+        "left": 0,
+        "right": 768,
+        "top": 0,
+        "width": 768,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 758,
+      "dpr": 1,
+      "focus": {
+        "label": null,
+        "tag": "TEXTAREA"
+      },
+      "footer": {
+        "bottom": 927,
+        "height": 65,
+        "left": 25,
+        "right": 743,
+        "top": 862,
+        "width": 718,
+        "x": 25,
+        "y": 862
+      },
+      "header": {
+        "bottom": 152,
+        "height": 55,
+        "left": 25,
+        "right": 743,
+        "top": 97,
+        "width": 718,
+        "x": 25,
+        "y": 97
+      },
+      "height": 1024,
+      "main": {
+        "bottom": 1024,
+        "height": 841,
+        "left": 80,
+        "right": 758,
+        "top": 183,
+        "width": 678,
+        "x": 80,
+        "y": 183
+      },
+      "primaryButton": {
+        "bottom": 911,
+        "height": 32,
+        "left": 657.234375,
+        "right": 715,
+        "top": 879,
+        "width": 57.765625,
+        "x": 657.234375,
+        "y": 879
+      },
+      "width": 768
+    }
+  },
+  {
+    "cluster": 32,
+    "type": "shared",
+    "mode": "dark",
+    "width": 390,
+    "height": 844,
+    "field": {
+      "client_width": 310,
+      "font_size": "14px",
+      "rect": {
+        "bottom": 366,
+        "height": 120,
+        "left": 29,
+        "right": 351,
+        "top": 246,
+        "width": 322,
+        "x": 29,
+        "y": 246
+      },
+      "scroll_width": 310,
+      "tag": "TEXTAREA",
+      "value": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    },
+    "layout": {
+      "body": {
+        "bottom": 766,
+        "height": 698,
+        "left": 13,
+        "right": 377,
+        "top": 68,
+        "width": 364,
+        "x": 13,
+        "y": 68
+      },
+      "bodyClientHeight": 698,
+      "bodyClientWidth": 354,
+      "bodyScrollHeight": 874,
+      "bodyScrollTop": 0,
+      "bodyScrollWidth": 354,
+      "colors": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "Shared · Zone · "
+        },
+        {
+          "background": "rgb(9, 105, 218)",
+          "color": "rgb(255, 255, 255)",
+          "text": "확인"
+        }
+      ],
+      "content": {
+        "bottom": 832,
+        "height": 820,
+        "left": 12,
+        "right": 378,
+        "top": 12,
+        "width": 366,
+        "x": 12,
+        "y": 12
+      },
+      "dark": true,
+      "dialog": {
+        "bottom": 844,
+        "height": 844,
+        "left": 0,
+        "right": 390,
+        "top": 0,
+        "width": 390,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 380,
+      "dpr": 1,
+      "focus": {
+        "label": null,
+        "tag": "TEXTAREA"
+      },
+      "footer": {
+        "bottom": 831,
+        "height": 65,
+        "left": 13,
+        "right": 377,
+        "top": 766,
+        "width": 364,
+        "x": 13,
+        "y": 766
+      },
+      "header": {
+        "bottom": 68,
+        "height": 55,
+        "left": 13,
+        "right": 377,
+        "top": 13,
+        "width": 364,
+        "x": 13,
+        "y": 13
+      },
+      "height": 844,
+      "main": {
+        "bottom": 844,
+        "height": 643,
+        "left": 0,
+        "right": 380,
+        "top": 201,
+        "width": 380,
+        "x": 0,
+        "y": 201
+      },
+      "primaryButton": {
+        "bottom": 815,
+        "height": 32,
+        "left": 303.234375,
+        "right": 361,
+        "top": 783,
+        "width": 57.765625,
+        "x": 303.234375,
+        "y": 783
+      },
+      "width": 390
+    }
+  }
+]

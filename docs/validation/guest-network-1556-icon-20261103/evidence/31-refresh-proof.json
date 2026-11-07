@@ -1,0 +1,261 @@
+{
+  "cluster": 31,
+  "syntheticResponse": false,
+  "responseDelayOnly": true,
+  "before": {
+    "accessibleName": "오퍼링 다시 조회",
+    "background": "rgb(255, 255, 255)",
+    "button": {
+      "bottom": 414,
+      "height": 32,
+      "left": 319,
+      "right": 351,
+      "top": 382,
+      "width": 32,
+      "x": 319,
+      "y": 382
+    },
+    "buttonDisabled": false,
+    "color": "rgb(75, 85, 99)",
+    "fields": [
+      {
+        "id": "form_item_name",
+        "value": "Admin-Isoloated-Net"
+      },
+      {
+        "id": "form_item_displaytext",
+        "value": "Admin-Isoloated-Net"
+      },
+      {
+        "id": "form_item_sourcenatipaddress",
+        "value": ""
+      },
+      {
+        "id": "form_item_guestvmcidr",
+        "value": "10.1.1.0/24"
+      },
+      {
+        "id": "form_item_networkdomain",
+        "value": "cs2cloud.internal"
+      },
+      {
+        "id": "form_item_dns1",
+        "value": "8.8.8.8"
+      },
+      {
+        "id": "form_item_dns2",
+        "value": ""
+      }
+    ],
+    "iconCount": 1,
+    "row": {
+      "bottom": 414,
+      "height": 32,
+      "left": 29,
+      "right": 351,
+      "top": 382,
+      "width": 322,
+      "x": 29,
+      "y": 382
+    },
+    "select": {
+      "bottom": 414,
+      "height": 32,
+      "left": 29,
+      "right": 311,
+      "top": 382,
+      "width": 282,
+      "x": 29,
+      "y": 382
+    },
+    "selectDisabled": false,
+    "selectedLabel": "기본 격리 네트워크오퍼링(with SourceNat) (현재 오퍼링)",
+    "visibleButtonText": ""
+  },
+  "loading": {
+    "accessibleName": "오퍼링 다시 조회",
+    "background": "rgb(242, 244, 247)",
+    "button": {
+      "bottom": 414,
+      "height": 32,
+      "left": 319,
+      "right": 351,
+      "top": 382,
+      "width": 32,
+      "x": 319,
+      "y": 382
+    },
+    "buttonDisabled": true,
+    "color": "rgb(123, 132, 145)",
+    "fields": [
+      {
+        "id": "form_item_name",
+        "value": "Admin-Isoloated-Net"
+      },
+      {
+        "id": "form_item_displaytext",
+        "value": "Admin-Isoloated-Net"
+      },
+      {
+        "id": "form_item_sourcenatipaddress",
+        "value": ""
+      },
+      {
+        "id": "form_item_guestvmcidr",
+        "value": "10.1.1.0/24"
+      },
+      {
+        "id": "form_item_networkdomain",
+        "value": "cs2cloud.internal"
+      },
+      {
+        "id": "form_item_dns1",
+        "value": "8.8.8.8"
+      },
+      {
+        "id": "form_item_dns2",
+        "value": ""
+      }
+    ],
+    "iconCount": 1,
+    "row": {
+      "bottom": 414,
+      "height": 32,
+      "left": 29,
+      "right": 351,
+      "top": 382,
+      "width": 322,
+      "x": 29,
+      "y": 382
+    },
+    "select": {
+      "bottom": 414,
+      "height": 32,
+      "left": 29,
+      "right": 311,
+      "top": 382,
+      "width": 282,
+      "x": 29,
+      "y": 382
+    },
+    "selectDisabled": true,
+    "selectedLabel": "기본 격리 네트워크오퍼링(with SourceNat) (현재 오퍼링)",
+    "visibleButtonText": ""
+  },
+  "after": {
+    "accessibleName": "오퍼링 다시 조회",
+    "background": "rgb(255, 255, 255)",
+    "button": {
+      "bottom": 444,
+      "height": 32,
+      "left": 1049,
+      "right": 1081,
+      "top": 412,
+      "width": 32,
+      "x": 1049,
+      "y": 412
+    },
+    "buttonDisabled": false,
+    "color": "rgb(75, 85, 99)",
+    "fields": [
+      {
+        "id": "form_item_name",
+        "value": "Admin-Isoloated-Net"
+      },
+      {
+        "id": "form_item_displaytext",
+        "value": "Admin-Isoloated-Net"
+      },
+      {
+        "id": "form_item_sourcenatipaddress",
+        "value": ""
+      },
+      {
+        "id": "form_item_guestvmcidr",
+        "value": "10.1.1.0/24"
+      },
+      {
+        "id": "form_item_networkdomain",
+        "value": "cs2cloud.internal"
+      },
+      {
+        "id": "form_item_dns1",
+        "value": "8.8.8.8"
+      },
+      {
+        "id": "form_item_dns2",
+        "value": ""
+      }
+    ],
+    "iconCount": 1,
+    "row": {
+      "bottom": 444,
+      "height": 32,
+      "left": 189,
+      "right": 1081,
+      "top": 412,
+      "width": 892,
+      "x": 189,
+      "y": 412
+    },
+    "select": {
+      "bottom": 444,
+      "height": 32,
+      "left": 189,
+      "right": 1041,
+      "top": 412,
+      "width": 852,
+      "x": 189,
+      "y": 412
+    },
+    "selectDisabled": false,
+    "selectedLabel": "기본 격리 네트워크오퍼링(with SourceNat) (현재 오퍼링)",
+    "visibleButtonText": ""
+  },
+  "requests": [
+    {
+      "cluster": 31,
+      "requestId": "45524.1493",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "46a69931-ebbf-4aee-9d3d-12d03315a949",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "ids": [
+          "46a69931-ebbf-4aee-9d3d-12d03315a949"
+        ]
+      }
+    },
+    {
+      "cluster": 31,
+      "requestId": "45524.1494",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "networkid": "a037eecd-629e-446b-b0c4-f56674d99e0c",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "state": "Enabled",
+        "guestiptype": "Isolated",
+        "forvpc": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200,
+      "result": {
+        "count": 4,
+        "ids": [
+          "64519dba-e1e4-44c5-bf13-06d1bd299cb0",
+          "902c848c-c061-427a-ba26-826ec050ddbf",
+          "86c2cf58-d854-4172-86c4-9edcf71043d0",
+          "806ffda0-8ec0-436e-8672-9caa76d1ee66"
+        ]
+      }
+    }
+  ],
+  "updateNetworkPosts": 0
+}

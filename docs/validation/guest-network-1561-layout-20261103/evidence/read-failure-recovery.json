@@ -1,0 +1,232 @@
+[
+  {
+    "cluster": 31,
+    "injected": {
+      "synthetic": true,
+      "command": "listEgressFirewallRules",
+      "injected": 1
+    },
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "rect": {
+            "bottom": 370,
+            "height": 62,
+            "left": 720.578125,
+            "right": 1222.984375,
+            "top": 308,
+            "width": 502.40625,
+            "x": 720.578125,
+            "y": 308
+          },
+          "text": "목록을 갱신하지 못했습니다. 마지막 정상 데이터를 표시하며 자동으로 다시 시도합니다."
+        },
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 444,
+            "height": 62,
+            "left": 720.578125,
+            "right": 1222.984375,
+            "top": 382,
+            "width": 502.40625,
+            "x": 720.578125,
+            "y": 382
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": null,
+      "document_width": 1270,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 588,
+        "height": 132,
+        "left": 720.578125,
+        "right": 1222.984375,
+        "top": 456,
+        "width": 502.40625,
+        "x": 720.578125,
+        "y": 456
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 288,
+              "height": 32,
+              "left": 720.578125,
+              "right": 829.9375,
+              "top": 256,
+              "width": 109.359375,
+              "x": 720.578125,
+              "y": 256
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 288,
+              "height": 32,
+              "left": 837.9375,
+              "right": 943.46875,
+              "top": 256,
+              "width": 105.53125,
+              "x": 837.9375,
+              "y": 256
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 288,
+          "height": 32,
+          "left": 720.578125,
+          "right": 1222.984375,
+          "top": 256,
+          "width": 502.40625,
+          "x": 720.578125,
+          "y": 256
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/d7e5f610-7ca4-420b-a562-5646f73f3cd3?tab=egress.rules",
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    },
+    "row_preserved": true
+  },
+  {
+    "cluster": 32,
+    "injected": {
+      "synthetic": true,
+      "command": "listEgressFirewallRules",
+      "injected": 1
+    },
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "rect": {
+            "bottom": 397,
+            "height": 62,
+            "left": 720.578125,
+            "right": 1222.984375,
+            "top": 335,
+            "width": 502.40625,
+            "x": 720.578125,
+            "y": 335
+          },
+          "text": "목록을 갱신하지 못했습니다. 마지막 정상 데이터를 표시하며 자동으로 다시 시도합니다."
+        },
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 471,
+            "height": 62,
+            "left": 720.578125,
+            "right": 1222.984375,
+            "top": 409,
+            "width": 502.40625,
+            "x": 720.578125,
+            "y": 409
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": null,
+      "document_width": 1270,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 615,
+        "height": 132,
+        "left": 720.578125,
+        "right": 1222.984375,
+        "top": 483,
+        "width": 502.40625,
+        "x": 720.578125,
+        "y": 483
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 315,
+              "height": 32,
+              "left": 720.578125,
+              "right": 829.9375,
+              "top": 283,
+              "width": 109.359375,
+              "x": 720.578125,
+              "y": 283
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 315,
+              "height": 32,
+              "left": 837.9375,
+              "right": 943.46875,
+              "top": 283,
+              "width": 105.53125,
+              "x": 837.9375,
+              "y": 283
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 315,
+          "height": 32,
+          "left": 720.578125,
+          "right": 1222.984375,
+          "top": 283,
+          "width": 502.40625,
+          "x": 720.578125,
+          "y": 283
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=egress.rules",
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    },
+    "row_preserved": true
+  }
+]

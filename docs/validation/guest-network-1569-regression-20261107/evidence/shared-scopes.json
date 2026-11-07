@@ -1,0 +1,1654 @@
+{
+  "31": [
+    {
+      "case": "create-all",
+      "command": "createNetwork",
+      "params": {
+        "name": "qa-gn1569-31-reg-scope-all",
+        "displaytext": "GN1569 Shared scope all",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "networkofferingid": "9536fc31-54ab-4c31-9200-77dddf1e1d3c",
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "vlan": 2510,
+        "gateway": "10.220.31.1",
+        "netmask": "255.255.255.0",
+        "startip": "10.220.31.50",
+        "endip": "10.220.31.53",
+        "acltype": "Domain",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "subdomainaccess": "true"
+      },
+      "result": {
+        "network": {
+          "id": "2673b3bf-f023-43e1-b591-05fad982b77a",
+          "name": "qa-gn1569-31-reg-scope-all",
+          "displaytext": "GN1569 Shared scope all",
+          "broadcastdomaintype": "Vlan",
+          "traffictype": "Guest",
+          "gateway": "10.220.31.1",
+          "netmask": "255.255.255.0",
+          "cidr": "10.220.31.0/24",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "networkofferingid": "9536fc31-54ab-4c31-9200-77dddf1e1d3c",
+          "networkofferingname": "qa-gn1569-31-shared",
+          "networkofferingdisplaytext": "qa-gn1569-31-shared",
+          "networkofferingconservemode": true,
+          "networkofferingavailability": "Optional",
+          "issystem": false,
+          "state": "Setup",
+          "related": "2673b3bf-f023-43e1-b591-05fad982b77a",
+          "broadcasturi": "vlan://2510",
+          "dns1": "8.8.8.8",
+          "type": "Shared",
+          "vlan": "2510",
+          "acltype": "Domain",
+          "subdomainaccess": true,
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "service": [
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": []
+            },
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "AllowDnsSuffixModification",
+                  "value": "true",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "DhcpAccrossMultipleSubnets",
+                  "value": "true",
+                  "canchooseservicecapability": false
+                }
+              ]
+            }
+          ],
+          "networkdomain": "cs1cloud.internal",
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "restartrequired": false,
+          "specifyvlan": true,
+          "specifyipranges": true,
+          "canusefordeploy": true,
+          "ispersistent": false,
+          "tags": [],
+          "details": {},
+          "displaynetwork": true,
+          "strechedl2subnet": false,
+          "redundantrouter": false,
+          "supportsvmautoscaling": false,
+          "created": "2026-11-07T23:08:12+0900",
+          "receivedbytes": 0,
+          "sentbytes": 0,
+          "publicmtu": 1500,
+          "privatemtu": 1500,
+          "hasannotations": false,
+          "retired": true
+        }
+      }
+    },
+    {
+      "case": "all-root",
+      "command": "listNetworks",
+      "role": "root",
+      "scope": "all",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "all-owner",
+      "command": "listNetworks",
+      "role": "owner",
+      "scope": "all",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "all-peer",
+      "command": "listNetworks",
+      "role": "peer",
+      "scope": "all",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "all-domainadmin",
+      "command": "listNetworks",
+      "role": "domainadmin",
+      "scope": "all",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "all-outsider",
+      "command": "listNetworks",
+      "role": "outsider",
+      "scope": "all",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "all-member",
+      "command": "listNetworks",
+      "role": "member",
+      "scope": "all",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "all-readonly",
+      "command": "listNetworks",
+      "role": "readonly",
+      "scope": "all",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "all-child",
+      "command": "listNetworks",
+      "role": "child",
+      "scope": "all",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "create-domain",
+      "command": "createNetwork",
+      "params": {
+        "name": "qa-gn1569-31-reg-scope-domain",
+        "displaytext": "GN1569 Shared scope domain",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "networkofferingid": "9536fc31-54ab-4c31-9200-77dddf1e1d3c",
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "vlan": 2511,
+        "gateway": "10.221.31.1",
+        "netmask": "255.255.255.0",
+        "startip": "10.221.31.50",
+        "endip": "10.221.31.53",
+        "acltype": "Domain",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "subdomainaccess": "false"
+      },
+      "result": {
+        "network": {
+          "id": "1dc083d9-05e1-49d2-80bd-8f324b72036b",
+          "name": "qa-gn1569-31-reg-scope-domain",
+          "displaytext": "GN1569 Shared scope domain",
+          "broadcastdomaintype": "Vlan",
+          "traffictype": "Guest",
+          "gateway": "10.221.31.1",
+          "netmask": "255.255.255.0",
+          "cidr": "10.221.31.0/24",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "networkofferingid": "9536fc31-54ab-4c31-9200-77dddf1e1d3c",
+          "networkofferingname": "qa-gn1569-31-shared",
+          "networkofferingdisplaytext": "qa-gn1569-31-shared",
+          "networkofferingconservemode": true,
+          "networkofferingavailability": "Optional",
+          "issystem": false,
+          "state": "Setup",
+          "related": "1dc083d9-05e1-49d2-80bd-8f324b72036b",
+          "broadcasturi": "vlan://2511",
+          "dns1": "8.8.8.8",
+          "type": "Shared",
+          "vlan": "2511",
+          "acltype": "Domain",
+          "subdomainaccess": false,
+          "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+          "domain": "qa-gn1569-31-domain",
+          "domainpath": "ROOT/qa-gn1569-31-domain",
+          "service": [
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": []
+            },
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "AllowDnsSuffixModification",
+                  "value": "true",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "DhcpAccrossMultipleSubnets",
+                  "value": "true",
+                  "canchooseservicecapability": false
+                }
+              ]
+            }
+          ],
+          "networkdomain": "cs1cloud.internal",
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "restartrequired": false,
+          "specifyvlan": true,
+          "specifyipranges": true,
+          "canusefordeploy": true,
+          "ispersistent": false,
+          "tags": [],
+          "details": {},
+          "displaynetwork": true,
+          "strechedl2subnet": false,
+          "redundantrouter": false,
+          "supportsvmautoscaling": false,
+          "created": "2026-11-07T23:08:12+0900",
+          "receivedbytes": 0,
+          "sentbytes": 0,
+          "publicmtu": 1500,
+          "privatemtu": 1500,
+          "hasannotations": false,
+          "retired": true
+        }
+      }
+    },
+    {
+      "case": "domain-root",
+      "command": "listNetworks",
+      "role": "root",
+      "scope": "domain",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "domain-owner",
+      "command": "listNetworks",
+      "role": "owner",
+      "scope": "domain",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "domain-peer",
+      "command": "listNetworks",
+      "role": "peer",
+      "scope": "domain",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "domain-domainadmin",
+      "command": "listNetworks",
+      "role": "domainadmin",
+      "scope": "domain",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "domain-outsider",
+      "command": "listNetworks",
+      "role": "outsider",
+      "scope": "domain",
+      "expectedVisible": false,
+      "visible": false,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "domain-member",
+      "command": "listNetworks",
+      "role": "member",
+      "scope": "domain",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "domain-readonly",
+      "command": "listNetworks",
+      "role": "readonly",
+      "scope": "domain",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "domain-child",
+      "command": "listNetworks",
+      "role": "child",
+      "scope": "domain",
+      "expectedVisible": false,
+      "visible": false,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "create-descendants",
+      "command": "createNetwork",
+      "params": {
+        "name": "qa-gn1569-31-reg-scope-descendants",
+        "displaytext": "GN1569 Shared scope descendants",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "networkofferingid": "9536fc31-54ab-4c31-9200-77dddf1e1d3c",
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "vlan": 2512,
+        "gateway": "10.222.31.1",
+        "netmask": "255.255.255.0",
+        "startip": "10.222.31.50",
+        "endip": "10.222.31.53",
+        "acltype": "Domain",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "subdomainaccess": "true"
+      },
+      "result": {
+        "network": {
+          "id": "35d825b6-2215-4eae-b620-a36f7f65a031",
+          "name": "qa-gn1569-31-reg-scope-descendants",
+          "displaytext": "GN1569 Shared scope descendants",
+          "broadcastdomaintype": "Vlan",
+          "traffictype": "Guest",
+          "gateway": "10.222.31.1",
+          "netmask": "255.255.255.0",
+          "cidr": "10.222.31.0/24",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "networkofferingid": "9536fc31-54ab-4c31-9200-77dddf1e1d3c",
+          "networkofferingname": "qa-gn1569-31-shared",
+          "networkofferingdisplaytext": "qa-gn1569-31-shared",
+          "networkofferingconservemode": true,
+          "networkofferingavailability": "Optional",
+          "issystem": false,
+          "state": "Setup",
+          "related": "35d825b6-2215-4eae-b620-a36f7f65a031",
+          "broadcasturi": "vlan://2512",
+          "dns1": "8.8.8.8",
+          "type": "Shared",
+          "vlan": "2512",
+          "acltype": "Domain",
+          "subdomainaccess": true,
+          "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+          "domain": "qa-gn1569-31-domain",
+          "domainpath": "ROOT/qa-gn1569-31-domain",
+          "service": [
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": []
+            },
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "AllowDnsSuffixModification",
+                  "value": "true",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "DhcpAccrossMultipleSubnets",
+                  "value": "true",
+                  "canchooseservicecapability": false
+                }
+              ]
+            }
+          ],
+          "networkdomain": "cs1cloud.internal",
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "restartrequired": false,
+          "specifyvlan": true,
+          "specifyipranges": true,
+          "canusefordeploy": true,
+          "ispersistent": false,
+          "tags": [],
+          "details": {},
+          "displaynetwork": true,
+          "strechedl2subnet": false,
+          "redundantrouter": false,
+          "supportsvmautoscaling": false,
+          "created": "2026-11-07T23:08:13+0900",
+          "receivedbytes": 0,
+          "sentbytes": 0,
+          "publicmtu": 1500,
+          "privatemtu": 1500,
+          "hasannotations": false
+        }
+      }
+    },
+    {
+      "case": "descendants-root",
+      "command": "listNetworks",
+      "role": "root",
+      "scope": "descendants",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "descendants-owner",
+      "command": "listNetworks",
+      "role": "owner",
+      "scope": "descendants",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "descendants-peer",
+      "command": "listNetworks",
+      "role": "peer",
+      "scope": "descendants",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "descendants-domainadmin",
+      "command": "listNetworks",
+      "role": "domainadmin",
+      "scope": "descendants",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "descendants-outsider",
+      "command": "listNetworks",
+      "role": "outsider",
+      "scope": "descendants",
+      "expectedVisible": false,
+      "visible": false,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "descendants-member",
+      "command": "listNetworks",
+      "role": "member",
+      "scope": "descendants",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "descendants-readonly",
+      "command": "listNetworks",
+      "role": "readonly",
+      "scope": "descendants",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "descendants-child",
+      "command": "listNetworks",
+      "role": "child",
+      "scope": "descendants",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "create-account",
+      "command": "createNetwork",
+      "params": {
+        "name": "qa-gn1569-31-reg-scope-account",
+        "displaytext": "GN1569 Shared scope account",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "networkofferingid": "9536fc31-54ab-4c31-9200-77dddf1e1d3c",
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "vlan": 2513,
+        "gateway": "10.223.31.1",
+        "netmask": "255.255.255.0",
+        "startip": "10.223.31.50",
+        "endip": "10.223.31.53",
+        "acltype": "Account",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "account": "qa-gn1569-31-owner"
+      },
+      "result": {
+        "network": {
+          "id": "fa9fbc32-7c19-403d-a7ff-cc2f145ba363",
+          "name": "qa-gn1569-31-reg-scope-account",
+          "displaytext": "GN1569 Shared scope account",
+          "broadcastdomaintype": "Vlan",
+          "traffictype": "Guest",
+          "gateway": "10.223.31.1",
+          "netmask": "255.255.255.0",
+          "cidr": "10.223.31.0/24",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "networkofferingid": "9536fc31-54ab-4c31-9200-77dddf1e1d3c",
+          "networkofferingname": "qa-gn1569-31-shared",
+          "networkofferingdisplaytext": "qa-gn1569-31-shared",
+          "networkofferingconservemode": true,
+          "networkofferingavailability": "Optional",
+          "issystem": false,
+          "state": "Setup",
+          "related": "fa9fbc32-7c19-403d-a7ff-cc2f145ba363",
+          "broadcasturi": "vlan://2513",
+          "dns1": "8.8.8.8",
+          "type": "Shared",
+          "vlan": "2513",
+          "acltype": "Account",
+          "account": "qa-gn1569-31-owner",
+          "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+          "domain": "qa-gn1569-31-domain",
+          "domainpath": "ROOT/qa-gn1569-31-domain",
+          "service": [
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": []
+            },
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "AllowDnsSuffixModification",
+                  "value": "true",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "DhcpAccrossMultipleSubnets",
+                  "value": "true",
+                  "canchooseservicecapability": false
+                }
+              ]
+            }
+          ],
+          "networkdomain": "cs1a8cloud.internal",
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "restartrequired": false,
+          "specifyvlan": true,
+          "specifyipranges": true,
+          "canusefordeploy": true,
+          "ispersistent": false,
+          "tags": [],
+          "details": {},
+          "displaynetwork": true,
+          "strechedl2subnet": false,
+          "redundantrouter": false,
+          "supportsvmautoscaling": false,
+          "created": "2026-11-07T23:08:13+0900",
+          "receivedbytes": 0,
+          "sentbytes": 0,
+          "publicmtu": 1500,
+          "privatemtu": 1500,
+          "hasannotations": false
+        }
+      }
+    },
+    {
+      "case": "account-root",
+      "command": "listNetworks",
+      "role": "root",
+      "scope": "account",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "account-owner",
+      "command": "listNetworks",
+      "role": "owner",
+      "scope": "account",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "account-peer",
+      "command": "listNetworks",
+      "role": "peer",
+      "scope": "account",
+      "expectedVisible": false,
+      "visible": false,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "account-domainadmin",
+      "command": "listNetworks",
+      "role": "domainadmin",
+      "scope": "account",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "account-outsider",
+      "command": "listNetworks",
+      "role": "outsider",
+      "scope": "account",
+      "expectedVisible": false,
+      "visible": false,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "account-member",
+      "command": "listNetworks",
+      "role": "member",
+      "scope": "account",
+      "expectedVisible": false,
+      "visible": false,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "account-readonly",
+      "command": "listNetworks",
+      "role": "readonly",
+      "scope": "account",
+      "expectedVisible": false,
+      "visible": false,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "account-child",
+      "command": "listNetworks",
+      "role": "child",
+      "scope": "account",
+      "expectedVisible": false,
+      "visible": false,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "retire-empty-broad-scope-all",
+      "command": "deleteNetwork",
+      "params": {
+        "id": "2673b3bf-f023-43e1-b591-05fad982b77a"
+      },
+      "result": {
+        "success": true
+      }
+    },
+    {
+      "case": "retire-empty-broad-scope-domain",
+      "command": "deleteNetwork",
+      "params": {
+        "id": "1dc083d9-05e1-49d2-80bd-8f324b72036b"
+      },
+      "result": {
+        "success": true
+      }
+    },
+    {
+      "case": "retire-empty-broad-scope-descendants",
+      "command": "deleteNetwork",
+      "params": {
+        "id": "35d825b6-2215-4eae-b620-a36f7f65a031"
+      },
+      "result": {
+        "success": true
+      }
+    }
+  ],
+  "32": [
+    {
+      "case": "create-all",
+      "command": "createNetwork",
+      "params": {
+        "name": "qa-gn1569-32-reg-scope-all",
+        "displaytext": "GN1569 Shared scope all",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "networkofferingid": "0426e221-e598-4692-b185-c9db58c03f69",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "vlan": 2520,
+        "gateway": "10.220.32.1",
+        "netmask": "255.255.255.0",
+        "startip": "10.220.32.50",
+        "endip": "10.220.32.53",
+        "acltype": "Domain",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "subdomainaccess": "true"
+      },
+      "result": {
+        "network": {
+          "id": "0597dad0-0ea0-4b58-9f3f-844893e0812e",
+          "name": "qa-gn1569-32-reg-scope-all",
+          "displaytext": "GN1569 Shared scope all",
+          "broadcastdomaintype": "Vlan",
+          "traffictype": "Guest",
+          "gateway": "10.220.32.1",
+          "netmask": "255.255.255.0",
+          "cidr": "10.220.32.0/24",
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "networkofferingid": "0426e221-e598-4692-b185-c9db58c03f69",
+          "networkofferingname": "qa-gn1569-32-shared",
+          "networkofferingdisplaytext": "qa-gn1569-32-shared",
+          "networkofferingconservemode": true,
+          "networkofferingavailability": "Optional",
+          "issystem": false,
+          "state": "Setup",
+          "related": "0597dad0-0ea0-4b58-9f3f-844893e0812e",
+          "broadcasturi": "vlan://2520",
+          "dns1": "8.8.8.8",
+          "type": "Shared",
+          "vlan": "2520",
+          "acltype": "Domain",
+          "subdomainaccess": true,
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "service": [
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "AllowDnsSuffixModification",
+                  "value": "true",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "DhcpAccrossMultipleSubnets",
+                  "value": "true",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": []
+            }
+          ],
+          "networkdomain": "cs1cloud.internal",
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "restartrequired": false,
+          "specifyvlan": true,
+          "specifyipranges": true,
+          "canusefordeploy": true,
+          "ispersistent": false,
+          "tags": [],
+          "details": {},
+          "displaynetwork": true,
+          "strechedl2subnet": false,
+          "redundantrouter": false,
+          "supportsvmautoscaling": false,
+          "created": "2026-11-07T23:08:44+0900",
+          "receivedbytes": 0,
+          "sentbytes": 0,
+          "publicmtu": 1500,
+          "privatemtu": 1500,
+          "hasannotations": false,
+          "retired": true
+        }
+      }
+    },
+    {
+      "case": "all-root",
+      "command": "listNetworks",
+      "role": "root",
+      "scope": "all",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "all-owner",
+      "command": "listNetworks",
+      "role": "owner",
+      "scope": "all",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "all-peer",
+      "command": "listNetworks",
+      "role": "peer",
+      "scope": "all",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "all-domainadmin",
+      "command": "listNetworks",
+      "role": "domainadmin",
+      "scope": "all",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "all-outsider",
+      "command": "listNetworks",
+      "role": "outsider",
+      "scope": "all",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "all-member",
+      "command": "listNetworks",
+      "role": "member",
+      "scope": "all",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "all-readonly",
+      "command": "listNetworks",
+      "role": "readonly",
+      "scope": "all",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "all-child",
+      "command": "listNetworks",
+      "role": "child",
+      "scope": "all",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "create-domain",
+      "command": "createNetwork",
+      "params": {
+        "name": "qa-gn1569-32-reg-scope-domain",
+        "displaytext": "GN1569 Shared scope domain",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "networkofferingid": "0426e221-e598-4692-b185-c9db58c03f69",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "vlan": 2521,
+        "gateway": "10.221.32.1",
+        "netmask": "255.255.255.0",
+        "startip": "10.221.32.50",
+        "endip": "10.221.32.53",
+        "acltype": "Domain",
+        "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+        "subdomainaccess": "false"
+      },
+      "result": {
+        "network": {
+          "id": "08a48003-f8ba-451f-b3fc-f8f8709839aa",
+          "name": "qa-gn1569-32-reg-scope-domain",
+          "displaytext": "GN1569 Shared scope domain",
+          "broadcastdomaintype": "Vlan",
+          "traffictype": "Guest",
+          "gateway": "10.221.32.1",
+          "netmask": "255.255.255.0",
+          "cidr": "10.221.32.0/24",
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "networkofferingid": "0426e221-e598-4692-b185-c9db58c03f69",
+          "networkofferingname": "qa-gn1569-32-shared",
+          "networkofferingdisplaytext": "qa-gn1569-32-shared",
+          "networkofferingconservemode": true,
+          "networkofferingavailability": "Optional",
+          "issystem": false,
+          "state": "Setup",
+          "related": "08a48003-f8ba-451f-b3fc-f8f8709839aa",
+          "broadcasturi": "vlan://2521",
+          "dns1": "8.8.8.8",
+          "type": "Shared",
+          "vlan": "2521",
+          "acltype": "Domain",
+          "subdomainaccess": false,
+          "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+          "domain": "qa-gn1569-32-domain",
+          "domainpath": "ROOT/qa-gn1569-32-domain",
+          "service": [
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "AllowDnsSuffixModification",
+                  "value": "true",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "DhcpAccrossMultipleSubnets",
+                  "value": "true",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": []
+            }
+          ],
+          "networkdomain": "cs1cloud.internal",
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "restartrequired": false,
+          "specifyvlan": true,
+          "specifyipranges": true,
+          "canusefordeploy": true,
+          "ispersistent": false,
+          "tags": [],
+          "details": {},
+          "displaynetwork": true,
+          "strechedl2subnet": false,
+          "redundantrouter": false,
+          "supportsvmautoscaling": false,
+          "created": "2026-11-07T23:08:45+0900",
+          "receivedbytes": 0,
+          "sentbytes": 0,
+          "publicmtu": 1500,
+          "privatemtu": 1500,
+          "hasannotations": false,
+          "retired": true
+        }
+      }
+    },
+    {
+      "case": "domain-root",
+      "command": "listNetworks",
+      "role": "root",
+      "scope": "domain",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "domain-owner",
+      "command": "listNetworks",
+      "role": "owner",
+      "scope": "domain",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "domain-peer",
+      "command": "listNetworks",
+      "role": "peer",
+      "scope": "domain",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "domain-domainadmin",
+      "command": "listNetworks",
+      "role": "domainadmin",
+      "scope": "domain",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "domain-outsider",
+      "command": "listNetworks",
+      "role": "outsider",
+      "scope": "domain",
+      "expectedVisible": false,
+      "visible": false,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "domain-member",
+      "command": "listNetworks",
+      "role": "member",
+      "scope": "domain",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "domain-readonly",
+      "command": "listNetworks",
+      "role": "readonly",
+      "scope": "domain",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "domain-child",
+      "command": "listNetworks",
+      "role": "child",
+      "scope": "domain",
+      "expectedVisible": false,
+      "visible": false,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "create-descendants",
+      "command": "createNetwork",
+      "params": {
+        "name": "qa-gn1569-32-reg-scope-descendants",
+        "displaytext": "GN1569 Shared scope descendants",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "networkofferingid": "0426e221-e598-4692-b185-c9db58c03f69",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "vlan": 2522,
+        "gateway": "10.222.32.1",
+        "netmask": "255.255.255.0",
+        "startip": "10.222.32.50",
+        "endip": "10.222.32.53",
+        "acltype": "Domain",
+        "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+        "subdomainaccess": "true"
+      },
+      "result": {
+        "network": {
+          "id": "4f9540a2-c07b-4f94-b886-900c654479e6",
+          "name": "qa-gn1569-32-reg-scope-descendants",
+          "displaytext": "GN1569 Shared scope descendants",
+          "broadcastdomaintype": "Vlan",
+          "traffictype": "Guest",
+          "gateway": "10.222.32.1",
+          "netmask": "255.255.255.0",
+          "cidr": "10.222.32.0/24",
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "networkofferingid": "0426e221-e598-4692-b185-c9db58c03f69",
+          "networkofferingname": "qa-gn1569-32-shared",
+          "networkofferingdisplaytext": "qa-gn1569-32-shared",
+          "networkofferingconservemode": true,
+          "networkofferingavailability": "Optional",
+          "issystem": false,
+          "state": "Setup",
+          "related": "4f9540a2-c07b-4f94-b886-900c654479e6",
+          "broadcasturi": "vlan://2522",
+          "dns1": "8.8.8.8",
+          "type": "Shared",
+          "vlan": "2522",
+          "acltype": "Domain",
+          "subdomainaccess": true,
+          "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+          "domain": "qa-gn1569-32-domain",
+          "domainpath": "ROOT/qa-gn1569-32-domain",
+          "service": [
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "AllowDnsSuffixModification",
+                  "value": "true",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "DhcpAccrossMultipleSubnets",
+                  "value": "true",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": []
+            }
+          ],
+          "networkdomain": "cs1cloud.internal",
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "restartrequired": false,
+          "specifyvlan": true,
+          "specifyipranges": true,
+          "canusefordeploy": true,
+          "ispersistent": false,
+          "tags": [],
+          "details": {},
+          "displaynetwork": true,
+          "strechedl2subnet": false,
+          "redundantrouter": false,
+          "supportsvmautoscaling": false,
+          "created": "2026-11-07T23:08:45+0900",
+          "receivedbytes": 0,
+          "sentbytes": 0,
+          "publicmtu": 1500,
+          "privatemtu": 1500,
+          "hasannotations": false
+        }
+      }
+    },
+    {
+      "case": "descendants-root",
+      "command": "listNetworks",
+      "role": "root",
+      "scope": "descendants",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "descendants-owner",
+      "command": "listNetworks",
+      "role": "owner",
+      "scope": "descendants",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "descendants-peer",
+      "command": "listNetworks",
+      "role": "peer",
+      "scope": "descendants",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "descendants-domainadmin",
+      "command": "listNetworks",
+      "role": "domainadmin",
+      "scope": "descendants",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "descendants-outsider",
+      "command": "listNetworks",
+      "role": "outsider",
+      "scope": "descendants",
+      "expectedVisible": false,
+      "visible": false,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "descendants-member",
+      "command": "listNetworks",
+      "role": "member",
+      "scope": "descendants",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "descendants-readonly",
+      "command": "listNetworks",
+      "role": "readonly",
+      "scope": "descendants",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "descendants-child",
+      "command": "listNetworks",
+      "role": "child",
+      "scope": "descendants",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "create-account",
+      "command": "createNetwork",
+      "params": {
+        "name": "qa-gn1569-32-reg-scope-account",
+        "displaytext": "GN1569 Shared scope account",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "networkofferingid": "0426e221-e598-4692-b185-c9db58c03f69",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "vlan": 2523,
+        "gateway": "10.223.32.1",
+        "netmask": "255.255.255.0",
+        "startip": "10.223.32.50",
+        "endip": "10.223.32.53",
+        "acltype": "Account",
+        "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+        "account": "qa-gn1569-32-owner"
+      },
+      "result": {
+        "network": {
+          "id": "72d12468-4cdf-4a72-87ca-d99a5353120e",
+          "name": "qa-gn1569-32-reg-scope-account",
+          "displaytext": "GN1569 Shared scope account",
+          "broadcastdomaintype": "Vlan",
+          "traffictype": "Guest",
+          "gateway": "10.223.32.1",
+          "netmask": "255.255.255.0",
+          "cidr": "10.223.32.0/24",
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "networkofferingid": "0426e221-e598-4692-b185-c9db58c03f69",
+          "networkofferingname": "qa-gn1569-32-shared",
+          "networkofferingdisplaytext": "qa-gn1569-32-shared",
+          "networkofferingconservemode": true,
+          "networkofferingavailability": "Optional",
+          "issystem": false,
+          "state": "Setup",
+          "related": "72d12468-4cdf-4a72-87ca-d99a5353120e",
+          "broadcasturi": "vlan://2523",
+          "dns1": "8.8.8.8",
+          "type": "Shared",
+          "vlan": "2523",
+          "acltype": "Account",
+          "account": "qa-gn1569-32-owner",
+          "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+          "domain": "qa-gn1569-32-domain",
+          "domainpath": "ROOT/qa-gn1569-32-domain",
+          "service": [
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "AllowDnsSuffixModification",
+                  "value": "true",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "DhcpAccrossMultipleSubnets",
+                  "value": "true",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": []
+            }
+          ],
+          "networkdomain": "cseccloud.internal",
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "restartrequired": false,
+          "specifyvlan": true,
+          "specifyipranges": true,
+          "canusefordeploy": true,
+          "ispersistent": false,
+          "tags": [],
+          "details": {},
+          "displaynetwork": true,
+          "strechedl2subnet": false,
+          "redundantrouter": false,
+          "supportsvmautoscaling": false,
+          "created": "2026-11-07T23:08:46+0900",
+          "receivedbytes": 0,
+          "sentbytes": 0,
+          "publicmtu": 1500,
+          "privatemtu": 1500,
+          "hasannotations": false
+        }
+      }
+    },
+    {
+      "case": "account-root",
+      "command": "listNetworks",
+      "role": "root",
+      "scope": "account",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "account-owner",
+      "command": "listNetworks",
+      "role": "owner",
+      "scope": "account",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "account-peer",
+      "command": "listNetworks",
+      "role": "peer",
+      "scope": "account",
+      "expectedVisible": false,
+      "visible": false,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "account-domainadmin",
+      "command": "listNetworks",
+      "role": "domainadmin",
+      "scope": "account",
+      "expectedVisible": true,
+      "visible": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "account-outsider",
+      "command": "listNetworks",
+      "role": "outsider",
+      "scope": "account",
+      "expectedVisible": false,
+      "visible": false,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "account-member",
+      "command": "listNetworks",
+      "role": "member",
+      "scope": "account",
+      "expectedVisible": false,
+      "visible": false,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "account-readonly",
+      "command": "listNetworks",
+      "role": "readonly",
+      "scope": "account",
+      "expectedVisible": false,
+      "visible": false,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "account-child",
+      "command": "listNetworks",
+      "role": "child",
+      "scope": "account",
+      "expectedVisible": false,
+      "visible": false,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null
+    },
+    {
+      "case": "retire-empty-broad-scope-all",
+      "command": "deleteNetwork",
+      "params": {
+        "id": "0597dad0-0ea0-4b58-9f3f-844893e0812e"
+      },
+      "result": {
+        "success": true
+      }
+    },
+    {
+      "case": "retire-empty-broad-scope-domain",
+      "command": "deleteNetwork",
+      "params": {
+        "id": "08a48003-f8ba-451f-b3fc-f8f8709839aa"
+      },
+      "result": {
+        "success": true
+      }
+    },
+    {
+      "case": "retire-empty-broad-scope-descendants",
+      "command": "deleteNetwork",
+      "params": {
+        "id": "4f9540a2-c07b-4f94-b886-900c654479e6"
+      },
+      "result": {
+        "success": true
+      }
+    }
+  ]
+}

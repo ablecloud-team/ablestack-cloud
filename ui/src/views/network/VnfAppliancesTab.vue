@@ -16,49 +16,63 @@
 // under the License.
 
 <template>
-  <a-table
-    size="small"
-    style="overflow-y: auto"
-    :columns="columns"
-    :dataSource="virtualmachines"
-    :rowKey="item => item.id"
-    :pagination="false"
-    :loading="fetchLoading"
-  >
-    <template #bodyCell="{ column, text, record }">
-      <template v-if="column.key === 'name'">
-        <router-link :to="{ path: '/vnfapp/' + record.id }" >{{ text }}</router-link>
+  <section class="network-vnf-appliances">
+    <NetworkRulesToolbar :show-add="false" :loading="fetchLoading" @refresh="fetchData" />
+    <a-alert
+      v-if="listRefreshFailed"
+      type="warning"
+      show-icon
+      :message="$t('message.guest.feature.load.failed')" />
+    <a-table
+      v-if="!listRefreshFailed || virtualmachines.length > 0"
+      size="small"
+      :scroll="{ x: 680 }"
+      :columns="columns"
+      :dataSource="virtualmachines"
+      :rowKey="item => item.id"
+      :pagination="false"
+      :loading="fetchLoading"
+    >
+      <template #emptyText>{{ $t('message.guest.feature.empty.vnfs') }}</template>
+      <template #bodyCell="{ column, text, record }">
+        <template v-if="column.key === 'name'">
+          <router-link :to="{ path: '/vnfapp/' + record.id }" >{{ text }}</router-link>
+        </template>
+        <template v-if="column.key === 'status'">
+          <status class="status" :text="record.state" displayText />
+        </template>
+        <template v-if="column.key === 'vmip'">
+          <status class="status" :text="record.vmip" displayText />
+        </template>
+        <template v-if="column.key === 'templatename'">
+          <router-link v-if="record.templateid && canList('listTemplates')" :to="{ path: '/template/' + record.templateid }" >{{ record.templatename || record.templateid }}</router-link>
+          <span v-else>{{ record.templatename || '—' }}</span>
+        </template>
+        <template v-if="column.key === 'osdisplayname'">
+          <status class="status" :text="record.osdisplayname" displayText />
+        </template>
+        <template v-if="column.key === 'hostname'">
+          <router-link v-if="record.hostid && canList('listHosts')" :to="{ path: '/host/' + record.hostid }" >{{ record.hostname || record.hostid }}</router-link>
+          <span v-else>{{ record.hostname || '—' }}</span>
+        </template>
       </template>
-      <template v-if="column.key === 'status'">
-        <status class="status" :text="record.state" displayText />
-      </template>
-      <template v-if="column.key === 'vmip'">
-        <status class="status" :text="record.vmip" displayText />
-      </template>
-      <template v-if="column.key === 'templatename'">
-        <router-link :to="{ path: '/template/' + record.templateid }" >{{ record.templatename || record.templateid }}</router-link>
-      </template>
-      <template v-if="column.key === 'osdisplayname'">
-        <status class="status" :text="record.osdisplayname" displayText />
-      </template>
-      <template v-if="column.key === 'hostname'">
-        <router-link :to="{ path: '/host/' + record.hostid }" >{{ record.hostname || record.hostid }}</router-link>
-      </template>
-    </template>
-  </a-table>
+    </a-table>
+  </section>
 </template>
 
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { getAPI } from '@/api'
+import NetworkRulesToolbar from '@/components/view/NetworkRulesToolbar'
 import Status from '@/components/widgets/Status'
 
 export default {
   mixins: [listRefreshMixin(['fetchData'])],
   name: 'VnfAppliancesTab',
   components: {
-    Status
+    Status,
+    NetworkRulesToolbar
   },
   props: {
     resource: {
@@ -121,10 +135,14 @@ export default {
     }
   },
   methods: {
+    canList (api) {
+      return api in this.$store.getters.apis
+    },
     fetchData () {
+      if (!this.resource.id || !this.canList('listVnfAppliances')) return
       const listRequest = this.listRequestToken('fetchData')
       var params = {
-        details: 'group,nics,secgrp,tmpl,servoff,diskoff,iso,volume,affgrp,backoff,vnfnics',
+        details: 'nics,tmpl,vnfnics',
         isVnf: true,
         listAll: true
       }
@@ -137,27 +155,18 @@ export default {
       return getAPI('listVnfAppliances', params).then(json => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
 
-        this.virtualmachines = json.listvnfappliancesresponse.virtualmachine || []
-        for (const vm of this.virtualmachines) {
-          for (const vmnic of vm.nic) {
-            if (vmnic.networkid === this.resource.id) {
-              vm.vmip = vmnic.ipaddress
-            }
-          }
-        }
-      }).catch(error => {
+        const vms = json.listvnfappliancesresponse.virtualmachine || []
+        this.virtualmachines = vms.map(vm => ({
+          ...vm,
+          vmip: (vm.nic || []).filter(nic => nic.networkid === this.resource.id).map(nic => nic.ipaddress || nic.ip6address).filter(Boolean).join(', ') || '—'
+        }))
+      }).catch(() => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
         listRequest.failed = true
         this.listRefreshFailed = true
-        if (listRequest.loaded) return
-
-        this.$notifyError(error)
       }).finally(() => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
 
-        this.fetchLoading = false
-      }).finally(() => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
         this.fetchLoading = false
       })
     }
@@ -165,6 +174,10 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+.network-vnf-appliances {
+  min-width: 0;
+}
+
 .status {
   margin-top: -5px;
 

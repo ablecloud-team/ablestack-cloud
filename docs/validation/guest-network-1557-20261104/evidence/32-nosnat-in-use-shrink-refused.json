@@ -1,0 +1,72 @@
+{
+  "records": [
+    {
+      "requestId": "40480.7487",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "1b6001c7-f30f-4b5b-8843-8b8e68b2720e",
+        "command": "listNetworks"
+      },
+      "status": 200,
+      "result": {
+        "count": 1
+      }
+    },
+    {
+      "requestId": "40480.7488",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "1b6001c7-f30f-4b5b-8843-8b8e68b2720e",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 2
+      }
+    },
+    {
+      "requestId": "40480.7489",
+      "command": "updateVlanIpRange",
+      "method": "POST",
+      "params": {
+        "command": "updateVlanIpRange",
+        "id": "a67bd7c2-1bb8-4eb8-9b41-78a7bee972df",
+        "startip": "172.26.32.30",
+        "endip": "172.26.32.30",
+        "gateway": "172.26.32.1",
+        "netmask": "255.255.255.0"
+      },
+      "status": 431,
+      "result": {
+        "errorcode": 431,
+        "errortext": "The start IP address must be less than or equal to 172.26.32.31 which is already in use. The end IP address must be greater than or equal to 172.26.32.31 which is already in use. There are 1 IPs already allocated in this range."
+      }
+    }
+  ],
+  "cursor": 9139,
+  "dialog": "IP 범위 업데이트\nThe start IP address must be less than or equal to 172.26.32.31 which is already in use. The end IP address must be greater than or equal to 172.26.32.31 which is already in use. There are 1 IPs already allocated in this range.\n인터넷 프로토콜\nIPv4\nIPv4\n\n종료 IP를 비우면 시작 IP 한 개를 사용합니다.\n\nIPv4 시작 IP\nIPv4 종료 IP\n게이트웨이\n넷마스크\n취소\n확인",
+  "values": [
+    {
+      "name": "IPv4 시작 IP",
+      "value": "172.26.32.30"
+    },
+    {
+      "name": "IPv4 종료 IP",
+      "value": "172.26.32.30"
+    },
+    {
+      "name": "게이트웨이",
+      "value": "172.26.32.1"
+    },
+    {
+      "name": "넷마스크",
+      "value": "255.255.255.0"
+    }
+  ]
+}

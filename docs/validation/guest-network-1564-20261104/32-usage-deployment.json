@@ -1,0 +1,13 @@
+{
+  "jarSha256": "6fd9be1aab59987368217c8f589fc4440f3fb5b2303ed1ef5adb63a45809f6fd",
+  "classSha256": "78acd2b8558beff69911564c8284fd2bd5bfe0c056af902d1924294acbf98cf5",
+  "beforePID": "3720661",
+  "afterPID": "763514",
+  "managementPIDUnchanged": true,
+  "indexUnchanged": true,
+  "WEB-INF": true,
+  "http": 200,
+  "cluster": 32,
+  "backup": "/home/ablecloud/work/guest-network-1564-validation/usage-backups/32-usage-before.jar",
+  "stage": "/dev/shm/gn1564-usage-20261104-205712"
+}

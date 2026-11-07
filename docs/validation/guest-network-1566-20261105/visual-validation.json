@@ -1,0 +1,16 @@
+{
+  "standardViewportThemeConditions": 36,
+  "modalCaptures": 47,
+  "jpegCount": 57,
+  "allDecodedDimensionsMatch": true,
+  "horizontalModalOverflow": 0,
+  "footerOutsideViewport": 0,
+  "minimumMeasuredBodyTextContrast": 6.978,
+  "lateSubmissionFixChangesLayout": false,
+  "finalSubmissionScreenshots": [
+    "31-create-final-values.jpg",
+    "31-clone-final-values.jpg",
+    "32-create-final-values.jpg",
+    "32-clone-final-values.jpg"
+  ]
+}

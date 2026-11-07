@@ -1,0 +1,12 @@
+{
+  "jarSha256": "785c9c48617f4bc7a93f39fd18774ca366213d925917c0947615300d126edcb4",
+  "markers": {
+    "min(420px, calc(100vw - 24px))": true,
+    "revalidating API permissions": true,
+    "Project discovery scope changed": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  },
+  "webInfPresent": true
+}

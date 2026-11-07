@@ -1,0 +1,7 @@
+{
+  "cluster31": "http://10.10.31.10:8080/client/#/guestnetwork/670c6673-068d-4436-b57c-b09acce6b65f?tab=guest.ip.range",
+  "cluster32": "http://10.10.32.10:8080/client/#/guestnetwork/89d6e044-1d4e-4598-9474-4aea0ae3d9b6?tab=guest.ip.range",
+  "type31": "no-SourceNat Isolated",
+  "type32": "Shared",
+  "resourcesKept": true
+}

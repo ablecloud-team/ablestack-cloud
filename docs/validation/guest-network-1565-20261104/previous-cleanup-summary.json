@@ -1,0 +1,177 @@
+{
+  "31": {
+    "fixture_ids": {
+      "networks": {
+        "nosnat": "9cdf2e30-76e6-4580-aa39-8a287ec53f0b",
+        "nat": "63a45c7f-8b9f-45aa-8ba9-e732017e9896",
+        "l2": "3707b0e4-7fb1-4cc7-a27f-2866f2cc7179",
+        "shared": "7ec8b9e2-e850-4aa6-afff-d1c39793664a"
+      },
+      "offerings": {
+        "nosnat-vr": "e6abcbef-0e56-4ee2-b280-a75584c56542",
+        "nat-vr": "5d0354d4-ca31-4f5f-a250-dad17b0dc1ca"
+      },
+      "vms": {
+        "nosnat": "906308f5-3f2f-4ebf-9990-ed3d7bc2d672",
+        "nat": "ac30fd6b-f405-461e-b024-bbe69276ded2",
+        "l2": "a99c96d4-ada0-428d-8d71-020c16669857",
+        "shared": "62536b9d-6858-4ba4-97f5-3c59f043e382"
+      }
+    },
+    "operations": [
+      {
+        "command": "destroyVirtualMachine",
+        "id": "906308f5-3f2f-4ebf-9990-ed3d7bc2d672",
+        "jobstatus": 1
+      },
+      {
+        "command": "destroyVirtualMachine",
+        "id": "ac30fd6b-f405-461e-b024-bbe69276ded2",
+        "jobstatus": 1
+      },
+      {
+        "command": "destroyVirtualMachine",
+        "id": "a99c96d4-ada0-428d-8d71-020c16669857",
+        "jobstatus": 1
+      },
+      {
+        "command": "destroyVirtualMachine",
+        "id": "62536b9d-6858-4ba4-97f5-3c59f043e382",
+        "jobstatus": 1
+      },
+      {
+        "command": "deleteNetwork",
+        "id": "9cdf2e30-76e6-4580-aa39-8a287ec53f0b",
+        "jobstatus": 1
+      },
+      {
+        "command": "deleteNetwork",
+        "id": "63a45c7f-8b9f-45aa-8ba9-e732017e9896",
+        "jobstatus": 1
+      },
+      {
+        "command": "deleteNetwork",
+        "id": "3707b0e4-7fb1-4cc7-a27f-2866f2cc7179",
+        "jobstatus": 1
+      },
+      {
+        "command": "deleteNetwork",
+        "id": "7ec8b9e2-e850-4aa6-afff-d1c39793664a",
+        "jobstatus": 1
+      },
+      {
+        "command": "deleteNetworkOffering",
+        "id": "e6abcbef-0e56-4ee2-b280-a75584c56542",
+        "jobstatus": null
+      },
+      {
+        "command": "deleteNetworkOffering",
+        "id": "5d0354d4-ca31-4f5f-a250-dad17b0dc1ca",
+        "jobstatus": null
+      }
+    ],
+    "storage": {
+      "1": {
+        "remaining_domains": [],
+        "remaining_roots": []
+      },
+      "2": {
+        "remaining_domains": [],
+        "remaining_roots": []
+      },
+      "3": {
+        "remaining_domains": [],
+        "remaining_roots": []
+      }
+    }
+  },
+  "32": {
+    "fixture_ids": {
+      "networks": {
+        "nosnat": "2ff9ca96-c320-4006-8339-d73177dbc302",
+        "nat": "64837f51-0c8d-4c72-b661-d372a5b1fb93",
+        "l2": "6b662b7e-8eed-4c45-9021-8a130b30912f",
+        "shared": "bc678b24-fdda-4392-9a18-9ca61e93be84"
+      },
+      "offerings": {
+        "nosnat-vr": "b837a9d8-b0f3-4554-9861-a91578da1dfe",
+        "nat-vr": "40c2c10f-ec30-49c4-9eed-ca681219d692"
+      },
+      "vms": {
+        "nosnat": "5aa5afbd-7846-4663-82ae-3fb101e3bc04",
+        "nat": "d149c9ab-216c-4600-9972-0a38d940324e",
+        "l2": "d91e3ef3-da6a-49c4-9024-9d77f8c455de",
+        "shared": "063bd3ff-5d42-4cef-b037-482cce9ac7d3"
+      }
+    },
+    "operations": [
+      {
+        "command": "destroyVirtualMachine",
+        "id": "5aa5afbd-7846-4663-82ae-3fb101e3bc04",
+        "jobstatus": 1
+      },
+      {
+        "command": "destroyVirtualMachine",
+        "id": "d149c9ab-216c-4600-9972-0a38d940324e",
+        "jobstatus": 1
+      },
+      {
+        "command": "destroyVirtualMachine",
+        "id": "d91e3ef3-da6a-49c4-9024-9d77f8c455de",
+        "jobstatus": 1
+      },
+      {
+        "command": "destroyVirtualMachine",
+        "id": "063bd3ff-5d42-4cef-b037-482cce9ac7d3",
+        "jobstatus": 1
+      },
+      {
+        "command": "deleteNetwork",
+        "id": "2ff9ca96-c320-4006-8339-d73177dbc302",
+        "jobstatus": 1
+      },
+      {
+        "command": "deleteNetwork",
+        "id": "64837f51-0c8d-4c72-b661-d372a5b1fb93",
+        "jobstatus": 1
+      },
+      {
+        "command": "deleteNetwork",
+        "id": "6b662b7e-8eed-4c45-9021-8a130b30912f",
+        "jobstatus": 1
+      },
+      {
+        "command": "deleteNetwork",
+        "id": "bc678b24-fdda-4392-9a18-9ca61e93be84",
+        "jobstatus": 1
+      },
+      {
+        "command": "deleteNetworkOffering",
+        "id": "b837a9d8-b0f3-4554-9861-a91578da1dfe",
+        "jobstatus": null
+      },
+      {
+        "command": "deleteNetworkOffering",
+        "id": "40c2c10f-ec30-49c4-9eed-ca681219d692",
+        "jobstatus": null
+      }
+    ],
+    "storage": {
+      "1": {
+        "remaining_domains": [],
+        "remaining_mappings": [],
+        "remaining_roots": []
+      },
+      "2": {
+        "remaining_domains": [],
+        "remaining_mappings": [],
+        "remaining_roots": []
+      },
+      "3": {
+        "remaining_domains": [],
+        "remaining_mappings": [],
+        "remaining_roots": []
+      }
+    }
+  }
+}

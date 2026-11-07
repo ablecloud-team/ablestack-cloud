@@ -1,0 +1,12 @@
+{
+  "syntheticReadFailureCount": 3,
+  "postCountByServerJobs": 1,
+  "jobs": [
+    {
+      "jobid": "955489a5-5fda-4e01-a4ac-460bf9e7a787",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.firewall.CreateEgressFirewallRuleCmd"
+    }
+  ],
+  "status": "PASS"
+}

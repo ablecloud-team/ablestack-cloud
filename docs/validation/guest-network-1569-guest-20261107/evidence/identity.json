@@ -1,0 +1,188 @@
+{
+  "31-shared": {
+    "guest-get-host-name": {
+      "host-name": "qa-gn1569-31-shared-vm"
+    },
+    "guest-network-get-interfaces": [
+      {
+        "name": "lo",
+        "ip-addresses": [
+          {
+            "ip-address-type": "ipv4",
+            "ip-address": "127.0.0.1",
+            "prefix": 8
+          },
+          {
+            "ip-address-type": "ipv6",
+            "ip-address": "::1",
+            "prefix": 128
+          }
+        ],
+        "statistics": {
+          "tx-packets": 12,
+          "tx-errs": 0,
+          "rx-bytes": 1128,
+          "rx-dropped": 0,
+          "rx-packets": 12,
+          "rx-errs": 0,
+          "tx-bytes": 1128,
+          "tx-dropped": 0
+        },
+        "hardware-address": "00:00:00:00:00:00"
+      },
+      {
+        "name": "ens3",
+        "ip-addresses": [
+          {
+            "ip-address-type": "ipv4",
+            "ip-address": "10.178.31.25",
+            "prefix": 27
+          },
+          {
+            "ip-address-type": "ipv6",
+            "ip-address": "fe80::1c1f:9eff:fe00:2cb",
+            "prefix": 64
+          }
+        ],
+        "statistics": {
+          "tx-packets": 170,
+          "tx-errs": 0,
+          "rx-bytes": 19071,
+          "rx-dropped": 5,
+          "rx-packets": 224,
+          "rx-errs": 0,
+          "tx-bytes": 15417,
+          "tx-dropped": 0
+        },
+        "hardware-address": "1e:1f:9e:00:02:cb"
+      }
+    ],
+    "cloudVmUuid": "e0ab98ea-2495-4f86-871f-ebd61786dbd3",
+    "host": "10.10.31.3",
+    "nicMatches": true
+  },
+  "32-shared": {
+    "guest-get-host-name": {
+      "host-name": "qa-gn1569-32-shared-vm"
+    },
+    "guest-network-get-interfaces": [
+      {
+        "name": "lo",
+        "ip-addresses": [
+          {
+            "ip-address-type": "ipv4",
+            "ip-address": "127.0.0.1",
+            "prefix": 8
+          },
+          {
+            "ip-address-type": "ipv6",
+            "ip-address": "::1",
+            "prefix": 128
+          }
+        ],
+        "statistics": {
+          "tx-packets": 12,
+          "tx-errs": 0,
+          "rx-bytes": 1128,
+          "rx-dropped": 0,
+          "rx-packets": 12,
+          "rx-errs": 0,
+          "tx-bytes": 1128,
+          "tx-dropped": 0
+        },
+        "hardware-address": "00:00:00:00:00:00"
+      },
+      {
+        "name": "ens3",
+        "ip-addresses": [
+          {
+            "ip-address-type": "ipv4",
+            "ip-address": "10.178.32.20",
+            "prefix": 27
+          },
+          {
+            "ip-address-type": "ipv6",
+            "ip-address": "fe80::1c01:8aff:fe00:2c4",
+            "prefix": 64
+          }
+        ],
+        "statistics": {
+          "tx-packets": 161,
+          "tx-errs": 0,
+          "rx-bytes": 16958,
+          "rx-dropped": 4,
+          "rx-packets": 179,
+          "rx-errs": 0,
+          "tx-bytes": 14843,
+          "tx-dropped": 0
+        },
+        "hardware-address": "1e:01:8a:00:02:c4"
+      }
+    ],
+    "cloudVmUuid": "c0ae91e3-1538-49c7-94cb-a513c50e08ee",
+    "host": "10.10.32.2",
+    "nicMatches": true
+  },
+  "32-nosnat": {
+    "guest-get-host-name": {
+      "host-name": "qa-gn1569-32-nosnat-vm"
+    },
+    "guest-network-get-interfaces": [
+      {
+        "name": "lo",
+        "ip-addresses": [
+          {
+            "ip-address-type": "ipv4",
+            "ip-address": "127.0.0.1",
+            "prefix": 8
+          },
+          {
+            "ip-address-type": "ipv6",
+            "ip-address": "::1",
+            "prefix": 128
+          }
+        ],
+        "statistics": {
+          "tx-packets": 8,
+          "tx-errs": 0,
+          "rx-bytes": 752,
+          "rx-dropped": 0,
+          "rx-packets": 8,
+          "rx-errs": 0,
+          "tx-bytes": 752,
+          "tx-dropped": 0
+        },
+        "hardware-address": "00:00:00:00:00:00"
+      },
+      {
+        "name": "ens3",
+        "ip-addresses": [
+          {
+            "ip-address-type": "ipv4",
+            "ip-address": "10.177.32.20",
+            "prefix": 27
+          },
+          {
+            "ip-address-type": "ipv6",
+            "ip-address": "fe80::1c01:90ff:fe00:2b4",
+            "prefix": 64
+          }
+        ],
+        "statistics": {
+          "tx-packets": 133,
+          "tx-errs": 0,
+          "rx-bytes": 13055,
+          "rx-dropped": 2,
+          "rx-packets": 115,
+          "rx-errs": 0,
+          "tx-bytes": 12879,
+          "tx-dropped": 0
+        },
+        "hardware-address": "1e:01:90:00:02:b4"
+      }
+    ],
+    "cloudVmUuid": "23dbc3f4-4378-4fef-9420-959d724ae98e",
+    "host": "10.10.32.2",
+    "nicMatches": true
+  }
+}

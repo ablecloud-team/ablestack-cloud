@@ -63,7 +63,7 @@ def isOldStyleBridge(brName):
 def isNewStyleBridge(brName):
     if brName.startswith('brvx-'):
         return False
-    if re.match(r"br(\w+)-(\d+)", brName) == None:
+    if re.fullmatch(r"br(.+)-(\d+)", brName) is None:
         return False
     else:
         return True
@@ -75,6 +75,29 @@ def getGuestNetworkDevice():
     guestDev = cfo.getEntry("guest.network.device")
     enslavedDev = netlib.getEnslavedDev(guestDev, 1)
     return enslavedDev.split(".")[0]
+
+
+def vlanBridgeName(phyDev, vlanId):
+    import base64
+    import hashlib
+    legacy = "br" + phyDev + "-" + vlanId
+    if len(legacy.encode("utf-8")) <= 15:
+        return legacy
+    token = base64.b32encode(hashlib.sha256(phyDev.encode("utf-8")).digest()[:5]).decode("ascii").lower()
+    return "br" + token + "-" + vlanId
+
+
+def preparedVlanParent(bridge, vlanId):
+    # PrepareForMigration has already created and ownership-checked the destination bridge.
+    try:
+        with open("/sys/class/net/" + bridge + "/ifalias") as alias:
+            owner = alias.read().strip().split(":")
+        if len(owner) == 4 and owner[:2] == ["cloudstack", "vlan"] and owner[3] == vlanId:
+            if vlanBridgeName(owner[2], vlanId) == bridge:
+                return owner[2]
+    except OSError:
+        pass
+    return None
 
 
 def handleMigrateBegin():
@@ -89,14 +112,13 @@ def handleMigrateBegin():
                     vlanId = bridge.replace("cloudVirBr", "")
                     phyDev = getGuestNetworkDevice()
                 elif isNewStyleBridge(bridge):
-                    vlanId = re.sub(r"br(\w+)-", "", bridge)
-                    phyDev = re.sub(r"-(\d+)$", "" , re.sub(r"^br", "" ,bridge))
+                    phyDev, vlanId = re.fullmatch(r"br(.+)-(\d+)", bridge).groups()
                     netlib = networkConfig()
                     if not netlib.isNetworkDev(phyDev):
-                        phyDev = getGuestNetworkDevice()
+                        phyDev = preparedVlanParent(bridge, vlanId) or getGuestNetworkDevice()
                 else:
                     continue
-                newBrName = "br" + phyDev + "-" + vlanId
+                newBrName = vlanBridgeName(phyDev, vlanId)
                 source.setAttribute("bridge", newBrName)
         print(domain.toxml())
     except:

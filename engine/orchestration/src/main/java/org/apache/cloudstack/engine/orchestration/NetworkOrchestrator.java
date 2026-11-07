@@ -237,6 +237,7 @@ import com.cloud.utils.db.EntityManager;
 import com.cloud.utils.db.GlobalLock;
 import com.cloud.utils.db.JoinBuilder.JoinType;
 import com.cloud.utils.db.SearchBuilder;
+import com.cloud.utils.db.SearchCriteria;
 import com.cloud.utils.db.SearchCriteria.Op;
 import com.cloud.utils.db.Transaction;
 import com.cloud.utils.db.TransactionCallback;
@@ -525,30 +526,35 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
         }
     }
 
+    // Each offering owns its map and provider sets. Mutating a later VPC template must
+    // never turn Shared/standalone Isolated services into VpcVirtualRouter services.
+    static Map<Service, Set<Provider>> defaultOfferingProviders(GuestType type, boolean sourceNat, boolean forVpc) {
+        Map<Service, Set<Provider>> result = new HashMap<>();
+        List<Service> services = new ArrayList<>(Arrays.asList(Service.Dhcp, Service.Dns, Service.UserData));
+        if (type == GuestType.Isolated) {
+            services.addAll(Arrays.asList(Service.Firewall, Service.Gateway, Service.Lb, Service.StaticNat, Service.PortForwarding, Service.Vpn));
+        }
+        if (sourceNat) {
+            services.add(Service.SourceNat);
+        }
+        if (forVpc) {
+            services.add(Service.NetworkACL);
+        }
+        for (Service service : services) {
+            result.put(service, new HashSet<>(Collections.singleton(forVpc ? Provider.VPCVirtualRouter : Provider.VirtualRouter)));
+        }
+        return result;
+    }
+
     @Override
     @DB
     public boolean configure(final String name, final Map<String, Object> params) throws ConfigurationException {
         // populate providers
-        final Map<Network.Service, Set<Network.Provider>> defaultSharedNetworkOfferingProviders = new HashMap<>();
-        final Set<Network.Provider> defaultProviders = new HashSet<>();
+        final Map<Network.Service, Set<Network.Provider>> defaultSharedNetworkOfferingProviders = defaultOfferingProviders(GuestType.Shared, false, false);
         final Set<Network.Provider> defaultSGProviders = new HashSet<Network.Provider>();
         final Set<Network.Provider> tungstenProvider = new HashSet<>();
 
-        defaultProviders.add(Network.Provider.VirtualRouter);
-        defaultSharedNetworkOfferingProviders.put(Service.Dhcp, defaultProviders);
-        defaultSharedNetworkOfferingProviders.put(Service.Dns, defaultProviders);
-        defaultSharedNetworkOfferingProviders.put(Service.UserData, defaultProviders);
-
-        final Map<Network.Service, Set<Network.Provider>> defaultIsolatedNetworkOfferingProviders = defaultSharedNetworkOfferingProviders;
-        defaultIsolatedNetworkOfferingProviders.put(Service.Dhcp, defaultProviders);
-        defaultIsolatedNetworkOfferingProviders.put(Service.Dns, defaultProviders);
-        defaultIsolatedNetworkOfferingProviders.put(Service.UserData, defaultProviders);
-        defaultIsolatedNetworkOfferingProviders.put(Service.Firewall, defaultProviders);
-        defaultIsolatedNetworkOfferingProviders.put(Service.Gateway, defaultProviders);
-        defaultIsolatedNetworkOfferingProviders.put(Service.Lb, defaultProviders);
-        defaultIsolatedNetworkOfferingProviders.put(Service.StaticNat, defaultProviders);
-        defaultIsolatedNetworkOfferingProviders.put(Service.PortForwarding, defaultProviders);
-        defaultIsolatedNetworkOfferingProviders.put(Service.Vpn, defaultProviders);
+        final Map<Network.Service, Set<Network.Provider>> defaultIsolatedNetworkOfferingProviders = defaultOfferingProviders(GuestType.Isolated, false, false);
 
         defaultSGProviders.add(Network.Provider.VirtualRouter);
         final Map<Network.Service, Set<Network.Provider>> defaultSharedSGEnabledNetworkOfferingProviders = new HashMap<>();
@@ -568,34 +574,8 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
         defaultTungstenSharedSGEnabledNetworkOfferingProviders.put(Service.SecurityGroup, tungstenProvider);
 
 
-        final Map<Network.Service, Set<Network.Provider>> defaultIsolatedSourceNatEnabledNetworkOfferingProviders = new HashMap<>();
-        defaultProviders.clear();
-        defaultProviders.add(Network.Provider.VirtualRouter);
-        defaultIsolatedSourceNatEnabledNetworkOfferingProviders.put(Service.Dhcp, defaultProviders);
-        defaultIsolatedSourceNatEnabledNetworkOfferingProviders.put(Service.Dns, defaultProviders);
-        defaultIsolatedSourceNatEnabledNetworkOfferingProviders.put(Service.UserData, defaultProviders);
-        defaultIsolatedSourceNatEnabledNetworkOfferingProviders.put(Service.Firewall, defaultProviders);
-        defaultIsolatedSourceNatEnabledNetworkOfferingProviders.put(Service.Gateway, defaultProviders);
-        defaultIsolatedSourceNatEnabledNetworkOfferingProviders.put(Service.Lb, defaultProviders);
-        defaultIsolatedSourceNatEnabledNetworkOfferingProviders.put(Service.SourceNat, defaultProviders);
-        defaultIsolatedSourceNatEnabledNetworkOfferingProviders.put(Service.StaticNat, defaultProviders);
-        defaultIsolatedSourceNatEnabledNetworkOfferingProviders.put(Service.PortForwarding, defaultProviders);
-        defaultIsolatedSourceNatEnabledNetworkOfferingProviders.put(Service.Vpn, defaultProviders);
-
-        final Map<Network.Service, Set<Network.Provider>> defaultVPCOffProviders = new HashMap<>();
-        defaultProviders.clear();
-        defaultProviders.add(Network.Provider.VPCVirtualRouter);
-        defaultVPCOffProviders.put(Service.Dhcp, defaultProviders);
-        defaultVPCOffProviders.put(Service.Dns, defaultProviders);
-        defaultVPCOffProviders.put(Service.UserData, defaultProviders);
-        defaultVPCOffProviders.put(Service.NetworkACL, defaultProviders);
-        defaultVPCOffProviders.put(Service.Gateway, defaultProviders);
-        defaultVPCOffProviders.put(Service.Lb, defaultProviders);
-        defaultVPCOffProviders.put(Service.SourceNat, defaultProviders);
-        defaultVPCOffProviders.put(Service.StaticNat, defaultProviders);
-        defaultVPCOffProviders.put(Service.PortForwarding, defaultProviders);
-        defaultVPCOffProviders.put(Service.Vpn, defaultProviders);
-        defaultVPCOffProviders.put(Service.Firewall, defaultProviders);
+        final Map<Network.Service, Set<Network.Provider>> defaultIsolatedSourceNatEnabledNetworkOfferingProviders = defaultOfferingProviders(GuestType.Isolated, true, false);
+        final Map<Network.Service, Set<Network.Provider>> defaultVPCOffProviders = defaultOfferingProviders(GuestType.Isolated, true, true);
 
         Transaction.execute(new TransactionCallbackNoReturn() {
             @Override
@@ -3217,15 +3197,16 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
                     }
                 }
 
-                if (isResourceCountUpdateNeeded(ntwkOff)) {
-                    changeAccountResourceCountOrRecalculateDomainResourceCount(owner.getAccountId(), domainId, isDisplayNetworkEnabled, true);
-                }
+                updateAccountNetworkResourceCount(network, ntwkOff, true);
                 UsageEventUtils.publishNetworkCreation(network);
 
                 return network;
             }
         });
 
+        // Recounting a Domain Shared network also visits account counters. Run it
+        // after committing network/map rows, never while holding their SQL locks.
+        reconcileDomainNetworkResourceCount(network);
         CallContext.current().setEventDetails("Network ID: " + network.getUuid());
         CallContext.current().putContextParameter(Network.class, network.getUuid());
         return network;
@@ -3479,8 +3460,9 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
 
         for (final UserVmVO vm : userVms) {
             if (!(vm.getState() == VirtualMachine.State.Expunging && vm.getRemoved() != null)) {
-                logger.warn("Can't delete the Network, not all User Instances are expunged. Instance {} is in {} state", vm, vm.getState());
-                return false;
+                throw new CloudRuntimeException(String.format(
+                        "Cannot delete network %s: virtual machine %s is %s and still has a NIC in this network. Detach the NIC or expunge the VM, then retry only this network.",
+                        network.getUuid(), vm.getUuid(), vm.getState()));
             }
         }
 
@@ -3511,8 +3493,9 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
         // get updated state for the network
         network = _networksDao.findById(networkId);
         if (network.getState() != Network.State.Allocated && network.getState() != Network.State.Setup && !forced) {
-            logger.debug("Network is not in the correct state to be destroyed: {}", network.getState());
-            return false;
+            throw new CloudRuntimeException(String.format(
+                    "Cannot delete network %s in state %s. Check the running network job or router shutdown result before retrying normal deletion.",
+                    network.getUuid(), network.getState()));
         }
 
         boolean success = true;
@@ -3575,6 +3558,7 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
                                 logger.debug(e.getMessage());
                             }
                             if (_networksDao.remove(networkFinal.getId())) {
+                                removeNetworkPlaceholderNics(networkFinal.getId());
                                 final NetworkDomainVO networkDomain = _networkDomainDao.getDomainNetworkMapByNetworkId(networkFinal.getId());
                                 if (networkDomain != null) {
                                     _networkDomainDao.remove(networkDomain.getId());
@@ -3592,16 +3576,16 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
                                     logger.debug(String.format("Releasing AS number %s from network %s", asNumber.getAsNumber(), networkId));
                                     bgpService.releaseASNumber(zone.getId(), asNumber.getAsNumber(), true);
                                 }
-                            }
-
-                            final NetworkOffering ntwkOff = _entityMgr.findById(NetworkOffering.class, networkFinal.getNetworkOfferingId());
-                            if (isResourceCountUpdateNeeded(ntwkOff)) {
-                                changeAccountResourceCountOrRecalculateDomainResourceCount(networkFinal.getAccountId(), networkFinal.getDomainId(), networkFinal.getDisplayNetwork(), false);
+                                final NetworkOffering ntwkOff = _entityMgr.findById(NetworkOffering.class, networkFinal.getNetworkOfferingId());
+                                updateAccountNetworkResourceCount(networkFinal, ntwkOff, false);
+                            } else {
+                                throw new CloudRuntimeException("Network metadata was not removed; resource counters were not decremented.");
                             }
                         }
                         return deletedVlans.second();
                     }
                 });
+                reconcileDomainNetworkResourceCount(networkFinal);
                 publishDeletedVlanRanges(deletedVlanRangeToPublish);
                 if (_networksDao.findById(network.getId()) == null) {
                     // remove its related ACL permission
@@ -3619,19 +3603,42 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
         return success;
     }
 
-    /**
-     * If it is a shared network with {@link ACLType#Domain}, it will belong to account {@link Account#ACCOUNT_ID_SYSTEM} and the resources will be not incremented for the
-     * domain. Therefore, we force the recalculation of the domain's resource count in this case. Otherwise, it will change the count for the account owner.
-     * @param incrementAccountResourceCount If true, the account resource count will be incremented by 1; otherwise, it will decremented by 1.
-     */
-    private void changeAccountResourceCountOrRecalculateDomainResourceCount(Long accountId, Long domainId, boolean displayNetwork, boolean incrementAccountResourceCount) {
-        if (Account.ACCOUNT_ID_SYSTEM == accountId && ObjectUtils.isNotEmpty(domainId)) {
-            _resourceLimitMgr.recalculateDomainResourceCount(domainId, ResourceType.network, null);
+    /** Keep account deltas consistent with NetworkDao.countNetworksUserCanCreate. */
+    protected void updateAccountNetworkResourceCount(Network network, NetworkOffering offering, boolean increment) {
+        if (network.getAccountId() == Account.ACCOUNT_ID_SYSTEM || network.getAclType() != ACLType.Account ||
+                !isResourceCountUpdateNeeded(offering)) {
+            return;
+        }
+        if (increment) {
+            _resourceLimitMgr.incrementResourceCount(network.getAccountId(), ResourceType.network, network.getDisplayNetwork());
         } else {
-            if (incrementAccountResourceCount) {
-                _resourceLimitMgr.incrementResourceCount(accountId, ResourceType.network, displayNetwork);
-            } else {
-                _resourceLimitMgr.decrementResourceCount(accountId, ResourceType.network, displayNetwork);
+            _resourceLimitMgr.decrementResourceCount(network.getAccountId(), ResourceType.network, network.getDisplayNetwork());
+        }
+    }
+
+    /** Domain recount takes resource-count locks and must not own network/map locks. */
+    protected void reconcileDomainNetworkResourceCount(Network network) {
+        if (network.getAccountId() != Account.ACCOUNT_ID_SYSTEM || network.getAclType() != ACLType.Domain) {
+            return;
+        }
+        try {
+            _resourceLimitMgr.recalculateDomainResourceCount(network.getDomainId(), ResourceType.network, null);
+        } catch (RuntimeException e) {
+            // The network operation already committed. Do not turn it into a failed
+            // create/delete receipt, which could cause the caller to repeat a write.
+            logger.warn("Network {} committed, but its domain network count could not be reconciled; use updateResourceCount to recheck it", network.getUuid(), e);
+        }
+    }
+
+    /** Placeholder reservations have no VM lifecycle to remove them later. */
+    protected void removeNetworkPlaceholderNics(long networkId) {
+        final SearchCriteria<NicVO> reservations = _nicDao.createSearchCriteria();
+        reservations.addAnd("networkId", Op.EQ, networkId);
+        reservations.addAnd("instanceId", Op.NULL);
+        reservations.addAnd("reservationStrategy", Op.EQ, ReservationStrategy.PlaceHolder);
+        for (NicVO nic : _nicDao.search(reservations, null)) {
+            if (!_nicDao.remove(nic.getId())) {
+                throw new CloudRuntimeException("Unable to remove the deleted network's placeholder NIC reservation.");
             }
         }
     }
@@ -3646,7 +3653,7 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
 
     @Override
     public boolean isResourceCountUpdateNeeded(NetworkOffering networkOffering) {
-        return !networkOffering.isSystemOnly();
+        return !networkOffering.isSystemOnly() && !networkOffering.isSpecifyVlan();
     }
 
     protected Pair<Boolean, List<VlanVO>> deleteVlansInNetwork(final NetworkVO network, final long userId, final Account callerAccount) {

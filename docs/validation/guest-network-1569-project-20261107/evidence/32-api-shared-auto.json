@@ -1,0 +1,394 @@
+[
+  {
+    "role": "admin",
+    "operation": "create-shared-auto",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-32-prj-api-admin-shared-auto",
+      "displaytext": "API project Shared admin",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "d000e9f9-e188-42c6-b559-8da3c637f5ae",
+      "acltype": "Account",
+      "associatednetworkid": "bae5c362-d038-40fa-9123-52e8acc7374d",
+      "gateway": "10.183.32.1",
+      "netmask": "255.255.255.224",
+      "startip": "10.183.32.10",
+      "endip": "10.183.32.25",
+      "routerip": "10.183.32.10"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null
+  },
+  {
+    "role": "admin",
+    "operation": "update-shared-auto",
+    "command": "updateNetwork",
+    "params": {
+      "id": "94205e36-52bc-4bb8-ae37-a1f9bddc5d3c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 admin shared-auto"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "f5320cd9-d4a1-449e-a879-76dc9d991b25",
+    "jobStatus": 1,
+    "persisted": true
+  },
+  {
+    "role": "admin",
+    "operation": "nic-add-shared-auto",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "94205e36-52bc-4bb8-ae37-a1f9bddc5d3c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "0adcf06f-148a-48cd-8c89-f35e96b84ea9",
+    "jobStatus": 1,
+    "nicPresent": true
+  },
+  {
+    "role": "domainadmin",
+    "operation": "create-shared-auto",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-32-prj-api-domainadmin-shared-auto",
+      "displaytext": "API project Shared domainadmin",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "d000e9f9-e188-42c6-b559-8da3c637f5ae",
+      "acltype": "Account",
+      "associatednetworkid": "bea39c70-88c0-40a5-8ce8-5cc2395c6e2d",
+      "gateway": "10.183.32.33",
+      "netmask": "255.255.255.224",
+      "startip": "10.183.32.42",
+      "endip": "10.183.32.57",
+      "routerip": "10.183.32.42"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null
+  },
+  {
+    "role": "domainadmin",
+    "operation": "update-shared-auto",
+    "command": "updateNetwork",
+    "params": {
+      "id": "94205e36-52bc-4bb8-ae37-a1f9bddc5d3c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 domainadmin shared-auto"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "07c2b532-ab99-4ce1-94be-ad81960ab3e4",
+    "jobStatus": 1,
+    "persisted": true
+  },
+  {
+    "role": "domainadmin",
+    "operation": "nic-add-shared-auto",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "94205e36-52bc-4bb8-ae37-a1f9bddc5d3c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "594efad1-78b3-44d5-b356-607023748f37",
+    "jobStatus": 1,
+    "nicPresent": true
+  },
+  {
+    "role": "owner",
+    "operation": "create-shared-auto",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-32-prj-api-owner-shared-auto",
+      "displaytext": "API project Shared owner",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "d000e9f9-e188-42c6-b559-8da3c637f5ae",
+      "acltype": "Account",
+      "associatednetworkid": "c75aec2a-fb86-43af-a69a-995e537ed299",
+      "gateway": "10.183.32.65",
+      "netmask": "255.255.255.224",
+      "startip": "10.183.32.74",
+      "endip": "10.183.32.89",
+      "routerip": "10.183.32.74"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null
+  },
+  {
+    "role": "owner",
+    "operation": "update-shared-auto",
+    "command": "updateNetwork",
+    "params": {
+      "id": "94205e36-52bc-4bb8-ae37-a1f9bddc5d3c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 owner shared-auto"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "30d10c9a-c1d3-4684-addd-e057743419aa",
+    "jobStatus": 1,
+    "persisted": true
+  },
+  {
+    "role": "owner",
+    "operation": "nic-add-shared-auto",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "94205e36-52bc-4bb8-ae37-a1f9bddc5d3c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "9a0c861a-587d-4cc8-908e-46e9c6225e52",
+    "jobStatus": 1,
+    "nicPresent": true
+  },
+  {
+    "role": "member",
+    "operation": "create-shared-auto",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-32-prj-api-member-shared-auto",
+      "displaytext": "API project Shared member",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "d000e9f9-e188-42c6-b559-8da3c637f5ae",
+      "acltype": "Account",
+      "associatednetworkid": "af3b901c-e446-470f-ab9b-9460d804c735",
+      "gateway": "10.183.32.97",
+      "netmask": "255.255.255.224",
+      "startip": "10.183.32.106",
+      "endip": "10.183.32.121",
+      "routerip": "10.183.32.106"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null
+  },
+  {
+    "role": "member",
+    "operation": "update-shared-auto",
+    "command": "updateNetwork",
+    "params": {
+      "id": "94205e36-52bc-4bb8-ae37-a1f9bddc5d3c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 member shared-auto"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "59abd1bc-0f79-4134-90e4-ce3992d1ab4b",
+    "jobStatus": 1,
+    "persisted": true
+  },
+  {
+    "role": "member",
+    "operation": "nic-add-shared-auto",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "94205e36-52bc-4bb8-ae37-a1f9bddc5d3c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "7dd47355-2430-4cee-ba7d-779dff6305c2",
+    "jobStatus": 1,
+    "nicPresent": true
+  },
+  {
+    "role": "readonly",
+    "operation": "create-shared-auto",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-32-prj-api-readonly-shared-auto",
+      "displaytext": "API project Shared readonly",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "d000e9f9-e188-42c6-b559-8da3c637f5ae",
+      "acltype": "Account",
+      "associatednetworkid": "e95802c5-94a0-48a6-a810-16f0a4ae7bb3",
+      "gateway": "10.183.32.129",
+      "netmask": "255.255.255.224",
+      "startip": "10.183.32.138",
+      "endip": "10.183.32.153",
+      "routerip": "10.183.32.138"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'createNetwork' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null
+  },
+  {
+    "role": "readonly",
+    "operation": "update-shared-auto",
+    "command": "updateNetwork",
+    "params": {
+      "id": "94205e36-52bc-4bb8-ae37-a1f9bddc5d3c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 readonly shared-auto"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'updateNetwork' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "persisted": false
+  },
+  {
+    "role": "readonly",
+    "operation": "nic-add-shared-auto",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "94205e36-52bc-4bb8-ae37-a1f9bddc5d3c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'addNicToVirtualMachine' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "nicPresent": false
+  },
+  {
+    "role": "peer",
+    "operation": "create-shared-auto",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-32-prj-api-peer-shared-auto",
+      "displaytext": "API project Shared peer",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "d000e9f9-e188-42c6-b559-8da3c637f5ae",
+      "acltype": "Account",
+      "associatednetworkid": "e95802c5-94a0-48a6-a810-16f0a4ae7bb3",
+      "gateway": "10.183.32.161",
+      "netmask": "255.255.255.224",
+      "startip": "10.183.32.170",
+      "endip": "10.183.32.185",
+      "routerip": "10.183.32.170"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [createNetwork] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null
+  },
+  {
+    "role": "peer",
+    "operation": "update-shared-auto",
+    "command": "updateNetwork",
+    "params": {
+      "id": "94205e36-52bc-4bb8-ae37-a1f9bddc5d3c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 peer shared-auto"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [updateNetwork] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "persisted": false
+  },
+  {
+    "role": "peer",
+    "operation": "nic-add-shared-auto",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "94205e36-52bc-4bb8-ae37-a1f9bddc5d3c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [addNicToVirtualMachine] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "nicPresent": false
+  },
+  {
+    "role": "outsider",
+    "operation": "create-shared-auto",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-32-prj-api-outsider-shared-auto",
+      "displaytext": "API project Shared outsider",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "d000e9f9-e188-42c6-b559-8da3c637f5ae",
+      "acltype": "Account",
+      "associatednetworkid": "e95802c5-94a0-48a6-a810-16f0a4ae7bb3",
+      "gateway": "10.183.32.193",
+      "netmask": "255.255.255.224",
+      "startip": "10.183.32.202",
+      "endip": "10.183.32.217",
+      "routerip": "10.183.32.202"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [createNetwork] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null
+  },
+  {
+    "role": "outsider",
+    "operation": "update-shared-auto",
+    "command": "updateNetwork",
+    "params": {
+      "id": "94205e36-52bc-4bb8-ae37-a1f9bddc5d3c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 outsider shared-auto"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [updateNetwork] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "persisted": false
+  },
+  {
+    "role": "outsider",
+    "operation": "nic-add-shared-auto",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "94205e36-52bc-4bb8-ae37-a1f9bddc5d3c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [addNicToVirtualMachine] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "nicPresent": false
+  }
+]

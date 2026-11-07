@@ -1,0 +1,194 @@
+{
+  "31": {
+    "owner": {
+      "networkRead": {
+        "shared": {
+          "visible": true,
+          "errorCode": null
+        },
+        "l2": {
+          "visible": true,
+          "errorCode": null
+        },
+        "nosnat": {
+          "visible": true,
+          "errorCode": null
+        },
+        "nat": {
+          "visible": true,
+          "errorCode": null
+        }
+      },
+      "foreignWriteProbe": null,
+      "projectVisible": true
+    },
+    "peer": {
+      "networkRead": {
+        "shared": {
+          "visible": false,
+          "errorCode": null
+        },
+        "l2": {
+          "visible": false,
+          "errorCode": null
+        },
+        "nosnat": {
+          "visible": false,
+          "errorCode": null
+        },
+        "nat": {
+          "visible": false,
+          "errorCode": null
+        }
+      },
+      "foreignWriteProbe": {
+        "errorCode": 531,
+        "accepted": false
+      },
+      "projectVisible": false
+    },
+    "domainadmin": {
+      "networkRead": {
+        "shared": {
+          "visible": true,
+          "errorCode": null
+        },
+        "l2": {
+          "visible": true,
+          "errorCode": null
+        },
+        "nosnat": {
+          "visible": true,
+          "errorCode": null
+        },
+        "nat": {
+          "visible": true,
+          "errorCode": null
+        }
+      },
+      "foreignWriteProbe": null,
+      "projectVisible": true
+    },
+    "outsider": {
+      "networkRead": {
+        "shared": {
+          "visible": false,
+          "errorCode": null
+        },
+        "l2": {
+          "visible": false,
+          "errorCode": null
+        },
+        "nosnat": {
+          "visible": false,
+          "errorCode": null
+        },
+        "nat": {
+          "visible": false,
+          "errorCode": null
+        }
+      },
+      "foreignWriteProbe": {
+        "errorCode": 531,
+        "accepted": false
+      },
+      "projectVisible": false
+    }
+  },
+  "32": {
+    "owner": {
+      "networkRead": {
+        "shared": {
+          "visible": true,
+          "errorCode": null
+        },
+        "l2": {
+          "visible": true,
+          "errorCode": null
+        },
+        "nosnat": {
+          "visible": true,
+          "errorCode": null
+        },
+        "nat": {
+          "visible": true,
+          "errorCode": null
+        }
+      },
+      "foreignWriteProbe": null,
+      "projectVisible": true
+    },
+    "peer": {
+      "networkRead": {
+        "shared": {
+          "visible": false,
+          "errorCode": null
+        },
+        "l2": {
+          "visible": false,
+          "errorCode": null
+        },
+        "nosnat": {
+          "visible": false,
+          "errorCode": null
+        },
+        "nat": {
+          "visible": false,
+          "errorCode": null
+        }
+      },
+      "foreignWriteProbe": {
+        "errorCode": 531,
+        "accepted": false
+      },
+      "projectVisible": false
+    },
+    "domainadmin": {
+      "networkRead": {
+        "shared": {
+          "visible": true,
+          "errorCode": null
+        },
+        "l2": {
+          "visible": true,
+          "errorCode": null
+        },
+        "nosnat": {
+          "visible": true,
+          "errorCode": null
+        },
+        "nat": {
+          "visible": true,
+          "errorCode": null
+        }
+      },
+      "foreignWriteProbe": null,
+      "projectVisible": true
+    },
+    "outsider": {
+      "networkRead": {
+        "shared": {
+          "visible": false,
+          "errorCode": null
+        },
+        "l2": {
+          "visible": false,
+          "errorCode": null
+        },
+        "nosnat": {
+          "visible": false,
+          "errorCode": null
+        },
+        "nat": {
+          "visible": false,
+          "errorCode": null
+        }
+      },
+      "foreignWriteProbe": {
+        "errorCode": 531,
+        "accepted": false
+      },
+      "projectVisible": false
+    }
+  }
+}

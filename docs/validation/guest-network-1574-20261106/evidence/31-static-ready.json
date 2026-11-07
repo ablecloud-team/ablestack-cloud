@@ -1,0 +1,19 @@
+{
+  "static": {
+    "network": "763f1092-f1eb-4372-a965-0c844eaa1862",
+    "state": "Implemented",
+    "routing": "Static",
+    "vm": "f1491635-3f57-4e83-b9c2-c08d5ed3698c",
+    "vmState": "Running",
+    "guestIp": "10.178.31.25",
+    "routers": [
+      {
+        "id": "0ff2783a-de2f-448a-b1d9-bcae1aecbe11",
+        "name": "r-902-VM",
+        "state": "Running",
+        "hostid": "159baf9a-89ad-4a94-91dc-e7395a670bf4"
+      }
+    ]
+  },
+  "networkCustomActions": 530
+}

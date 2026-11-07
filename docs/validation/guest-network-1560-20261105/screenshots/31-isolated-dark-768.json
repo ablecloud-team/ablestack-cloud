@@ -1,0 +1,29 @@
+{
+  "body": null,
+  "colors": [],
+  "content": null,
+  "dark": true,
+  "dialog": null,
+  "documentWidth": 758,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "A"
+  },
+  "footer": null,
+  "header": null,
+  "height": 1024,
+  "main": {
+    "bottom": 1024,
+    "height": 900,
+    "left": 80,
+    "right": 758,
+    "top": 124,
+    "width": 678,
+    "x": 80,
+    "y": 124
+  },
+  "primaryButton": null,
+  "width": 768,
+  "image_sha256": "e2554e3e4812d5f969ef3ca07b151edfdbd8f882cb38e8183db7fd44d577c7d2"
+}

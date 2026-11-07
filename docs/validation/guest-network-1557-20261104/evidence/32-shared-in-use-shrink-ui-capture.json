@@ -1,0 +1,99 @@
+{
+  "body": {
+    "bottom": 727,
+    "height": 564,
+    "left": 161,
+    "right": 1119,
+    "top": 163,
+    "width": 958,
+    "x": 161,
+    "y": 163
+  },
+  "bodyClientHeight": 564,
+  "bodyClientWidth": 958,
+  "bodyScrollHeight": 564,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 958,
+  "colors": [
+    {
+      "background": "rgb(255, 241, 240)",
+      "color": "rgb(112, 27, 27)",
+      "text": "The start IP address must be less than or equal to 172.27.32.31 which is already"
+    },
+    {
+      "background": "rgb(9, 105, 218)",
+      "color": "rgb(255, 255, 255)",
+      "text": "확인"
+    }
+  ],
+  "content": {
+    "bottom": 793,
+    "height": 686,
+    "left": 160,
+    "right": 1120,
+    "top": 107,
+    "width": 960,
+    "x": 160,
+    "y": 107
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1280,
+    "top": 0,
+    "width": 1280,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": {
+    "bottom": 792,
+    "height": 65,
+    "left": 161,
+    "right": 1119,
+    "top": 727,
+    "width": 958,
+    "x": 161,
+    "y": 727
+  },
+  "header": {
+    "bottom": 163,
+    "height": 55,
+    "left": 161,
+    "right": 1119,
+    "top": 108,
+    "width": 958,
+    "x": 161,
+    "y": 108
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 749,
+    "left": 256,
+    "right": 1270,
+    "top": 151,
+    "width": 1014,
+    "x": 256,
+    "y": 151
+  },
+  "primaryButton": {
+    "bottom": 776,
+    "height": 32,
+    "left": 1033.234375,
+    "right": 1091,
+    "top": 744,
+    "width": 57.765625,
+    "x": 1033.234375,
+    "y": 744
+  },
+  "width": 1280,
+  "image_sha256": "8fece9ce2999f9c8999cde2cf4ab006f5b46e4fa0ef47df02a314aadc2ea0674"
+}

@@ -1,0 +1,137 @@
+{
+  "cluster": 32,
+  "active_db_counts": {
+    "networks": 0,
+    "vms": 0,
+    "routers": 0,
+    "nics": 0,
+    "volumes": 0,
+    "accounts": 0
+  },
+  "hosts": [
+    {
+      "host": "10.10.32.1",
+      "domains": [
+        {
+          "name": "i-2-331-VM",
+          "absent": true
+        },
+        {
+          "name": "i-202-329-VM",
+          "absent": true
+        },
+        {
+          "name": "r-330-VM",
+          "absent": true
+        },
+        {
+          "name": "r-332-VM",
+          "absent": true
+        },
+        {
+          "name": "r-333-VM",
+          "absent": true
+        },
+        {
+          "name": "r-334-VM",
+          "absent": true
+        }
+      ],
+      "roots": [
+        {
+          "id": "bc1aac67-5c5b-42bf-b498-decd42329008",
+          "path": "rbd/bc1aac67-5c5b-42bf-b498-decd42329008",
+          "absent": true
+        },
+        {
+          "id": "db2a4778-e479-413e-a600-59aa1785ca95",
+          "path": "rbd/db2a4778-e479-413e-a600-59aa1785ca95",
+          "absent": true
+        },
+        {
+          "id": "2ffdbbd2-4804-4db7-8c4d-3b1d846a5b1a",
+          "path": "rbd/2ffdbbd2-4804-4db7-8c4d-3b1d846a5b1a",
+          "absent": true
+        },
+        {
+          "id": "6b3a1c84-4665-4e77-9e8a-f1df0b47eadd",
+          "path": "rbd/6b3a1c84-4665-4e77-9e8a-f1df0b47eadd",
+          "absent": true
+        },
+        {
+          "id": "f2adc42a-2fff-412c-9e1f-45a4a21e6ae0",
+          "path": "rbd/f2adc42a-2fff-412c-9e1f-45a4a21e6ae0",
+          "absent": true
+        },
+        {
+          "id": "5b539977-3b40-48c6-8b89-bfc96ded3751",
+          "path": "rbd/5b539977-3b40-48c6-8b89-bfc96ded3751",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "host": "10.10.32.2",
+      "domains": [
+        {
+          "name": "i-2-331-VM",
+          "absent": true
+        },
+        {
+          "name": "i-202-329-VM",
+          "absent": true
+        },
+        {
+          "name": "r-330-VM",
+          "absent": true
+        },
+        {
+          "name": "r-332-VM",
+          "absent": true
+        },
+        {
+          "name": "r-333-VM",
+          "absent": true
+        },
+        {
+          "name": "r-334-VM",
+          "absent": true
+        }
+      ],
+      "roots": []
+    },
+    {
+      "host": "10.10.32.3",
+      "domains": [
+        {
+          "name": "i-2-331-VM",
+          "absent": true
+        },
+        {
+          "name": "i-202-329-VM",
+          "absent": true
+        },
+        {
+          "name": "r-330-VM",
+          "absent": true
+        },
+        {
+          "name": "r-332-VM",
+          "absent": true
+        },
+        {
+          "name": "r-333-VM",
+          "absent": true
+        },
+        {
+          "name": "r-334-VM",
+          "absent": true
+        }
+      ],
+      "roots": []
+    }
+  ],
+  "root_volumes_checked": 6,
+  "domains_checked_per_host": 6,
+  "temporary_host_trust_files_removed": true
+}

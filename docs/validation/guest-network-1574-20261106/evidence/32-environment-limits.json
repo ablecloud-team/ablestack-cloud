@@ -1,0 +1,8 @@
+{
+  "networkCreate": {
+    "dynamic": "('createNetwork', {'createnetworkresponse': {'uuidList': [], 'errorcode': 530, 'cserrorcode': 4250, 'errortext': 'Cannot allocate AS number in zone with ID 1'}})",
+    "dual": "('createNetworkOffering', {'createnetworkofferingresponse': {'uuidList': [], 'errorcode': 431, 'cserrorcode': 4350, 'errortext': 'Configuration ipv6.offering.enabled needs to be enabled for creating IPv6 supported network offering'}})"
+  },
+  "tungstenProviders": 0,
+  "bgpPeers": 0
+}

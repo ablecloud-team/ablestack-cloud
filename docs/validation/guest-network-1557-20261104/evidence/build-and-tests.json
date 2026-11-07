@@ -1,0 +1,47 @@
+{
+  "source_commit": "e66dbb4b8bf63eeb3f9334d29a0847ab9b258eb7",
+  "server_module_tests": [
+    {
+      "name": "com.cloud.configuration.ConfigurationManagerTest",
+      "tests": "78",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.cloud.configuration.GuestNetworkIpRangesTest",
+      "tests": "15",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.cloud.network.NetworkModelTest",
+      "tests": "28",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "server_test_total": 121,
+  "ui_suites": 5,
+  "ui_tests": 162,
+  "ui_lint": "PASS",
+  "ui_production_build": "PASS",
+  "server_package": "PASS with checkstyle and RAT skipped after baseline errors",
+  "baseline_module_checkstyle_errors": 62,
+  "changed_java_files_checkstyle_errors": 0,
+  "ci_license_unapproved": 3494,
+  "ci_lint_failure": "oxipng: existing docs/design/vm-group-ui-20261013 PNG headers",
+  "full_cloud_build_started": false,
+  "manual_actions_started": false,
+  "module_build_root": "/home/ablecloud/work/dhslove/cloud-epic-1554",
+  "log_sha256": {
+    "maven-server-final.log": "81ed844c2e9c4ea0053c5237ce8d47c3f465cdb896974e0db2357853c7730e35",
+    "jest-ui-final.log": "bbd72d510995aac73248d41ec86d15679105c4a590af039f2904b3e587ec29fa",
+    "lint-ui-final.log": "5be46f4f6522d803334ad8697884b4d206773d37fc12eb0d2010a73e079f2930",
+    "build-ui-final.log": "e9ec71289b4bcbfc7b911c7627cbe2529f69e88a63df8a575923f2c5701ac588",
+    "ci-license-e66.log": "87a29a143f575e99b851d45b0a46329c1666e1802a4d49e6c1073bd92939edbc",
+    "ci-lint-e66.log": "858859179019e4ee1d4c6f5c213715890402c2932e50a75d3fd88e57df04f5bd"
+  }
+}

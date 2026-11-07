@@ -1,0 +1,158 @@
+[
+  {
+    "cluster": 31,
+    "mode": "light",
+    "width": 1280,
+    "height": 900,
+    "jpeg_dimensions": [
+      1280,
+      900
+    ],
+    "help_contrast": 7.56,
+    "minimum_input_contrast": 14.68,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "mode": "light",
+    "width": 768,
+    "height": 1024,
+    "jpeg_dimensions": [
+      768,
+      1024
+    ],
+    "help_contrast": 7.56,
+    "minimum_input_contrast": 14.68,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "mode": "light",
+    "width": 390,
+    "height": 844,
+    "jpeg_dimensions": [
+      390,
+      844
+    ],
+    "help_contrast": 7.56,
+    "minimum_input_contrast": 14.68,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "mode": "dark",
+    "width": 1280,
+    "height": 900,
+    "jpeg_dimensions": [
+      1280,
+      900
+    ],
+    "help_contrast": 9.18,
+    "minimum_input_contrast": 14.56,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "mode": "dark",
+    "width": 768,
+    "height": 1024,
+    "jpeg_dimensions": [
+      768,
+      1024
+    ],
+    "help_contrast": 9.18,
+    "minimum_input_contrast": 14.56,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "mode": "dark",
+    "width": 390,
+    "height": 844,
+    "jpeg_dimensions": [
+      390,
+      844
+    ],
+    "help_contrast": 9.18,
+    "minimum_input_contrast": 14.56,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "mode": "light",
+    "width": 1280,
+    "height": 900,
+    "jpeg_dimensions": [
+      1280,
+      900
+    ],
+    "help_contrast": 7.56,
+    "minimum_input_contrast": 14.68,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "mode": "light",
+    "width": 768,
+    "height": 1024,
+    "jpeg_dimensions": [
+      768,
+      1024
+    ],
+    "help_contrast": 7.56,
+    "minimum_input_contrast": 14.68,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "mode": "light",
+    "width": 390,
+    "height": 844,
+    "jpeg_dimensions": [
+      390,
+      844
+    ],
+    "help_contrast": 7.56,
+    "minimum_input_contrast": 14.68,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "mode": "dark",
+    "width": 1280,
+    "height": 900,
+    "jpeg_dimensions": [
+      1280,
+      900
+    ],
+    "help_contrast": 9.18,
+    "minimum_input_contrast": 14.56,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "mode": "dark",
+    "width": 768,
+    "height": 1024,
+    "jpeg_dimensions": [
+      768,
+      1024
+    ],
+    "help_contrast": 9.18,
+    "minimum_input_contrast": 14.56,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "mode": "dark",
+    "width": 390,
+    "height": 844,
+    "jpeg_dimensions": [
+      390,
+      844
+    ],
+    "help_contrast": 9.18,
+    "minimum_input_contrast": 14.56,
+    "pass": true
+  }
+]

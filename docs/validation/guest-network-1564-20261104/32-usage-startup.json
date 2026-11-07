@@ -1,0 +1,18 @@
+{
+  "pid": "763514",
+  "service": "active",
+  "classpath": "/usr/share/cloudstack-usage/*:/usr/share/cloudstack-usage/lib/*:/usr/share/cloudstack-mysql-ha/lib/*:/etc/cloudstack/usage",
+  "matchingParserJars": [
+    {
+      "jar": "/usr/share/cloudstack-usage/cloud-usage-4.23.0.0.jar",
+      "sha256": "6fd9be1aab59987368217c8f589fc4440f3fb5b2303ed1ef5adb63a45809f6fd",
+      "classSha256": "78acd2b8558beff69911564c8284fd2bd5bfe0c056af902d1924294acbf98cf5"
+    }
+  ],
+  "startupErrors": [],
+  "schedulerLines": [
+    "2026-11-04 20:57:18,967 INFO  [db.Transaction.Transaction] (main:[]) (logid:) Using the following URI to connect to cloud database [jdbc:mysql://localhost:3306/cloud?autoReconnect=true&prepStmtCacheSize=517&cachePrepStmts=true&sessionVariables=sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'&serverTimezone=UTC&scrollTolerantForwardOnly=true].",
+    "2026-11-04 20:57:19,250 INFO  [db.Transaction.Transaction] (main:[]) (logid:) Using the following URI to connect to usage database [jdbc:mysql://localhost:3306/cloud_usage?autoReconnect=true&serverTimezone=UTC&scrollTolerantForwardOnly=true].",
+    "2026-11-04 20:57:28,678 INFO  [cloud.usage.UsageManagerImpl_EnhancerByCloudStack_b0264cc5] (main:[]) (logid:) Usage is configured to execute in time zone [Asia/Seoul], at [00:15], each [1440] minutes; the current time in that timezone is [2026-11-04T20:57:28+0900] and the next job is scheduled to execute at [2026-11-05T00:15:00+0900]. During its execution, Usage will aggregate stats according to the time zone [Asia/Seoul] defined in global setting [usage.aggregation.timezone]."
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "prefix": "qa-gn1567-31",
+  "activeResiduals": {
+    "vms": 0,
+    "nics": 0,
+    "domains": 0,
+    "routers": 0,
+    "volumes": 0,
+    "accounts": 0,
+    "networks": 0
+  },
+  "networks": 4,
+  "vms": 1,
+  "routers": 2,
+  "actors": 2,
+  "domains": 1,
+  "forcedDeletes": 0,
+  "status": "PASS"
+}

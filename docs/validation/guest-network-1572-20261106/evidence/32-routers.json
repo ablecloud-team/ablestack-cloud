@@ -1,0 +1,12 @@
+[
+  {
+    "id": "d9cf73df-76cb-4397-914a-a99f3b4b68af",
+    "name": "r-407-VM",
+    "state": "Running",
+    "hostname": "ablecube32-2",
+    "hostid": "a7b3e91f-2248-436b-affb-e3b31b36ed62",
+    "linklocalip": "169.254.101.164",
+    "guestipaddress": "198.19.32.74",
+    "guestnetworkid": "edcc66a7-ad24-4252-a96b-b202833845c4"
+  }
+]

@@ -1,0 +1,121 @@
+{
+  "cluster": 31,
+  "projects": [
+    {
+      "id": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "name": "qa-gn1569-31-project",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+      "domain": "qa-gn1569-31-domain"
+    },
+    {
+      "id": "a9119ae8-35f7-4524-a208-0cdb3b1d590f",
+      "name": "qa-gn1569-31-1588-child-project",
+      "domainid": "d4f7b77a-b7ae-4b1b-9644-09611dfb66e0",
+      "domain": "qa-gn1569-31-1588-child"
+    }
+  ],
+  "checks": [
+    {
+      "projectId": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "apiCount": 519,
+      "networkWriteApis": true,
+      "rootOnlyCreateZone": false
+    },
+    {
+      "projectId": "a9119ae8-35f7-4524-a208-0cdb3b1d590f",
+      "apiCount": 519,
+      "networkWriteApis": true,
+      "rootOnlyCreateZone": false
+    },
+    {
+      "command": "listApis",
+      "scope": "outside-domain",
+      "errorCode": 401,
+      "denied": true
+    },
+    {
+      "command": "listProjects",
+      "scope": "outside-domain",
+      "errorCode": 531,
+      "denied": true
+    },
+    {
+      "role": "owner",
+      "onlyOwnMembershipProject": true
+    },
+    {
+      "role": "member",
+      "onlyOwnMembershipProject": true
+    },
+    {
+      "role": "peer",
+      "errorCode": 432,
+      "knownFollowup": null
+    },
+    {
+      "role": "outsider",
+      "errorCode": 432,
+      "knownFollowup": null
+    },
+    {
+      "role": "readonly",
+      "errorCode": 401,
+      "knownFollowup": 1589
+    }
+  ],
+  "domainAdminIsDirectMember": false,
+  "networkCount": 18,
+  "originalNetworksUnchanged": true,
+  "originalNicsUnchanged": true,
+  "uiNetwork": {
+    "id": "2e36c615-ded0-4006-84ca-d210708b6250",
+    "name": "qa-gn1569-31-prj-1588-l2",
+    "displaytext": "UI1588 saved 31",
+    "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+    "type": "L2",
+    "state": "Implemented"
+  },
+  "vm": {
+    "id": "625141be-7145-4557-9d8f-731500c61cb0",
+    "name": "qa-gn1569-31-prj-vm",
+    "state": "Running",
+    "hostname": "ablecube31-3",
+    "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+  },
+  "nics": [
+    {
+      "id": "e5cafb2d-5498-4f34-9e9b-db51c7562981",
+      "networkid": "424a28d7-1a3a-4b1f-974a-d09126fe7e46",
+      "isdefault": true,
+      "ipaddress": "10.180.31.25",
+      "macaddress": "1e:1f:3d:00:02:ee"
+    },
+    {
+      "id": "2e9e6ead-febc-4838-a88a-cd03c622d704",
+      "networkid": "d3669d88-bfdd-4053-8ef7-a58ea34808ad",
+      "isdefault": false,
+      "ipaddress": null,
+      "macaddress": "02:1f:02:16:00:07"
+    },
+    {
+      "id": "15b9c87e-f054-488a-a6df-d1f86ca5483c",
+      "networkid": "728d66ef-7c24-4708-b5e3-33f687528456",
+      "isdefault": false,
+      "ipaddress": null,
+      "macaddress": "02:1f:02:24:00:01"
+    },
+    {
+      "id": "4af5028e-f034-459d-a40b-5cfca887b2bd",
+      "networkid": "2e36c615-ded0-4006-84ca-d210708b6250",
+      "isdefault": false,
+      "ipaddress": null,
+      "macaddress": "02:1f:02:28:00:01"
+    }
+  ],
+  "asyncJobs": [
+    "b95a9f0d-d71d-453a-a830-9da2e0f373ed\torg.apache.cloudstack.api.command.user.vm.AddNicToVMCmd\t1\t0\t2026-11-07 12:22:31",
+    "846ebd9d-3b98-48bb-92c0-ec475f42c07e\torg.apache.cloudstack.api.command.user.network.UpdateNetworkCmd\t1\t0\t2026-11-07 12:19:11"
+  ],
+  "childProjectId": "a9119ae8-35f7-4524-a208-0cdb3b1d590f",
+  "outsideProjectId": "115290de-b12e-4c13-b227-fd02c33fdd76"
+}

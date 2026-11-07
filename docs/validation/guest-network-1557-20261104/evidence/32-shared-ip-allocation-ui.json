@@ -1,0 +1,4 @@
+{
+  "url": "http://10.10.32.10:8080/client/#/guestnetwork/89d6e044-1d4e-4598-9474-4aea0ae3d9b6?tab=public.ip.addresses",
+  "text": "새 IP 주소 가져오기\n\tIP 주소\t상태\tVM\t네트워크\t\n\n\t\n172.27.32.20\n\t\n가능\n\t\t\nqa-gn1557-32-shared\n\t\n\n\t\n172.27.32.30\n\t\n가능\n\t\t\nqa-gn1557-32-shared\n\t\n\n\t\n172.27.32.31\n\t\n할당 됨\n\tqa-gn1557-32-shared-temp\t\nqa-gn1557-32-shared\n\t\n\n\t\n172.27.32.32\n\t\n가능\n\t\t\nqa-gn1557-32-shared\n\t\n\n\t\n172.27.32.33\n\t\n가능\n\t\t\nqa-gn1557-32-shared\n\t\n\n\t\n172.27.32.34\n\t\n가능\n\t\t\nqa-gn1557-32-shared\n\t\n\n\t\n172.27.32.35\n\t\n가능\n\t\t\nqa-gn1557-32-shared\n\t\n전체 17 개 항목\n1\n2\n10 / 쪽"
+}

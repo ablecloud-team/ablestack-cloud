@@ -1,0 +1,223 @@
+{
+  "role": "owner",
+  "networks": [
+    {
+      "id": "f7145035-588f-4ccc-b249-07187376bd12",
+      "name": "qa-gn1569-31-prj-api-member-shared-auto",
+      "displaytext": "API project Shared member",
+      "type": "Shared",
+      "state": "Setup",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "account": null,
+      "networkofferingid": "a8293b1d-5a1c-427a-b8e9-8faa2926fc61"
+    },
+    {
+      "id": "5c033c7a-1bdd-444e-b643-b01ac68135f9",
+      "name": "qa-gn1569-31-prj-api-owner-shared-auto",
+      "displaytext": "API project Shared owner",
+      "type": "Shared",
+      "state": "Setup",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "account": null,
+      "networkofferingid": "a8293b1d-5a1c-427a-b8e9-8faa2926fc61"
+    },
+    {
+      "id": "18ba1a94-154a-4c68-851f-5bad2a29d6c2",
+      "name": "qa-gn1569-31-prj-api-domainadmin-shared-auto",
+      "displaytext": "API project Shared domainadmin",
+      "type": "Shared",
+      "state": "Setup",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "account": null,
+      "networkofferingid": "a8293b1d-5a1c-427a-b8e9-8faa2926fc61"
+    },
+    {
+      "id": "d3060d03-3628-4a0c-af76-396a02933303",
+      "name": "qa-gn1569-31-prj-api-admin-shared-auto",
+      "displaytext": "API project Shared admin",
+      "type": "Shared",
+      "state": "Setup",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "account": null,
+      "networkofferingid": "a8293b1d-5a1c-427a-b8e9-8faa2926fc61"
+    },
+    {
+      "id": "9894fbc3-27aa-49ac-8a60-cd6095331181",
+      "name": "qa-gn1569-31-prj-shared-auto",
+      "displaytext": "UI1569 owner shared-auto",
+      "type": "Shared",
+      "state": "Setup",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "account": null,
+      "networkofferingid": "a8293b1d-5a1c-427a-b8e9-8faa2926fc61"
+    },
+    {
+      "id": "f44335b0-d824-4693-bd02-c2995a7afe06",
+      "name": "qa-gn1569-31-prj-ui-owner-l2",
+      "displaytext": "UI project owner creation",
+      "type": "L2",
+      "state": "Allocated",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "account": null,
+      "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193"
+    },
+    {
+      "id": "af09c1b5-544c-41a0-a309-40ab097185b4",
+      "name": "qa-gn1569-31-prj-api-member-l2",
+      "displaytext": "API project role member",
+      "type": "L2",
+      "state": "Implemented",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "account": null,
+      "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193"
+    },
+    {
+      "id": "ba2403f9-b4b7-43c3-8a69-ca68dec59390",
+      "name": "qa-gn1569-31-prj-api-owner-l2",
+      "displaytext": "API project role owner",
+      "type": "L2",
+      "state": "Implemented",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "account": null,
+      "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193"
+    },
+    {
+      "id": "fe81ba7d-e09d-43dd-b79f-92e2aa86e396",
+      "name": "qa-gn1569-31-prj-api-domainadmin-l2",
+      "displaytext": "API project role domainadmin",
+      "type": "L2",
+      "state": "Implemented",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "account": null,
+      "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193"
+    },
+    {
+      "id": "7f0f6875-3031-4dec-8f2f-f5a1954ca86f",
+      "name": "qa-gn1569-31-prj-api-admin-l2",
+      "displaytext": "API project role admin",
+      "type": "L2",
+      "state": "Implemented",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "account": null,
+      "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193"
+    },
+    {
+      "id": "424a28d7-1a3a-4b1f-974a-d09126fe7e46",
+      "name": "qa-gn1569-31-prj-base",
+      "displaytext": "QA1569 project scope base",
+      "type": "Shared",
+      "state": "Setup",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "account": null,
+      "networkofferingid": "9536fc31-54ab-4c31-9200-77dddf1e1d3c"
+    },
+    {
+      "id": "a758c862-e03e-4df1-81b9-4443b76b74ab",
+      "name": "qa-gn1569-31-prj-shared",
+      "displaytext": "API1569 admin shared",
+      "type": "Shared",
+      "state": "Setup",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "account": null,
+      "networkofferingid": "9536fc31-54ab-4c31-9200-77dddf1e1d3c"
+    },
+    {
+      "id": "d3669d88-bfdd-4053-8ef7-a58ea34808ad",
+      "name": "qa-gn1569-31-prj-l2",
+      "displaytext": "UI1569 owner l2",
+      "type": "L2",
+      "state": "Implemented",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "account": null,
+      "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193"
+    },
+    {
+      "id": "fe5b298f-f78e-49ea-b9e2-36e22c0ebdc1",
+      "name": "qa-gn1569-31-prj-nat",
+      "displaytext": "UI1569 owner nat",
+      "type": "Isolated",
+      "state": "Implemented",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "account": null,
+      "networkofferingid": "5b8d528b-6af2-47a5-9488-aa8d2f9f8b66"
+    }
+  ],
+  "vm": {
+    "id": "625141be-7145-4557-9d8f-731500c61cb0",
+    "name": "qa-gn1569-31-prj-vm",
+    "state": "Running",
+    "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+    "hostid": "384871b9-7c75-4717-a673-e96a76abeb71",
+    "nic": [
+      {
+        "id": "e5cafb2d-5498-4f34-9e9b-db51c7562981",
+        "networkid": "424a28d7-1a3a-4b1f-974a-d09126fe7e46",
+        "networkname": "qa-gn1569-31-prj-base",
+        "netmask": "255.255.255.224",
+        "gateway": "10.180.31.1",
+        "ipaddress": "10.180.31.25",
+        "isolationuri": "vlan://795",
+        "broadcasturi": "vlan://795",
+        "traffictype": "Guest",
+        "type": "Shared",
+        "isdefault": true,
+        "macaddress": "1e:1f:3d:00:02:ee",
+        "secondaryip": [],
+        "extradhcpoption": [],
+        "deviceid": "0",
+        "enabled": true
+      },
+      {
+        "id": "eeae7efc-106c-450a-af8f-c66ac25beda0",
+        "networkid": "d3669d88-bfdd-4053-8ef7-a58ea34808ad",
+        "networkname": "qa-gn1569-31-prj-l2",
+        "isolationuri": "vlan://168",
+        "broadcasturi": "vlan://168",
+        "traffictype": "Guest",
+        "type": "L2",
+        "isdefault": false,
+        "macaddress": "02:1f:02:16:00:05",
+        "secondaryip": [],
+        "extradhcpoption": [],
+        "deviceid": "1",
+        "enabled": true
+      },
+      {
+        "id": "90661f7d-fcaa-4c86-be28-a06cab0fe5e5",
+        "networkid": "fe5b298f-f78e-49ea-b9e2-36e22c0ebdc1",
+        "networkname": "qa-gn1569-31-prj-nat",
+        "netmask": "255.255.255.0",
+        "gateway": "10.181.31.1",
+        "ipaddress": "10.181.31.51",
+        "isolationuri": "vlan://166",
+        "broadcasturi": "vlan://166",
+        "traffictype": "Guest",
+        "type": "Isolated",
+        "isdefault": false,
+        "macaddress": "02:1f:02:15:00:06",
+        "secondaryip": [],
+        "extradhcpoption": [],
+        "deviceid": "2",
+        "enabled": true
+      },
+      {
+        "id": "c7c2532f-8edc-4251-8b71-8830df2806b1",
+        "networkid": "9894fbc3-27aa-49ac-8a60-cd6095331181",
+        "networkname": "qa-gn1569-31-prj-shared-auto",
+        "netmask": "255.255.255.224",
+        "gateway": "10.182.31.1",
+        "ipaddress": "10.182.31.11",
+        "isolationuri": "vlan://168",
+        "broadcasturi": "vlan://168",
+        "traffictype": "Guest",
+        "type": "Shared",
+        "isdefault": false,
+        "macaddress": "02:1f:02:1e:00:05",
+        "secondaryip": [],
+        "extradhcpoption": [],
+        "deviceid": "3",
+        "enabled": true
+      }
+    ]
+  }
+}

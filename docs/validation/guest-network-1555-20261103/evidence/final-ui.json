@@ -1,0 +1,40 @@
+[
+  {
+    "cluster": 31,
+    "theme": {
+      "mode": "light",
+      "action_observation_ms": 426,
+      "dark": false
+    },
+    "fields": {
+      "form_item_displaytext": "qa-gn1555-31 isolated DNS 검증",
+      "form_item_dns1": "8.8.8.8",
+      "form_item_dns2": "",
+      "form_item_guestvmcidr": "10.253.31.0/24",
+      "form_item_name": "qa-gn1555-31-isolated",
+      "form_item_networkdomain": "cs2cloud.internal",
+      "form_item_sourcenatipaddress": "",
+      "offering-selection": ""
+    },
+    "ipv6FieldCount": 0
+  },
+  {
+    "cluster": 32,
+    "theme": {
+      "mode": "light",
+      "action_observation_ms": 461,
+      "dark": false
+    },
+    "fields": {
+      "form_item_displaytext": "qa-gn1555-32 isolated DNS 검증",
+      "form_item_dns1": "8.8.8.8",
+      "form_item_dns2": "",
+      "form_item_guestvmcidr": "10.253.32.0/24",
+      "form_item_name": "qa-gn1555-32-isolated",
+      "form_item_networkdomain": "cs2cloud.internal",
+      "form_item_sourcenatipaddress": "",
+      "offering-selection": ""
+    },
+    "ipv6FieldCount": 0
+  }
+]

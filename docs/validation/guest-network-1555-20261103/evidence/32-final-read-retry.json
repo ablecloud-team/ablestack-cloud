@@ -1,0 +1,247 @@
+{
+  "cluster": 32,
+  "label": "32-final-read-retry",
+  "posts": 1,
+  "unique_jobs": [
+    "733a1f79-04fc-48d6-bc8a-c355af27d26a"
+  ],
+  "networks": [
+    {
+      "id": "eee1a639-797f-4686-b6f7-6327ea35c8dc",
+      "name": "qa-gn1555-32-config6",
+      "displaytext": "qa-gn1555-32-config6",
+      "state": "Setup",
+      "type": "Shared",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "c0586d85-1ab3-41ba-8c6a-455ce47d6c3b",
+      "dns1": "8.8.4.4",
+      "dns2": "1.1.1.1",
+      "ip6dns1": "2001:4860:4860::8888",
+      "ip6dns2": "2001:4860:4860::8844",
+      "ip6cidr": "fd55:132::/64",
+      "cidr": "10.251.32.0/24",
+      "gateway": "10.251.32.1"
+    }
+  ],
+  "records": [
+    {
+      "cluster": 32,
+      "requestId": "35828.1940",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "eee1a639-797f-4686-b6f7-6327ea35c8dc",
+        "name": "qa-gn1555-32-config6",
+        "dns1": "8.8.4.4",
+        "dns2": "1.1.1.1",
+        "ip6dns1": "2001:4860:4860::8888",
+        "ip6dns2": "2001:4860:4860::8844"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "35828.1941",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "733a1f79-04fc-48d6-bc8a-c355af27d26a",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "35828.1943",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "733a1f79-04fc-48d6-bc8a-c355af27d26a",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "35828.1944",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "733a1f79-04fc-48d6-bc8a-c355af27d26a",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "35828.1949",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "733a1f79-04fc-48d6-bc8a-c355af27d26a",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "35828.1951",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "733a1f79-04fc-48d6-bc8a-c355af27d26a",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "35828.1952",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "733a1f79-04fc-48d6-bc8a-c355af27d26a",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "35828.1954",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "733a1f79-04fc-48d6-bc8a-c355af27d26a",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "35828.1955",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "733a1f79-04fc-48d6-bc8a-c355af27d26a",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "35828.1957",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "733a1f79-04fc-48d6-bc8a-c355af27d26a",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "35828.1959",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "733a1f79-04fc-48d6-bc8a-c355af27d26a",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "35828.1960",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "733a1f79-04fc-48d6-bc8a-c355af27d26a",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "35828.1962",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "733a1f79-04fc-48d6-bc8a-c355af27d26a",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "35828.1963",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "733a1f79-04fc-48d6-bc8a-c355af27d26a",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "35828.1965",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "733a1f79-04fc-48d6-bc8a-c355af27d26a",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "35828.1968",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "733a1f79-04fc-48d6-bc8a-c355af27d26a",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "35828.1969",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "id": "eee1a639-797f-4686-b6f7-6327ea35c8dc",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      }
+    },
+    {
+      "cluster": 32,
+      "requestId": "35828.1970",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "eee1a639-797f-4686-b6f7-6327ea35c8dc",
+        "listall": "true",
+        "command": "listNetworks"
+      },
+      "status": 500
+    },
+    {
+      "cluster": 32,
+      "requestId": "35828.1971",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "eee1a639-797f-4686-b6f7-6327ea35c8dc",
+        "listall": "true",
+        "command": "listNetworks"
+      },
+      "status": 200
+    }
+  ],
+  "dialogClosed": true
+}

@@ -1,0 +1,10 @@
+{
+  "urls": [
+    "http://10.10.31.10:8080/client/#/guestnetwork/3f0c5ed8-2c32-4098-a478-9f017a8845a8",
+    "http://10.10.32.10:8080/client/#/guestnetwork/1171cd96-ad12-420e-88d0-70636b7bdb7d"
+  ],
+  "themesRestored": "light",
+  "viewportsRestored": true,
+  "interceptionCleared": true,
+  "reviewTabsRetained": true
+}

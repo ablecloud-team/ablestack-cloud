@@ -1,0 +1,115 @@
+{
+  "synthetic": true,
+  "fault": {
+    "cursor": 5693,
+    "skip": 0,
+    "continued": 1,
+    "injected": 1
+  },
+  "failed": "IP 주소 범위 추가\nQA range read failure (synthetic response)\n중복 저장을 방지하기 위해 결과만 다시 조회합니다.\n인터넷 프로토콜\nIPv4\nIPv6\nIPv4 + IPv6\nIPv4\n\n종료 IP를 비우면 시작 IP 한 개를 사용합니다.\n\nIPv4 시작 IP\nIPv4 종료 IP\n게이트웨이\n넷마스크\n닫기\n결과 다시 조회",
+  "records": [
+    {
+      "requestId": "40480.8584",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "command": "listNetworks"
+      },
+      "status": 200,
+      "result": {
+        "count": 1
+      }
+    },
+    {
+      "requestId": "40480.8585",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 1
+      }
+    },
+    {
+      "requestId": "40480.8586",
+      "command": "createVlanIpRange",
+      "method": "POST",
+      "params": {
+        "command": "createVlanIpRange",
+        "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "forvirtualnetwork": "false",
+        "startip": "172.27.32.70",
+        "endip": "172.27.32.74",
+        "gateway": "172.27.32.1",
+        "netmask": "255.255.255.0"
+      },
+      "status": 200,
+      "result": {
+        "id": "5b5ac6c5-9307-45aa-b90e-513ef031e177"
+      }
+    },
+    {
+      "requestId": "40480.8587",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVlanIpRanges"
+      },
+      "status": 500,
+      "result": {
+        "errorcode": 530,
+        "errortext": "QA range read failure (synthetic response)"
+      }
+    },
+    {
+      "requestId": "40480.8589",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 2
+      }
+    },
+    {
+      "requestId": "40480.8590",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "10",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 2
+      }
+    }
+  ],
+  "cursor": 5714,
+  "recovered": "IP 주소 범위 추가\nIPv4\tIPv6\tVLAN/VNI\t작업\n\n \n\t\n \n\t\n \n\t\n \n\n\n172.27.32.10 – 172.27.32.20\n게이트웨이: 172.27.32.1 · 255.255.255.0\n\t\nfd32:1557::10 – fd32:1557::20\n게이트웨이: fd32:1557::1\nfd32:1557::/64\n\t652\t\n\n\n172.27.32.70 – 172.27.32.74\n게이트웨이: 172.27.32.1 · 255.255.255.0\n\t\n—\n\t652\t\n전체 2 개 항목\n1\n10 / 쪽"
+}

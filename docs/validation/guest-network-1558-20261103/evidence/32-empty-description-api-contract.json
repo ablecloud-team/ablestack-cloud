@@ -1,0 +1,75 @@
+{
+  "request": {
+    "id": "3f82dd0d-a774-4478-a4fa-8dad9783023a",
+    "displaytext": ""
+  },
+  "result": {
+    "queryasyncjobresultresponse": {
+      "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domainpath": "ROOT",
+      "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+      "cmd": "org.apache.cloudstack.api.command.admin.network.UpdateNetworkCmdByAdmin",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "network": {
+          "id": "3f82dd0d-a774-4478-a4fa-8dad9783023a",
+          "name": "qa-gn1558-32-l2",
+          "displaytext": "",
+          "broadcastdomaintype": "Vlan",
+          "traffictype": "Guest",
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "networkofferingid": "4a711c03-f9bd-4989-96fc-ea38ca9e79a1",
+          "networkofferingname": "기본 L2 VLAN 네트워크오퍼링",
+          "networkofferingdisplaytext": "기본 L2 VLAN 네트워크오퍼링",
+          "networkofferingconservemode": true,
+          "networkofferingavailability": "Optional",
+          "issystem": false,
+          "state": "Setup",
+          "related": "3f82dd0d-a774-4478-a4fa-8dad9783023a",
+          "broadcasturi": "vlan://742",
+          "dns1": "8.8.8.8",
+          "type": "L2",
+          "vlan": "742",
+          "acltype": "Account",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "service": [],
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "restartrequired": false,
+          "specifyvlan": true,
+          "specifyipranges": false,
+          "canusefordeploy": true,
+          "ispersistent": false,
+          "tags": [],
+          "details": {
+            "hideIpAddressUsage": "false"
+          },
+          "displaynetwork": true,
+          "strechedl2subnet": false,
+          "redundantrouter": false,
+          "supportsvmautoscaling": false,
+          "created": "2026-11-03T16:35:19+0900",
+          "receivedbytes": 0,
+          "sentbytes": 0,
+          "publicmtu": 1500,
+          "privatemtu": 1500,
+          "hasannotations": false
+        }
+      },
+      "jobinstancetype": "Network",
+      "created": "2026-11-03T16:35:46+0900",
+      "completed": "2026-11-03T16:35:46+0900",
+      "jobid": "f3457476-edbb-43de-8115-a0e08f92002f",
+      "jobstatus": 1
+    }
+  },
+  "displaytext_returned": "",
+  "field_present": true
+}

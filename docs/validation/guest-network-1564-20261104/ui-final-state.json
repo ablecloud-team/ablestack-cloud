@@ -1,0 +1,124 @@
+{
+  "roles": [
+    {
+      "cluster": 31,
+      "role": "User",
+      "fieldAbsent": true,
+      "updateDisabled": true
+    },
+    {
+      "cluster": 31,
+      "role": "DomainAdmin",
+      "fieldAbsent": true,
+      "updateDisabled": true
+    },
+    {
+      "cluster": 32,
+      "role": "User",
+      "fieldAbsent": true,
+      "updateDisabled": true
+    },
+    {
+      "cluster": 32,
+      "role": "DomainAdmin",
+      "fieldAbsent": true,
+      "updateDisabled": true
+    }
+  ],
+  "scopes": [
+    {
+      "cluster": 31,
+      "scope": "shared-domain",
+      "value": "true"
+    },
+    {
+      "cluster": 31,
+      "scope": "shared-all",
+      "value": "false"
+    },
+    {
+      "cluster": 32,
+      "scope": "shared-domain",
+      "value": "true"
+    },
+    {
+      "cluster": 32,
+      "scope": "shared-all",
+      "value": "false"
+    },
+    {
+      "cluster": 31,
+      "scope": "shared-project",
+      "value": "false",
+      "unchangedSave": true
+    },
+    {
+      "cluster": 32,
+      "scope": "shared-project",
+      "value": "false",
+      "unchangedSave": true
+    }
+  ],
+  "typeUi": [
+    {
+      "cluster": 31,
+      "type": "Isolated",
+      "fieldAbsent": true,
+      "trace": [
+        {
+          "label": "31-isolated-unchanged",
+          "requestId": "9580.4852",
+          "command": "updateNetwork",
+          "method": "POST",
+          "params": {
+            "id": "2586eb7b-5633-43bf-942c-a7bfdadd6f7c",
+            "name": "qa-gn1564-31-isolated"
+          },
+          "status": 200
+        },
+        {
+          "label": "31-isolated-unchanged",
+          "requestId": "9580.4853",
+          "command": "queryAsyncJobResult",
+          "method": "GET",
+          "params": {
+            "jobid": "a2fc0040-9f0d-49fe-be6b-cf6864c28db3"
+          },
+          "status": 200
+        }
+      ]
+    },
+    {
+      "cluster": 32,
+      "type": "Isolated",
+      "fieldAbsent": true,
+      "trace": [
+        {
+          "label": "32-isolated-unchanged",
+          "requestId": "51428.2450",
+          "command": "updateNetwork",
+          "method": "POST",
+          "params": {
+            "id": "abcd944a-dcf8-4d7d-86e6-f15504518329",
+            "name": "qa-gn1564-32-isolated"
+          },
+          "status": 200
+        },
+        {
+          "label": "32-isolated-unchanged",
+          "requestId": "51428.2451",
+          "command": "queryAsyncJobResult",
+          "method": "GET",
+          "params": {
+            "jobid": "ad12b3e2-eee9-44b9-baf5-82d292e22cec"
+          },
+          "status": 200
+        }
+      ]
+    }
+  ],
+  "reviewNetworks": 14,
+  "reviewVms": 2,
+  "mainValue": false,
+  "overridesReset": true
+}

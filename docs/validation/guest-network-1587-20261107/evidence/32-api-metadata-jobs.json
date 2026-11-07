@@ -1,0 +1,22 @@
+{
+  "apiCount": 1070,
+  "metadataSizeMethod": "UTF-16 serialization of API-derived objects; excludes storage wrapper",
+  "oldProjectMetadataBytes": 8564188,
+  "newCacheMetadataBytes": 2558482,
+  "asyncJobs": [
+    [
+      "a06c4735-ffdf-4f54-9298-e1e1deef0557",
+      "org.apache.cloudstack.api.command.admin.vm.AddNicToVMCmdByAdmin",
+      "1",
+      "0",
+      "2026-11-07 09:02:03"
+    ],
+    [
+      "8b5fabb9-1a67-48c0-82fd-c6ee999e10f3",
+      "org.apache.cloudstack.api.command.admin.network.UpdateNetworkCmdByAdmin",
+      "1",
+      "0",
+      "2026-11-07 08:59:37"
+    ]
+  ]
+}

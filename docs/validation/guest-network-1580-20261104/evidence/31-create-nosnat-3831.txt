@@ -1,0 +1,863 @@
+- complementary:
+  - menu:
+    - menuitem "dashboard 대시보드":
+      - link "dashboard 대시보드":
+        - /url: "#/dashboard"
+        - img "dashboard":
+        - text: 대시보드
+    - img "cloud":
+    - text: 컴퓨트
+    - img "hdd":
+    - text: 스토리지
+    - img "wifi":
+    - text: 네트워크
+    - list:
+      - menuitem "apartment 가상머신용 네트워크":
+        - link "apartment 가상머신용 네트워크":
+          - /url: "#/guestnetwork"
+          - img "apartment":
+          - text: 가상머신용 네트워크
+      - menuitem "deployment-unit VPC":
+        - link "deployment-unit VPC":
+          - /url: "#/vpc"
+          - img "deployment-unit":
+          - text: VPC
+      - menuitem "gateway VNF 기기":
+        - link "gateway VNF 기기":
+          - /url: "#/vnfapp"
+          - img "gateway":
+          - text: VNF 기기
+      - menuitem "environment Public IP 주소":
+        - link "environment Public IP 주소":
+          - /url: "#/publicip"
+          - img "environment":
+          - text: Public IP 주소
+      - menuitem "partition AS Numbers":
+        - link "partition AS Numbers":
+          - /url: "#/asnumbers"
+          - img "partition":
+          - text: AS Numbers
+      - menuitem "lock 사이트간 사설네트워크(VPN)":
+        - link "lock 사이트간 사설네트워크(VPN)":
+          - /url: "#/s2svpn"
+          - img "lock":
+          - text: 사이트간 사설네트워크(VPN)
+      - menuitem "sync 사이트 간 VPN 연결":
+        - link "sync 사이트 간 VPN 연결":
+          - /url: "#/s2svpnconn"
+          - img "sync":
+          - text: 사이트 간 VPN 연결
+      - menuitem "bars 네트워크 ACL":
+        - link "bars 네트워크 ACL":
+          - /url: "#/acllist"
+          - img "bars":
+          - text: 네트워크 ACL
+      - menuitem "user-switch VPN 사용자":
+        - link "user-switch VPN 사용자":
+          - /url: "#/vpnuser"
+          - img "user-switch":
+          - text: VPN 사용자
+      - menuitem "lock VPN 고객 게이트웨이":
+        - link "lock VPN 고객 게이트웨이":
+          - /url: "#/vpncustomergateway"
+          - img "lock":
+          - text: VPN 고객 게이트웨이
+      - menuitem "folder 게스트 VLAN":
+        - link "folder 게스트 VLAN":
+          - /url: "#/guestvlans"
+          - img "folder":
+          - text: 게스트 VLAN
+      - menuitem "pic-center IPv4 서브넷":
+        - link "pic-center IPv4 서브넷":
+          - /url: "#/ipv4subnets"
+          - img "pic-center":
+          - text: IPv4 서브넷
+      - menuitem "apartment DNS 영역":
+        - link "apartment DNS 영역":
+          - /url: "#/dnszone"
+          - img "apartment":
+          - text: DNS 영역
+      - menuitem "cloud-server DNS 서버":
+        - link "cloud-server DNS 서버":
+          - /url: "#/dnsserver"
+          - img "cloud-server":
+          - text: DNS 서버
+    - img "picture":
+    - text: 이미지
+    - img "lock":
+    - text: 키 관리
+    - menuitem "schedule 이벤트":
+      - link "schedule 이벤트":
+        - /url: "#/event"
+        - img "schedule":
+        - text: 이벤트
+    - menuitem "project 프로젝트":
+      - link "project 프로젝트":
+        - /url: "#/project"
+        - img "project":
+        - text: 프로젝트
+    - menuitem "idcard 역할":
+      - link "idcard 역할":
+        - /url: "#/role"
+        - img "idcard":
+        - text: 역할
+    - menuitem "team 계정":
+      - link "team 계정":
+        - /url: "#/account"
+        - img "team":
+        - text: 계정
+    - menuitem "block 도메인":
+      - link "block 도메인":
+        - /url: "#/domain"
+        - img "block":
+        - text: 도메인
+    - img "bank":
+    - text: 인프라스트럭쳐
+    - img "shopping":
+    - text: 서비스 오퍼링
+    - img "setting":
+    - text: 구성
+    - menuitem "appstore-add 확장":
+      - link "appstore-add 확장":
+        - /url: "#/extension"
+        - img "appstore-add":
+        - text: 확장
+    - img "tool":
+    - text: 도구
+    - menuitem "read API 문서":
+      - link "read API 문서":
+        - /url: "#/apidocs/"
+        - img "read":
+        - text: API 문서
+- generic: 페이지 스타일 설정
+- button "닫기":
+  - img "close":
+- heading "페이지 스타일 설정" [level=3]
+- radio [checked]
+- img "check":
+- radio
+- heading "테마 색상" [level=3]
+- radio
+- img "check"
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- separator
+- heading "네비게이션 설정" [level=3]
+- generic: 배경색
+- textbox: "#ffffff"
+- generic: 텍스트 색상
+- textbox: "#000000"
+- separator
+- alert:
+  - img "exclamation-circle":
+  - generic: "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요."
+- button "download 세팅값 다운로드(json)":
+  - img "download":
+  - generic: 세팅값 다운로드(json)
+- button "undo 기본값으로 재설정":
+  - img "undo":
+  - generic: 기본값으로 재설정
+- img "menu-fold":
+- combobox
+- img "project":
+- text: 기본 보기
+- button "생성 down":
+  - generic: 생성
+  - img "down":
+- img "translation":
+- button "알림":
+  - img "bell":
+- generic: AC
+- generic: admin cloud
+- main:
+  - link "home":
+    - /url: "#/"
+    - img "home":
+  - text: /
+  - link "가상머신용 네트워크":
+    - /url: "#/guestnetwork"
+  - link "question-circle":
+    - /url: http://docs.ablecloud.io/latest/adminguide/networking_and_traffic.html#adding-an-additional-guest-network
+    - img "question-circle":
+  - button "reload 업데이트":
+    - img "reload":
+    - generic: 업데이트
+  - combobox
+  - generic: 모두
+  - switch "프로젝트":
+    - generic: 프로젝트
+  - button "네트워크 추가":
+    - img "plus":
+    - generic: 네트워크 추가
+  - button "고급 검색":
+    - img "filter":
+  - textbox "검색"
+  - button "search":
+    - img "search":
+  - table:
+    - rowgroup:
+      - row "이름 caret-up caret-down 상태 caret-up caret-down 유형 caret-up caret-down VPC caret-up caret-down IPv4 CIDR caret-up caret-down IPv6 CIDR caret-up caret-down 브로드 캐스트 caret-up caret-down 도메인 caret-up caret-down 계정 caret-up caret-down Zone caret-up caret-down filter":
+        - columnheader:
+          - checkbox
+        - columnheader "이름 caret-up caret-down":
+          - generic: 이름
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "상태 caret-up caret-down":
+          - generic: 상태
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "유형 caret-up caret-down":
+          - generic: 유형
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "VPC caret-up caret-down":
+          - generic: VPC
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "IPv4 CIDR caret-up caret-down":
+          - generic: IPv4 CIDR
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "IPv6 CIDR caret-up caret-down":
+          - generic: IPv6 CIDR
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "브로드 캐스트 caret-up caret-down":
+          - generic: 브로드 캐스트
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "도메인 caret-up caret-down":
+          - generic: 도메인
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "계정 caret-up caret-down":
+          - generic: 계정
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "Zone caret-up caret-down":
+          - generic: Zone
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "filter":
+          - button "filter":
+            - img "filter":
+    - rowgroup:
+      - row "apartment AS-PROD-31-AS01-userNetwork 할당 됨 Isolated 172.28.31.0/24 ROOT epic1346-as01-user31 Zone":
+        - cell:
+          - checkbox
+        - cell "apartment AS-PROD-31-AS01-userNetwork":
+          - img "apartment":
+          - link "AS-PROD-31-AS01-userNetwork":
+            - /url: "#/guestnetwork/710d2c0d-1992-40c8-8846-1478110be4e6"
+        - cell "할당 됨":
+          - generic: 할당 됨
+        - cell "Isolated"
+        - cell
+        - cell "172.28.31.0/24"
+        - cell
+        - cell
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "epic1346-as01-user31":
+          - link "epic1346-as01-user31":
+            - /url: "#/account?name=epic1346-as01-user31&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "apartment AS-PROD-31-AS01-net 할당 됨 Isolated 172.27.31.0/24 ROOT admin Zone":
+        - cell:
+          - checkbox
+        - cell "apartment AS-PROD-31-AS01-net":
+          - img "apartment":
+          - link "AS-PROD-31-AS01-net":
+            - /url: "#/guestnetwork/2bc57a4a-89ed-46c0-afb4-5d1c2faee549"
+        - cell "할당 됨":
+          - generic: 할당 됨
+        - cell "Isolated"
+        - cell
+        - cell "172.27.31.0/24"
+        - cell
+        - cell
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "apartment E1335-31-permission-user-L2 구성 완료 L2 vlan://3136 ROOT epic1335-user31 Zone":
+        - cell:
+          - checkbox
+        - cell "apartment E1335-31-permission-user-L2":
+          - img "apartment":
+          - link "E1335-31-permission-user-L2":
+            - /url: "#/guestnetwork/18733c35-2768-4f0e-a5fb-b7f2f4c12382"
+        - cell "구성 완료":
+          - generic: 구성 완료
+        - cell "L2"
+        - cell
+        - cell
+        - cell
+        - cell "vlan://3136"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "epic1335-user31":
+          - link "epic1335-user31":
+            - /url: "#/account?name=epic1335-user31&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "apartment E1335-VM-Origin-L2 구성 완료 L2 vlan://3135 ROOT admin Zone":
+        - cell:
+          - checkbox
+        - cell "apartment E1335-VM-Origin-L2":
+          - img "apartment":
+          - link "E1335-VM-Origin-L2":
+            - /url: "#/guestnetwork/ae274fff-3d8e-4285-ac73-26a767c1fea7"
+        - cell "구성 완료":
+          - generic: 구성 완료
+        - cell "L2"
+        - cell
+        - cell
+        - cell
+        - cell "vlan://3135"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "apartment k8s-ui1330-gfs2-net Implemented Isolated 10.133.0.0/24 vlan://155 ROOT admin Zone":
+        - cell:
+          - checkbox
+        - cell "apartment k8s-ui1330-gfs2-net":
+          - img "apartment":
+          - link "k8s-ui1330-gfs2-net":
+            - /url: "#/guestnetwork/b18b4600-6f42-4827-bbba-253a2cfed320"
+        - cell "Implemented":
+          - generic: Implemented
+        - cell "Isolated"
+        - cell
+        - cell "10.133.0.0/24"
+        - cell
+        - cell "vlan://155"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "apartment rt1230-offline-custom-cni-r34-tier 할당 됨 Isolated rt1230-offline-custom-cni-r29-vpc 10.126.34.0/24 ROOT k1230-20261006 Zone":
+        - cell:
+          - checkbox
+        - cell "apartment rt1230-offline-custom-cni-r34-tier":
+          - img "apartment":
+          - link "rt1230-offline-custom-cni-r34-tier":
+            - /url: "#/guestnetwork/1a3d2a69-b66a-4afa-9fb2-c40a87a754db"
+        - cell "할당 됨":
+          - generic: 할당 됨
+        - cell "Isolated"
+        - cell "rt1230-offline-custom-cni-r29-vpc":
+          - link "rt1230-offline-custom-cni-r29-vpc":
+            - /url: "#/vpc/2c41c280-c915-4952-ab59-a527bf248c94"
+        - cell "10.126.34.0/24"
+        - cell
+        - cell
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "k1230-20261006":
+          - link "k1230-20261006":
+            - /url: "#/account?name=k1230-20261006&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "apartment rt1230-offline-custom-cni-r31-tier 할당 됨 Isolated rt1230-offline-custom-cni-r29-vpc 10.126.31.0/24 ROOT k1230-20261006 Zone":
+        - cell:
+          - checkbox
+        - cell "apartment rt1230-offline-custom-cni-r31-tier":
+          - img "apartment":
+          - link "rt1230-offline-custom-cni-r31-tier":
+            - /url: "#/guestnetwork/79f125f2-8411-48ce-a96a-4a815f39d164"
+        - cell "할당 됨":
+          - generic: 할당 됨
+        - cell "Isolated"
+        - cell "rt1230-offline-custom-cni-r29-vpc":
+          - link "rt1230-offline-custom-cni-r29-vpc":
+            - /url: "#/vpc/2c41c280-c915-4952-ab59-a527bf248c94"
+        - cell "10.126.31.0/24"
+        - cell
+        - cell
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "k1230-20261006":
+          - link "k1230-20261006":
+            - /url: "#/account?name=k1230-20261006&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "apartment rt1230-offline-custom-cni-r29-tier 할당 됨 Isolated rt1230-offline-custom-cni-r29-vpc 10.126.29.0/24 ROOT k1230-20261006 Zone":
+        - cell:
+          - checkbox
+        - cell "apartment rt1230-offline-custom-cni-r29-tier":
+          - img "apartment":
+          - link "rt1230-offline-custom-cni-r29-tier":
+            - /url: "#/guestnetwork/e2ebdb86-75f7-498e-bfac-82d1796af5e2"
+        - cell "할당 됨":
+          - generic: 할당 됨
+        - cell "Isolated"
+        - cell "rt1230-offline-custom-cni-r29-vpc":
+          - link "rt1230-offline-custom-cni-r29-vpc":
+            - /url: "#/vpc/2c41c280-c915-4952-ab59-a527bf248c94"
+        - cell "10.126.29.0/24"
+        - cell
+        - cell
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "k1230-20261006":
+          - link "k1230-20261006":
+            - /url: "#/account?name=k1230-20261006&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "apartment rt1230-v13412-external-etcd-gfs2-r18-net Implemented Isolated 10.123.12.0/24 vlan://195 ROOT k1230-20261006 Zone":
+        - cell:
+          - checkbox
+        - cell "apartment rt1230-v13412-external-etcd-gfs2-r18-net":
+          - img "apartment":
+          - link "rt1230-v13412-external-etcd-gfs2-r18-net":
+            - /url: "#/guestnetwork/957281d8-692d-4761-9adb-a3f5567b40d7"
+        - cell "Implemented":
+          - generic: Implemented
+        - cell "Isolated"
+        - cell
+        - cell "10.123.12.0/24"
+        - cell
+        - cell "vlan://195"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "k1230-20261006":
+          - link "k1230-20261006":
+            - /url: "#/account?name=k1230-20261006&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "apartment rt1230-v13412-ha-gfs2-r17-net Implemented Isolated 10.123.11.0/24 vlan://178 ROOT k1230-20261006 Zone":
+        - cell:
+          - checkbox
+        - cell "apartment rt1230-v13412-ha-gfs2-r17-net":
+          - img "apartment":
+          - link "rt1230-v13412-ha-gfs2-r17-net":
+            - /url: "#/guestnetwork/b3e7c062-c074-43cf-8374-0a3f74368874"
+        - cell "Implemented":
+          - generic: Implemented
+        - cell "Isolated"
+        - cell
+        - cell "10.123.11.0/24"
+        - cell
+        - cell "vlan://178"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "k1230-20261006":
+          - link "k1230-20261006":
+            - /url: "#/account?name=k1230-20261006&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "apartment rt1230-v1342-gfs2-r16-net Implemented Isolated 10.123.10.0/24 vlan://156 ROOT k1230-20261006 Zone":
+        - cell:
+          - checkbox
+        - cell "apartment rt1230-v1342-gfs2-r16-net":
+          - img "apartment":
+          - link "rt1230-v1342-gfs2-r16-net":
+            - /url: "#/guestnetwork/ea344bee-6633-41df-861e-c2eaf66fa5c9"
+        - cell "Implemented":
+          - generic: Implemented
+        - cell "Isolated"
+        - cell
+        - cell "10.123.10.0/24"
+        - cell
+        - cell "vlan://156"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "k1230-20261006":
+          - link "k1230-20261006":
+            - /url: "#/account?name=k1230-20261006&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "apartment rt1230-v1371-gfs2-r15-net Implemented Isolated 10.123.9.0/24 vlan://158 ROOT k1230-20261006 Zone":
+        - cell:
+          - checkbox
+        - cell "apartment rt1230-v1371-gfs2-r15-net":
+          - img "apartment":
+          - link "rt1230-v1371-gfs2-r15-net":
+            - /url: "#/guestnetwork/ba4d479d-304a-4adf-8a80-aa042ebb2a93"
+        - cell "Implemented":
+          - generic: Implemented
+        - cell "Isolated"
+        - cell
+        - cell "10.123.9.0/24"
+        - cell
+        - cell "vlan://158"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "k1230-20261006":
+          - link "k1230-20261006":
+            - /url: "#/account?name=k1230-20261006&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "apartment rt1230-v1365-gfs2-r14-net Implemented Isolated 10.123.8.0/24 vlan://198 ROOT k1230-20261006 Zone":
+        - cell:
+          - checkbox
+        - cell "apartment rt1230-v1365-gfs2-r14-net":
+          - img "apartment":
+          - link "rt1230-v1365-gfs2-r14-net":
+            - /url: "#/guestnetwork/0fa6be3d-2c14-437c-9e88-bb3bacae74e6"
+        - cell "Implemented":
+          - generic: Implemented
+        - cell "Isolated"
+        - cell
+        - cell "10.123.8.0/24"
+        - cell
+        - cell "vlan://198"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "k1230-20261006":
+          - link "k1230-20261006":
+            - /url: "#/account?name=k1230-20261006&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "apartment rt1230-v1359-gfs2-r13-net Implemented Isolated 10.123.7.0/24 vlan://172 ROOT k1230-20261006 Zone":
+        - cell:
+          - checkbox
+        - cell "apartment rt1230-v1359-gfs2-r13-net":
+          - img "apartment":
+          - link "rt1230-v1359-gfs2-r13-net":
+            - /url: "#/guestnetwork/4734b8f0-06e5-43c3-8263-fe2ab9f493bd"
+        - cell "Implemented":
+          - generic: Implemented
+        - cell "Isolated"
+        - cell
+        - cell "10.123.7.0/24"
+        - cell
+        - cell "vlan://172"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "k1230-20261006":
+          - link "k1230-20261006":
+            - /url: "#/account?name=k1230-20261006&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "apartment rt1230-v1365-gfs2-r9-net Implemented Isolated 10.123.6.0/24 vlan://193 ROOT k1230-20261006 Zone":
+        - cell:
+          - checkbox
+        - cell "apartment rt1230-v1365-gfs2-r9-net":
+          - img "apartment":
+          - link "rt1230-v1365-gfs2-r9-net":
+            - /url: "#/guestnetwork/baed64d8-dc13-4868-a53c-f86b2d663297"
+        - cell "Implemented":
+          - generic: Implemented
+        - cell "Isolated"
+        - cell
+        - cell "10.123.6.0/24"
+        - cell
+        - cell "vlan://193"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "k1230-20261006":
+          - link "k1230-20261006":
+            - /url: "#/account?name=k1230-20261006&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "apartment rt1230-gfs2-v13412-r5-net Implemented Isolated 10.123.5.0/24 vlan://182 ROOT k1230-20261006 Zone":
+        - cell:
+          - checkbox
+        - cell "apartment rt1230-gfs2-v13412-r5-net":
+          - img "apartment":
+          - link "rt1230-gfs2-v13412-r5-net":
+            - /url: "#/guestnetwork/41f095bf-79b7-422e-9eb3-29946b948467"
+        - cell "Implemented":
+          - generic: Implemented
+        - cell "Isolated"
+        - cell
+        - cell "10.123.5.0/24"
+        - cell
+        - cell "vlan://182"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "k1230-20261006":
+          - link "k1230-20261006":
+            - /url: "#/account?name=k1230-20261006&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "apartment rt1230-gfs2-v13412-r3-net Implemented Isolated 10.123.4.0/24 vlan://181 ROOT k1230-20261006 Zone":
+        - cell:
+          - checkbox
+        - cell "apartment rt1230-gfs2-v13412-r3-net":
+          - img "apartment":
+          - link "rt1230-gfs2-v13412-r3-net":
+            - /url: "#/guestnetwork/aab34179-3277-4948-8409-8e32b658ecc4"
+        - cell "Implemented":
+          - generic: Implemented
+        - cell "Isolated"
+        - cell
+        - cell "10.123.4.0/24"
+        - cell
+        - cell "vlan://181"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "k1230-20261006":
+          - link "k1230-20261006":
+            - /url: "#/account?name=k1230-20261006&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "apartment epic1216-acl-user-b 구성 완료 L2 vlan://3102 epic1216-domain-b epic1216-user-b Zone":
+        - cell:
+          - checkbox
+        - cell "apartment epic1216-acl-user-b":
+          - img "apartment":
+          - link "epic1216-acl-user-b":
+            - /url: "#/guestnetwork/c865539a-00db-4f9a-bfe1-b1dc53e323c9"
+        - cell "구성 완료":
+          - generic: 구성 완료
+        - cell "L2"
+        - cell
+        - cell
+        - cell
+        - cell "vlan://3102"
+        - cell "epic1216-domain-b":
+          - link "epic1216-domain-b":
+            - /url: "#/domain/1c32dd7e-dde2-47f0-b551-8e2e448fb110?tab=details"
+        - cell "epic1216-user-b":
+          - link "epic1216-user-b":
+            - /url: "#/account?name=epic1216-user-b&domainid=1c32dd7e-dde2-47f0-b551-8e2e448fb110&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "apartment epic1216-acl-user-a 구성 완료 L2 vlan://3101 epic1216-domain-a epic1216-user-a Zone":
+        - cell:
+          - checkbox
+        - cell "apartment epic1216-acl-user-a":
+          - img "apartment":
+          - link "epic1216-acl-user-a":
+            - /url: "#/guestnetwork/2e440c60-362e-4dc7-9d76-bed0c801b9ab"
+        - cell "구성 완료":
+          - generic: 구성 완료
+        - cell "L2"
+        - cell
+        - cell
+        - cell
+        - cell "vlan://3101"
+        - cell "epic1216-domain-a":
+          - link "epic1216-domain-a":
+            - /url: "#/domain/41104588-fae9-495a-be0c-557230dafdf2?tab=details"
+        - cell "epic1216-user-a":
+          - link "epic1216-user-a":
+            - /url: "#/account?name=epic1216-user-a&domainid=41104588-fae9-495a-be0c-557230dafdf2&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "apartment Admin-Isoloated-Net Implemented Isolated 10.1.1.0/24 vlan://153 ROOT admin Zone":
+        - cell:
+          - checkbox
+        - cell "apartment Admin-Isoloated-Net":
+          - img "apartment":
+          - link "Admin-Isoloated-Net":
+            - /url: "#/guestnetwork/a037eecd-629e-446b-b0c4-f56674d99e0c"
+        - cell "Implemented":
+          - generic: Implemented
+        - cell "Isolated"
+        - cell
+        - cell "10.1.1.0/24"
+        - cell
+        - cell "vlan://153"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+  - list:
+    - listitem: 전체 22 개 항목 중 1-20 표시
+    - listitem "이전 페이지":
+      - button "left" [disabled]:
+        - img "left":
+    - listitem "1":
+      - generic: "1"
+    - listitem "2":
+      - generic: "2"
+    - listitem "다음 페이지":
+      - button "right":
+        - img "right":
+    - combobox
+    - generic: 20 / 쪽
+    - text: 이동하기
+    - textbox
+- alert:
+  - img "info-circle":
+  - generic: Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성
+- dialog "네트워크 추가도움말":
+  - document:
+    - button "Close":
+      - img "close":
+    - text: 네트워크 추가
+    - link "도움말":
+      - /url: http://docs.ablecloud.io/latest/adminguide/networking_and_traffic.html#configure-guest-traffic-in-an-advanced-zone
+      - img "question-circle":
+    - tablist:
+      - tab "Isolated" [selected]
+      - tab "L2"
+      - tab "shared"
+    - tabpanel "Isolated":
+      - text: "*"
+      - text: 이름
+      - img "info-circle":
+      - textbox "* 이름 info-circle":
+        - /placeholder: The name of the network
+        - text: qa-gn1580-31-nosnat
+      - text: 설명
+      - img "info-circle":
+      - textbox "설명 info-circle":
+        - /placeholder: The display text of the network
+        - text: VLAN 3831 · 긴 NIC 브리지 이름 검증
+      - text: "*"
+      - text: Zone
+      - img "info-circle":
+      - combobox "* Zone info-circle"
+      - img "global":
+      - text: Zone
+      - generic "소유자 유형"
+      - generic "소유자 유형":
+        - combobox
+        - generic: 계정
+      - generic "도메인": "* 도메인"
+      - generic "도메인":
+        - combobox
+        - img "block":
+        - text: ROOT
+      - generic "계정": "* 계정"
+      - generic "계정":
+        - combobox
+        - img "team":
+        - text: admin
+      - text: 네트워크 도메인
+      - img "info-circle":
+      - textbox "네트워크 도메인 info-circle":
+        - /placeholder: Network domain
+      - text: "*"
+      - text: 네트워크 오퍼링
+      - img "info-circle":
+      - combobox "* 네트워크 오퍼링 info-circle"
+      - generic: VLAN 4자리 검증용 no-SourceNat · VirtualRouter
+      - alert:
+        - generic: VPC 네트워크 오퍼링은 VPC 안에 네트워크를 생성할 때 사용할 수 있습니다.
+      - strong: 서비스·제공자 확인
+      - button "서비스·제공자 다시 확인":
+        - img "reload":
+      - alert:
+        - img "check-circle":
+        - generic: 요구 서비스와 제공자 설정이 일치합니다.
+        - text: Physical Network 1 · 51cdd7ed-ab33-419d-98fc-8e7eabea1194
+        - generic: 구성 확인 결과입니다. 외부 장비 준비 상태와 실제 통신은 별도로 확인해야 합니다.
+      - generic "서비스 제공자 (8)"
+      - text: VLAN/VNI
+      - img "info-circle":
+      - textbox "VLAN/VNI info-circle":
+        - /placeholder: The ID or VID of the network
+        - text: "3831"
+      - text: 외부 아이디
+      - img "info-circle":
+      - textbox "외부 아이디 info-circle":
+        - /placeholder: ID of the network in an external system.
+      - text: 게이트웨이
+      - img "info-circle":
+      - textbox "게이트웨이 info-circle":
+        - /placeholder: The gateway of the Network. Required for shared networks and isolated networks when it belongs to VPC
+        - text: 172.28.31.1
+      - text: 넷마스크
+      - img "info-circle":
+      - textbox "넷마스크 info-circle":
+        - /placeholder: The netmask of the Network. Required for shared networks and isolated networks when it belongs to VPC
+        - text: 255.255.255.0
+      - text: IPv4 시작 IP
+      - img "info-circle":
+      - textbox "IPv4 시작 IP info-circle":
+        - /placeholder: The beginning IP address in the Network IP range
+        - text: 172.28.31.10
+      - text: 종료 IP 주소
+      - img "info-circle":
+      - textbox "종료 IP 주소 info-circle" [active]:
+        - /placeholder: The ending IP address in the Network IP range. If not specified, will be defaulted to startIP
+        - text: 172.28.31.20
+      - text: DNS 1
+      - img "info-circle":
+      - textbox "DNS 1 info-circle":
+        - /placeholder: The first IPv4 DNS for the network
+      - text: DNS 2
+      - img "info-circle":
+      - textbox "DNS 2 info-circle":
+        - /placeholder: The second IPv4 DNS for the network
+      - text: 공용 NIC의 MAC 주소 유지
+      - img "info-circle":
+      - switch "공용 NIC의 MAC 주소 유지 info-circle" [checked]
+    - button "취소":
+      - generic: 취소
+    - button "확인":
+      - generic: 확인

@@ -1,0 +1,110 @@
+[
+  {
+    "cluster": 31,
+    "mode": "light",
+    "width": 1280,
+    "sampled_text_min_contrast": 5.19,
+    "samples": 23,
+    "fits": true,
+    "colors_include_alpha_composited_on_modal": true
+  },
+  {
+    "cluster": 31,
+    "mode": "light",
+    "width": 768,
+    "sampled_text_min_contrast": 5.19,
+    "samples": 23,
+    "fits": true,
+    "colors_include_alpha_composited_on_modal": true
+  },
+  {
+    "cluster": 31,
+    "mode": "light",
+    "width": 390,
+    "sampled_text_min_contrast": 5.19,
+    "samples": 23,
+    "fits": true,
+    "colors_include_alpha_composited_on_modal": true
+  },
+  {
+    "cluster": 31,
+    "mode": "dark",
+    "width": 1280,
+    "sampled_text_min_contrast": 5.19,
+    "samples": 23,
+    "fits": true,
+    "colors_include_alpha_composited_on_modal": true
+  },
+  {
+    "cluster": 31,
+    "mode": "dark",
+    "width": 768,
+    "sampled_text_min_contrast": 5.19,
+    "samples": 23,
+    "fits": true,
+    "colors_include_alpha_composited_on_modal": true
+  },
+  {
+    "cluster": 31,
+    "mode": "dark",
+    "width": 390,
+    "sampled_text_min_contrast": 5.19,
+    "samples": 23,
+    "fits": true,
+    "colors_include_alpha_composited_on_modal": true
+  },
+  {
+    "cluster": 32,
+    "mode": "light",
+    "width": 1280,
+    "sampled_text_min_contrast": 5.19,
+    "samples": 23,
+    "fits": true,
+    "colors_include_alpha_composited_on_modal": true
+  },
+  {
+    "cluster": 32,
+    "mode": "light",
+    "width": 768,
+    "sampled_text_min_contrast": 5.19,
+    "samples": 23,
+    "fits": true,
+    "colors_include_alpha_composited_on_modal": true
+  },
+  {
+    "cluster": 32,
+    "mode": "light",
+    "width": 390,
+    "sampled_text_min_contrast": 5.19,
+    "samples": 23,
+    "fits": true,
+    "colors_include_alpha_composited_on_modal": true
+  },
+  {
+    "cluster": 32,
+    "mode": "dark",
+    "width": 1280,
+    "sampled_text_min_contrast": 5.19,
+    "samples": 23,
+    "fits": true,
+    "colors_include_alpha_composited_on_modal": true
+  },
+  {
+    "cluster": 32,
+    "mode": "dark",
+    "width": 768,
+    "sampled_text_min_contrast": 5.19,
+    "samples": 23,
+    "fits": true,
+    "colors_include_alpha_composited_on_modal": true
+  },
+  {
+    "cluster": 32,
+    "mode": "dark",
+    "width": 390,
+    "sampled_text_min_contrast": 5.19,
+    "samples": 23,
+    "fits": true,
+    "colors_include_alpha_composited_on_modal": true
+  }
+]

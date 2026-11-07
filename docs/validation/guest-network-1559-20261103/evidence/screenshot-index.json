@@ -1,0 +1,188 @@
+[
+  {
+    "name": "31-before-mixed-menu.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "4c783b8c85cabc97ed3f6ff8ab0d7517496bba07aedb575526a83bfb37bf8df9"
+  },
+  {
+    "name": "31-before-mixed-dialog.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "bef33d4c40253c4f017d788c2f6549d6fd90e8fcb98516c3af1f96b5f3e7eda4"
+  },
+  {
+    "name": "31-before-livepatch-selected.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "487f2384f84c52f9e11056447d72ccfb8aaf7287f90bed5e024ff34b93cf589e"
+  },
+  {
+    "name": "31-partial-refusal.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "8596329979276cf3eaf043d48fcf0aeb06c4d79d3671284d55dd348831fc2cea"
+  },
+  {
+    "name": "32-terminal-job-failure.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "31023c63bf0e91ec203371f93980b22a54c2322ab419c5a98fc755f7c2d8ad82"
+  },
+  {
+    "name": "31-user-mixed-permission.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "dde18080a4d8625210fb8515badfa8cb98b79b143875b6530dd0f01703047b3e"
+  },
+  {
+    "name": "32-user-mixed-permission.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "903b31be9c738c634edec37ab024fc7af88fd9a2f6ea5a762e9ba1008c48169c"
+  },
+  {
+    "name": "31-l2-action-absent.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "3c4d2b9213eb5858856e21e73776352ec386d49041f76b241a31163b1483d22b"
+  },
+  {
+    "name": "32-vpc-readonly-contract.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "ebb1ae8c6d4dc3b5f6703c550c1b90416229e359b825d090dc87421413387968"
+  },
+  {
+    "name": "31-vm-nic-standard.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "d2fe99ebac26a09aba5e7b623e69dc9e65807e0c076c87b0e8e2f239c5dcc3c5"
+  },
+  {
+    "name": "32-vm-nic-standard-dark.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "34dc81c8029f483df26d673e3a3879ef96e01516d855b5e2215e7f95c67c1a53"
+  },
+  {
+    "name": "31-final-shared-livepatch-success.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "91f2fe65e4c03f07c42044224d4f04093eb227ab29fa9df6975771d27c2d8150"
+  },
+  {
+    "name": "32-final-error-detail-unknown-ui.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "28b12000bf70297e6fd12e01e367386c060610ff93683f22f569f065c367db89"
+  },
+  {
+    "name": "32-final-recheck-success.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "a0528a1f382d2b051720d93d7a0871b58ad34fc79b374d8f8395ff906a330976"
+  },
+  {
+    "name": "31-restart-dark-390-bottom.jpg",
+    "width": 390,
+    "height": 844,
+    "sha256": "ddd0f37675ea25b96ac8bec6743c3e2a2586ad8a6c93aaec1156ef3803b6761e"
+  },
+  {
+    "name": "31-bulk-delete-success.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "c5a414fe9f326dc7e402cf002b85b65558e173d1153c2749e8e31a2c00cc6ff6"
+  },
+  {
+    "name": "32-bulk-delete-success.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "971593430188845fd6c5d05baf539f39c2b54d4728f3efe5be8f548f761652a0"
+  },
+  {
+    "name": "31-cleanup-zero.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "e063b23a13f90887348866fad97c6f6c5fa419052cf2127be54ddb4e120d7c1c"
+  },
+  {
+    "name": "32-cleanup-zero.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "e516d237e44eab128f230d6bb8b9a626c613862fa3a16cadc985331e3eea8e35"
+  },
+  {
+    "name": "31-restart-light-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "ce13a45a40fe972f95c8c63894575b3f36f7b7839e4e04757efdf2f1badf3a96"
+  },
+  {
+    "name": "31-restart-light-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "sha256": "d3cc5f1c8012fb7542a16113b58f300f064e79a0369f1641a1d95df6fde11c9e"
+  },
+  {
+    "name": "31-restart-light-390.jpg",
+    "width": 390,
+    "height": 844,
+    "sha256": "389feb48b9a56cd3c52525933d0dc574926fa4a1dadf9f9ceb1491006f1347c1"
+  },
+  {
+    "name": "31-restart-dark-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "ebb77153add3457c641dc4df5f5d483c25b7ce04fe8df95b9738ba3e4c0f36c7"
+  },
+  {
+    "name": "31-restart-dark-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "sha256": "76e7cb7c04c2f5e1ff40ba1dac142485f907553f31a9cc6a3d7f487cc3bb955a"
+  },
+  {
+    "name": "31-restart-dark-390.jpg",
+    "width": 390,
+    "height": 844,
+    "sha256": "ed30ed59a060ad66e1e887d574c873760b7f3f5fc59d9833b4ffba56a401a363"
+  },
+  {
+    "name": "32-restart-light-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "faecb2bce9b2f9e897e9ac1d559ade27002c30520a344c993f76241e70aa62a2"
+  },
+  {
+    "name": "32-restart-light-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "sha256": "645740b71fe7bf08dc6299e106af700cfc2bb2efb8c5a853d47d72cd1b975ece"
+  },
+  {
+    "name": "32-restart-light-390.jpg",
+    "width": 390,
+    "height": 844,
+    "sha256": "eaab4d402c6bfdc9621f0af1c3a1f33ed3bac5d3aa4cc3bf0348a686c502ca17"
+  },
+  {
+    "name": "32-restart-dark-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "cea3f4b6f323e8f8d41223b79cc29e89f3b12066f52ef5c3041eea3a5e9805a1"
+  },
+  {
+    "name": "32-restart-dark-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "sha256": "74999b46084b1d2f2de93048b570a0d0b3429d16963ef5bfed257e1a334cec79"
+  },
+  {
+    "name": "32-restart-dark-390.jpg",
+    "width": 390,
+    "height": 844,
+    "sha256": "bb376e2b9b3e70f0358d6348b87e4ac4163feb1b566a739cf5b0a9f842feb743"
+  }
+]

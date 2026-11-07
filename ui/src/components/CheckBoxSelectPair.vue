@@ -31,7 +31,7 @@
           v-if="reversed !== checked"
           :label="selectLabel">
           <a-select
-            v-model:value="selected"
+            :value="selected"
             :disabled="forExternalNetProvider"
             showSearch
             optionFilterProp="label"
@@ -116,6 +116,9 @@ export default {
       }, 50)
     }
   },
+  beforeUnmount () {
+    clearTimeout(this.selectOptionsTimer)
+  },
   computed: {
     selectSource () {
       return this.selectOptions.map(item => {
@@ -154,7 +157,7 @@ export default {
     handleSelectOptionsUpdated () {
       if (!this.checked) return
       var enabledOptions = this.selectSource?.filter(x => x.enabled !== false) || []
-      if (this.selectedOption && !enabledOptions.includes(this.selectedOption)) {
+      if (!enabledOptions.some(option => option.id === this.selectedOption)) {
         this.handleSelectChange(enabledOptions[0]?.id || null)
       }
     }

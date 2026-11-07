@@ -116,4 +116,11 @@ public interface ProjectRoleService {
      */
     List<ProjectRolePermission> findAllProjectRolePermissions(Long projectId, Long projectRoleId);
 
+    /**
+     * Internal authorization lookup for the calling user's effective project membership.
+     * Resolves user membership before account membership, and returns only the assigned
+     * role's ordered permissions. This does not grant access to role management APIs.
+     */
+    List<ProjectRolePermission> findCurrentUserProjectRolePermissions(Long projectId);
+
 }

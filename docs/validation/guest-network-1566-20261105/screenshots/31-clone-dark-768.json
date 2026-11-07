@@ -1,0 +1,104 @@
+{
+  "body": {
+    "bottom": 862,
+    "height": 710,
+    "left": 25,
+    "right": 743,
+    "top": 152,
+    "width": 718,
+    "x": 25,
+    "y": 152
+  },
+  "bodyClientHeight": 710,
+  "bodyClientWidth": 708,
+  "bodyScrollHeight": 2257,
+  "bodyScrollTop": 1079,
+  "bodyScrollWidth": 708,
+  "colors": [
+    {
+      "background": "rgba(24, 144, 255, 0.14)",
+      "color": "rgb(214, 235, 255)",
+      "text": "다음에서 복제: qa-gn1566-31-seed모든 값이 원본 오퍼링에서 미리 채워졌습니다. 새 오퍼링을 사용자 지정하려면 원하는 필드를 수정하"
+    },
+    {
+      "background": "rgba(250, 173, 20, 0.14)",
+      "color": "rgb(255, 231, 163)",
+      "text": "IPv6 support in ABLESTACK - Isolated networks and VPC tiers을 제공하는 IPv6 지원 네트워크/V"
+    },
+    {
+      "background": "rgb(9, 105, 218)",
+      "color": "rgb(255, 255, 255)",
+      "text": "확인"
+    }
+  ],
+  "content": {
+    "bottom": 928,
+    "height": 832,
+    "left": 24,
+    "right": 744,
+    "top": 96,
+    "width": 720,
+    "x": 24,
+    "y": 96
+  },
+  "dark": true,
+  "dialog": {
+    "bottom": 1024,
+    "height": 1024,
+    "left": 0,
+    "right": 768,
+    "top": 0,
+    "width": 768,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 758,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "INPUT"
+  },
+  "footer": {
+    "bottom": 927,
+    "height": 65,
+    "left": 25,
+    "right": 743,
+    "top": 862,
+    "width": 718,
+    "x": 25,
+    "y": 862
+  },
+  "header": {
+    "bottom": 152,
+    "height": 55,
+    "left": 25,
+    "right": 743,
+    "top": 97,
+    "width": 718,
+    "x": 25,
+    "y": 97
+  },
+  "height": 1024,
+  "main": {
+    "bottom": 1024,
+    "height": 900,
+    "left": 80,
+    "right": 758,
+    "top": 124,
+    "width": 678,
+    "x": 80,
+    "y": 124
+  },
+  "primaryButton": {
+    "bottom": 911,
+    "height": 32,
+    "left": 657.234375,
+    "right": 715,
+    "top": 879,
+    "width": 57.765625,
+    "x": 657.234375,
+    "y": 879
+  },
+  "width": 768,
+  "image_sha256": "6db7545945bf8008845867c5381f36e4ec4ebf2af5c9f9383af47a4cce20e93e"
+}

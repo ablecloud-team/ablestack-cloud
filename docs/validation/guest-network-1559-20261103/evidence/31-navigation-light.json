@@ -1,0 +1,13 @@
+{
+  "path": [
+    "network-detail",
+    "router-tab",
+    "vm-filtered-list",
+    "vm-detail",
+    "vm-NIC-tab",
+    "network-detail",
+    "network-breadcrumb-list"
+  ],
+  "final_url": "http://10.10.31.10:8080/client/#/guestnetwork",
+  "passed": true
+}

@@ -1,0 +1,1083 @@
+[
+  {
+    "role": "admin",
+    "operation": "create-l2",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-32-prj-api-admin-l2",
+      "displaytext": "API project role admin",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+      "acltype": "Account"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "role": "admin",
+    "operation": "update-nat",
+    "command": "updateNetwork",
+    "params": {
+      "id": "d58e60cb-b88f-48ed-b5e7-eee0fccf8aec",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 admin nat"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "a7ecf8c6-e2bf-4541-bc16-1ee54ee50a9e",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "persistedExpectedDescription": true,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "admin",
+    "operation": "nic-add-nat",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "d58e60cb-b88f-48ed-b5e7-eee0fccf8aec",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "d3081196-f292-4579-a67c-2aa1d6ad48da",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "nicPresent": true,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "admin",
+    "operation": "nic-remove-nat",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "8232dcfa-b69d-43a4-adde-185273a08989",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "1f85a5a1-c2da-4d23-ae57-90df65ada2bb",
+    "jobStatus": 1,
+    "jobResultCode": 0
+  },
+  {
+    "role": "admin",
+    "operation": "update-l2",
+    "command": "updateNetwork",
+    "params": {
+      "id": "e95802c5-94a0-48a6-a810-16f0a4ae7bb3",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 admin l2"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "b7c9e648-c8ac-4077-bf93-6c501cfbf714",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "persistedExpectedDescription": true,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "admin",
+    "operation": "nic-add-l2",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "e95802c5-94a0-48a6-a810-16f0a4ae7bb3",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "d55b2b07-f943-46b1-b162-0b2fd7c9bc8e",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "nicPresent": true,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "admin",
+    "operation": "nic-remove-l2",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "00037953-091a-47a5-9877-70ebfbc822ad",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "c7f1f73e-0c89-438f-ac41-9499ddb60433",
+    "jobStatus": 1,
+    "jobResultCode": 0
+  },
+  {
+    "role": "admin",
+    "operation": "update-shared",
+    "command": "updateNetwork",
+    "params": {
+      "id": "a8a685fe-41b1-448a-891e-2e45ab65a8ce",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 admin shared"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "7c0f71e1-5b1f-4c8c-9f42-3862c94ec9ef",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "persistedExpectedDescription": true,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "admin",
+    "operation": "nic-add-shared",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "a8a685fe-41b1-448a-891e-2e45ab65a8ce",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "52d7bcb0-2f36-47c2-ae05-70d41de3bca4",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "nicPresent": true,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "admin",
+    "operation": "nic-remove-shared",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "1854000a-b786-4b44-b79c-8a0db07bd5e0",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "9f438bc5-dd94-44fe-b0af-252b10e9fb7e",
+    "jobStatus": 1,
+    "jobResultCode": 0
+  },
+  {
+    "role": "domainadmin",
+    "operation": "create-l2",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-32-prj-api-domainadmin-l2",
+      "displaytext": "API project role domainadmin",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+      "acltype": "Account"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "role": "domainadmin",
+    "operation": "update-nat",
+    "command": "updateNetwork",
+    "params": {
+      "id": "d58e60cb-b88f-48ed-b5e7-eee0fccf8aec",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 domainadmin nat"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "1034e546-7ba6-407d-b71e-f254aca01455",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "persistedExpectedDescription": true,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "domainadmin",
+    "operation": "nic-add-nat",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "d58e60cb-b88f-48ed-b5e7-eee0fccf8aec",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "7e18f5ec-9246-43bc-acc6-8c5e1c9e44ae",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "nicPresent": true,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "domainadmin",
+    "operation": "nic-remove-nat",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "57a36a1a-2cf7-4242-bdb5-e53136cd80c0",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "c14bae4e-f0e0-4ea8-ad81-4fcac3b05094",
+    "jobStatus": 1,
+    "jobResultCode": 0
+  },
+  {
+    "role": "domainadmin",
+    "operation": "update-l2",
+    "command": "updateNetwork",
+    "params": {
+      "id": "e95802c5-94a0-48a6-a810-16f0a4ae7bb3",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 domainadmin l2"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "ccc44ccb-8ad9-4e3c-a636-1687aefc6a80",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "persistedExpectedDescription": true,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "domainadmin",
+    "operation": "nic-add-l2",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "e95802c5-94a0-48a6-a810-16f0a4ae7bb3",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "26eaf094-1e0d-49ac-a48d-cc10924c03e6",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "nicPresent": true,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "domainadmin",
+    "operation": "nic-remove-l2",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "3c239818-7e8f-46bd-9523-9fd4c1e9dc1e",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "598348c9-9710-4013-8b14-6280a2df54f5",
+    "jobStatus": 1,
+    "jobResultCode": 0
+  },
+  {
+    "role": "domainadmin",
+    "operation": "update-shared",
+    "command": "updateNetwork",
+    "params": {
+      "id": "a8a685fe-41b1-448a-891e-2e45ab65a8ce",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 domainadmin shared"
+    },
+    "accepted": false,
+    "errorCode": 531,
+    "errorText": "Shared network Network {\"id\": 420, \"name\": \"qa-gn1569-32-prj-shared\", \"uuid\": \"a8a685fe-41b1-448a-891e-2e45ab65a8ce\", \"networkofferingid\": 82} with specifyvlan=true can only be operated by root admin",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "persistedExpectedDescription": false,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "domainadmin",
+    "operation": "nic-add-shared",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "a8a685fe-41b1-448a-891e-2e45ab65a8ce",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "971752f2-9df8-4d59-8cb0-21b4b192dbbb",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "nicPresent": true,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "domainadmin",
+    "operation": "nic-remove-shared",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "7e23ca20-4990-4b7f-a645-d8fee4a21691",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "8ef20b80-9df8-421e-9915-7408e6bbb726",
+    "jobStatus": 1,
+    "jobResultCode": 0
+  },
+  {
+    "role": "owner",
+    "operation": "create-l2",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-32-prj-api-owner-l2",
+      "displaytext": "API project role owner",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+      "acltype": "Account"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "role": "owner",
+    "operation": "update-nat",
+    "command": "updateNetwork",
+    "params": {
+      "id": "d58e60cb-b88f-48ed-b5e7-eee0fccf8aec",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 owner nat"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "fceb2106-c078-4047-9627-d4233a7d0d2d",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "persistedExpectedDescription": true,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "owner",
+    "operation": "nic-add-nat",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "d58e60cb-b88f-48ed-b5e7-eee0fccf8aec",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "fa09fc66-3d65-4c1d-8c8e-1a77baaf2e7a",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "nicPresent": true,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "owner",
+    "operation": "nic-remove-nat",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "d90dc44b-10b1-44b6-a9c7-4eedfbb2ff27",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "f8e4eb11-2dca-4584-80d8-678c82085b6b",
+    "jobStatus": 1,
+    "jobResultCode": 0
+  },
+  {
+    "role": "owner",
+    "operation": "update-l2",
+    "command": "updateNetwork",
+    "params": {
+      "id": "e95802c5-94a0-48a6-a810-16f0a4ae7bb3",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 owner l2"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "b023acc2-fb1c-4ccc-b614-f3cdae485564",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "persistedExpectedDescription": true,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "owner",
+    "operation": "nic-add-l2",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "e95802c5-94a0-48a6-a810-16f0a4ae7bb3",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "ce43ab7f-cca2-4012-bb08-cda0ce56245a",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "nicPresent": true,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "owner",
+    "operation": "nic-remove-l2",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "e51573d3-5dc3-44e7-b2c2-1fc7a1cf064c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "8e09108a-9c99-442c-a4cc-4e192db197e3",
+    "jobStatus": 1,
+    "jobResultCode": 0
+  },
+  {
+    "role": "owner",
+    "operation": "update-shared",
+    "command": "updateNetwork",
+    "params": {
+      "id": "a8a685fe-41b1-448a-891e-2e45ab65a8ce",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 owner shared"
+    },
+    "accepted": false,
+    "errorCode": 531,
+    "errorText": "Shared network Network {\"id\": 420, \"name\": \"qa-gn1569-32-prj-shared\", \"uuid\": \"a8a685fe-41b1-448a-891e-2e45ab65a8ce\", \"networkofferingid\": 82} with specifyvlan=true can only be operated by root admin",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "persistedExpectedDescription": false,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "owner",
+    "operation": "nic-add-shared",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "a8a685fe-41b1-448a-891e-2e45ab65a8ce",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "18e95d43-a5e4-4fe3-9bb2-90bb894a905a",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "nicPresent": true,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "owner",
+    "operation": "nic-remove-shared",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "2b9fb0fc-a6dd-414e-8302-d7e2e9b5156f",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "1b2b7faf-de72-4f44-a2db-f9071d33dbb9",
+    "jobStatus": 1,
+    "jobResultCode": 0
+  },
+  {
+    "role": "member",
+    "operation": "create-l2",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-32-prj-api-member-l2",
+      "displaytext": "API project role member",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+      "acltype": "Account"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "role": "member",
+    "operation": "update-nat",
+    "command": "updateNetwork",
+    "params": {
+      "id": "d58e60cb-b88f-48ed-b5e7-eee0fccf8aec",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 member nat"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "93f80264-37e2-4e5b-b98a-32e6a7bd0de6",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "persistedExpectedDescription": true,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "member",
+    "operation": "nic-add-nat",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "d58e60cb-b88f-48ed-b5e7-eee0fccf8aec",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "ff7e71dd-91c6-4f03-87b9-6cb0bc81c6dc",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "nicPresent": true,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "member",
+    "operation": "nic-remove-nat",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "c97aa1bf-3bde-4dbe-9700-85ebd7cbde20",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "142af959-356c-4ce3-863c-f5adc2ce7326",
+    "jobStatus": 1,
+    "jobResultCode": 0
+  },
+  {
+    "role": "member",
+    "operation": "update-l2",
+    "command": "updateNetwork",
+    "params": {
+      "id": "e95802c5-94a0-48a6-a810-16f0a4ae7bb3",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 member l2"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "e2fb586b-99f0-4c28-a432-2868b7746a97",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "persistedExpectedDescription": true,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "member",
+    "operation": "nic-add-l2",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "e95802c5-94a0-48a6-a810-16f0a4ae7bb3",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "2853e06e-1ff9-4ec2-8834-4fae32c1f9c3",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "nicPresent": true,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "member",
+    "operation": "nic-remove-l2",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "f91d6c52-711d-4a78-853e-a3580e7ad192",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "a9fb11cf-e662-49f8-8fa9-305a479ae49a",
+    "jobStatus": 1,
+    "jobResultCode": 0
+  },
+  {
+    "role": "member",
+    "operation": "update-shared",
+    "command": "updateNetwork",
+    "params": {
+      "id": "a8a685fe-41b1-448a-891e-2e45ab65a8ce",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 member shared"
+    },
+    "accepted": false,
+    "errorCode": 531,
+    "errorText": "Shared network Network {\"id\": 420, \"name\": \"qa-gn1569-32-prj-shared\", \"uuid\": \"a8a685fe-41b1-448a-891e-2e45ab65a8ce\", \"networkofferingid\": 82} with specifyvlan=true can only be operated by root admin",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "persistedExpectedDescription": false,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "member",
+    "operation": "nic-add-shared",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "a8a685fe-41b1-448a-891e-2e45ab65a8ce",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "78e00398-628a-4a25-9818-a63e210233e9",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "nicPresent": true,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "member",
+    "operation": "nic-remove-shared",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "49055054-1151-4122-99e7-b4a8bff24286",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "79dc6661-77b4-428f-9872-3d30db389cdd",
+    "jobStatus": 1,
+    "jobResultCode": 0
+  },
+  {
+    "role": "readonly",
+    "operation": "create-l2",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-32-prj-api-readonly-l2",
+      "displaytext": "API project role readonly",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+      "acltype": "Account"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'createNetwork' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "role": "readonly",
+    "operation": "update-nat",
+    "command": "updateNetwork",
+    "params": {
+      "id": "d58e60cb-b88f-48ed-b5e7-eee0fccf8aec",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 readonly nat"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'updateNetwork' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "persistedExpectedDescription": false,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "readonly",
+    "operation": "nic-add-nat",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "d58e60cb-b88f-48ed-b5e7-eee0fccf8aec",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'addNicToVirtualMachine' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "nicPresent": false,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "readonly",
+    "operation": "update-l2",
+    "command": "updateNetwork",
+    "params": {
+      "id": "e95802c5-94a0-48a6-a810-16f0a4ae7bb3",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 readonly l2"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'updateNetwork' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "persistedExpectedDescription": false,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "readonly",
+    "operation": "nic-add-l2",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "e95802c5-94a0-48a6-a810-16f0a4ae7bb3",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'addNicToVirtualMachine' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "nicPresent": false,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "readonly",
+    "operation": "update-shared",
+    "command": "updateNetwork",
+    "params": {
+      "id": "a8a685fe-41b1-448a-891e-2e45ab65a8ce",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 readonly shared"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'updateNetwork' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "persistedExpectedDescription": false,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "readonly",
+    "operation": "nic-add-shared",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "a8a685fe-41b1-448a-891e-2e45ab65a8ce",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'addNicToVirtualMachine' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "nicPresent": false,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "peer",
+    "operation": "create-l2",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-32-prj-api-peer-l2",
+      "displaytext": "API project role peer",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+      "acltype": "Account"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [createNetwork] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "role": "peer",
+    "operation": "update-nat",
+    "command": "updateNetwork",
+    "params": {
+      "id": "d58e60cb-b88f-48ed-b5e7-eee0fccf8aec",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 peer nat"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [updateNetwork] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "persistedExpectedDescription": false,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "peer",
+    "operation": "nic-add-nat",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "d58e60cb-b88f-48ed-b5e7-eee0fccf8aec",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [addNicToVirtualMachine] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "nicPresent": false,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "peer",
+    "operation": "update-l2",
+    "command": "updateNetwork",
+    "params": {
+      "id": "e95802c5-94a0-48a6-a810-16f0a4ae7bb3",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 peer l2"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [updateNetwork] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "persistedExpectedDescription": false,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "peer",
+    "operation": "nic-add-l2",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "e95802c5-94a0-48a6-a810-16f0a4ae7bb3",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [addNicToVirtualMachine] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "nicPresent": false,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "peer",
+    "operation": "update-shared",
+    "command": "updateNetwork",
+    "params": {
+      "id": "a8a685fe-41b1-448a-891e-2e45ab65a8ce",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 peer shared"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [updateNetwork] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "persistedExpectedDescription": false,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "peer",
+    "operation": "nic-add-shared",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "a8a685fe-41b1-448a-891e-2e45ab65a8ce",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [addNicToVirtualMachine] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "nicPresent": false,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "outsider",
+    "operation": "create-l2",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-32-prj-api-outsider-l2",
+      "displaytext": "API project role outsider",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+      "acltype": "Account"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [createNetwork] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null
+  },
+  {
+    "role": "outsider",
+    "operation": "update-nat",
+    "command": "updateNetwork",
+    "params": {
+      "id": "d58e60cb-b88f-48ed-b5e7-eee0fccf8aec",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 outsider nat"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [updateNetwork] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "persistedExpectedDescription": false,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "outsider",
+    "operation": "nic-add-nat",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "d58e60cb-b88f-48ed-b5e7-eee0fccf8aec",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [addNicToVirtualMachine] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "nicPresent": false,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "outsider",
+    "operation": "update-l2",
+    "command": "updateNetwork",
+    "params": {
+      "id": "e95802c5-94a0-48a6-a810-16f0a4ae7bb3",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 outsider l2"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [updateNetwork] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "persistedExpectedDescription": false,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "outsider",
+    "operation": "nic-add-l2",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "e95802c5-94a0-48a6-a810-16f0a4ae7bb3",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [addNicToVirtualMachine] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "nicPresent": false,
+    "defaultNicPreserved": true
+  },
+  {
+    "role": "outsider",
+    "operation": "update-shared",
+    "command": "updateNetwork",
+    "params": {
+      "id": "a8a685fe-41b1-448a-891e-2e45ab65a8ce",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1569 outsider shared"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [updateNetwork] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "persistedExpectedDescription": false,
+    "projectOwnerVerified": true
+  },
+  {
+    "role": "outsider",
+    "operation": "nic-add-shared",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "a8a685fe-41b1-448a-891e-2e45ab65a8ce",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [addNicToVirtualMachine] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "nicPresent": false,
+    "defaultNicPreserved": true
+  }
+]

@@ -63,7 +63,7 @@
 
     <div class="actions">
       <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
-      <a-button type="primary" ref="submit" :disabled="!selectedNetwork" @click="submitForm">{{ $t('label.ok') }}</a-button>
+      <a-button type="primary" ref="submit" :disabled="loading || !selectedNetwork" @click="submitForm">{{ $t('label.ok') }}</a-button>
     </div>
 
   </div>
@@ -83,10 +83,7 @@ export default {
       type: String,
       required: true
     },
-    isOpen: {
-      type: Boolean,
-      required: false
-    }
+    owner: Object
   },
   data () {
     return {
@@ -97,6 +94,7 @@ export default {
       page: 1,
       pageSize: 10,
       selectedNetwork: null,
+      requestVersion: 0,
       columns: [
         {
           key: 'name',
@@ -125,40 +123,58 @@ export default {
       ]
     }
   },
-  created () {
-    this.fetchNetworks()
-    this.preselectNetwork()
-  },
-  watch: {
-    isOpen (newValue) {
-      if (newValue) {
-        setTimeout(() => {
-          this.reset()
-        }, 50)
-      }
+  computed: {
+    ownership () {
+      const { project, userInfo } = this.$store.getters
+      const owner = this.owner || { projectid: project?.id, domainid: userInfo.domainid, account: userInfo.account }
+      return owner.projectid ? { projectid: owner.projectid } : { domainid: owner.domainid, account: owner.account }
+    },
+    scope () {
+      const { userInfo } = this.$store.getters
+      return JSON.stringify([this.zoneid, this.resource.id, this.ownership, userInfo?.id, userInfo?.roleid, this.$store.state?.user?.token])
     }
   },
+  created () {
+    this.fetchNetworks(this.resource.selectednetworkid)
+  },
+  watch: {
+    scope () {
+      this.clearView()
+      this.fetchNetworks()
+    }
+  },
+  beforeUnmount () { this.requestVersion++ },
   methods: {
-    fetchNetworks () {
+    async fetchNetworks (preselectId) {
+      const version = ++this.requestVersion
+      const scope = this.scope
+      const current = () => version === this.requestVersion && scope === this.scope
       this.loading = true
-      var params = {
+      const params = {
         zoneid: this.zoneid,
         keyword: this.searchQuery,
         page: this.page,
         pagesize: this.pageSize,
         canusefordeploy: true,
-        projectid: this.$store.getters.project ? this.$store.getters.project.id : null,
-        domainid: this.$store.getters.project && this.$store.getters.project.id ? null : this.$store.getters.userInfo.domainid,
-        account: this.$store.getters.project && this.$store.getters.project.id ? null : this.$store.getters.userInfo.account
+        ignoreproject: true,
+        ...this.ownership
       }
-      getAPI('listNetworks', params).then(response => {
-        this.networks = response.listnetworksresponse.network || []
-        this.totalCount = response.listnetworksresponse.count
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.loading = false
-      })
+      try {
+        const response = await getAPI('listNetworks', params, { preserveOnFailure: true })
+        if (!current()) return
+        this.networks = (response.listnetworksresponse.network || []).filter(row => row.zoneid === this.zoneid)
+        this.totalCount = response.listnetworksresponse.count ?? 0
+        if (typeof preselectId === 'string') this.selectedNetwork = this.networks.find(row => row.id === preselectId) || null
+      } catch (error) {
+        if (current()) {
+          this.networks = []
+          this.selectedNetwork = null
+          this.totalCount = 0
+          this.$notifyError(error)
+        }
+      } finally {
+        if (current()) this.loading = false
+      }
     },
     handleChangePage (page, pageSize) {
       this.page = page
@@ -170,11 +186,6 @@ export default {
       this.pageSize = pageSize
       this.fetchNetworks()
     },
-    preselectNetwork () {
-      if (this.resource && 'selectednetworkid' in this.resource) {
-        this.selectedNetwork = { id: this.resource.selectednetworkid }
-      }
-    },
     clearView () {
       this.networks = []
       this.searchQuery = ''
@@ -182,11 +193,6 @@ export default {
       this.page = 1
       this.pageSize = 10
       this.selectedNetwork = null
-    },
-    reset () {
-      this.clearView()
-      this.preselectNetwork()
-      this.fetchNetworks()
     },
     updateSelection (network) {
       this.selectedNetwork = network
@@ -200,6 +206,7 @@ export default {
       }
     },
     submitForm () {
+      if (this.loading || !this.selectedNetwork) return
       this.$emit('select', this.resource.id, this.selectedNetwork)
       this.closeModal()
     }

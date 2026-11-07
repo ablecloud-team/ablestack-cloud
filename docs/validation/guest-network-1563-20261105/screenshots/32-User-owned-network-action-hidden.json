@@ -1,0 +1,29 @@
+{
+  "body": null,
+  "colors": [],
+  "content": null,
+  "dark": true,
+  "dialog": null,
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "BODY"
+  },
+  "footer": null,
+  "header": null,
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 822,
+    "left": 256,
+    "right": 1270,
+    "top": 78,
+    "width": 1014,
+    "x": 256,
+    "y": 78
+  },
+  "primaryButton": null,
+  "width": 1280,
+  "image_sha256": "1991166dad61a57f95f632eec96c5561d4d23fac48fef3ba288687030d496ab4"
+}

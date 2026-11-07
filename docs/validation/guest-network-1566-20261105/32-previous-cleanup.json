@@ -1,0 +1,83 @@
+[
+  {
+    "command": "destroyVirtualMachine",
+    "args": {
+      "id": "0b9bc0cc-348f-4b82-bc57-8b72074a47ac",
+      "expunge": "true"
+    },
+    "result": {
+      "virtualmachine": {
+        "volumemutationblockedreason": "",
+        "securitygroup": [],
+        "nic": [],
+        "affinitygroup": [],
+        "deleteprotection": false,
+        "tags": []
+      }
+    }
+  },
+  {
+    "command": "deleteNetwork",
+    "args": {
+      "id": "7f279b12-d465-486a-8cb8-2779db98f509"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteNetwork",
+    "args": {
+      "id": "91c1c365-1c9e-4d7b-adc2-1a637b997787"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteNetwork",
+    "args": {
+      "id": "c209a465-1926-4669-bcd6-09f64baa285e"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteNetwork",
+    "args": {
+      "id": "55bf7bcd-d4bb-4589-9080-5955ae95d5ce"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteAccount",
+    "args": {
+      "id": "0e3adebe-0d0e-4edd-b0fe-dba5ac66e1fd"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteAccount",
+    "args": {
+      "id": "b91c5591-a654-4396-a9b7-8da7165fa97e"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteDomain",
+    "args": {
+      "id": "dc47efb0-6557-41fb-a5f0-f583aa9cf51c",
+      "cleanup": "true"
+    },
+    "result": {
+      "success": true
+    }
+  }
+]

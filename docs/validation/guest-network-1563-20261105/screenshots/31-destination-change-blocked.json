@@ -1,0 +1,99 @@
+{
+  "body": {
+    "bottom": 800,
+    "height": 710,
+    "left": 161,
+    "right": 1119,
+    "top": 90,
+    "width": 958,
+    "x": 161,
+    "y": 90
+  },
+  "bodyClientHeight": 710,
+  "bodyClientWidth": 948,
+  "bodyScrollHeight": 1109,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 948,
+  "colors": [
+    {
+      "background": "rgb(255, 241, 240)",
+      "color": "rgb(112, 27, 27)",
+      "text": "검토 이후 네트워크·VM/NIC·오퍼링·목적 물리망 정보가 바뀌었습니다. 다시 조회하고 영향을 확인하세요."
+    },
+    {
+      "background": "rgb(8, 86, 182)",
+      "color": "rgb(255, 255, 255)",
+      "text": "마이그레이션 시작"
+    }
+  ],
+  "content": {
+    "bottom": 866,
+    "height": 832,
+    "left": 160,
+    "right": 1120,
+    "top": 34,
+    "width": 960,
+    "x": 160,
+    "y": 34
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1280,
+    "top": 0,
+    "width": 1280,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": {
+    "bottom": 865,
+    "height": 65,
+    "left": 161,
+    "right": 1119,
+    "top": 800,
+    "width": 958,
+    "x": 161,
+    "y": 800
+  },
+  "header": {
+    "bottom": 90,
+    "height": 55,
+    "left": 161,
+    "right": 1119,
+    "top": 35,
+    "width": 958,
+    "x": 161,
+    "y": 35
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 776,
+    "left": 256,
+    "right": 1270,
+    "top": 124,
+    "width": 1014,
+    "x": 256,
+    "y": 124
+  },
+  "primaryButton": {
+    "bottom": 849,
+    "height": 32,
+    "left": 952.125,
+    "right": 1091,
+    "top": 817,
+    "width": 138.875,
+    "x": 952.125,
+    "y": 817
+  },
+  "width": 1280,
+  "image_sha256": "c22d0d3f9922d73aab0a51ccd3d7059c74ef9b51fe30781dcf142295d8b27f99"
+}

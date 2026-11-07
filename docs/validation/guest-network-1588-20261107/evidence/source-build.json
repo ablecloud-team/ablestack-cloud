@@ -1,0 +1,27 @@
+{
+  "sourceCommits": [
+    "9a29e0b0eb498fe38599c2b5c98339b47e7e8db2",
+    "89715f3dd1e23f77614625ad07a24d4348bc68e9",
+    "de074e8ac167e0efffddf6c1d56e8bc81440c6db"
+  ],
+  "sourceHashes": {
+    "plugins/acl/project-role-based/src/main/java/org/apache/cloudstack/acl/ProjectRoleBasedApiAccessChecker.java": "7f2c890ff928c7e13dba9ab43826334a403c033f9c602b889cb6746cc55fe9ba",
+    "plugins/acl/project-role-based/src/test/java/org/apache/cloudstack/acl/ProjectRoleBasedApiAccessCheckerTest.java": "e84d609b03a6a511a352d9a14a530e4c967b90b58780e94f7195a3185d5dd94c",
+    "server/src/main/java/com/cloud/api/query/QueryManagerImpl.java": "2b7a35b3d1d1605dea3f305f271c202bd851d5808d4395f093ce80e294fa35ae",
+    "server/src/test/java/com/cloud/api/query/ProjectDomainQueryTest.java": "9c56b8f7689600c7050834a752ae59fe30990c0ab9348d4cc2e4328d84a094d1",
+    "ui/src/components/header/ProjectMenu.vue": "c59984d18bbacb5077965d4852276b04d8fe508077dedd0af7bef7efac0d1980"
+  },
+  "wslExt4": "/home/ablecloud/work/dhslove/cloud-epic-1554",
+  "focusedTests": {
+    "ProjectRoleBasedApiAccessCheckerTest": 12,
+    "ProjectDomainQueryTest": 4,
+    "QueryManagerGuestNetworkTest": 1,
+    "projectApiMetadataAndOptionalDiscovery": 27
+  },
+  "focusedFailures": 0,
+  "changedJavaCheckstyleViolations": 0,
+  "serverModuleBaselineCheckstyleViolations": 62,
+  "uiChangedFileEslintExit": 0,
+  "fullCloudBuild": false,
+  "githubActionsStarted": false
+}

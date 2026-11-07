@@ -1,0 +1,11 @@
+{
+  "accounts": 10,
+  "fields": [
+    "networktotal",
+    "networkavailable",
+    "networklimit",
+    "vmtotal",
+    "volumetotal"
+  ],
+  "changes": []
+}

@@ -1,0 +1,48 @@
+[
+  {
+    "cluster": 31,
+    "read": {
+      "synthetic": true,
+      "command": "listNetworks",
+      "count": 2
+    },
+    "permission": {
+      "synthetic": true,
+      "mode": "permission",
+      "posts": 1,
+      "polls": 0,
+      "serverWrites": 0
+    },
+    "job": {
+      "synthetic": true,
+      "mode": "job",
+      "posts": 1,
+      "polls": 1,
+      "serverWrites": 0
+    },
+    "finalRetryEnabled": true
+  },
+  {
+    "cluster": 32,
+    "read": {
+      "synthetic": true,
+      "command": "listNetworks",
+      "count": 1
+    },
+    "permission": {
+      "synthetic": true,
+      "mode": "permission",
+      "posts": 1,
+      "polls": 0,
+      "serverWrites": 0
+    },
+    "job": {
+      "synthetic": true,
+      "mode": "job",
+      "posts": 1,
+      "polls": 1,
+      "serverWrites": 0
+    },
+    "finalRetryEnabled": true
+  }
+]

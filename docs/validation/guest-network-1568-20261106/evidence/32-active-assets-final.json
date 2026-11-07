@@ -1,0 +1,14 @@
+{
+  "WEB-INF": true,
+  "http": 200,
+  "indexSha256": "db63b4a20dc467aee619d523513053b0ba91d5f49bf15dc30b1b618d78225773",
+  "jarSha256": "53895b2fa85d4c4ddafe35d870e383108a3861301d3ee3a2b2aa52a2112aed6a",
+  "markers": {
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true,
+    "network-delete-dialog": true,
+    "network-mutation-status": true
+  },
+  "moldPid": "974019"
+}

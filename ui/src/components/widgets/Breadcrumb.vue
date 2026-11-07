@@ -20,7 +20,7 @@
     <a-breadcrumb-item v-for="(item, index) in breadList" :key="index">
       <router-link
         v-if="item && item.name && !tungstenPaths.includes(item.path)"
-        :to="{ path: item.path === '' ? '/' : item.path }"
+        :to="breadcrumbLocation(item)"
       >
         <render-icon v-if="index == 0" :icon="item.meta.icon" style="font-size: 16px" @click="resetToMainView" />
         <span v-if="item.meta.title">{{ $t(item.meta.title) }}</span>
@@ -67,6 +67,7 @@
 </template>
 
 <script>
+import { networkListLocation } from '@/utils/guestNetworkSearch'
 import { documentationUrl } from '@/utils/cniFileImport'
 
 export default {
@@ -97,6 +98,7 @@ export default {
   },
   methods: {
     documentationUrl,
+    breadcrumbLocation (item) { return item.path === '/guestnetwork' && this.$route.meta?.name === 'guestnetwork' && this.$route.params?.id ? networkListLocation(this.$route) : { path: item.path === '' ? '/' : item.path } },
     getBreadcrumb () {
       this.name = this.$route.name
       this.breadList = []

@@ -60,7 +60,7 @@ showQuickJumper>
 </template>
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
-import { detailTabContext, detailTabDenied, detailTabError, readDetailTabPage } from '@/utils/detailTabData'
+import { detailTabContext, detailTabDenied, detailTabError, detailTabProject, readDetailTabPage } from '@/utils/detailTabData'
 import { getAPI } from '@/api'
 import { genericCompare } from '@/utils/sort.js'
 import ListView from '@/components/view/ListView'
@@ -91,7 +91,7 @@ export default {
       const context = this.eventContext
       this.tabLoading = !request.loaded
       if (!request.loaded) { this.events = []; this.totalCount = 0; this.loadedContext = '' }
-      const params = { page: this.page, pagesize: this.pageSize, resourceid: this.resource.id, resourcetype: this.resourceType, listall: true, ...(this.resource.projectid ? { projectid: this.resource.projectid } : {}), ...(this.keyword ? { keyword: this.keyword } : {}) }
+      const params = { page: this.page, pagesize: this.pageSize, resourceid: this.resource.id, resourcetype: this.resourceType, listall: true, ...detailTabProject(this), ...(this.keyword ? { keyword: this.keyword } : {}) }
       try {
         const json = await getAPI('listEvents', params, { preserveOnFailure: true, timeout: 20000 })
         if (!this.isListRequestCurrent('fetchEvents', request)) return

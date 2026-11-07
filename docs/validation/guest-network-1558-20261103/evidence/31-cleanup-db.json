@@ -1,0 +1,10 @@
+{
+  "active_counts": {
+    "networks": 0,
+    "nics": 0,
+    "routers": 0,
+    "volumes": 0
+  },
+  "VM_or_router_provisioning_rows_ever_created": 0,
+  "all_existing_inventory_preserved": true
+}

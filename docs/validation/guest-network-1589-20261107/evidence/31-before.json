@@ -1,0 +1,398 @@
+{
+  "cluster": 31,
+  "projectId": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+  "roleId": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+  "errors": {
+    "listApis": {
+      "errorcode": 401,
+      "errortext": "The given command 'listApis' either does not exist, is not available for user."
+    },
+    "listNetworks": {
+      "errorcode": 401,
+      "errortext": "The given command 'listNetworks' either does not exist, is not available for user."
+    },
+    "listVirtualMachines": {
+      "errorcode": 401,
+      "errortext": "The given command 'listVirtualMachines' either does not exist, is not available for user."
+    }
+  },
+  "defaultApiCount": 465,
+  "members": [
+    {
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "project": "qa-gn1569-31-project",
+      "accountid": "73353822-7ca2-4187-8ef6-405e027fb1e9",
+      "account": "qa-gn1569-31-readonly",
+      "accounttype": 0,
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "role": "Regular",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+      "domain": "qa-gn1569-31-domain",
+      "domainpath": "ROOT/qa-gn1569-31-domain",
+      "user": [
+        {
+          "id": "668b9c64-d5ba-4afd-89bf-4c9d7133c802",
+          "username": "qa-gn1569-31-readonly",
+          "firstname": "Project",
+          "lastname": "QA1569",
+          "email": "qa-gn1569-31-readonly@example.invalid",
+          "created": "2026-11-07T16:49:32+0900",
+          "state": "enabled",
+          "account": "qa-gn1569-31-readonly",
+          "accounttype": 0,
+          "usersource": "native",
+          "roleid": "9270b33d-b253-11f1-a895-0024814c313f",
+          "roletype": "User",
+          "rolename": "User",
+          "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+          "domain": "qa-gn1569-31-domain",
+          "accountid": "73353822-7ca2-4187-8ef6-405e027fb1e9",
+          "iscallerchilddomain": false,
+          "isdefault": false,
+          "is2faenabled": false,
+          "is2famandated": false
+        }
+      ]
+    },
+    {
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "project": "qa-gn1569-31-project",
+      "accountid": "0f0cc814-dae9-4615-9124-bdd0b701242a",
+      "account": "qa-gn1569-31-member",
+      "accounttype": 0,
+      "role": "Regular",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+      "domain": "qa-gn1569-31-domain",
+      "domainpath": "ROOT/qa-gn1569-31-domain",
+      "user": [
+        {
+          "id": "042cc6ec-0536-4e69-9c93-8d75ad0de500",
+          "username": "qa-gn1569-31-member",
+          "firstname": "Project",
+          "lastname": "QA1569",
+          "email": "qa-gn1569-31-member@example.invalid",
+          "created": "2026-11-07T16:49:32+0900",
+          "state": "enabled",
+          "account": "qa-gn1569-31-member",
+          "accounttype": 0,
+          "usersource": "native",
+          "roleid": "9270b33d-b253-11f1-a895-0024814c313f",
+          "roletype": "User",
+          "rolename": "User",
+          "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+          "domain": "qa-gn1569-31-domain",
+          "accountid": "0f0cc814-dae9-4615-9124-bdd0b701242a",
+          "iscallerchilddomain": false,
+          "isdefault": false,
+          "is2faenabled": false,
+          "is2famandated": false
+        }
+      ]
+    },
+    {
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "project": "qa-gn1569-31-project",
+      "accountid": "0f981bb7-b32c-4766-a990-6974c224d4d4",
+      "account": "qa-gn1569-31-owner",
+      "accounttype": 0,
+      "role": "Admin",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+      "domain": "qa-gn1569-31-domain",
+      "domainpath": "ROOT/qa-gn1569-31-domain",
+      "user": [
+        {
+          "id": "8c56c525-7ba6-4acd-9233-5852c75d885c",
+          "username": "qa-gn1569-31-owner",
+          "firstname": "Network",
+          "lastname": "QA1569",
+          "email": "qa-gn1569-31-owner@example.invalid",
+          "created": "2026-11-06T17:48:38+0900",
+          "state": "enabled",
+          "account": "qa-gn1569-31-owner",
+          "accounttype": 0,
+          "usersource": "native",
+          "roleid": "9270b33d-b253-11f1-a895-0024814c313f",
+          "roletype": "User",
+          "rolename": "User",
+          "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+          "domain": "qa-gn1569-31-domain",
+          "accountid": "0f981bb7-b32c-4766-a990-6974c224d4d4",
+          "iscallerchilddomain": false,
+          "isdefault": false,
+          "is2faenabled": false,
+          "is2famandated": false
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "570ed7c1-131d-400c-ae04-613edfef3dd9",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "createNetwork",
+      "permission": "deny"
+    },
+    {
+      "id": "9bf10721-d5ca-4be8-8970-e2d3551ab3b4",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "updateNetwork",
+      "permission": "deny"
+    },
+    {
+      "id": "ba2f750a-7589-4cd5-90f6-c70b01815ae5",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "addNicToVirtualMachine",
+      "permission": "deny"
+    },
+    {
+      "id": "e195a191-5735-4c14-8679-b1ef9a6dd3e6",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "removeNicFromVirtualMachine",
+      "permission": "deny"
+    },
+    {
+      "id": "f5bd459f-84c3-48ec-9fe5-7c3c9dc29205",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "list*",
+      "permission": "allow"
+    },
+    {
+      "id": "c5b26baf-08ee-41f9-8224-ac4357973cc5",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "get*",
+      "permission": "allow"
+    },
+    {
+      "id": "748984c2-a45f-4dc3-964f-200f5725db9b",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "queryAsyncJobResult",
+      "permission": "allow"
+    },
+    {
+      "id": "c77c32ec-bbd3-4e4f-a8d4-554e56bf16c7",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "listApis",
+      "permission": "allow"
+    },
+    {
+      "id": "2e90f44e-5d9d-4c53-97e2-f7db59095f05",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "listNetworks",
+      "permission": "allow"
+    },
+    {
+      "id": "4cb5b3fc-0319-4377-9e66-26979f6f6255",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "listVirtualMachines",
+      "permission": "allow"
+    }
+  ],
+  "networkCount": 18,
+  "networks": [
+    {
+      "id": "2e36c615-ded0-4006-84ca-d210708b6250",
+      "name": "qa-gn1569-31-prj-1588-l2",
+      "displaytext": "UI1588 saved 31",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "type": "L2",
+      "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193"
+    },
+    {
+      "id": "39e5b141-b9e0-499e-862d-9b4d29f6a734",
+      "name": "qa-gn1569-31-prj-1588-api-l2",
+      "displaytext": "API1588 saved apiNetwork",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "type": "L2",
+      "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193"
+    },
+    {
+      "id": "728d66ef-7c24-4708-b5e3-33f687528456",
+      "name": "qa-gn1569-31-prj-1587-l2",
+      "displaytext": "UI1587 saved 31",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "type": "L2",
+      "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193"
+    },
+    {
+      "id": "75fa4086-e446-485e-b4d9-991f01760e72",
+      "name": "qa-gn1569-31-prj-ui-member-l2",
+      "displaytext": "UI project member",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "type": "L2",
+      "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193"
+    },
+    {
+      "id": "f7145035-588f-4ccc-b249-07187376bd12",
+      "name": "qa-gn1569-31-prj-api-member-shared-auto",
+      "displaytext": "API project Shared member",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "type": "Shared",
+      "networkofferingid": "a8293b1d-5a1c-427a-b8e9-8faa2926fc61"
+    },
+    {
+      "id": "5c033c7a-1bdd-444e-b643-b01ac68135f9",
+      "name": "qa-gn1569-31-prj-api-owner-shared-auto",
+      "displaytext": "API project Shared owner",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "type": "Shared",
+      "networkofferingid": "a8293b1d-5a1c-427a-b8e9-8faa2926fc61"
+    },
+    {
+      "id": "18ba1a94-154a-4c68-851f-5bad2a29d6c2",
+      "name": "qa-gn1569-31-prj-api-domainadmin-shared-auto",
+      "displaytext": "API project Shared domainadmin",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "type": "Shared",
+      "networkofferingid": "a8293b1d-5a1c-427a-b8e9-8faa2926fc61"
+    },
+    {
+      "id": "d3060d03-3628-4a0c-af76-396a02933303",
+      "name": "qa-gn1569-31-prj-api-admin-shared-auto",
+      "displaytext": "API project Shared admin",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "type": "Shared",
+      "networkofferingid": "a8293b1d-5a1c-427a-b8e9-8faa2926fc61"
+    },
+    {
+      "id": "9894fbc3-27aa-49ac-8a60-cd6095331181",
+      "name": "qa-gn1569-31-prj-shared-auto",
+      "displaytext": "UI1569 owner shared-auto",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "type": "Shared",
+      "networkofferingid": "a8293b1d-5a1c-427a-b8e9-8faa2926fc61"
+    },
+    {
+      "id": "f44335b0-d824-4693-bd02-c2995a7afe06",
+      "name": "qa-gn1569-31-prj-ui-owner-l2",
+      "displaytext": "UI project owner creation",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "type": "L2",
+      "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193"
+    },
+    {
+      "id": "af09c1b5-544c-41a0-a309-40ab097185b4",
+      "name": "qa-gn1569-31-prj-api-member-l2",
+      "displaytext": "API project role member",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "type": "L2",
+      "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193"
+    },
+    {
+      "id": "ba2403f9-b4b7-43c3-8a69-ca68dec59390",
+      "name": "qa-gn1569-31-prj-api-owner-l2",
+      "displaytext": "API project role owner",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "type": "L2",
+      "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193"
+    },
+    {
+      "id": "fe81ba7d-e09d-43dd-b79f-92e2aa86e396",
+      "name": "qa-gn1569-31-prj-api-domainadmin-l2",
+      "displaytext": "API project role domainadmin",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "type": "L2",
+      "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193"
+    },
+    {
+      "id": "7f0f6875-3031-4dec-8f2f-f5a1954ca86f",
+      "name": "qa-gn1569-31-prj-api-admin-l2",
+      "displaytext": "API project role admin",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "type": "L2",
+      "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193"
+    },
+    {
+      "id": "424a28d7-1a3a-4b1f-974a-d09126fe7e46",
+      "name": "qa-gn1569-31-prj-base",
+      "displaytext": "QA1569 project scope base",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "type": "Shared",
+      "networkofferingid": "9536fc31-54ab-4c31-9200-77dddf1e1d3c"
+    },
+    {
+      "id": "a758c862-e03e-4df1-81b9-4443b76b74ab",
+      "name": "qa-gn1569-31-prj-shared",
+      "displaytext": "API1569 admin shared",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "type": "Shared",
+      "networkofferingid": "9536fc31-54ab-4c31-9200-77dddf1e1d3c"
+    },
+    {
+      "id": "d3669d88-bfdd-4053-8ef7-a58ea34808ad",
+      "name": "qa-gn1569-31-prj-l2",
+      "displaytext": "UI1569 member l2",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "type": "L2",
+      "networkofferingid": "8097eb7e-8311-434c-afd1-98ba6f95e193"
+    },
+    {
+      "id": "fe5b298f-f78e-49ea-b9e2-36e22c0ebdc1",
+      "name": "qa-gn1569-31-prj-nat",
+      "displaytext": "UI1569 owner nat",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "type": "Isolated",
+      "networkofferingid": "5b8d528b-6af2-47a5-9488-aa8d2f9f8b66"
+    }
+  ],
+  "vm": {
+    "id": "625141be-7145-4557-9d8f-731500c61cb0",
+    "name": "qa-gn1569-31-prj-vm",
+    "state": "Running",
+    "hostname": "ablecube31-3",
+    "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+  },
+  "nics": [
+    {
+      "id": "e5cafb2d-5498-4f34-9e9b-db51c7562981",
+      "networkid": "424a28d7-1a3a-4b1f-974a-d09126fe7e46",
+      "networkname": "qa-gn1569-31-prj-base",
+      "isdefault": true,
+      "ipaddress": "10.180.31.25",
+      "macaddress": "1e:1f:3d:00:02:ee"
+    },
+    {
+      "id": "2e9e6ead-febc-4838-a88a-cd03c622d704",
+      "networkid": "d3669d88-bfdd-4053-8ef7-a58ea34808ad",
+      "networkname": "qa-gn1569-31-prj-l2",
+      "isdefault": false,
+      "ipaddress": null,
+      "macaddress": "02:1f:02:16:00:07"
+    },
+    {
+      "id": "15b9c87e-f054-488a-a6df-d1f86ca5483c",
+      "networkid": "728d66ef-7c24-4708-b5e3-33f687528456",
+      "networkname": "qa-gn1569-31-prj-1587-l2",
+      "isdefault": false,
+      "ipaddress": null,
+      "macaddress": "02:1f:02:24:00:01"
+    },
+    {
+      "id": "4af5028e-f034-459d-a40b-5cfca887b2bd",
+      "networkid": "2e36c615-ded0-4006-84ca-d210708b6250",
+      "networkname": "qa-gn1569-31-prj-1588-l2",
+      "isdefault": false,
+      "ipaddress": null,
+      "macaddress": "02:1f:02:28:00:01"
+    }
+  ]
+}

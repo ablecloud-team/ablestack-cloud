@@ -1,0 +1,18 @@
+{
+  "files": 650,
+  "hash_mismatches": [],
+  "markers": {
+    "networkTabsReady": true,
+    "networkTabScope": true,
+    "network-rules-guidance": true,
+    "network-rule-dialog": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  },
+  "WEB_INF": true,
+  "protected_files_unchanged": true,
+  "mold_pid_unchanged": true,
+  "http": 200,
+  "index_sha256": "68d52a297e0f8899efeff36af3b6536de078fcdfa8d91a7543cb8591e4aa9cd1"
+}

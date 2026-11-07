@@ -1,0 +1,52 @@
+{
+  "schema": "gateway\tvarchar(255)\tYES\t\tNULL\t\ncidr\tvarchar(255)\tYES\t\tNULL\t\nip6_gateway\tvarchar(1024)\tYES\t\tNULL\t\nip6_cidr\tvarchar(1024)\tYES\t\tNULL\t\n",
+  "ranges": {
+    "listvlaniprangesresponse": {
+      "count": 2,
+      "vlaniprange": [
+        {
+          "id": "c930cb2d-e43e-43b5-80cf-0643b5a2093e",
+          "forvirtualnetwork": false,
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "vlan": "651",
+          "account": "system",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "gateway": "172.27.31.1",
+          "netmask": "255.255.255.0",
+          "cidr": "172.27.31.0/24",
+          "startip": "172.27.31.10",
+          "endip": "172.27.31.20",
+          "networkid": "903d1def-9929-4755-82ec-69296b6847fd",
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "startipv6": "fd31:1557::10",
+          "endipv6": "fd31:1557::20",
+          "ip6gateway": "fd31:1557::1",
+          "ip6cidr": "fd31:1557::/64",
+          "forsystemvms": false
+        },
+        {
+          "id": "88dec8ae-1998-403d-80db-aa5a22605e1d",
+          "forvirtualnetwork": false,
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "vlan": "651",
+          "account": "system",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "gateway": "172.27.31.1",
+          "netmask": "255.255.255.0",
+          "cidr": "172.27.31.0/24",
+          "networkid": "903d1def-9929-4755-82ec-69296b6847fd",
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "startipv6": "fd31:1557::30",
+          "endipv6": "fd31:1557::35",
+          "ip6gateway": "fd31:1557::1",
+          "ip6cidr": "fd31:1557::/64",
+          "forsystemvms": false
+        }
+      ]
+    }
+  }
+}

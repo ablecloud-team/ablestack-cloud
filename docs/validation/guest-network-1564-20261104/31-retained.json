@@ -1,0 +1,207 @@
+{
+  "cluster": 31,
+  "networks": [
+    {
+      "key": "shared-false",
+      "id": "00cb5c3a-198a-449f-915d-e3b9d6212f66",
+      "name": "qa-gn1564-31-shared-false",
+      "type": "Shared",
+      "state": "Setup",
+      "acltype": "Account",
+      "subdomainaccess": null,
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "projectid": null,
+      "details": {
+        "hideIpAddressUsage": "false"
+      },
+      "vlan": "3600",
+      "cidr": "10.46.31.0/24",
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/00cb5c3a-198a-449f-915d-e3b9d6212f66"
+    },
+    {
+      "key": "shared-true",
+      "id": "8fbf5ecf-6b69-4b19-aad2-a64fdbcd80a2",
+      "name": "qa-gn1564-31-shared-true",
+      "type": "Shared",
+      "state": "Setup",
+      "acltype": "Account",
+      "subdomainaccess": null,
+      "account": "qa-gn1564-31-user",
+      "domainid": "d5e03c07-6865-42eb-a8cb-92bb9c316270",
+      "projectid": null,
+      "details": {
+        "hideIpAddressUsage": "true"
+      },
+      "vlan": "3601",
+      "cidr": "10.47.31.0/24",
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/8fbf5ecf-6b69-4b19-aad2-a64fdbcd80a2"
+    },
+    {
+      "key": "shared-domain",
+      "id": "dd811939-2194-4563-9296-3bed06ebe85d",
+      "name": "qa-gn1564-31-shared-domain",
+      "type": "Shared",
+      "state": "Setup",
+      "acltype": "Domain",
+      "subdomainaccess": true,
+      "account": null,
+      "domainid": "d5e03c07-6865-42eb-a8cb-92bb9c316270",
+      "projectid": null,
+      "details": {
+        "hideIpAddressUsage": "true"
+      },
+      "vlan": "3602",
+      "cidr": "10.48.31.0/24",
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/dd811939-2194-4563-9296-3bed06ebe85d"
+    },
+    {
+      "key": "shared-all",
+      "id": "7414ae66-bdd6-40d1-b550-cb788c37661c",
+      "name": "qa-gn1564-31-shared-all",
+      "type": "Shared",
+      "state": "Setup",
+      "acltype": "Domain",
+      "subdomainaccess": true,
+      "account": null,
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "projectid": null,
+      "details": {},
+      "vlan": "3603",
+      "cidr": "10.49.31.0/24",
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/7414ae66-bdd6-40d1-b550-cb788c37661c"
+    },
+    {
+      "key": "shared-project",
+      "id": "264eecfb-fd96-452d-950b-5b39356c626e",
+      "name": "qa-gn1564-31-shared-project",
+      "type": "Shared",
+      "state": "Setup",
+      "acltype": "Account",
+      "subdomainaccess": null,
+      "account": null,
+      "domainid": "d5e03c07-6865-42eb-a8cb-92bb9c316270",
+      "projectid": "3042d636-88c0-4f41-8c1b-e8b4a05b18ed",
+      "details": {},
+      "vlan": "3604",
+      "cidr": "10.50.31.0/24",
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/264eecfb-fd96-452d-950b-5b39356c626e"
+    },
+    {
+      "key": "l2",
+      "id": "6c6223b6-8d8e-4fd3-b6e2-bab27272abf1",
+      "name": "qa-gn1564-31-l2",
+      "type": "L2",
+      "state": "Setup",
+      "acltype": "Account",
+      "subdomainaccess": null,
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "projectid": null,
+      "details": {},
+      "vlan": "3605",
+      "cidr": null,
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/6c6223b6-8d8e-4fd3-b6e2-bab27272abf1"
+    },
+    {
+      "key": "isolated",
+      "id": "2586eb7b-5633-43bf-942c-a7bfdadd6f7c",
+      "name": "qa-gn1564-31-isolated",
+      "type": "Isolated",
+      "state": "Allocated",
+      "acltype": "Account",
+      "subdomainaccess": null,
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "projectid": null,
+      "details": {},
+      "vlan": null,
+      "cidr": "10.51.31.0/24",
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/2586eb7b-5633-43bf-942c-a7bfdadd6f7c"
+    }
+  ],
+  "vm": {
+    "id": "c88978be-7e03-4451-ae80-c932ab4022fb",
+    "name": "qa-gn1564-31-usage-review",
+    "state": "Running",
+    "instancename": "i-2-865-VM",
+    "hostid": "384871b9-7c75-4717-a673-e96a76abeb71",
+    "hostname": "ablecube31-3",
+    "nic": [
+      {
+        "id": "53a9a160-caf7-4076-a89d-50bfffbf78cf",
+        "networkid": "6c6223b6-8d8e-4fd3-b6e2-bab27272abf1",
+        "networkname": "qa-gn1564-31-l2",
+        "isolationuri": "vlan://3605",
+        "broadcasturi": "vlan://3605",
+        "traffictype": "Guest",
+        "type": "L2",
+        "isdefault": true,
+        "macaddress": "02:1f:01:cb:00:01",
+        "secondaryip": [],
+        "extradhcpoption": [],
+        "deviceid": "0",
+        "enabled": true
+      },
+      {
+        "id": "1d0c3914-4bee-401a-8e42-ea3051365810",
+        "networkid": "00cb5c3a-198a-449f-915d-e3b9d6212f66",
+        "networkname": "qa-gn1564-31-shared-false",
+        "netmask": "255.255.255.0",
+        "gateway": "10.46.31.1",
+        "ipaddress": "10.46.31.18",
+        "isolationuri": "vlan://3600",
+        "broadcasturi": "vlan://3600",
+        "traffictype": "Guest",
+        "type": "Shared",
+        "isdefault": false,
+        "macaddress": "02:1f:01:c6:00:03",
+        "secondaryip": [],
+        "extradhcpoption": [],
+        "deviceid": "1",
+        "enabled": true
+      }
+    ],
+    "pooltype": "SharedMountPoint"
+  },
+  "volumes": [
+    {
+      "id": "4ff9ca8d-a8f6-481f-a163-f590aff15c61",
+      "name": "ROOT-865",
+      "type": "ROOT",
+      "state": "Ready",
+      "storage": "Primary",
+      "storagetype": "shared",
+      "virtualmachineid": "c88978be-7e03-4451-ae80-c932ab4022fb"
+    }
+  ],
+  "routers": [
+    {
+      "id": "4724188b-9e85-4467-bf0b-ad8c96d84390",
+      "state": "Running",
+      "hostId": 4,
+      "instance": "r-866-VM"
+    }
+  ],
+  "domain": "d5e03c07-6865-42eb-a8cb-92bb9c316270",
+  "project": "3042d636-88c0-4f41-8c1b-e8b4a05b18ed",
+  "actors": {
+    "domainadmin": {
+      "id": "5e182eb6-90ce-46aa-88d5-175eeb8c0ab8",
+      "account": "qa-gn1564-31-domainadmin",
+      "username": "qa-gn1564-31-domainadmin",
+      "domainid": "d5e03c07-6865-42eb-a8cb-92bb9c316270",
+      "domain": "/qa-gn1564-31/",
+      "type": 2
+    },
+    "user-a": {
+      "id": "50bfb19f-c419-4e2f-9b87-e4afc7aadb7e",
+      "account": "qa-gn1564-31-user",
+      "username": "qa-gn1564-31-user",
+      "domainid": "d5e03c07-6865-42eb-a8cb-92bb9c316270",
+      "domain": "/qa-gn1564-31/",
+      "type": 0
+    }
+  },
+  "keepUntilUserDeletionInstruction": true
+}

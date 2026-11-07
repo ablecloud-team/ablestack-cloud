@@ -1,0 +1,236 @@
+{
+  "cluster": 31,
+  "label": "31-final-read-failure",
+  "synthetic": true,
+  "real_update": true,
+  "injected": 1,
+  "continued": 2,
+  "entered": {
+    "form_item_displaytext": "qa-gn1555-31-config6",
+    "form_item_dns1": "8.8.4.4",
+    "form_item_dns2": "1.1.1.1",
+    "form_item_guestvmcidr": "10.251.31.0/24",
+    "form_item_ip6dns1": "2001:4860:4860::8888",
+    "form_item_ip6dns2": "2001:4860:4860::8844",
+    "form_item_name": "qa-gn1555-31-config6",
+    "form_item_networkdomain": "cs2cloud.internal",
+    "form_item_sourcenatipaddress": ""
+  },
+  "remaining": {
+    "form_item_displaytext": "qa-gn1555-31-config6",
+    "form_item_dns1": "8.8.4.4",
+    "form_item_dns2": "1.1.1.1",
+    "form_item_guestvmcidr": "10.251.31.0/24",
+    "form_item_ip6dns1": "2001:4860:4860::8888",
+    "form_item_ip6dns2": "2001:4860:4860::8844",
+    "form_item_name": "qa-gn1555-31-config6",
+    "form_item_networkdomain": "cs2cloud.internal",
+    "form_item_sourcenatipaddress": ""
+  },
+  "alerts": [
+    "QA final DNS read failure (synthetic response)",
+    "수정 작업의 결과를 아직 확인하지 못했습니다. 작업 결과를 다시 조회하고 중복 요청은 보내지 마세요. 대화상자를 닫고 작업 상태를 확인할 수 있습니다."
+  ],
+  "records": [
+    {
+      "cluster": 31,
+      "requestId": "39020.2028",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "e87c919a-a703-4be8-b0c9-7deb2d837f03",
+        "name": "qa-gn1555-31-config6",
+        "dns1": "8.8.4.4",
+        "dns2": "1.1.1.1",
+        "ip6dns1": "2001:4860:4860::8888",
+        "ip6dns2": "2001:4860:4860::8844"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "39020.2029",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "3f0126de-bc31-4489-aef2-1b758d358094",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "39020.2031",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "3f0126de-bc31-4489-aef2-1b758d358094",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "39020.2032",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "3f0126de-bc31-4489-aef2-1b758d358094",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "39020.2034",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "3f0126de-bc31-4489-aef2-1b758d358094",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "39020.2036",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "3f0126de-bc31-4489-aef2-1b758d358094",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "39020.2037",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "3f0126de-bc31-4489-aef2-1b758d358094",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "39020.2039",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "3f0126de-bc31-4489-aef2-1b758d358094",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "39020.2040",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "3f0126de-bc31-4489-aef2-1b758d358094",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "39020.2042",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "3f0126de-bc31-4489-aef2-1b758d358094",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "39020.2044",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "3f0126de-bc31-4489-aef2-1b758d358094",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "39020.2046",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "3f0126de-bc31-4489-aef2-1b758d358094",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "39020.2048",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "3f0126de-bc31-4489-aef2-1b758d358094",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "39020.2049",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "3f0126de-bc31-4489-aef2-1b758d358094",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "39020.2050",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "id": "e87c919a-a703-4be8-b0c9-7deb2d837f03",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "39020.2051",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "id": "e87c919a-a703-4be8-b0c9-7deb2d837f03",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "39020.2052",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "e87c919a-a703-4be8-b0c9-7deb2d837f03",
+        "listall": "true",
+        "command": "listNetworks"
+      },
+      "status": 500
+    }
+  ],
+  "confirmEnabled": false
+}

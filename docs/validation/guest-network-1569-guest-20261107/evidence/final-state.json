@@ -1,0 +1,392 @@
+{
+  "31": {
+    "networks": [
+      {
+        "id": "0346f16d-8a02-4fb6-860a-cc380def63f4",
+        "name": "qa-gn1569-31-shared",
+        "state": "Setup",
+        "type": "Shared",
+        "networkofferingid": "9536fc31-54ab-4c31-9200-77dddf1e1d3c",
+        "cidr": "10.178.31.0/27",
+        "gateway": "10.178.31.1",
+        "dns1": "8.8.8.8",
+        "dns2": null,
+        "networkdomain": "cs1a8cloud.internal",
+        "account": "qa-gn1569-31-owner",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "vlan": "792"
+      },
+      {
+        "id": "9103d235-6ff9-42b7-ad1f-0225d21f507a",
+        "name": "qa-gn1569-31-l2",
+        "state": "Setup",
+        "type": "L2",
+        "networkofferingid": "9c92a68b-2908-445e-9b8e-4beb855d5bad",
+        "cidr": null,
+        "gateway": null,
+        "dns1": "8.8.8.8",
+        "dns2": null,
+        "networkdomain": null,
+        "account": "qa-gn1569-31-owner",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "vlan": "791"
+      },
+      {
+        "id": "b056b626-fe5e-4b75-ba17-78e421162dd7",
+        "name": "qa-gn1569-31-nosnat",
+        "state": "Setup",
+        "type": "Isolated",
+        "networkofferingid": "fb745c1e-8d8a-4860-9d9c-204ff9f54537",
+        "cidr": "10.177.31.0/27",
+        "gateway": "10.177.31.1",
+        "dns1": "8.8.8.8",
+        "dns2": null,
+        "networkdomain": "cs1a8cloud.internal",
+        "account": "qa-gn1569-31-owner",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "vlan": "650"
+      },
+      {
+        "id": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+        "name": "qa-gn1569-31-nat",
+        "state": "Implemented",
+        "type": "Isolated",
+        "networkofferingid": "5b8d528b-6af2-47a5-9488-aa8d2f9f8b66",
+        "cidr": "10.176.31.0/24",
+        "gateway": "10.176.31.1",
+        "dns1": "8.8.8.8",
+        "dns2": "1.1.1.1",
+        "networkdomain": "cs1a8cloud.internal",
+        "account": "qa-gn1569-31-owner",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "vlan": "176"
+      }
+    ],
+    "vms": [
+      {
+        "id": "e0ab98ea-2495-4f86-871f-ebd61786dbd3",
+        "name": "qa-gn1569-31-shared-vm",
+        "state": "Running",
+        "hostid": "384871b9-7c75-4717-a673-e96a76abeb71",
+        "hostname": "ablecube31-3",
+        "account": "qa-gn1569-31-owner",
+        "nics": [
+          {
+            "id": "977bad67-e62e-4b23-b455-2c88880d62d8",
+            "networkid": "0346f16d-8a02-4fb6-860a-cc380def63f4",
+            "ipaddress": "10.178.31.25",
+            "macaddress": "1e:1f:9e:00:02:cb",
+            "isdefault": true
+          }
+        ]
+      },
+      {
+        "id": "cae707e9-1851-4ce1-a63c-ecd5173a64f7",
+        "name": "qa-gn1569-31-nosnat-vm",
+        "state": "Running",
+        "hostid": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+        "hostname": "ablecube31-2",
+        "account": "qa-gn1569-31-owner",
+        "nics": [
+          {
+            "id": "f9a4ad3b-a8de-411c-b8b4-1ecc3c3d3dbc",
+            "networkid": "b056b626-fe5e-4b75-ba17-78e421162dd7",
+            "ipaddress": "10.177.31.25",
+            "macaddress": "1e:1f:58:00:02:bb",
+            "isdefault": true
+          }
+        ]
+      },
+      {
+        "id": "ee5d34e7-fab2-4159-af9d-a28a55f87ebb",
+        "name": "qa-gn1569-31-nat-vm",
+        "state": "Running",
+        "hostid": "159baf9a-89ad-4a94-91dc-e7395a670bf4",
+        "hostname": "ablecube31-1",
+        "account": "qa-gn1569-31-owner",
+        "nics": [
+          {
+            "id": "c3fc3bc5-0b9f-42a5-8512-4cee8b6c023f",
+            "networkid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+            "ipaddress": "10.176.31.21",
+            "macaddress": "02:1f:02:11:00:01",
+            "isdefault": true
+          },
+          {
+            "id": "d94dfd9a-0d61-4b30-a724-15e39b85c069",
+            "networkid": "9103d235-6ff9-42b7-ad1f-0225d21f507a",
+            "ipaddress": null,
+            "macaddress": "02:1f:02:13:00:01",
+            "isdefault": false
+          }
+        ]
+      },
+      {
+        "id": "ff81dfc9-7acb-46f7-828a-ceb1577a16cf",
+        "name": "qa-gn1569-31-shared-peer",
+        "state": "Running",
+        "hostid": "384871b9-7c75-4717-a673-e96a76abeb71",
+        "hostname": "ablecube31-3",
+        "account": "qa-gn1569-31-owner",
+        "nics": [
+          {
+            "id": "8ce08768-2db0-4ed8-9bd7-6b770dc65430",
+            "networkid": "0346f16d-8a02-4fb6-860a-cc380def63f4",
+            "ipaddress": "10.178.31.16",
+            "macaddress": "1e:1f:cd:00:02:c2",
+            "isdefault": true
+          }
+        ]
+      }
+    ],
+    "cases": {
+      "shared": {
+        "networkConfigPreserved": true,
+        "primaryIpMacPreserved": true,
+        "allSameHost": "ablecube31-3",
+        "hostId": "384871b9-7c75-4717-a673-e96a76abeb71",
+        "primary": "e0ab98ea-2495-4f86-871f-ebd61786dbd3",
+        "peer": "ff81dfc9-7acb-46f7-828a-ceb1577a16cf",
+        "router": {
+          "id": "7e51abfd-7983-46a2-9735-a978571dda22",
+          "name": "r-938-VM",
+          "hostid": "384871b9-7c75-4717-a673-e96a76abeb71",
+          "hostname": "ablecube31-3",
+          "guestipaddress": "10.178.31.10",
+          "state": "Running"
+        },
+        "libvirt": [
+          "ablecube31-3",
+          "running",
+          "",
+          "running",
+          "",
+          "running",
+          ""
+        ],
+        "qga": {
+          "guest-exec": false,
+          "guest-file-open": false
+        }
+      }
+    }
+  },
+  "32": {
+    "networks": [
+      {
+        "id": "eb1c8ca5-d19b-49a7-9de5-5575549a2b6e",
+        "name": "qa-gn1569-32-shared",
+        "state": "Setup",
+        "type": "Shared",
+        "networkofferingid": "0426e221-e598-4692-b185-c9db58c03f69",
+        "cidr": "10.178.32.0/27",
+        "gateway": "10.178.32.1",
+        "dns1": "8.8.8.8",
+        "dns2": null,
+        "networkdomain": "cseccloud.internal",
+        "account": "qa-gn1569-32-owner",
+        "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+        "vlan": "792"
+      },
+      {
+        "id": "aefaf6fa-4255-4b64-9f28-2da2a25ea711",
+        "name": "qa-gn1569-32-l2",
+        "state": "Setup",
+        "type": "L2",
+        "networkofferingid": "f5df1ea4-d7a5-479e-8754-97cd6cce2b37",
+        "cidr": null,
+        "gateway": null,
+        "dns1": "8.8.8.8",
+        "dns2": null,
+        "networkdomain": null,
+        "account": "qa-gn1569-32-owner",
+        "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+        "vlan": "791"
+      },
+      {
+        "id": "28a009ed-333e-4968-8a8e-3f5b2f9ca667",
+        "name": "qa-gn1569-32-nosnat",
+        "state": "Setup",
+        "type": "Isolated",
+        "networkofferingid": "2a7d6bc0-2ef3-4811-87a4-0635a71fd7f5",
+        "cidr": "10.177.32.0/27",
+        "gateway": "10.177.32.1",
+        "dns1": "8.8.8.8",
+        "dns2": null,
+        "networkdomain": "cseccloud.internal",
+        "account": "qa-gn1569-32-owner",
+        "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+        "vlan": "651"
+      },
+      {
+        "id": "75ccea08-34d0-48b6-80a9-006202b76e39",
+        "name": "qa-gn1569-32-nat",
+        "state": "Implemented",
+        "type": "Isolated",
+        "networkofferingid": "24b37019-c2c2-41b9-addb-31fecb59a8e4",
+        "cidr": "10.176.32.0/24",
+        "gateway": "10.176.32.1",
+        "dns1": "8.8.8.8",
+        "dns2": "1.0.0.1",
+        "networkdomain": "cseccloud.internal",
+        "account": "qa-gn1569-32-owner",
+        "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+        "vlan": "108"
+      }
+    ],
+    "vms": [
+      {
+        "id": "d67429be-281f-443d-8ee6-ed7b7683e09d",
+        "name": "qa-gn1569-32-nat-vm",
+        "state": "Running",
+        "hostid": "05bc1189-abf8-4ec3-9ef5-02558863b628",
+        "hostname": "ablecube32-3",
+        "account": "qa-gn1569-32-owner",
+        "nics": [
+          {
+            "id": "60a5043e-6958-4bfd-81c5-bb0cb52e4bbf",
+            "networkid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+            "ipaddress": "10.176.32.75",
+            "macaddress": "02:01:01:9e:00:01",
+            "isdefault": true
+          },
+          {
+            "id": "5f5533a5-5511-4d36-91ec-cabe14664f89",
+            "networkid": "aefaf6fa-4255-4b64-9f28-2da2a25ea711",
+            "ipaddress": null,
+            "macaddress": "02:01:01:a0:00:01",
+            "isdefault": false
+          }
+        ]
+      },
+      {
+        "id": "c0ae91e3-1538-49c7-94cb-a513c50e08ee",
+        "name": "qa-gn1569-32-shared-vm",
+        "state": "Running",
+        "hostid": "a7b3e91f-2248-436b-affb-e3b31b36ed62",
+        "hostname": "ablecube32-2",
+        "account": "qa-gn1569-32-owner",
+        "nics": [
+          {
+            "id": "d2bcc0ff-cfbd-49a6-89eb-5b992e365440",
+            "networkid": "eb1c8ca5-d19b-49a7-9de5-5575549a2b6e",
+            "ipaddress": "10.178.32.20",
+            "macaddress": "1e:01:8a:00:02:c4",
+            "isdefault": true
+          }
+        ]
+      },
+      {
+        "id": "23dbc3f4-4378-4fef-9420-959d724ae98e",
+        "name": "qa-gn1569-32-nosnat-vm",
+        "state": "Running",
+        "hostid": "a7b3e91f-2248-436b-affb-e3b31b36ed62",
+        "hostname": "ablecube32-2",
+        "account": "qa-gn1569-32-owner",
+        "nics": [
+          {
+            "id": "397fde63-5edd-4695-8f91-751ce13dfc87",
+            "networkid": "28a009ed-333e-4968-8a8e-3f5b2f9ca667",
+            "ipaddress": "10.177.32.20",
+            "macaddress": "1e:01:90:00:02:b4",
+            "isdefault": true
+          }
+        ]
+      },
+      {
+        "id": "f309cc72-72dc-4f43-b18e-723e87098f22",
+        "name": "qa-gn1569-32-shared-peer",
+        "state": "Running",
+        "hostid": "a7b3e91f-2248-436b-affb-e3b31b36ed62",
+        "hostname": "ablecube32-2",
+        "account": "qa-gn1569-32-owner",
+        "nics": [
+          {
+            "id": "7208c694-3c19-4c46-92a0-cb293500c8a8",
+            "networkid": "eb1c8ca5-d19b-49a7-9de5-5575549a2b6e",
+            "ipaddress": "10.178.32.21",
+            "macaddress": "1e:01:d6:00:02:c5",
+            "isdefault": true
+          }
+        ]
+      },
+      {
+        "id": "ef8ecf84-8508-4bda-b69a-eb1e2914969f",
+        "name": "qa-gn1569-32-nosnat-peer",
+        "state": "Running",
+        "hostid": "a7b3e91f-2248-436b-affb-e3b31b36ed62",
+        "hostname": "ablecube32-2",
+        "account": "qa-gn1569-32-owner",
+        "nics": [
+          {
+            "id": "3589d68a-7f14-44ea-82a9-792988ae1920",
+            "networkid": "28a009ed-333e-4968-8a8e-3f5b2f9ca667",
+            "ipaddress": "10.177.32.21",
+            "macaddress": "1e:01:1d:00:02:b5",
+            "isdefault": true
+          }
+        ]
+      }
+    ],
+    "cases": {
+      "shared": {
+        "networkConfigPreserved": true,
+        "primaryIpMacPreserved": true,
+        "allSameHost": "ablecube32-2",
+        "hostId": "a7b3e91f-2248-436b-affb-e3b31b36ed62",
+        "primary": "c0ae91e3-1538-49c7-94cb-a513c50e08ee",
+        "peer": "f309cc72-72dc-4f43-b18e-723e87098f22",
+        "router": {
+          "id": "1620dc38-6c2a-46e4-a068-84fadee8ee50",
+          "name": "r-413-VM",
+          "hostid": "a7b3e91f-2248-436b-affb-e3b31b36ed62",
+          "hostname": "ablecube32-2",
+          "guestipaddress": "10.178.32.10",
+          "state": "Running"
+        },
+        "libvirt": [
+          "ablecube32-2",
+          "running",
+          "",
+          "running",
+          "",
+          "running",
+          ""
+        ],
+        "qga": {
+          "guest-exec": false,
+          "guest-file-open": false
+        }
+      },
+      "nosnat": {
+        "networkConfigPreserved": true,
+        "primaryIpMacPreserved": true,
+        "allSameHost": "ablecube32-2",
+        "hostId": "a7b3e91f-2248-436b-affb-e3b31b36ed62",
+        "primary": "23dbc3f4-4378-4fef-9420-959d724ae98e",
+        "peer": "ef8ecf84-8508-4bda-b69a-eb1e2914969f",
+        "router": {
+          "id": "df9b2dc6-e5b4-4600-9294-3fb8d5e43842",
+          "name": "r-415-VM",
+          "hostid": "a7b3e91f-2248-436b-affb-e3b31b36ed62",
+          "hostname": "ablecube32-2",
+          "guestipaddress": "10.177.32.10",
+          "state": "Running"
+        },
+        "libvirt": [
+          "ablecube32-2",
+          "running",
+          "",
+          "running",
+          "",
+          "running",
+          ""
+        ],
+        "qga": {
+          "guest-exec": false,
+          "guest-file-open": false
+        }
+      }
+    }
+  }
+}

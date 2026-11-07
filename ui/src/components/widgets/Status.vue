@@ -34,6 +34,7 @@
 </template>
 
 <script>
+import { networkStateLabel } from '@/utils/networkLifecycle'
 
 export default {
   name: 'Status',
@@ -66,6 +67,7 @@ export default {
   methods: {
     getText () {
       if (this.displayText && this.displayLabel) return this.displayLabel
+      if (this.displayText && this.$route?.meta?.name === 'guestnetwork' && networkStateLabel(this.text) !== this.text) return this.$t(networkStateLabel(this.text))
       if (this.displayText && this.text) {
         var state = this.text
         switch (state.toLowerCase()) {

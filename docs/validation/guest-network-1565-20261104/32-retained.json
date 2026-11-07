@@ -1,0 +1,58 @@
+{
+  "prefix": "qa-gn1565-32",
+  "domains": {
+    "a": "0b46d8b1-218b-46a3-becb-1b4032e0eb69",
+    "b": "32366b49-d882-49f5-b60f-2eddf0ff52c9"
+  },
+  "actors": {
+    "user-a": {
+      "id": "50b816f2-6a82-4083-8308-cdb6cd668408",
+      "account": "qa-gn1565-32-user-a",
+      "username": "qa-gn1565-32-user-a",
+      "domainid": "0b46d8b1-218b-46a3-becb-1b4032e0eb69",
+      "domain": "/qa-gn1565-32-a/",
+      "type": 0
+    },
+    "admin-a": {
+      "id": "0372db8b-bb07-45b6-8254-f830a000cfd4",
+      "account": "qa-gn1565-32-admin-a",
+      "username": "qa-gn1565-32-admin-a",
+      "domainid": "0b46d8b1-218b-46a3-becb-1b4032e0eb69",
+      "domain": "/qa-gn1565-32-a/",
+      "type": 2
+    },
+    "user-b": {
+      "id": "00589866-ff0b-4e2b-bfd7-99207b1b0a33",
+      "account": "qa-gn1565-32-user-b",
+      "username": "qa-gn1565-32-user-b",
+      "domainid": "32366b49-d882-49f5-b60f-2eddf0ff52c9",
+      "domain": "/qa-gn1565-32-b/",
+      "type": 0
+    }
+  },
+  "offerings": {
+    "used": "324d6a00-b081-46db-9533-72a323c0d734",
+    "private-a": "2d340135-7c22-4fff-a188-65f0aa631631",
+    "private-b": "3cb941a0-3819-4e1a-859f-cb871b8963f4",
+    "unused": "06b76f4f-542f-4e10-a2ed-ca7c23617d49"
+  },
+  "networks": {
+    "l2-01": "9acaeec3-3586-4456-ab13-c6453f28f3d2",
+    "isolated": "5ab2ad8a-2165-4f57-acd3-022d260e5239",
+    "shared": "b7104c76-a9b4-48b4-a00c-edd469f2d110",
+    "user-a": "a5a04339-1e59-476a-820a-7625d2128b70",
+    "admin-a": "eaec7ac9-19b4-4f1b-88e7-f360c884bd60",
+    "user-b": "b7aa8f81-330c-4770-9f52-ebb896df60e3",
+    "project": "976ab2c6-467d-4480-83dc-9588ad09468d",
+    "vpc-tier": "6b01a3a6-7d58-4663-bda7-4619f6983f9a"
+  },
+  "vpcs": {
+    "vpc": "e7e8f6e7-a3fa-49c3-8e30-88f6d8f02f9f"
+  },
+  "projects": {
+    "project": "1ac553b2-e8e0-462b-9c7f-c216605020b2"
+  },
+  "root": "2246448b-b23b-11f1-990e-0024811f8935",
+  "zone": "991d2f57-0f37-4445-b956-09773d064816",
+  "physicalnetwork": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b"
+}

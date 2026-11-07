@@ -17,6 +17,7 @@
 package org.apache.cloudstack.api.command.user.job;
 
 import java.util.Date;
+import com.cloud.exception.InvalidParameterValueException;
 
 import org.apache.cloudstack.api.APICommand;
 import org.apache.cloudstack.api.ApiArgValidator;
@@ -47,6 +48,10 @@ public class ListAsyncJobsCmd extends BaseListAccountResourcesCmd {
     @Parameter(name = ApiConstants.RESOURCE_TYPE, type = CommandType.STRING, description = "the type of the resource associated with the job", since="4.22.1")
     private String resourceType;
 
+    @Parameter(name = "includecompleted", type = CommandType.BOOLEAN,
+            description = "Include completed jobs for an explicitly specified resourceid and resourcetype. Account access restrictions still apply.")
+    private Boolean includeCompleted;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -65,6 +70,13 @@ public class ListAsyncJobsCmd extends BaseListAccountResourcesCmd {
 
     public String getResourceType() {
         return resourceType;
+    }
+
+    public boolean getIncludeCompleted() {
+        if (Boolean.TRUE.equals(includeCompleted) && (resourceId == null || resourceId.isBlank() || resourceType == null || resourceType.isBlank())) {
+            throw new InvalidParameterValueException("includecompleted requires resourceid and resourcetype");
+        }
+        return Boolean.TRUE.equals(includeCompleted);
     }
 
     /////////////////////////////////////////////////////

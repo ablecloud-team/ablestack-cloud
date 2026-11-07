@@ -1,0 +1,11 @@
+{
+  "deployedSource": "a2cd9f8f366cb9015a4a488b48b3af1f0c991bae",
+  "build": {
+    "exit": 0,
+    "command": "npm run build",
+    "productionSourceMap": false
+  },
+  "lint": "passed",
+  "testSuites": 7,
+  "testsPassed": 175
+}

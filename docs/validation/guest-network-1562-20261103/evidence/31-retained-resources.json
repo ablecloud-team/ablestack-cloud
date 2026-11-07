@@ -1,0 +1,19 @@
+{
+  "cluster": 31,
+  "prefix": "qa-gn1562-31",
+  "networks": {
+    "nosnat": "c00cbfae-a846-4071-af4d-eaa24f4d5a5b",
+    "shared": "63343ad6-9a1c-4f51-95ad-175c515d60e1",
+    "l2": "91cfc778-d172-4918-9360-7774d6476029"
+  },
+  "offerings": {
+    "nosnat-vr": "57d5169f-9570-443a-a562-1b94c6ffe85e",
+    "nosnat-vr-alt": "45d7e6ae-91f3-4394-8da9-2a5d6fd5f30c"
+  },
+  "vms": {
+    "a": "01b5a45c-a509-4697-b7dc-0a25f5ed3a42",
+    "b": "531e7023-7b02-4836-a5c6-55351e2d6b0a"
+  },
+  "review_pending": true,
+  "deletion_requires_separate_instruction": true
+}

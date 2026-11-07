@@ -17,8 +17,19 @@
 
 <template>
   <div>
-    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
+    <NetworkRulesToolbar :can-add="canWrite('createRoutingFirewallRule')" :loading="loading" @add="openRule" @refresh="fetchData" >
+      <a-button
+        v-if="((canWrite('deleteRoutingFirewallRule')) && this.selectedRowKeys.length > 0)"
+        type="primary"
+        danger
+        @click="bulkActionConfirmation()">
+        <template #icon><delete-outlined /></template>
+        {{ $t('label.action.bulk.delete.routing.firewall.rules') }}
+      </a-button>
+    </NetworkRulesToolbar>
+    <a-alert v-if="listRefreshFailed" class="network-rules-guidance" type="warning" show-icon :message="$t('message.list.refresh.stale')" />
     <a-alert
+      class="network-rules-guidance"
       v-if="'egressdefaultpolicy' in resource"
       type="info">
       <template #message>
@@ -27,9 +38,17 @@
         '<b>' + $t('label.deny') + '</b>').replace('%y', resource.egressdefaultpolicy ? '<b>' + $t('message.denied') + '</b>' : '<b>' + $t('message.allowed') + '</b>.')" />
       </template>
     </a-alert>
-    <NetworkRulesToolbar :can-add="'createRoutingFirewallRule' in $store.getters.apis" :loading="loading" @add="addRuleVisible = true" @refresh="fetchData" />
-    <a-modal class="mold-dialog network-rule-dialog" centered :width="760" :visible="addRuleVisible" :title="$t('label.network.rule.add')" :footer="null" @cancel="addRuleVisible = false">
-      <div class="form" v-ctrl-enter="addRule">
+    <MoldDialog
+      class="network-rule-dialog"
+      size="lg"
+      focus-guard
+      :visible="addRuleVisible"
+      :title="$t('label.network.rule.add')"
+      :closable="!loading"
+      :keyboard="!loading"
+      @cancel="!loading && (addRuleVisible = false)">
+      <a-alert v-if="invalidRule" type="error" show-icon :message="$t('message.guest.feature.invalid.rule')" />
+      <div class="form conditional-rule-form" v-ctrl-enter="addRule">
         <div class="form__item">
           <div class="form__label">{{ $t('label.sourcecidr') }}</div>
           <a-input v-model:value="newRule.cidrlist" autoFocus></a-input>
@@ -84,23 +103,13 @@
           <div class="form__label">{{ $t('label.icmpcode') }}</div>
           <a-input v-model:value="newRule.icmpcode"></a-input>
         </div>
-        <div class="form__item">
-          <a-button :disabled="!('createRoutingFirewallRule' in $store.getters.apis)" type="primary" ref="submit" @click="addRule">{{ $t('label.add') }}</a-button>
-        </div>
       </div>
-      <div class="action-button"><a-button @click="addRuleVisible = false">{{ $t('label.cancel') }}</a-button></div>
-    </a-modal>
+      <template #footer>
+        <a-button :disabled="loading" @click="addRuleVisible = false">{{ $t('label.cancel') }}</a-button>
+        <a-button type="primary" :loading="loading" :disabled="!canWrite('createRoutingFirewallRule') || loading" @click="addRule">{{ $t('label.add') }}</a-button>
+      </template>
+    </MoldDialog>
 
-    <a-divider/>
-    <a-button
-      v-if="(('deleteRoutingFirewallRule' in $store.getters.apis) && this.selectedRowKeys.length > 0)"
-      type="primary"
-      danger
-      style="width: 100%; margin-bottom: 15px"
-      @click="bulkActionConfirmation()">
-      <template #icon><delete-outlined /></template>
-      {{ $t('label.action.bulk.delete.routing.firewall.rules') }}
-    </a-button>
     <a-table
       size="small"
       style="overflow-y: auto"
@@ -126,7 +135,7 @@
         <template v-if="column.key === 'actions'">
           <tooltip-button
             :tooltip="$t('label.delete')"
-            :disabled="!('deleteRoutingFirewallRule' in $store.getters.apis)"
+            :disabled="!(canWrite('deleteRoutingFirewallRule'))"
             type="primary"
             :danger="true"
             icon="delete-outlined"
@@ -174,6 +183,9 @@ import NetworkRulesToolbar from '@/components/view/NetworkRulesToolbar'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { getAPI, postAPI } from '@/api'
+import { conditionalFirewallRule } from '@/utils/conditionalFirewallRule'
+import { canWriteGuestFeature } from '@/utils/conditionalGuestNetwork'
+import MoldDialog from '@/components/view/MoldDialog'
 import Status from '@/components/widgets/Status'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import BulkActionView from '@/components/view/BulkActionView'
@@ -183,6 +195,7 @@ export default {
   mixins: [listRefreshMixin(['fetchData'])],
   name: 'RoutingFirewallRulesTab',
   components: {
+    MoldDialog,
     NetworkRulesToolbar,
     Status,
     TooltipButton,
@@ -208,6 +221,7 @@ export default {
         confirmMessage: this.$t('label.confirm.delete.routing.firewall.rules')
       },
       loading: true,
+      invalidRule: false,
       routingRules: [],
       newRule: {
         traffictype: 'ingress',
@@ -276,8 +290,17 @@ export default {
       this.fetchData()
     }
   },
-  inject: ['parentFetchData'],
+  inject: ['parentFetchData', 'resourceActionReady'],
   methods: {
+    canWrite (command) {
+      return !this.listRefreshFailed && (this.$route.meta.name !== 'guestnetwork' || this.resourceActionReady?.() !== false) &&
+        (this.$route.meta.name !== 'guestnetwork' ? command in this.$store.getters.apis : canWriteGuestFeature('routing.firewall', command, this.resource, this.$store.getters))
+    },
+    openRule () {
+      this.resetAllRules()
+      this.invalidRule = false
+      this.addRuleVisible = true
+    },
     fetchData () {
       const listRequest = this.listRequestToken('fetchData')
       this.loading = !listRequest.loaded
@@ -357,6 +380,7 @@ export default {
       return val.toUpperCase()
     },
     deleteRule (rule) {
+      if (!this.canWrite('deleteRoutingFirewallRule')) return
       this.loading = true
       postAPI('deleteRoutingFirewallRule', { id: rule.id }).then(response => {
         const jobId = response.deleteroutingfirewallruleresponse.jobid
@@ -391,34 +415,30 @@ export default {
         this.loading = false
       })
     },
-    addRule () {
-      if (this.loading) return
+    async addRule () {
+      if (this.loading || !this.canWrite('createRoutingFirewallRule')) return
+      const params = conditionalFirewallRule(this.newRule, this.resource.id)
+      this.invalidRule = !params
+      if (!params) return
       this.loading = true
-      postAPI('createRoutingFirewallRule', { ...this.newRule }).then(response => {
-        this.$pollJob({
+      try {
+        const response = await postAPI('createRoutingFirewallRule', params)
+        const result = await this.$pollJob({
           jobId: response.createroutingfirewallruleresponse.jobid,
           successMessage: this.$t('message.add.routing.firewall.rule.success'),
-          successMethod: () => {
-            this.resetAllRules()
-            this.fetchData()
-          },
           errorMessage: this.$t('message.add.routing.firewall.rule.failed'),
-          errorMethod: () => {
-            this.resetAllRules()
-            this.fetchData()
-          },
-          loadingMessage: this.$t('message.add.routing.firewall.rule.processing'),
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.resetAllRules()
-            this.fetchData()
-          }
+          catchMessage: this.$t('error.fetching.async.job.result')
         })
-      }).catch(error => {
+        if (result.jobstatus === 1) {
+          this.addRuleVisible = false
+          this.resetAllRules()
+        }
+        await this.fetchData()
+      } catch (error) {
         this.$notifyError(error)
-        this.resetAllRules()
-        this.fetchData()
-      })
+      } finally {
+        this.loading = false
+      }
     },
     resetAllRules () {
       this.newRule.traffictype = 'ingress'
@@ -449,6 +469,7 @@ export default {
     },
     handleTrafficTypeChange (trafficType) {
       if (trafficType === 'ingress') {
+        if (this.newRule.protocol === 'all') this.newRule.protocol = 'tcp'
         this.protocols = this.protocols.filter(x => x !== 'all')
       } else {
         if (!this.protocols.includes('all')) {
@@ -461,6 +482,16 @@ export default {
 </script>
 
 <style scoped lang="scss">
+  .conditional-rule-form {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: minmax(0, 1fr);
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    :deep(.ant-select) { width: 100%; }
+  }
+
   .rule {
 
     &-container {
@@ -518,40 +549,6 @@ export default {
 
   }
 
-  .form {
-    display: flex;
-    margin-right: -20px;
-    margin-bottom: 20px;
-    flex-direction: column;
-    align-items: flex-end;
-
-    @media (min-width: 760px) {
-      flex-direction: row;
-    }
-
-    &__item {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      padding-right: 20px;
-      margin-bottom: 20px;
-
-      @media (min-width: 760px) {
-        margin-bottom: 0;
-      }
-
-      input,
-      .ant-select {
-        margin-top: auto;
-      }
-
-    }
-
-    &__label {
-      font-weight: bold;
-    }
-
-  }
   .pagination {
     margin-top: 20px;
   }

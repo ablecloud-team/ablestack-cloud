@@ -1,0 +1,30 @@
+{
+  "jarSha256": "0817a8f2e74fe03a4ba268a20f8a610492d2c81d3b1818ba708b5e785f0c02a0",
+  "classSha256": "3d0347c056e6109824adf1e34e0cbb707e9d90f1ffb064eb9b32c5ca2a01faf6",
+  "WEB-INF": true,
+  "META-INF": false,
+  "http": 200,
+  "PID": "624478",
+  "usageService": "active",
+  "indexSha256": "e88f9bd95419cd950ddd2c9031ce05bb00630d8668c75ad8fdbe54885b313bee",
+  "staticFilesVerified": 650,
+  "staticMismatches": [],
+  "markers": {
+    "blockingLoadingState": [
+      "chunk-1cbed1df.59243339.js"
+    ],
+    "fetchSyncProgress": [
+      "chunk-1cbed1df.59243339.js"
+    ],
+    "extractJobId": [
+      "chunk-1cbed1df.59243339.js"
+    ],
+    "network-ip-usage-setting": [
+      "chunk-5f49fea0.adb05116.js"
+    ],
+    "network-ip-usage-value": [
+      "chunk-5f49fea0.adb05116.js"
+    ]
+  },
+  "diskFree": 159129821184
+}

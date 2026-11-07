@@ -1784,7 +1784,7 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
     @Override
     @DB
     public void cleanupVolumes(long vmId) throws ConcurrentOperationException {
-        VMInstanceVO vm = _userVmDao.findById(vmId);
+        VMInstanceVO vm = vmInstanceDao.findById(vmId);
 
         logger.debug("Cleaning storage for VM [{}].", vm);
         final List<VolumeVO> volumesForVm = _volsDao.findByInstance(vmId);
@@ -1816,17 +1816,29 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
             }
         });
 
-        AsyncCallFuture<VolumeApiResult> future = null;
         for (VolumeVO expunge : toBeExpunged) {
-            String expungeToString = getReflectOnlySelectedFields(expunge);
+            awaitVolumeExpunge(expunge, vm != null && vm.getType() == VirtualMachine.Type.DomainRouter);
+        }
+    }
 
-            future = volService.expungeVolumeAsync(volFactory.getVolume(expunge.getId()));
-            try {
-                future.get();
-            } catch (InterruptedException | ExecutionException e) {
-                logger.error("Failed to expunge volume [{}] due to [{}].", expungeToString, e.getMessage());
-                logger.debug("Exception: ", e);
+    /** Keep a failed router cleanup visible and retryable instead of hiding its root volume. */
+    protected void awaitVolumeExpunge(VolumeVO volume, boolean router) {
+        AsyncCallFuture<VolumeApiResult> future = volService.expungeVolumeAsync(volFactory.getVolume(volume.getId()));
+        try {
+            VolumeApiResult result = future.get();
+            if (router && (result == null || result.isFailed())) {
+                throw new CloudRuntimeException(String.format(
+                        "Router root volume %s was not expunged. Inspect storage mappings and retry normal network/router deletion after the cause is resolved.", volume.getUuid()));
             }
+        } catch (InterruptedException | ExecutionException e) {
+            if (router) {
+                if (e instanceof InterruptedException) {
+                    Thread.currentThread().interrupt();
+                }
+                throw new CloudRuntimeException("Router root volume cleanup did not complete; the router must remain available for a normal cleanup retry.", e);
+            }
+            logger.error("Failed to expunge volume [{}] due to [{}].", getReflectOnlySelectedFields(volume), e.getMessage());
+            logger.debug("Exception: ", e);
         }
     }
 

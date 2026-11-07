@@ -1,0 +1,16 @@
+{
+  "previous_1562": {
+    "networks_removed": 6,
+    "vms_removed": 4,
+    "offerings_removed": 4,
+    "all_three_host_storage_checks": "PASS"
+  },
+  "current_temporary_vms_removed": 4,
+  "failed_vm_removed": 1,
+  "failed_router_removed": 1,
+  "retained_networks": 4,
+  "retained_vms": 4,
+  "retained_offerings": 2,
+  "retained_ranges": 11,
+  "kept_until_separate_user_deletion_instruction": true
+}

@@ -16,375 +16,133 @@
 // under the License.
 
 <template>
-  <div v-if="remoteAccessVpn">
-    <div>
-      <p>{{ $t('message.enabled.vpn') }} <strong>{{ remoteAccessVpn.publicip }}</strong></p>
-      <p>{{ $t('message.enabled.vpn.ip.sec') }} <strong>{{ remoteAccessVpn.presharedkey }}</strong></p>
-      <a-divider/>
-      <a-button
-        style="margin-left: 10px"
-        type="primary"
-        danger
-        @click="disableVpn = true"
-        :disabled="!('deleteRemoteAccessVpn' in $store.getters.apis)">
-        {{ $t('label.disable.vpn') }}
+  <section>
+    <div class="detail-tab-toolbar">
+      <a-button v-if="canChange(remoteAction)" :danger="!!remoteAccessVpn" type="primary" :disabled="locked" @click="dialog = remoteAction">
+        {{ $t(remoteAccessVpn ? 'label.disable.vpn' : 'label.enable.vpn') }}
       </a-button>
-      <a-button><router-link :to="{ path: '/vpnuser'}">{{ $t('label.manage.vpn.user') }}</router-link></a-button>
+      <a-button v-if="canChange(gatewayAction)" :danger="!!vpnGateway" :disabled="locked" @click="dialog = gatewayAction">
+        {{ $t(vpnGateway ? 'label.delete.vpn.gateway' : 'label.add.vpn.gateway') }}
+      </a-button>
+      <a-button :loading="loading" :disabled="networkMutationBusy" @click="refresh"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
+      <router-link v-if="remoteAccessVpn && can('listVpnUsers')" to="/vpnuser">{{ $t('label.manage.vpn.user') }}</router-link>
     </div>
 
-    <a-modal
-      :visible="disableVpn"
-      :footer="null"
-      :title="$t('label.disable.vpn')"
-      :closable="true"
-      :maskClosable="false"
-      @cancel="disableVpn = false">
-      <div v-ctrl-enter="handleDisableVpn">
-        <p>{{ $t('message.disable.vpn') }}</p>
+    <NetworkMutationStatus v-if="!dialog && networkMutationBlocked" :operation="networkMutation" @recheck="recheckNetworkMutation" />
+    <a-alert v-if="readFailed" type="warning" show-icon :message="$t('message.guest.feature.load.failed')" />
+    <a-descriptions v-else-if="remoteAccessVpn" size="small" :column="1">
+      <a-descriptions-item :label="$t('label.ipaddress')">{{ remoteAccessVpn.publicip }}</a-descriptions-item>
+      <a-descriptions-item :label="$t('label.status')">{{ remoteAccessVpn.state }}</a-descriptions-item>
+      <a-descriptions-item :label="$t('label.ipsecpsk')">
+        <span v-if="showKey">{{ remoteAccessVpn.presharedkey }}</span>
+        <span v-else aria-hidden="true">••••••••</span>
+        <a-button type="link" size="small" @click="showKey = !showKey">{{ $t(showKey ? 'label.public.ip.vpn.hide.key' : 'label.public.ip.vpn.show.key') }}</a-button>
+      </a-descriptions-item>
+    </a-descriptions>
+    <a-empty v-else-if="!loading && !vpnGateway" :description="$t('message.public.ip.vpn.empty')" />
+    <a-descriptions v-if="vpnGateway && !readFailed" size="small" :column="1">
+      <a-descriptions-item :label="$t('label.site.to.site.vpn')">{{ vpnGateway.publicip }}</a-descriptions-item>
+    </a-descriptions>
 
-        <a-divider />
-
-        <div class="actions">
-          <a-button @click="() => disableVpn = false">{{ $t('label.cancel') }}</a-button>
-          <a-button type="primary" @click="handleDisableVpn">{{ $t('label.yes') }}</a-button>
-        </div>
-      </div>
-    </a-modal>
-
-  </div>
-  <div v-else>
-    <a-button
-      :disabled="!('createRemoteAccessVpn' in $store.getters.apis)"
-      type="primary"
-      style="margin-left: 10px"
-      @click="enableVpn = true">
-      {{ $t('label.enable.vpn') }}
-    </a-button>
-
-    <a-modal
-      :visible="enableVpn"
-      :footer="null"
-      :title="$t('label.enable.vpn')"
-      :maskClosable="false"
-      :closable="true"
-      @cancel="enableVpn = false">
-      <div v-ctrl-enter="handleCreateVpn">
-        <p>{{ $t('message.enable.vpn') }}</p>
-
-        <a-divider />
-
-        <div class="actions">
-          <a-button @click="() => enableVpn = false">{{ $t('label.cancel') }}</a-button>
-          <a-button type="primary" ref="submit" @click="handleCreateVpn">{{ $t('label.yes') }}</a-button>
-        </div>
-      </div>
-    </a-modal>
-
-  </div>
-
-  <br>
-  <div v-if="vpnGateway">
-    <div>
-      <a-button
-        :disabled="!('deleteVpnGateway' in $store.getters.apis)"
-        style="margin-left: 10px"
-        danger
-        type="primary"
-        @click="deleteVpnGateway = true">
-        {{ $t('label.delete.vpn.gateway') }}
-      </a-button>
-    </div>
-    <a-modal
-      :visible="deleteVpnGateway"
-      :footer="null"
-      :title="$t('label.enable.vpn')"
-      :maskClosable="false"
-      :closable="true"
-      @cancel="deleteVpnGateway = false">
-      <div v-ctrl-enter="handleDeleteVpnGateway">
-        <p>{{ $t('message.delete.vpn.gateway') }}</p>
-        <div :span="24" class="action-button">
-          <a-button @click="deleteVpnGateway = false">{{ $t('label.cancel') }}</a-button>
-          <a-button :loading="loading" type="primary" @click="handleDeleteVpnGateway" ref="submit">{{ $t('label.ok') }}</a-button>
-        </div>
-      </div>
-    </a-modal>
-  </div>
-  <div v-else-if="vpnGatewayEnabled">
-    <div>
-      <a-button
-        :disabled="!('createVpnGateway' in $store.getters.apis)"
-        style="margin-left: 10px"
-        type="primary"
-        @click="createVpnGateway = true">
-        {{ $t('label.add.vpn.gateway') }}
-      </a-button>
-    </div>
-    <a-modal
-      :visible="createVpnGateway"
-      :footer="null"
-      :title="$t('label.add.vpn.gateway')"
-      :maskClosable="false"
-      :closable="true"
-      @cancel="createVpnGateway = false">
-      <div v-ctrl-enter="handleCreateVpnGateway">
-        <p>{{ $t('message.add.vpn.gateway') }}</p>
-        <div :span="24" class="action-button">
-          <a-button @click="createVpnGateway = false">{{ $t('label.cancel') }}</a-button>
-          <a-button :loading="loading" type="primary" @click="handleCreateVpnGateway" ref="submit">{{ $t('label.ok') }}</a-button>
-        </div>
-      </div>
-    </a-modal>
-  </div>
-
+    <MoldDialog
+v-if="dialog"
+:visible="!!dialog"
+:title="$t(actions[dialog].title)"
+size="md"
+      :closable="!networkMutationSubmitting"
+:keyboard="!networkMutationSubmitting"
+@cancel="closeDialog">
+      <NetworkMutationStatus :operation="networkMutation" @recheck="recheckNetworkMutation" />
+      <p>{{ $t(actions[dialog].message) }}</p>
+      <template #footer>
+        <a-button :disabled="networkMutationSubmitting" @click="closeDialog">{{ $t('label.cancel') }}</a-button>
+        <a-button type="primary" :danger="dialog.startsWith('delete')" :loading="networkMutationBusy" :disabled="locked || !canChange(dialog)" @click="submit">{{ $t('label.ok') }}</a-button>
+      </template>
+    </MoldDialog>
+  </section>
 </template>
 
 <script>
-import { getAPI, postAPI } from '@/api'
+import { getAPI } from '@/api'
+import MoldDialog from '@/components/view/MoldDialog'
+import NetworkMutationStatus from '@/components/view/NetworkMutationStatus'
+import { networkMutationMixin } from '@/utils/networkMutation'
+import { publicIpScope, usablePublicIp } from '@/utils/publicIpRules'
+
+const actions = {
+  createRemoteAccessVpn: { title: 'label.enable.vpn', message: 'message.enable.vpn' },
+  deleteRemoteAccessVpn: { title: 'label.disable.vpn', message: 'message.disable.vpn' },
+  createVpnGateway: { title: 'label.add.vpn.gateway', message: 'message.add.vpn.gateway' },
+  deleteVpnGateway: { title: 'label.delete.vpn.gateway', message: 'message.delete.vpn.gateway' }
+}
 
 export default {
-  props: {
-    resource: {
-      type: Object,
-      required: true
-    }
-  },
+  components: { MoldDialog, NetworkMutationStatus },
+  mixins: [networkMutationMixin],
+  inject: ['publicIpRemoteVpnAllowed'],
+  props: { resource: { type: Object, required: true } },
   data () {
-    return {
-      remoteAccessVpn: null,
-      enableVpn: false,
-      disableVpn: false,
-      vpnGateway: null,
-      vpnGatewayEnabled: false,
-      createVpnGateway: false,
-      deleteVpnGateway: false,
-      isSubmitted: false
-    }
+    return { actions, remoteAccessVpn: null, vpnGateway: null, dialog: '', loading: false, readFailed: false, showKey: false, version: 0 }
   },
-  inject: ['parentFetchData', 'parentToggleLoading'],
-  created () {
-    this.fetchData()
+  computed: {
+    remoteAction () { return this.remoteAccessVpn ? 'deleteRemoteAccessVpn' : 'createRemoteAccessVpn' },
+    gatewayAction () { return this.vpnGateway ? 'deleteVpnGateway' : 'createVpnGateway' },
+    locked () { return this.loading || this.readFailed || this.networkMutationBlocked }
   },
   watch: {
-    resource: {
-      deep: true,
-      handler (newItem) {
-        if (!newItem || !newItem.id) {
-          return
-        }
-        this.fetchData()
-      }
+    'resource.id' () {
+      this.remoteAccessVpn = null
+      this.vpnGateway = null
+      this.dialog = ''
+      this.refresh()
     }
   },
+  created () { this.refresh() },
+  deactivated () { this.showKey = false },
   methods: {
-    fetchData () {
-      getAPI('listRemoteAccessVpns', {
-        publicipid: this.resource.id,
-        listAll: true
-      }).then(response => {
-        this.remoteAccessVpn = response.listremoteaccessvpnsresponse.remoteaccessvpn
-          ? response.listremoteaccessvpnsresponse.remoteaccessvpn[0] : null
-      }).catch(error => {
-        console.log(error)
-        this.$notifyError(error)
-      })
-      if (this.resource.vpcid) {
-        this.vpnGatewayEnabled = true
-        getAPI('listVpnGateways', {
-          vpcid: this.resource.vpcid,
-          listAll: true
-        }).then(response => {
-          const vpnGateways = response.listvpngatewaysresponse.vpngateway || []
-          for (const vpnGateway of vpnGateways) {
-            if (vpnGateway.publicip === this.resource.ipaddress) {
-              this.vpnGateway = vpnGateway
-            }
-          }
-        }).catch(error => {
-          console.log(error)
-          this.$notifyError(error)
-        })
+    can (api) { return api in this.$store.getters.apis },
+    canChange (api) {
+      if (!usablePublicIp(this.resource) || !this.can(api)) return false
+      if (api.endsWith('VpnGateway')) return !!this.resource.vpcid && this.can('listVpnGateways') && (api.startsWith('delete') || !this.remoteAccessVpn)
+      return this.can('listRemoteAccessVpns') && (api.startsWith('delete') || (!this.vpnGateway && this.publicIpRemoteVpnAllowed()))
+    },
+    async refresh () {
+      const ip = this.resource
+      const version = ++this.version
+      const current = () => version === this.version && this.resource.id === ip.id
+      this.showKey = false
+      this.loading = true
+      this.readFailed = false
+      try {
+        const [remote, gateways] = await Promise.all([
+          this.can('listRemoteAccessVpns') ? getAPI('listRemoteAccessVpns', { ...publicIpScope(ip), publicipid: ip.id, listall: true }, { preserveOnFailure: true }) : null,
+          ip.vpcid && this.can('listVpnGateways') ? getAPI('listVpnGateways', { ...publicIpScope(ip), vpcid: ip.vpcid, listall: true }, { preserveOnFailure: true }) : null
+        ])
+        if (!current()) return
+        this.remoteAccessVpn = remote?.listremoteaccessvpnsresponse?.remoteaccessvpn?.[0] || null
+        this.vpnGateway = gateways?.listvpngatewaysresponse?.vpngateway?.find(row => row.publicip === ip.ipaddress) || null
+      } catch (_) {
+        if (current()) this.readFailed = true
+      } finally {
+        if (current()) this.loading = false
       }
     },
-    handleCreateVpn () {
-      if (this.isSubmitted) return
-      this.isSubmitted = true
-      this.parentToggleLoading()
-      this.enableVpn = false
-      postAPI('createRemoteAccessVpn', {
-        publicipid: this.resource.id,
-        domainid: this.resource.domainid,
-        account: this.resource.account
-      }).then(response => {
-        this.$pollJob({
-          jobId: response.createremoteaccessvpnresponse.jobid,
-          successMethod: result => {
-            const res = result.jobresult.remoteaccessvpn
-            this.$notification.success({
-              message: this.$t('label.status'),
-              description:
-                `${this.$t('message.enabled.vpn')} ${res.publicip}. ${this.$t('message.enabled.vpn.ip.sec')} ${res.presharedkey}`,
-              duration: 0
-            })
-            this.fetchData()
-            this.parentToggleLoading()
-            this.isSubmitted = false
-          },
-          errorMessage: this.$t('message.enable.vpn.failed'),
-          errorMethod: () => {
-            this.fetchData()
-            this.parentToggleLoading()
-            this.isSubmitted = false
-          },
-          loadingMessage: this.$t('message.enable.vpn.processing'),
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.fetchData()
-            this.parentFetchData()
-            this.parentToggleLoading()
-            this.isSubmitted = false
-          }
-        })
-      }).catch(error => {
-        this.$notifyError(error)
-        this.fetchData()
-        this.parentFetchData()
-        this.parentToggleLoading()
-        this.isSubmitted = false
-      })
+    closeDialog () {
+      if (!this.networkMutationSubmitting) this.dialog = ''
     },
-    handleDisableVpn () {
-      if (this.isSubmitted) return
-      this.isSubmitted = true
-      this.parentToggleLoading()
-      this.disableVpn = false
-      postAPI('deleteRemoteAccessVpn', {
-        publicipid: this.resource.id,
-        domainid: this.resource.domainid
-      }).then(response => {
-        this.$pollJob({
-          jobId: response.deleteremoteaccessvpnresponse.jobid,
-          successMessage: this.$t('message.success.disable.vpn'),
-          successMethod: () => {
-            this.fetchData()
-            this.parentToggleLoading()
-            this.isSubmitted = false
-          },
-          errorMessage: this.$t('message.disable.vpn.failed'),
-          errorMethod: () => {
-            this.fetchData()
-            this.parentToggleLoading()
-            this.isSubmitted = false
-          },
-          loadingMessage: this.$t('message.disable.vpn.processing'),
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.fetchData()
-            this.parentFetchData()
-            this.parentToggleLoading()
-            this.isSubmitted = false
-          }
-        })
-      }).catch(error => {
-        this.$notifyError(error)
-        this.fetchData()
-        this.parentFetchData()
-        this.parentToggleLoading()
-        this.isSubmitted = false
-      })
-    },
-    handleCreateVpnGateway () {
-      if (this.isSubmitted) return
-      this.isSubmitted = true
-      this.parentToggleLoading()
-      this.createVpnGateway = false
-      const params = {
-        vpcid: this.resource.vpcid,
-        ipaddressid: this.resource.id
-      }
-      postAPI('createVpnGateway', params).then(response => {
-        this.$pollJob({
-          jobId: response.createvpngatewayresponse.jobid,
-          successMessage: this.$t('message.success.add.vpn.gateway'),
-          successMethod: result => {
-            this.fetchData()
-            this.parentToggleLoading()
-            this.isSubmitted = false
-          },
-          errorMessage: this.$t('message.add.vpn.gateway.failed'),
-          errorMethod: () => {
-            this.fetchData()
-            this.parentToggleLoading()
-            this.isSubmitted = false
-          },
-          loadingMessage: this.$t('message.add.vpn.gateway.processing'),
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.fetchData()
-            this.parentFetchData()
-            this.parentToggleLoading()
-            this.isSubmitted = false
-          }
-        })
-      }).catch(error => {
-        this.$notifyError(error)
-        this.fetchData()
-        this.parentFetchData()
-        this.parentToggleLoading()
-        this.isSubmitted = false
-      })
-    },
-    handleDeleteVpnGateway () {
-      if (this.isSubmitted) return
-      this.isSubmitted = true
-      this.parentToggleLoading()
-      this.deleteVpnGateway = false
-      postAPI('deleteVpnGateway', {
-        id: this.vpnGateway.id
-      }).then(response => {
-        this.$pollJob({
-          jobId: response.deletevpngatewayresponse.jobid,
-          successMessage: this.$t('message.success.delete.vpn.gateway'),
-          successMethod: () => {
-            this.fetchData()
-            this.parentToggleLoading()
-            this.isSubmitted = false
-          },
-          errorMessage: this.$t('message.delete.vpn.gateway.failed'),
-          errorMethod: () => {
-            this.fetchData()
-            this.parentToggleLoading()
-            this.isSubmitted = false
-          },
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.fetchData()
-            this.parentFetchData()
-            this.parentToggleLoading()
-            this.isSubmitted = false
-          }
-        })
-      }).catch(error => {
-        this.$notifyError(error)
-        this.fetchData()
-        this.parentFetchData()
-        this.parentToggleLoading()
-        this.isSubmitted = false
+    async submit () {
+      const api = this.dialog
+      if (!api || this.locked || !this.canChange(api)) return
+      const ip = this.resource
+      let params
+      if (api === 'deleteVpnGateway') params = { id: this.vpnGateway.id }
+      else if (api === 'createVpnGateway') params = { ipaddressid: ip.id, vpcid: ip.vpcid }
+      else params = { publicipid: ip.id, ...publicIpScope(ip) }
+      await this.submitNetworkMutation(api, params, async () => {
+        this.dialog = ''
+        await this.refresh()
       })
     }
   }
 }
 </script>
-
-<style scoped lang="scss">
-  .actions {
-    display: flex;
-    justify-content: flex-end;
-
-    button {
-      &:not(:last-child) {
-        margin-right: 20px;
-      }
-    }
-  }
-</style>

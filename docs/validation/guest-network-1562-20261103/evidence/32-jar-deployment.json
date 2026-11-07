@@ -1,0 +1,14 @@
+{
+  "source_commit": "60ac6deebda",
+  "target": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+  "before_sha256": "878054400f56c243449021f5bbe32be45522a2cbe2aaa7a3371652b0fe4bb525",
+  "after_sha256": "df0f900602bc90d5e11a7dd327ea16d5f917d8507001b85ed7464708dd5e5f10",
+  "patched_class_count": 18,
+  "other_entries_unchanged": 204639,
+  "backup": "/dev/shm/gn1562-jar-20261103-233707/backup/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+  "old_pid": "307930",
+  "new_pid": "613723",
+  "durable_wsl_backup": "/home/ablecloud/work/guest-network-1562-validation/backups/original-cloudstack.jar",
+  "durable_backup_sha256": "878054400f56c243449021f5bbe32be45522a2cbe2aaa7a3371652b0fe4bb525",
+  "disk_space_recovery": "Removed only own incomplete temp and duplicate backup after durable copy"
+}

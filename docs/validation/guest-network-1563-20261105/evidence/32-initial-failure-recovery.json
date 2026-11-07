@@ -1,0 +1,147 @@
+{
+  "qaOnly": true,
+  "nic": "8bc7c4d7-603d-4791-ada9-5ef3c355b488",
+  "operations": [
+    {
+      "enabled": "false",
+      "result": {
+        "virtualmachine": {
+          "id": "55821978-ab7f-4d28-bf5b-50d2fc390ff7",
+          "name": "qa-gn1563-32-vm",
+          "displayname": "qa-gn1563-32-vm",
+          "account": "admin",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "username": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "created": "2026-11-05T22:08:00+0900",
+          "lastupdated": "2026-11-05T22:08:06+0900",
+          "state": "Running",
+          "haenable": false,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "hostcontrolstate": "Enabled",
+          "volumemutationblockedreason": "",
+          "guestosid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+          "securitygroup": [],
+          "nic": [
+            {
+              "id": "8bc7c4d7-603d-4791-ada9-5ef3c355b488",
+              "networkid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+              "networkname": "qa-gn1563-32-review",
+              "netmask": "255.255.255.0",
+              "gateway": "10.73.32.1",
+              "ipaddress": "10.73.32.64",
+              "isolationuri": "vlan://3204",
+              "broadcasturi": "vlan://3204",
+              "traffictype": "Guest",
+              "type": "Isolated",
+              "isdefault": true,
+              "macaddress": "02:01:01:6d:00:02",
+              "secondaryip": [],
+              "extradhcpoption": [],
+              "deviceid": "0",
+              "enabled": false
+            }
+          ],
+          "hypervisor": "KVM",
+          "ipaddress": "10.73.32.64",
+          "details": {
+            "tpmversion": "NONE",
+            "rootDiskController": "osdefault"
+          },
+          "clonefastsourcepowerallowed": false,
+          "clonefastpowerallowed": false,
+          "affinitygroup": [],
+          "displayvm": true,
+          "isdynamicallyscalable": true,
+          "deleteprotection": false,
+          "ostypeid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+          "osdisplayname": "Rocky Linux 9",
+          "pooltype": "RBD",
+          "receivedbytes": 0,
+          "sentbytes": 0,
+          "vbmcport": "None",
+          "qemuagentversion": "9.0.0",
+          "kvdoenable": false,
+          "kvdoinuse": false,
+          "vbmcstatus": "Unallocated",
+          "tags": [],
+          "hasannotations": false
+        }
+      }
+    },
+    {
+      "enabled": "true",
+      "result": {
+        "virtualmachine": {
+          "id": "55821978-ab7f-4d28-bf5b-50d2fc390ff7",
+          "name": "qa-gn1563-32-vm",
+          "displayname": "qa-gn1563-32-vm",
+          "account": "admin",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "username": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "created": "2026-11-05T22:08:00+0900",
+          "lastupdated": "2026-11-05T22:08:06+0900",
+          "state": "Running",
+          "haenable": false,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "hostcontrolstate": "Enabled",
+          "volumemutationblockedreason": "",
+          "guestosid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+          "securitygroup": [],
+          "nic": [
+            {
+              "id": "8bc7c4d7-603d-4791-ada9-5ef3c355b488",
+              "networkid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+              "networkname": "qa-gn1563-32-review",
+              "netmask": "255.255.255.0",
+              "gateway": "10.73.32.1",
+              "ipaddress": "10.73.32.64",
+              "isolationuri": "vlan://3204",
+              "broadcasturi": "vlan://3204",
+              "traffictype": "Guest",
+              "type": "Isolated",
+              "isdefault": true,
+              "macaddress": "02:01:01:6d:00:02",
+              "secondaryip": [],
+              "extradhcpoption": [],
+              "deviceid": "0",
+              "enabled": true
+            }
+          ],
+          "hypervisor": "KVM",
+          "ipaddress": "10.73.32.64",
+          "details": {
+            "tpmversion": "NONE",
+            "rootDiskController": "osdefault"
+          },
+          "clonefastsourcepowerallowed": false,
+          "clonefastpowerallowed": false,
+          "affinitygroup": [],
+          "displayvm": true,
+          "isdynamicallyscalable": true,
+          "deleteprotection": false,
+          "ostypeid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+          "osdisplayname": "Rocky Linux 9",
+          "pooltype": "RBD",
+          "receivedbytes": 0,
+          "sentbytes": 0,
+          "vbmcport": "None",
+          "qemuagentversion": "9.0.0",
+          "kvdoenable": false,
+          "kvdoinuse": false,
+          "vbmcstatus": "Unallocated",
+          "tags": [],
+          "hasannotations": false
+        }
+      }
+    }
+  ],
+  "reason": "Restore the QA NIC link after the first migration exposed a KVM tap-name update failure. This manual recovery is not a passing migration result."
+}

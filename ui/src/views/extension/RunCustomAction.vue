@@ -17,21 +17,27 @@
 
 <template>
   <div class="form-layout" v-ctrl-enter="handleSubmit">
+    <a-alert v-if="loadFailed" type="warning" show-icon :message="$t('message.guest.feature.load.failed')">
+      <template #action><a-button size="small" @click="fetchCustomActions">{{ $t('label.refresh') }}</a-button></template>
+    </a-alert>
+    <a-empty v-if="loaded && !loadFailed && !customActions.length" :description="$t('message.guest.feature.empty.actions')" />
+    <a-alert v-if="runFailed" type="error" show-icon :message="$t('message.guest.feature.action.failed')" />
     <a-form
       :ref="formRef"
       :model="form"
       :rules="rules"
       :loading="loading"
       layout="vertical"
-      @finish="handleSubmit">
+      >
       <a-form-item name="customactionid" ref="customactionid">
         <template #label>
-          <tooltip-label :title="$t('label.action')" :tooltip="apiParams.customactionid.description"/>
+          <tooltip-label :title="$t('label.action')" :tooltip="apiParams?.customactionid?.description"/>
         </template>
         <a-select
           showSearch
+          :disabled="loading || loadFailed || !customActions.length"
           v-model:value="form.customactionid"
-          :placeholder="apiParams.customactionid.description"
+          :placeholder="apiParams?.customactionid?.description"
           optionFilterProp="label"
           :filterOption="(input, option) => {
             return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -53,32 +59,33 @@
               <tooltip-label :title="field.name" :tooltip="field.name"/>
             </template>
             <a-switch
-              v-if="field.type === 'BOOLEAN'"
+              v-if="!secretField(field) && field.type === 'BOOLEAN'"
               v-model:checked="form[field.name]"
               :placeholder="field.name"
               v-focus="fieldIndex === 0"
             />
             <a-date-picker
-              v-else-if="field.type === 'DATE'"
+              v-else-if="!secretField(field) && field.type === 'DATE'"
               show-time
               v-model:value="form[field.name]"
               :placeholder="field.name"
               v-focus="fieldIndex === 0"
             />
             <a-select
-              v-else-if="field.valueoptions && field.valueoptions.length > 0"
+              v-else-if="!secretField(field) && field.valueoptions && field.valueoptions.length > 0"
               v-model:value="form[field.name]"
               :placeholder="field.name">
               <a-select-option v-for="t in field.valueoptions" :key="t" :value="t">{{ t }}</a-select-option>
             </a-select>
             <a-input-number
-              v-else-if="['NUMBER'].includes(field.type)"
+              v-else-if="!secretField(field) && ['NUMBER'].includes(field.type)"
               :precision="['DECIMAL'].includes(field.validationformat) ? 2 : 0"
               v-focus="fieldIndex === 0"
               v-model:value="form[field.name]"
               :placeholder="field.name" />
             <a-input-password
-              v-else-if="['STRING'].includes(field.type) && ['PASSWORD'].includes(field.validationformat)"
+              autocomplete="new-password"
+              v-else-if="secretField(field)"
               v-focus="fieldIndex === 0"
               v-model:value="form[field.name]"
               :placeholder="field.name" />
@@ -90,9 +97,9 @@
           </a-form-item>
         </div>
       </a-card>
-      <div :span="24" class="action-button">
+      <div v-if="canRun" :span="24" class="action-button">
         <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-        <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+        <a-button :loading="loading" :disabled="!currentAction || loadFailed" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
       </div>
     </a-form>
   </div>
@@ -101,6 +108,7 @@
 <script>
 import { ref, reactive, toRaw, h } from 'vue'
 import { getAPI, postAPI } from '@/api'
+import { canWriteGuestFeature } from '@/utils/conditionalGuestNetwork'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import DetailsInput from '@/components/widgets/DetailsInput'
 import JsonViewer from '@/views/extension/JsonViewer.vue'
@@ -120,7 +128,11 @@ export default {
   data () {
     return {
       customActions: [],
-      loading: false
+      loading: false,
+      loaded: false,
+      loadFailed: false,
+      runFailed: false,
+      request: 0
     }
   },
   beforeCreate () {
@@ -131,6 +143,9 @@ export default {
     this.fetchCustomActions()
   },
   computed: {
+    canRun () {
+      return this.$route.meta.name !== 'guestnetwork' || canWriteGuestFeature('custom.actions', 'runCustomAction', this.resource, this.$store.getters)
+    },
     datePattern () {
       return 'YYYY-MM-DDTHH:mm:ssZ'
     },
@@ -143,7 +158,7 @@ export default {
     },
     currentAction () {
       if (!this.customActions || this.customActions.length === 0 || !this.form.customactionid) {
-        return []
+        return null
       }
       return this.customActions.find(i => i.id === this.form.customactionid)
     },
@@ -154,7 +169,15 @@ export default {
       return this.currentAction?.parameters || []
     }
   },
+  watch: {
+    'resource.id' () {
+      this.fetchCustomActions()
+    }
+  },
   methods: {
+    secretField (field) {
+      return field.validationformat === 'PASSWORD' || /password|passphrase|secret|(?:api|access|private)[_.-]?key|token/i.test(field.name)
+    },
     initForm () {
       this.formRef = ref()
       this.form = reactive({})
@@ -163,17 +186,27 @@ export default {
       })
     },
     fetchCustomActions () {
+      const request = ++this.request
       this.loading = true
+      this.loaded = false
+      this.loadFailed = false
+      this.runFailed = false
       this.customActions = []
+      this.form.customactionid = undefined
+      this.onCustomActionChange()
       const params = {
         resourcetype: this.resourceType,
         resourceid: this.resource.id,
         enabled: true
       }
-      getAPI('listCustomActions', params).then(json => {
+      return getAPI('listCustomActions', params).then(json => {
+        if (request !== this.request) return
         this.customActions = json?.listcustomactionsresponse?.extensioncustomaction || []
+        this.loaded = true
+      }).catch(() => {
+        if (request === this.request) this.loadFailed = true
       }).finally(() => {
-        this.loading = false
+        if (request === this.request) this.loading = false
       })
     },
     onCustomActionChange () {
@@ -234,18 +267,21 @@ export default {
       }
     },
     handleSubmit (e) {
-      e.preventDefault()
-      if (this.loading) return
+      if (e?.preventDefault) e.preventDefault()
+      if (this.loading || this.loadFailed || !this.canRun || !this.currentAction) return
+      this.loading = true
+      this.runFailed = false
+      const action = this.currentAction
+      const sensitive = this.currentParameters.some(this.secretField)
       this.formRef.value.validate().then(() => {
+        if (!this.canRun || action.id !== this.currentAction?.id) return
         const values = toRaw(this.form)
-        this.loading = true
         const params = {
           resourcetype: this.resourceType,
           resourceid: this.resource.id,
           customactionid: values.customactionid
         }
-        var keys = Object.keys(values)
-        keys = keys.filter(k => k !== 'customactionid')
+        const keys = this.currentParameters.map(field => field.name).filter(key => key !== 'customactionid')
         for (const key of keys) {
           var value = values[key]
           if (value !== undefined && value != null &&
@@ -257,18 +293,18 @@ export default {
             params['parameters[0].' + key] = value
           }
         }
-        postAPI('runCustomAction', params).then(response => {
-          this.$pollJob({
+        return postAPI('runCustomAction', params).then(response => {
+          return this.$pollJob({
             jobId: response.runcustomactionresponse.jobid,
-            title: this.currentAction.name || this.$t('label.run.custom.action'),
-            description: this.currentAction.description || this.currentAction.name,
+            title: action.name || this.$t('label.run.custom.action'),
+            description: action.description || action.name,
             showSuccessMessage: false,
             successMethod: (result) => {
               this.$emit('refresh-data')
               const actionResponse = result.jobresult?.customactionresult || {}
               const success = actionResponse.success || false
-              const message = actionResponse?.result?.message || (success ? 'Success' : 'Failed')
-              const details = actionResponse?.result?.details
+              const message = (!sensitive && actionResponse?.result?.message) || this.$t(success ? 'label.success' : 'message.guest.feature.action.failed')
+              const details = sensitive ? null : actionResponse?.result?.details
               let printExtensionMessage = false
               let extensionMessage = null
               try {
@@ -294,8 +330,8 @@ export default {
                         maxHeight: '50vh',
                         maxWidth: '100%',
                         overflow: 'auto',
-                        backgroundColor: '#f6f6f6',
-                        border: '1px solid #ddd',
+                        backgroundColor: 'var(--ui-bg-surface)',
+                        border: '1px solid var(--ui-border-color, currentColor)',
                         borderRadius: '4px',
                         display: 'block'
                       }
@@ -313,10 +349,10 @@ export default {
                             h('th', {
                               style: {
                                 padding: '8px',
-                                border: '1px solid #ddd',
+                                border: '1px solid var(--ui-border-color, currentColor)',
                                 textAlign: 'left',
                                 fontWeight: 'bold',
-                                backgroundColor: '#fafafa'
+                                backgroundColor: 'var(--ui-bg-surface)'
                               }
                             }, key)
                           ))
@@ -326,7 +362,7 @@ export default {
                             h('td', {
                               style: {
                                 padding: '8px',
-                                border: '1px solid #ddd',
+                                border: '1px solid var(--ui-border-color, currentColor)',
                                 fontFamily: 'monospace'
                               }
                             }, String(value))
@@ -343,8 +379,8 @@ export default {
                         maxHeight: '50vh',
                         padding: '10px',
                         overflowY: 'auto',
-                        backgroundColor: '#f6f6f6',
-                        border: '1px solid #ddd',
+                        backgroundColor: 'var(--ui-bg-surface)',
+                        border: '1px solid var(--ui-border-color, currentColor)',
                         borderRadius: '4px',
                         fontFamily: 'monospace',
                         whiteSpace: 'pre-wrap',
@@ -363,28 +399,32 @@ export default {
               }
 
               modalType({
-                title: this.currentAction.name || this.$t('label.run.custom.action'),
+                title: action.name || this.$t('label.run.custom.action'),
                 content: h('div', contentElements),
                 width: '700px',
                 okText: this.$t('label.ok')
               })
             },
-            errorMessage: this.currentAction.name || this.$t('label.run.custom.action'),
+            errorMessage: action.name || this.$t('label.run.custom.action'),
             loadingMessage: this.$t('message.running.custom.action'),
             catchMessage: this.$t('error.fetching.async.job.result')
+          }).then(result => {
+            if (result.jobstatus === 1 && result.jobresult?.customactionresult?.success) this.$emit('close-action')
+            else this.runFailed = true
           })
-          this.closeAction()
-        }).catch(error => {
-          this.$notifyError(error)
+        }).catch(() => {
+          this.runFailed = true
         }).finally(() => {
-          this.loading = false
+          this.currentParameters.filter(this.secretField).forEach(field => { delete this.form[field.name] })
         })
-      }).catch(error => {
-        this.$notifyError(error)
+      }).catch(() => {
+        // Form fields already expose validation errors without echoing input.
+      }).finally(() => {
+        this.loading = false
       })
     },
     closeAction () {
-      this.$emit('close-action')
+      if (!this.loading) this.$emit('close-action')
     }
   }
 }
@@ -392,7 +432,8 @@ export default {
 
 <style scoped lang="less">
 .form-layout {
-  width: 80vw;
+  max-width: 100%;
+  width: 100%;
   @media (min-width: 600px) {
     width: 550px;
   }

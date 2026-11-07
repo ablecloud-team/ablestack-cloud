@@ -1,0 +1,21 @@
+{
+  "resolvedPriorError": {
+    "source": "b7630a7c02e7b38c45c977ddb9db355c655aedad",
+    "method": "fetchAccounts",
+    "message": "TypeError reading response.headers on cancellation"
+  },
+  "finalSource": "0599e57c9d286d54f423f3728c37091d2dfce459",
+  "cutoff": "2026-11-04T09:51:12.816Z",
+  "results": [
+    {
+      "cluster": 31,
+      "errorRecords": 0,
+      "criticalJavaScriptErrors": []
+    },
+    {
+      "cluster": 32,
+      "errorRecords": 0,
+      "criticalJavaScriptErrors": []
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "body": {
+    "bottom": 876,
+    "height": 797,
+    "left": 306,
+    "right": 964,
+    "top": 79,
+    "width": 658,
+    "x": 306,
+    "y": 79
+  },
+  "bodyClientHeight": 797,
+  "bodyClientWidth": 648,
+  "bodyScrollHeight": 1192,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 648,
+  "colors": [
+    {
+      "background": "rgb(255, 248, 230)",
+      "color": "rgb(92, 59, 0)",
+      "text": "VPC 네트워크 오퍼링은 VPC 안에 네트워크를 생성할 때 사용할 수 있습니다."
+    }
+  ],
+  "content": {
+    "bottom": 876,
+    "height": 852,
+    "left": 306,
+    "right": 964,
+    "top": 24,
+    "width": 658,
+    "x": 306,
+    "y": 24
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1270,
+    "top": 0,
+    "width": 1270,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "TEXTAREA"
+  },
+  "footer": null,
+  "header": {
+    "bottom": 79,
+    "height": 55,
+    "left": 306,
+    "right": 964,
+    "top": 24,
+    "width": 658,
+    "x": 306,
+    "y": 24
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 776,
+    "left": 256,
+    "right": 1270,
+    "top": 124,
+    "width": 1014,
+    "x": 256,
+    "y": 124
+  },
+  "primaryButton": null,
+  "width": 1280,
+  "image_sha256": "312488977eb27f47301f2477c90713a4ca64d4b02e98fc6d94875173c4940640"
+}

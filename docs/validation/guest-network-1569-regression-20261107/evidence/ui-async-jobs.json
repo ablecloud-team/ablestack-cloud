@@ -1,0 +1,336 @@
+{
+  "31": [
+    {
+      "code": 0,
+      "uuid": "c57c89ed-638a-454c-bca3-1d6004920f26",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.loadbalancer.CreateLoadBalancerRuleCmd",
+      "protocol": null,
+      "targetId": "889",
+      "algorithm": "roundrobin",
+      "errorText": null,
+      "displaytext": null
+    },
+    {
+      "code": 530,
+      "uuid": "1a5bbfd2-3f83-48c3-8f9b-c0c9caf46e72",
+      "status": 2,
+      "command": "org.apache.cloudstack.api.command.user.loadbalancer.UpdateLoadBalancerRuleCmd",
+      "protocol": null,
+      "targetId": "739c314f-a5a9-418c-bc6c-6040a77f9046",
+      "algorithm": "leastconn",
+      "errorText": "Cannot invoke \"String.equals(Object)\" because the return value of \"com.cloud.network.dao.LoadBalancerVO.getLbProtocol()\" is null",
+      "displaytext": null
+    },
+    {
+      "code": 0,
+      "uuid": "2595a75a-7129-421a-a7ff-4c2e184eb6b6",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd",
+      "protocol": null,
+      "targetId": "728ab627-0aff-4d39-a63f-3f0eae3777a2",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 owner nat saved"
+    },
+    {
+      "code": 0,
+      "uuid": "a9d69479-67a6-4a40-8366-f12c3b056b76",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd",
+      "protocol": null,
+      "targetId": "776362a9-9943-48d7-aaf1-ca1455a9ae1e",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 owner shared saved"
+    },
+    {
+      "code": 0,
+      "uuid": "3cfa62f6-b342-4dc9-a416-0f2f9c0db95e",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd",
+      "protocol": null,
+      "targetId": "1a7c7bc5-b487-4acb-92d7-391c0198c0dc",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 owner l2 saved"
+    },
+    {
+      "code": 0,
+      "uuid": "33c01a09-a2e3-487f-b713-72a508156b02",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd",
+      "protocol": null,
+      "targetId": "728ab627-0aff-4d39-a63f-3f0eae3777a2",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 member nat saved"
+    },
+    {
+      "code": 0,
+      "uuid": "f0e476dc-d334-4c4a-80bc-64a282a0c074",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd",
+      "protocol": null,
+      "targetId": "1a7c7bc5-b487-4acb-92d7-391c0198c0dc",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 member l2 saved"
+    },
+    {
+      "code": 0,
+      "uuid": "ce811002-0019-4e1d-b771-e5ccef3be99f",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd",
+      "protocol": null,
+      "targetId": "776362a9-9943-48d7-aaf1-ca1455a9ae1e",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 member shared saved"
+    },
+    {
+      "code": 0,
+      "uuid": "11961717-301f-4bc3-9af2-ec37d33d49e0",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd",
+      "protocol": null,
+      "targetId": "728ab627-0aff-4d39-a63f-3f0eae3777a2",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 domainadmin nat saved"
+    },
+    {
+      "code": 0,
+      "uuid": "b6290440-a5d8-4dea-8e05-65640b45a7bd",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd",
+      "protocol": null,
+      "targetId": "1a7c7bc5-b487-4acb-92d7-391c0198c0dc",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 domainadmin l2 saved"
+    },
+    {
+      "code": 0,
+      "uuid": "2629a5fb-b3e3-458c-939b-dfa1356b9ef9",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd",
+      "protocol": null,
+      "targetId": "776362a9-9943-48d7-aaf1-ca1455a9ae1e",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 domainadmin shared saved"
+    },
+    {
+      "code": 0,
+      "uuid": "20d7fa9b-0199-4a20-95ce-8962324e2ece",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.admin.network.UpdateNetworkCmdByAdmin",
+      "protocol": null,
+      "targetId": "728ab627-0aff-4d39-a63f-3f0eae3777a2",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 root nat saved"
+    },
+    {
+      "code": 0,
+      "uuid": "013c7672-86fc-4a8f-b637-ab35ac32d785",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.admin.network.UpdateNetworkCmdByAdmin",
+      "protocol": null,
+      "targetId": "1a7c7bc5-b487-4acb-92d7-391c0198c0dc",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 root l2 saved"
+    },
+    {
+      "code": 0,
+      "uuid": "634041ec-6105-4fd2-9ae2-8919ef954fcb",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.admin.network.UpdateNetworkCmdByAdmin",
+      "protocol": null,
+      "targetId": "776362a9-9943-48d7-aaf1-ca1455a9ae1e",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 root shared saved"
+    },
+    {
+      "code": 530,
+      "uuid": "ab6163df-1357-4939-a9d0-5ce2af5906ec",
+      "status": 2,
+      "command": "org.apache.cloudstack.api.command.user.loadbalancer.UpdateLoadBalancerRuleCmd",
+      "protocol": null,
+      "targetId": "739c314f-a5a9-418c-bc6c-6040a77f9046",
+      "algorithm": "roundrobin",
+      "errorText": "Cannot invoke \"String.equals(Object)\" because the return value of \"com.cloud.network.dao.LoadBalancerVO.getLbProtocol()\" is null",
+      "displaytext": null
+    }
+  ],
+  "32": [
+    {
+      "code": 0,
+      "uuid": "794c4ed1-f5f4-488f-b696-67f01d68817c",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.loadbalancer.CreateLoadBalancerRuleCmd",
+      "protocol": null,
+      "targetId": "71",
+      "algorithm": "roundrobin",
+      "errorText": null,
+      "displaytext": null
+    },
+    {
+      "code": 530,
+      "uuid": "d6815d40-b3ac-4167-9465-27585d1db36a",
+      "status": 2,
+      "command": "org.apache.cloudstack.api.command.user.loadbalancer.UpdateLoadBalancerRuleCmd",
+      "protocol": null,
+      "targetId": "3cc2a1c8-4362-44fd-9bd7-aeddd77c6f5e",
+      "algorithm": "leastconn",
+      "errorText": "Cannot invoke \"String.equals(Object)\" because the return value of \"com.cloud.network.dao.LoadBalancerVO.getLbProtocol()\" is null",
+      "displaytext": null
+    },
+    {
+      "code": 0,
+      "uuid": "33a403dc-8c17-42e5-9746-ed747c234e82",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd",
+      "protocol": null,
+      "targetId": "520b13f5-966b-4ee9-af3a-e5e6339e11ca",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 owner nat saved"
+    },
+    {
+      "code": 0,
+      "uuid": "ba50b59d-0df1-46e9-ad7d-99c23051686a",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd",
+      "protocol": null,
+      "targetId": "8e90bb7a-8fca-469b-accc-8a33c349b611",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 owner l2 saved"
+    },
+    {
+      "code": 0,
+      "uuid": "2f9f0df0-fcde-41f0-9f35-9efaff08af0a",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd",
+      "protocol": null,
+      "targetId": "92102e11-abf4-464f-9592-b04671c9946a",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 owner shared saved"
+    },
+    {
+      "code": 0,
+      "uuid": "f09d794f-2962-4abb-a196-0bd743cbafe1",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd",
+      "protocol": null,
+      "targetId": "520b13f5-966b-4ee9-af3a-e5e6339e11ca",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 member nat saved"
+    },
+    {
+      "code": 0,
+      "uuid": "40863db2-5f74-42fc-ac9b-274f2fa6d5a5",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd",
+      "protocol": null,
+      "targetId": "8e90bb7a-8fca-469b-accc-8a33c349b611",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 member l2 saved"
+    },
+    {
+      "code": 0,
+      "uuid": "a5a2d594-058e-458a-9326-c2a4c5c277ab",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd",
+      "protocol": null,
+      "targetId": "92102e11-abf4-464f-9592-b04671c9946a",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 member shared saved"
+    },
+    {
+      "code": 0,
+      "uuid": "94b06f14-f9ec-48d9-ad4b-903b2cf9f601",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd",
+      "protocol": null,
+      "targetId": "520b13f5-966b-4ee9-af3a-e5e6339e11ca",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 domainadmin nat saved"
+    },
+    {
+      "code": 0,
+      "uuid": "1bddf783-78e1-416e-901f-adde8457f9e9",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd",
+      "protocol": null,
+      "targetId": "8e90bb7a-8fca-469b-accc-8a33c349b611",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 domainadmin l2 saved"
+    },
+    {
+      "code": 0,
+      "uuid": "2bfafe65-11d8-4121-b42f-3ccf4b469ac7",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd",
+      "protocol": null,
+      "targetId": "92102e11-abf4-464f-9592-b04671c9946a",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 domainadmin shared saved"
+    },
+    {
+      "code": 0,
+      "uuid": "f91c9e68-2f1e-42ce-8087-909176ad45e6",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.admin.network.UpdateNetworkCmdByAdmin",
+      "protocol": null,
+      "targetId": "520b13f5-966b-4ee9-af3a-e5e6339e11ca",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 root nat saved"
+    },
+    {
+      "code": 0,
+      "uuid": "4a5a721b-2ce9-4ebb-be9d-8b83c3027bdf",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.admin.network.UpdateNetworkCmdByAdmin",
+      "protocol": null,
+      "targetId": "8e90bb7a-8fca-469b-accc-8a33c349b611",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 root l2 saved"
+    },
+    {
+      "code": 0,
+      "uuid": "68b1105b-6707-45b1-b0a8-2fb82295fae4",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.admin.network.UpdateNetworkCmdByAdmin",
+      "protocol": null,
+      "targetId": "92102e11-abf4-464f-9592-b04671c9946a",
+      "algorithm": null,
+      "errorText": null,
+      "displaytext": "UI1569 root shared saved"
+    },
+    {
+      "code": 530,
+      "uuid": "6452073a-8e26-46c8-916c-c8e7b041c507",
+      "status": 2,
+      "command": "org.apache.cloudstack.api.command.user.loadbalancer.UpdateLoadBalancerRuleCmd",
+      "protocol": null,
+      "targetId": "3cc2a1c8-4362-44fd-9bd7-aeddd77c6f5e",
+      "algorithm": "roundrobin",
+      "errorText": "Cannot invoke \"String.equals(Object)\" because the return value of \"com.cloud.network.dao.LoadBalancerVO.getLbProtocol()\" is null",
+      "displaytext": null
+    }
+  ]
+}

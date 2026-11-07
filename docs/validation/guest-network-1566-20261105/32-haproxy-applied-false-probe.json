@@ -1,0 +1,9 @@
+{
+  "configuration": "global\n\tlog 127.0.0.1:3914   local0 warning\n\tmaxconn 513\n\tmaxpipes 128\n\tchroot /var/lib/haproxy\n\tuser haproxy\n\tgroup haproxy\n\tstats socket /run/haproxy/admin.sock\n\tdaemon\n\t \ndefaults\n\tlog     global\n\tmode    tcp\n\toption  dontlognull\n\tretries 3\n\toption redispatch\n\toption forwardfor\n\toption httpclose\n\ttimeout connect    5000\n\ttimeout client     50000\n\ttimeout server     50000\n\nlisten stats_on_public\n\tbind 10.10.32.166:8081\n\tmode http\n\toption httpclose\n\tstats enable\n\tstats uri     /admin?stats\n\tstats realm   Haproxy\\ Statistics\n\tstats auth    [REDACTED]\n\n\t \nlisten 10_10_32_166-80\n\tbind 10.10.32.166:80\n\tmode http\n\toption httpclose\n\tacl network_allowed src 10.10.0.0/16 \n\ttcp-request connection reject if !network_allowed\n\tbalance leastconn\n\tserver 10_10_32_166-80_0 10.76.32.70:8080 check\n\t \n\t \n",
+  "rawConfigurationSha256": "064d75d4f050e61ae5ba60ec9c04931924ff6b4fff24b2eff27e102cbb32690f",
+  "syntaxExit": 0,
+  "syntaxOutput": "Configuration file is valid\n",
+  "service": "active",
+  "routerHttpResponse": "QA-GN1566-32 HTTP backend\n",
+  "clientHttpResponse": "QA-GN1566-32 HTTP backend\n"
+}

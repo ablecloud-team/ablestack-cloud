@@ -1,0 +1,34 @@
+[
+  {
+    "cluster": 31,
+    "scope": "shared-domain",
+    "value": "true"
+  },
+  {
+    "cluster": 31,
+    "scope": "shared-all",
+    "value": "false"
+  },
+  {
+    "cluster": 32,
+    "scope": "shared-domain",
+    "value": "true"
+  },
+  {
+    "cluster": 32,
+    "scope": "shared-all",
+    "value": "false"
+  },
+  {
+    "cluster": 31,
+    "scope": "shared-project",
+    "value": "false",
+    "unchangedSave": true
+  },
+  {
+    "cluster": 32,
+    "scope": "shared-project",
+    "value": "false",
+    "unchangedSave": true
+  }
+]

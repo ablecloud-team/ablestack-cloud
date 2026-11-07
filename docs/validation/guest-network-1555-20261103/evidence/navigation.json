@@ -1,0 +1,28 @@
+[
+  {
+    "cluster": 31,
+    "mode": "dark",
+    "path": [
+      "http://10.10.31.10:8080/client/#/guestnetwork",
+      "http://10.10.31.10:8080/client/#/guestnetwork/58851ba9-856a-448e-997f-353f9dae854a",
+      "http://10.10.31.10:8080/client/#/guestnetwork/58851ba9-856a-448e-997f-353f9dae854a?tab=virtual.routers",
+      "http://10.10.31.10:8080/client/#/vm?networkid=58851ba9-856a-448e-997f-353f9dae854a",
+      "http://10.10.31.10:8080/client/#/vm/e99ef826-1077-4298-a65d-917c4fe58141",
+      "http://10.10.31.10:8080/client/#/vm/e99ef826-1077-4298-a65d-917c4fe58141?tab=nics",
+      "http://10.10.31.10:8080/client/#/guestnetwork/58851ba9-856a-448e-997f-353f9dae854a"
+    ]
+  },
+  {
+    "cluster": 32,
+    "mode": "dark",
+    "path": [
+      "http://10.10.32.10:8080/client/#/guestnetwork",
+      "http://10.10.32.10:8080/client/#/guestnetwork/c5203d61-0fcb-4907-bfe4-7f994933efa8",
+      "http://10.10.32.10:8080/client/#/guestnetwork/c5203d61-0fcb-4907-bfe4-7f994933efa8?tab=virtual.routers",
+      "http://10.10.32.10:8080/client/#/vm?networkid=c5203d61-0fcb-4907-bfe4-7f994933efa8",
+      "http://10.10.32.10:8080/client/#/vm/ba9e2396-38fb-494c-8659-7f3904a05316",
+      "http://10.10.32.10:8080/client/#/vm/ba9e2396-38fb-494c-8659-7f3904a05316?tab=nics",
+      "http://10.10.32.10:8080/client/#/guestnetwork/c5203d61-0fcb-4907-bfe4-7f994933efa8"
+    ]
+  }
+]

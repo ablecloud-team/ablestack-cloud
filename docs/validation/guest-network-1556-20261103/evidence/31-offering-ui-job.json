@@ -1,0 +1,301 @@
+{
+  "post": {
+    "cluster": 31,
+    "requestId": "29664.2536",
+    "command": "updateNetwork",
+    "method": "POST",
+    "params": {
+      "command": "updateNetwork",
+      "id": "4a6d4597-4577-4db4-b8c6-0f17221f0412",
+      "name": "qa-gn1556-31-isolated",
+      "displaytext": "qa-gn1556-31-concurrent-retained",
+      "networkofferingid": "8b5e9df5-ba4b-494d-86a1-8365e03e0966"
+    },
+    "status": 200
+  },
+  "receipt": {
+    "jobid": "d1573063-9979-4ad0-a16e-a4dea084fe81"
+  },
+  "job": {
+    "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+    "account": "admin",
+    "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+    "domainpath": "ROOT",
+    "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+    "cmd": "org.apache.cloudstack.api.command.admin.network.UpdateNetworkCmdByAdmin",
+    "jobprocstatus": 0,
+    "jobresultcode": 0,
+    "jobresulttype": "object",
+    "jobresult": {
+      "network": {
+        "id": "4a6d4597-4577-4db4-b8c6-0f17221f0412",
+        "name": "qa-gn1556-31-isolated",
+        "displaytext": "qa-gn1556-31-concurrent-retained",
+        "broadcastdomaintype": "Vlan",
+        "traffictype": "Guest",
+        "gateway": "10.252.31.1",
+        "netmask": "255.255.255.0",
+        "cidr": "10.252.31.0/24",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "zonename": "Zone",
+        "networkofferingid": "8b5e9df5-ba4b-494d-86a1-8365e03e0966",
+        "networkofferingname": "qa-gn1556-31-target",
+        "networkofferingdisplaytext": "qa-gn1556-31-target",
+        "networkofferingconservemode": true,
+        "networkofferingavailability": "Optional",
+        "issystem": false,
+        "state": "Implemented",
+        "related": "4a6d4597-4577-4db4-b8c6-0f17221f0412",
+        "broadcasturi": "vlan://154",
+        "dns1": "8.8.8.8",
+        "type": "Isolated",
+        "vlan": "154",
+        "acltype": "Account",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "service": [
+          {
+            "name": "UserData",
+            "provider": [
+              {
+                "name": "VirtualRouter"
+              }
+            ],
+            "capability": []
+          },
+          {
+            "name": "Vpn",
+            "provider": [
+              {
+                "name": "VirtualRouter"
+              }
+            ],
+            "capability": [
+              {
+                "name": "SupportedVpnTypes",
+                "value": "pptp,l2tp,ipsec",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "VpnTypes",
+                "value": "remoteaccessvpn",
+                "canchooseservicecapability": false
+              }
+            ]
+          },
+          {
+            "name": "StaticNat",
+            "provider": [
+              {
+                "name": "VirtualRouter"
+              }
+            ],
+            "capability": [
+              {
+                "name": "ElasticIp",
+                "value": "false",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "AssociatePublicIP",
+                "value": "false",
+                "canchooseservicecapability": false
+              }
+            ]
+          },
+          {
+            "name": "PortForwarding",
+            "provider": [
+              {
+                "name": "VirtualRouter"
+              }
+            ],
+            "capability": [
+              {
+                "name": "SupportedProtocols",
+                "value": "tcp,udp",
+                "canchooseservicecapability": false
+              }
+            ]
+          },
+          {
+            "name": "Dns",
+            "provider": [
+              {
+                "name": "VirtualRouter"
+              }
+            ],
+            "capability": [
+              {
+                "name": "AllowDnsSuffixModification",
+                "value": "true",
+                "canchooseservicecapability": false
+              }
+            ]
+          },
+          {
+            "name": "Lb",
+            "provider": [
+              {
+                "name": "VirtualRouter"
+              }
+            ],
+            "capability": [
+              {
+                "name": "SupportedStickinessMethods",
+                "value": "[{\"methodname\":\"LbCookie\",\"paramlist\":[{\"paramname\":\"cookie-name\",\"required\":false,\"isflag\":false,\"description\":\" \"},{\"paramname\":\"mode\",\"required\":false,\"isflag\":false,\"description\":\" \"},{\"paramname\":\"nocache\",\"required\":false,\"isflag\":true,\"description\":\" \"},{\"paramname\":\"indirect\",\"required\":false,\"isflag\":true,\"description\":\" \"},{\"paramname\":\"postonly\",\"required\":false,\"isflag\":true,\"description\":\" \"},{\"paramname\":\"domain\",\"required\":false,\"isflag\":false,\"description\":\" \"}],\"description\":\"This is loadbalancer cookie based stickiness method.\"},{\"methodname\":\"AppCookie\",\"paramlist\":[{\"paramname\":\"cookie-name\",\"required\":false,\"isflag\":false,\"description\":\" \"},{\"paramname\":\"length\",\"required\":false,\"isflag\":false,\"description\":\" \"},{\"paramname\":\"holdtime\",\"required\":false,\"isflag\":false,\"description\":\" \"},{\"paramname\":\"request-learn\",\"required\":false,\"isflag\":true,\"description\":\" \"},{\"paramname\":\"prefix\",\"required\":false,\"isflag\":true,\"description\":\" \"},{\"paramname\":\"mode\",\"required\":false,\"isflag\":false,\"description\":\" \"}],\"description\":\"This is App session based sticky method. Define session stickiness on an existing application cookie. It can be used only for a specific http traffic\"},{\"methodname\":\"SourceBased\",\"paramlist\":[{\"paramname\":\"tablesize\",\"required\":false,\"isflag\":false,\"description\":\" \"},{\"paramname\":\"expire\",\"required\":false,\"isflag\":false,\"description\":\" \"}],\"description\":\"This is source based Stickiness method, it can be used for any type of protocol.\"}]",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "AutoScaleCounters",
+                "value": "[{\"methodname\":\"CPU\",\"paramlist\":[]},{\"methodname\":\"MEMORY\",\"paramlist\":[]},{\"methodname\":\"VIRTUALROUTER\",\"paramlist\":[]}]",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "SupportedLbAlgorithms",
+                "value": "roundrobin,leastconn,source",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "SupportedProtocols",
+                "value": "tcp, udp, tcp-proxy, ssl, http",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "SupportedLBIsolation",
+                "value": "dedicated",
+                "canchooseservicecapability": true
+              },
+              {
+                "name": "LbSchemes",
+                "value": "Public",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "SslTermination",
+                "value": "true",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "VmAutoScaling",
+                "value": "true",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "ElasticLb",
+                "value": "false",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "InlineMode",
+                "value": "false",
+                "canchooseservicecapability": false
+              }
+            ]
+          },
+          {
+            "name": "Dhcp",
+            "provider": [
+              {
+                "name": "VirtualRouter"
+              }
+            ],
+            "capability": [
+              {
+                "name": "DhcpAccrossMultipleSubnets",
+                "value": "true",
+                "canchooseservicecapability": false
+              }
+            ]
+          },
+          {
+            "name": "SourceNat",
+            "provider": [
+              {
+                "name": "VirtualRouter"
+              }
+            ],
+            "capability": [
+              {
+                "name": "SupportedSourceNatTypes",
+                "value": "peraccount",
+                "canchooseservicecapability": true
+              },
+              {
+                "name": "RedundantRouter",
+                "value": "false",
+                "canchooseservicecapability": true
+              }
+            ]
+          },
+          {
+            "name": "Firewall",
+            "provider": [
+              {
+                "name": "VirtualRouter"
+              }
+            ],
+            "capability": [
+              {
+                "name": "SupportedTrafficDirection",
+                "value": "ingress, egress",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "SupportedProtocols",
+                "value": "tcp,udp,icmp",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "MultipleIps",
+                "value": "true",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "SupportedEgressProtocols",
+                "value": "tcp,udp,icmp, all",
+                "canchooseservicecapability": false
+              },
+              {
+                "name": "TrafficStatistics",
+                "value": "per public ip",
+                "canchooseservicecapability": false
+              }
+            ]
+          }
+        ],
+        "networkdomain": "cs2cloud.internal",
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "restartrequired": false,
+        "specifyvlan": false,
+        "specifyipranges": false,
+        "canusefordeploy": true,
+        "ispersistent": false,
+        "tags": [],
+        "details": {
+          "hideIpAddressUsage": "false"
+        },
+        "displaynetwork": true,
+        "strechedl2subnet": false,
+        "redundantrouter": false,
+        "supportsvmautoscaling": true,
+        "created": "2026-11-03T12:20:04+0900",
+        "receivedbytes": 0,
+        "sentbytes": 9104,
+        "egressdefaultpolicy": false,
+        "publicmtu": 1500,
+        "privatemtu": 1500,
+        "keepmacaddressonpublicnic": true,
+        "hasannotations": false
+      }
+    },
+    "jobinstancetype": "Network",
+    "created": "2026-11-03T13:10:46+0900",
+    "completed": "2026-11-03T13:11:21+0900",
+    "jobid": "d1573063-9979-4ad0-a16e-a4dea084fe81",
+    "jobstatus": 1
+  },
+  "dialogCount": 0
+}

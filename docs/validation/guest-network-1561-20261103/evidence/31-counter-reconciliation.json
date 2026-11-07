@@ -1,0 +1,28 @@
+{
+  "observed_before": 3,
+  "after_deletes": 2,
+  "database_recalculation_expected": 3,
+  "params": {
+    "account": "admin",
+    "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+    "resourcetype": 6
+  },
+  "response": {
+    "updateresourcecountresponse": {
+      "count": 1,
+      "resourcecount": [
+        {
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "resourcetype": "6",
+          "resourcetypename": "network",
+          "resourcecount": 3
+        }
+      ]
+    }
+  },
+  "recovery": "official API; no direct database update",
+  "followup": 1568
+}

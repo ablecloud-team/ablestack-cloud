@@ -1,0 +1,45 @@
+{
+  "image": "d44147d5-e5e5-44f2-9a55-079f4c44b4cd",
+  "hosts": {
+    "1": {
+      "all_domains_checked": true,
+      "mappings": [],
+      "unmapped": true
+    },
+    "2": {
+      "all_domains_checked": true,
+      "mappings": [
+        {
+          "id": "7",
+          "pool": "rbd",
+          "namespace": "",
+          "name": "d44147d5-e5e5-44f2-9a55-079f4c44b4cd",
+          "snap": "-",
+          "device": "/dev/rbd7"
+        }
+      ],
+      "unmapped": true
+    },
+    "3": {
+      "all_domains_checked": true,
+      "mappings": [
+        {
+          "id": "14",
+          "pool": "rbd",
+          "namespace": "",
+          "name": "d44147d5-e5e5-44f2-9a55-079f4c44b4cd",
+          "snap": "-",
+          "device": "/dev/rbd14"
+        }
+      ],
+      "unmapped": true
+    }
+  },
+  "deleteVolume": {
+    "deletevolumeresponse": {
+      "success": true
+    }
+  },
+  "db_after": "Expunged\t2026-11-03 15:20:54\n",
+  "rbd_after": "TARGET_ABSENT\n"
+}

@@ -1,0 +1,590 @@
+{
+  "31-nat": {
+    "tabs": [
+      "상세",
+      "송신 규칙",
+      "Public IP 주소",
+      "가상 라우터",
+      "VNF 기기",
+      "네트워크 권한",
+      "이벤트",
+      "코멘트"
+    ],
+    "active": [
+      {
+        "tab": "상세",
+        "path": "#/guestnetwork/9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0?tab=details",
+        "rendered": true
+      },
+      {
+        "tab": "송신 규칙",
+        "path": "#/guestnetwork/9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0?tab=egress.rules",
+        "rendered": true
+      },
+      {
+        "tab": "Public IP 주소",
+        "path": "#/guestnetwork/9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0?tab=public.ip.addresses",
+        "rendered": true
+      },
+      {
+        "tab": "가상 라우터",
+        "path": "#/guestnetwork/9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0?tab=virtual.routers",
+        "rendered": true
+      },
+      {
+        "tab": "VNF 기기",
+        "path": "#/guestnetwork/9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0?tab=vnf.appliances",
+        "rendered": true
+      },
+      {
+        "tab": "네트워크 권한",
+        "path": "#/guestnetwork/9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0?tab=network.permissions",
+        "rendered": true
+      },
+      {
+        "tab": "이벤트",
+        "path": "#/guestnetwork/9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0?tab=events",
+        "rendered": true
+      },
+      {
+        "tab": "코멘트",
+        "path": "#/guestnetwork/9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0?tab=comments",
+        "rendered": true
+      }
+    ]
+  },
+  "31-nosnat": {
+    "tabs": [
+      "상세",
+      "송신 규칙",
+      "Public IP 주소",
+      "가상 라우터",
+      "VNF 기기",
+      "게스트 IP 주소 범위",
+      "네트워크 권한",
+      "이벤트",
+      "코멘트"
+    ],
+    "active": [
+      {
+        "tab": "상세",
+        "path": "#/guestnetwork/b056b626-fe5e-4b75-ba17-78e421162dd7?tab=details",
+        "rendered": true
+      },
+      {
+        "tab": "송신 규칙",
+        "path": "#/guestnetwork/b056b626-fe5e-4b75-ba17-78e421162dd7?tab=egress.rules",
+        "rendered": true
+      },
+      {
+        "tab": "Public IP 주소",
+        "path": "#/guestnetwork/b056b626-fe5e-4b75-ba17-78e421162dd7?tab=public.ip.addresses",
+        "rendered": true
+      },
+      {
+        "tab": "가상 라우터",
+        "path": "#/guestnetwork/b056b626-fe5e-4b75-ba17-78e421162dd7?tab=virtual.routers",
+        "rendered": true
+      },
+      {
+        "tab": "VNF 기기",
+        "path": "#/guestnetwork/b056b626-fe5e-4b75-ba17-78e421162dd7?tab=vnf.appliances",
+        "rendered": true
+      },
+      {
+        "tab": "게스트 IP 주소 범위",
+        "path": "#/guestnetwork/b056b626-fe5e-4b75-ba17-78e421162dd7?tab=guest.ip.range",
+        "rendered": true
+      },
+      {
+        "tab": "네트워크 권한",
+        "path": "#/guestnetwork/b056b626-fe5e-4b75-ba17-78e421162dd7?tab=network.permissions",
+        "rendered": true
+      },
+      {
+        "tab": "이벤트",
+        "path": "#/guestnetwork/b056b626-fe5e-4b75-ba17-78e421162dd7?tab=events",
+        "rendered": true
+      },
+      {
+        "tab": "코멘트",
+        "path": "#/guestnetwork/b056b626-fe5e-4b75-ba17-78e421162dd7?tab=comments",
+        "rendered": true
+      }
+    ]
+  },
+  "31-l2": {
+    "tabs": [
+      "상세",
+      "VNF 기기",
+      "네트워크 권한",
+      "이벤트",
+      "코멘트"
+    ],
+    "active": [
+      {
+        "tab": "상세",
+        "path": "#/guestnetwork/9103d235-6ff9-42b7-ad1f-0225d21f507a?tab=details",
+        "rendered": true
+      },
+      {
+        "tab": "VNF 기기",
+        "path": "#/guestnetwork/9103d235-6ff9-42b7-ad1f-0225d21f507a?tab=vnf.appliances",
+        "rendered": true
+      },
+      {
+        "tab": "네트워크 권한",
+        "path": "#/guestnetwork/9103d235-6ff9-42b7-ad1f-0225d21f507a?tab=network.permissions",
+        "rendered": true
+      },
+      {
+        "tab": "이벤트",
+        "path": "#/guestnetwork/9103d235-6ff9-42b7-ad1f-0225d21f507a?tab=events",
+        "rendered": true
+      },
+      {
+        "tab": "코멘트",
+        "path": "#/guestnetwork/9103d235-6ff9-42b7-ad1f-0225d21f507a?tab=comments",
+        "rendered": true
+      }
+    ]
+  },
+  "31-shared": {
+    "tabs": [
+      "상세",
+      "IP 주소",
+      "가상 라우터",
+      "VNF 기기",
+      "게스트 IP 주소 범위",
+      "네트워크 권한",
+      "이벤트",
+      "코멘트"
+    ],
+    "active": [
+      {
+        "tab": "상세",
+        "path": "#/guestnetwork/0346f16d-8a02-4fb6-860a-cc380def63f4?tab=details",
+        "rendered": true
+      },
+      {
+        "tab": "IP 주소",
+        "path": "#/guestnetwork/0346f16d-8a02-4fb6-860a-cc380def63f4?tab=public.ip.addresses",
+        "rendered": true
+      },
+      {
+        "tab": "가상 라우터",
+        "path": "#/guestnetwork/0346f16d-8a02-4fb6-860a-cc380def63f4?tab=virtual.routers",
+        "rendered": true
+      },
+      {
+        "tab": "VNF 기기",
+        "path": "#/guestnetwork/0346f16d-8a02-4fb6-860a-cc380def63f4?tab=vnf.appliances",
+        "rendered": true
+      },
+      {
+        "tab": "게스트 IP 주소 범위",
+        "path": "#/guestnetwork/0346f16d-8a02-4fb6-860a-cc380def63f4?tab=guest.ip.range",
+        "rendered": true
+      },
+      {
+        "tab": "네트워크 권한",
+        "path": "#/guestnetwork/0346f16d-8a02-4fb6-860a-cc380def63f4?tab=network.permissions",
+        "rendered": true
+      },
+      {
+        "tab": "이벤트",
+        "path": "#/guestnetwork/0346f16d-8a02-4fb6-860a-cc380def63f4?tab=events",
+        "rendered": true
+      },
+      {
+        "tab": "코멘트",
+        "path": "#/guestnetwork/0346f16d-8a02-4fb6-860a-cc380def63f4?tab=comments",
+        "rendered": true
+      }
+    ]
+  },
+  "32-nat": {
+    "tabs": [
+      "상세",
+      "송신 규칙",
+      "Public IP 주소",
+      "가상 라우터",
+      "VNF 기기",
+      "네트워크 권한",
+      "이벤트",
+      "코멘트"
+    ],
+    "active": [
+      {
+        "tab": "상세",
+        "path": "#/guestnetwork/75ccea08-34d0-48b6-80a9-006202b76e39?tab=details",
+        "rendered": true
+      },
+      {
+        "tab": "송신 규칙",
+        "path": "#/guestnetwork/75ccea08-34d0-48b6-80a9-006202b76e39?tab=egress.rules",
+        "rendered": true
+      },
+      {
+        "tab": "Public IP 주소",
+        "path": "#/guestnetwork/75ccea08-34d0-48b6-80a9-006202b76e39?tab=public.ip.addresses",
+        "rendered": true
+      },
+      {
+        "tab": "가상 라우터",
+        "path": "#/guestnetwork/75ccea08-34d0-48b6-80a9-006202b76e39?tab=virtual.routers",
+        "rendered": true
+      },
+      {
+        "tab": "VNF 기기",
+        "path": "#/guestnetwork/75ccea08-34d0-48b6-80a9-006202b76e39?tab=vnf.appliances",
+        "rendered": true
+      },
+      {
+        "tab": "네트워크 권한",
+        "path": "#/guestnetwork/75ccea08-34d0-48b6-80a9-006202b76e39?tab=network.permissions",
+        "rendered": true
+      },
+      {
+        "tab": "이벤트",
+        "path": "#/guestnetwork/75ccea08-34d0-48b6-80a9-006202b76e39?tab=events",
+        "rendered": true
+      },
+      {
+        "tab": "코멘트",
+        "path": "#/guestnetwork/75ccea08-34d0-48b6-80a9-006202b76e39?tab=comments",
+        "rendered": true
+      }
+    ]
+  },
+  "32-nosnat": {
+    "tabs": [
+      "상세",
+      "송신 규칙",
+      "Public IP 주소",
+      "가상 라우터",
+      "VNF 기기",
+      "게스트 IP 주소 범위",
+      "네트워크 권한",
+      "이벤트",
+      "코멘트"
+    ],
+    "active": [
+      {
+        "tab": "상세",
+        "path": "#/guestnetwork/28a009ed-333e-4968-8a8e-3f5b2f9ca667?tab=details",
+        "rendered": true
+      },
+      {
+        "tab": "송신 규칙",
+        "path": "#/guestnetwork/28a009ed-333e-4968-8a8e-3f5b2f9ca667?tab=egress.rules",
+        "rendered": true
+      },
+      {
+        "tab": "Public IP 주소",
+        "path": "#/guestnetwork/28a009ed-333e-4968-8a8e-3f5b2f9ca667?tab=public.ip.addresses",
+        "rendered": true
+      },
+      {
+        "tab": "가상 라우터",
+        "path": "#/guestnetwork/28a009ed-333e-4968-8a8e-3f5b2f9ca667?tab=virtual.routers",
+        "rendered": true
+      },
+      {
+        "tab": "VNF 기기",
+        "path": "#/guestnetwork/28a009ed-333e-4968-8a8e-3f5b2f9ca667?tab=vnf.appliances",
+        "rendered": true
+      },
+      {
+        "tab": "게스트 IP 주소 범위",
+        "path": "#/guestnetwork/28a009ed-333e-4968-8a8e-3f5b2f9ca667?tab=guest.ip.range",
+        "rendered": true
+      },
+      {
+        "tab": "네트워크 권한",
+        "path": "#/guestnetwork/28a009ed-333e-4968-8a8e-3f5b2f9ca667?tab=network.permissions",
+        "rendered": true
+      },
+      {
+        "tab": "이벤트",
+        "path": "#/guestnetwork/28a009ed-333e-4968-8a8e-3f5b2f9ca667?tab=events",
+        "rendered": true
+      },
+      {
+        "tab": "코멘트",
+        "path": "#/guestnetwork/28a009ed-333e-4968-8a8e-3f5b2f9ca667?tab=comments",
+        "rendered": true
+      }
+    ]
+  },
+  "32-l2": {
+    "tabs": [
+      "상세",
+      "VNF 기기",
+      "네트워크 권한",
+      "이벤트",
+      "코멘트"
+    ],
+    "active": [
+      {
+        "tab": "상세",
+        "path": "#/guestnetwork/aefaf6fa-4255-4b64-9f28-2da2a25ea711?tab=details",
+        "rendered": true
+      },
+      {
+        "tab": "VNF 기기",
+        "path": "#/guestnetwork/aefaf6fa-4255-4b64-9f28-2da2a25ea711?tab=vnf.appliances",
+        "rendered": true
+      },
+      {
+        "tab": "네트워크 권한",
+        "path": "#/guestnetwork/aefaf6fa-4255-4b64-9f28-2da2a25ea711?tab=network.permissions",
+        "rendered": true
+      },
+      {
+        "tab": "이벤트",
+        "path": "#/guestnetwork/aefaf6fa-4255-4b64-9f28-2da2a25ea711?tab=events",
+        "rendered": true
+      },
+      {
+        "tab": "코멘트",
+        "path": "#/guestnetwork/aefaf6fa-4255-4b64-9f28-2da2a25ea711?tab=comments",
+        "rendered": true
+      }
+    ]
+  },
+  "32-shared": {
+    "tabs": [
+      "상세",
+      "IP 주소",
+      "가상 라우터",
+      "VNF 기기",
+      "게스트 IP 주소 범위",
+      "네트워크 권한",
+      "이벤트",
+      "코멘트"
+    ],
+    "active": [
+      {
+        "tab": "상세",
+        "path": "#/guestnetwork/eb1c8ca5-d19b-49a7-9de5-5575549a2b6e?tab=details",
+        "rendered": true
+      },
+      {
+        "tab": "IP 주소",
+        "path": "#/guestnetwork/eb1c8ca5-d19b-49a7-9de5-5575549a2b6e?tab=public.ip.addresses",
+        "rendered": true
+      },
+      {
+        "tab": "가상 라우터",
+        "path": "#/guestnetwork/eb1c8ca5-d19b-49a7-9de5-5575549a2b6e?tab=virtual.routers",
+        "rendered": true
+      },
+      {
+        "tab": "VNF 기기",
+        "path": "#/guestnetwork/eb1c8ca5-d19b-49a7-9de5-5575549a2b6e?tab=vnf.appliances",
+        "rendered": true
+      },
+      {
+        "tab": "게스트 IP 주소 범위",
+        "path": "#/guestnetwork/eb1c8ca5-d19b-49a7-9de5-5575549a2b6e?tab=guest.ip.range",
+        "rendered": true
+      },
+      {
+        "tab": "네트워크 권한",
+        "path": "#/guestnetwork/eb1c8ca5-d19b-49a7-9de5-5575549a2b6e?tab=network.permissions",
+        "rendered": true
+      },
+      {
+        "tab": "이벤트",
+        "path": "#/guestnetwork/eb1c8ca5-d19b-49a7-9de5-5575549a2b6e?tab=events",
+        "rendered": true
+      },
+      {
+        "tab": "코멘트",
+        "path": "#/guestnetwork/eb1c8ca5-d19b-49a7-9de5-5575549a2b6e?tab=comments",
+        "rendered": true
+      }
+    ]
+  },
+  "31-public-manual": {
+    "tabs": [
+      "상세",
+      "방화벽",
+      "포트 포워딩",
+      "부하 분산",
+      "이벤트",
+      "코멘트"
+    ],
+    "active": [
+      {
+        "tab": "상세",
+        "path": "#/publicip/e6978afb-a4ee-4512-8fb5-a06fe6477a83?tab=details",
+        "rendered": true
+      },
+      {
+        "tab": "방화벽",
+        "path": "#/publicip/e6978afb-a4ee-4512-8fb5-a06fe6477a83?tab=firewall",
+        "rendered": true
+      },
+      {
+        "tab": "포트 포워딩",
+        "path": "#/publicip/e6978afb-a4ee-4512-8fb5-a06fe6477a83?tab=portforwarding",
+        "rendered": true
+      },
+      {
+        "tab": "부하 분산",
+        "path": "#/publicip/e6978afb-a4ee-4512-8fb5-a06fe6477a83?tab=loadbalancing",
+        "rendered": true
+      },
+      {
+        "tab": "이벤트",
+        "path": "#/publicip/e6978afb-a4ee-4512-8fb5-a06fe6477a83?tab=events",
+        "rendered": true
+      },
+      {
+        "tab": "코멘트",
+        "path": "#/publicip/e6978afb-a4ee-4512-8fb5-a06fe6477a83?tab=comments",
+        "rendered": true
+      }
+    ]
+  },
+  "32-public-manual": {
+    "tabs": [
+      "상세",
+      "방화벽",
+      "포트 포워딩",
+      "부하 분산",
+      "이벤트",
+      "코멘트"
+    ],
+    "active": [
+      {
+        "tab": "상세",
+        "path": "#/publicip/3718e606-1ab1-48db-a660-7486d8dfc172?tab=details",
+        "rendered": true
+      },
+      {
+        "tab": "방화벽",
+        "path": "#/publicip/3718e606-1ab1-48db-a660-7486d8dfc172?tab=firewall",
+        "rendered": true
+      },
+      {
+        "tab": "포트 포워딩",
+        "path": "#/publicip/3718e606-1ab1-48db-a660-7486d8dfc172?tab=portforwarding",
+        "rendered": true
+      },
+      {
+        "tab": "부하 분산",
+        "path": "#/publicip/3718e606-1ab1-48db-a660-7486d8dfc172?tab=loadbalancing",
+        "rendered": true
+      },
+      {
+        "tab": "이벤트",
+        "path": "#/publicip/3718e606-1ab1-48db-a660-7486d8dfc172?tab=events",
+        "rendered": true
+      },
+      {
+        "tab": "코멘트",
+        "path": "#/publicip/3718e606-1ab1-48db-a660-7486d8dfc172?tab=comments",
+        "rendered": true
+      }
+    ]
+  },
+  "31-public-source-nat": {
+    "tabs": [
+      "상세",
+      "방화벽",
+      "포트 포워딩",
+      "부하 분산",
+      "가상 사설망(VPN)",
+      "이벤트",
+      "코멘트"
+    ],
+    "active": [
+      {
+        "tab": "상세",
+        "path": "#/publicip/21a6e954-afa8-4bee-89c4-25c2745713b0?tab=details",
+        "rendered": true
+      },
+      {
+        "tab": "방화벽",
+        "path": "#/publicip/21a6e954-afa8-4bee-89c4-25c2745713b0?tab=firewall",
+        "rendered": true
+      },
+      {
+        "tab": "포트 포워딩",
+        "path": "#/publicip/21a6e954-afa8-4bee-89c4-25c2745713b0?tab=portforwarding",
+        "rendered": true
+      },
+      {
+        "tab": "부하 분산",
+        "path": "#/publicip/21a6e954-afa8-4bee-89c4-25c2745713b0?tab=loadbalancing",
+        "rendered": true
+      },
+      {
+        "tab": "가상 사설망(VPN)",
+        "path": "#/publicip/21a6e954-afa8-4bee-89c4-25c2745713b0?tab=vpn",
+        "rendered": true
+      },
+      {
+        "tab": "이벤트",
+        "path": "#/publicip/21a6e954-afa8-4bee-89c4-25c2745713b0?tab=events",
+        "rendered": true
+      },
+      {
+        "tab": "코멘트",
+        "path": "#/publicip/21a6e954-afa8-4bee-89c4-25c2745713b0?tab=comments",
+        "rendered": true
+      }
+    ]
+  },
+  "32-public-source-nat": {
+    "tabs": [
+      "상세",
+      "방화벽",
+      "포트 포워딩",
+      "부하 분산",
+      "가상 사설망(VPN)",
+      "이벤트",
+      "코멘트"
+    ],
+    "active": [
+      {
+        "tab": "상세",
+        "path": "#/publicip/04de4618-4265-4bfc-9b4c-95bc88ac1c2c?tab=details",
+        "rendered": true
+      },
+      {
+        "tab": "방화벽",
+        "path": "#/publicip/04de4618-4265-4bfc-9b4c-95bc88ac1c2c?tab=firewall",
+        "rendered": true
+      },
+      {
+        "tab": "포트 포워딩",
+        "path": "#/publicip/04de4618-4265-4bfc-9b4c-95bc88ac1c2c?tab=portforwarding",
+        "rendered": true
+      },
+      {
+        "tab": "부하 분산",
+        "path": "#/publicip/04de4618-4265-4bfc-9b4c-95bc88ac1c2c?tab=loadbalancing",
+        "rendered": true
+      },
+      {
+        "tab": "가상 사설망(VPN)",
+        "path": "#/publicip/04de4618-4265-4bfc-9b4c-95bc88ac1c2c?tab=vpn",
+        "rendered": true
+      },
+      {
+        "tab": "이벤트",
+        "path": "#/publicip/04de4618-4265-4bfc-9b4c-95bc88ac1c2c?tab=events",
+        "rendered": true
+      },
+      {
+        "tab": "코멘트",
+        "path": "#/publicip/04de4618-4265-4bfc-9b4c-95bc88ac1c2c?tab=comments",
+        "rendered": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "rows": [
+    {
+      "kind": "isolated",
+      "network": "3f0c5ed8-2c32-4098-a478-9f017a8845a8",
+      "jobs": [
+        {
+          "job": "63c292d2-315b-4acb-b56d-63590f485a23",
+          "forced": null,
+          "status": 2,
+          "created": "2026-11-05 17:00:13.000000"
+        }
+      ]
+    },
+    {
+      "kind": "l2",
+      "network": "51dc8c55-8323-4bff-a004-259408bfb548",
+      "jobs": [
+        {
+          "job": "8f105f09-ea9b-4c14-a805-a0f23b0b2f7f",
+          "forced": null,
+          "status": 2,
+          "created": "2026-11-05 17:00:15.000000"
+        }
+      ]
+    },
+    {
+      "kind": "shared",
+      "network": "db61a6c8-aa44-4290-91d7-936131e1698c",
+      "jobs": [
+        {
+          "job": "1e9f2a73-06fb-4c5a-8f46-34fe303d4ce6",
+          "forced": null,
+          "status": 2,
+          "created": "2026-11-05 17:00:17.000000"
+        }
+      ]
+    },
+    {
+      "kind": "temp-isolated",
+      "network": "2c74afe2-f87a-409b-a524-e593bbbe2f1c",
+      "jobs": [
+        {
+          "job": "65311984-c80f-4964-8efb-771d393848ec",
+          "forced": null,
+          "status": 1,
+          "created": "2026-11-05 17:33:01.000000"
+        }
+      ]
+    },
+    {
+      "kind": "temp-l2",
+      "network": "8583472b-41bc-4af0-8862-da3c1bdf01a1",
+      "jobs": [
+        {
+          "job": "c8c3bc9d-5d25-47ac-b5bb-18fa0a848996",
+          "forced": null,
+          "status": 1,
+          "created": "2026-11-05 17:32:59.000000"
+        }
+      ]
+    },
+    {
+      "kind": "temp-shared",
+      "network": "f30faad3-7d09-43b0-a000-e82a675aff30",
+      "jobs": [
+        {
+          "job": "d3c3689b-c078-40a7-a572-b0f88a33ed7c",
+          "forced": null,
+          "status": 1,
+          "created": "2026-11-05 17:32:56.000000"
+        }
+      ]
+    }
+  ],
+  "duplicateSuccessfulTargetPosts": 0,
+  "forcedDeletes": 0,
+  "status": "PASS"
+}

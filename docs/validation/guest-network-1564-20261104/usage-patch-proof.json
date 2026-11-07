@@ -1,0 +1,31 @@
+[
+  {
+    "cluster": 31,
+    "changedEntries": [
+      "com/cloud/usage/parser/IPAddressUsageParser.class"
+    ],
+    "preservedEntries": 49,
+    "oldJarSha256": "8235a6f81ec8f4dadd93055ed536d26d9d6816dbaf99f1ca4f925a3214851d64",
+    "newJarSha256": "248e9291c6e463515a8917824322a8e71714cd19d1c8141ac5222f899e6a4d2e",
+    "classSha256": "78acd2b8558beff69911564c8284fd2bd5bfe0c056af902d1924294acbf98cf5",
+    "innerClassBytecodeAndSignatureIdentical": true,
+    "innerJavapSha256": "3796777929d87a3b58ebb1a7aa7b1bb1bc6bb45bd9bc29d034ca2551fcddd0d5",
+    "innerClassOriginalPreserved": true,
+    "sourceHead": "2e0dc070d0a64a25fadf2737c14ebdb961ca23a0"
+  },
+  {
+    "cluster": 32,
+    "jar": "/usr/share/cloudstack-usage/cloud-usage-4.23.0.0.jar",
+    "changedEntries": [
+      "com/cloud/usage/parser/IPAddressUsageParser.class"
+    ],
+    "preservedEntries": 49,
+    "oldJarSha256": "e81d7807b5b7dfdf65daa7de9047911a9f1debd4b238ecc56c7cf2e4c45abef8",
+    "newJarSha256": "6fd9be1aab59987368217c8f589fc4440f3fb5b2303ed1ef5adb63a45809f6fd",
+    "classSha256": "78acd2b8558beff69911564c8284fd2bd5bfe0c056af902d1924294acbf98cf5",
+    "innerClassBytecodeAndSignatureIdentical": true,
+    "innerJavapSha256": "3796777929d87a3b58ebb1a7aa7b1bb1bc6bb45bd9bc29d034ca2551fcddd0d5",
+    "innerClassOriginalPreserved": true,
+    "sourceHead": "2e0dc070d0a64a25fadf2737c14ebdb961ca23a0"
+  }
+]

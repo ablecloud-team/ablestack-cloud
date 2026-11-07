@@ -1,0 +1,110 @@
+[
+  {
+    "cluster": 31,
+    "mode": "light",
+    "width": 1280,
+    "height": 900,
+    "surfaces": 3,
+    "status": "PASS",
+    "sourceHead": "230588add5fc62db1c99e243dbc0b033436f0e82"
+  },
+  {
+    "cluster": 31,
+    "mode": "light",
+    "width": 768,
+    "height": 1024,
+    "surfaces": 3,
+    "status": "PASS",
+    "sourceHead": "230588add5fc62db1c99e243dbc0b033436f0e82"
+  },
+  {
+    "cluster": 31,
+    "mode": "light",
+    "width": 390,
+    "height": 844,
+    "surfaces": 3,
+    "status": "PASS",
+    "sourceHead": "230588add5fc62db1c99e243dbc0b033436f0e82"
+  },
+  {
+    "cluster": 31,
+    "mode": "dark",
+    "width": 1280,
+    "height": 900,
+    "surfaces": 3,
+    "status": "PASS",
+    "sourceHead": "230588add5fc62db1c99e243dbc0b033436f0e82"
+  },
+  {
+    "cluster": 31,
+    "mode": "dark",
+    "width": 768,
+    "height": 1024,
+    "surfaces": 3,
+    "status": "PASS",
+    "sourceHead": "230588add5fc62db1c99e243dbc0b033436f0e82"
+  },
+  {
+    "cluster": 31,
+    "mode": "dark",
+    "width": 390,
+    "height": 844,
+    "surfaces": 3,
+    "status": "PASS",
+    "sourceHead": "230588add5fc62db1c99e243dbc0b033436f0e82"
+  },
+  {
+    "cluster": 32,
+    "mode": "light",
+    "width": 1280,
+    "height": 900,
+    "surfaces": 3,
+    "status": "PASS",
+    "sourceHead": "230588add5fc62db1c99e243dbc0b033436f0e82"
+  },
+  {
+    "cluster": 32,
+    "mode": "light",
+    "width": 768,
+    "height": 1024,
+    "surfaces": 3,
+    "status": "PASS",
+    "sourceHead": "230588add5fc62db1c99e243dbc0b033436f0e82"
+  },
+  {
+    "cluster": 32,
+    "mode": "light",
+    "width": 390,
+    "height": 844,
+    "surfaces": 3,
+    "status": "PASS",
+    "sourceHead": "230588add5fc62db1c99e243dbc0b033436f0e82"
+  },
+  {
+    "cluster": 32,
+    "mode": "dark",
+    "width": 1280,
+    "height": 900,
+    "surfaces": 3,
+    "status": "PASS",
+    "sourceHead": "230588add5fc62db1c99e243dbc0b033436f0e82"
+  },
+  {
+    "cluster": 32,
+    "mode": "dark",
+    "width": 768,
+    "height": 1024,
+    "surfaces": 3,
+    "status": "PASS",
+    "sourceHead": "230588add5fc62db1c99e243dbc0b033436f0e82"
+  },
+  {
+    "cluster": 32,
+    "mode": "dark",
+    "width": 390,
+    "height": 844,
+    "surfaces": 3,
+    "status": "PASS",
+    "sourceHead": "230588add5fc62db1c99e243dbc0b033436f0e82"
+  }
+]

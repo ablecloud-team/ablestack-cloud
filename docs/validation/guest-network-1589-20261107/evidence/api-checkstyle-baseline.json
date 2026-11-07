@@ -1,0 +1,6 @@
+{
+  "exit": 1,
+  "existingViolations": 6,
+  "changedFile": "api/src/main/java/org/apache/cloudstack/acl/ProjectRoleService.java",
+  "changedFileViolations": 0
+}

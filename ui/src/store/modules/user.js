@@ -16,6 +16,7 @@
 // under the License.
 
 import { discoverOptional } from '@/utils/optionalDiscovery'
+import { toApiMetadata, toCachedApiMetadata } from '@/utils/apiMetadata'
 import Cookies from 'js-cookie'
 import message from 'ant-design-vue/es/message'
 import notification from 'ant-design-vue/es/notification'
@@ -89,6 +90,9 @@ const user = {
   },
 
   mutations: {
+    ADVANCE_DISCOVERY: (state) => {
+      state.discoveryGeneration += 1
+    },
     RESET_DISCOVERY: (state) => {
       state.discoveryGeneration += 1
       state.apis = {}
@@ -127,8 +131,14 @@ const user = {
       state.info = info
     },
     SET_APIS: (state, apis) => {
+      try {
+        vueProps.$localStorage.set(APIS, toCachedApiMetadata(apis))
+      } catch (error) {
+        // A failed cache write must not restore permissions from the old scope
+        // on reload. Keep the freshly discovered permissions in memory only.
+        vueProps.$localStorage.remove(APIS)
+      }
       state.apis = apis
-      vueProps.$localStorage.set(APIS, apis)
     },
     SET_FEATURES: (state, features) => {
       state.features = features
@@ -415,22 +425,29 @@ const user = {
         }
 
         if (hasAuth) {
-          console.log('Login detected, using cached APIs')
+          console.log('Login detected, revalidating API permissions')
           commit('SET_ZONES', cachedZones)
           commit('SET_SHOW_SECURITY_GROUPS', cachedShowSecurityGroups)
-          commit('SET_APIS', cachedApis)
           commit('SET_TIMEZONE_OFFSET', cachedTimezoneOffset)
           commit('SET_USE_BROWSER_TIMEZONE', cachedUseBrowserTimezone)
           commit('SET_CUSTOM_COLUMNS', cachedCustomColumns)
           commit('SET_MS_ID', msId)
 
           // Ensuring we get the user info so that store.getters.user is never empty when the page is freshly loaded
-          getAPI('listUsers', { id: Cookies.get('userid'), listall: true }).then(response => {
+          // Cached metadata omits response schemas. Revalidate the current
+          // scope on reload instead of treating an old cache as authorization.
+          themePermissions = getAPI('listApis').then(response => {
+            if (!current()) return {}
+            const apis = toApiMetadata(response.listapisresponse.api)
+            commit('SET_APIS', apis)
+            return apis
+          })
+          Promise.all([themePermissions, getAPI('listUsers', { id: Cookies.get('userid'), listall: true })]).then(([apis, response]) => {
             const result = response.listusersresponse.user[0]
             commit('SET_INFO', result)
             commit('SET_NAME', result.firstname + ' ' + result.lastname)
-            loadFeatures(cachedApis).then(() => {
-              resolve(current() ? cachedApis : {})
+            loadFeatures(apis).then(() => {
+              resolve(current() ? apis : {})
             })
           }).catch(error => {
             reject(error)
@@ -448,19 +465,7 @@ const user = {
           })
           themePermissions = getAPI('listApis').then(response => {
             if (!current()) { hide(); resolve({}); return }
-            const apis = {}
-            const apiList = response.listapisresponse.api
-            for (var idx = 0; idx < apiList.length; idx++) {
-              const api = apiList[idx]
-              const apiName = api.name
-              apis[apiName] = {
-                params: api.params,
-                // response: api.response,
-                isasync: api.isasync,
-                since: api.since,
-                description: api.description
-              }
-            }
+            const apis = toApiMetadata(response.listapisresponse.api)
             commit('SET_APIS', apis)
             loadFeatures(apis).then(() => {
               resolve(current() ? apis : {})
@@ -605,30 +610,19 @@ const user = {
       })
       commit('SET_HEADER_NOTICES', noticeArray)
     },
-    ProjectView ({ commit }, projectid) {
-      return new Promise((resolve, reject) => {
-        getAPI('listApis', { projectid: projectid }).then(response => {
-          const apis = {}
-          const apiList = response.listapisresponse.api
-          for (var idx = 0; idx < apiList.length; idx++) {
-            const api = apiList[idx]
-            const apiName = api.name
-            apis[apiName] = {
-              params: api.params,
-              response: api.response
-            }
-          }
-          commit('SET_APIS', apis)
-          resolve(apis)
-          store.dispatch('GenerateRoutes', { apis }).then(() => {
-            store.getters.addRouters.map(route => {
-              router.addRoute(route)
-            })
-          })
-        }).catch(error => {
-          reject(error)
-        })
+    async ProjectView ({ commit, state }, projectid) {
+      commit('ADVANCE_DISCOVERY')
+      const generation = state.discoveryGeneration
+      const response = await getAPI('listApis', { projectid: projectid, ignoreproject: true })
+      if (state.discoveryGeneration !== generation) throw new Error('Project discovery scope changed')
+      const apis = toApiMetadata(response.listapisresponse.api)
+      commit('SET_APIS', apis)
+      await store.dispatch('GenerateRoutes', { apis })
+      if (state.discoveryGeneration !== generation) throw new Error('Project discovery scope changed')
+      store.getters.addRouters.forEach(route => {
+        router.addRoute(route)
       })
+      return apis
     },
     async RefreshFeatures ({ commit, state }) {
       const generation = state.discoveryGeneration

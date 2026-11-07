@@ -1,0 +1,71 @@
+{
+  "offering_jobstatus": 1,
+  "router_before": {
+    "id": "cf8a3702-0679-4d4b-9a4a-76b103052036",
+    "name": "r-848-VM",
+    "hostname": "ablecube31-1",
+    "hostid": "159baf9a-89ad-4a94-91dc-e7395a670bf4"
+  },
+  "target_host": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+  "reason": "Keep final review guests and router on same host; cross-host VLAN transfer remains unqualified.",
+  "request": {
+    "migratesystemvmresponse": {
+      "jobid": "623055ce-4863-4562-857f-89741dbf8300"
+    }
+  },
+  "result": {
+    "queryasyncjobresultresponse": {
+      "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domainpath": "ROOT",
+      "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+      "cmd": "org.apache.cloudstack.api.command.admin.systemvm.MigrateSystemVMCmd",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "systemvm": {
+          "id": "cf8a3702-0679-4d4b-9a4a-76b103052036",
+          "systemvmtype": "domainrouter",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "dns1": "8.8.8.8",
+          "gateway": "172.26.31.1",
+          "name": "r-848-VM",
+          "podid": "2a9760c6-795d-48fc-bca1-77037c541279",
+          "podname": "Pod",
+          "hostid": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+          "hostname": "ablecube31-2",
+          "hostcontrolstate": "Enabled",
+          "hypervisor": "KVM",
+          "linklocalip": "169.254.17.29",
+          "linklocalmacaddress": "0e:00:a9:fe:11:1d",
+          "linklocalnetmask": "255.255.0.0",
+          "publicip": "172.26.31.10",
+          "publicmacaddress": "1e:1f:a2:00:01:0b",
+          "publicnetmask": "255.255.255.0",
+          "templateid": "7965a16a-dbc9-4617-991f-212416e5dd8b",
+          "templatename": "SystemVM Template (KVM)",
+          "created": "2026-11-04T00:26:38+0900",
+          "state": "Running",
+          "isdynamicallyscalable": false,
+          "serviceofferingid": "314ccb87-0e40-4438-9d1f-474c52e4e609",
+          "serviceofferingname": "System Offering For Software Router",
+          "arch": "x86_64",
+          "hasannotations": false
+        }
+      },
+      "created": "2026-11-04T00:30:15+0900",
+      "completed": "2026-11-04T00:30:20+0900",
+      "jobid": "623055ce-4863-4562-857f-89741dbf8300",
+      "jobstatus": 1
+    }
+  },
+  "router_after": {
+    "id": "cf8a3702-0679-4d4b-9a4a-76b103052036",
+    "name": "r-848-VM",
+    "hostname": "ablecube31-2",
+    "hostid": "3fb147f3-aea4-4f65-b8c6-e7192ea26138"
+  }
+}

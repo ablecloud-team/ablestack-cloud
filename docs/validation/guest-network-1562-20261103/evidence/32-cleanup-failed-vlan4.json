@@ -1,0 +1,68 @@
+[
+  {
+    "id": "6f60b25c-787d-49d2-8b7e-743725fd7824",
+    "request": {
+      "destroyvirtualmachineresponse": {
+        "jobid": "cc76a814-2586-4a0d-ae41-12bdc6c86509"
+      }
+    },
+    "result": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domainpath": "ROOT",
+        "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+        "cmd": "org.apache.cloudstack.api.command.admin.vm.DestroyVMCmdByAdmin",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "virtualmachine": {
+            "volumemutationblockedreason": "",
+            "securitygroup": [],
+            "nic": [],
+            "affinitygroup": [],
+            "deleteprotection": false,
+            "tags": []
+          }
+        },
+        "jobinstancetype": "VirtualMachine",
+        "jobinstanceid": "6f60b25c-787d-49d2-8b7e-743725fd7824",
+        "created": "2026-11-04T00:00:42+0900",
+        "completed": "2026-11-04T00:00:49+0900",
+        "jobid": "cc76a814-2586-4a0d-ae41-12bdc6c86509",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "id": "4a7f7229-fa7e-4582-884f-93477aca9a6f",
+    "request": {
+      "deletenetworkresponse": {
+        "jobid": "f79714e7-82bf-4574-a86e-e473008050ba"
+      }
+    },
+    "result": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domainpath": "ROOT",
+        "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+        "cmd": "org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "success": true
+        },
+        "jobinstancetype": "Network",
+        "created": "2026-11-04T00:00:50+0900",
+        "completed": "2026-11-04T00:00:51+0900",
+        "jobid": "f79714e7-82bf-4574-a86e-e473008050ba",
+        "jobstatus": 1
+      }
+    }
+  }
+]

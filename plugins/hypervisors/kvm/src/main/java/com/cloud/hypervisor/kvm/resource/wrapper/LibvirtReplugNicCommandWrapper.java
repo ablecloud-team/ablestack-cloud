@@ -61,6 +61,9 @@ public final class LibvirtReplugNicCommandWrapper extends CommandWrapper<ReplugN
             vm = libvirtComputingResource.getDomain(conn, vmName);
 
             InterfaceDef oldPluggedNic = findPluggedNic(libvirtComputingResource, nic, vmName, conn);
+            if (oldPluggedNic == null) {
+                throw new InternalErrorException("Unable to find NIC " + nic.getMac() + " before replug");
+            }
 
             final VifDriver newVifDriver = libvirtComputingResource.getVifDriver(nic.getType(), nic.getName());
             final InterfaceDef interfaceDef = newVifDriver.plug(nic, "Other PV", oldPluggedNic.getModel().toString(), null);
@@ -83,6 +86,13 @@ public final class LibvirtReplugNicCommandWrapper extends CommandWrapper<ReplugN
             logger.debug("ReplugNic: Attaching interface" + interfaceDef);
             vm.attachDevice(interfaceDef.toString());
 
+            // Libvirt may assign a new tap name after hotplug. Updating with the
+            // detached device's name fails and leaves the newly attached NIC down.
+            InterfaceDef attachedNic = findPluggedNic(libvirtComputingResource, nic, vmName, conn);
+            if (attachedNic == null) {
+                throw new InternalErrorException("Unable to find NIC " + nic.getMac() + " after replug");
+            }
+            interfaceDef.setDevName(attachedNic.getDevName());
             interfaceDef.setLinkStateUp(nic.isEnabled());
             logger.debug("ReplugNic: Updating interface" + interfaceDef);
             vm.updateDeviceFlags(interfaceDef.toString(), DomainAffect.LIVE.getValue());

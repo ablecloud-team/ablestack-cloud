@@ -33,7 +33,6 @@ import org.apache.cloudstack.resourcedetail.VpcDetailVO;
 import org.apache.cloudstack.resourcedetail.dao.FirewallRuleDetailsDao;
 import org.apache.cloudstack.resourcedetail.dao.VpcDetailsDao;
 
-import com.cloud.configuration.Resource;
 import com.cloud.dc.DataCenter;
 import com.cloud.dc.dao.DataCenterDao;
 import com.cloud.deploy.DataCenterDeployment;
@@ -81,7 +80,6 @@ import com.cloud.tags.ResourceTagVO;
 import com.cloud.tags.dao.ResourceTagDao;
 import com.cloud.user.Account;
 import com.cloud.user.AccountVO;
-import com.cloud.user.ResourceLimitService;
 import com.cloud.user.dao.AccountDao;
 import com.cloud.utils.db.DB;
 import com.cloud.utils.db.EntityManager;
@@ -120,8 +118,6 @@ public class NetworkMigrationManagerImpl implements NetworkMigrationManager {
     private NetworkDomainDao _networkDomainDao = null;
     @Inject
     private NetworkOrchestrationService _networkMgr = null;
-    @Inject
-    private ResourceLimitService _resourceLimitMgr = null;
     @Inject
     private NetworkDao _networksDao = null;
     @Inject
@@ -198,7 +194,9 @@ public class NetworkMigrationManagerImpl implements NetworkMigrationManager {
         List<? extends Network> networks = _networkMgr.setupNetwork(networkAccount, networkOffering, network, plan, network.getName(), network.getDisplayText(), true,
                                                                     network.getDomainId(), network.getAclType(), subdomainAccess,
                                                                     vpcId, true);
-        _resourceLimitMgr.incrementResourceCount(network.getAccountId(), Resource.ResourceType.network, network.isDisplay());
+        // The source copy becomes hidden below. It is not an additional visible
+        // account network and must not increment its quota ledger. Its deletion
+        // also uses displayNetwork=false, so an increment would never be undone.
 
         long networkCopyId;
         if (networks == null || networks.isEmpty()) {
@@ -231,6 +229,9 @@ public class NetworkMigrationManagerImpl implements NetworkMigrationManager {
         copiedNetwork.setRelated(originalNetworkId);
         copiedNetwork.setDisplayNetwork(false);
         copiedNetwork.setBroadcastUri(network.getBroadcastUri());
+        // The hidden source copy owns the old VLAN until cleanup. Preserve its
+        // allocation token so shutdown can release that VLAN after migration.
+        copiedNetwork.setReservationId(network.getReservationId());
         copiedNetwork.setState(network.getState());
         _networksDao.update(networkCopyId, copiedNetwork);
 
@@ -549,10 +550,6 @@ public class NetworkMigrationManagerImpl implements NetworkMigrationManager {
 
         NicVO newNic = _nicDao.findById(nicProfile.getId());
 
-        copyNicDetails(originalNic.getId(), newNic.getId());
-        //Update nic uuid here
-        moveServices(originalNic, newNic);
-
         if (originalNic.getState() == Nic.State.Reserved) {
             final VirtualMachine vm = vmProfile.getVirtualMachine();
             final Host host = _hostDao.findById(vm.getHostId());
@@ -560,11 +557,17 @@ public class NetworkMigrationManagerImpl implements NetworkMigrationManager {
 
             try {
                 nicProfile = _networkMgr.prepareNic(vmProfile, dest, context, nicProfile.getId(), networkInNewPhysicalNet);
-                 _itMgr.replugNic(networkInNewPhysicalNet, _itMgr.toNicTO(nicProfile, host.getHypervisorType()), _itMgr.toVmTO(vmProfile), dest.getHost());
+                if (!_itMgr.replugNic(networkInNewPhysicalNet, _itMgr.toNicTO(nicProfile, host.getHypervisorType()), _itMgr.toVmTO(vmProfile), dest.getHost())) {
+                    throw new CloudRuntimeException("NIC replug failed; retaining the migration checkpoint for retry");
+                }
             } catch (ResourceUnavailableException | InsufficientCapacityException e) {
                 throw new CloudRuntimeException("Migration of Nic failed", e);
             }
         }
+
+        // Transfer identity and services only after the hypervisor accepted the NIC.
+        copyNicDetails(originalNic.getId(), newNic.getId());
+        moveServices(originalNic, newNic);
 
         //Mark the old nic as removed
         markAsNonDefault(originalNic);

@@ -1,0 +1,16 @@
+{
+  "network": "e1b5ecd9-f260-46bd-b26f-5692fa5033d2",
+  "port": 49175,
+  "rows": [
+    {
+      "id": "537a7fca-d249-4cf8-b34b-a862d61bda58",
+      "cidrlist": "192.0.2.0/24",
+      "destcidrlist": "10.178.32.26/32",
+      "startport": 49175,
+      "endport": 49175,
+      "protocol": "tcp",
+      "traffictype": "Ingress",
+      "state": "Active"
+    }
+  ]
+}

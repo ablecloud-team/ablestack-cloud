@@ -1,0 +1,227 @@
+{
+  "cluster": 32,
+  "label": "32-name-only-l2",
+  "records": [
+    {
+      "cluster": 32,
+      "requestId": "43796.691",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "3f82dd0d-a774-4478-a4fa-8dad9783023a",
+        "name": "qa-gn1558-32-l2-renamed"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.692",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "9cb79e10-9da4-4ab3-aa4d-4a66734efe6c",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.694",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "9cb79e10-9da4-4ab3-aa4d-4a66734efe6c",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.695",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "id": "3f82dd0d-a774-4478-a4fa-8dad9783023a",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.696",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "3f82dd0d-a774-4478-a4fa-8dad9783023a",
+        "listall": "true",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "43796.701",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "id": "3f82dd0d-a774-4478-a4fa-8dad9783023a",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "status": 200
+    }
+  ],
+  "expected": {
+    "id": "3f82dd0d-a774-4478-a4fa-8dad9783023a",
+    "name": "qa-gn1558-32-l2-renamed",
+    "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  },
+  "ui": [
+    {
+      "html_children": 0,
+      "text": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    },
+    {
+      "html_children": 0,
+      "text": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    }
+  ],
+  "responses": [
+    {
+      "request": {
+        "cluster": 32,
+        "requestId": "43796.691",
+        "command": "updateNetwork",
+        "method": "POST",
+        "params": {
+          "command": "updateNetwork",
+          "id": "3f82dd0d-a774-4478-a4fa-8dad9783023a",
+          "name": "qa-gn1558-32-l2-renamed"
+        },
+        "status": 200
+      },
+      "result": {
+        "updatenetworkresponse": {
+          "jobid": "9cb79e10-9da4-4ab3-aa4d-4a66734efe6c"
+        }
+      }
+    },
+    {
+      "request": {
+        "cluster": 32,
+        "requestId": "43796.692",
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobid": "9cb79e10-9da4-4ab3-aa4d-4a66734efe6c",
+          "command": "queryAsyncJobResult"
+        },
+        "status": 200
+      },
+      "result": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.admin.network.UpdateNetworkCmdByAdmin",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobinstancetype": "Network",
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-11-03T16:51:26+0900",
+          "jobid": "9cb79e10-9da4-4ab3-aa4d-4a66734efe6c",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "request": {
+        "cluster": 32,
+        "requestId": "43796.694",
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobid": "9cb79e10-9da4-4ab3-aa4d-4a66734efe6c",
+          "command": "queryAsyncJobResult"
+        },
+        "status": 200
+      },
+      "result": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.admin.network.UpdateNetworkCmdByAdmin",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "network": {
+              "id": "3f82dd0d-a774-4478-a4fa-8dad9783023a",
+              "name": "qa-gn1558-32-l2-renamed",
+              "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+              "broadcastdomaintype": "Vlan",
+              "traffictype": "Guest",
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "networkofferingid": "4a711c03-f9bd-4989-96fc-ea38ca9e79a1",
+              "networkofferingname": "기본 L2 VLAN 네트워크오퍼링",
+              "networkofferingdisplaytext": "기본 L2 VLAN 네트워크오퍼링",
+              "networkofferingconservemode": true,
+              "networkofferingavailability": "Optional",
+              "issystem": false,
+              "state": "Setup",
+              "related": "3f82dd0d-a774-4478-a4fa-8dad9783023a",
+              "broadcasturi": "vlan://742",
+              "dns1": "8.8.8.8",
+              "type": "L2",
+              "vlan": "742",
+              "acltype": "Account",
+              "account": "admin",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT",
+              "domainpath": "ROOT",
+              "service": [],
+              "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+              "restartrequired": false,
+              "specifyvlan": true,
+              "specifyipranges": false,
+              "canusefordeploy": true,
+              "ispersistent": false,
+              "tags": [],
+              "details": {
+                "hideIpAddressUsage": "false"
+              },
+              "displaynetwork": true,
+              "strechedl2subnet": false,
+              "redundantrouter": false,
+              "supportsvmautoscaling": false,
+              "created": "2026-11-03T16:35:19+0900",
+              "receivedbytes": 0,
+              "sentbytes": 0,
+              "publicmtu": 1500,
+              "privatemtu": 1500,
+              "hasannotations": false
+            }
+          },
+          "jobinstancetype": "Network",
+          "created": "2026-11-03T16:51:26+0900",
+          "completed": "2026-11-03T16:51:26+0900",
+          "jobid": "9cb79e10-9da4-4ab3-aa4d-4a66734efe6c",
+          "jobstatus": 1
+        }
+      }
+    }
+  ]
+}

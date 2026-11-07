@@ -1,0 +1,132 @@
+{
+  "api": [
+    {
+      "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+      "name": "qa-gn1558-31-shared-renamed",
+      "displaytext": "<b>태그가 아닌 설명</b>\n<img alt=\"문자 그대로\"> & \"따옴표\" / 특수문자 #1558",
+      "type": "Shared",
+      "state": "Setup",
+      "networkofferingid": "af57b512-b8cd-49bb-b250-23c85585bd16",
+      "cidr": "10.244.31.0/24",
+      "gateway": "10.244.31.1",
+      "vlan": "731",
+      "account": null,
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "dns1": "8.8.8.8",
+      "dns2": null
+    },
+    {
+      "id": "1af37bd2-83db-436a-ae1e-b53b0ddfcf7b",
+      "name": "qa-gn1558-31-l2-renamed",
+      "displaytext": "<b>태그가 아닌 설명</b>\n<img alt=\"문자 그대로\"> & \"따옴표\" / 특수문자 #1558",
+      "type": "L2",
+      "state": "Setup",
+      "networkofferingid": "79ec5c18-b71c-4f7a-9b5d-8694b16b8a54",
+      "cidr": null,
+      "gateway": null,
+      "vlan": "741",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "dns1": "8.8.8.8",
+      "dns2": null
+    },
+    {
+      "id": "1e000c12-5af6-4aaf-abcc-0cf728cf9716",
+      "name": "qa-gn1558-31-isolated-renamed",
+      "displaytext": "<b>태그가 아닌 설명</b>\n<img alt=\"문자 그대로\"> & \"따옴표\" / 특수문자 #1558",
+      "type": "Isolated",
+      "state": "Allocated",
+      "networkofferingid": "46a69931-ebbf-4aee-9d3d-12d03315a949",
+      "cidr": "10.245.31.0/24",
+      "gateway": "10.245.31.1",
+      "vlan": null,
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "dns1": "8.8.8.8",
+      "dns2": null
+    },
+    {
+      "id": "04eef05e-7c2d-40e5-b1fb-144a7bc72393",
+      "name": "qa-gn1558-31-shared-new",
+      "displaytext": "새 생성 설명 · shared\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\"",
+      "type": "Shared",
+      "state": "Setup",
+      "networkofferingid": "af57b512-b8cd-49bb-b250-23c85585bd16",
+      "cidr": "10.242.31.0/24",
+      "gateway": "10.242.31.1",
+      "vlan": "771",
+      "account": null,
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "dns1": "8.8.8.8",
+      "dns2": null
+    },
+    {
+      "id": "1bc4bd16-b21e-444a-a94d-87446d7a2b81",
+      "name": "qa-gn1558-31-l2-new",
+      "displaytext": "새 생성 설명 · l2\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\"",
+      "type": "L2",
+      "state": "Setup",
+      "networkofferingid": "79ec5c18-b71c-4f7a-9b5d-8694b16b8a54",
+      "cidr": null,
+      "gateway": null,
+      "vlan": "781",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "dns1": "8.8.8.8",
+      "dns2": null
+    },
+    {
+      "id": "a55eb2c4-56a3-4cd9-b10f-d6f7448ef523",
+      "name": "qa-gn1558-31-isolated-new",
+      "displaytext": "새 생성 설명 · isolated\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\"",
+      "type": "Isolated",
+      "state": "Allocated",
+      "networkofferingid": "46a69931-ebbf-4aee-9d3d-12d03315a949",
+      "cidr": "10.243.31.0/24",
+      "gateway": "10.243.31.1",
+      "vlan": null,
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "dns1": "8.8.8.8",
+      "dns2": null
+    }
+  ],
+  "db": [
+    {
+      "id": "04eef05e-7c2d-40e5-b1fb-144a7bc72393",
+      "name": "qa-gn1558-31-shared-new",
+      "state": "Setup",
+      "displaytext": "새 생성 설명 · shared\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\""
+    },
+    {
+      "id": "1af37bd2-83db-436a-ae1e-b53b0ddfcf7b",
+      "name": "qa-gn1558-31-l2-renamed",
+      "state": "Setup",
+      "displaytext": "<b>태그가 아닌 설명</b>\n<img alt=\"문자 그대로\"> & \"따옴표\" / 특수문자 #1558"
+    },
+    {
+      "id": "1bc4bd16-b21e-444a-a94d-87446d7a2b81",
+      "name": "qa-gn1558-31-l2-new",
+      "state": "Setup",
+      "displaytext": "새 생성 설명 · l2\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\""
+    },
+    {
+      "id": "1e000c12-5af6-4aaf-abcc-0cf728cf9716",
+      "name": "qa-gn1558-31-isolated-renamed",
+      "state": "Allocated",
+      "displaytext": "<b>태그가 아닌 설명</b>\n<img alt=\"문자 그대로\"> & \"따옴표\" / 특수문자 #1558"
+    },
+    {
+      "id": "a55eb2c4-56a3-4cd9-b10f-d6f7448ef523",
+      "name": "qa-gn1558-31-isolated-new",
+      "state": "Allocated",
+      "displaytext": "새 생성 설명 · isolated\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\""
+    },
+    {
+      "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+      "name": "qa-gn1558-31-shared-renamed",
+      "state": "Setup",
+      "displaytext": "<b>태그가 아닌 설명</b>\n<img alt=\"문자 그대로\"> & \"따옴표\" / 특수문자 #1558"
+    }
+  ]
+}

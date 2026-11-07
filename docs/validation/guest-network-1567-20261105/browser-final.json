@@ -1,0 +1,18 @@
+[
+  {
+    "cluster": 31,
+    "url": "http://10.10.31.10:8080/client/#/guestnetwork/c5867039-56f1-453b-afe8-9790f6e2f749?networkreturn={%22q%22:%22qa-gn1567-31%22,%22keyword%22:%22qa-gn1567-31%22,%22page%22:%221%22,%22pagesize%22:%2220%22}",
+    "theme": "light",
+    "viewportOverrideCleared": true,
+    "dialogOpen": 0,
+    "status": "PASS"
+  },
+  {
+    "cluster": 32,
+    "url": "http://10.10.32.10:8080/client/#/guestnetwork/7f279b12-d465-486a-8cb8-2779db98f509?networkreturn={%22q%22:%22qa-gn1567-32%22,%22keyword%22:%22qa-gn1567-32%22,%22page%22:%221%22,%22pagesize%22:%2220%22}",
+    "theme": "light",
+    "viewportOverrideCleared": true,
+    "dialogOpen": 0,
+    "status": "PASS"
+  }
+]

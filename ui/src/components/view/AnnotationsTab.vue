@@ -70,7 +70,7 @@ showQuickJumper>
 </template>
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
-import { detailTabContext, detailTabDenied, detailTabError, readDetailTabPage } from '@/utils/detailTabData'
+import { detailTabContext, detailTabDenied, detailTabError, detailTabProject, readDetailTabPage } from '@/utils/detailTabData'
 import { getAPI, postAPI } from '@/api'
 import { Empty } from 'ant-design-vue'
 const commands = ['listAnnotations', 'addAnnotation', 'removeAnnotation', 'updateAnnotationVisibility']
@@ -135,7 +135,7 @@ export default {
       const context = this.annotationContext
       this.loadingAnnotations = !request.loaded
       if (!request.loaded) { this.notes = []; this.itemCount = 0; this.loadedContext = '' }
-      const params = { entityid: this.resource.id, entitytype: this.annotationType, annotationfilter: 'all', page: this.page, pagesize: this.pageSize, ...(this.resource.projectid ? { projectid: this.resource.projectid } : {}) }
+      const params = { entityid: this.resource.id, entitytype: this.annotationType, annotationfilter: 'all', page: this.page, pagesize: this.pageSize, ...detailTabProject(this) }
       try {
         const json = await getAPI('listAnnotations', params, { preserveOnFailure: true, timeout: 20000 })
         if (!this.isListRequestCurrent('getAnnotations', request)) return
@@ -152,7 +152,7 @@ export default {
     handleNoteChange (e) { this.annotation = e.target.value },
     toggleNoteVisibility () { this.annotationAdminsOnly = !this.annotationAdminsOnly },
     isAdminOrAnnotationOwner (item) { return this.$store.getters.userInfo.roletype === 'Admin' || this.$store.getters.userInfo.id === item.userid },
-    saveNote () { if (!this.annotationReady || !this.annotation.trim() || !('addAnnotation' in this.$store.getters.apis)) return; return this.mutateAnnotation('addAnnotation', { entityid: this.resource.id, entitytype: this.annotationType, annotation: this.annotation, adminsonly: this.annotationAdminsOnly, ...(this.resource.projectid ? { projectid: this.resource.projectid } : {}) }) },
+    saveNote () { if (!this.annotationReady || !this.annotation.trim() || !('addAnnotation' in this.$store.getters.apis)) return; return this.mutateAnnotation('addAnnotation', { entityid: this.resource.id, entitytype: this.annotationType, annotation: this.annotation, adminsonly: this.annotationAdminsOnly }) },
     deleteNote (item) { if (!this.annotationReady || !('removeAnnotation' in this.$store.getters.apis) || !this.isAdminOrAnnotationOwner(item) || !this.notes.some(row => row.id === item.id)) return; return this.mutateAnnotation('removeAnnotation', { id: item.id }) },
     updateVisibility (item) { if (!this.annotationReady || !('updateAnnotationVisibility' in this.$store.getters.apis) || this.$store.getters.userInfo.roletype !== 'Admin' || !this.notes.some(row => row.id === item.id)) return; return this.mutateAnnotation('updateAnnotationVisibility', { id: item.id, adminsonly: !item.adminsonly }) },
     async mutateAnnotation (command, args) {
@@ -162,7 +162,7 @@ export default {
       this.annotationSaving = true; this.mutationError = ''
       let succeeded = false
       try {
-        await postAPI(command, args, { preserveOnFailure: true, timeout: 20000 })
+        await postAPI(command, { ...args, ...detailTabProject(this) }, { preserveOnFailure: true, timeout: 20000 })
         if (!current()) return
         succeeded = true
         if (command === 'addAnnotation' && this.annotation === args.annotation) { this.annotation = ''; this.annotationAdminsOnly = false }

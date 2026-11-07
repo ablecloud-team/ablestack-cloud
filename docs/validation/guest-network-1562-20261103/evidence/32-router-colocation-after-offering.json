@@ -1,0 +1,17 @@
+{
+  "offering_jobstatus": 1,
+  "router_before": {
+    "id": "fd777cba-3a62-49c3-a7e3-46139c5ae2d3",
+    "name": "r-340-VM",
+    "hostname": "ablecube32-1",
+    "hostid": "bfe795b1-8fde-4361-bd1d-af421ab2bdc5"
+  },
+  "target_host": "bfe795b1-8fde-4361-bd1d-af421ab2bdc5",
+  "reason": "Keep final review guests and router on same host; cross-host VLAN transfer remains unqualified.",
+  "router_after": {
+    "id": "fd777cba-3a62-49c3-a7e3-46139c5ae2d3",
+    "name": "r-340-VM",
+    "hostname": "ablecube32-1",
+    "hostid": "bfe795b1-8fde-4361-bd1d-af421ab2bdc5"
+  }
+}

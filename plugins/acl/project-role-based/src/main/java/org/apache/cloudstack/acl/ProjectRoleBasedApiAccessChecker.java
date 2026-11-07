@@ -27,6 +27,8 @@ import org.apache.cloudstack.acl.apikeypair.ApiKeyPair;
 import org.apache.cloudstack.acl.apikeypair.ApiKeyPairPermission;
 import org.apache.cloudstack.context.CallContext;
 
+import com.cloud.domain.Domain;
+import com.cloud.domain.dao.DomainDao;
 import com.cloud.exception.PermissionDeniedException;
 import com.cloud.exception.UnavailableCommandException;
 import com.cloud.projects.Project;
@@ -48,6 +50,8 @@ public class ProjectRoleBasedApiAccessChecker  extends AdapterBase implements AP
     RoleService roleService;
     @Inject
     AccountService accountService;
+    @Inject
+    DomainDao domainDao;
 
     private List<PluggableService> services;
     protected ProjectRoleBasedApiAccessChecker() {
@@ -56,6 +60,24 @@ public class ProjectRoleBasedApiAccessChecker  extends AdapterBase implements AP
 
     private void denyApiAccess(final String commandName) throws PermissionDeniedException {
         throw new PermissionDeniedException("The API " + commandName + " is denied for the user's/account's project role.");
+    }
+
+    private boolean hasProjectAdministrativeAccess(User user, Project project) {
+        long accountId = user.getAccountId();
+        if (accountService.isRootAdmin(accountId)) {
+            return true;
+        }
+        if (accountService.isDomainAdmin(accountId)) {
+            Domain domain = domainDao.findById(project.getDomainId());
+            if (domain == null) {
+                throw new PermissionDeniedException("The project domain is not available.");
+            }
+            // Match ProjectManagerImpl.canAccessProjectAccount: domain admins
+            // manage projects only in their own domain hierarchy.
+            accountService.checkAccess(accountService.getAccount(accountId), domain);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -80,11 +102,15 @@ public class ProjectRoleBasedApiAccessChecker  extends AdapterBase implements AP
             return apiNames;
         }
 
+        if (hasProjectAdministrativeAccess(user, project)) {
+            return apiNames;
+        }
+
         long accountID = user.getAccountId();
         ProjectAccount projectUser = projectAccountDao.findByProjectIdUserId(project.getId(), accountID, user.getId());
         if (projectUser != null) {
             if (projectUser.getAccountRole() != ProjectAccount.Role.Admin) {
-                apiNames.removeIf(apiName -> !isPermitted(project, projectUser, apiName));
+                filterApisForMember(project, projectUser, apiNames);
             }
             if (logger.isTraceEnabled()) {
                 logger.trace(String.format("Returning APIs [%s] as allowed for user [%s].", apiNames, user));
@@ -98,7 +124,7 @@ public class ProjectRoleBasedApiAccessChecker  extends AdapterBase implements AP
         }
 
         if (projectAccount.getAccountRole() != ProjectAccount.Role.Admin) {
-            apiNames.removeIf(apiName -> !isPermitted(project, projectAccount, apiName));
+            filterApisForMember(project, projectAccount, apiNames);
         }
         if (logger.isTraceEnabled()) {
             logger.trace(String.format("Returning APIs [%s] as allowed for user [%s].", apiNames, user));
@@ -121,13 +147,11 @@ public class ProjectRoleBasedApiAccessChecker  extends AdapterBase implements AP
             return true;
         }
 
-        Account userAccount = accountService.getAccount(user.getAccountId());
-        if (accountService.isRootAdmin(userAccount.getId()) || accountService.isDomainAdmin(userAccount.getAccountId())) {
-            logger.info(String.format("Account [%s] is Root Admin or Domain Admin, all APIs are allowed.", userAccount.getAccountName()));
+        if (hasProjectAdministrativeAccess(user, project)) {
             return true;
         }
 
-        ProjectAccount projectUser = projectAccountDao.findByProjectIdUserId(project.getId(), userAccount.getAccountId(), user.getId());
+        ProjectAccount projectUser = projectAccountDao.findByProjectIdUserId(project.getId(), user.getAccountId(), user.getId());
         if (projectUser != null) {
             if (projectUser.getAccountRole() == ProjectAccount.Role.Admin || isPermitted(project, projectUser, apiCommandName)) {
                 return true;
@@ -135,7 +159,7 @@ public class ProjectRoleBasedApiAccessChecker  extends AdapterBase implements AP
             denyApiAccess(apiCommandName);
         }
 
-        ProjectAccount projectAccount = projectAccountDao.findByProjectIdAccountId(project.getId(), userAccount.getAccountId());
+        ProjectAccount projectAccount = projectAccountDao.findByProjectIdAccountId(project.getId(), user.getAccountId());
         if (projectAccount != null) {
             if (projectAccount.getAccountRole() == ProjectAccount.Role.Admin || isPermitted(project, projectAccount, apiCommandName)) {
                 return true;
@@ -161,17 +185,24 @@ public class ProjectRoleBasedApiAccessChecker  extends AdapterBase implements AP
         return apiNames;
     }
 
-    public boolean isPermitted(Project project, ProjectAccount projectUser, String ... apiCommandNames) {
-        ProjectRole projectRole = null;
-        if(projectUser.getProjectRoleId() != null) {
-            projectRole = projectRoleService.findProjectRole(projectUser.getProjectRoleId(), project.getId());
+    private void filterApisForMember(Project project, ProjectAccount membership, List<String> apiNames) {
+        if (membership.getProjectRoleId() == null) {
+            return;
         }
+        // Resolve the effective role once for the entire discovery response.
+        List<ProjectRolePermission> permissions = projectRoleService.findCurrentUserProjectRolePermissions(project.getId());
+        apiNames.removeIf(api -> !isPermitted(permissions, api));
+    }
 
-        if (projectRole == null) {
+    public boolean isPermitted(Project project, ProjectAccount projectUser, String ... apiCommandNames) {
+        if (projectUser.getProjectRoleId() == null) {
             return true;
         }
 
-        List<ProjectRolePermission> allProjectRolePermissions = projectRoleService.findAllProjectRolePermissions(project.getId(), projectRole.getId());
+        return isPermitted(projectRoleService.findCurrentUserProjectRolePermissions(project.getId()), apiCommandNames);
+    }
+
+    private boolean isPermitted(List<ProjectRolePermission> allProjectRolePermissions, String ... apiCommandNames) {
         for (String api : apiCommandNames) {
             for (ProjectRolePermission permission : allProjectRolePermissions) {
                 if (permission.getRule().matches(api)) {

@@ -1,0 +1,1335 @@
+[
+  {
+    "case": "root-discovery",
+    "command": "listApis",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.357,
+    "apiCount": 1070,
+    "networkWriteApis": {
+      "createNetwork": true,
+      "updateNetwork": true,
+      "addNicToVirtualMachine": true,
+      "removeNicFromVirtualMachine": true
+    },
+    "readApis": {
+      "listApis": true,
+      "listNetworks": true,
+      "listVirtualMachines": true,
+      "queryAsyncJobResult": true
+    },
+    "rootOnlyCreateZone": true
+  },
+  {
+    "case": "root-networks-read",
+    "command": "listNetworks",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.157,
+    "count": 19
+  },
+  {
+    "case": "root-vms-read",
+    "command": "listVirtualMachines",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.054,
+    "count": 1
+  },
+  {
+    "case": "root-create-l2",
+    "command": "createNetwork",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+      "acltype": "Account",
+      "name": "qa-gn1569-32-prj-1589-root-l2",
+      "displaytext": "GN1589 root"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.141
+  },
+  {
+    "case": "root-update-l2",
+    "command": "updateNetwork",
+    "params": {
+      "id": "265930da-18eb-4131-8b94-860e18d80a4e",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1589 root saved"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "cffb3507-4703-4d88-b375-6a0baac484a5",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "seconds": 2.108
+  },
+  {
+    "case": "root-nic-add",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "265930da-18eb-4131-8b94-860e18d80a4e",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "e2fae970-4ebe-441f-a8dc-252070964bf1",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "seconds": 4.111
+  },
+  {
+    "case": "root-nic-remove",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "fce54d90-faac-4988-8e8c-f2deee8b33b8",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "4efa15dd-3667-415b-947c-edf0194f7e3f",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "seconds": 4.107
+  },
+  {
+    "case": "owner-discovery",
+    "command": "listApis",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.452,
+    "apiCount": 465,
+    "networkWriteApis": {
+      "createNetwork": true,
+      "updateNetwork": true,
+      "addNicToVirtualMachine": true,
+      "removeNicFromVirtualMachine": true
+    },
+    "readApis": {
+      "listApis": true,
+      "listNetworks": true,
+      "listVirtualMachines": true,
+      "queryAsyncJobResult": true
+    },
+    "rootOnlyCreateZone": false
+  },
+  {
+    "case": "owner-networks-read",
+    "command": "listNetworks",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.126,
+    "count": 20
+  },
+  {
+    "case": "owner-vms-read",
+    "command": "listVirtualMachines",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.037,
+    "count": 1
+  },
+  {
+    "case": "owner-create-l2",
+    "command": "createNetwork",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+      "acltype": "Account",
+      "name": "qa-gn1569-32-prj-1589-owner-l2",
+      "displaytext": "GN1589 owner"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.112
+  },
+  {
+    "case": "owner-update-l2",
+    "command": "updateNetwork",
+    "params": {
+      "id": "c6419cc0-62de-4b38-9673-e9a1f71ef47c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1589 owner saved"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "09197e3e-6cf2-4eba-885c-286fa14f1c47",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "seconds": 2.111
+  },
+  {
+    "case": "owner-nic-add",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "c6419cc0-62de-4b38-9673-e9a1f71ef47c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "c608071d-bb21-4da1-8b00-b92f573aa041",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "seconds": 2.099
+  },
+  {
+    "case": "owner-nic-remove",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "450290de-7902-4a3f-9a7f-0e9830778570",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "06c3c148-70cc-4422-b5f5-a6154299a468",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "seconds": 2.106
+  },
+  {
+    "case": "member-discovery",
+    "command": "listApis",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.428,
+    "apiCount": 465,
+    "networkWriteApis": {
+      "createNetwork": true,
+      "updateNetwork": true,
+      "addNicToVirtualMachine": true,
+      "removeNicFromVirtualMachine": true
+    },
+    "readApis": {
+      "listApis": true,
+      "listNetworks": true,
+      "listVirtualMachines": true,
+      "queryAsyncJobResult": true
+    },
+    "rootOnlyCreateZone": false
+  },
+  {
+    "case": "member-networks-read",
+    "command": "listNetworks",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.124,
+    "count": 21
+  },
+  {
+    "case": "member-vms-read",
+    "command": "listVirtualMachines",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.032,
+    "count": 1
+  },
+  {
+    "case": "member-create-l2",
+    "command": "createNetwork",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+      "acltype": "Account",
+      "name": "qa-gn1569-32-prj-1589-member-l2",
+      "displaytext": "GN1589 member"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.116
+  },
+  {
+    "case": "member-update-l2",
+    "command": "updateNetwork",
+    "params": {
+      "id": "0474d9ec-196b-417b-b9dc-7b1ba81554f0",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1589 member saved"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "2fa20a71-a90b-409a-b7ee-51802dc8844d",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "seconds": 2.084
+  },
+  {
+    "case": "member-nic-add",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "0474d9ec-196b-417b-b9dc-7b1ba81554f0",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "dc19f8e5-ca3b-4707-9f79-385afb1487ea",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "seconds": 4.126
+  },
+  {
+    "case": "member-nic-remove",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "054633cc-f6b3-4ec5-8753-038f90d995f6",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "88d83709-ed2c-4c38-8e4c-cca6b8f0c3af",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "seconds": 4.1
+  },
+  {
+    "case": "domainadmin-discovery",
+    "command": "listApis",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.473,
+    "apiCount": 520,
+    "networkWriteApis": {
+      "createNetwork": true,
+      "updateNetwork": true,
+      "addNicToVirtualMachine": true,
+      "removeNicFromVirtualMachine": true
+    },
+    "readApis": {
+      "listApis": true,
+      "listNetworks": true,
+      "listVirtualMachines": true,
+      "queryAsyncJobResult": true
+    },
+    "rootOnlyCreateZone": false
+  },
+  {
+    "case": "domainadmin-networks-read",
+    "command": "listNetworks",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.144,
+    "count": 22
+  },
+  {
+    "case": "domainadmin-vms-read",
+    "command": "listVirtualMachines",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.043,
+    "count": 1
+  },
+  {
+    "case": "domainadmin-create-l2",
+    "command": "createNetwork",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+      "acltype": "Account",
+      "name": "qa-gn1569-32-prj-1589-domainadmin-l2",
+      "displaytext": "GN1589 domainadmin"
+    },
+    "accepted": false,
+    "errorCode": 535,
+    "errorText": "Maximum amount of resources of Type = 'network', tag = 'null' for Project Name = qa-gn1569-32-project in Domain Id = 64 is exceeded: Account Resource Limit = 20, Current Account Resource Amount = 20, Current Account Resource Reservation = 0, Requested Resource Amount = 1.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.04,
+    "environmentSetupBlock": true,
+    "resolvedBy": "QA project network quota 20 -> 30"
+  },
+  {
+    "case": "domainadmin-discovery",
+    "command": "listApis",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.497,
+    "apiCount": 520,
+    "networkWriteApis": {
+      "createNetwork": true,
+      "updateNetwork": true,
+      "addNicToVirtualMachine": true,
+      "removeNicFromVirtualMachine": true
+    },
+    "readApis": {
+      "listApis": true,
+      "listNetworks": true,
+      "listVirtualMachines": true,
+      "queryAsyncJobResult": true
+    },
+    "rootOnlyCreateZone": false
+  },
+  {
+    "case": "domainadmin-networks-read",
+    "command": "listNetworks",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.157,
+    "count": 22
+  },
+  {
+    "case": "domainadmin-vms-read",
+    "command": "listVirtualMachines",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.029,
+    "count": 1
+  },
+  {
+    "case": "domainadmin-create-l2",
+    "command": "createNetwork",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+      "acltype": "Account",
+      "name": "qa-gn1569-32-prj-1589-domainadmin-l2",
+      "displaytext": "GN1589 domainadmin"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.105
+  },
+  {
+    "case": "domainadmin-update-l2",
+    "command": "updateNetwork",
+    "params": {
+      "id": "34d7589a-ee42-4064-891c-8d1bae4b41b3",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "API1589 domainadmin saved"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "bfe2ad7d-3e93-47a4-b3d6-14c1b6bb2e31",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "seconds": 2.111
+  },
+  {
+    "case": "domainadmin-nic-add",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "34d7589a-ee42-4064-891c-8d1bae4b41b3",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "837b5085-fa79-405f-bf83-a99e955e6484",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "seconds": 4.123
+  },
+  {
+    "case": "domainadmin-nic-remove",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "2d5a7bb6-1e11-48cc-bdfe-2d8082d18f23",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "89a3921a-8eba-4688-93f0-6c23596716b8",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "seconds": 4.125
+  },
+  {
+    "case": "root-final-review-nic-add",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "265930da-18eb-4131-8b94-860e18d80a4e",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": "79f5f41e-0f67-4022-bf76-82d587b7f836",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "seconds": 2.073
+  },
+  {
+    "case": "readonly-discovery",
+    "command": "listApis",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.418,
+    "apiCount": 461,
+    "networkWriteApis": {
+      "createNetwork": false,
+      "updateNetwork": false,
+      "addNicToVirtualMachine": false,
+      "removeNicFromVirtualMachine": false
+    },
+    "readApis": {
+      "listApis": true,
+      "listNetworks": true,
+      "listVirtualMachines": true,
+      "queryAsyncJobResult": true
+    },
+    "rootOnlyCreateZone": false
+  },
+  {
+    "case": "readonly-read-listNetworks",
+    "command": "listNetworks",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.136,
+    "count": 23
+  },
+  {
+    "case": "readonly-read-listVirtualMachines",
+    "command": "listVirtualMachines",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.035,
+    "count": 1
+  },
+  {
+    "case": "readonly-denied-createNetwork",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-32-1589-readonly-denied",
+      "displaytext": "Expected rejected",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+      "acltype": "Account"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'createNetwork' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.01
+  },
+  {
+    "case": "readonly-denied-updateNetwork",
+    "command": "updateNetwork",
+    "params": {
+      "id": "265930da-18eb-4131-8b94-860e18d80a4e",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "Expected rejected"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'updateNetwork' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.009
+  },
+  {
+    "case": "readonly-denied-addNicToVirtualMachine",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "c6419cc0-62de-4b38-9673-e9a1f71ef47c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'addNicToVirtualMachine' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.008
+  },
+  {
+    "case": "readonly-denied-removeNicFromVirtualMachine",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "754ba4fd-36e5-4bb8-920a-fe9e182ab1b5",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'removeNicFromVirtualMachine' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.009
+  },
+  {
+    "case": "readonly-management-denied-listProjectRoles",
+    "command": "listProjectRoles",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "projectroleid": "a3d3ed1e-1479-48f2-afbc-c2e0e9c96a81"
+    },
+    "accepted": false,
+    "errorCode": 531,
+    "errorText": "User unauthorized to perform operation in the project",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.023
+  },
+  {
+    "case": "readonly-management-denied-listProjectRolePermissions",
+    "command": "listProjectRolePermissions",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "projectroleid": "a3d3ed1e-1479-48f2-afbc-c2e0e9c96a81"
+    },
+    "accepted": false,
+    "errorCode": 531,
+    "errorText": "User unauthorized to perform operation in the project",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.03
+  },
+  {
+    "case": "user-only-discovery",
+    "command": "listApis",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.405,
+    "apiCount": 461,
+    "networkWriteApis": {
+      "createNetwork": false,
+      "updateNetwork": false,
+      "addNicToVirtualMachine": false,
+      "removeNicFromVirtualMachine": false
+    },
+    "readApis": {
+      "listApis": true,
+      "listNetworks": true,
+      "listVirtualMachines": true,
+      "queryAsyncJobResult": true
+    },
+    "rootOnlyCreateZone": false
+  },
+  {
+    "case": "user-only-read-listNetworks",
+    "command": "listNetworks",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.151,
+    "count": 23
+  },
+  {
+    "case": "user-only-read-listVirtualMachines",
+    "command": "listVirtualMachines",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.033,
+    "count": 1
+  },
+  {
+    "case": "user-only-denied-createNetwork",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-32-1589-user-only-denied",
+      "displaytext": "Expected rejected",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+      "acltype": "Account"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'createNetwork' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.021
+  },
+  {
+    "case": "user-only-denied-updateNetwork",
+    "command": "updateNetwork",
+    "params": {
+      "id": "265930da-18eb-4131-8b94-860e18d80a4e",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "Expected rejected"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'updateNetwork' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.028
+  },
+  {
+    "case": "user-only-denied-addNicToVirtualMachine",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "c6419cc0-62de-4b38-9673-e9a1f71ef47c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'addNicToVirtualMachine' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.008
+  },
+  {
+    "case": "user-only-denied-removeNicFromVirtualMachine",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "754ba4fd-36e5-4bb8-920a-fe9e182ab1b5",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'removeNicFromVirtualMachine' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.007
+  },
+  {
+    "case": "user-only-management-denied-listProjectRoles",
+    "command": "listProjectRoles",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "projectroleid": "a3d3ed1e-1479-48f2-afbc-c2e0e9c96a81"
+    },
+    "accepted": false,
+    "errorCode": 531,
+    "errorText": "User unauthorized to perform operation in the project",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.01
+  },
+  {
+    "case": "user-only-management-denied-listProjectRolePermissions",
+    "command": "listProjectRolePermissions",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "projectroleid": "a3d3ed1e-1479-48f2-afbc-c2e0e9c96a81"
+    },
+    "accepted": false,
+    "errorCode": 531,
+    "errorText": "User unauthorized to perform operation in the project",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.01
+  },
+  {
+    "case": "peer-nonmember-denied-listApis",
+    "command": "listApis",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [listApis] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.007
+  },
+  {
+    "case": "peer-nonmember-denied-listNetworks",
+    "command": "listNetworks",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [listNetworks] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.007
+  },
+  {
+    "case": "peer-nonmember-denied-listVirtualMachines",
+    "command": "listVirtualMachines",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [listVirtualMachines] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.007
+  },
+  {
+    "case": "peer-denied-createNetwork",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-32-1589-peer-denied",
+      "displaytext": "Expected rejected",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+      "acltype": "Account"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [createNetwork] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.008
+  },
+  {
+    "case": "peer-denied-updateNetwork",
+    "command": "updateNetwork",
+    "params": {
+      "id": "265930da-18eb-4131-8b94-860e18d80a4e",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "Expected rejected"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [updateNetwork] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.007
+  },
+  {
+    "case": "peer-denied-addNicToVirtualMachine",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "c6419cc0-62de-4b38-9673-e9a1f71ef47c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [addNicToVirtualMachine] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.007
+  },
+  {
+    "case": "peer-denied-removeNicFromVirtualMachine",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "754ba4fd-36e5-4bb8-920a-fe9e182ab1b5",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [removeNicFromVirtualMachine] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.007
+  },
+  {
+    "case": "outsider-nonmember-denied-listApis",
+    "command": "listApis",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [listApis] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.021
+  },
+  {
+    "case": "outsider-nonmember-denied-listNetworks",
+    "command": "listNetworks",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [listNetworks] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.008
+  },
+  {
+    "case": "outsider-nonmember-denied-listVirtualMachines",
+    "command": "listVirtualMachines",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [listVirtualMachines] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.007
+  },
+  {
+    "case": "outsider-denied-createNetwork",
+    "command": "createNetwork",
+    "params": {
+      "name": "qa-gn1569-32-1589-outsider-denied",
+      "displaytext": "Expected rejected",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+      "acltype": "Account"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [createNetwork] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.007
+  },
+  {
+    "case": "outsider-denied-updateNetwork",
+    "command": "updateNetwork",
+    "params": {
+      "id": "265930da-18eb-4131-8b94-860e18d80a4e",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "displaytext": "Expected rejected"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [updateNetwork] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.006
+  },
+  {
+    "case": "outsider-denied-addNicToVirtualMachine",
+    "command": "addNicToVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "networkid": "c6419cc0-62de-4b38-9673-e9a1f71ef47c",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [addNicToVirtualMachine] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.007
+  },
+  {
+    "case": "outsider-denied-removeNicFromVirtualMachine",
+    "command": "removeNicFromVirtualMachine",
+    "params": {
+      "virtualmachineid": "da7f69ed-1948-4927-b377-55beb9c4620d",
+      "nicid": "754ba4fd-36e5-4bb8-920a-fe9e182ab1b5",
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": false,
+    "errorCode": 432,
+    "errorText": "The API [removeNicFromVirtualMachine] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.007
+  },
+  {
+    "case": "changed-rule-same-session-discovery",
+    "command": "listApis",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.404,
+    "apiCount": 460,
+    "networkWriteApis": {
+      "createNetwork": false,
+      "updateNetwork": false,
+      "addNicToVirtualMachine": false,
+      "removeNicFromVirtualMachine": false
+    },
+    "readApis": {
+      "listApis": true,
+      "listNetworks": false,
+      "listVirtualMachines": true,
+      "queryAsyncJobResult": true
+    },
+    "rootOnlyCreateZone": false
+  },
+  {
+    "case": "changed-rule-same-session-listNetworks",
+    "command": "listNetworks",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'listNetworks' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.011
+  },
+  {
+    "case": "changed-rule-fresh-login-discovery",
+    "command": "listApis",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.412,
+    "apiCount": 460,
+    "networkWriteApis": {
+      "createNetwork": false,
+      "updateNetwork": false,
+      "addNicToVirtualMachine": false,
+      "removeNicFromVirtualMachine": false
+    },
+    "readApis": {
+      "listApis": true,
+      "listNetworks": false,
+      "listVirtualMachines": true,
+      "queryAsyncJobResult": true
+    },
+    "rootOnlyCreateZone": false
+  },
+  {
+    "case": "changed-rule-fresh-login-listNetworks",
+    "command": "listNetworks",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": false,
+    "errorCode": 401,
+    "errorText": "The given command 'listNetworks' either does not exist, is not available for user.",
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.01
+  },
+  {
+    "case": "wildcard-first-allows-before-exact-deny",
+    "command": "listNetworks",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.129,
+    "count": 23
+  },
+  {
+    "case": "restored-rule-existing-session-discovery",
+    "command": "listApis",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.395,
+    "apiCount": 461,
+    "networkWriteApis": {
+      "createNetwork": false,
+      "updateNetwork": false,
+      "addNicToVirtualMachine": false,
+      "removeNicFromVirtualMachine": false
+    },
+    "readApis": {
+      "listApis": true,
+      "listNetworks": true,
+      "listVirtualMachines": true,
+      "queryAsyncJobResult": true
+    },
+    "rootOnlyCreateZone": false
+  },
+  {
+    "case": "restored-rule-existing-session-listNetworks",
+    "command": "listNetworks",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.124,
+    "count": 23
+  },
+  {
+    "case": "restored-rule-fresh-login-discovery",
+    "command": "listApis",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.424,
+    "apiCount": 461,
+    "networkWriteApis": {
+      "createNetwork": false,
+      "updateNetwork": false,
+      "addNicToVirtualMachine": false,
+      "removeNicFromVirtualMachine": false
+    },
+    "readApis": {
+      "listApis": true,
+      "listNetworks": true,
+      "listVirtualMachines": true,
+      "queryAsyncJobResult": true
+    },
+    "rootOnlyCreateZone": false
+  },
+  {
+    "case": "restored-rule-fresh-login-listNetworks",
+    "command": "listNetworks",
+    "params": {
+      "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+      "listall": "true"
+    },
+    "accepted": true,
+    "errorCode": null,
+    "errorText": null,
+    "jobId": null,
+    "jobStatus": null,
+    "jobResultCode": null,
+    "seconds": 0.133,
+    "count": 23
+  }
+]

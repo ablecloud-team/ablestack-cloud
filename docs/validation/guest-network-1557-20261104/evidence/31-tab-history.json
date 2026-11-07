@@ -1,0 +1,18 @@
+[
+  {
+    "step": "detail",
+    "url": "http://10.10.31.10:8080/client/#/guestnetwork/670c6673-068d-4436-b57c-b09acce6b65f?tab=details"
+  },
+  {
+    "step": "range",
+    "url": "http://10.10.31.10:8080/client/#/guestnetwork/670c6673-068d-4436-b57c-b09acce6b65f?tab=guest.ip.range"
+  },
+  {
+    "step": "back",
+    "url": "http://10.10.31.10:8080/client/#/guestnetwork/670c6673-068d-4436-b57c-b09acce6b65f?tab=details"
+  },
+  {
+    "step": "forward",
+    "url": "http://10.10.31.10:8080/client/#/guestnetwork/670c6673-068d-4436-b57c-b09acce6b65f?tab=guest.ip.range"
+  }
+]

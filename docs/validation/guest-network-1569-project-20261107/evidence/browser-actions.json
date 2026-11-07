@@ -1,0 +1,309 @@
+[
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "create-l2-submitted",
+    "name": "qa-gn1569-31-prj-ui-owner-l2"
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "update-l2",
+    "saved": true,
+    "marker": "UI1569 owner l2",
+    "uiReadback": true
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "update-shared",
+    "enabled": false,
+    "reason": "specified VLAN Shared action disabled"
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "update-nat",
+    "closed": true,
+    "saved": true,
+    "marker": "UI1569 owner nat"
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "update-shared-auto",
+    "closed": false,
+    "saved": false,
+    "marker": "UI1569 owner shared-auto"
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "update-shared-auto-interference",
+    "testInterference": true,
+    "reason": "API role sweep modified the same test description during UI readback"
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "update-shared-auto",
+    "closed": true,
+    "saved": true,
+    "marker": "UI1569 owner shared-auto"
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "nic-add-l2",
+    "saved": true,
+    "progress": "네트워크 작업 진행\n\nqa-gn1569-31-prj-vm\n\nqa-gn1569-31-prj-l2\n\n기존 네트워크 연결\n완료\n닫기"
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "nic-add-nat",
+    "saved": false,
+    "progress": "네트워크 작업 진행\n\nqa-gn1569-31-prj-vm\n\nqa-gn1569-31-prj-nat\n\n1\n기존 네트워크 연결\n진행 중\n\nJob ID: 4a00e6e4-26aa-43f8-882d-ee7693841ab3\n\n닫기"
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "nic-add-nat-final",
+    "saved": true,
+    "jobId": "4a00e6e4-26aa-43f8-882d-ee7693841ab3",
+    "uiReadback": true
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "nic-add-shared-auto",
+    "saved": true,
+    "progress": "네트워크 작업 진행\n\nqa-gn1569-31-prj-vm\n\nqa-gn1569-31-prj-shared-auto\n\n기존 네트워크 연결\n완료\n닫기"
+  },
+  {
+    "cluster": 31,
+    "role": "member",
+    "action": "create-l2",
+    "saved": true,
+    "name": "qa-gn1569-31-prj-ui-member-l2"
+  },
+  {
+    "cluster": 31,
+    "role": "member",
+    "action": "update-l2",
+    "closed": true,
+    "saved": true,
+    "marker": "UI1569 member l2"
+  },
+  {
+    "cluster": 31,
+    "role": "member",
+    "action": "nic-add-l2",
+    "saved": true,
+    "progress": "네트워크 작업 진행\n\nqa-gn1569-31-prj-vm\n\nqa-gn1569-31-prj-l2\n\n기존 네트워크 연결\n완료\n닫기"
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "project-switch-denied",
+    "errorCode": 531,
+    "reason": "listApis project membership rejection despite direct network API rights"
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "action": "project-read-blocked",
+    "errorCode": 401,
+    "explicitReadRulesPresent": true
+  },
+  {
+    "cluster": 31,
+    "role": "peer",
+    "action": "project-not-listed",
+    "visible": 0
+  },
+  {
+    "cluster": 31,
+    "role": "peer",
+    "action": "direct-network-access",
+    "resourceNameVisible": 0
+  },
+  {
+    "cluster": 31,
+    "role": "outsider",
+    "action": "project-not-listed",
+    "visible": 0
+  },
+  {
+    "cluster": 31,
+    "role": "admin",
+    "action": "project-switch-blocked",
+    "reason": "QuotaExceededError primate__APIS",
+    "apiAllowed": true
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "action": "create-l2",
+    "saved": true,
+    "name": "qa-gn1569-32-prj-ui-owner-l2"
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "action": "update-l2",
+    "closed": true,
+    "saved": true,
+    "marker": "UI1569 owner l2"
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "action": "nic-add-l2",
+    "saved": true,
+    "progress": "네트워크 작업 진행\n\nqa-gn1569-32-prj-vm\n\nqa-gn1569-32-prj-l2\n\n기존 네트워크 연결\n완료\n닫기"
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "action": "update-nat",
+    "closed": true,
+    "saved": true,
+    "marker": "UI1569 owner nat"
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "action": "update-shared-auto",
+    "closed": true,
+    "saved": true,
+    "marker": "UI1569 owner shared-auto"
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "action": "update-shared",
+    "enabled": false
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "action": "nic-add-nat",
+    "saved": false,
+    "progress": "네트워크 작업 진행\n\nqa-gn1569-32-prj-vm\n\nqa-gn1569-32-prj-nat\n\n1\n기존 네트워크 연결\n진행 중\n\nJob ID: 80c3f608-23d9-4d16-a20a-9e7b332d9f70\n\n닫기"
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "action": "nic-add-nat-final",
+    "saved": true,
+    "jobId": "80c3f608-23d9-4d16-a20a-9e7b332d9f70",
+    "uiReadback": true
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "action": "nic-add-shared-auto",
+    "completed": true,
+    "saved": true,
+    "progress": "네트워크 작업 진행\n\nqa-gn1569-32-prj-vm\n\nqa-gn1569-32-prj-shared-auto\n\n기존 네트워크 연결\n완료\n닫기"
+  },
+  {
+    "cluster": 32,
+    "role": "member",
+    "action": "create-l2",
+    "saved": true,
+    "name": "qa-gn1569-32-prj-ui-member-l2"
+  },
+  {
+    "cluster": 32,
+    "role": "member",
+    "action": "update-l2",
+    "closed": true,
+    "saved": true,
+    "marker": "UI1569 member l2"
+  },
+  {
+    "cluster": 32,
+    "role": "member",
+    "action": "nic-add-l2",
+    "completed": true,
+    "saved": true,
+    "progress": "네트워크 작업 진행\n\nqa-gn1569-32-prj-vm\n\nqa-gn1569-32-prj-l2\n\n기존 네트워크 연결\n완료\n닫기"
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "project-switch-denied",
+    "errorCode": 531
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "action": "project-read-blocked",
+    "errorCode": 401,
+    "explicitReadRulesPresent": true
+  },
+  {
+    "cluster": 32,
+    "role": "peer",
+    "action": "project-not-listed",
+    "visible": 0
+  },
+  {
+    "cluster": 32,
+    "role": "peer",
+    "action": "direct-network-access",
+    "resourceNameVisible": 0
+  },
+  {
+    "cluster": 32,
+    "role": "outsider",
+    "action": "project-not-listed",
+    "visible": 0
+  },
+  {
+    "cluster": 32,
+    "role": "admin",
+    "action": "create-l2",
+    "saved": true,
+    "name": "qa-gn1569-32-prj-ui-admin-l2"
+  },
+  {
+    "cluster": 32,
+    "role": "admin",
+    "action": "update-l2",
+    "closed": true,
+    "saved": true,
+    "marker": "UI1569 admin l2"
+  },
+  {
+    "cluster": 32,
+    "role": "admin",
+    "action": "nic-add-l2",
+    "completed": true,
+    "saved": true,
+    "progress": "네트워크 작업 진행\n\nqa-gn1569-32-prj-vm\n\nqa-gn1569-32-prj-l2\n\n기존 네트워크 연결\n완료\n닫기"
+  },
+  {
+    "cluster": 31,
+    "role": "admin",
+    "action": "specific-project-switch-blocked",
+    "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+    "reason": "QuotaExceededError evidenced separately"
+  },
+  {
+    "cluster": 32,
+    "role": "admin",
+    "action": "specific-project-switch-success",
+    "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+  },
+  {
+    "cluster": 32,
+    "role": "admin",
+    "action": "update-shared",
+    "closed": true,
+    "saved": true,
+    "marker": "UI1569 admin shared"
+  }
+]

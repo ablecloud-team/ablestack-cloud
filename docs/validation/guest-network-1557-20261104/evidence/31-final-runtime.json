@@ -1,0 +1,25 @@
+{
+  "static_files_verified": 648,
+  "static_hash_mismatches": [],
+  "index_sha256": "186bfefb5d738ff26b7bfc62adb5421989f80e1a37360a9a1c281ada302d0f43",
+  "server_runtime_protected_unchanged": true,
+  "web_inf_present": true,
+  "http": 200,
+  "jar_sha256": "58d8aaf66db1c5c68dca70bfdac064dfce55a9928ef764e3279ab2a56f674561",
+  "module_classes_verified": 30,
+  "markers": {
+    "guest-ip-ranges": true,
+    "guest-range-editor": true,
+    "network-offering-diagnostics": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true,
+    "network-create-isolated-": true,
+    "network-create-l2-": true,
+    "network-create-shared-": true
+  },
+  "service": "active",
+  "pid": "569621",
+  "new_linkage_errors": [],
+  "disk_free": 159567978496
+}

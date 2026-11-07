@@ -1,0 +1,32 @@
+{
+  "schema": "gateway\tvarchar(15)\tYES\t\tNULL\t\ncidr\tvarchar(18)\tYES\t\tNULL\t\nip6_gateway\tvarchar(50)\tYES\t\tNULL\t\nip6_cidr\tvarchar(50)\tYES\t\tNULL\t\n",
+  "ranges": {
+    "listvlaniprangesresponse": {
+      "count": 1,
+      "vlaniprange": [
+        {
+          "id": "b687a731-aae9-4bc0-a4d6-5db54f697102",
+          "forvirtualnetwork": false,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "vlan": "652",
+          "account": "system",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "gateway": "172.27.32.1",
+          "netmask": "255.255.255.0",
+          "cidr": "172.27.32.0/24",
+          "startip": "172.27.32.10",
+          "endip": "172.27.32.20",
+          "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "startipv6": "fd32:1557::10",
+          "endipv6": "fd32:1557::20",
+          "ip6gateway": "fd32:1557::1",
+          "ip6cidr": "fd32:1557::/64",
+          "forsystemvms": false
+        }
+      ]
+    }
+  }
+}

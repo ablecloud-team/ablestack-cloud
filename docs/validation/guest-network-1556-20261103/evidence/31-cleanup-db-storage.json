@@ -1,0 +1,15 @@
+{
+  "root_path": "/mnt/glue-gfs/c2242d6a-349d-4ebf-a46d-f8c6c1556ceb",
+  "path_exists": false,
+  "domain_exit": 1,
+  "mount_type": "gfs2",
+  "DB_active_counts": {
+    "active_networks": 0,
+    "active_offerings": 0,
+    "active_vms": 0,
+    "active_volumes": 0,
+    "active_routers": 0,
+    "active_fixture_router_volumes": 0,
+    "active_fixture_guest_nics": 0
+  }
+}

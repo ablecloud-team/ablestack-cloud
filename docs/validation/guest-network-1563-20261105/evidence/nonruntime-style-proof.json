@@ -1,0 +1,10 @@
+{
+  "runtimeBuildSource": "15e73de0834b61b29b79c376fecf1e744f783b78",
+  "vueRuntimeBlocksUnchanged": true,
+  "templateThroughStyleSha256": "dfaff632bb9d3beddaea122cb4c43650926fb056fad1f8b8bb13706d4a28a481",
+  "changes": [
+    "Canonical repository Vue license comment",
+    "Explicit imports in NIC failure unit test"
+  ],
+  "noRuntimeLogicChange": true
+}

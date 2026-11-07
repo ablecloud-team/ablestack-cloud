@@ -1,0 +1,21 @@
+{
+  "WEB-INF": true,
+  "http": 200,
+  "indexSha256": "242c35a2a242a14bd9683112814021844379da85157d44693d25c3c97983f5d2",
+  "jarSha256": "53895b2fa85d4c4ddafe35d870e383108a3861301d3ee3a2b2aa52a2112aed6a",
+  "markers": {
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true,
+    "network-delete-dialog": true,
+    "network-mutation-status": true,
+    "network-permissions": true,
+    "message.network.permission.effect": true,
+    "offering-services": true,
+    "offering.clone.customize": true,
+    "network-vnf-appliances": true,
+    "guest-feature-notice": true,
+    "conditional-rule-form": true
+  },
+  "moldPid": "974019"
+}

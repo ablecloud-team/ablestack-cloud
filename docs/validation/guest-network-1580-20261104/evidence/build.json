@@ -1,0 +1,48 @@
+{
+  "module": "plugins/hypervisors/kvm",
+  "workspace": "/home/ablecloud/work/dhslove/cloud-epic-1554",
+  "production_source_commit": "b11cc39c43c014b3d48450627a1079bcedc5d62a",
+  "test_source_commit": "48a57f41d940d6ba758d3a6923dd00b0a31bc0fe",
+  "agent_module_tests": 64,
+  "agent_module_failures": 0,
+  "agent_module_skipped": 0,
+  "module_tests": 1215,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 3,
+  "hook_tests": 7,
+  "namespace_scenarios_per_cluster": 35,
+  "maven_log_sha256": "fca45bb767d11b881da6a8c59cf53fae1f92cdfde38d664e94ef2ac58bec3ea4",
+  "checkstyle_existing_errors": [
+    {
+      "file": "LibvirtCheckCloneVolumeAbsentCommandWrapper.java",
+      "count": 3
+    },
+    {
+      "file": "CloneVolumeAbsence.java",
+      "count": 3
+    },
+    {
+      "file": "VerifiedVolumeExportTest.java",
+      "count": 1
+    },
+    {
+      "file": "CloneVolumeAbsenceTest.java",
+      "count": 5
+    },
+    {
+      "file": "AllocatedCloneRollbackTest.java",
+      "count": 4
+    },
+    {
+      "file": "RbdVmFullCloneTest.java",
+      "count": 2
+    },
+    {
+      "file": "VolumeExportCommandGuardTest.java",
+      "count": 1
+    }
+  ],
+  "changed_java_checkstyle_errors": 0,
+  "full_cloud_build_requested_or_started": false
+}

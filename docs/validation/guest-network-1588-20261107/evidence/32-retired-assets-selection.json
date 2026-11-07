@@ -1,0 +1,66 @@
+{
+  "files": [
+    {
+      "path": "js/vendors.10b47134.js.map",
+      "bytes": 18260760,
+      "sha256": "2331a88184e1570cf9bb30380a1f4843818d73feebd336efc8e2bdaea2c46326"
+    },
+    {
+      "path": "js/vendors.3ea5c3f6.js.map",
+      "bytes": 18254650,
+      "sha256": "8218bd06f702f1f7567c2fbae99e7e765fec26f44ec5ff19e2fbd45aedc5e1a2"
+    },
+    {
+      "path": "js/vendors.e48d3f20.js.map",
+      "bytes": 18148298,
+      "sha256": "610d14262aa8e8347aff0263f452828f17879b5719309aae5d4a0db5484bc484"
+    },
+    {
+      "path": "js/vendors.a26facc0.js.map",
+      "bytes": 18138246,
+      "sha256": "470ae0372bceeb4da4752c337f2de695ff287f8dd1751602f3bb0db25e7e54d0"
+    },
+    {
+      "path": "js/vendors.ff67e5d5.js.map",
+      "bytes": 18138246,
+      "sha256": "7b854d50b565b218dd9bb94a918ed0b1f1149e6b6ea12dfa5c4ecebdf056e2a0"
+    },
+    {
+      "path": "js/vendors.714d2b3d.js.map",
+      "bytes": 18138246,
+      "sha256": "6ff1efcbc81dec09e0d711ba2eb280a8e2a065cd077e111fba9ecbf846e27e1d"
+    },
+    {
+      "path": "js/vendors.f001745b.js.map",
+      "bytes": 18138245,
+      "sha256": "e9aa11b0c078d58bf36451cf204d278c3b12580df3ea6bb18891551b3db69ab9"
+    },
+    {
+      "path": "js/vendors.db346b57.js.map",
+      "bytes": 18138245,
+      "sha256": "d518116926072f68604a5a345750e70f6e175cf161a15f728c42df0099f272ce"
+    },
+    {
+      "path": "js/vendors.e8291c39.js.map",
+      "bytes": 18138245,
+      "sha256": "94e5568c53a3fb3193c3ad398f25edd55acca3a5a8992b364183b9e5553352c2"
+    },
+    {
+      "path": "js/vendors.a20d6fe4.js.map",
+      "bytes": 18138245,
+      "sha256": "0b37bd9f8b44f6059dbaa0723a47a2fb7afdbd1520cffc4c3e9d3c679d69a4eb"
+    },
+    {
+      "path": "js/vendors.abe728a0.js.map",
+      "bytes": 18138245,
+      "sha256": "0784d10823b87a3c8076a92ac42d9ff59728f8f489c3e1d2be2d2f39ea96ca11"
+    },
+    {
+      "path": "js/vendors.ae0fb22b.js.map",
+      "bytes": 18138245,
+      "sha256": "4501267e40eae58bff3f5839ce131584c25c4451f99d4cf1c0f09fd438568c95"
+    }
+  ],
+  "bytes": 217907916,
+  "webRoot": "/usr/share/cloudstack-management/webapp"
+}

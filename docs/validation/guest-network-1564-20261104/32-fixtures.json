@@ -1,0 +1,37 @@
+{
+  "prefix": "qa-gn1564-32",
+  "actors": {
+    "domainadmin": {
+      "id": "f370a834-ec97-40cc-acc4-ea2b1e4d4166",
+      "account": "qa-gn1564-32-domainadmin",
+      "username": "qa-gn1564-32-domainadmin",
+      "domainid": "14308a02-a543-4ebc-b788-c1c6647aecd9",
+      "domain": "/qa-gn1564-32/",
+      "type": 2
+    },
+    "user-a": {
+      "id": "6776f660-5b0b-476a-862e-6ee5faef72ab",
+      "account": "qa-gn1564-32-user",
+      "username": "qa-gn1564-32-user",
+      "domainid": "14308a02-a543-4ebc-b788-c1c6647aecd9",
+      "domain": "/qa-gn1564-32/",
+      "type": 0
+    }
+  },
+  "networks": {
+    "shared-false": "3f5c2ba2-a9a7-44cd-a2de-e7a3fd326f58",
+    "shared-true": "18e421b7-1c53-4744-9088-4e3a02a8da6b",
+    "shared-domain": "5f48ef29-5b0f-4c77-bb32-10db998bd85b",
+    "shared-all": "cf2a3736-472e-4cb5-877d-d6dc61cf2619",
+    "shared-project": "7e9cd42c-00c0-4696-81f5-f796e3cd1286",
+    "l2": "701c6021-4bd0-4953-b936-3dbb52bff02e",
+    "isolated": "abcd944a-dcf8-4d7d-86e6-f15504518329"
+  },
+  "vms": {
+    "usage-review": "006b2ece-6313-44e6-a248-db517aa69a7d"
+  },
+  "root": "2246448b-b23b-11f1-990e-0024811f8935",
+  "zone": "991d2f57-0f37-4445-b956-09773d064816",
+  "domain": "14308a02-a543-4ebc-b788-c1c6647aecd9",
+  "project": "f1813810-b851-46ce-b9ab-9e6cba6f5062"
+}

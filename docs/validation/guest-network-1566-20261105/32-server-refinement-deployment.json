@@ -1,0 +1,16 @@
+{
+  "jarSha256": "248d2a84be0cc7eda8f58f9475720dd473727d3afbb318971ab96c358bf238dd",
+  "classSha256": {
+    "com/cloud/configuration/ConfigurationManagerImpl.class": "7eff8fd861440d1b6a39aac4ee2c280f26afd87f236ad608a847e2282c348dec"
+  },
+  "beforePID": "894284",
+  "afterPID": "896810",
+  "WEB-INF": true,
+  "protectedStaticUnchanged": true,
+  "http": 200,
+  "restartSeconds": 43.24,
+  "diskFree": 536682496,
+  "cluster": 32,
+  "backup": "/home/ablecloud/work/guest-network-1566-validation/server-refinement-backups/32-management-before.jar",
+  "stage": "/dev/shm/gn1566-server-20261105-154416"
+}

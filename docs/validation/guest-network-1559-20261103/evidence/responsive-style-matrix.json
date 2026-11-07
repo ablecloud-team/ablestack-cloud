@@ -1,0 +1,1094 @@
+[
+  {
+    "cluster": 32,
+    "mode": "dark",
+    "width": 1280,
+    "height": 900,
+    "body_overflow_x": 0,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "재시작 중 네트워크 통신이 끊길 수 있습니다. 선택한 모든 대상이 적합할 때 실행하며 네트워크별로 결과를 추적합니다.",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "요소 재생성 또는 이중화 전환을 선택하면 Live Patch는 해제됩니다. 옵션은 모든 대상에 동일하게 적용되며 실행과 재시도 중 유지됩니다.",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "Isolated · Allocated · admin",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "5ab893d8-1706-487c-bfe4-166581ccf31c",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(255, 210, 210)",
+        "text": "진행 중 작업이 없는 Implemented 또는 Setup 상태에서 재시작할 수 있습니다.",
+        "contrast": 10.902932389169367
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "L2 · Setup · admin",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "aa166872-92fc-4a52-bf06-746f062b3a42",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(255, 210, 210)",
+        "text": "이 유형은 네트워크 재시작 대상이 아닙니다.",
+        "contrast": 10.902932389169367
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "Isolated · Implemented · qa-gn1559-32-user",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "8cfea604-007c-42c4-b5a9-5ceee79fe440",
+        "contrast": 9.176047597421215
+      }
+    ],
+    "dark": true,
+    "footer": {
+      "bottom": 778,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 713,
+      "width": 958,
+      "x": 161,
+      "y": 713
+    },
+    "grid": "371px 110px 371px",
+    "start_enabled": false,
+    "viewport": [
+      1280,
+      900
+    ],
+    "minimum_contrast": 9.176047597421215,
+    "image_decoded_size": [
+      1280,
+      900
+    ]
+  },
+  {
+    "cluster": 32,
+    "mode": "dark",
+    "width": 768,
+    "height": 1024,
+    "body_overflow_x": 0,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "재시작 중 네트워크 통신이 끊길 수 있습니다. 선택한 모든 대상이 적합할 때 실행하며 네트워크별로 결과를 추적합니다.",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "요소 재생성 또는 이중화 전환을 선택하면 Live Patch는 해제됩니다. 옵션은 모든 대상에 동일하게 적용되며 실행과 재시도 중 유지됩니다.",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "Isolated · Allocated · admin",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "5ab893d8-1706-487c-bfe4-166581ccf31c",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(255, 210, 210)",
+        "text": "진행 중 작업이 없는 Implemented 또는 Setup 상태에서 재시작할 수 있습니다.",
+        "contrast": 10.902932389169367
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "L2 · Setup · admin",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "aa166872-92fc-4a52-bf06-746f062b3a42",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(255, 210, 210)",
+        "text": "이 유형은 네트워크 재시작 대상이 아닙니다.",
+        "contrast": 10.902932389169367
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "Isolated · Implemented · qa-gn1559-32-user",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "8cfea604-007c-42c4-b5a9-5ceee79fe440",
+        "contrast": 9.176047597421215
+      }
+    ],
+    "dark": true,
+    "footer": {
+      "bottom": 873,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 808,
+      "width": 718,
+      "x": 25,
+      "y": 808
+    },
+    "grid": "251px 110px 251px",
+    "start_enabled": false,
+    "viewport": [
+      768,
+      1024
+    ],
+    "minimum_contrast": 9.176047597421215,
+    "image_decoded_size": [
+      768,
+      1024
+    ]
+  },
+  {
+    "cluster": 32,
+    "mode": "dark",
+    "width": 390,
+    "height": 844,
+    "body_overflow_x": 0,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "재시작 중 네트워크 통신이 끊길 수 있습니다. 선택한 모든 대상이 적합할 때 실행하며 네트워크별로 결과를 추적합니다.",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "요소 재생성 또는 이중화 전환을 선택하면 Live Patch는 해제됩니다. 옵션은 모든 대상에 동일하게 적용되며 실행과 재시도 중 유지됩니다.",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "Isolated · Allocated · admin",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "5ab893d8-1706-487c-bfe4-166581ccf31c",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(255, 210, 210)",
+        "text": "진행 중 작업이 없는 Implemented 또는 Setup 상태에서 재시작할 수 있습니다.",
+        "contrast": 10.902932389169367
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "L2 · Setup · admin",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "aa166872-92fc-4a52-bf06-746f062b3a42",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(255, 210, 210)",
+        "text": "이 유형은 네트워크 재시작 대상이 아닙니다.",
+        "contrast": 10.902932389169367
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "Isolated · Implemented · qa-gn1559-32-user",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "8cfea604-007c-42c4-b5a9-5ceee79fe440",
+        "contrast": 9.176047597421215
+      }
+    ],
+    "dark": true,
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "grid": "296px",
+    "start_enabled": false,
+    "viewport": [
+      390,
+      844
+    ],
+    "minimum_contrast": 9.176047597421215,
+    "image_decoded_size": [
+      390,
+      844
+    ]
+  },
+  {
+    "cluster": 32,
+    "mode": "light",
+    "width": 1280,
+    "height": 900,
+    "body_overflow_x": 0,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "재시작 중 네트워크 통신이 끊길 수 있습니다. 선택한 모든 대상이 적합할 때 실행하며 네트워크별로 결과를 추적합니다.",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "요소 재생성 또는 이중화 전환을 선택하면 Live Patch는 해제됩니다. 옵션은 모든 대상에 동일하게 적용되며 실행과 재시도 중 유지됩니다.",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "Isolated · Allocated · admin",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "5ab893d8-1706-487c-bfe4-166581ccf31c",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(112, 27, 27)",
+        "text": "진행 중 작업이 없는 Implemented 또는 Setup 상태에서 재시작할 수 있습니다.",
+        "contrast": 11.280931110689131
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "L2 · Setup · admin",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "aa166872-92fc-4a52-bf06-746f062b3a42",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(112, 27, 27)",
+        "text": "이 유형은 네트워크 재시작 대상이 아닙니다.",
+        "contrast": 11.280931110689131
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "Isolated · Implemented · qa-gn1559-32-user",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "8cfea604-007c-42c4-b5a9-5ceee79fe440",
+        "contrast": 7.557378129674007
+      }
+    ],
+    "dark": false,
+    "footer": {
+      "bottom": 778,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 713,
+      "width": 958,
+      "x": 161,
+      "y": 713
+    },
+    "grid": "371px 110px 371px",
+    "start_enabled": false,
+    "viewport": [
+      1280,
+      900
+    ],
+    "minimum_contrast": 7.557378129674007,
+    "image_decoded_size": [
+      1280,
+      900
+    ]
+  },
+  {
+    "cluster": 32,
+    "mode": "light",
+    "width": 768,
+    "height": 1024,
+    "body_overflow_x": 0,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "재시작 중 네트워크 통신이 끊길 수 있습니다. 선택한 모든 대상이 적합할 때 실행하며 네트워크별로 결과를 추적합니다.",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "요소 재생성 또는 이중화 전환을 선택하면 Live Patch는 해제됩니다. 옵션은 모든 대상에 동일하게 적용되며 실행과 재시도 중 유지됩니다.",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "Isolated · Allocated · admin",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "5ab893d8-1706-487c-bfe4-166581ccf31c",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(112, 27, 27)",
+        "text": "진행 중 작업이 없는 Implemented 또는 Setup 상태에서 재시작할 수 있습니다.",
+        "contrast": 11.280931110689131
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "L2 · Setup · admin",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "aa166872-92fc-4a52-bf06-746f062b3a42",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(112, 27, 27)",
+        "text": "이 유형은 네트워크 재시작 대상이 아닙니다.",
+        "contrast": 11.280931110689131
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "Isolated · Implemented · qa-gn1559-32-user",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "8cfea604-007c-42c4-b5a9-5ceee79fe440",
+        "contrast": 7.557378129674007
+      }
+    ],
+    "dark": false,
+    "footer": {
+      "bottom": 873,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 808,
+      "width": 718,
+      "x": 25,
+      "y": 808
+    },
+    "grid": "251px 110px 251px",
+    "start_enabled": false,
+    "viewport": [
+      768,
+      1024
+    ],
+    "minimum_contrast": 7.557378129674007,
+    "image_decoded_size": [
+      768,
+      1024
+    ]
+  },
+  {
+    "cluster": 32,
+    "mode": "light",
+    "width": 390,
+    "height": 844,
+    "body_overflow_x": 0,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "재시작 중 네트워크 통신이 끊길 수 있습니다. 선택한 모든 대상이 적합할 때 실행하며 네트워크별로 결과를 추적합니다.",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "요소 재생성 또는 이중화 전환을 선택하면 Live Patch는 해제됩니다. 옵션은 모든 대상에 동일하게 적용되며 실행과 재시도 중 유지됩니다.",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "Isolated · Allocated · admin",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "5ab893d8-1706-487c-bfe4-166581ccf31c",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(112, 27, 27)",
+        "text": "진행 중 작업이 없는 Implemented 또는 Setup 상태에서 재시작할 수 있습니다.",
+        "contrast": 11.280931110689131
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "L2 · Setup · admin",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "aa166872-92fc-4a52-bf06-746f062b3a42",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(112, 27, 27)",
+        "text": "이 유형은 네트워크 재시작 대상이 아닙니다.",
+        "contrast": 11.280931110689131
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "Isolated · Implemented · qa-gn1559-32-user",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "8cfea604-007c-42c4-b5a9-5ceee79fe440",
+        "contrast": 7.557378129674007
+      }
+    ],
+    "dark": false,
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "grid": "296px",
+    "start_enabled": false,
+    "viewport": [
+      390,
+      844
+    ],
+    "minimum_contrast": 7.557378129674007,
+    "image_decoded_size": [
+      390,
+      844
+    ]
+  },
+  {
+    "cluster": 31,
+    "mode": "light",
+    "width": 1280,
+    "height": 900,
+    "body_overflow_x": 0,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "재시작 중 네트워크 통신이 끊길 수 있습니다. 선택한 모든 대상이 적합할 때 실행하며 네트워크별로 결과를 추적합니다.",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "요소 재생성 또는 이중화 전환을 선택하면 Live Patch는 해제됩니다. 옵션은 모든 대상에 동일하게 적용되며 실행과 재시도 중 유지됩니다.",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "Isolated · Allocated · admin",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "db177c0e-6fca-4ec5-81c8-f9cc10cb7e62",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(112, 27, 27)",
+        "text": "진행 중 작업이 없는 Implemented 또는 Setup 상태에서 재시작할 수 있습니다.",
+        "contrast": 11.280931110689131
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "L2 · Setup · admin",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "30439bcc-ad34-4352-89f1-59b9004c575f",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(112, 27, 27)",
+        "text": "이 유형은 네트워크 재시작 대상이 아닙니다.",
+        "contrast": 11.280931110689131
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "Isolated · Implemented · qa-gn1559-31-user",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "98e4b4b0-e163-4114-84b8-cc87a06e3a6e",
+        "contrast": 7.557378129674007
+      }
+    ],
+    "dark": false,
+    "footer": {
+      "bottom": 778,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 713,
+      "width": 958,
+      "x": 161,
+      "y": 713
+    },
+    "grid": "371px 110px 371px",
+    "start_enabled": false,
+    "viewport": [
+      1280,
+      900
+    ],
+    "minimum_contrast": 7.557378129674007,
+    "image_decoded_size": [
+      1280,
+      900
+    ]
+  },
+  {
+    "cluster": 31,
+    "mode": "light",
+    "width": 768,
+    "height": 1024,
+    "body_overflow_x": 0,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "재시작 중 네트워크 통신이 끊길 수 있습니다. 선택한 모든 대상이 적합할 때 실행하며 네트워크별로 결과를 추적합니다.",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "요소 재생성 또는 이중화 전환을 선택하면 Live Patch는 해제됩니다. 옵션은 모든 대상에 동일하게 적용되며 실행과 재시도 중 유지됩니다.",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "Isolated · Allocated · admin",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "db177c0e-6fca-4ec5-81c8-f9cc10cb7e62",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(112, 27, 27)",
+        "text": "진행 중 작업이 없는 Implemented 또는 Setup 상태에서 재시작할 수 있습니다.",
+        "contrast": 11.280931110689131
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "L2 · Setup · admin",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "30439bcc-ad34-4352-89f1-59b9004c575f",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(112, 27, 27)",
+        "text": "이 유형은 네트워크 재시작 대상이 아닙니다.",
+        "contrast": 11.280931110689131
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "Isolated · Implemented · qa-gn1559-31-user",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "98e4b4b0-e163-4114-84b8-cc87a06e3a6e",
+        "contrast": 7.557378129674007
+      }
+    ],
+    "dark": false,
+    "footer": {
+      "bottom": 873,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 808,
+      "width": 718,
+      "x": 25,
+      "y": 808
+    },
+    "grid": "251px 110px 251px",
+    "start_enabled": false,
+    "viewport": [
+      768,
+      1024
+    ],
+    "minimum_contrast": 7.557378129674007,
+    "image_decoded_size": [
+      768,
+      1024
+    ]
+  },
+  {
+    "cluster": 31,
+    "mode": "light",
+    "width": 390,
+    "height": 844,
+    "body_overflow_x": 0,
+    "colors": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "재시작 중 네트워크 통신이 끊길 수 있습니다. 선택한 모든 대상이 적합할 때 실행하며 네트워크별로 결과를 추적합니다.",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "요소 재생성 또는 이중화 전환을 선택하면 Live Patch는 해제됩니다. 옵션은 모든 대상에 동일하게 적용되며 실행과 재시도 중 유지됩니다.",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "Isolated · Allocated · admin",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "db177c0e-6fca-4ec5-81c8-f9cc10cb7e62",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(112, 27, 27)",
+        "text": "진행 중 작업이 없는 Implemented 또는 Setup 상태에서 재시작할 수 있습니다.",
+        "contrast": 11.280931110689131
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "L2 · Setup · admin",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "30439bcc-ad34-4352-89f1-59b9004c575f",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(112, 27, 27)",
+        "text": "이 유형은 네트워크 재시작 대상이 아닙니다.",
+        "contrast": 11.280931110689131
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "Isolated · Implemented · qa-gn1559-31-user",
+        "contrast": 7.557378129674007
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "text": "98e4b4b0-e163-4114-84b8-cc87a06e3a6e",
+        "contrast": 7.557378129674007
+      }
+    ],
+    "dark": false,
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "grid": "296px",
+    "start_enabled": false,
+    "viewport": [
+      390,
+      844
+    ],
+    "minimum_contrast": 7.557378129674007,
+    "image_decoded_size": [
+      390,
+      844
+    ]
+  },
+  {
+    "cluster": 31,
+    "mode": "dark",
+    "width": 1280,
+    "height": 900,
+    "body_overflow_x": 0,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "재시작 중 네트워크 통신이 끊길 수 있습니다. 선택한 모든 대상이 적합할 때 실행하며 네트워크별로 결과를 추적합니다.",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "요소 재생성 또는 이중화 전환을 선택하면 Live Patch는 해제됩니다. 옵션은 모든 대상에 동일하게 적용되며 실행과 재시도 중 유지됩니다.",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "Isolated · Allocated · admin",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "db177c0e-6fca-4ec5-81c8-f9cc10cb7e62",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(255, 210, 210)",
+        "text": "진행 중 작업이 없는 Implemented 또는 Setup 상태에서 재시작할 수 있습니다.",
+        "contrast": 10.902932389169367
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "L2 · Setup · admin",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "30439bcc-ad34-4352-89f1-59b9004c575f",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(255, 210, 210)",
+        "text": "이 유형은 네트워크 재시작 대상이 아닙니다.",
+        "contrast": 10.902932389169367
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "Isolated · Implemented · qa-gn1559-31-user",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "98e4b4b0-e163-4114-84b8-cc87a06e3a6e",
+        "contrast": 9.176047597421215
+      }
+    ],
+    "dark": true,
+    "footer": {
+      "bottom": 778,
+      "height": 65,
+      "left": 161,
+      "right": 1119,
+      "top": 713,
+      "width": 958,
+      "x": 161,
+      "y": 713
+    },
+    "grid": "371px 110px 371px",
+    "start_enabled": false,
+    "viewport": [
+      1280,
+      900
+    ],
+    "minimum_contrast": 9.176047597421215,
+    "image_decoded_size": [
+      1280,
+      900
+    ]
+  },
+  {
+    "cluster": 31,
+    "mode": "dark",
+    "width": 768,
+    "height": 1024,
+    "body_overflow_x": 0,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "재시작 중 네트워크 통신이 끊길 수 있습니다. 선택한 모든 대상이 적합할 때 실행하며 네트워크별로 결과를 추적합니다.",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "요소 재생성 또는 이중화 전환을 선택하면 Live Patch는 해제됩니다. 옵션은 모든 대상에 동일하게 적용되며 실행과 재시도 중 유지됩니다.",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "Isolated · Allocated · admin",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "db177c0e-6fca-4ec5-81c8-f9cc10cb7e62",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(255, 210, 210)",
+        "text": "진행 중 작업이 없는 Implemented 또는 Setup 상태에서 재시작할 수 있습니다.",
+        "contrast": 10.902932389169367
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "L2 · Setup · admin",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "30439bcc-ad34-4352-89f1-59b9004c575f",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(255, 210, 210)",
+        "text": "이 유형은 네트워크 재시작 대상이 아닙니다.",
+        "contrast": 10.902932389169367
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "Isolated · Implemented · qa-gn1559-31-user",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "98e4b4b0-e163-4114-84b8-cc87a06e3a6e",
+        "contrast": 9.176047597421215
+      }
+    ],
+    "dark": true,
+    "footer": {
+      "bottom": 873,
+      "height": 65,
+      "left": 25,
+      "right": 743,
+      "top": 808,
+      "width": 718,
+      "x": 25,
+      "y": 808
+    },
+    "grid": "251px 110px 251px",
+    "start_enabled": false,
+    "viewport": [
+      768,
+      1024
+    ],
+    "minimum_contrast": 9.176047597421215,
+    "image_decoded_size": [
+      768,
+      1024
+    ]
+  },
+  {
+    "cluster": 31,
+    "mode": "dark",
+    "width": 390,
+    "height": 844,
+    "body_overflow_x": 0,
+    "colors": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "재시작 중 네트워크 통신이 끊길 수 있습니다. 선택한 모든 대상이 적합할 때 실행하며 네트워크별로 결과를 추적합니다.",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "요소 재생성 또는 이중화 전환을 선택하면 Live Patch는 해제됩니다. 옵션은 모든 대상에 동일하게 적용되며 실행과 재시도 중 유지됩니다.",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "Isolated · Allocated · admin",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "db177c0e-6fca-4ec5-81c8-f9cc10cb7e62",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(255, 210, 210)",
+        "text": "진행 중 작업이 없는 Implemented 또는 Setup 상태에서 재시작할 수 있습니다.",
+        "contrast": 10.902932389169367
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "L2 · Setup · admin",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "30439bcc-ad34-4352-89f1-59b9004c575f",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(255, 210, 210)",
+        "text": "이 유형은 네트워크 재시작 대상이 아닙니다.",
+        "contrast": 10.902932389169367
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "Isolated · Implemented · qa-gn1559-31-user",
+        "contrast": 9.176047597421215
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "98e4b4b0-e163-4114-84b8-cc87a06e3a6e",
+        "contrast": 9.176047597421215
+      }
+    ],
+    "dark": true,
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "left": 13,
+      "right": 377,
+      "top": 766,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "grid": "296px",
+    "start_enabled": false,
+    "viewport": [
+      390,
+      844
+    ],
+    "minimum_contrast": 9.176047597421215,
+    "image_decoded_size": [
+      390,
+      844
+    ]
+  }
+]

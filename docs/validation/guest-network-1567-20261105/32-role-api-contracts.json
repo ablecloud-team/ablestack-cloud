@@ -1,0 +1,2195 @@
+{
+  "Root": [
+    {
+      "name": "updateNetwork",
+      "description": "Updates a network",
+      "isasync": true,
+      "related": "createNetwork,listNetworks,createNetwork,updateNetwork,listNetworks,migrateNetwork,listNetscalerLoadBalancerNetworks,listPaloAltoFirewallNetworks,listBrocadeVcsDeviceNetworks",
+      "params": [
+        {
+          "name": "changecidr",
+          "description": "Force update even if CIDR type is different",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "displaytext",
+          "description": "The new display text for the network",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "ip6dns1",
+          "description": "The first IPv6 DNS for the network. Empty string will update the first IPv6 DNS with the value from the zone",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.18.0"
+        },
+        {
+          "name": "customid",
+          "description": "An optional field, in case you want to set a custom id to the resource. Allowed to Root Admins only",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.4"
+        },
+        {
+          "name": "hideipaddressusage",
+          "description": "When true IP address usage for the Network will not be exported by the listUsageRecords API",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "name",
+          "description": "The new name for the network",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "ip6dns2",
+          "description": "The second IPv6 DNS for the network. Empty string will update the second IPv6 DNS with the value from the zone",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.18.0"
+        },
+        {
+          "name": "keepmacaddressonpublicnic",
+          "description": "Indicates whether to use the same MAC address for the public NIC of VRs on the same network. If \"true\", when creating redundant routers or recreating a VR, CloudStack will use the same MAC address for the public NIC of all VRs. Otherwise, if \"false\", new public NICs will always have  a new MAC address.",
+          "type": "boolean",
+          "length": 255,
+          "required": false,
+          "since": "4.23.0"
+        },
+        {
+          "name": "sourcenatipaddress",
+          "description": "IPV4 address to be assigned to the public interface of the network router. This address must already be acquired for this network",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.19"
+        },
+        {
+          "name": "dns1",
+          "description": "The first IPv4 DNS for the network. Empty string will update the first IPv4 DNS with the value from the zone",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.18.0"
+        },
+        {
+          "name": "guestvmcidr",
+          "description": "CIDR for guest VMs, CloudStack allocates IPs to guest VMs only from this CIDR",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "networkdomain",
+          "description": "Network domain",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "privatemtu",
+          "description": "MTU to be configured on the network VR's public facing interfaces",
+          "type": "integer",
+          "length": 255,
+          "required": false,
+          "since": "4.18.0"
+        },
+        {
+          "name": "publicmtu",
+          "description": "MTU to be configured on the network VR's public facing interfaces",
+          "type": "integer",
+          "length": 255,
+          "required": false,
+          "since": "4.18.0"
+        },
+        {
+          "name": "updateinsequence",
+          "description": "If true, we will update the routers one after the other. applicable only for redundant router based networks using virtual router as provider",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "dns2",
+          "description": "The second IPv4 DNS for the network. Empty string will update the second IPv4 DNS with the value from the zone",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.18.0"
+        },
+        {
+          "name": "forced",
+          "description": "Setting this to true will cause a forced network update,",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "displaynetwork",
+          "description": "An optional field, whether to the display the network to the end User or not.",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "id",
+          "description": "The ID of the network",
+          "type": "uuid",
+          "length": 255,
+          "required": true,
+          "related": "createNetwork,listNetworks,updateNetwork,createNetwork,updateNetwork,listNetworks,migrateNetwork,listNetscalerLoadBalancerNetworks,listPaloAltoFirewallNetworks,listBrocadeVcsDeviceNetworks"
+        },
+        {
+          "name": "networkofferingid",
+          "description": "Network offering ID",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "createNetworkOffering,updateNetworkOffering,listNetworkOfferings"
+        }
+      ],
+      "response": [
+        {
+          "name": "domain",
+          "description": "The domain name of the Network owner",
+          "type": "string"
+        },
+        {
+          "name": "zonename",
+          "description": "The name of the zone the Network belongs to",
+          "type": "string"
+        },
+        {
+          "name": "bgppeers",
+          "description": "The BGP peers for the network",
+          "type": "set"
+        },
+        {
+          "name": "id",
+          "description": "The ID of the Network",
+          "type": "string"
+        },
+        {
+          "name": "issystem",
+          "description": "True if Network is system, false otherwise",
+          "type": "boolean"
+        },
+        {
+          "name": "asnumber",
+          "description": "AS NUMBER",
+          "type": "long"
+        },
+        {
+          "name": "ip6routes",
+          "description": "The routes for the Network to ease adding route in upstream router",
+          "type": "set"
+        },
+        {
+          "name": "domainid",
+          "description": "The domain ID of the Network owner",
+          "type": "string"
+        },
+        {},
+        {
+          "name": "reservediprange",
+          "description": "The Network's IP range not to be used by CloudStack guest Instances and can be used for non CloudStack purposes",
+          "type": "string"
+        },
+        {
+          "name": "networkcidr",
+          "description": "The Network CIDR of the guest Network configured with IP reservation. It is the summation of CIDR and RESERVED_IP_RANGE",
+          "type": "string"
+        },
+        {
+          "name": "internetprotocol",
+          "description": "The internet protocol of Network offering",
+          "type": "string"
+        },
+        {
+          "name": "vlan",
+          "description": "The VLAN of the Network. This parameter is visible to ROOT admins only",
+          "type": "string"
+        },
+        {
+          "name": "subdomainaccess",
+          "description": "True if users from subdomains can access the domain level Network",
+          "type": "boolean"
+        },
+        {
+          "name": "ip6dns1",
+          "description": "The first IPv6 DNS for the network",
+          "type": "string"
+        },
+        {
+          "name": "ispersistent",
+          "description": "List Networks that are persistent",
+          "type": "boolean"
+        },
+        {
+          "name": "dnssubdomain",
+          "description": "DNS subdomain associated to the network",
+          "type": "string"
+        },
+        {
+          "name": "related",
+          "description": "Related to what other Network configuration",
+          "type": "string"
+        },
+        {
+          "name": "keepmacaddressonpublicnic",
+          "description": "Indicates whether to use the same MAC address for the public NIC of VRs on the same network. If \"true\", when creating redundant routers or recreating a VR, CloudStack will use the same MAC address for the public NIC of all VRs. Otherwise, if \"false\", new public NICs will always have  a new MAC address.",
+          "type": "boolean"
+        },
+        {
+          "name": "strechedl2subnet",
+          "description": "True if Network can span multiple zones",
+          "type": "boolean"
+        },
+        {
+          "name": "isdefault",
+          "description": "True if Network is default, false otherwise",
+          "type": "boolean"
+        },
+        {
+          "name": "zonesnetworkspans",
+          "description": "If a Network is enabled for 'stretched L2 subnet' then represents zones on which Network currently spans",
+          "type": "set"
+        },
+        {
+          "name": "ip4routing",
+          "description": "The IPv4 routing type of network",
+          "type": "string"
+        },
+        {
+          "name": "networkofferingconservemode",
+          "description": "True if Network offering is IP conserve mode enabled",
+          "type": "boolean"
+        },
+        {
+          "name": "details",
+          "description": "The details of the Network",
+          "type": "map"
+        },
+        {
+          "name": "netmask",
+          "description": "The Network's netmask",
+          "type": "string"
+        },
+        {
+          "name": "acltype",
+          "description": "ACL type - access type to the Network",
+          "type": "string"
+        },
+        {
+          "name": "tags",
+          "description": "The list of resource tags associated with Network",
+          "type": "list",
+          "response": [
+            {
+              "name": "projectid",
+              "description": "The project ID the tag belongs to",
+              "type": "string"
+            },
+            {
+              "name": "account",
+              "description": "The Account associated with the tag",
+              "type": "string"
+            },
+            {
+              "name": "resourceid",
+              "description": "ID of the resource",
+              "type": "string"
+            },
+            {
+              "name": "key",
+              "description": "Tag key name",
+              "type": "string"
+            },
+            {
+              "name": "customer",
+              "description": "Customer associated with the tag",
+              "type": "string"
+            },
+            {
+              "name": "value",
+              "description": "Tag value",
+              "type": "string"
+            },
+            {
+              "name": "domainpath",
+              "description": "Path of the Domain associated with the tag",
+              "type": "string"
+            },
+            {
+              "name": "domainid",
+              "description": "The ID of the domain associated with the tag",
+              "type": "string"
+            },
+            {
+              "name": "resourcetype",
+              "description": "Resource type",
+              "type": "string"
+            },
+            {
+              "name": "project",
+              "description": "The project name where tag belongs to",
+              "type": "string"
+            },
+            {
+              "name": "domain",
+              "description": "The domain associated with the tag",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "name": "state",
+          "description": "State of the Network",
+          "type": "string"
+        },
+        {
+          "name": "jobid",
+          "description": "The UUID of the latest async job acting on this object",
+          "type": "string"
+        },
+        {
+          "name": "ip6cidr",
+          "description": "The CIDR of IPv6 Network",
+          "type": "string"
+        },
+        {
+          "name": "networkofferingavailability",
+          "description": "Availability of the Network offering the Network is created from",
+          "type": "string"
+        },
+        {
+          "name": "ip6gateway",
+          "description": "The gateway of IPv6 Network",
+          "type": "string"
+        },
+        {
+          "name": "traffictype",
+          "description": "The traffic type of the Network",
+          "type": "string"
+        },
+        {
+          "name": "canusefordeploy",
+          "description": "List Networks available for Instance deployment",
+          "type": "boolean"
+        },
+        {
+          "name": "zoneid",
+          "description": "Zone ID of the Network",
+          "type": "string"
+        },
+        {
+          "name": "specifyipranges",
+          "description": "True if Network supports specifying IP ranges, false otherwise",
+          "type": "boolean"
+        },
+        {
+          "name": "project",
+          "description": "The project name of the address",
+          "type": "string"
+        },
+        {
+          "name": "associatednetworkid",
+          "description": "The ID of the Network associated with this private gateway",
+          "type": "string"
+        },
+        {
+          "name": "ip4routes",
+          "description": "The routes for the network to ease adding route in upstream router",
+          "type": "set"
+        },
+        {
+          "name": "created",
+          "description": "The date this Network was created",
+          "type": "date"
+        },
+        {
+          "name": "service",
+          "description": "The list of services",
+          "type": "list",
+          "response": [
+            {
+              "name": "capability",
+              "description": "The list of capabilities",
+              "type": "list",
+              "response": [
+                {
+                  "name": "name",
+                  "description": "The capability name",
+                  "type": "string"
+                },
+                {
+                  "name": "canchooseservicecapability",
+                  "description": "Can this service capability value can be choosable while creatine Network offerings",
+                  "type": "boolean"
+                },
+                {
+                  "name": "value",
+                  "description": "The capability value",
+                  "type": "string"
+                }
+              ]
+            },
+            {
+              "name": "name",
+              "description": "The service name",
+              "type": "string"
+            },
+            {
+              "name": "provider",
+              "description": "The service provider name",
+              "type": "list",
+              "response": [
+                {
+                  "name": "name",
+                  "description": "The provider name",
+                  "type": "string"
+                },
+                {
+                  "name": "destinationphysicalnetworkid",
+                  "description": "The destination physical Network",
+                  "type": "string"
+                },
+                {
+                  "name": "id",
+                  "description": "UUID of the Network provider",
+                  "type": "string"
+                },
+                {
+                  "name": "servicelist",
+                  "description": "Services for this provider",
+                  "type": "list"
+                },
+                {
+                  "name": "canenableindividualservice",
+                  "description": "True if individual services can be enabled/disabled",
+                  "type": "boolean"
+                },
+                {
+                  "name": "state",
+                  "description": "State of the Network provider",
+                  "type": "string"
+                },
+                {
+                  "name": "physicalnetworkid",
+                  "description": "The physical Network this belongs to",
+                  "type": "string"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "hasannotations",
+          "description": "True if the entity/resource has annotations",
+          "type": "boolean"
+        },
+        {
+          "name": "name",
+          "description": "The name of the Network",
+          "type": "string"
+        },
+        {
+          "name": "privatemtu",
+          "description": "MTU configured on the network VR's private interfaces",
+          "type": "integer"
+        },
+        {
+          "name": "dns2",
+          "description": "The second IPv4 DNS for the Network",
+          "type": "string"
+        },
+        {},
+        {
+          "name": "networkofferingname",
+          "description": "Name of the Network offering the Network is created from",
+          "type": "string"
+        },
+        {
+          "name": "gateway",
+          "description": "The Network's gateway",
+          "type": "string"
+        },
+        {
+          "name": "icon",
+          "description": "Base64 string representation of the resource icon",
+          "type": "resourceiconresponse"
+        },
+        {
+          "name": "aclid",
+          "description": "ACL ID associated with the VPC Network",
+          "type": "string"
+        },
+        {
+          "name": "ip6dns2",
+          "description": "The second IPv6 DNS for the network",
+          "type": "string"
+        },
+        {
+          "name": "supportsvmautoscaling",
+          "description": "If Network offering supports Instance autoscaling feature",
+          "type": "boolean"
+        },
+        {
+          "name": "account",
+          "description": "The owner of the Network",
+          "type": "string"
+        },
+        {
+          "name": "physicalnetworkid",
+          "description": "The physical Network id",
+          "type": "string"
+        },
+        {
+          "name": "aclname",
+          "description": "ACL name associated with the VPC Network",
+          "type": "string"
+        },
+        {
+          "name": "jobstatus",
+          "description": "The current status of the latest async job acting on this object",
+          "type": "integer"
+        },
+        {
+          "name": "publicmtu",
+          "description": "MTU configured on the Network VR's public facing interfaces",
+          "type": "integer"
+        },
+        {
+          "name": "networkofferingdisplaytext",
+          "description": "Display text of the Network offering the Network is created from",
+          "type": "string"
+        },
+        {
+          "name": "redundantrouter",
+          "description": "If the Network has redundant routers enabled",
+          "type": "boolean"
+        },
+        {
+          "name": "externalid",
+          "description": "The external ID of the Network",
+          "type": "string"
+        },
+        {
+          "name": "cidr",
+          "description": "CloudStack managed address space, all CloudStack managed Instances get IP address from CIDR",
+          "type": "string"
+        },
+        {
+          "name": "dns1",
+          "description": "The first IPv4 DNS for the Network",
+          "type": "string"
+        },
+        {
+          "name": "egressdefaultpolicy",
+          "description": "True if guest Network default egress policy is allow; false if default egress policy is deny",
+          "type": "boolean"
+        },
+        {
+          "name": "networkdomain",
+          "description": "The Network domain",
+          "type": "string"
+        },
+        {
+          "name": "restartrequired",
+          "description": "True if Network requires restart",
+          "type": "boolean"
+        },
+        {
+          "name": "specifyvlan",
+          "description": "True if network supports specifying vlan, false otherwise",
+          "type": "boolean"
+        },
+        {
+          "name": "vpcid",
+          "description": "VPC the Network belongs to",
+          "type": "string"
+        },
+        {
+          "name": "projectid",
+          "description": "The project ID of the IP address",
+          "type": "string"
+        },
+        {
+          "name": "tungstenvirtualrouteruuid",
+          "description": "Tungsten-Fabric virtual router the Network belongs to",
+          "type": "string"
+        },
+        {
+          "name": "vpcname",
+          "description": "Name of the VPC to which this Network belongs",
+          "type": "string"
+        },
+        {
+          "name": "receivedbytes",
+          "description": "The total number of Network traffic bytes received",
+          "type": "long"
+        },
+        {
+          "name": "networkofferingid",
+          "description": "Network offering ID the Network is created from",
+          "type": "string"
+        },
+        {
+          "name": "associatednetwork",
+          "description": "The name of the Network associated with this private gateway",
+          "type": "string"
+        },
+        {
+          "name": "sentbytes",
+          "description": "The total number of Network traffic bytes sent",
+          "type": "long"
+        },
+        {
+          "name": "broadcasturi",
+          "description": "Broadcast URI of the Network. This parameter is visible to ROOT admins only",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "description": "The type of the Network",
+          "type": "string"
+        },
+        {
+          "name": "broadcastdomaintype",
+          "description": "Broadcast domain type of the Network",
+          "type": "string"
+        },
+        {
+          "name": "asnumberid",
+          "description": "UUID of AS NUMBER",
+          "type": "string"
+        },
+        {
+          "name": "displaytext",
+          "description": "The displaytext of the Network",
+          "type": "string"
+        },
+        {
+          "name": "dnszone",
+          "description": "DNS zone associated to the network",
+          "type": "string"
+        },
+        {
+          "name": "ip6routing",
+          "description": "The IPv6 routing type of network offering",
+          "type": "string"
+        },
+        {
+          "name": "domainpath",
+          "description": "Path of the Domain the network belongs to",
+          "type": "string"
+        },
+        {
+          "name": "displaynetwork",
+          "description": "An optional field, whether to the display the Network to the end user or not.",
+          "type": "boolean"
+        }
+      ],
+      "httprequesttype": "POST"
+    },
+    {
+      "name": "deleteNetwork",
+      "description": "Deletes a Network",
+      "isasync": true,
+      "params": [
+        {
+          "name": "id",
+          "description": "The ID of the network",
+          "type": "uuid",
+          "length": 255,
+          "required": true,
+          "related": "createNetwork,updateNetwork,listNetworks"
+        },
+        {
+          "name": "forced",
+          "description": "Force delete a network. Network will be marked as 'Destroy' even when commands to shutdown and cleanup to the backend fails.",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        }
+      ],
+      "response": [
+        {
+          "name": "displaytext",
+          "description": "Any text associated with the success or failure",
+          "type": "string"
+        },
+        {
+          "name": "success",
+          "description": "True if operation is executed successfully",
+          "type": "boolean"
+        },
+        {},
+        {
+          "name": "jobid",
+          "description": "The UUID of the latest async job acting on this object",
+          "type": "string"
+        },
+        {
+          "name": "jobstatus",
+          "description": "The current status of the latest async job acting on this object",
+          "type": "integer"
+        },
+        {}
+      ],
+      "httprequesttype": "POST"
+    }
+  ],
+  "domainadmin": [
+    {
+      "name": "updateNetwork",
+      "description": "Updates a network",
+      "isasync": true,
+      "related": "createNetwork,listNetworks,createNetwork,updateNetwork,listNetworks,migrateNetwork,listNetscalerLoadBalancerNetworks,listPaloAltoFirewallNetworks,listBrocadeVcsDeviceNetworks",
+      "params": [
+        {
+          "name": "changecidr",
+          "description": "Force update even if CIDR type is different",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "displaytext",
+          "description": "The new display text for the network",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "ip6dns1",
+          "description": "The first IPv6 DNS for the network. Empty string will update the first IPv6 DNS with the value from the zone",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.18.0"
+        },
+        {
+          "name": "hideipaddressusage",
+          "description": "When true IP address usage for the Network will not be exported by the listUsageRecords API",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "name",
+          "description": "The new name for the network",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "ip6dns2",
+          "description": "The second IPv6 DNS for the network. Empty string will update the second IPv6 DNS with the value from the zone",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.18.0"
+        },
+        {
+          "name": "sourcenatipaddress",
+          "description": "IPV4 address to be assigned to the public interface of the network router. This address must already be acquired for this network",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.19"
+        },
+        {
+          "name": "dns1",
+          "description": "The first IPv4 DNS for the network. Empty string will update the first IPv4 DNS with the value from the zone",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.18.0"
+        },
+        {
+          "name": "guestvmcidr",
+          "description": "CIDR for guest VMs, CloudStack allocates IPs to guest VMs only from this CIDR",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "networkdomain",
+          "description": "Network domain",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "privatemtu",
+          "description": "MTU to be configured on the network VR's public facing interfaces",
+          "type": "integer",
+          "length": 255,
+          "required": false,
+          "since": "4.18.0"
+        },
+        {
+          "name": "publicmtu",
+          "description": "MTU to be configured on the network VR's public facing interfaces",
+          "type": "integer",
+          "length": 255,
+          "required": false,
+          "since": "4.18.0"
+        },
+        {
+          "name": "updateinsequence",
+          "description": "If true, we will update the routers one after the other. applicable only for redundant router based networks using virtual router as provider",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "dns2",
+          "description": "The second IPv4 DNS for the network. Empty string will update the second IPv4 DNS with the value from the zone",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.18.0"
+        },
+        {
+          "name": "id",
+          "description": "The ID of the network",
+          "type": "uuid",
+          "length": 255,
+          "required": true,
+          "related": "createNetwork,listNetworks,updateNetwork,createNetwork,updateNetwork,listNetworks,migrateNetwork,listNetscalerLoadBalancerNetworks,listPaloAltoFirewallNetworks,listBrocadeVcsDeviceNetworks"
+        },
+        {
+          "name": "networkofferingid",
+          "description": "Network offering ID",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "createNetworkOffering,updateNetworkOffering,listNetworkOfferings"
+        }
+      ],
+      "response": [
+        {
+          "name": "domain",
+          "description": "The domain name of the Network owner",
+          "type": "string"
+        },
+        {
+          "name": "zonename",
+          "description": "The name of the zone the Network belongs to",
+          "type": "string"
+        },
+        {
+          "name": "bgppeers",
+          "description": "The BGP peers for the network",
+          "type": "set"
+        },
+        {
+          "name": "id",
+          "description": "The ID of the Network",
+          "type": "string"
+        },
+        {
+          "name": "issystem",
+          "description": "True if Network is system, false otherwise",
+          "type": "boolean"
+        },
+        {
+          "name": "asnumber",
+          "description": "AS NUMBER",
+          "type": "long"
+        },
+        {
+          "name": "ip6routes",
+          "description": "The routes for the Network to ease adding route in upstream router",
+          "type": "set"
+        },
+        {
+          "name": "domainid",
+          "description": "The domain ID of the Network owner",
+          "type": "string"
+        },
+        {},
+        {
+          "name": "reservediprange",
+          "description": "The Network's IP range not to be used by CloudStack guest Instances and can be used for non CloudStack purposes",
+          "type": "string"
+        },
+        {
+          "name": "networkcidr",
+          "description": "The Network CIDR of the guest Network configured with IP reservation. It is the summation of CIDR and RESERVED_IP_RANGE",
+          "type": "string"
+        },
+        {
+          "name": "internetprotocol",
+          "description": "The internet protocol of Network offering",
+          "type": "string"
+        },
+        {
+          "name": "vlan",
+          "description": "The VLAN of the Network. This parameter is visible to ROOT admins only",
+          "type": "string"
+        },
+        {
+          "name": "subdomainaccess",
+          "description": "True if users from subdomains can access the domain level Network",
+          "type": "boolean"
+        },
+        {
+          "name": "ip6dns1",
+          "description": "The first IPv6 DNS for the network",
+          "type": "string"
+        },
+        {
+          "name": "ispersistent",
+          "description": "List Networks that are persistent",
+          "type": "boolean"
+        },
+        {
+          "name": "dnssubdomain",
+          "description": "DNS subdomain associated to the network",
+          "type": "string"
+        },
+        {
+          "name": "related",
+          "description": "Related to what other Network configuration",
+          "type": "string"
+        },
+        {
+          "name": "keepmacaddressonpublicnic",
+          "description": "Indicates whether to use the same MAC address for the public NIC of VRs on the same network. If \"true\", when creating redundant routers or recreating a VR, CloudStack will use the same MAC address for the public NIC of all VRs. Otherwise, if \"false\", new public NICs will always have  a new MAC address.",
+          "type": "boolean"
+        },
+        {
+          "name": "strechedl2subnet",
+          "description": "True if Network can span multiple zones",
+          "type": "boolean"
+        },
+        {
+          "name": "isdefault",
+          "description": "True if Network is default, false otherwise",
+          "type": "boolean"
+        },
+        {
+          "name": "zonesnetworkspans",
+          "description": "If a Network is enabled for 'stretched L2 subnet' then represents zones on which Network currently spans",
+          "type": "set"
+        },
+        {
+          "name": "ip4routing",
+          "description": "The IPv4 routing type of network",
+          "type": "string"
+        },
+        {
+          "name": "networkofferingconservemode",
+          "description": "True if Network offering is IP conserve mode enabled",
+          "type": "boolean"
+        },
+        {
+          "name": "details",
+          "description": "The details of the Network",
+          "type": "map"
+        },
+        {
+          "name": "netmask",
+          "description": "The Network's netmask",
+          "type": "string"
+        },
+        {
+          "name": "acltype",
+          "description": "ACL type - access type to the Network",
+          "type": "string"
+        },
+        {
+          "name": "tags",
+          "description": "The list of resource tags associated with Network",
+          "type": "list",
+          "response": [
+            {
+              "name": "projectid",
+              "description": "The project ID the tag belongs to",
+              "type": "string"
+            },
+            {
+              "name": "account",
+              "description": "The Account associated with the tag",
+              "type": "string"
+            },
+            {
+              "name": "resourceid",
+              "description": "ID of the resource",
+              "type": "string"
+            },
+            {
+              "name": "key",
+              "description": "Tag key name",
+              "type": "string"
+            },
+            {
+              "name": "customer",
+              "description": "Customer associated with the tag",
+              "type": "string"
+            },
+            {
+              "name": "value",
+              "description": "Tag value",
+              "type": "string"
+            },
+            {
+              "name": "domainpath",
+              "description": "Path of the Domain associated with the tag",
+              "type": "string"
+            },
+            {
+              "name": "domainid",
+              "description": "The ID of the domain associated with the tag",
+              "type": "string"
+            },
+            {
+              "name": "resourcetype",
+              "description": "Resource type",
+              "type": "string"
+            },
+            {
+              "name": "project",
+              "description": "The project name where tag belongs to",
+              "type": "string"
+            },
+            {
+              "name": "domain",
+              "description": "The domain associated with the tag",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "name": "state",
+          "description": "State of the Network",
+          "type": "string"
+        },
+        {
+          "name": "jobid",
+          "description": "The UUID of the latest async job acting on this object",
+          "type": "string"
+        },
+        {
+          "name": "ip6cidr",
+          "description": "The CIDR of IPv6 Network",
+          "type": "string"
+        },
+        {
+          "name": "networkofferingavailability",
+          "description": "Availability of the Network offering the Network is created from",
+          "type": "string"
+        },
+        {
+          "name": "ip6gateway",
+          "description": "The gateway of IPv6 Network",
+          "type": "string"
+        },
+        {
+          "name": "traffictype",
+          "description": "The traffic type of the Network",
+          "type": "string"
+        },
+        {
+          "name": "canusefordeploy",
+          "description": "List Networks available for Instance deployment",
+          "type": "boolean"
+        },
+        {
+          "name": "zoneid",
+          "description": "Zone ID of the Network",
+          "type": "string"
+        },
+        {
+          "name": "specifyipranges",
+          "description": "True if Network supports specifying IP ranges, false otherwise",
+          "type": "boolean"
+        },
+        {
+          "name": "project",
+          "description": "The project name of the address",
+          "type": "string"
+        },
+        {
+          "name": "associatednetworkid",
+          "description": "The ID of the Network associated with this private gateway",
+          "type": "string"
+        },
+        {
+          "name": "ip4routes",
+          "description": "The routes for the network to ease adding route in upstream router",
+          "type": "set"
+        },
+        {
+          "name": "created",
+          "description": "The date this Network was created",
+          "type": "date"
+        },
+        {
+          "name": "service",
+          "description": "The list of services",
+          "type": "list",
+          "response": [
+            {
+              "name": "capability",
+              "description": "The list of capabilities",
+              "type": "list",
+              "response": [
+                {
+                  "name": "name",
+                  "description": "The capability name",
+                  "type": "string"
+                },
+                {
+                  "name": "canchooseservicecapability",
+                  "description": "Can this service capability value can be choosable while creatine Network offerings",
+                  "type": "boolean"
+                },
+                {
+                  "name": "value",
+                  "description": "The capability value",
+                  "type": "string"
+                }
+              ]
+            },
+            {
+              "name": "name",
+              "description": "The service name",
+              "type": "string"
+            },
+            {
+              "name": "provider",
+              "description": "The service provider name",
+              "type": "list",
+              "response": [
+                {
+                  "name": "name",
+                  "description": "The provider name",
+                  "type": "string"
+                },
+                {
+                  "name": "destinationphysicalnetworkid",
+                  "description": "The destination physical Network",
+                  "type": "string"
+                },
+                {
+                  "name": "id",
+                  "description": "UUID of the Network provider",
+                  "type": "string"
+                },
+                {
+                  "name": "servicelist",
+                  "description": "Services for this provider",
+                  "type": "list"
+                },
+                {
+                  "name": "canenableindividualservice",
+                  "description": "True if individual services can be enabled/disabled",
+                  "type": "boolean"
+                },
+                {
+                  "name": "state",
+                  "description": "State of the Network provider",
+                  "type": "string"
+                },
+                {
+                  "name": "physicalnetworkid",
+                  "description": "The physical Network this belongs to",
+                  "type": "string"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "hasannotations",
+          "description": "True if the entity/resource has annotations",
+          "type": "boolean"
+        },
+        {
+          "name": "name",
+          "description": "The name of the Network",
+          "type": "string"
+        },
+        {
+          "name": "privatemtu",
+          "description": "MTU configured on the network VR's private interfaces",
+          "type": "integer"
+        },
+        {
+          "name": "dns2",
+          "description": "The second IPv4 DNS for the Network",
+          "type": "string"
+        },
+        {},
+        {
+          "name": "networkofferingname",
+          "description": "Name of the Network offering the Network is created from",
+          "type": "string"
+        },
+        {
+          "name": "gateway",
+          "description": "The Network's gateway",
+          "type": "string"
+        },
+        {
+          "name": "icon",
+          "description": "Base64 string representation of the resource icon",
+          "type": "resourceiconresponse"
+        },
+        {
+          "name": "aclid",
+          "description": "ACL ID associated with the VPC Network",
+          "type": "string"
+        },
+        {
+          "name": "ip6dns2",
+          "description": "The second IPv6 DNS for the network",
+          "type": "string"
+        },
+        {
+          "name": "supportsvmautoscaling",
+          "description": "If Network offering supports Instance autoscaling feature",
+          "type": "boolean"
+        },
+        {
+          "name": "account",
+          "description": "The owner of the Network",
+          "type": "string"
+        },
+        {
+          "name": "physicalnetworkid",
+          "description": "The physical Network id",
+          "type": "string"
+        },
+        {
+          "name": "aclname",
+          "description": "ACL name associated with the VPC Network",
+          "type": "string"
+        },
+        {
+          "name": "jobstatus",
+          "description": "The current status of the latest async job acting on this object",
+          "type": "integer"
+        },
+        {
+          "name": "publicmtu",
+          "description": "MTU configured on the Network VR's public facing interfaces",
+          "type": "integer"
+        },
+        {
+          "name": "networkofferingdisplaytext",
+          "description": "Display text of the Network offering the Network is created from",
+          "type": "string"
+        },
+        {
+          "name": "redundantrouter",
+          "description": "If the Network has redundant routers enabled",
+          "type": "boolean"
+        },
+        {
+          "name": "externalid",
+          "description": "The external ID of the Network",
+          "type": "string"
+        },
+        {
+          "name": "cidr",
+          "description": "CloudStack managed address space, all CloudStack managed Instances get IP address from CIDR",
+          "type": "string"
+        },
+        {
+          "name": "dns1",
+          "description": "The first IPv4 DNS for the Network",
+          "type": "string"
+        },
+        {
+          "name": "egressdefaultpolicy",
+          "description": "True if guest Network default egress policy is allow; false if default egress policy is deny",
+          "type": "boolean"
+        },
+        {
+          "name": "networkdomain",
+          "description": "The Network domain",
+          "type": "string"
+        },
+        {
+          "name": "restartrequired",
+          "description": "True if Network requires restart",
+          "type": "boolean"
+        },
+        {
+          "name": "specifyvlan",
+          "description": "True if network supports specifying vlan, false otherwise",
+          "type": "boolean"
+        },
+        {
+          "name": "vpcid",
+          "description": "VPC the Network belongs to",
+          "type": "string"
+        },
+        {
+          "name": "projectid",
+          "description": "The project ID of the IP address",
+          "type": "string"
+        },
+        {
+          "name": "tungstenvirtualrouteruuid",
+          "description": "Tungsten-Fabric virtual router the Network belongs to",
+          "type": "string"
+        },
+        {
+          "name": "vpcname",
+          "description": "Name of the VPC to which this Network belongs",
+          "type": "string"
+        },
+        {
+          "name": "receivedbytes",
+          "description": "The total number of Network traffic bytes received",
+          "type": "long"
+        },
+        {
+          "name": "networkofferingid",
+          "description": "Network offering ID the Network is created from",
+          "type": "string"
+        },
+        {
+          "name": "associatednetwork",
+          "description": "The name of the Network associated with this private gateway",
+          "type": "string"
+        },
+        {
+          "name": "sentbytes",
+          "description": "The total number of Network traffic bytes sent",
+          "type": "long"
+        },
+        {
+          "name": "broadcasturi",
+          "description": "Broadcast URI of the Network. This parameter is visible to ROOT admins only",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "description": "The type of the Network",
+          "type": "string"
+        },
+        {
+          "name": "broadcastdomaintype",
+          "description": "Broadcast domain type of the Network",
+          "type": "string"
+        },
+        {
+          "name": "asnumberid",
+          "description": "UUID of AS NUMBER",
+          "type": "string"
+        },
+        {
+          "name": "displaytext",
+          "description": "The displaytext of the Network",
+          "type": "string"
+        },
+        {
+          "name": "dnszone",
+          "description": "DNS zone associated to the network",
+          "type": "string"
+        },
+        {
+          "name": "ip6routing",
+          "description": "The IPv6 routing type of network offering",
+          "type": "string"
+        },
+        {
+          "name": "domainpath",
+          "description": "Path of the Domain the network belongs to",
+          "type": "string"
+        },
+        {
+          "name": "displaynetwork",
+          "description": "An optional field, whether to the display the Network to the end user or not.",
+          "type": "boolean"
+        }
+      ],
+      "httprequesttype": "POST"
+    },
+    {
+      "name": "deleteNetwork",
+      "description": "Deletes a Network",
+      "isasync": true,
+      "params": [
+        {
+          "name": "id",
+          "description": "The ID of the network",
+          "type": "uuid",
+          "length": 255,
+          "required": true,
+          "related": "createNetwork,updateNetwork,listNetworks"
+        },
+        {
+          "name": "forced",
+          "description": "Force delete a network. Network will be marked as 'Destroy' even when commands to shutdown and cleanup to the backend fails.",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        }
+      ],
+      "response": [
+        {
+          "name": "displaytext",
+          "description": "Any text associated with the success or failure",
+          "type": "string"
+        },
+        {
+          "name": "success",
+          "description": "True if operation is executed successfully",
+          "type": "boolean"
+        },
+        {},
+        {
+          "name": "jobid",
+          "description": "The UUID of the latest async job acting on this object",
+          "type": "string"
+        },
+        {
+          "name": "jobstatus",
+          "description": "The current status of the latest async job acting on this object",
+          "type": "integer"
+        },
+        {}
+      ],
+      "httprequesttype": "POST"
+    }
+  ],
+  "owner": [
+    {
+      "name": "updateNetwork",
+      "description": "Updates a network",
+      "isasync": true,
+      "related": "createNetwork,listNetworks,createNetwork,updateNetwork,listNetworks,migrateNetwork,listNetscalerLoadBalancerNetworks,listPaloAltoFirewallNetworks,listBrocadeVcsDeviceNetworks",
+      "params": [
+        {
+          "name": "changecidr",
+          "description": "Force update even if CIDR type is different",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "displaytext",
+          "description": "The new display text for the network",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "ip6dns1",
+          "description": "The first IPv6 DNS for the network. Empty string will update the first IPv6 DNS with the value from the zone",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.18.0"
+        },
+        {
+          "name": "hideipaddressusage",
+          "description": "When true IP address usage for the Network will not be exported by the listUsageRecords API",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "name",
+          "description": "The new name for the network",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "ip6dns2",
+          "description": "The second IPv6 DNS for the network. Empty string will update the second IPv6 DNS with the value from the zone",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.18.0"
+        },
+        {
+          "name": "sourcenatipaddress",
+          "description": "IPV4 address to be assigned to the public interface of the network router. This address must already be acquired for this network",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.19"
+        },
+        {
+          "name": "dns1",
+          "description": "The first IPv4 DNS for the network. Empty string will update the first IPv4 DNS with the value from the zone",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.18.0"
+        },
+        {
+          "name": "guestvmcidr",
+          "description": "CIDR for guest VMs, CloudStack allocates IPs to guest VMs only from this CIDR",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "networkdomain",
+          "description": "Network domain",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "privatemtu",
+          "description": "MTU to be configured on the network VR's public facing interfaces",
+          "type": "integer",
+          "length": 255,
+          "required": false,
+          "since": "4.18.0"
+        },
+        {
+          "name": "publicmtu",
+          "description": "MTU to be configured on the network VR's public facing interfaces",
+          "type": "integer",
+          "length": 255,
+          "required": false,
+          "since": "4.18.0"
+        },
+        {
+          "name": "updateinsequence",
+          "description": "If true, we will update the routers one after the other. applicable only for redundant router based networks using virtual router as provider",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "dns2",
+          "description": "The second IPv4 DNS for the network. Empty string will update the second IPv4 DNS with the value from the zone",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.18.0"
+        },
+        {
+          "name": "id",
+          "description": "The ID of the network",
+          "type": "uuid",
+          "length": 255,
+          "required": true,
+          "related": "createNetwork,listNetworks,updateNetwork,createNetwork,updateNetwork,listNetworks,migrateNetwork,listNetscalerLoadBalancerNetworks,listPaloAltoFirewallNetworks,listBrocadeVcsDeviceNetworks"
+        },
+        {
+          "name": "networkofferingid",
+          "description": "Network offering ID",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "createNetworkOffering,updateNetworkOffering,listNetworkOfferings"
+        }
+      ],
+      "response": [
+        {
+          "name": "domain",
+          "description": "The domain name of the Network owner",
+          "type": "string"
+        },
+        {
+          "name": "zonename",
+          "description": "The name of the zone the Network belongs to",
+          "type": "string"
+        },
+        {
+          "name": "bgppeers",
+          "description": "The BGP peers for the network",
+          "type": "set"
+        },
+        {
+          "name": "id",
+          "description": "The ID of the Network",
+          "type": "string"
+        },
+        {
+          "name": "issystem",
+          "description": "True if Network is system, false otherwise",
+          "type": "boolean"
+        },
+        {
+          "name": "asnumber",
+          "description": "AS NUMBER",
+          "type": "long"
+        },
+        {
+          "name": "ip6routes",
+          "description": "The routes for the Network to ease adding route in upstream router",
+          "type": "set"
+        },
+        {
+          "name": "domainid",
+          "description": "The domain ID of the Network owner",
+          "type": "string"
+        },
+        {},
+        {
+          "name": "reservediprange",
+          "description": "The Network's IP range not to be used by CloudStack guest Instances and can be used for non CloudStack purposes",
+          "type": "string"
+        },
+        {
+          "name": "networkcidr",
+          "description": "The Network CIDR of the guest Network configured with IP reservation. It is the summation of CIDR and RESERVED_IP_RANGE",
+          "type": "string"
+        },
+        {
+          "name": "internetprotocol",
+          "description": "The internet protocol of Network offering",
+          "type": "string"
+        },
+        {
+          "name": "vlan",
+          "description": "The VLAN of the Network. This parameter is visible to ROOT admins only",
+          "type": "string"
+        },
+        {
+          "name": "subdomainaccess",
+          "description": "True if users from subdomains can access the domain level Network",
+          "type": "boolean"
+        },
+        {
+          "name": "ip6dns1",
+          "description": "The first IPv6 DNS for the network",
+          "type": "string"
+        },
+        {
+          "name": "ispersistent",
+          "description": "List Networks that are persistent",
+          "type": "boolean"
+        },
+        {
+          "name": "dnssubdomain",
+          "description": "DNS subdomain associated to the network",
+          "type": "string"
+        },
+        {
+          "name": "related",
+          "description": "Related to what other Network configuration",
+          "type": "string"
+        },
+        {
+          "name": "keepmacaddressonpublicnic",
+          "description": "Indicates whether to use the same MAC address for the public NIC of VRs on the same network. If \"true\", when creating redundant routers or recreating a VR, CloudStack will use the same MAC address for the public NIC of all VRs. Otherwise, if \"false\", new public NICs will always have  a new MAC address.",
+          "type": "boolean"
+        },
+        {
+          "name": "strechedl2subnet",
+          "description": "True if Network can span multiple zones",
+          "type": "boolean"
+        },
+        {
+          "name": "isdefault",
+          "description": "True if Network is default, false otherwise",
+          "type": "boolean"
+        },
+        {
+          "name": "zonesnetworkspans",
+          "description": "If a Network is enabled for 'stretched L2 subnet' then represents zones on which Network currently spans",
+          "type": "set"
+        },
+        {
+          "name": "ip4routing",
+          "description": "The IPv4 routing type of network",
+          "type": "string"
+        },
+        {
+          "name": "networkofferingconservemode",
+          "description": "True if Network offering is IP conserve mode enabled",
+          "type": "boolean"
+        },
+        {
+          "name": "details",
+          "description": "The details of the Network",
+          "type": "map"
+        },
+        {
+          "name": "netmask",
+          "description": "The Network's netmask",
+          "type": "string"
+        },
+        {
+          "name": "acltype",
+          "description": "ACL type - access type to the Network",
+          "type": "string"
+        },
+        {
+          "name": "tags",
+          "description": "The list of resource tags associated with Network",
+          "type": "list",
+          "response": [
+            {
+              "name": "projectid",
+              "description": "The project ID the tag belongs to",
+              "type": "string"
+            },
+            {
+              "name": "account",
+              "description": "The Account associated with the tag",
+              "type": "string"
+            },
+            {
+              "name": "resourceid",
+              "description": "ID of the resource",
+              "type": "string"
+            },
+            {
+              "name": "key",
+              "description": "Tag key name",
+              "type": "string"
+            },
+            {
+              "name": "customer",
+              "description": "Customer associated with the tag",
+              "type": "string"
+            },
+            {
+              "name": "value",
+              "description": "Tag value",
+              "type": "string"
+            },
+            {
+              "name": "domainpath",
+              "description": "Path of the Domain associated with the tag",
+              "type": "string"
+            },
+            {
+              "name": "domainid",
+              "description": "The ID of the domain associated with the tag",
+              "type": "string"
+            },
+            {
+              "name": "resourcetype",
+              "description": "Resource type",
+              "type": "string"
+            },
+            {
+              "name": "project",
+              "description": "The project name where tag belongs to",
+              "type": "string"
+            },
+            {
+              "name": "domain",
+              "description": "The domain associated with the tag",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "name": "state",
+          "description": "State of the Network",
+          "type": "string"
+        },
+        {
+          "name": "jobid",
+          "description": "The UUID of the latest async job acting on this object",
+          "type": "string"
+        },
+        {
+          "name": "ip6cidr",
+          "description": "The CIDR of IPv6 Network",
+          "type": "string"
+        },
+        {
+          "name": "networkofferingavailability",
+          "description": "Availability of the Network offering the Network is created from",
+          "type": "string"
+        },
+        {
+          "name": "ip6gateway",
+          "description": "The gateway of IPv6 Network",
+          "type": "string"
+        },
+        {
+          "name": "traffictype",
+          "description": "The traffic type of the Network",
+          "type": "string"
+        },
+        {
+          "name": "canusefordeploy",
+          "description": "List Networks available for Instance deployment",
+          "type": "boolean"
+        },
+        {
+          "name": "zoneid",
+          "description": "Zone ID of the Network",
+          "type": "string"
+        },
+        {
+          "name": "specifyipranges",
+          "description": "True if Network supports specifying IP ranges, false otherwise",
+          "type": "boolean"
+        },
+        {
+          "name": "project",
+          "description": "The project name of the address",
+          "type": "string"
+        },
+        {
+          "name": "associatednetworkid",
+          "description": "The ID of the Network associated with this private gateway",
+          "type": "string"
+        },
+        {
+          "name": "ip4routes",
+          "description": "The routes for the network to ease adding route in upstream router",
+          "type": "set"
+        },
+        {
+          "name": "created",
+          "description": "The date this Network was created",
+          "type": "date"
+        },
+        {
+          "name": "service",
+          "description": "The list of services",
+          "type": "list",
+          "response": [
+            {
+              "name": "capability",
+              "description": "The list of capabilities",
+              "type": "list",
+              "response": [
+                {
+                  "name": "name",
+                  "description": "The capability name",
+                  "type": "string"
+                },
+                {
+                  "name": "canchooseservicecapability",
+                  "description": "Can this service capability value can be choosable while creatine Network offerings",
+                  "type": "boolean"
+                },
+                {
+                  "name": "value",
+                  "description": "The capability value",
+                  "type": "string"
+                }
+              ]
+            },
+            {
+              "name": "name",
+              "description": "The service name",
+              "type": "string"
+            },
+            {
+              "name": "provider",
+              "description": "The service provider name",
+              "type": "list",
+              "response": [
+                {
+                  "name": "name",
+                  "description": "The provider name",
+                  "type": "string"
+                },
+                {
+                  "name": "destinationphysicalnetworkid",
+                  "description": "The destination physical Network",
+                  "type": "string"
+                },
+                {
+                  "name": "id",
+                  "description": "UUID of the Network provider",
+                  "type": "string"
+                },
+                {
+                  "name": "servicelist",
+                  "description": "Services for this provider",
+                  "type": "list"
+                },
+                {
+                  "name": "canenableindividualservice",
+                  "description": "True if individual services can be enabled/disabled",
+                  "type": "boolean"
+                },
+                {
+                  "name": "state",
+                  "description": "State of the Network provider",
+                  "type": "string"
+                },
+                {
+                  "name": "physicalnetworkid",
+                  "description": "The physical Network this belongs to",
+                  "type": "string"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "hasannotations",
+          "description": "True if the entity/resource has annotations",
+          "type": "boolean"
+        },
+        {
+          "name": "name",
+          "description": "The name of the Network",
+          "type": "string"
+        },
+        {
+          "name": "privatemtu",
+          "description": "MTU configured on the network VR's private interfaces",
+          "type": "integer"
+        },
+        {
+          "name": "dns2",
+          "description": "The second IPv4 DNS for the Network",
+          "type": "string"
+        },
+        {},
+        {
+          "name": "networkofferingname",
+          "description": "Name of the Network offering the Network is created from",
+          "type": "string"
+        },
+        {
+          "name": "gateway",
+          "description": "The Network's gateway",
+          "type": "string"
+        },
+        {
+          "name": "icon",
+          "description": "Base64 string representation of the resource icon",
+          "type": "resourceiconresponse"
+        },
+        {
+          "name": "aclid",
+          "description": "ACL ID associated with the VPC Network",
+          "type": "string"
+        },
+        {
+          "name": "ip6dns2",
+          "description": "The second IPv6 DNS for the network",
+          "type": "string"
+        },
+        {
+          "name": "supportsvmautoscaling",
+          "description": "If Network offering supports Instance autoscaling feature",
+          "type": "boolean"
+        },
+        {
+          "name": "account",
+          "description": "The owner of the Network",
+          "type": "string"
+        },
+        {
+          "name": "physicalnetworkid",
+          "description": "The physical Network id",
+          "type": "string"
+        },
+        {
+          "name": "aclname",
+          "description": "ACL name associated with the VPC Network",
+          "type": "string"
+        },
+        {
+          "name": "jobstatus",
+          "description": "The current status of the latest async job acting on this object",
+          "type": "integer"
+        },
+        {
+          "name": "publicmtu",
+          "description": "MTU configured on the Network VR's public facing interfaces",
+          "type": "integer"
+        },
+        {
+          "name": "networkofferingdisplaytext",
+          "description": "Display text of the Network offering the Network is created from",
+          "type": "string"
+        },
+        {
+          "name": "redundantrouter",
+          "description": "If the Network has redundant routers enabled",
+          "type": "boolean"
+        },
+        {
+          "name": "externalid",
+          "description": "The external ID of the Network",
+          "type": "string"
+        },
+        {
+          "name": "cidr",
+          "description": "CloudStack managed address space, all CloudStack managed Instances get IP address from CIDR",
+          "type": "string"
+        },
+        {
+          "name": "dns1",
+          "description": "The first IPv4 DNS for the Network",
+          "type": "string"
+        },
+        {
+          "name": "egressdefaultpolicy",
+          "description": "True if guest Network default egress policy is allow; false if default egress policy is deny",
+          "type": "boolean"
+        },
+        {
+          "name": "networkdomain",
+          "description": "The Network domain",
+          "type": "string"
+        },
+        {
+          "name": "restartrequired",
+          "description": "True if Network requires restart",
+          "type": "boolean"
+        },
+        {
+          "name": "specifyvlan",
+          "description": "True if network supports specifying vlan, false otherwise",
+          "type": "boolean"
+        },
+        {
+          "name": "vpcid",
+          "description": "VPC the Network belongs to",
+          "type": "string"
+        },
+        {
+          "name": "projectid",
+          "description": "The project ID of the IP address",
+          "type": "string"
+        },
+        {
+          "name": "tungstenvirtualrouteruuid",
+          "description": "Tungsten-Fabric virtual router the Network belongs to",
+          "type": "string"
+        },
+        {
+          "name": "vpcname",
+          "description": "Name of the VPC to which this Network belongs",
+          "type": "string"
+        },
+        {
+          "name": "receivedbytes",
+          "description": "The total number of Network traffic bytes received",
+          "type": "long"
+        },
+        {
+          "name": "networkofferingid",
+          "description": "Network offering ID the Network is created from",
+          "type": "string"
+        },
+        {
+          "name": "associatednetwork",
+          "description": "The name of the Network associated with this private gateway",
+          "type": "string"
+        },
+        {
+          "name": "sentbytes",
+          "description": "The total number of Network traffic bytes sent",
+          "type": "long"
+        },
+        {
+          "name": "broadcasturi",
+          "description": "Broadcast URI of the Network. This parameter is visible to ROOT admins only",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "description": "The type of the Network",
+          "type": "string"
+        },
+        {
+          "name": "broadcastdomaintype",
+          "description": "Broadcast domain type of the Network",
+          "type": "string"
+        },
+        {
+          "name": "asnumberid",
+          "description": "UUID of AS NUMBER",
+          "type": "string"
+        },
+        {
+          "name": "displaytext",
+          "description": "The displaytext of the Network",
+          "type": "string"
+        },
+        {
+          "name": "dnszone",
+          "description": "DNS zone associated to the network",
+          "type": "string"
+        },
+        {
+          "name": "ip6routing",
+          "description": "The IPv6 routing type of network offering",
+          "type": "string"
+        },
+        {
+          "name": "domainpath",
+          "description": "Path of the Domain the network belongs to",
+          "type": "string"
+        },
+        {
+          "name": "displaynetwork",
+          "description": "An optional field, whether to the display the Network to the end user or not.",
+          "type": "boolean"
+        }
+      ],
+      "httprequesttype": "POST"
+    },
+    {
+      "name": "deleteNetwork",
+      "description": "Deletes a Network",
+      "isasync": true,
+      "params": [
+        {
+          "name": "id",
+          "description": "The ID of the network",
+          "type": "uuid",
+          "length": 255,
+          "required": true,
+          "related": "createNetwork,updateNetwork,listNetworks"
+        },
+        {
+          "name": "forced",
+          "description": "Force delete a network. Network will be marked as 'Destroy' even when commands to shutdown and cleanup to the backend fails.",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        }
+      ],
+      "response": [
+        {
+          "name": "displaytext",
+          "description": "Any text associated with the success or failure",
+          "type": "string"
+        },
+        {
+          "name": "success",
+          "description": "True if operation is executed successfully",
+          "type": "boolean"
+        },
+        {},
+        {
+          "name": "jobid",
+          "description": "The UUID of the latest async job acting on this object",
+          "type": "string"
+        },
+        {
+          "name": "jobstatus",
+          "description": "The current status of the latest async job acting on this object",
+          "type": "integer"
+        },
+        {}
+      ],
+      "httprequesttype": "POST"
+    }
+  ]
+}

@@ -1,0 +1,297 @@
+[
+  {
+    "cluster": 31,
+    "action": "create-network-ui",
+    "name": "nat"
+  },
+  {
+    "cluster": 32,
+    "action": "create-network-ui",
+    "name": "nat"
+  },
+  {
+    "cluster": 31,
+    "action": "create-invalid-cidr-431-retry",
+    "range": "198.18.31.0/27"
+  },
+  {
+    "cluster": 31,
+    "action": "create-network-ui",
+    "name": "nosnat"
+  },
+  {
+    "cluster": 32,
+    "action": "create-network-ui",
+    "name": "nosnat"
+  },
+  {
+    "cluster": 31,
+    "action": "create-network-ui",
+    "name": "l2"
+  },
+  {
+    "cluster": 32,
+    "action": "create-network-ui",
+    "name": "l2"
+  },
+  {
+    "cluster": 31,
+    "action": "create-network-ui",
+    "name": "shared"
+  },
+  {
+    "cluster": 32,
+    "action": "create-network-ui",
+    "name": "shared"
+  },
+  {
+    "cluster": 31,
+    "action": "offering-change-submitted",
+    "offering": "5b8d528b-6af2-47a5-9488-aa8d2f9f8b66"
+  },
+  {
+    "cluster": 32,
+    "action": "offering-change-submitted",
+    "offering": "24b37019-c2c2-41b9-addb-31fecb59a8e4"
+  },
+  {
+    "cluster": 31,
+    "action": "nosnat-range-read"
+  },
+  {
+    "cluster": 32,
+    "action": "shared-range-read"
+  },
+  {
+    "cluster": 31,
+    "action": "ip-range-add",
+    "start": "10.177.31.26",
+    "end": "10.177.31.28"
+  },
+  {
+    "cluster": 32,
+    "action": "ip-range-add",
+    "start": "10.178.32.26",
+    "end": "10.178.32.28"
+  },
+  {
+    "cluster": 31,
+    "action": "egress-rule-ui",
+    "destination": "10.10.31.10/32",
+    "port": 8080
+  },
+  {
+    "cluster": 32,
+    "action": "egress-rule-ui",
+    "destination": "10.10.32.10/32",
+    "port": 8080
+  },
+  {
+    "cluster": 31,
+    "action": "public-ip-associate-submitted"
+  },
+  {
+    "cluster": 32,
+    "action": "public-ip-associate-submitted"
+  },
+  {
+    "cluster": 32,
+    "action": "dns2-only-submitted",
+    "dns1": "8.8.8.8",
+    "dns2": "1.0.0.1"
+  },
+  {
+    "cluster": 31,
+    "action": "port-forwarding-ui",
+    "port": 18069
+  },
+  {
+    "cluster": 32,
+    "action": "port-forwarding-ui",
+    "port": 18069
+  },
+  {
+    "cluster": 31,
+    "action": "final-resource-switch-guard",
+    "sameNetworkTabKeepsDialog": true,
+    "newNetworkClosesDialog": true
+  },
+  {
+    "cluster": 32,
+    "action": "final-resource-switch-guard",
+    "sameNetworkTabKeepsDialog": true,
+    "newNetworkClosesDialog": true
+  },
+  {
+    "cluster": 31,
+    "action": "ingress-firewall-ui",
+    "source": "10.10.31.10/32",
+    "port": 18069
+  },
+  {
+    "cluster": 32,
+    "action": "ingress-firewall-ui",
+    "source": "10.10.32.10/32",
+    "port": 18069
+  },
+  {
+    "cluster": 31,
+    "action": "egress-rule-ui",
+    "destination": "10.10.31.10/32",
+    "port": 8080
+  },
+  {
+    "cluster": 32,
+    "action": "egress-rule-ui",
+    "destination": "10.10.32.10/32",
+    "port": 8080
+  },
+  {
+    "cluster": 31,
+    "action": "vm-l2-attached-ui",
+    "vm": "ee5d34e7-fab2-4159-af9d-a28a55f87ebb"
+  },
+  {
+    "cluster": 32,
+    "action": "vm-l2-attached-ui",
+    "vm": "d67429be-281f-443d-8ee6-ed7b7683e09d"
+  },
+  {
+    "cluster": 31,
+    "action": "pf-edit-guest-port",
+    "publicPort": 18069,
+    "guestPort": 22
+  },
+  {
+    "cluster": 32,
+    "action": "pf-edit-guest-port",
+    "publicPort": 18069,
+    "guestPort": 22
+  },
+  {
+    "cluster": 31,
+    "action": "ingress-firewall-ui",
+    "source": "10.10.31.10/32",
+    "port": 18069
+  },
+  {
+    "cluster": 32,
+    "action": "ingress-firewall-ui",
+    "source": "10.10.32.10/32",
+    "port": 18069
+  },
+  {
+    "cluster": 31,
+    "action": "dns-pair-ui-readback",
+    "dns1": "8.8.8.8",
+    "dns2": "1.1.1.1"
+  },
+  {
+    "cluster": 32,
+    "action": "dns-pair-ui-readback",
+    "dns1": "8.8.8.8",
+    "dns2": "1.0.0.1"
+  },
+  {
+    "cluster": 31,
+    "action": "pf-restore-review-guest-port",
+    "publicPort": 18069,
+    "guestPort": 18069
+  },
+  {
+    "cluster": 32,
+    "action": "pf-restore-review-guest-port",
+    "publicPort": 18069,
+    "guestPort": 18069
+  },
+  {
+    "cluster": 31,
+    "action": "restart-nat-ui",
+    "toggles": [
+      [
+        "네트워크 요소 재생성",
+        "false"
+      ],
+      [
+        "라우터 이중화 전환",
+        "false"
+      ],
+      [
+        "Live Patch",
+        "false"
+      ]
+    ]
+  },
+  {
+    "cluster": 32,
+    "action": "restart-nat-ui",
+    "toggles": [
+      [
+        "네트워크 요소 재생성",
+        "false"
+      ],
+      [
+        "라우터 이중화 전환",
+        "false"
+      ],
+      [
+        "Live Patch",
+        "false"
+      ]
+    ]
+  },
+  {
+    "cluster": 31,
+    "action": "restart-nat-ui-result",
+    "status": [
+      "- status: 전체 1 · 완료 1",
+      "- generic: \"작업: e9dd56bd-4e5f-47bd-afbd-2648eaeef63b\""
+    ]
+  },
+  {
+    "cluster": 31,
+    "action": "l2-restart-hidden"
+  },
+  {
+    "cluster": 32,
+    "action": "restart-nat-ui-result",
+    "status": [
+      "- status: 전체 1 · 완료 1",
+      "- generic: \"작업: 9c5402c8-5cb3-45a8-8c8d-b622598c9aa7\""
+    ]
+  },
+  {
+    "cluster": 32,
+    "action": "l2-restart-hidden"
+  },
+  {
+    "cluster": 31,
+    "action": "breadcrumb-guest-list-filter"
+  },
+  {
+    "cluster": 32,
+    "action": "theme-instant-two-way"
+  },
+  {
+    "cluster": 32,
+    "action": "breadcrumb-guest-list-filter"
+  },
+  {
+    "cluster": 31,
+    "action": "role-owner-ui-account-network"
+  },
+  {
+    "cluster": 31,
+    "action": "role-owner-ui-project-mode-all",
+    "projectid": "-1",
+    "personalFixtureVisible": true
+  },
+  {
+    "cluster": 31,
+    "action": "final-update-route-dismissed"
+  },
+  {
+    "cluster": 32,
+    "action": "final-update-route-dismissed"
+  }
+]

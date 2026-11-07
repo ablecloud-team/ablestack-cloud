@@ -1,0 +1,376 @@
+[
+  {
+    "cluster": 31,
+    "kind": "egress",
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 318,
+            "height": 62,
+            "left": 720.578125,
+            "right": 1222.984375,
+            "top": 256,
+            "width": 502.40625,
+            "x": 720.578125,
+            "y": 256
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": null,
+      "document_width": 1270,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 704,
+        "height": 212,
+        "left": 720.578125,
+        "right": 1222.984375,
+        "top": 492,
+        "width": 502.40625,
+        "x": 720.578125,
+        "y": 492
+      },
+      "toolbar": null,
+      "toolbar_before_guidance": false,
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/d7e5f610-7ca4-420b-a562-5646f73f3cd3?tab=egress.rules&layout=plain2",
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    }
+  },
+  {
+    "cluster": 31,
+    "kind": "routing",
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 318,
+            "height": 62,
+            "left": 749.109375,
+            "right": 1222.984375,
+            "top": 256,
+            "width": 473.875,
+            "x": 749.109375,
+            "y": 256
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": null,
+      "document_width": 1270,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 633,
+        "height": 234,
+        "left": 749.109375,
+        "right": 1222.984375,
+        "top": 399,
+        "width": 473.875,
+        "x": 749.109375,
+        "y": 399
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 350,
+              "height": 32,
+              "left": 749.109375,
+              "right": 858.46875,
+              "top": 318,
+              "width": 109.359375,
+              "x": 749.109375,
+              "y": 318
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 350,
+              "height": 32,
+              "left": 866.46875,
+              "right": 972,
+              "top": 318,
+              "width": 105.53125,
+              "x": 866.46875,
+              "y": 318
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 350,
+          "height": 32,
+          "left": 749.109375,
+          "right": 1222.984375,
+          "top": 318,
+          "width": 473.875,
+          "x": 749.109375,
+          "y": 318
+        }
+      },
+      "toolbar_before_guidance": false,
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/d7e5f610-7ca4-420b-a562-5646f73f3cd3?tab=routing.firewall&layout=Dynamic2",
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    }
+  },
+  {
+    "cluster": 31,
+    "kind": "ipv6",
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 318,
+            "height": 62,
+            "left": 720.578125,
+            "right": 1222.984375,
+            "top": 256,
+            "width": 502.40625,
+            "x": 720.578125,
+            "y": 256
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": null,
+      "document_width": 1270,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 677,
+        "height": 234,
+        "left": 720.578125,
+        "right": 1222.984375,
+        "top": 443,
+        "width": 502.40625,
+        "x": 720.578125,
+        "y": 443
+      },
+      "toolbar": null,
+      "toolbar_before_guidance": false,
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/d7e5f610-7ca4-420b-a562-5646f73f3cd3?tab=ip.v6.firewall&layout=DualStack2",
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    }
+  },
+  {
+    "cluster": 32,
+    "kind": "egress",
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 345,
+            "height": 62,
+            "left": 720.578125,
+            "right": 1222.984375,
+            "top": 283,
+            "width": 502.40625,
+            "x": 720.578125,
+            "y": 283
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": null,
+      "document_width": 1270,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 731,
+        "height": 212,
+        "left": 720.578125,
+        "right": 1222.984375,
+        "top": 519,
+        "width": 502.40625,
+        "x": 720.578125,
+        "y": 519
+      },
+      "toolbar": null,
+      "toolbar_before_guidance": false,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=egress.rules&layout=plain2",
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    }
+  },
+  {
+    "cluster": 32,
+    "kind": "routing",
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 345,
+            "height": 62,
+            "left": 749.109375,
+            "right": 1222.984375,
+            "top": 283,
+            "width": 473.875,
+            "x": 749.109375,
+            "y": 283
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": null,
+      "document_width": 1270,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 660,
+        "height": 234,
+        "left": 749.109375,
+        "right": 1222.984375,
+        "top": 426,
+        "width": 473.875,
+        "x": 749.109375,
+        "y": 426
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 377,
+              "height": 32,
+              "left": 749.109375,
+              "right": 858.46875,
+              "top": 345,
+              "width": 109.359375,
+              "x": 749.109375,
+              "y": 345
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 377,
+              "height": 32,
+              "left": 866.46875,
+              "right": 972,
+              "top": 345,
+              "width": 105.53125,
+              "x": 866.46875,
+              "y": 345
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 377,
+          "height": 32,
+          "left": 749.109375,
+          "right": 1222.984375,
+          "top": 345,
+          "width": 473.875,
+          "x": 749.109375,
+          "y": 345
+        }
+      },
+      "toolbar_before_guidance": false,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=routing.firewall&layout=Dynamic2",
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    }
+  },
+  {
+    "cluster": 32,
+    "kind": "ipv6",
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 345,
+            "height": 62,
+            "left": 720.578125,
+            "right": 1222.984375,
+            "top": 283,
+            "width": 502.40625,
+            "x": 720.578125,
+            "y": 283
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": null,
+      "document_width": 1270,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 704,
+        "height": 234,
+        "left": 720.578125,
+        "right": 1222.984375,
+        "top": 470,
+        "width": 502.40625,
+        "x": 720.578125,
+        "y": 470
+      },
+      "toolbar": null,
+      "toolbar_before_guidance": false,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=ip.v6.firewall&layout=DualStack2",
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    }
+  }
+]

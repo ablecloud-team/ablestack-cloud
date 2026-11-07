@@ -1,0 +1,94 @@
+{
+  "body": {
+    "bottom": 713,
+    "height": 536,
+    "left": 161,
+    "right": 1119,
+    "top": 177,
+    "width": 958,
+    "x": 161,
+    "y": 177
+  },
+  "bodyClientHeight": 536,
+  "bodyClientWidth": 958,
+  "bodyScrollHeight": 536,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 958,
+  "colors": [
+    {
+      "background": "rgb(85, 85, 85)",
+      "color": "rgba(255, 255, 255, 0.65)",
+      "text": "네트워크 재시작"
+    }
+  ],
+  "content": {
+    "bottom": 779,
+    "height": 658,
+    "left": 160,
+    "right": 1120,
+    "top": 121,
+    "width": 960,
+    "x": 160,
+    "y": 121
+  },
+  "dark": true,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1280,
+    "top": 0,
+    "width": 1280,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "BUTTON"
+  },
+  "footer": {
+    "bottom": 778,
+    "height": 65,
+    "left": 161,
+    "right": 1119,
+    "top": 713,
+    "width": 958,
+    "x": 161,
+    "y": 713
+  },
+  "header": {
+    "bottom": 177,
+    "height": 55,
+    "left": 161,
+    "right": 1119,
+    "top": 122,
+    "width": 958,
+    "x": 161,
+    "y": 122
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 776,
+    "left": 256,
+    "right": 1270,
+    "top": 124,
+    "width": 1014,
+    "x": 256,
+    "y": 124
+  },
+  "primaryButton": {
+    "bottom": 762,
+    "height": 32,
+    "left": 965,
+    "right": 1091,
+    "top": 730,
+    "width": 126,
+    "x": 965,
+    "y": 730
+  },
+  "width": 1280,
+  "image_sha256": "ebb77153add3457c641dc4df5f5d483c25b7ce04fe8df95b9738ba3e4c0f36c7"
+}

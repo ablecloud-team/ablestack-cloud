@@ -1,0 +1,16 @@
+{
+  "files": 650,
+  "hash_mismatches": [],
+  "markers": {
+    "guest-network-description": true,
+    "message.network.description.verify.failed": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  },
+  "WEB_INF": true,
+  "protected_files_unchanged": true,
+  "mold_pid_unchanged": true,
+  "http": 200,
+  "index_sha256": "90870ab232a1cec24cbc46bf4d4cb74f438097c478d02be63927982894f4fcfd"
+}

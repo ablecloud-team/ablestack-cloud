@@ -1,0 +1,150 @@
+{
+  "networks": {
+    "configdrive": {
+      "id": "ff71bb9c-3113-4edb-9c89-44a855ac451a",
+      "name": "qa-gn1571-32-configdrive",
+      "displaytext": "#1571 configdrive UI 확인",
+      "state": "Setup",
+      "broadcasturi": "vlan://773",
+      "vlan": "773",
+      "networkofferingid": "344423a4-665f-482c-9b18-51a422566f18",
+      "account": "qa-gn1571-32-owner",
+      "service": [
+        {
+          "name": "UserData",
+          "provider": [
+            {
+              "name": "ConfigDrive"
+            }
+          ],
+          "capability": []
+        }
+      ],
+      "domainid": "8cc7242b-1bf9-4a26-990e-8a357daf6fff",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+    },
+    "plain": {
+      "id": "838c260d-dfca-4589-8568-7db4dd292229",
+      "name": "qa-gn1571-32-plain",
+      "displaytext": "#1571 plain UI 확인",
+      "state": "Setup",
+      "broadcasturi": "vlan://772",
+      "vlan": "772",
+      "networkofferingid": "c74c3367-ae32-4b64-80c0-f02fd117b7ec",
+      "account": "qa-gn1571-32-owner",
+      "service": [],
+      "domainid": "8cc7242b-1bf9-4a26-990e-8a357daf6fff",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+    },
+    "community": {
+      "id": "5ca442a3-e49e-42f9-87a1-56016435718b",
+      "name": "qa-gn1571-32-community",
+      "displaytext": "#1571 community UI 확인",
+      "state": "Setup",
+      "broadcasturi": "pvlan://774-c775",
+      "vlan": "N/A",
+      "networkofferingid": "c74c3367-ae32-4b64-80c0-f02fd117b7ec",
+      "account": "qa-gn1571-32-owner",
+      "service": [],
+      "domainid": "8cc7242b-1bf9-4a26-990e-8a357daf6fff",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+    },
+    "isolated": {
+      "id": "db79bbb9-f0a7-4f6e-a21d-440e4ca8f4f1",
+      "name": "qa-gn1571-32-isolated",
+      "displaytext": "#1571 isolated UI 확인",
+      "state": "Setup",
+      "broadcasturi": "pvlan://776-i777",
+      "vlan": "N/A",
+      "networkofferingid": "c74c3367-ae32-4b64-80c0-f02fd117b7ec",
+      "account": "qa-gn1571-32-owner",
+      "service": [],
+      "domainid": "8cc7242b-1bf9-4a26-990e-8a357daf6fff",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+    },
+    "promiscuous": {
+      "id": "b8cc2a58-5f15-4b1e-8f2e-310f9dbda568",
+      "name": "qa-gn1571-32-promiscuous",
+      "displaytext": "#1571 promiscuous UI 확인",
+      "state": "Setup",
+      "broadcasturi": "pvlan://778-p778",
+      "vlan": "N/A",
+      "networkofferingid": "c74c3367-ae32-4b64-80c0-f02fd117b7ec",
+      "account": "qa-gn1571-32-owner",
+      "service": [],
+      "domainid": "8cc7242b-1bf9-4a26-990e-8a357daf6fff",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+    }
+  },
+  "vms": {
+    "1": {
+      "id": "a3f6dc52-5f46-476a-aa70-253683154f52",
+      "name": "qa-gn1571-32-cd-vm1",
+      "hostid": "bfe795b1-8fde-4361-bd1d-af421ab2bdc5",
+      "hostname": "ablecube32-1",
+      "instancename": "i-228-401-VM",
+      "state": "Running",
+      "nic": [
+        {
+          "id": "208a89b5-ffd7-4430-acf5-072f3a710e91",
+          "networkid": "ff71bb9c-3113-4edb-9c89-44a855ac451a",
+          "networkname": "qa-gn1571-32-configdrive",
+          "isolationuri": "vlan://773",
+          "broadcasturi": "vlan://773",
+          "traffictype": "Guest",
+          "type": "L2",
+          "isdefault": true,
+          "macaddress": "02:01:01:90:00:01",
+          "secondaryip": [],
+          "extradhcpoption": [],
+          "deviceid": "0",
+          "enabled": true
+        },
+        {
+          "id": "5d4f66c9-eb83-4758-ac87-6d3e63d95a66",
+          "networkid": "838c260d-dfca-4589-8568-7db4dd292229",
+          "networkname": "qa-gn1571-32-plain",
+          "isolationuri": "vlan://772",
+          "broadcasturi": "vlan://772",
+          "traffictype": "Guest",
+          "type": "L2",
+          "isdefault": false,
+          "macaddress": "02:01:01:91:00:03",
+          "secondaryip": [],
+          "extradhcpoption": [],
+          "deviceid": "1",
+          "enabled": true
+        }
+      ],
+      "marker": "qa-gn1571-32-configdrive-vm1",
+      "expectedIp": "198.19.32.11"
+    },
+    "2": {
+      "id": "7348e207-891f-420a-8aa3-4549fd7ae900",
+      "name": "qa-gn1571-32-cd-vm2",
+      "hostid": "bfe795b1-8fde-4361-bd1d-af421ab2bdc5",
+      "hostname": "ablecube32-1",
+      "instancename": "i-228-402-VM",
+      "state": "Running",
+      "nic": [
+        {
+          "id": "3c0dac13-c959-40e0-8cc1-a17ca3439629",
+          "networkid": "ff71bb9c-3113-4edb-9c89-44a855ac451a",
+          "networkname": "qa-gn1571-32-configdrive",
+          "isolationuri": "vlan://773",
+          "broadcasturi": "vlan://773",
+          "traffictype": "Guest",
+          "type": "L2",
+          "isdefault": true,
+          "macaddress": "02:01:01:90:00:02",
+          "secondaryip": [],
+          "extradhcpoption": [],
+          "deviceid": "0",
+          "enabled": true
+        }
+      ],
+      "marker": "qa-gn1571-32-configdrive-vm2",
+      "expectedIp": "198.19.32.12"
+    }
+  }
+}

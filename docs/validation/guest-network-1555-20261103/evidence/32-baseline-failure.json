@@ -1,0 +1,40 @@
+{
+  "post": {
+    "cluster": 32,
+    "requestId": "35828.797",
+    "command": "updateNetwork",
+    "method": "POST",
+    "params": {
+      "command": "updateNetwork",
+      "id": "c5203d61-0fcb-4907-bfe4-7f994933efa8",
+      "name": "qa-gn1555-32-isolated",
+      "dns2": "1.1.1.1"
+    },
+    "status": 200
+  },
+  "receipt": {
+    "jobid": "c209a124-0ed6-4d0a-b9f7-f2586829d0a3"
+  },
+  "terminal": {
+    "queryasyncjobresultresponse": {
+      "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domainpath": "ROOT",
+      "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+      "cmd": "org.apache.cloudstack.api.command.admin.network.UpdateNetworkCmdByAdmin",
+      "jobprocstatus": 0,
+      "jobresultcode": 431,
+      "jobresulttype": "object",
+      "jobresult": {
+        "errorcode": 431,
+        "errortext": "Second IPv4 DNS can be specified only with the first IPv4 DNS"
+      },
+      "jobinstancetype": "Network",
+      "created": "2026-11-03T14:30:33+0900",
+      "completed": "2026-11-03T14:30:33+0900",
+      "jobid": "c209a124-0ed6-4d0a-b9f7-f2586829d0a3",
+      "jobstatus": 2
+    }
+  }
+}

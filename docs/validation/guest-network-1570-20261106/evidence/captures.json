@@ -1,0 +1,172 @@
+[
+  {
+    "label": "31-vm-standard-list-light",
+    "width": 1280,
+    "height": 900,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/vm",
+    "sha256": "8947f02230ec6676f8327632c58908c7d086eabff52517e65d2c361b2f8c135c"
+  },
+  {
+    "label": "31-vm-standard-nic-light",
+    "width": 1280,
+    "height": 900,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/vm/0f2ccdef-031c-41d1-b993-fb6edfdb1d39?tab=nics",
+    "sha256": "94c827ae1e733718df401c246629e8c45809942fb1b586d252f30bd5ba3fed2c"
+  },
+  {
+    "label": "31-isolated-list-tablet-light",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/guestnetwork?q=qa-gn1570-31&keyword=qa-gn1570-31&page=1&pagesize=20",
+    "sha256": "2658ddc5be84bc2b827cd69aa2ca5f037db481e09a796d8d45317f3c29b894e1"
+  },
+  {
+    "label": "31-create-nat-tablet-light",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/guestnetwork",
+    "sha256": "c790eafecef3865b51c45b36902e1061fe5242722b78d3e1035604590c9bd53c"
+  },
+  {
+    "label": "31-vpc-incompatible-tablet-light",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/guestnetwork",
+    "sha256": "7102898625358780f0fe05a1a48befb66fecf646bb304ebce5a44c2dc8283cc9"
+  },
+  {
+    "label": "31-router-tab-desktop-light",
+    "width": 1280,
+    "height": 900,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/guestnetwork/caea7915-8bed-4265-94e5-22748cbee88e?tab=virtual.routers",
+    "sha256": "1af2eb045b90a24f7ac07ee1559cf66d3319ef571d7e1f5c3d6df0b1e72aa7ec"
+  },
+  {
+    "label": "31-offering-review-desktop-light",
+    "width": 1280,
+    "height": 900,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/guestnetwork/caea7915-8bed-4265-94e5-22748cbee88e?tab=details",
+    "sha256": "95cec87d175c13a7a605e22832d1705ab29ab43555ec4ee18673f5b60fa87e90"
+  },
+  {
+    "label": "31-delete-empty-desktop-light",
+    "width": 1280,
+    "height": 900,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/guestnetwork/f98e0e36-d1e7-4dde-aaa4-0bb92f0ecc06?tab=details",
+    "sha256": "ca8312fc7a80486152262257a57018019db78da47b3f69588da6ad8d523e8871"
+  },
+  {
+    "label": "32-create-nosnat-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork",
+    "sha256": "43956949b75e68e505b34313ff0136959cafce992c3613a3cd99e4c8c2765386"
+  },
+  {
+    "label": "32-nosnat-range-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork/a96e6e1e-315a-4cf3-8e2a-01421a5e302e?tab=guest.ip.range",
+    "sha256": "aefb45aad63fed5318e9059d31109cebbd39733d21975af5c4a54e360169fe1f"
+  },
+  {
+    "label": "32-source-nat-confirm-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork/9b477162-d921-4015-9f76-16475a067428?tab=public.ip.addresses",
+    "sha256": "69e358a6dad54528077862a8af2537526d8c5af949851280496fd685b2380c8e"
+  },
+  {
+    "label": "32-source-nat-complete-tablet-dark",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork/9b477162-d921-4015-9f76-16475a067428?tab=public.ip.addresses",
+    "sha256": "1c33f009115557348399e7986b4bfa167644fcb499fc4eab72e942f3bc8e227f"
+  },
+  {
+    "label": "32-router-tab-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork/9b477162-d921-4015-9f76-16475a067428?tab=virtual.routers",
+    "sha256": "c07cfeafb8d848ae376a90d356ca39a1d4ce432360e19f7a51362faaf0e05081"
+  },
+  {
+    "label": "32-vpc-acl-tablet-dark",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork/3f6c1cf3-c33f-41b4-bb5c-6b2149b7e1db?tab=details",
+    "sha256": "9560a3ff3aad522e656fae05847565f5dabe5b08fc8cdf6ff39ad3a050dfa38b"
+  },
+  {
+    "label": "32-static-routing-firewall-dark",
+    "width": 1280,
+    "height": 900,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork/9c753cf2-e3e5-4b18-8a9b-42547bf22270?tab=routing.firewall",
+    "sha256": "3aa6443cf0d01481e46b912785f0b926616728bab04c267e6418af620e99322f"
+  },
+  {
+    "label": "32-unsupported-bgp-dark",
+    "width": 1280,
+    "height": 900,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork/9c753cf2-e3e5-4b18-8a9b-42547bf22270?tab=details",
+    "sha256": "3ad3142c51afe579fdf0f56e627dafe54ac2d0f654f74de46fffc078c6e77757"
+  },
+  {
+    "label": "32-owner-comments-dark",
+    "width": 1280,
+    "height": 900,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork/9b477162-d921-4015-9f76-16475a067428?tab=comments",
+    "sha256": "d2cb9ae69218bafcdc2db35a784233d8fb08fbc1288d3ddf7a587477b776d634"
+  }
+]

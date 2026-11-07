@@ -1,0 +1,85 @@
+{
+  "count": 10,
+  "projectrolepermission": [
+    {
+      "id": "570ed7c1-131d-400c-ae04-613edfef3dd9",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "createNetwork",
+      "permission": "deny"
+    },
+    {
+      "id": "9bf10721-d5ca-4be8-8970-e2d3551ab3b4",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "updateNetwork",
+      "permission": "deny"
+    },
+    {
+      "id": "ba2f750a-7589-4cd5-90f6-c70b01815ae5",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "addNicToVirtualMachine",
+      "permission": "deny"
+    },
+    {
+      "id": "e195a191-5735-4c14-8679-b1ef9a6dd3e6",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "removeNicFromVirtualMachine",
+      "permission": "deny"
+    },
+    {
+      "id": "f5bd459f-84c3-48ec-9fe5-7c3c9dc29205",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "list*",
+      "permission": "allow"
+    },
+    {
+      "id": "c5b26baf-08ee-41f9-8224-ac4357973cc5",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "get*",
+      "permission": "allow"
+    },
+    {
+      "id": "748984c2-a45f-4dc3-964f-200f5725db9b",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "queryAsyncJobResult",
+      "permission": "allow"
+    },
+    {
+      "id": "c77c32ec-bbd3-4e4f-a8d4-554e56bf16c7",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "listApis",
+      "permission": "allow"
+    },
+    {
+      "id": "2e90f44e-5d9d-4c53-97e2-f7db59095f05",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "listNetworks",
+      "permission": "allow"
+    },
+    {
+      "id": "4cb5b3fc-0319-4377-9e66-26979f6f6255",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "projectrolename": "qa-gn1569-31-network-readonly",
+      "rule": "listVirtualMachines",
+      "permission": "allow"
+    }
+  ]
+}

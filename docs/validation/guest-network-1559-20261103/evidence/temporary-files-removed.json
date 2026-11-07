@@ -1,0 +1,6 @@
+{
+  "router_known_hosts": true,
+  "initial_and_final_remote_tmpfs_staging": true,
+  "no_private_fixture_keys_created": true,
+  "durable_WSL_backups_preserved": true
+}

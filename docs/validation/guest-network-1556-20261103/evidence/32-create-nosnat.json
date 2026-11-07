@@ -1,0 +1,8 @@
+{
+  "createnetworkresponse": {
+    "uuidList": [],
+    "errorcode": 530,
+    "cserrorcode": 4390,
+    "errortext": "Provider VpcVirtualRouter is either not enabled or doesn't support service Firewall in physical network id=200"
+  }
+}

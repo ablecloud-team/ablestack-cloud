@@ -1,0 +1,26 @@
+[
+  {
+    "cluster": 31,
+    "role": "User",
+    "fieldAbsent": true,
+    "updateDisabled": true
+  },
+  {
+    "cluster": 31,
+    "role": "DomainAdmin",
+    "fieldAbsent": true,
+    "updateDisabled": true
+  },
+  {
+    "cluster": 32,
+    "role": "User",
+    "fieldAbsent": true,
+    "updateDisabled": true
+  },
+  {
+    "cluster": 32,
+    "role": "DomainAdmin",
+    "fieldAbsent": true,
+    "updateDisabled": true
+  }
+]

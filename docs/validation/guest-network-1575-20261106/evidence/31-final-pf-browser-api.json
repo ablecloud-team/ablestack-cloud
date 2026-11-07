@@ -1,0 +1,13 @@
+{
+  "parentIpId": "e6978afb-a4ee-4512-8fb5-a06fe6477a83",
+  "tag": {
+    "key": "qa1575-final",
+    "value": "PortForwardingRule",
+    "resourcetype": "PortForwardingRule",
+    "resourceid": "7cccd5ff-31da-44af-b00d-58ad7dae8961",
+    "account": "qa-gn1575-31-owner",
+    "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+    "domain": "qa-gn1575-31-main",
+    "domainpath": "ROOT/qa-gn1575-31-main"
+  }
+}

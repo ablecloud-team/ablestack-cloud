@@ -1,0 +1,14 @@
+{
+  "synthetic": false,
+  "http": 431,
+  "response": {
+    "createegressfirewallruleresponse": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 9999,
+      "errortext": "[192.0.2.0/24] is not within the guest CIDR [10.1.1.0/24]. "
+    }
+  },
+  "dialog_remains_open": true,
+  "network_unchanged": true
+}

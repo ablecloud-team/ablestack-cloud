@@ -1,0 +1,33 @@
+{
+  "build_source": "09d032e9d05d3bfd9170620dddbc91e28dc5fad1",
+  "UI_src_tree": "f2145316440218b0a0e9a8b8a50a2bc8be0e0db4",
+  "node": "20.20.2",
+  "workspace": "WSL ext4 /home/ablecloud/work/dhslove/cloud-epic-1554",
+  "UI_build_exit": 0,
+  "full_lint_exit": 0,
+  "final_test_lint_exit": 0,
+  "test_runs": [
+    {
+      "suites": 7,
+      "passed": 168
+    },
+    {
+      "suites": 5,
+      "passed": 99
+    },
+    {
+      "suites": 1,
+      "passed": 41
+    }
+  ],
+  "runs_overlap": true,
+  "full_Cloud_or_manual_Actions_build": false,
+  "log_tails": {
+    "jest-initial.log": "ve custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. \n        at <VmVolumesTab resource= {\n        volumemutationblockedreason: '',\n        id: 'vm',\n        name: 'VM',\n        state: 'Running',\n        zoneid: 'zone',\n        account: 'admin',\n        domainid: 'domain'\n      } ref=\"VTU_COMPONENT\" > \n        at <VTUROOT>\n\nPASS tests/unit/views/storage/StorageRelatedTabs.spec.js\n\n=============================== Coverage summary ===============================\nStatements   : 2.36% ( 1978/83652 )\nBranches     : 1.62% ( 1245/76765 )\nFunctions    : 1.35% ( 294/21701 )\nLines        : 2.34% ( 1695/72580 )\n================================================================================\n\nTest Suites: 7 passed, 7 total\nTests:       168 passed, 168 total\nSnapshots:   0 total\nTime:        154.052s\nRan all test suites within paths \"tests/unit/views/network/NetworkTabs.spec.js\", \"tests/unit/components/view/ResourceView.spec.js\", \"tests/unit/views/network/NetworkDnsUpdate.spec.js\", \"tests/unit/views/network/UpdateNetworkOffering.spec.js\", \"tests/unit/views/network/RestartNetwork.spec.js\", \"tests/unit/views/compute/VmVolumesTab.spec.js\", \"tests/unit/views/storage/StorageRelatedTabs.spec.js\".\n",
+    "final-jest.log": "node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40\n      [Vue warn]: Component \"LaptopOutlined\" has already been registered in target app.\n    console.warn ../../ablestack-cloud-europa-release/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40\n      [Vue warn]: Component \"GroupOutlined\" has already been registered in target app.\n    console.warn ../../ablestack-cloud-europa-release/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40\n      [Vue warn]: Component \"LaptopOutlined\" has already been registered in target app.\n\n\n=============================== Coverage summary ===============================\nStatements   : 1.91% ( 1599/83655 )\nBranches     : 0.8% ( 616/76773 )\nFunctions    : 0.72% ( 156/21704 )\nLines        : 2.07% ( 1504/72583 )\n================================================================================\n\nTest Suites: 5 passed, 5 total\nTests:       99 passed, 99 total\nSnapshots:   0 total\nTime:        131.491s\nRan all test suites within paths \"tests/unit/views/network/NetworkTabs.spec.js\", \"tests/unit/components/view/ResourceView.spec.js\", \"tests/unit/utils/listRefreshMixin.spec.js\", \"tests/unit/components/SharedDetailTabs.spec.js\", \"tests/unit/views/storage/OfferingPerformance.spec.js\".\n",
+    "vpc-jest.log": "\"state\":\"Reserved\"}\n  ✓ Public IP state and VPC filtering stays compatible: {\"issourcenat\":true}\n  ✓ Public IP state and VPC filtering stays compatible: {\"isstaticnat\":true} (1ms)\n  ✓ Public IP state and VPC filtering stays compatible: {\"vpcid\":\"v\",\"issourcenat\":true}\n  ✓ Public IP state and VPC filtering stays compatible: {\"vpcid\":\"v\",\"issourcenat\":true} (1ms)\n  ✓ Public IP state and VPC filtering stays compatible: {\"vpcid\":\"v\",\"isstaticnat\":true}\n  ✓ Public IP state and VPC filtering stays compatible: {\"vpcid\":\"v\"}\n  ✓ non-conserve VPC rule counts 1/0 exclude only loadbalancing (1ms)\n  ✓ non-conserve VPC rule counts 0/1 exclude only portforwarding (1ms)\n  ✓ current Public IP tab lookup failure reports an error and recovers to default tabs (1ms)\n\n\n=============================== Coverage summary ===============================\nStatements   : 1.29% ( 1079/83655 )\nBranches     : 0.38% ( 292/76773 )\nFunctions    : 0.43% ( 94/21704 )\nLines        : 1.44% ( 1045/72583 )\n================================================================================\nTest Suites: 1 passed, 1 total\nTests:       41 passed, 41 total\nSnapshots:   0 total\nTime:        122.467s\nRan all test suites within paths \"tests/unit/views/network/NetworkTabs.spec.js\".\n",
+    "lint-final.log": "\n> cloudstack-ui@4.22.0 lint\n> vue-cli-service lint --no-fix\n\nBrowserslist: caniuse-lite is outdated. Please run:\n  npx update-browserslist-db@latest\n  Why you should do it regularly: https://github.com/browserslist/update-db#readme\n DONE  No lint errors found!\n",
+    "lint-tests.log": "\n> cloudstack-ui@4.22.0 lint\n> vue-cli-service lint --no-fix tests/unit/views/network/NetworkTabs.spec.js\n\nBrowserslist: caniuse-lite is outdated. Please run:\n  npx update-browserslist-db@latest\n  Why you should do it regularly: https://github.com/browserslist/update-db#readme\n DONE  No lint errors found!\n",
+    "build-release.log": "       0.08 KiB\n  dist/css/chunk-1ffaebe0.e6029dd8.css    0.08 KiB          0.09 KiB\n  dist/css/chunk-1de08388.d1d9040b.css    0.08 KiB          0.09 KiB\n  dist/css/chunk-28f3ab38.ed84acc9.css    0.07 KiB          0.08 KiB\n  dist/css/chunk-63c4b92e.56be705d.css    0.07 KiB          0.09 KiB\n  dist/css/chunk-67563e80.5d38c646.css    0.07 KiB          0.08 KiB\n  dist/css/chunk-ce035b60.ed84acc9.css    0.07 KiB          0.08 KiB\n  dist/css/chunk-32914b6e.b78c5347.css    0.06 KiB          0.07 KiB\n  dist/css/chunk-3dfbb70b.a89ddab2.css    0.06 KiB          0.07 KiB\n  dist/css/chunk-7019e84c.0ee2ad71.css    0.06 KiB          0.07 KiB\n  dist/css/chunk-ea13a464.bccd434d.css    0.06 KiB          0.08 KiB\n  dist/css/chunk-2c78a664.b5ab1173.css    0.04 KiB          0.06 KiB\n  dist/css/chunk-4ed8f826.afadbd41.css    0.04 KiB          0.06 KiB\n\n  Images and other types of assets omitted.\n\n DONE  Build complete. The dist directory is ready to be deployed.\n INFO  Check out deployment instructions at https://cli.vuejs.org/guide/deployment.html\n      \n\n> cloudstack-ui@4.22.0 postbuild\n> ./postbuild.sh\n\nPost-build: removing all docHelp suffixes in ./public/config.json\n[SKIP] ABLESTACK_UI_BUILD_VERSION is not set; keeping buildVersion: V4.0-4.0.15\n"
+  }
+}

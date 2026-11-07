@@ -1,0 +1,29 @@
+{
+  "body": null,
+  "colors": [],
+  "content": null,
+  "dark": false,
+  "dialog": null,
+  "documentWidth": 1430,
+  "dpr": 1,
+  "focus": {
+    "label": "닫기",
+    "tag": "BUTTON"
+  },
+  "footer": null,
+  "header": null,
+  "height": 1000,
+  "main": {
+    "bottom": 1000,
+    "height": 849,
+    "left": 256,
+    "right": 1430,
+    "top": 151,
+    "width": 1174,
+    "x": 256,
+    "y": 151
+  },
+  "primaryButton": null,
+  "width": 1440,
+  "image_sha256": "0a5e97413a8c93d4c6cc2669a3920fab3df9097e9f9bf760165ffcc2bc03b115"
+}

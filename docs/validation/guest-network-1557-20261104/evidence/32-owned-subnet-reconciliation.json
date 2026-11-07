@@ -1,0 +1,82 @@
+{
+  "shared": {
+    "before": {
+      "id": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+      "name": "qa-gn1557-32-shared",
+      "cidr": null,
+      "gateway": null,
+      "ip6cidr": null,
+      "ip6gateway": null
+    },
+    "update": {
+      "updatevlaniprangeresponse": {
+        "vlan": {
+          "id": "7812fe05-5d25-4800-920e-708bd9ca3bc0",
+          "forvirtualnetwork": false,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "vlan": "652",
+          "account": "system",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "gateway": "172.27.32.1",
+          "netmask": "255.255.255.0",
+          "cidr": "172.27.32.0/24",
+          "startip": "172.27.32.30",
+          "endip": "172.27.32.35",
+          "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "forsystemvms": false
+        }
+      }
+    },
+    "after": {
+      "id": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+      "name": "qa-gn1557-32-shared",
+      "cidr": "172.27.32.0/24",
+      "gateway": "172.27.32.1",
+      "ip6cidr": "fd32:1557::/64",
+      "ip6gateway": "fd32:1557::1"
+    }
+  },
+  "nosnat": {
+    "before": {
+      "id": "1b6001c7-f30f-4b5b-8843-8b8e68b2720e",
+      "name": "qa-gn1557-32-nosnat",
+      "cidr": null,
+      "gateway": null,
+      "ip6cidr": null,
+      "ip6gateway": null
+    },
+    "update": {
+      "updatevlaniprangeresponse": {
+        "vlan": {
+          "id": "a67bd7c2-1bb8-4eb8-9b41-78a7bee972df",
+          "forvirtualnetwork": false,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "vlan": "642",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "gateway": "172.26.32.1",
+          "netmask": "255.255.255.0",
+          "cidr": "172.26.32.0/24",
+          "startip": "172.26.32.30",
+          "endip": "172.26.32.35",
+          "networkid": "1b6001c7-f30f-4b5b-8843-8b8e68b2720e",
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "forsystemvms": false
+        }
+      }
+    },
+    "after": {
+      "id": "1b6001c7-f30f-4b5b-8843-8b8e68b2720e",
+      "name": "qa-gn1557-32-nosnat",
+      "cidr": "172.26.32.0/24",
+      "gateway": "172.26.32.1",
+      "ip6cidr": null,
+      "ip6gateway": null
+    }
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "rows": [
+    {
+      "id": "5ab893d8-1706-487c-bfe4-166581ccf31c",
+      "status": "idle",
+      "text": "qa-gn1559-32-empty\nIsolated · Allocated · admin\n5ab893d8-1706-487c-bfe4-166581ccf31c\n대기\n진행 중 작업이 없는 Implemented 또는 Setup 상태에서 재시작할 수 있습니다."
+    },
+    {
+      "id": "aa166872-92fc-4a52-bf06-746f062b3a42",
+      "status": "idle",
+      "text": "qa-gn1559-32-l2\nL2 · Setup · admin\naa166872-92fc-4a52-bf06-746f062b3a42\n대기\n이 유형은 네트워크 재시작 대상이 아닙니다."
+    },
+    {
+      "id": "8cfea604-007c-42c4-b5a9-5ceee79fe440",
+      "status": "idle",
+      "text": "qa-gn1559-32-a\nIsolated · Implemented · qa-gn1559-32-user\n8cfea604-007c-42c4-b5a9-5ceee79fe440\n대기"
+    }
+  ],
+  "startEnabled": false,
+  "records": [
+    {
+      "cluster": 32,
+      "requestId": "20636.1590",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1595",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "5ab893d8-1706-487c-bfe4-166581ccf31c",
+        "listall": "true",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1596",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "aa166872-92fc-4a52-bf06-746f062b3a42",
+        "listall": "true",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1597",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "8cfea604-007c-42c4-b5a9-5ceee79fe440",
+        "listall": "true",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1598",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "e8d9487d-f70b-451f-8a58-7d26e8bfdc79",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1599",
+      "command": "listRouters",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "networkid": "5ab893d8-1706-487c-bfe4-166581ccf31c",
+        "command": "listRouters"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1600",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "e8d9487d-f70b-451f-8a58-7d26e8bfdc79",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1601",
+      "command": "listRouters",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "networkid": "8cfea604-007c-42c4-b5a9-5ceee79fe440",
+        "command": "listRouters"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1602",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "4a711c03-f9bd-4989-96fc-ea38ca9e79a1",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1603",
+      "command": "listRouters",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "networkid": "aa166872-92fc-4a52-bf06-746f062b3a42",
+        "command": "listRouters"
+      },
+      "status": 200
+    }
+  ]
+}

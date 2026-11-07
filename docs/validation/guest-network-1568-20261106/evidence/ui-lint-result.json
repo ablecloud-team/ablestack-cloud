@@ -1,0 +1,9 @@
+{
+  "exit": 0,
+  "command": [
+    "npx",
+    "vue-cli-service",
+    "lint",
+    "--no-fix"
+  ]
+}

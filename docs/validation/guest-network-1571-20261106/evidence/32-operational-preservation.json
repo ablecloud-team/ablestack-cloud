@@ -1,0 +1,8 @@
+{
+  "vpcCountBefore": 1,
+  "vpcCountAfter": 1,
+  "kubernetesRuleSetsBefore": 1,
+  "kubernetesRuleSetsAfter": 1,
+  "baselineRulesPreserved": true,
+  "addedRuleSets": []
+}

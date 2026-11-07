@@ -1,0 +1,104 @@
+{
+  "body": {
+    "bottom": 800,
+    "height": 710,
+    "left": 161,
+    "right": 1119,
+    "top": 90,
+    "width": 958,
+    "x": 161,
+    "y": 90
+  },
+  "bodyClientHeight": 710,
+  "bodyClientWidth": 948,
+  "bodyScrollHeight": 1299,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 948,
+  "colors": [
+    {
+      "background": "rgb(255, 241, 240)",
+      "color": "rgb(112, 27, 27)",
+      "text": "Failed to implement destination network services: Destination network services c"
+    },
+    {
+      "background": "rgb(255, 248, 230)",
+      "color": "rgb(92, 59, 0)",
+      "text": "서버에 남은 이전 작업을 재개합니다. 목적 오퍼링과 물리망은 이전 실패의 값으로 고정되며 새 대상을 선택할 수 없습니다."
+    },
+    {
+      "background": "rgb(242, 244, 247)",
+      "color": "rgb(123, 132, 145)",
+      "text": "이전 작업 재개"
+    }
+  ],
+  "content": {
+    "bottom": 866,
+    "height": 832,
+    "left": 160,
+    "right": 1120,
+    "top": 34,
+    "width": 960,
+    "x": 160,
+    "y": 34
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1280,
+    "top": 0,
+    "width": 1280,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": {
+    "bottom": 865,
+    "height": 65,
+    "left": 161,
+    "right": 1119,
+    "top": 800,
+    "width": 958,
+    "x": 161,
+    "y": 800
+  },
+  "header": {
+    "bottom": 90,
+    "height": 55,
+    "left": 161,
+    "right": 1119,
+    "top": 35,
+    "width": 958,
+    "x": 161,
+    "y": 35
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 749,
+    "left": 256,
+    "right": 1270,
+    "top": 151,
+    "width": 1014,
+    "x": 256,
+    "y": 151
+  },
+  "primaryButton": {
+    "bottom": 849,
+    "height": 32,
+    "left": 974.046875,
+    "right": 1091,
+    "top": 817,
+    "width": 116.953125,
+    "x": 974.046875,
+    "y": 817
+  },
+  "width": 1280,
+  "image_sha256": "ee7428a5f3b43575efa7f328a58c0fbab429aa91000585186d477c439faf4dfc"
+}

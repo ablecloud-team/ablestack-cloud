@@ -1,0 +1,104 @@
+{
+  "body": {
+    "bottom": 766,
+    "height": 698,
+    "left": 13,
+    "right": 377,
+    "top": 68,
+    "width": 364,
+    "x": 13,
+    "y": 68
+  },
+  "bodyClientHeight": 698,
+  "bodyClientWidth": 354,
+  "bodyScrollHeight": 2642,
+  "bodyScrollTop": 1384,
+  "bodyScrollWidth": 354,
+  "colors": [
+    {
+      "background": "rgb(234, 244, 255)",
+      "color": "rgb(11, 59, 102)",
+      "text": "다음에서 복제: qa-gn1566-32-seed모든 값이 원본 오퍼링에서 미리 채워졌습니다. 새 오퍼링을 사용자 지정하려면 원하는 필드를 수정하"
+    },
+    {
+      "background": "rgb(255, 248, 230)",
+      "color": "rgb(92, 59, 0)",
+      "text": "IPv6 support in ABLESTACK - Isolated networks and VPC tiers을 제공하는 IPv6 지원 네트워크/V"
+    },
+    {
+      "background": "rgb(9, 105, 218)",
+      "color": "rgb(255, 255, 255)",
+      "text": "확인"
+    }
+  ],
+  "content": {
+    "bottom": 832,
+    "height": 820,
+    "left": 12,
+    "right": 378,
+    "top": 12,
+    "width": 366,
+    "x": 12,
+    "y": 12
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 844,
+    "height": 844,
+    "left": 0,
+    "right": 390,
+    "top": 0,
+    "width": 390,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 380,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "INPUT"
+  },
+  "footer": {
+    "bottom": 831,
+    "height": 65,
+    "left": 13,
+    "right": 377,
+    "top": 766,
+    "width": 364,
+    "x": 13,
+    "y": 766
+  },
+  "header": {
+    "bottom": 68,
+    "height": 55,
+    "left": 13,
+    "right": 377,
+    "top": 13,
+    "width": 364,
+    "x": 13,
+    "y": 13
+  },
+  "height": 844,
+  "main": {
+    "bottom": 844,
+    "height": 643,
+    "left": 0,
+    "right": 380,
+    "top": 201,
+    "width": 380,
+    "x": 0,
+    "y": 201
+  },
+  "primaryButton": {
+    "bottom": 815,
+    "height": 32,
+    "left": 303.234375,
+    "right": 361,
+    "top": 783,
+    "width": 57.765625,
+    "x": 303.234375,
+    "y": 783
+  },
+  "width": 390,
+  "image_sha256": "894b9da47a6a5de2c7c9c9dc45a62a8e021fe4aacfa60a1ff9cbe72732faf6ef"
+}

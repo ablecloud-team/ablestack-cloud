@@ -1,0 +1,40 @@
+{
+  "31": [
+    {
+      "case": "tier-acl-swap-default-deny",
+      "command": "replaceNetworkACLList",
+      "params": {
+        "networkid": "4a5ac294-90e7-418c-9755-b17f4a9b78f3",
+        "aclid": "00000000-0000-0000-0000-000000000001"
+      },
+      "accepted": false,
+      "expected": true,
+      "pass_": false,
+      "errorCode": 431,
+      "errorText": "Unable to execute API command replacenetworkacllist due to invalid value. Invalid parameter aclid value=00000000-0000-0000-0000-000000000001 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.",
+      "classification": "HARNESS_INPUT_ERROR",
+      "reason": "잘못 준비한 ACL UUID/API 이름. 실제 UUID와 listApis의 updateNetworkACLItem으로 재실행해 통과함."
+    },
+    {
+      "case": "acl-rule-update",
+      "command": "updateNetworkACL",
+      "params": {
+        "id": "dbf28635-27be-4455-beea-c5542759de48",
+        "protocol": "tcp",
+        "startport": 2222,
+        "endport": 2222,
+        "cidrlist": "192.0.2.156/32",
+        "action": "Allow",
+        "number": 10
+      },
+      "accepted": false,
+      "expected": true,
+      "pass_": false,
+      "errorCode": 432,
+      "errorText": "Unknown API command: updateNetworkACL",
+      "classification": "HARNESS_INPUT_ERROR",
+      "reason": "잘못 준비한 ACL UUID/API 이름. 실제 UUID와 listApis의 updateNetworkACLItem으로 재실행해 통과함."
+    }
+  ],
+  "32": []
+}

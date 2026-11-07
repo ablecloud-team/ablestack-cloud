@@ -1,0 +1,12 @@
+{
+  "WEB-INF": true,
+  "http": 200,
+  "jarSha256": "488e7dbd7c89081108db157ce1fbc656646cd9e26671a9624498707cdd2283a4",
+  "indexSha256": "6858db7755568a151ffbcda6ff92c24e8160d384d6e0f9276b94ffdab9af6c56",
+  "bundleMarkers": {
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true,
+    "pollFailures": true
+  }
+}

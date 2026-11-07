@@ -1,0 +1,2044 @@
+{
+  "createNetworkOffering": {
+    "count": 1,
+    "api": [
+      {
+        "name": "createNetworkOffering",
+        "description": "Creates a network offering.",
+        "since": "3.0.0",
+        "isasync": false,
+        "related": "listNetworkOfferings",
+        "params": [
+          {
+            "name": "nsxsupportsinternallb",
+            "description": "True if network offering for NSX network offering supports Internal Load balancer service.",
+            "type": "boolean",
+            "length": 255,
+            "required": false,
+            "since": "4.20.0"
+          },
+          {
+            "name": "networkmode",
+            "description": "Indicates the mode with which the network will operate. Valid option: NATTED or ROUTED",
+            "type": "string",
+            "length": 255,
+            "required": false,
+            "since": "4.20.0"
+          },
+          {
+            "name": "servicecapabilitylist",
+            "description": "Desired service capabilities as part of network offering",
+            "type": "map",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "internetprotocol",
+            "description": "The internet protocol of network offering. Options are IPv4 and dualstack. Default is IPv4. dualstack will create a network offering that supports both IPv4 and IPv6",
+            "type": "string",
+            "length": 255,
+            "required": false,
+            "since": "4.17.0"
+          },
+          {
+            "name": "domainid",
+            "description": "The ID of the containing domain(s), null for public offerings",
+            "type": "list",
+            "length": 255,
+            "required": false,
+            "related": "createDomain,listDomains,listDomains"
+          },
+          {
+            "name": "keepaliveenabled",
+            "description": "If true keepalive will be turned on in the loadbalancer. At the time of writing this has only an effect on haproxy; the mode http and httpclose options are unset in the haproxy conf file.",
+            "type": "boolean",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "zoneid",
+            "description": "The ID of the containing zone(s), null for public offerings",
+            "type": "list",
+            "length": 255,
+            "required": false,
+            "since": "4.13",
+            "related": "listZones"
+          },
+          {
+            "name": "specifyipranges",
+            "description": "True if network offering supports specifying ip ranges; defaulted to false if not specified",
+            "type": "boolean",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "nsxsupportlb",
+            "description": "True if network offering for NSX network offering supports Load balancer service.",
+            "type": "boolean",
+            "length": 255,
+            "required": false,
+            "since": "4.20.0"
+          },
+          {
+            "name": "name",
+            "description": "The name of the network offering",
+            "type": "string",
+            "length": 255,
+            "required": true
+          },
+          {
+            "name": "specifyvlan",
+            "description": "True if network offering supports VLANs",
+            "type": "boolean",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "details",
+            "description": "Network offering details in key/value pairs. Supported keys are internallbprovider/publiclbprovider with service provider as a value, and promiscuousmode/macaddresschanges/forgedtransmits with true/false as value to accept/reject the security settings if available for a nic/portgroup",
+            "type": "map",
+            "length": 255,
+            "required": false,
+            "since": "4.2.0"
+          },
+          {
+            "name": "provider",
+            "description": "Name of the provider providing the service",
+            "type": "string",
+            "length": 255,
+            "required": false,
+            "since": "4.21.0"
+          },
+          {
+            "name": "serviceproviderlist",
+            "description": "Provider to service mapping. If not specified, the provider for the service will be mapped to the default provider on the physical network",
+            "type": "map",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "tags",
+            "description": "The tags for the network offering.",
+            "type": "string",
+            "length": 4096,
+            "required": false
+          },
+          {
+            "name": "maxconnections",
+            "description": "Maximum number of concurrent connections supported by the Network offering",
+            "type": "integer",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "routingmode",
+            "description": "the routing mode for the network offering. Supported types are: Static or Dynamic.",
+            "type": "string",
+            "length": 255,
+            "required": false,
+            "since": "4.20.0"
+          },
+          {
+            "name": "fornsx",
+            "description": "true if network offering is meant to be used for NSX, false otherwise.",
+            "type": "boolean",
+            "length": 255,
+            "required": false,
+            "since": "4.20.0"
+          },
+          {
+            "name": "traffictype",
+            "description": "The traffic type for the network offering. Supported type in current release is GUEST only",
+            "type": "string",
+            "length": 255,
+            "required": true
+          },
+          {
+            "name": "serviceofferingid",
+            "description": "The service offering ID used by virtual router provider",
+            "type": "uuid",
+            "length": 255,
+            "required": false,
+            "related": "createServiceOffering,updateServiceOffering,listServiceOfferings"
+          },
+          {
+            "name": "supportedservices",
+            "description": "Services supported by the network offering",
+            "type": "list",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "networkrate",
+            "description": "Data transfer rate in megabits per second allowed",
+            "type": "integer",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "specifyasnumber",
+            "description": "true if network offering supports choosing AS number",
+            "type": "boolean",
+            "length": 255,
+            "required": false,
+            "since": "4.20.0"
+          },
+          {
+            "name": "enable",
+            "description": "Set to true if the offering is to be enabled during creation. Default is false",
+            "type": "boolean",
+            "length": 255,
+            "required": false,
+            "since": "4.16"
+          },
+          {
+            "name": "availability",
+            "description": "The availability of network offering. The default value is Optional.  Another value is Required, which will make it as the default network offering for new networks ",
+            "type": "string",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "egressdefaultpolicy",
+            "description": "True if guest network default egress policy is allow; false if default egress policy is deny",
+            "type": "boolean",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "fortungsten",
+            "description": "True if network offering is meant to be used for Tungsten-Fabric, false otherwise.",
+            "type": "boolean",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "forvpc",
+            "description": "True if network offering is meant to be used for VPC, false otherwise.",
+            "type": "boolean",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "conservemode",
+            "description": "True if the network offering is IP conserve mode enabled",
+            "type": "boolean",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "displaytext",
+            "description": "The display text of the network offering, defaults to the value of 'name'.",
+            "type": "string",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "guestiptype",
+            "description": "Guest type of the network offering: Shared or Isolated",
+            "type": "string",
+            "length": 255,
+            "required": true
+          },
+          {
+            "name": "ispersistent",
+            "description": "True if network offering supports persistent networks; defaulted to false if not specified",
+            "type": "boolean",
+            "length": 255,
+            "required": false
+          }
+        ],
+        "response": [
+          {
+            "name": "supportsinternallb",
+            "description": "true if network offering supports public access for guest networks",
+            "type": "boolean"
+          },
+          {
+            "name": "zoneid",
+            "description": "The zone ID(s) this disk offering belongs to. Ignore this information as it is not currently applicable.",
+            "type": "string"
+          },
+          {
+            "name": "hasannotations",
+            "description": "True if the entity/resource has annotations",
+            "type": "boolean"
+          },
+          {
+            "name": "traffictype",
+            "description": "The traffic type for the Network offering, supported types are Public, Management, Control, Guest, VLAN or Storage.",
+            "type": "string"
+          },
+          {
+            "name": "guestiptype",
+            "description": "Guest type of the Network offering, can be Shared or Isolated",
+            "type": "string"
+          },
+          {
+            "name": "tags",
+            "description": "The tags for the Network offering",
+            "type": "string"
+          },
+          {
+            "name": "availability",
+            "description": "Availability of the Network offering",
+            "type": "string"
+          },
+          {
+            "name": "maxconnections",
+            "description": "Maximum number of concurrent connections to be handled by LB",
+            "type": "integer"
+          },
+          {
+            "name": "specifyvlan",
+            "description": "True if Network offering supports VLANs, false otherwise",
+            "type": "boolean"
+          },
+          {
+            "name": "service",
+            "description": "The list of supported services",
+            "type": "list",
+            "response": [
+              {
+                "name": "capability",
+                "description": "The list of capabilities",
+                "type": "list",
+                "response": [
+                  {
+                    "name": "name",
+                    "description": "The capability name",
+                    "type": "string"
+                  },
+                  {
+                    "name": "canchooseservicecapability",
+                    "description": "Can this service capability value can be choosable while creatine Network offerings",
+                    "type": "boolean"
+                  },
+                  {
+                    "name": "value",
+                    "description": "The capability value",
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "name": "name",
+                "description": "The service name",
+                "type": "string"
+              },
+              {
+                "name": "provider",
+                "description": "The service provider name",
+                "type": "list",
+                "response": [
+                  {
+                    "name": "physicalnetworkid",
+                    "description": "The physical Network this belongs to",
+                    "type": "string"
+                  },
+                  {
+                    "name": "canenableindividualservice",
+                    "description": "True if individual services can be enabled/disabled",
+                    "type": "boolean"
+                  },
+                  {
+                    "name": "servicelist",
+                    "description": "Services for this provider",
+                    "type": "list"
+                  },
+                  {
+                    "name": "name",
+                    "description": "The provider name",
+                    "type": "string"
+                  },
+                  {
+                    "name": "state",
+                    "description": "State of the Network provider",
+                    "type": "string"
+                  },
+                  {
+                    "name": "destinationphysicalnetworkid",
+                    "description": "The destination physical Network",
+                    "type": "string"
+                  },
+                  {
+                    "name": "id",
+                    "description": "UUID of the Network provider",
+                    "type": "string"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "zone",
+            "description": "The zone name(s) this disk offering belongs to. Ignore this information as it is not currently applicable.",
+            "type": "string"
+          },
+          {
+            "name": "ispersistent",
+            "description": "True if Network offering supports persistent networks, false otherwise",
+            "type": "boolean"
+          },
+          {
+            "name": "details",
+            "description": "Additional key/value details tied with network offering",
+            "type": "map"
+          },
+          {
+            "name": "domain",
+            "description": "The domain name(s) this disk offering belongs to. Ignore this information as it is not currently applicable.",
+            "type": "string"
+          },
+          {
+            "name": "internetprotocol",
+            "description": "The internet protocol of the network offering",
+            "type": "string"
+          },
+          {},
+          {
+            "name": "id",
+            "description": "The ID of the Network offering",
+            "type": "string"
+          },
+          {
+            "name": "displaytext",
+            "description": "An alternate display text of the Network offering.",
+            "type": "string"
+          },
+          {
+            "name": "specifyipranges",
+            "description": "True if Network offering supports specifying IP ranges, false otherwise",
+            "type": "boolean"
+          },
+          {
+            "name": "conservemode",
+            "description": "True if Network offering is IP conserve mode enabled",
+            "type": "boolean"
+          },
+          {
+            "name": "serviceofferingid",
+            "description": "The ID of the service offering used by virtual router provider",
+            "type": "string"
+          },
+          {
+            "name": "jobstatus",
+            "description": "The current status of the latest async job acting on this object",
+            "type": "integer"
+          },
+          {
+            "name": "egressdefaultpolicy",
+            "description": "True if guest network default egress policy is allow; false if default egress policy is deny",
+            "type": "boolean"
+          },
+          {
+            "name": "networkmode",
+            "description": "Mode in which the network will operate. The valid values are NATTED and ROUTED",
+            "type": "string"
+          },
+          {
+            "name": "state",
+            "description": "State of the Network offering. Can be Disabled/Enabled/Inactive",
+            "type": "string"
+          },
+          {
+            "name": "fortungsten",
+            "description": "True if Network offering can be used by Tungsten-Fabric Networks only",
+            "type": "boolean"
+          },
+          {
+            "name": "name",
+            "description": "The name of the Network offering",
+            "type": "string"
+          },
+          {
+            "name": "created",
+            "description": "The date this Network offering was created",
+            "type": "date"
+          },
+          {
+            "name": "jobid",
+            "description": "The UUID of the latest async job acting on this object",
+            "type": "string"
+          },
+          {
+            "name": "networkrate",
+            "description": "Data transfer rate in megabits per second allowed.",
+            "type": "integer"
+          },
+          {
+            "name": "isdefault",
+            "description": "True if Network offering is default, false otherwise",
+            "type": "boolean"
+          },
+          {
+            "name": "routingmode",
+            "description": "the routing mode for the network offering, supported types are Static or Dynamic.",
+            "type": "string"
+          },
+          {},
+          {
+            "name": "supportsstrechedl2subnet",
+            "description": "True if network offering supports network that span multiple zones",
+            "type": "boolean"
+          },
+          {
+            "name": "domainid",
+            "description": "The domain ID(s) this disk offering belongs to. Ignore this information as it is not currently applicable.",
+            "type": "string"
+          },
+          {
+            "name": "fornsx",
+            "description": "true if network offering can be used by NSX networks only",
+            "type": "boolean"
+          },
+          {
+            "name": "specifyasnumber",
+            "description": "true if network offering supports choosing AS numbers",
+            "type": "boolean"
+          },
+          {
+            "name": "supportspublicaccess",
+            "description": "True if network offering supports public access for guest networks",
+            "type": "boolean"
+          },
+          {
+            "name": "forvpc",
+            "description": "True if Network offering can be used by VPC Networks only",
+            "type": "boolean"
+          }
+        ],
+        "httprequesttype": "POST"
+      }
+    ]
+  },
+  "cloneNetworkOffering": {
+    "count": 1,
+    "api": [
+      {
+        "name": "cloneNetworkOffering",
+        "description": "Clones a network offering. All parameters are copied from the source offering unless explicitly overridden. Use 'addServices' and 'dropServices' to modify the service list without respecifying everything.",
+        "since": "4.23.0",
+        "isasync": false,
+        "related": "createNetworkOffering,updateNetworkOffering,listNetworkOfferings",
+        "params": [
+          {
+            "name": "supportedservices",
+            "description": "Services supported by the network offering",
+            "type": "list",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "displaytext",
+            "description": "The display text of the network offering, defaults to the value of 'name'.",
+            "type": "string",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "fornsx",
+            "description": "true if network offering is meant to be used for NSX, false otherwise.",
+            "type": "boolean",
+            "length": 255,
+            "required": false,
+            "since": "4.20.0"
+          },
+          {
+            "name": "fortungsten",
+            "description": "True if network offering is meant to be used for Tungsten-Fabric, false otherwise.",
+            "type": "boolean",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "nsxsupportlb",
+            "description": "True if network offering for NSX network offering supports Load balancer service.",
+            "type": "boolean",
+            "length": 255,
+            "required": false,
+            "since": "4.20.0"
+          },
+          {
+            "name": "internetprotocol",
+            "description": "The internet protocol of network offering. Options are IPv4 and dualstack. Default is IPv4. dualstack will create a network offering that supports both IPv4 and IPv6",
+            "type": "string",
+            "length": 255,
+            "required": false,
+            "since": "4.17.0"
+          },
+          {
+            "name": "nsxsupportsinternallb",
+            "description": "True if network offering for NSX network offering supports Internal Load balancer service.",
+            "type": "boolean",
+            "length": 255,
+            "required": false,
+            "since": "4.20.0"
+          },
+          {
+            "name": "ispersistent",
+            "description": "True if network offering supports persistent networks; defaulted to false if not specified",
+            "type": "boolean",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "networkrate",
+            "description": "Data transfer rate in megabits per second allowed",
+            "type": "integer",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "domainid",
+            "description": "The ID of the containing domain(s), null for public offerings",
+            "type": "list",
+            "length": 255,
+            "required": false,
+            "related": "createDomain,listDomainChildren,listDomains,listDomains,updateDomain,moveDomain"
+          },
+          {
+            "name": "forvpc",
+            "description": "True if network offering is meant to be used for VPC, false otherwise.",
+            "type": "boolean",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "dropservices",
+            "description": "Services to remove from the cloned offering (that exist in source offering). If specified along with 'supportedservices', this parameter is ignored.",
+            "type": "list",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "routingmode",
+            "description": "the routing mode for the network offering. Supported types are: Static or Dynamic.",
+            "type": "string",
+            "length": 255,
+            "required": false,
+            "since": "4.20.0"
+          },
+          {
+            "name": "tags",
+            "description": "The tags for the network offering.",
+            "type": "string",
+            "length": 4096,
+            "required": false
+          },
+          {
+            "name": "name",
+            "description": "The name of the network offering",
+            "type": "string",
+            "length": 255,
+            "required": true
+          },
+          {
+            "name": "specifyipranges",
+            "description": "True if network offering supports specifying ip ranges; defaulted to false if not specified",
+            "type": "boolean",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "zoneid",
+            "description": "The ID of the containing zone(s), null for public offerings",
+            "type": "list",
+            "length": 255,
+            "required": false,
+            "since": "4.13",
+            "related": "createZone,updateZone,listZones,listZones"
+          },
+          {
+            "name": "addservices",
+            "description": "Services to add to the cloned offering (in addition to source offering services). If specified along with 'supportedservices', this parameter is ignored.",
+            "type": "list",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "enable",
+            "description": "Set to true if the offering is to be enabled during creation. Default is false",
+            "type": "boolean",
+            "length": 255,
+            "required": false,
+            "since": "4.16"
+          },
+          {
+            "name": "maxconnections",
+            "description": "Maximum number of concurrent connections supported by the Network offering",
+            "type": "integer",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "traffictype",
+            "description": "The traffic type for the network offering. Supported type in current release is GUEST only",
+            "type": "string",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "availability",
+            "description": "The availability of network offering. The default value is Optional.  Another value is Required, which will make it as the default network offering for new networks ",
+            "type": "string",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "conservemode",
+            "description": "True if the network offering is IP conserve mode enabled",
+            "type": "boolean",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "serviceofferingid",
+            "description": "The service offering ID used by virtual router provider",
+            "type": "uuid",
+            "length": 255,
+            "required": false,
+            "related": "createServiceOffering,cloneServiceOffering,updateServiceOffering,listServiceOfferings"
+          },
+          {
+            "name": "egressdefaultpolicy",
+            "description": "True if guest network default egress policy is allow; false if default egress policy is deny",
+            "type": "boolean",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "details",
+            "description": "Network offering details in key/value pairs. Supported keys are internallbprovider/publiclbprovider with service provider as a value, and promiscuousmode/macaddresschanges/forgedtransmits with true/false as value to accept/reject the security settings if available for a nic/portgroup",
+            "type": "map",
+            "length": 255,
+            "required": false,
+            "since": "4.2.0"
+          },
+          {
+            "name": "sourceofferingid",
+            "description": "The ID of the source network offering to clone from",
+            "type": "uuid",
+            "length": 255,
+            "required": true,
+            "related": "createNetworkOffering,cloneNetworkOffering,updateNetworkOffering,listNetworkOfferings"
+          },
+          {
+            "name": "keepaliveenabled",
+            "description": "If true keepalive will be turned on in the loadbalancer. At the time of writing this has only an effect on haproxy; the mode http and httpclose options are unset in the haproxy conf file.",
+            "type": "boolean",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "specifyasnumber",
+            "description": "true if network offering supports choosing AS number",
+            "type": "boolean",
+            "length": 255,
+            "required": false,
+            "since": "4.20.0"
+          },
+          {
+            "name": "specifyvlan",
+            "description": "True if network offering supports VLANs",
+            "type": "boolean",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "networkmode",
+            "description": "Indicates the mode with which the network will operate. Valid option: NATTED or ROUTED",
+            "type": "string",
+            "length": 255,
+            "required": false,
+            "since": "4.20.0"
+          },
+          {
+            "name": "servicecapabilitylist",
+            "description": "Desired service capabilities as part of network offering",
+            "type": "map",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "guestiptype",
+            "description": "Guest type of the network offering: Shared or Isolated",
+            "type": "string",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "provider",
+            "description": "Name of the provider providing the service",
+            "type": "string",
+            "length": 255,
+            "required": false,
+            "since": "4.21.0"
+          },
+          {
+            "name": "serviceproviderlist",
+            "description": "Provider to service mapping. If not specified, the provider for the service will be mapped to the default provider on the physical network",
+            "type": "map",
+            "length": 255,
+            "required": false
+          }
+        ],
+        "response": [
+          {
+            "name": "supportsstrechedl2subnet",
+            "description": "True if network offering supports network that span multiple zones",
+            "type": "boolean"
+          },
+          {
+            "name": "domainid",
+            "description": "The domain ID(s) this disk offering belongs to. Ignore this information as it is not currently applicable.",
+            "type": "string"
+          },
+          {
+            "name": "serviceofferingid",
+            "description": "The ID of the service offering used by virtual router provider",
+            "type": "string"
+          },
+          {
+            "name": "networkrate",
+            "description": "Data transfer rate in megabits per second allowed.",
+            "type": "integer"
+          },
+          {
+            "name": "specifyvlan",
+            "description": "True if Network offering supports VLANs, false otherwise",
+            "type": "boolean"
+          },
+          {
+            "name": "tags",
+            "description": "The tags for the Network offering",
+            "type": "string"
+          },
+          {
+            "name": "zoneid",
+            "description": "The zone ID(s) this disk offering belongs to. Ignore this information as it is not currently applicable.",
+            "type": "string"
+          },
+          {
+            "name": "networkmode",
+            "description": "Mode in which the network will operate. The valid values are NATTED and ROUTED",
+            "type": "string"
+          },
+          {
+            "name": "conservemode",
+            "description": "True if Network offering is IP conserve mode enabled",
+            "type": "boolean"
+          },
+          {
+            "name": "isdefault",
+            "description": "True if Network offering is default, false otherwise",
+            "type": "boolean"
+          },
+          {
+            "name": "zone",
+            "description": "The zone name(s) this disk offering belongs to. Ignore this information as it is not currently applicable.",
+            "type": "string"
+          },
+          {
+            "name": "created",
+            "description": "The date this Network offering was created",
+            "type": "date"
+          },
+          {},
+          {
+            "name": "supportsinternallb",
+            "description": "true if network offering supports public access for guest networks",
+            "type": "boolean"
+          },
+          {
+            "name": "displaytext",
+            "description": "An alternate display text of the Network offering.",
+            "type": "string"
+          },
+          {
+            "name": "routingmode",
+            "description": "the routing mode for the network offering, supported types are Static or Dynamic.",
+            "type": "string"
+          },
+          {
+            "name": "specifyasnumber",
+            "description": "true if network offering supports choosing AS numbers",
+            "type": "boolean"
+          },
+          {
+            "name": "jobstatus",
+            "description": "The current status of the latest async job acting on this object",
+            "type": "integer"
+          },
+          {
+            "name": "traffictype",
+            "description": "The traffic type for the Network offering, supported types are Public, Management, Control, Guest, VLAN or Storage.",
+            "type": "string"
+          },
+          {
+            "name": "fornsx",
+            "description": "true if network offering can be used by NSX networks only",
+            "type": "boolean"
+          },
+          {
+            "name": "id",
+            "description": "The ID of the Network offering",
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "description": "The name of the Network offering",
+            "type": "string"
+          },
+          {
+            "name": "state",
+            "description": "State of the Network offering. Can be Disabled/Enabled/Inactive",
+            "type": "string"
+          },
+          {
+            "name": "details",
+            "description": "Additional key/value details tied with network offering",
+            "type": "map"
+          },
+          {
+            "name": "egressdefaultpolicy",
+            "description": "True if guest network default egress policy is allow; false if default egress policy is deny",
+            "type": "boolean"
+          },
+          {
+            "name": "internetprotocol",
+            "description": "The internet protocol of the network offering",
+            "type": "string"
+          },
+          {
+            "name": "maxconnections",
+            "description": "Maximum number of concurrent connections to be handled by LB",
+            "type": "integer"
+          },
+          {
+            "name": "availability",
+            "description": "Availability of the Network offering",
+            "type": "string"
+          },
+          {},
+          {
+            "name": "guestiptype",
+            "description": "Guest type of the Network offering, can be Shared or Isolated",
+            "type": "string"
+          },
+          {
+            "name": "service",
+            "description": "The list of supported services",
+            "type": "list",
+            "response": [
+              {
+                "name": "name",
+                "description": "The service name",
+                "type": "string"
+              },
+              {
+                "name": "provider",
+                "description": "The service provider name",
+                "type": "list",
+                "response": [
+                  {
+                    "name": "id",
+                    "description": "UUID of the Network provider",
+                    "type": "string"
+                  },
+                  {
+                    "name": "servicelist",
+                    "description": "Services for this provider",
+                    "type": "list"
+                  },
+                  {
+                    "name": "canenableindividualservice",
+                    "description": "True if individual services can be enabled/disabled",
+                    "type": "boolean"
+                  },
+                  {
+                    "name": "destinationphysicalnetworkid",
+                    "description": "The destination physical Network",
+                    "type": "string"
+                  },
+                  {
+                    "name": "state",
+                    "description": "State of the Network provider",
+                    "type": "string"
+                  },
+                  {
+                    "name": "name",
+                    "description": "The provider name",
+                    "type": "string"
+                  },
+                  {
+                    "name": "physicalnetworkid",
+                    "description": "The physical Network this belongs to",
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "name": "capability",
+                "description": "The list of capabilities",
+                "type": "list",
+                "response": [
+                  {
+                    "name": "name",
+                    "description": "The capability name",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "description": "The capability value",
+                    "type": "string"
+                  },
+                  {
+                    "name": "canchooseservicecapability",
+                    "description": "Can this service capability value can be choosable while creatine Network offerings",
+                    "type": "boolean"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "fortungsten",
+            "description": "True if Network offering can be used by Tungsten-Fabric Networks only",
+            "type": "boolean"
+          },
+          {
+            "name": "ispersistent",
+            "description": "True if Network offering supports persistent networks, false otherwise",
+            "type": "boolean"
+          },
+          {
+            "name": "hasannotations",
+            "description": "True if the entity/resource has annotations",
+            "type": "boolean"
+          },
+          {
+            "name": "forvpc",
+            "description": "True if Network offering can be used by VPC Networks only",
+            "type": "boolean"
+          },
+          {
+            "name": "jobid",
+            "description": "The UUID of the latest async job acting on this object",
+            "type": "string"
+          },
+          {
+            "name": "specifyipranges",
+            "description": "True if Network offering supports specifying IP ranges, false otherwise",
+            "type": "boolean"
+          },
+          {
+            "name": "supportspublicaccess",
+            "description": "True if network offering supports public access for guest networks",
+            "type": "boolean"
+          },
+          {
+            "name": "domain",
+            "description": "The domain name(s) this disk offering belongs to. Ignore this information as it is not currently applicable.",
+            "type": "string"
+          }
+        ],
+        "httprequesttype": "POST"
+      }
+    ]
+  },
+  "updateNetworkOffering": {
+    "count": 1,
+    "api": [
+      {
+        "name": "updateNetworkOffering",
+        "description": "Updates a network offering.",
+        "isasync": false,
+        "related": "createNetworkOffering,listNetworkOfferings",
+        "params": [
+          {
+            "name": "state",
+            "description": "Update state for the network offering",
+            "type": "string",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "sortkey",
+            "description": "Sort key of the network offering, integer",
+            "type": "integer",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "displaytext",
+            "description": "The display text of the network offering",
+            "type": "string",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "maxconnections",
+            "description": "Maximum number of concurrent connections supported by the network offering",
+            "type": "integer",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "domainid",
+            "description": "The ID of the containing domain(s) as comma separated string, public for public offerings",
+            "type": "string",
+            "length": 4096,
+            "required": false
+          },
+          {
+            "name": "id",
+            "description": "The ID of the network offering",
+            "type": "uuid",
+            "length": 255,
+            "required": false,
+            "related": "createNetworkOffering,updateNetworkOffering,listNetworkOfferings"
+          },
+          {
+            "name": "name",
+            "description": "The name of the network offering",
+            "type": "string",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "zoneid",
+            "description": "The ID of the containing zone(s) as comma separated string, all for all zones offerings",
+            "type": "string",
+            "length": 4096,
+            "required": false,
+            "since": "4.13"
+          },
+          {
+            "name": "keepaliveenabled",
+            "description": "If true keepalive will be turned on in the loadbalancer. At the time of writing this has only an effect on haproxy; the mode http and httpclose options are unset in the haproxy conf file.",
+            "type": "boolean",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "availability",
+            "description": "The availability of network offering. The value is Required makes this network offering default for Guest Virtual Networks. Only one network offering can have the value Required ",
+            "type": "string",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "tags",
+            "description": "The tags for the network offering.",
+            "type": "string",
+            "length": 4096,
+            "required": false
+          }
+        ],
+        "response": [
+          {
+            "name": "zone",
+            "description": "The zone name(s) this disk offering belongs to. Ignore this information as it is not currently applicable.",
+            "type": "string"
+          },
+          {
+            "name": "specifyasnumber",
+            "description": "true if network offering supports choosing AS numbers",
+            "type": "boolean"
+          },
+          {},
+          {
+            "name": "fornsx",
+            "description": "true if network offering can be used by NSX networks only",
+            "type": "boolean"
+          },
+          {
+            "name": "service",
+            "description": "The list of supported services",
+            "type": "list",
+            "response": [
+              {
+                "name": "provider",
+                "description": "The service provider name",
+                "type": "list",
+                "response": [
+                  {
+                    "name": "name",
+                    "description": "The provider name",
+                    "type": "string"
+                  },
+                  {
+                    "name": "state",
+                    "description": "State of the Network provider",
+                    "type": "string"
+                  },
+                  {
+                    "name": "servicelist",
+                    "description": "Services for this provider",
+                    "type": "list"
+                  },
+                  {
+                    "name": "physicalnetworkid",
+                    "description": "The physical Network this belongs to",
+                    "type": "string"
+                  },
+                  {
+                    "name": "canenableindividualservice",
+                    "description": "True if individual services can be enabled/disabled",
+                    "type": "boolean"
+                  },
+                  {
+                    "name": "id",
+                    "description": "UUID of the Network provider",
+                    "type": "string"
+                  },
+                  {
+                    "name": "destinationphysicalnetworkid",
+                    "description": "The destination physical Network",
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "name": "capability",
+                "description": "The list of capabilities",
+                "type": "list",
+                "response": [
+                  {
+                    "name": "value",
+                    "description": "The capability value",
+                    "type": "string"
+                  },
+                  {
+                    "name": "name",
+                    "description": "The capability name",
+                    "type": "string"
+                  },
+                  {
+                    "name": "canchooseservicecapability",
+                    "description": "Can this service capability value can be choosable while creatine Network offerings",
+                    "type": "boolean"
+                  }
+                ]
+              },
+              {
+                "name": "name",
+                "description": "The service name",
+                "type": "string"
+              }
+            ]
+          },
+          {
+            "name": "specifyipranges",
+            "description": "True if Network offering supports specifying IP ranges, false otherwise",
+            "type": "boolean"
+          },
+          {
+            "name": "supportsinternallb",
+            "description": "true if network offering supports public access for guest networks",
+            "type": "boolean"
+          },
+          {
+            "name": "supportsstrechedl2subnet",
+            "description": "True if network offering supports network that span multiple zones",
+            "type": "boolean"
+          },
+          {
+            "name": "routingmode",
+            "description": "the routing mode for the network offering, supported types are Static or Dynamic.",
+            "type": "string"
+          },
+          {
+            "name": "internetprotocol",
+            "description": "The internet protocol of the network offering",
+            "type": "string"
+          },
+          {
+            "name": "supportspublicaccess",
+            "description": "True if network offering supports public access for guest networks",
+            "type": "boolean"
+          },
+          {
+            "name": "jobstatus",
+            "description": "The current status of the latest async job acting on this object",
+            "type": "integer"
+          },
+          {
+            "name": "id",
+            "description": "The ID of the Network offering",
+            "type": "string"
+          },
+          {
+            "name": "networkmode",
+            "description": "Mode in which the network will operate. The valid values are NATTED and ROUTED",
+            "type": "string"
+          },
+          {
+            "name": "hasannotations",
+            "description": "True if the entity/resource has annotations",
+            "type": "boolean"
+          },
+          {
+            "name": "forvpc",
+            "description": "True if Network offering can be used by VPC Networks only",
+            "type": "boolean"
+          },
+          {
+            "name": "displaytext",
+            "description": "An alternate display text of the Network offering.",
+            "type": "string"
+          },
+          {
+            "name": "details",
+            "description": "Additional key/value details tied with network offering",
+            "type": "map"
+          },
+          {
+            "name": "jobid",
+            "description": "The UUID of the latest async job acting on this object",
+            "type": "string"
+          },
+          {
+            "name": "state",
+            "description": "State of the Network offering. Can be Disabled/Enabled/Inactive",
+            "type": "string"
+          },
+          {
+            "name": "domainid",
+            "description": "The domain ID(s) this disk offering belongs to. Ignore this information as it is not currently applicable.",
+            "type": "string"
+          },
+          {
+            "name": "ispersistent",
+            "description": "True if Network offering supports persistent networks, false otherwise",
+            "type": "boolean"
+          },
+          {
+            "name": "zoneid",
+            "description": "The zone ID(s) this disk offering belongs to. Ignore this information as it is not currently applicable.",
+            "type": "string"
+          },
+          {
+            "name": "specifyvlan",
+            "description": "True if Network offering supports VLANs, false otherwise",
+            "type": "boolean"
+          },
+          {
+            "name": "tags",
+            "description": "The tags for the Network offering",
+            "type": "string"
+          },
+          {
+            "name": "traffictype",
+            "description": "The traffic type for the Network offering, supported types are Public, Management, Control, Guest, VLAN or Storage.",
+            "type": "string"
+          },
+          {
+            "name": "networkrate",
+            "description": "Data transfer rate in megabits per second allowed.",
+            "type": "integer"
+          },
+          {},
+          {
+            "name": "serviceofferingid",
+            "description": "The ID of the service offering used by virtual router provider",
+            "type": "string"
+          },
+          {
+            "name": "created",
+            "description": "The date this Network offering was created",
+            "type": "date"
+          },
+          {
+            "name": "conservemode",
+            "description": "True if Network offering is IP conserve mode enabled",
+            "type": "boolean"
+          },
+          {
+            "name": "guestiptype",
+            "description": "Guest type of the Network offering, can be Shared or Isolated",
+            "type": "string"
+          },
+          {
+            "name": "domain",
+            "description": "The domain name(s) this disk offering belongs to. Ignore this information as it is not currently applicable.",
+            "type": "string"
+          },
+          {
+            "name": "availability",
+            "description": "Availability of the Network offering",
+            "type": "string"
+          },
+          {
+            "name": "isdefault",
+            "description": "True if Network offering is default, false otherwise",
+            "type": "boolean"
+          },
+          {
+            "name": "maxconnections",
+            "description": "Maximum number of concurrent connections to be handled by LB",
+            "type": "integer"
+          },
+          {
+            "name": "egressdefaultpolicy",
+            "description": "True if guest network default egress policy is allow; false if default egress policy is deny",
+            "type": "boolean"
+          },
+          {
+            "name": "name",
+            "description": "The name of the Network offering",
+            "type": "string"
+          },
+          {
+            "name": "fortungsten",
+            "description": "True if Network offering can be used by Tungsten-Fabric Networks only",
+            "type": "boolean"
+          }
+        ],
+        "httprequesttype": "POST"
+      }
+    ]
+  },
+  "createLoadBalancerRule": {
+    "count": 1,
+    "api": [
+      {
+        "name": "createLoadBalancerRule",
+        "description": "Creates a load balancer rule",
+        "isasync": true,
+        "related": "listLoadBalancerRules,updateLoadBalancerRule",
+        "params": [
+          {
+            "name": "backendssl",
+            "description": "use SSL when connecting from the load balancer to backend instances; valid only when protocol is ssl",
+            "type": "boolean",
+            "length": 255,
+            "required": false,
+            "since": "4.21.0.0"
+          },
+          {
+            "name": "fordisplay",
+            "description": "An optional field, whether to the display the rule to the end user or not",
+            "type": "boolean",
+            "length": 255,
+            "required": false,
+            "since": "4.4"
+          },
+          {
+            "name": "account",
+            "description": "The Account associated with the load balancer. Must be used with the domainId parameter.",
+            "type": "string",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "zoneid",
+            "description": "Zone where the load balancer is going to be created. This parameter is required when LB service provider is ElasticLoadBalancerVm",
+            "type": "uuid",
+            "length": 255,
+            "required": false,
+            "related": "createZone,updateZone,listZones,listZones"
+          },
+          {
+            "name": "cidrlist",
+            "description": "The source CIDR list to allow traffic from; all other CIDRs will be blocked. Multiple entries must be separated by a single comma character (,). By default, all CIDRs are allowed.",
+            "type": "list",
+            "length": 255,
+            "required": false,
+            "since": "4.18.0.0"
+          },
+          {
+            "name": "publicipid",
+            "description": "Public IP address ID from where the network traffic will be load balanced from",
+            "type": "uuid",
+            "length": 255,
+            "required": false,
+            "related": "associateIpAddress,reserveIpAddress,listPublicIpAddresses,updateIpAddress,associateIpAddress,listPublicIpAddresses"
+          },
+          {
+            "name": "domainid",
+            "description": "The domain ID associated with the load balancer",
+            "type": "uuid",
+            "length": 255,
+            "required": false,
+            "related": "createDomain,listDomainChildren,listDomains,listDomains,updateDomain,moveDomain"
+          },
+          {
+            "name": "privateport",
+            "description": "The private port of the private IP address/Instance where the network traffic will be load balanced to",
+            "type": "integer",
+            "length": 255,
+            "required": true
+          },
+          {
+            "name": "networkid",
+            "description": "The guest Network this rule will be created for. Required when public IP address is not associated with any Guest Network yet (VPC case)",
+            "type": "uuid",
+            "length": 255,
+            "required": false,
+            "related": "createNetwork,listNetworks,updateNetwork,createNetwork,updateNetwork,listNetworks,migrateNetwork,listNetscalerLoadBalancerNetworks,listNiciraNvpDeviceNetworks,listPaloAltoFirewallNetworks,listBrocadeVcsDeviceNetworks"
+          },
+          {
+            "name": "protocol",
+            "description": "The protocol for the LB such as tcp, udp, tcp-proxy, ssl or http.",
+            "type": "string",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "algorithm",
+            "description": "Load balancer algorithm (source, roundrobin, leastconn)",
+            "type": "string",
+            "length": 255,
+            "required": true
+          },
+          {
+            "name": "name",
+            "description": "Name of the load balancer rule",
+            "type": "string",
+            "length": 255,
+            "required": true
+          },
+          {
+            "name": "publicport",
+            "description": "The public port from where the network traffic will be load balanced from",
+            "type": "integer",
+            "length": 255,
+            "required": true
+          },
+          {
+            "name": "description",
+            "description": "The description of the load balancer rule",
+            "type": "string",
+            "length": 4096,
+            "required": false
+          },
+          {
+            "name": "openfirewall",
+            "description": "If true, firewall rule for source/end public port is automatically created; if false - firewall rule has to be created explicitly. If not specified 1) defaulted to false when LB rule is being created for VPC guest network 2) in all other cases defaulted to true",
+            "type": "boolean",
+            "length": 255,
+            "required": false
+          }
+        ],
+        "response": [
+          {
+            "name": "domain",
+            "description": "The domain of the Load balancer rule",
+            "type": "string"
+          },
+          {
+            "name": "cidrlist",
+            "description": "The CIDR list to allow traffic, all other CIDRs will be blocked. Multiple entries must be separated by a single comma character (,).",
+            "type": "string"
+          },
+          {
+            "name": "backendssl",
+            "description": "whether the load balancer uses SSL when connecting to backend instances",
+            "type": "boolean"
+          },
+          {
+            "name": "tags",
+            "description": "The list of resource tags associated with Load balancer",
+            "type": "list",
+            "response": [
+              {
+                "name": "value",
+                "description": "Tag value",
+                "type": "string"
+              },
+              {
+                "name": "customer",
+                "description": "Customer associated with the tag",
+                "type": "string"
+              },
+              {
+                "name": "project",
+                "description": "The project name where tag belongs to",
+                "type": "string"
+              },
+              {
+                "name": "domainpath",
+                "description": "Path of the Domain associated with the tag",
+                "type": "string"
+              },
+              {
+                "name": "resourceid",
+                "description": "ID of the resource",
+                "type": "string"
+              },
+              {
+                "name": "account",
+                "description": "The Account associated with the tag",
+                "type": "string"
+              },
+              {
+                "name": "resourcetype",
+                "description": "Resource type",
+                "type": "string"
+              },
+              {
+                "name": "domain",
+                "description": "The domain associated with the tag",
+                "type": "string"
+              },
+              {
+                "name": "key",
+                "description": "Tag key name",
+                "type": "string"
+              },
+              {
+                "name": "projectid",
+                "description": "The project ID the tag belongs to",
+                "type": "string"
+              },
+              {
+                "name": "domainid",
+                "description": "The ID of the domain associated with the tag",
+                "type": "string"
+              }
+            ]
+          },
+          {
+            "name": "publicip",
+            "description": "The public IP address",
+            "type": "string"
+          },
+          {
+            "name": "fordisplay",
+            "description": "Is rule for display to the regular user",
+            "type": "boolean"
+          },
+          {
+            "name": "name",
+            "description": "The name of the Load balancer",
+            "type": "string"
+          },
+          {
+            "name": "projectid",
+            "description": "The project ID of the Load balancer",
+            "type": "string"
+          },
+          {},
+          {
+            "name": "zoneid",
+            "description": "The ID of the zone the rule belongs to",
+            "type": "string"
+          },
+          {
+            "name": "algorithm",
+            "description": "The Load balancer algorithm (source, roundrobin, leastconn)",
+            "type": "string"
+          },
+          {
+            "name": "protocol",
+            "description": "The protocol of the Load Balancer rule",
+            "type": "string"
+          },
+          {
+            "name": "jobstatus",
+            "description": "The current status of the latest async job acting on this object",
+            "type": "integer"
+          },
+          {
+            "name": "networkid",
+            "description": "The ID of the guest Network the LB rule belongs to",
+            "type": "string"
+          },
+          {
+            "name": "account",
+            "description": "The Account of the Load balancer rule",
+            "type": "string"
+          },
+          {
+            "name": "publicport",
+            "description": "The public port",
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "description": "The description of the Load balancer",
+            "type": "string"
+          },
+          {
+            "name": "publicipid",
+            "description": "The public IP address ID",
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "description": "The Load balancer rule ID",
+            "type": "string"
+          },
+          {},
+          {
+            "name": "project",
+            "description": "The project name of the Load balancer",
+            "type": "string"
+          },
+          {
+            "name": "domainpath",
+            "description": "path of the domain to which the load balancer rule belongs",
+            "type": "string"
+          },
+          {
+            "name": "privateport",
+            "description": "The private port",
+            "type": "string"
+          },
+          {
+            "name": "zonename",
+            "description": "The name of the zone the Load balancer rule belongs to",
+            "type": "string"
+          },
+          {
+            "name": "state",
+            "description": "The state of the rule",
+            "type": "string"
+          },
+          {
+            "name": "domainid",
+            "description": "The domain ID of the Load balancer rule",
+            "type": "string"
+          },
+          {
+            "name": "jobid",
+            "description": "The UUID of the latest async job acting on this object",
+            "type": "string"
+          }
+        ],
+        "httprequesttype": "POST"
+      }
+    ]
+  },
+  "updateLoadBalancerRule": {
+    "count": 1,
+    "api": [
+      {
+        "name": "updateLoadBalancerRule",
+        "description": "Updates load balancer",
+        "isasync": true,
+        "related": "listLoadBalancerRules",
+        "params": [
+          {
+            "name": "id",
+            "description": "The ID of the load balancer rule to update",
+            "type": "uuid",
+            "length": 255,
+            "required": true,
+            "related": ""
+          },
+          {
+            "name": "cidrlist",
+            "description": "the CIDR list to forward traffic from to the load balancer",
+            "type": "list",
+            "length": 255,
+            "required": false,
+            "since": "4.22.0.0"
+          },
+          {
+            "name": "name",
+            "description": "The name of the load balancer rule",
+            "type": "string",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "fordisplay",
+            "description": "An optional field, whether to the display the rule to the end user or not",
+            "type": "boolean",
+            "length": 255,
+            "required": false,
+            "since": "4.4"
+          },
+          {
+            "name": "description",
+            "description": "The description of the load balancer rule",
+            "type": "string",
+            "length": 4096,
+            "required": false
+          },
+          {
+            "name": "algorithm",
+            "description": "Load balancer algorithm (source, roundrobin, leastconn)",
+            "type": "string",
+            "length": 255,
+            "required": false
+          },
+          {
+            "name": "customid",
+            "description": "An optional field, in case you want to set a custom id to the resource. Allowed to Root Admins only",
+            "type": "string",
+            "length": 255,
+            "required": false,
+            "since": "4.4"
+          },
+          {
+            "name": "backendssl",
+            "description": "use SSL when connecting from the load balancer to backend instances; valid only when protocol is ssl",
+            "type": "boolean",
+            "length": 255,
+            "required": false,
+            "since": "4.21.0.0"
+          },
+          {
+            "name": "protocol",
+            "description": "The protocol for the LB such as tcp, udp, tcp-proxy, ssl or http",
+            "type": "string",
+            "length": 255,
+            "required": false
+          }
+        ],
+        "response": [
+          {
+            "name": "publicipid",
+            "description": "The public IP address ID",
+            "type": "string"
+          },
+          {
+            "name": "cidrlist",
+            "description": "The CIDR list to allow traffic, all other CIDRs will be blocked. Multiple entries must be separated by a single comma character (,).",
+            "type": "string"
+          },
+          {},
+          {},
+          {
+            "name": "name",
+            "description": "The name of the Load balancer",
+            "type": "string"
+          },
+          {
+            "name": "zoneid",
+            "description": "The ID of the zone the rule belongs to",
+            "type": "string"
+          },
+          {
+            "name": "tags",
+            "description": "The list of resource tags associated with Load balancer",
+            "type": "list",
+            "response": [
+              {
+                "name": "resourceid",
+                "description": "ID of the resource",
+                "type": "string"
+              },
+              {
+                "name": "account",
+                "description": "The Account associated with the tag",
+                "type": "string"
+              },
+              {
+                "name": "domainid",
+                "description": "The ID of the domain associated with the tag",
+                "type": "string"
+              },
+              {
+                "name": "key",
+                "description": "Tag key name",
+                "type": "string"
+              },
+              {
+                "name": "customer",
+                "description": "Customer associated with the tag",
+                "type": "string"
+              },
+              {
+                "name": "projectid",
+                "description": "The project ID the tag belongs to",
+                "type": "string"
+              },
+              {
+                "name": "domain",
+                "description": "The domain associated with the tag",
+                "type": "string"
+              },
+              {
+                "name": "resourcetype",
+                "description": "Resource type",
+                "type": "string"
+              },
+              {
+                "name": "project",
+                "description": "The project name where tag belongs to",
+                "type": "string"
+              },
+              {
+                "name": "value",
+                "description": "Tag value",
+                "type": "string"
+              },
+              {
+                "name": "domainpath",
+                "description": "Path of the Domain associated with the tag",
+                "type": "string"
+              }
+            ]
+          },
+          {
+            "name": "description",
+            "description": "The description of the Load balancer",
+            "type": "string"
+          },
+          {
+            "name": "domainpath",
+            "description": "path of the domain to which the load balancer rule belongs",
+            "type": "string"
+          },
+          {
+            "name": "fordisplay",
+            "description": "Is rule for display to the regular user",
+            "type": "boolean"
+          },
+          {
+            "name": "algorithm",
+            "description": "The Load balancer algorithm (source, roundrobin, leastconn)",
+            "type": "string"
+          },
+          {
+            "name": "networkid",
+            "description": "The ID of the guest Network the LB rule belongs to",
+            "type": "string"
+          },
+          {
+            "name": "privateport",
+            "description": "The private port",
+            "type": "string"
+          },
+          {
+            "name": "projectid",
+            "description": "The project ID of the Load balancer",
+            "type": "string"
+          },
+          {
+            "name": "publicip",
+            "description": "The public IP address",
+            "type": "string"
+          },
+          {
+            "name": "zonename",
+            "description": "The name of the zone the Load balancer rule belongs to",
+            "type": "string"
+          },
+          {
+            "name": "protocol",
+            "description": "The protocol of the Load Balancer rule",
+            "type": "string"
+          },
+          {
+            "name": "state",
+            "description": "The state of the rule",
+            "type": "string"
+          },
+          {
+            "name": "publicport",
+            "description": "The public port",
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "description": "The Load balancer rule ID",
+            "type": "string"
+          },
+          {
+            "name": "project",
+            "description": "The project name of the Load balancer",
+            "type": "string"
+          },
+          {
+            "name": "jobid",
+            "description": "The UUID of the latest async job acting on this object",
+            "type": "string"
+          },
+          {
+            "name": "domain",
+            "description": "The domain of the Load balancer rule",
+            "type": "string"
+          },
+          {
+            "name": "jobstatus",
+            "description": "The current status of the latest async job acting on this object",
+            "type": "integer"
+          },
+          {
+            "name": "domainid",
+            "description": "The domain ID of the Load balancer rule",
+            "type": "string"
+          },
+          {
+            "name": "account",
+            "description": "The Account of the Load balancer rule",
+            "type": "string"
+          },
+          {
+            "name": "backendssl",
+            "description": "whether the load balancer uses SSL when connecting to backend instances",
+            "type": "boolean"
+          }
+        ],
+        "httprequesttype": "POST"
+      }
+    ]
+  },
+  "assignToLoadBalancerRule": {
+    "count": 1,
+    "api": [
+      {
+        "name": "assignToLoadBalancerRule",
+        "description": "Assigns an Instance or a list of Instances to a load balancer rule.",
+        "isasync": true,
+        "params": [
+          {
+            "name": "id",
+            "description": "The ID of the load balancer rule",
+            "type": "uuid",
+            "length": 255,
+            "required": true,
+            "related": "createRoutingFirewallRule,listRoutingFirewallRules,createPortForwardingRule,listPortForwardingRules,updatePortForwardingRule,createIpForwardingRule,createIpv6FirewallRule,updateIpv6FirewallRule"
+          },
+          {
+            "name": "virtualmachineids",
+            "description": "The list of IDs of the Instance that are being assigned to the load balancer rule(i.e. virtualMachineIds=1,2,3)",
+            "type": "list",
+            "length": 255,
+            "required": false,
+            "related": "deployVnfAppliance,deployVnfAppliance,listVnfAppliances,listVnfAppliances,assignVirtualMachine,migrateVirtualMachine,migrateVirtualMachineWithVolume,recoverVirtualMachine,attachIso,detachIso,deployVirtualMachine,destroyVirtualMachine,listVirtualMachines,scaleVirtualMachine,rebootVirtualMachine,removeNicFromVirtualMachine,resetPasswordForVirtualMachine,resetSSHKeyForVirtualMachine,resetUserDataForVirtualMachine,startVirtualMachine,stopVirtualMachine,updateVirtualMachine,changeServiceForVirtualMachine,revertToVMSnapshot,updateVMAffinityGroup,attachIso,detachIso,updateVMAffinityGroup,addNicToVirtualMachine,removeNicFromVirtualMachine,updateDefaultNicForVirtualMachine,deployVirtualMachine,destroyVirtualMachine,rebootVirtualMachine,resetPasswordForVirtualMachine,resetSSHKeyForVirtualMachine,restoreVirtualMachine,startVirtualMachine,stopVirtualMachine,updateVirtualMachine,changeServiceForVirtualMachine,revertToVMSnapshot,listVirtualMachines,deployVirtualMachineForVolume,deployVirtualMachineForVolume,allocateVbmcToVM,checkVbmcToVM,cloneVirtualMachine,importUnmanagedInstance,importVm,importUnmanagedInstanceForAblestackV2K,importUnmanagedInstanceForAblestackN2K"
+          },
+          {
+            "name": "vmidipmap",
+            "description": "VM ID and IP map, vmidipmap[0].vmid=1 vmidipmap[0].vmip=10.1.1.75. (Optional, for VPC Conserve Mode) Pass vmnetworkid. Example: vmidipmap[0].vmnetworkid=NETWORK_TIER_UUID",
+            "type": "map",
+            "length": 255,
+            "required": false,
+            "since": "4.4"
+          }
+        ],
+        "response": [
+          {
+            "name": "displaytext",
+            "description": "Any text associated with the success or failure",
+            "type": "string"
+          },
+          {
+            "name": "jobid",
+            "description": "The UUID of the latest async job acting on this object",
+            "type": "string"
+          },
+          {},
+          {},
+          {
+            "name": "success",
+            "description": "True if operation is executed successfully",
+            "type": "boolean"
+          },
+          {
+            "name": "jobstatus",
+            "description": "The current status of the latest async job acting on this object",
+            "type": "integer"
+          }
+        ],
+        "httprequesttype": "POST"
+      }
+    ]
+  }
+}

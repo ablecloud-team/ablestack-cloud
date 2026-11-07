@@ -2311,7 +2311,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         }
 
         if (path != null) {
-            sc.setParameters("domainPath", path);
+            sc.setParameters("domainPath", path + "%");
         }
 
         // search distinct projects to get count
@@ -3334,6 +3334,8 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
 
     private Pair<List<AsyncJobJoinVO>, Integer> searchForAsyncJobsInternal(ListAsyncJobsCmd cmd) {
 
+        boolean includeCompleted = cmd.getIncludeCompleted();
+
         Account caller = CallContext.current().getCallingAccount();
 
         List<Long> permittedAccounts = new ArrayList<Long>();
@@ -3418,7 +3420,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             throw new InvalidParameterValueException(String.format("%s parameter must be used with %s parameter", ApiConstants.RESOURCE_ID, ApiConstants.RESOURCE_TYPE));
         }
 
-        return _jobJoinDao.searchAndCount(sc, searchFilter);
+        return _jobJoinDao.searchAndCount(sc, searchFilter, includeCompleted);
     }
 
     @Override

@@ -1,0 +1,59 @@
+{
+  "cluster": 32,
+  "counts": {
+    "listNetworks": 9,
+    "listNetworkOfferings": 15,
+    "listVirtualMachines": 55,
+    "listRouters": 3,
+    "listPublicIpAddresses": 8,
+    "listVlanIpRanges": 2,
+    "listZones": 1,
+    "listStoragePools": 1,
+    "listServiceOfferings": 4,
+    "listTemplates": 6
+  },
+  "preservation": {
+    "listNetworks": {
+      "before": 9,
+      "after": 9,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listNetworkOfferings": {
+      "before": 15,
+      "after": 15,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listVirtualMachines": {
+      "before": 55,
+      "after": 55,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listRouters": {
+      "before": 3,
+      "after": 3,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listPublicIpAddresses": {
+      "before": 8,
+      "after": 8,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listVlanIpRanges": {
+      "before": 2,
+      "after": 2,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    }
+  }
+}

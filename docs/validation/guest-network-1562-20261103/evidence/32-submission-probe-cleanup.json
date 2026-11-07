@@ -1,0 +1,36 @@
+{
+  "created": {
+    "id": "0f2c8641-b99c-4af2-a741-6b28ca6dc5ed",
+    "name": "qa-gn1562-32-submit-footer",
+    "type": "Shared",
+    "state": "Setup",
+    "vlan": "693"
+  },
+  "request": {
+    "deletenetworkresponse": {
+      "jobid": "dcf18194-4062-41d3-a9e8-1c2b4aca751c"
+    }
+  },
+  "result": {
+    "queryasyncjobresultresponse": {
+      "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domainpath": "ROOT",
+      "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+      "cmd": "org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "success": true
+      },
+      "jobinstancetype": "Network",
+      "created": "2026-11-04T00:37:15+0900",
+      "completed": "2026-11-04T00:37:15+0900",
+      "jobid": "dcf18194-4062-41d3-a9e8-1c2b4aca751c",
+      "jobstatus": 1
+    }
+  },
+  "api_absent": true
+}

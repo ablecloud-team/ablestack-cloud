@@ -1,0 +1,56 @@
+{
+  "sourceHashes": {
+    "api/src/main/java/org/apache/cloudstack/acl/ProjectRoleService.java": "c955ceb8ce8d52e64fce54cd54713fcd5fb2eac91358da2142c2890a1a36f50a",
+    "server/src/main/java/org/apache/cloudstack/acl/ProjectRoleManagerImpl.java": "fdbc4da98c69e8dee003551f01716cf6bbddb4cff36fdeced21fe2660934eed9",
+    "server/src/main/java/com/cloud/acl/DomainChecker.java": "20a8434ee7778425b87b91a907675b6b3851b07292e3ce96ee43043b77009f7d",
+    "server/src/test/java/org/apache/cloudstack/acl/ProjectRoleAuthorizationTest.java": "0510e1a82b4c90f4d18f93230eebe7af5d8701f9fdcb19c01bfaed0322cbf836",
+    "server/src/test/java/com/cloud/acl/DomainCheckerProjectRoleTest.java": "9d222bdb39c443088067e8a0951f4a673ce1ae7335a1e9540e8c8ab1293b0c91",
+    "plugins/acl/project-role-based/src/main/java/org/apache/cloudstack/acl/ProjectRoleBasedApiAccessChecker.java": "6e36c532c180559078dc5303c2298f41fa508e9c1c7d71bb288d6fa66c260cdd",
+    "plugins/acl/project-role-based/src/test/java/org/apache/cloudstack/acl/ProjectRoleBasedApiAccessCheckerTest.java": "10f49bd01ac5ca8b09c18b388426e03c8b5228700d57034658c63772e9488da3"
+  },
+  "tests": [
+    {
+      "file": "plugins/acl/project-role-based/target/surefire-reports/TEST-org.apache.cloudstack.acl.ProjectRoleBasedApiAccessCheckerTest.xml",
+      "tests": "17",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "3.973"
+    },
+    {
+      "file": "server/target/surefire-reports/TEST-org.apache.cloudstack.acl.ProjectRoleManagerImplTest.xml",
+      "tests": "12",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.482"
+    },
+    {
+      "file": "server/target/surefire-reports/TEST-org.apache.cloudstack.acl.ProjectRoleAuthorizationTest.xml",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.108"
+    },
+    {
+      "file": "server/target/surefire-reports/TEST-com.cloud.acl.DomainCheckerProjectRoleTest.xml",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.567"
+    }
+  ],
+  "sourceCommit": "77782614bbc6c40e864ed890945946ea5be79819",
+  "changedJavaFiles": 7,
+  "changedFileCheckstyleViolations": 0,
+  "apiGlobalCheckstyleExistingErrors": 6,
+  "serverGlobalCheckstylePriorExistingErrors": 62,
+  "serverGlobalCheckstyleSkipped": true,
+  "apiInterfaceTestsSkipped": true,
+  "uiSourceChanged": false,
+  "uiBuildPerformed": false,
+  "fullCloudBuild": false,
+  "githubActionsStarted": false
+}

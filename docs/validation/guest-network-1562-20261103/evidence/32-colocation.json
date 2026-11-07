@@ -1,0 +1,383 @@
+{
+  "router": {
+    "id": "115332a9-4dcc-4dca-8e86-b2e27469ceb4",
+    "hostname": "ablecube32-1",
+    "hostid": "bfe795b1-8fde-4361-bd1d-af421ab2bdc5",
+    "guestnetworkid": "5449857d-5504-4c40-b749-fdccfb09b527"
+  },
+  "qga_before": {
+    "a": {
+      "name": "qa-gn1562-32-vm-a",
+      "qga": {
+        "return": [
+          {
+            "name": "lo",
+            "ip-addresses": [
+              {
+                "ip-address-type": "ipv4",
+                "ip-address": "127.0.0.1",
+                "prefix": 8
+              },
+              {
+                "ip-address-type": "ipv6",
+                "ip-address": "::1",
+                "prefix": 128
+              }
+            ],
+            "statistics": {
+              "tx-packets": 16,
+              "tx-errs": 0,
+              "rx-bytes": 1504,
+              "rx-dropped": 0,
+              "rx-packets": 16,
+              "rx-errs": 0,
+              "tx-bytes": 1504,
+              "tx-dropped": 0
+            },
+            "hardware-address": "00:00:00:00:00:00"
+          },
+          {
+            "name": "ens3",
+            "ip-addresses": [
+              {
+                "ip-address-type": "ipv4",
+                "ip-address": "172.26.32.18",
+                "prefix": 24
+              },
+              {
+                "ip-address-type": "ipv6",
+                "ip-address": "fe80::1c01:10ff:fe00:12c",
+                "prefix": 64
+              }
+            ],
+            "statistics": {
+              "tx-packets": 155,
+              "tx-errs": 0,
+              "rx-bytes": 17939,
+              "rx-dropped": 6,
+              "rx-packets": 236,
+              "rx-errs": 0,
+              "tx-bytes": 12752,
+              "tx-dropped": 0
+            },
+            "hardware-address": "1e:01:10:00:01:2c"
+          }
+        ]
+      }
+    },
+    "b": {
+      "name": "qa-gn1562-32-vm-b",
+      "qga": {
+        "return": [
+          {
+            "name": "lo",
+            "ip-addresses": [
+              {
+                "ip-address-type": "ipv4",
+                "ip-address": "127.0.0.1",
+                "prefix": 8
+              },
+              {
+                "ip-address-type": "ipv6",
+                "ip-address": "::1",
+                "prefix": 128
+              }
+            ],
+            "statistics": {
+              "tx-packets": 0,
+              "tx-errs": 0,
+              "rx-bytes": 0,
+              "rx-dropped": 0,
+              "rx-packets": 0,
+              "rx-errs": 0,
+              "tx-bytes": 0,
+              "tx-dropped": 0
+            },
+            "hardware-address": "00:00:00:00:00:00"
+          },
+          {
+            "name": "ens3",
+            "ip-addresses": [
+              {
+                "ip-address-type": "ipv6",
+                "ip-address": "fe80::1c01:29ff:fe00:12d",
+                "prefix": 64
+              }
+            ],
+            "statistics": {
+              "tx-packets": 58,
+              "tx-errs": 0,
+              "rx-bytes": 2312,
+              "rx-dropped": 6,
+              "rx-packets": 17,
+              "rx-errs": 0,
+              "tx-bytes": 9932,
+              "tx-dropped": 0
+            },
+            "hardware-address": "1e:01:29:00:01:2d"
+          }
+        ]
+      }
+    }
+  },
+  "operations": [
+    {
+      "action": "migrateVirtualMachine",
+      "id": "df4326c3-1d4b-4c81-ad9c-48118ef480ab",
+      "request": {
+        "migratevirtualmachineresponse": {
+          "jobid": "bf898ebe-2e66-420c-afba-91f2b583f810"
+        }
+      },
+      "result": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.admin.vm.MigrateVMCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "virtualmachine": {
+              "id": "df4326c3-1d4b-4c81-ad9c-48118ef480ab",
+              "name": "qa-gn1562-32-vm-b",
+              "displayname": "qa-gn1562-32-vm-b",
+              "account": "admin",
+              "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+              "username": "admin",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT",
+              "domainpath": "ROOT",
+              "created": "2026-11-04T00:02:22+0900",
+              "lastupdated": "2026-11-04T00:05:48+0900",
+              "state": "Running",
+              "haenable": false,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "hostid": "bfe795b1-8fde-4361-bd1d-af421ab2bdc5",
+              "hostname": "ablecube32-1",
+              "hostcontrolstate": "Enabled",
+              "templateid": "b31d2c92-67b9-40c4-a137-4ff9778c6b0d",
+              "templatename": "Rocky-Linux-9-5-x86-64-Server-Cloud-Image.qcow2",
+              "templatetype": "USER",
+              "templateformat": "QCOW2",
+              "templatedisplaytext": "Rocky-Linux-9-5-x86-64-Server-Cloud-Image.qcow2",
+              "passwordenabled": false,
+              "isos": [],
+              "isomaxcount": 2,
+              "serviceofferingid": "b02ac1bf-2da7-46e1-8961-d94d76dad9ab",
+              "serviceofferingname": "AS-PROD-32-AS01-2C2G",
+              "volumemutationblockedreason": "",
+              "cpunumber": 2,
+              "cpuspeed": 2000,
+              "memory": 2048,
+              "statslastsampled": 1793718343000,
+              "statscollectionstatus": "FRESH",
+              "cpuused": "0.22%",
+              "networkkbsread": 0,
+              "networkkbswrite": 3,
+              "diskkbsread": 0,
+              "diskkbswrite": 2053,
+              "memorykbs": 2097152,
+              "memoryintfreekbs": 1299904,
+              "memorytargetkbs": 2097152,
+              "memoryintusablekbs": 0,
+              "diskioread": 0,
+              "diskiowrite": 128,
+              "guestosid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+              "rootdeviceid": 0,
+              "rootdevicetype": "ROOT",
+              "securitygroup": [],
+              "nic": [
+                {
+                  "id": "1e8e134e-57c4-4cfe-b21b-5855d6bfb43c",
+                  "networkid": "5449857d-5504-4c40-b749-fdccfb09b527",
+                  "networkname": "qa-gn1562-32-nosnat",
+                  "netmask": "255.255.255.0",
+                  "gateway": "172.26.32.1",
+                  "ipaddress": "172.26.32.19",
+                  "isolationuri": "vlan://632",
+                  "broadcasturi": "vlan://632",
+                  "traffictype": "Guest",
+                  "type": "Isolated",
+                  "isdefault": true,
+                  "macaddress": "1e:01:29:00:01:2d",
+                  "secondaryip": [],
+                  "extradhcpoption": [],
+                  "deviceid": "0",
+                  "enabled": true
+                }
+              ],
+              "hypervisor": "KVM",
+              "ipaddress": "172.26.32.19",
+              "instancename": "i-2-339-VM",
+              "details": {
+                "tpmversion": "NONE",
+                "rootDiskController": "osdefault"
+              },
+              "clonefastsourcepowerallowed": false,
+              "clonefastpowerallowed": false,
+              "affinitygroup": [],
+              "displayvm": true,
+              "isdynamicallyscalable": true,
+              "deleteprotection": false,
+              "ostypeid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+              "osdisplayname": "Rocky Linux 9",
+              "pooltype": "RBD",
+              "receivedbytes": 2649,
+              "sentbytes": 12184,
+              "vbmcport": "None",
+              "qemuagentversion": "9.0.0",
+              "kvdoenable": false,
+              "kvdoinuse": false,
+              "arch": "x86_64",
+              "vbmcstatus": "Unallocated",
+              "tags": [],
+              "hasannotations": false,
+              "jobid": "bf898ebe-2e66-420c-afba-91f2b583f810",
+              "jobstatus": 0
+            }
+          },
+          "jobinstancetype": "VirtualMachine",
+          "jobinstanceid": "df4326c3-1d4b-4c81-ad9c-48118ef480ab",
+          "created": "2026-11-04T00:05:43+0900",
+          "completed": "2026-11-04T00:05:49+0900",
+          "jobid": "bf898ebe-2e66-420c-afba-91f2b583f810",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "action": "rebootVirtualMachine",
+      "id": "df4326c3-1d4b-4c81-ad9c-48118ef480ab",
+      "request": {
+        "rebootvirtualmachineresponse": {
+          "jobid": "ecf20501-4d2f-4d3a-ac4c-0b2b47437a86"
+        }
+      },
+      "result": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.admin.vm.RebootVMCmdByAdmin",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "virtualmachine": {
+              "id": "df4326c3-1d4b-4c81-ad9c-48118ef480ab",
+              "name": "qa-gn1562-32-vm-b",
+              "displayname": "qa-gn1562-32-vm-b",
+              "account": "admin",
+              "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+              "username": "admin",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT",
+              "domainpath": "ROOT",
+              "created": "2026-11-04T00:02:22+0900",
+              "lastupdated": "2026-11-04T00:05:48+0900",
+              "state": "Running",
+              "haenable": false,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "hostid": "bfe795b1-8fde-4361-bd1d-af421ab2bdc5",
+              "hostname": "ablecube32-1",
+              "hostcontrolstate": "Enabled",
+              "templateid": "b31d2c92-67b9-40c4-a137-4ff9778c6b0d",
+              "templatename": "Rocky-Linux-9-5-x86-64-Server-Cloud-Image.qcow2",
+              "templatetype": "USER",
+              "templateformat": "QCOW2",
+              "templatedisplaytext": "Rocky-Linux-9-5-x86-64-Server-Cloud-Image.qcow2",
+              "passwordenabled": false,
+              "isos": [],
+              "isomaxcount": 2,
+              "serviceofferingid": "b02ac1bf-2da7-46e1-8961-d94d76dad9ab",
+              "serviceofferingname": "AS-PROD-32-AS01-2C2G",
+              "volumemutationblockedreason": "",
+              "cpunumber": 2,
+              "cpuspeed": 2000,
+              "memory": 2048,
+              "statslastsampled": 1793718343000,
+              "statscollectionstatus": "FRESH",
+              "cpuused": "0.22%",
+              "networkkbsread": 0,
+              "networkkbswrite": 3,
+              "diskkbsread": 0,
+              "diskkbswrite": 2053,
+              "memorykbs": 2097152,
+              "memoryintfreekbs": 1299904,
+              "memorytargetkbs": 2097152,
+              "memoryintusablekbs": 0,
+              "diskioread": 0,
+              "diskiowrite": 128,
+              "guestosid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+              "rootdeviceid": 0,
+              "rootdevicetype": "ROOT",
+              "securitygroup": [],
+              "nic": [
+                {
+                  "id": "1e8e134e-57c4-4cfe-b21b-5855d6bfb43c",
+                  "networkid": "5449857d-5504-4c40-b749-fdccfb09b527",
+                  "networkname": "qa-gn1562-32-nosnat",
+                  "netmask": "255.255.255.0",
+                  "gateway": "172.26.32.1",
+                  "ipaddress": "172.26.32.19",
+                  "isolationuri": "vlan://632",
+                  "broadcasturi": "vlan://632",
+                  "traffictype": "Guest",
+                  "type": "Isolated",
+                  "isdefault": true,
+                  "macaddress": "1e:01:29:00:01:2d",
+                  "secondaryip": [],
+                  "extradhcpoption": [],
+                  "deviceid": "0",
+                  "enabled": true
+                }
+              ],
+              "hypervisor": "KVM",
+              "ipaddress": "172.26.32.19",
+              "instancename": "i-2-339-VM",
+              "details": {
+                "tpmversion": "NONE",
+                "rootDiskController": "osdefault"
+              },
+              "clonefastsourcepowerallowed": false,
+              "clonefastpowerallowed": false,
+              "affinitygroup": [],
+              "displayvm": true,
+              "isdynamicallyscalable": true,
+              "deleteprotection": false,
+              "ostypeid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+              "osdisplayname": "Rocky Linux 9",
+              "pooltype": "RBD",
+              "receivedbytes": 4316,
+              "sentbytes": 14262,
+              "vbmcport": "None",
+              "qemuagentversion": "9.0.0",
+              "kvdoenable": false,
+              "kvdoinuse": false,
+              "arch": "x86_64",
+              "vbmcstatus": "Unallocated",
+              "tags": [],
+              "hasannotations": false,
+              "jobid": "ecf20501-4d2f-4d3a-ac4c-0b2b47437a86",
+              "jobstatus": 0
+            }
+          },
+          "jobinstancetype": "VirtualMachine",
+          "jobinstanceid": "df4326c3-1d4b-4c81-ad9c-48118ef480ab",
+          "created": "2026-11-04T00:05:49+0900",
+          "completed": "2026-11-04T00:05:51+0900",
+          "jobid": "ecf20501-4d2f-4d3a-ac4c-0b2b47437a86",
+          "jobstatus": 1
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "head": "c3ef491351687fda9a66873c164b772b4825cbc0",
+  "exit": 1,
+  "command": [
+    "mvn",
+    "-pl",
+    "engine/orchestration",
+    "-Dtest=VirtualMachineManagerImplTest,VolumeOrchestratorTest",
+    "-Dcheckstyle.skip=true",
+    "test"
+  ]
+}

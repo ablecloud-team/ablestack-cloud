@@ -20,6 +20,9 @@
 
     <p v-html="$t('message.select.bgp.peers')" />
 
+    <a-alert v-if="failed" type="warning" show-icon :message="$t('message.guest.feature.load.failed')">
+      <template #action><a-button size="small" @click="fetchData">{{ $t('label.refresh') }}</a-button></template>
+    </a-alert>
     <div v-if="loading" class="loading">
       <loading-outlined style="color: #1890ff;" />
     </div>
@@ -40,7 +43,8 @@
         :columns="columns"
         :dataSource="items"
         :rowKey="record => record.id || record.name"
-        :pagination="{showSizeChanger: true, total: total}"
+        :pagination="{showSizeChanger: true, total, current: options.page, pageSize: options.pageSize}"
+        :scroll="{ x: 380 }"
         :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
         @change="handleTableChange"
         @handle-search-filter="handleTableChange"
@@ -49,7 +53,7 @@
 
     <div :span="24" class="action-button">
       <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-      <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+      <a-button :loading="submitting" :disabled="!canSubmit" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
     </div>
 
   </a-form>
@@ -67,7 +71,7 @@ export default {
       required: true
     }
   },
-  inject: ['parentFetchData'],
+  emits: ['close-action', 'refresh-data'],
   data () {
     return {
       items: [],
@@ -96,7 +100,12 @@ export default {
         keyword: ''
       },
       filter: '',
-      loading: false
+      loading: false,
+      loaded: false,
+      failed: false,
+      submitting: false,
+      request: 0,
+      originalSelection: []
     }
   },
   created () {
@@ -105,73 +114,80 @@ export default {
         this.selectedRowKeys.push(bgppeer.id)
       }
     }
+    this.originalSelection = [...this.selectedRowKeys]
     this.fetchData()
+  },
+  computed: {
+    canSubmit () {
+      return this.loaded && !this.loading && !this.failed && !this.submitting && 'changeBgpPeersForNetwork' in this.$store.getters.apis &&
+        (this.originalSelection.length !== this.selectedRowKeys.length || this.originalSelection.some(id => !this.selectedRowKeys.includes(id)))
+    }
   },
   methods: {
     fetchData () {
+      const request = ++this.request
+      const resourceId = this.resource.id
       this.loading = true
-      this.items = []
-      this.total = 0
-      getAPI('listBgpPeers', {
-        keyword: this.options.keyword,
-        zoneid: this.resource.zoneid,
-        domainid: this.resource.domainid,
-        account: this.resource.account,
-        projectid: this.resource.projectid,
-        page: this.options.page,
-        pageSize: this.options.pageSize,
-        response: 'json'
-      }).then(response => {
-        this.total = response.listbgppeersresponse?.count || 0
-        if (this.total !== 0) {
-          this.items = response.listbgppeersresponse.bgppeer
-        }
-      }).finally(() => {
+      this.failed = false
+      const scope = this.resource.projectid ? { projectid: this.resource.projectid } : { account: this.resource.account, domainid: this.resource.domainid }
+      if (!this.resource.zoneid || (!scope.projectid && (!scope.account || !scope.domainid))) {
+        this.failed = true
         this.loading = false
+        return
+      }
+      return getAPI('listBgpPeers', {
+        ...scope,
+        keyword: this.options.keyword,
+        zoneid: this.resource.zoneid
+      }).then(response => {
+        if (request !== this.request || resourceId !== this.resource.id) return
+        const peers = response.listbgppeersresponse?.bgppeer || []
+        this.items = peers.map(({ id, asnumber, ipaddress, ip6address }) => ({ id, asnumber, ipaddress, ip6address }))
+        this.total = this.items.length
+        this.loaded = true
+      }).catch(() => {
+        if (request === this.request) this.failed = true
+      }).finally(() => {
+        if (request === this.request) this.loading = false
       })
     },
     onSelectChange (selectedRowKeys) {
-      this.selectedRowKeys = selectedRowKeys
+      this.selectedRowKeys = [...new Set([...this.selectedRowKeys.filter(id => !this.items.some(peer => peer.id === id)), ...selectedRowKeys])]
     },
     handleSearch (keyword) {
       this.filter = keyword
       this.options.keyword = keyword
+      this.options.page = 1
       this.fetchData()
     },
     handleTableChange (pagination) {
       this.options.page = pagination.current
       this.options.pageSize = pagination.pageSize
-      this.fetchData()
     },
     closeAction () {
       this.$emit('close-action')
     },
-    handleSubmit () {
-      if (this.loading) return
-      this.loading = true
-      postAPI('changeBgpPeersForNetwork', {
-        networkid: this.resource.id,
-        bgppeerids: this.selectedRowKeys.join(',')
-      }).then(response => {
-        this.$pollJob({
+    async handleSubmit () {
+      if (!this.canSubmit) return
+      this.submitting = true
+      try {
+        const response = await postAPI('changeBgpPeersForNetwork', {
+          networkid: this.resource.id,
+          bgppeerids: this.selectedRowKeys.join(',')
+        })
+        const result = await this.$pollJob({
           jobId: response.changebgppeersfornetworkresponse.jobid,
           successMessage: this.$t('message.success.change.bgp.peers'),
-          successMethod: () => {
-          },
           errorMessage: this.$t('message.update.failed'),
-          errorMethod: () => {
-          },
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-          }
+          catchMessage: this.$t('error.fetching.async.job.result')
         })
-        this.$emit('close-action')
-        this.parentFetchData()
-      }).catch(error => {
+        this.$emit('refresh-data')
+        if (result.jobstatus === 1) this.closeAction()
+      } catch (error) {
         this.$notifyError(error)
-      }).finally(() => {
-        this.loading = false
-      })
+      } finally {
+        this.submitting = false
+      }
     }
   }
 }
@@ -179,9 +195,6 @@ export default {
 
 <style scoped lang="scss">
 .form {
-  width: 90vw;
-  @media (min-width: 800px) {
-    width: 45vw;
-  }
+  min-width: 0;
 }
 </style>

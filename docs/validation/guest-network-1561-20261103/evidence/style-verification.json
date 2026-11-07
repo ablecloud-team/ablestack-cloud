@@ -1,0 +1,13 @@
+{
+  "conditions": 36,
+  "document_horizontal_overflow": 0,
+  "VM_tab_position_policy_equal": true,
+  "effective_contrast_minima": {
+    "light-selected": 3.24,
+    "light-normal": 7.55,
+    "dark-selected": 4.58,
+    "dark-normal": 9.17
+  },
+  "light_selected_note": "Existing shared VM theme value; retained and recorded separately from dark-mode readability",
+  "synthetic_browser_response_overrides_removed": true
+}

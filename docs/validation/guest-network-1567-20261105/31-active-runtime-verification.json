@@ -1,0 +1,20 @@
+{
+  "activeCurrentBundleMarkers": {
+    "network-operation-policy": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  },
+  "currentJsFilesScanned": 319,
+  "staticFiles": 650,
+  "staticHashMismatches": [],
+  "classSha256": {
+    "com/cloud/api/ApiDBUtils.class": "46b96d1294bc2b88dc2442d0f683a988a0301bec48864559308bb92cd9f664df",
+    "com/cloud/api/ApiResponseHelper.class": "9ad51801acf699f01e39b2c3fb0a3b68a3f9a09c499cb1034b31cc3881526d6c"
+  },
+  "jarSha256": "623e7c2d738347b9e1eb3ef630cb3e2cd4a94ef3e1aff6aaa206db003ac52350",
+  "indexSha256": "7714cdac56915b91627be9b172e4e9685e6fa9c5cd7b9f10de5c92d4e517c182",
+  "moldPID": "722928",
+  "WEB-INF": true,
+  "http": 200
+}

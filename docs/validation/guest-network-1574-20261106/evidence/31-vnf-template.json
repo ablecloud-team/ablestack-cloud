@@ -1,0 +1,10 @@
+{
+  "id": "b6170cce-bc78-4403-a525-666409dc8c51",
+  "name": "qa-gn1574-31-skudonet-7-2-1",
+  "isready": true,
+  "status": null,
+  "ispublic": false,
+  "isvnf": null,
+  "templatetype": "VNF",
+  "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+}

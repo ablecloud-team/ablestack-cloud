@@ -1,0 +1,340 @@
+{
+  "cluster": 31,
+  "active_db_counts": {
+    "networks": 0,
+    "vms": 0,
+    "routers": 0,
+    "nics": 0,
+    "volumes": 0
+  },
+  "hosts": [
+    {
+      "host": "10.10.31.1",
+      "domains": [
+        {
+          "name": "i-2-818-VM",
+          "absent": true
+        },
+        {
+          "name": "i-2-820-VM",
+          "absent": true
+        },
+        {
+          "name": "i-2-821-VM",
+          "absent": true
+        },
+        {
+          "name": "r-819-VM",
+          "absent": true
+        },
+        {
+          "name": "r-822-VM",
+          "absent": true
+        },
+        {
+          "name": "r-823-VM",
+          "absent": true
+        },
+        {
+          "name": "r-824-VM",
+          "absent": true
+        },
+        {
+          "name": "r-825-VM",
+          "absent": true
+        },
+        {
+          "name": "r-826-VM",
+          "absent": true
+        },
+        {
+          "name": "r-827-VM",
+          "absent": true
+        },
+        {
+          "name": "r-828-VM",
+          "absent": true
+        },
+        {
+          "name": "r-829-VM",
+          "absent": true
+        },
+        {
+          "name": "r-830-VM",
+          "absent": true
+        },
+        {
+          "name": "r-831-VM",
+          "absent": true
+        },
+        {
+          "name": "r-832-VM",
+          "absent": true
+        },
+        {
+          "name": "r-833-VM",
+          "absent": true
+        },
+        {
+          "name": "r-834-VM",
+          "absent": true
+        },
+        {
+          "name": "r-835-VM",
+          "absent": true
+        }
+      ],
+      "roots": [
+        {
+          "id": "34d31edd-c9ba-461e-8806-27be7a0f22bd",
+          "path": "/mnt/glue-gfs/34d31edd-c9ba-461e-8806-27be7a0f22bd",
+          "absent": true
+        },
+        {
+          "id": "0fab4c5a-58f4-4cdf-acd4-23faa7b6fcf6",
+          "path": "/mnt/glue-gfs/0fab4c5a-58f4-4cdf-acd4-23faa7b6fcf6",
+          "absent": true
+        },
+        {
+          "id": "2ccc7d1e-7faa-42be-8dd7-d4256bbf7d03",
+          "path": "/mnt/glue-gfs/2ccc7d1e-7faa-42be-8dd7-d4256bbf7d03",
+          "absent": true
+        },
+        {
+          "id": "72c75473-78b0-4dc2-92ba-1e08e4dc5090",
+          "path": "/mnt/glue-gfs/72c75473-78b0-4dc2-92ba-1e08e4dc5090",
+          "absent": true
+        },
+        {
+          "id": "09537b36-81b8-40b9-a57a-92436d225728",
+          "path": "/mnt/glue-gfs/09537b36-81b8-40b9-a57a-92436d225728",
+          "absent": true
+        },
+        {
+          "id": "bc27f292-2883-43e5-8989-0fbcd54b1adb",
+          "path": "/mnt/glue-gfs/bc27f292-2883-43e5-8989-0fbcd54b1adb",
+          "absent": true
+        },
+        {
+          "id": "eb4e0088-423b-43cb-b2a4-6def744d9baf",
+          "path": "/mnt/glue-gfs/eb4e0088-423b-43cb-b2a4-6def744d9baf",
+          "absent": true
+        },
+        {
+          "id": "936e67a1-8730-4d77-b1f6-5cd8170880ea",
+          "path": "/mnt/glue-gfs/936e67a1-8730-4d77-b1f6-5cd8170880ea",
+          "absent": true
+        },
+        {
+          "id": "0bd13699-aab7-4664-bff4-4e0d5dc1e56d",
+          "path": "/mnt/glue-gfs/0bd13699-aab7-4664-bff4-4e0d5dc1e56d",
+          "absent": true
+        },
+        {
+          "id": "365168d6-d542-4b05-8f78-6ea8bc13321a",
+          "path": "/mnt/glue-gfs/365168d6-d542-4b05-8f78-6ea8bc13321a",
+          "absent": true
+        },
+        {
+          "id": "52b97396-9493-4947-94dc-f272d0a6dd1e",
+          "path": "/mnt/glue-gfs/52b97396-9493-4947-94dc-f272d0a6dd1e",
+          "absent": true
+        },
+        {
+          "id": "cafb35da-aec2-4e94-a524-e9bc697a55b9",
+          "path": "/mnt/glue-gfs/cafb35da-aec2-4e94-a524-e9bc697a55b9",
+          "absent": true
+        },
+        {
+          "id": "2b1b1d46-213f-4e7f-82fe-1c8a1bfe8f38",
+          "path": "/mnt/glue-gfs/2b1b1d46-213f-4e7f-82fe-1c8a1bfe8f38",
+          "absent": true
+        },
+        {
+          "id": "eba36715-2b3e-4b61-b536-2b711bb29791",
+          "path": "/mnt/glue-gfs/eba36715-2b3e-4b61-b536-2b711bb29791",
+          "absent": true
+        },
+        {
+          "id": "1bf6cec2-d4c7-4299-8c80-da1574b3869b",
+          "path": "/mnt/glue-gfs/1bf6cec2-d4c7-4299-8c80-da1574b3869b",
+          "absent": true
+        },
+        {
+          "id": "0b0aa2a7-e41f-490e-89ce-04c36be52577",
+          "path": "/mnt/glue-gfs/0b0aa2a7-e41f-490e-89ce-04c36be52577",
+          "absent": true
+        },
+        {
+          "id": "3ae665f2-e869-4007-adf8-fcd643182701",
+          "path": "/mnt/glue-gfs/3ae665f2-e869-4007-adf8-fcd643182701",
+          "absent": true
+        },
+        {
+          "id": "30b267ef-c373-4c9e-9fca-30a8cc946d55",
+          "path": "/mnt/glue-gfs/30b267ef-c373-4c9e-9fca-30a8cc946d55",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "host": "10.10.31.2",
+      "domains": [
+        {
+          "name": "i-2-818-VM",
+          "absent": true
+        },
+        {
+          "name": "i-2-820-VM",
+          "absent": true
+        },
+        {
+          "name": "i-2-821-VM",
+          "absent": true
+        },
+        {
+          "name": "r-819-VM",
+          "absent": true
+        },
+        {
+          "name": "r-822-VM",
+          "absent": true
+        },
+        {
+          "name": "r-823-VM",
+          "absent": true
+        },
+        {
+          "name": "r-824-VM",
+          "absent": true
+        },
+        {
+          "name": "r-825-VM",
+          "absent": true
+        },
+        {
+          "name": "r-826-VM",
+          "absent": true
+        },
+        {
+          "name": "r-827-VM",
+          "absent": true
+        },
+        {
+          "name": "r-828-VM",
+          "absent": true
+        },
+        {
+          "name": "r-829-VM",
+          "absent": true
+        },
+        {
+          "name": "r-830-VM",
+          "absent": true
+        },
+        {
+          "name": "r-831-VM",
+          "absent": true
+        },
+        {
+          "name": "r-832-VM",
+          "absent": true
+        },
+        {
+          "name": "r-833-VM",
+          "absent": true
+        },
+        {
+          "name": "r-834-VM",
+          "absent": true
+        },
+        {
+          "name": "r-835-VM",
+          "absent": true
+        }
+      ],
+      "roots": []
+    },
+    {
+      "host": "10.10.31.3",
+      "domains": [
+        {
+          "name": "i-2-818-VM",
+          "absent": true
+        },
+        {
+          "name": "i-2-820-VM",
+          "absent": true
+        },
+        {
+          "name": "i-2-821-VM",
+          "absent": true
+        },
+        {
+          "name": "r-819-VM",
+          "absent": true
+        },
+        {
+          "name": "r-822-VM",
+          "absent": true
+        },
+        {
+          "name": "r-823-VM",
+          "absent": true
+        },
+        {
+          "name": "r-824-VM",
+          "absent": true
+        },
+        {
+          "name": "r-825-VM",
+          "absent": true
+        },
+        {
+          "name": "r-826-VM",
+          "absent": true
+        },
+        {
+          "name": "r-827-VM",
+          "absent": true
+        },
+        {
+          "name": "r-828-VM",
+          "absent": true
+        },
+        {
+          "name": "r-829-VM",
+          "absent": true
+        },
+        {
+          "name": "r-830-VM",
+          "absent": true
+        },
+        {
+          "name": "r-831-VM",
+          "absent": true
+        },
+        {
+          "name": "r-832-VM",
+          "absent": true
+        },
+        {
+          "name": "r-833-VM",
+          "absent": true
+        },
+        {
+          "name": "r-834-VM",
+          "absent": true
+        },
+        {
+          "name": "r-835-VM",
+          "absent": true
+        }
+      ],
+      "roots": []
+    }
+  ],
+  "root_volumes_checked": 18,
+  "domains_checked_per_host": 18,
+  "temporary_host_trust_files_removed": true
+}

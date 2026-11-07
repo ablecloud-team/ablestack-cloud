@@ -1,0 +1,99 @@
+{
+  "body": {
+    "bottom": 540,
+    "height": 178,
+    "left": 255,
+    "right": 1015,
+    "top": 362,
+    "width": 760,
+    "x": 255,
+    "y": 362
+  },
+  "bodyClientHeight": 178,
+  "bodyClientWidth": 760,
+  "bodyScrollHeight": 178,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 760,
+  "colors": [
+    {
+      "background": "rgb(255, 248, 230)",
+      "color": "rgb(92, 59, 0)",
+      "text": "현재 가상머신을 재시작하시겠습니까?"
+    },
+    {
+      "background": "rgb(24, 144, 255)",
+      "color": "rgb(255, 255, 255)",
+      "text": "확인"
+    }
+  ],
+  "content": {
+    "bottom": 593,
+    "height": 286,
+    "left": 255,
+    "right": 1015,
+    "top": 307,
+    "width": 760,
+    "x": 255,
+    "y": 307
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1270,
+    "top": 0,
+    "width": 1270,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": {
+    "bottom": 593,
+    "height": 53,
+    "left": 255,
+    "right": 1015,
+    "top": 540,
+    "width": 760,
+    "x": 255,
+    "y": 540
+  },
+  "header": {
+    "bottom": 362,
+    "height": 55,
+    "left": 255,
+    "right": 1015,
+    "top": 307,
+    "width": 760,
+    "x": 255,
+    "y": 307
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 749,
+    "left": 256,
+    "right": 1270,
+    "top": 151,
+    "width": 1014,
+    "x": 256,
+    "y": 151
+  },
+  "primaryButton": {
+    "bottom": 583,
+    "height": 32,
+    "left": 941.234375,
+    "right": 999,
+    "top": 551,
+    "width": 57.765625,
+    "x": 941.234375,
+    "y": 551
+  },
+  "width": 1280,
+  "image_sha256": "8a07ff2bbe24567d970695fcdeb619ffb7eebe7bdd14a89131fb895bdd3ef7b1"
+}

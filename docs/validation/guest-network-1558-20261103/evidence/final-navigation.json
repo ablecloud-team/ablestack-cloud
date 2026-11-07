@@ -1,0 +1,32 @@
+[
+  {
+    "cluster": 31,
+    "dark": true,
+    "path": [
+      "network-breadcrumb-list",
+      "filtered-network-list",
+      "Isolated-detail",
+      "events-tab",
+      "details-tab",
+      "related-VM-list",
+      "back-to-network",
+      "detail-refresh"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "dark": false,
+    "path": [
+      "network-breadcrumb-list",
+      "filtered-network-list",
+      "Isolated-detail",
+      "events-tab",
+      "details-tab",
+      "related-VM-list",
+      "back-to-network",
+      "detail-refresh"
+    ],
+    "pass": true
+  }
+]

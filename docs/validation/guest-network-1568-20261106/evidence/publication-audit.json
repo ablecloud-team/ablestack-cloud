@@ -1,0 +1,42 @@
+{
+  "errors": [],
+  "documentFilesByExtension": {
+    ".md": 4,
+    ".json": 57,
+    ".txt": 8,
+    ".jpg": 70
+  },
+  "changedSourceHeadersChecked": [
+    "engine/orchestration/src/main/java/org/apache/cloudstack/engine/orchestration/NetworkOrchestrator.java",
+    "engine/orchestration/src/main/java/org/apache/cloudstack/engine/orchestration/VolumeOrchestrator.java",
+    "engine/orchestration/src/test/java/org/apache/cloudstack/engine/orchestration/NetworkDeletionLifecycleTest.java",
+    "engine/orchestration/src/test/java/org/apache/cloudstack/engine/orchestration/RouterVolumeCleanupTest.java",
+    "server/src/main/java/com/cloud/network/NetworkMigrationManagerImpl.java",
+    "server/src/main/java/com/cloud/network/NetworkServiceImpl.java",
+    "ui/src/components/view/DetailsTab.vue",
+    "ui/src/components/view/InfoCard.vue",
+    "ui/src/components/view/ListView.vue",
+    "ui/src/components/view/NetworkMutationStatus.vue",
+    "ui/src/components/widgets/Status.vue",
+    "ui/src/config/section/network.js",
+    "ui/src/utils/listRefreshMixin.js",
+    "ui/src/utils/networkLifecycle.js",
+    "ui/src/utils/networkMutation.js",
+    "ui/src/views/AutogenView.vue",
+    "ui/src/views/network/DeleteNetwork.vue",
+    "ui/src/views/network/EgressRulesTab.vue",
+    "ui/src/views/network/FirewallRules.vue",
+    "ui/src/views/network/IpAddressesTab.vue",
+    "ui/src/views/network/LoadBalancing.vue",
+    "ui/src/views/network/MigrateNetwork.vue",
+    "ui/src/views/network/PortForwarding.vue",
+    "ui/src/views/network/RestartNetwork.vue",
+    "ui/tests/unit/utils/networkMutation.spec.js",
+    "ui/tests/unit/views/network/DeleteNetwork.spec.js",
+    "ui/tests/unit/views/network/KubernetesNetworkUi.spec.js",
+    "ui/tests/unit/views/network/NetworkRuleLayout.spec.js",
+    "ui/tests/unit/views/network/NetworkTabs.spec.js",
+    "ui/tests/unit/views/network/RestartNetwork.spec.js"
+  ],
+  "scope": "changed code and published report; generated JSON/log excerpts and JPEG excluded from text license header checks"
+}

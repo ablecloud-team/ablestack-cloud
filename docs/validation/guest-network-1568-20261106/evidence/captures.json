@@ -1,0 +1,702 @@
+[
+  {
+    "file": "screenshots/31-bulk-delete-preflight.jpg",
+    "label": "31-bulk-delete-preflight",
+    "width": 1280,
+    "height": 900,
+    "sha256": "7e5a49dccd9703b8b62a247ab8aa96d168f221b52bb1cf50224b37e0b7d286ac",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-bulk-delete-result.jpg",
+    "label": "31-bulk-delete-result",
+    "width": 1280,
+    "height": 900,
+    "sha256": "484677b6b0a041b0797e528f71b3ba1610fff7031a1bea8aaf0d05a376c0b794",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-compute-offering-regression.jpg",
+    "label": "31-compute-offering-regression",
+    "width": 1280,
+    "height": 900,
+    "sha256": "8df199df8486e8ca327dbcbe2c5711e166856b34b8a5bd3d3e9d99e561c58160",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-delete-dark-mobile-final.jpg",
+    "label": "31-delete-dark-mobile-final",
+    "width": 390,
+    "height": 844,
+    "sha256": "b85ac7120a934d61c2cc4ac6073ea306ea63346dd5517350a10e2aaf7cc84ab1",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-delete-dependencies-dark-mobile.jpg",
+    "label": "31-delete-dependencies-dark-mobile",
+    "width": 390,
+    "height": 844,
+    "sha256": "b676288e5f951f30aeaadc0191687a9f06805735ae1ed478fa46efe58f9ff998",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-delete-dependencies-light.jpg",
+    "label": "31-delete-dependencies-light",
+    "width": 1280,
+    "height": 900,
+    "sha256": "ecf809c5c6d22058f3dcfc895ef38eac95edc1da9a14dcb6660cc75b11c7bb6e",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-delete-injected-read-failure.jpg",
+    "label": "31-delete-injected-read-failure",
+    "width": 1280,
+    "height": 900,
+    "sha256": "796d31d64d0e459322f300dbf926de92a0f64e4567e90ce825ebab828d84b0ac",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-delete-vm-link-mobile.jpg",
+    "label": "31-delete-vm-link-mobile",
+    "width": 390,
+    "height": 844,
+    "sha256": "b7a2e855bd9310895313c5d93ef4235ee6b6746e47572cb0c058d10c361b0e9d",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-egress-job-read-failure.jpg",
+    "label": "31-egress-job-read-failure",
+    "width": 1280,
+    "height": 900,
+    "sha256": "63e01b182641acb63566181b2ec1044b8645c4f85d1b5d21acf85fa50b4cc3a0",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-firewall-create-pending-final.jpg",
+    "label": "31-firewall-create-pending-final",
+    "width": 1280,
+    "height": 900,
+    "sha256": "6434b6278a1117b8f65aed53f9afa322c836552f4a964ebac5d78171309aff92",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-firewall-create-pending-mobile.jpg",
+    "label": "31-firewall-create-pending-mobile",
+    "width": 390,
+    "height": 844,
+    "sha256": "54004add4f07c1c4cf91d1aa1b709724ade115d8c940476709703a29febe8f0b",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-firewall-dialog-dark-mobile.jpg",
+    "label": "31-firewall-dialog-dark-mobile",
+    "width": 390,
+    "height": 844,
+    "sha256": "668f6c1495cb760d41cd8097483df46bb0a35573ffc146e26cbe6c671ca1b5ac",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-firewall-dialog-light-final.jpg",
+    "label": "31-firewall-dialog-light-final",
+    "width": 1280,
+    "height": 900,
+    "sha256": "32a13b6b275868d7796320d7db0f2a47da5e9537d10a52694bfdb75b227852c5",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-firewall-replacement-completed-final.jpg",
+    "label": "31-firewall-replacement-completed-final",
+    "width": 1280,
+    "height": 900,
+    "sha256": "a40c37e7bc1517e8a15c9efedb0b7c77ce9928d6ba57b8c8a98feb2e6aef8880",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-firewall-replacement-error-final.jpg",
+    "label": "31-firewall-replacement-error-final",
+    "width": 1280,
+    "height": 900,
+    "sha256": "056b6ba02377f4657b2bc3c82f99a360e0f58cfc0258b736ab5a356016146d4d",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-firewall-replacement-pending-final.jpg",
+    "label": "31-firewall-replacement-pending-final",
+    "width": 1280,
+    "height": 900,
+    "sha256": "adaded9d4df7d9f0342a405d7449b9c23932a86805e1e315c483dd4f19580333",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-firewall-replacement-retry-final.jpg",
+    "label": "31-firewall-replacement-retry-final",
+    "width": 1280,
+    "height": 900,
+    "sha256": "ef6ff8ce6b5d4efe7e0aaf60bab3405cb3490f275b626a1055ca7a467bf93b18",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-ip-acquire-pending-final.jpg",
+    "label": "31-ip-acquire-pending-final",
+    "width": 1280,
+    "height": 900,
+    "sha256": "eea297dc944a09b48fc716833eedbf4e3ff4a3a321c80b0aff83b3b1990c34ab",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-isolated-detail.jpg",
+    "label": "31-isolated-detail",
+    "width": 1280,
+    "height": 900,
+    "sha256": "bf59c8d0eedc35d44792b919f96cea41e2d5bdf28cfe32575fa80756f9c1a507",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-l2-detail.jpg",
+    "label": "31-l2-detail",
+    "width": 1280,
+    "height": 900,
+    "sha256": "e90394c3052fca1f9087988ba0e615277e5bfb9e91c0e4b8ea09a3754a7067bb",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-late-response-vm-navigation.jpg",
+    "label": "31-late-response-vm-navigation",
+    "width": 1280,
+    "height": 900,
+    "sha256": "937b98a831e312b375906a7d1641f78c075a9a17badd708f5044adedef1adf31",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-migration-ready.jpg",
+    "label": "31-migration-ready",
+    "width": 1280,
+    "height": 900,
+    "sha256": "9ef724ed66e1910b3bde52770f9f42768d39002ed9998ed6693be52836fbebdf",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-migration-reentry-pending.jpg",
+    "label": "31-migration-reentry-pending",
+    "width": 1280,
+    "height": 900,
+    "sha256": "077ccabd5e867c51c6003bb9402d04e6d6f6cf460c8a68842127a9fd54c61faa",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-review-network-final.jpg",
+    "label": "31-review-network-final",
+    "width": 1280,
+    "height": 900,
+    "sha256": "94fcb703b40d5458e0853c89162999a8c31805e8e007187b3c1d897e552b2801",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-shared-delete-dark-tablet.jpg",
+    "label": "31-shared-delete-dark-tablet",
+    "width": 768,
+    "height": 1024,
+    "sha256": "eae1202ee719ff12fb5ae87d87d17348e73ad2530bce4d9b6939d6902cbfbbde",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-shared-detail.jpg",
+    "label": "31-shared-detail",
+    "width": 1280,
+    "height": 900,
+    "sha256": "92691f26462456526367c3648bd44343aff0cc87c29bbcce8fa99769c63c090a",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-user-delete-dependencies.jpg",
+    "label": "31-user-delete-dependencies",
+    "width": 1280,
+    "height": 900,
+    "sha256": "68befba1ff1830f1ac4e69b37066a18ceb1dda909d17a9097aa255cc0fc3aa46",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-user-l2-detail.jpg",
+    "label": "31-user-l2-detail",
+    "width": 1280,
+    "height": 900,
+    "sha256": "d99aac3a595b082ca46608040d11d3986b722de16a7d664a26d337f083b8a91f",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-user-shared-detail.jpg",
+    "label": "31-user-shared-detail",
+    "width": 1280,
+    "height": 900,
+    "sha256": "8f3673b71a100f88a43d86c544dab21073380ec82b40f7ebcff4036045adf7ce",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-vm-detail-standard.jpg",
+    "label": "31-vm-detail-standard",
+    "width": 1680,
+    "height": 897,
+    "sha256": "af901dc812ef2f5d180daba9991271d681703ae14237a7acf1f3da3688476824",
+    "dark": null,
+    "documentOverflow": null,
+    "dialogOverflow": null
+  },
+  {
+    "file": "screenshots/31-vm-edit-standard.jpg",
+    "label": "31-vm-edit-standard",
+    "width": 1680,
+    "height": 897,
+    "sha256": "eeb5539a5ee71749449ad7447037a034d7f38b0a063558aced979485db01ddec",
+    "dark": null,
+    "documentOverflow": null,
+    "dialogOverflow": null
+  },
+  {
+    "file": "screenshots/31-vm-list-standard.jpg",
+    "label": "31-vm-list-standard",
+    "width": 1680,
+    "height": 897,
+    "sha256": "dbdfa1a9ddc12e425ca8d2bc81eec62a9a08093880777984ce7abea5804d7a09",
+    "dark": null,
+    "documentOverflow": null,
+    "dialogOverflow": null
+  },
+  {
+    "file": "screenshots/31-vm-nic-standard.jpg",
+    "label": "31-vm-nic-standard",
+    "width": 1680,
+    "height": 897,
+    "sha256": "7d9bbc05bb6334b9aeeb6b1ed646fd2d40d51fe11ce63aab6f146f0c00920b97",
+    "dark": null,
+    "documentOverflow": null,
+    "dialogOverflow": null
+  },
+  {
+    "file": "screenshots/31-vm-nics-after-migration.jpg",
+    "label": "31-vm-nics-after-migration",
+    "width": 1280,
+    "height": 900,
+    "sha256": "20bb78c475d04f7a9ae3c2531c49e7c0153d0b00e930c3352202262a80ddbc50",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-vm-volume-dialog-regression.jpg",
+    "label": "31-vm-volume-dialog-regression",
+    "width": 1280,
+    "height": 900,
+    "sha256": "fd1e10ca1fc414a21adc23cecb17b6a5e17e9f45336363d3c34144109312deba",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-vm-volumes-regression.jpg",
+    "label": "31-vm-volumes-regression",
+    "width": 1280,
+    "height": 900,
+    "sha256": "07c76387e72c201e4ce5e62e6e27bd521936bcdef6a7f47ca1e83adc86b705bb",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/31-volume-detail-regression.jpg",
+    "label": "31-volume-detail-regression",
+    "width": 1280,
+    "height": 900,
+    "sha256": "4a578b14729ef7d85974c37a31a80b276785fc60defb27c9514b71e9943cdfab",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-bulk-delete-pending.jpg",
+    "label": "32-bulk-delete-pending",
+    "width": 1280,
+    "height": 900,
+    "sha256": "926746a02960f1868c4de4c3fb8090455c3ccb9eb94cd9c68ed96294f12a7bed",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-bulk-delete-storage-failure.jpg",
+    "label": "32-bulk-delete-storage-failure",
+    "width": 1280,
+    "height": 900,
+    "sha256": "8155490fbbf19592a97bb0a60fe9b8162e244ba32312236f12d7168b22e1ffb0",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-delete-failure-history-restored.jpg",
+    "label": "32-delete-failure-history-restored",
+    "width": 1280,
+    "height": 900,
+    "sha256": "0871de5a361db343142375ce479ac61acd71f3b5f65852203884b5c24b313a3d",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-delete-final-result.jpg",
+    "label": "32-delete-final-result",
+    "width": 1280,
+    "height": 900,
+    "sha256": "43c1ac30daf4ed9b3f4af2dcc320718f47f09cf55da6fb1bb0e74c098063b79e",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-delete-retry-failed-only.jpg",
+    "label": "32-delete-retry-failed-only",
+    "width": 1280,
+    "height": 900,
+    "sha256": "cdb729cd489d7239b9191889771e1a10fb2983abb9d3644e41eac75219aeacfe",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-egress-dialog.jpg",
+    "label": "32-egress-dialog",
+    "width": 1280,
+    "height": 900,
+    "sha256": "1e7e22eaeb215b185c40403f54f5f332263ddb7a29a81d3890c3978017e27339",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-egress-error-preserved.jpg",
+    "label": "32-egress-error-preserved",
+    "width": 1280,
+    "height": 900,
+    "sha256": "b89c80322b98d6bf271c122968a245f613f2a2732fba3554ca59030697085786",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-egress-job-pending.jpg",
+    "label": "32-egress-job-pending",
+    "width": 1280,
+    "height": 900,
+    "sha256": "49b8ec7edae9945bd5f4b94f745c7df4c26b993c7a0bf99f4e58b5dfd7ee7d76",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-firewall-created-final.jpg",
+    "label": "32-firewall-created-final",
+    "width": 1280,
+    "height": 900,
+    "sha256": "5d36326bbca6f8a7c5bb6f22a412542f8177999e2aeec0cd729c528a83291887",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-firewall-dark-mobile-final.jpg",
+    "label": "32-firewall-dark-mobile-final",
+    "width": 390,
+    "height": 844,
+    "sha256": "9e5e379e3456cf1feec5832d90121628b8ef7b18e9438d34a0cfd4e66ec9c17c",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-ip-acquire-pending-final.jpg",
+    "label": "32-ip-acquire-pending-final",
+    "width": 1280,
+    "height": 900,
+    "sha256": "79fb16b92c543e93343d8d78413ea68bcba49d22538f1ca47036c9e35aa38794",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-isolated-detail.jpg",
+    "label": "32-isolated-detail",
+    "width": 1280,
+    "height": 900,
+    "sha256": "6f73af4bf72cf3ef286f9116438d65cfdba4cc15876d33dd34a959ca0460a6b4",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-l2-delete-dependencies.jpg",
+    "label": "32-l2-delete-dependencies",
+    "width": 1280,
+    "height": 900,
+    "sha256": "6c31de2d3d3a29946d30dbd15e2a655200572d05c62f3674fd5f7856bf78846f",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-l2-detail.jpg",
+    "label": "32-l2-detail",
+    "width": 1280,
+    "height": 900,
+    "sha256": "22e9f47947293282690ad23fa6eff5a15d2c265a1b047bb5069a85c7dbeeb7c8",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-migration-completed.jpg",
+    "label": "32-migration-completed",
+    "width": 1280,
+    "height": 900,
+    "sha256": "91f8a40922696cfe4ffdc53bd078b39f0cf34065120fc087ee3a31a5e78fcde0",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-migration-pending.jpg",
+    "label": "32-migration-pending",
+    "width": 1280,
+    "height": 900,
+    "sha256": "f4fd4b728cc31028b00478d2f1ddac67b0a99dcf29650b3c3d5976efcd60359e",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-migration-reentry-pending.jpg",
+    "label": "32-migration-reentry-pending",
+    "width": 1280,
+    "height": 900,
+    "sha256": "f27255918a37861902a2cb21d6b0cf99aaba9298daab99144afa0932ef13b0fd",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-port-forward-created-final.jpg",
+    "label": "32-port-forward-created-final",
+    "width": 390,
+    "height": 844,
+    "sha256": "8ebe92396c548ebcb0ffc9c348c8b683c26a220db7f1a9bee9dc0e1866512657",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-port-forward-dialog-dark-mobile.jpg",
+    "label": "32-port-forward-dialog-dark-mobile",
+    "width": 390,
+    "height": 844,
+    "sha256": "84dad0864f68f4601a71ba20f880378d43e97c4344d53b784ec1ba2e00dacccc",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-port-forward-dialog-dark.jpg",
+    "label": "32-port-forward-dialog-dark",
+    "width": 1280,
+    "height": 900,
+    "sha256": "0ddd79cadd5a4848756ab0d6b460d6e78f8817f43dce70d8c120a2a6cb11f3a8",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-port-forward-job-pending-mobile.jpg",
+    "label": "32-port-forward-job-pending-mobile",
+    "width": 390,
+    "height": 844,
+    "sha256": "09487c8851b791841f57a75578a3330d5c4e41013fbf6fcd9d82cf33abe888d5",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-restart-dialog-final.jpg",
+    "label": "32-restart-dialog-final",
+    "width": 1280,
+    "height": 900,
+    "sha256": "f78b24707795f86f42222f5f98edea6d9de7e0e9c7e899851e9580817fc21c02",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-restart-pending-final.jpg",
+    "label": "32-restart-pending-final",
+    "width": 1280,
+    "height": 900,
+    "sha256": "e89850fdb2b90158644a791ea14980015f9946ba0b3ba22f45ab7925585f30a3",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-restart-reentry-final.jpg",
+    "label": "32-restart-reentry-final",
+    "width": 1280,
+    "height": 900,
+    "sha256": "3426a21ce211336612791ca3507526b0488ceff43b96fa02e35da6b0e9922f03",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-retained-list-light-final.jpg",
+    "label": "32-retained-list-light-final",
+    "width": 1280,
+    "height": 900,
+    "sha256": "114b5b8ef6e30000d2632f96aee795f85f733e52c8606c8d196a0fd35e7dd5a8",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-review-network-final.jpg",
+    "label": "32-review-network-final",
+    "width": 1280,
+    "height": 900,
+    "sha256": "aa004b32b3c59040b3461da6529a5547d4b493dc52dbdd89e8763fae485fd957",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-shared-dark-mobile.jpg",
+    "label": "32-shared-dark-mobile",
+    "width": 390,
+    "height": 844,
+    "sha256": "3e2924c447fb72afe1c517cc23337d360638e1def25b481748e6bffcf0614c27",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-shared-detail.jpg",
+    "label": "32-shared-detail",
+    "width": 1280,
+    "height": 900,
+    "sha256": "4fb1d5949e21741e980f7fc84e1912a0bc02fb4ec7dc443c1ab909947216f0cf",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-shared-light-mobile-final.jpg",
+    "label": "32-shared-light-mobile-final",
+    "width": 390,
+    "height": 844,
+    "sha256": "7bae8faea94d66b527d63923f70ae9e566348889653bddee148dd21fccd2e4b4",
+    "dark": false,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-storage-failure-detail.jpg",
+    "label": "32-storage-failure-detail",
+    "width": 1280,
+    "height": 900,
+    "sha256": "6c393b9fd27a2d3bfce8744e416bbd92cbfe3a2db3ad0f401bc8f047094167a6",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-user-delete-dependencies.jpg",
+    "label": "32-user-delete-dependencies",
+    "width": 1280,
+    "height": 900,
+    "sha256": "a4b8e513e5dd6f652ad030d3e4f3b6cf492d20eab53433e9405fe47d4a2afe07",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-user-shared-permissions.jpg",
+    "label": "32-user-shared-permissions",
+    "width": 1280,
+    "height": 900,
+    "sha256": "58d5ac491cd0c91fd5181ccd5c5a474df9307abc47676deb9f9b16dce2034b72",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  },
+  {
+    "file": "screenshots/32-user-shared-restart-blocked.jpg",
+    "label": "32-user-shared-restart-blocked",
+    "width": 1280,
+    "height": 900,
+    "sha256": "786fa84ce8999ab0abbb1658410819cc921ec6e16efa1dbd80e701342e14a887",
+    "dark": true,
+    "documentOverflow": -10,
+    "dialogOverflow": 0
+  }
+]

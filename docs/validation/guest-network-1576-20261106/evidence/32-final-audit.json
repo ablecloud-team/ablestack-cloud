@@ -1,0 +1,97 @@
+{
+  "preserved": {
+    "networkoffering": 15,
+    "network": 9,
+    "virtualmachine": 55
+  },
+  "retained": {
+    "prefix": "qa-gn1576-32",
+    "zone": "991d2f57-0f37-4445-b956-09773d064816",
+    "physical": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+    "host": "05bc1189-abf8-4ec3-9ef5-02558863b628",
+    "offerings": {
+      "isolated": "05ecbd13-da61-482e-8700-be65dd8bb947",
+      "shared": "da3b9962-36d5-440f-8352-423fd5de28c2",
+      "isolated-ui": "08777c92-e5c9-4661-b411-0e982a3684f3",
+      "l2-ui": "3b711ed0-157c-4f67-a81f-7b19aefa8f78",
+      "shared-ui": "f4ad08ec-637f-49d5-bd54-7334fec404a2"
+    },
+    "networks": {
+      "isolated": "dd8309c5-d92e-4a14-ab51-02ca97033b90",
+      "l2": "31541c7d-1240-44ff-a6a7-0f4c1d6c646b",
+      "shared": "f52dc644-67cb-4643-b106-b86fd70ece66"
+    },
+    "domain": "e04af97f-00ab-448c-b238-e0ea2de18665",
+    "outsideDomain": "4b0518e7-c3c6-49dd-a4da-c94ae07e29ec",
+    "owner": {
+      "id": "964d8d6d-eed8-43da-9d94-c4e3d9021ba4",
+      "name": "qa-gn1576-32-owner",
+      "domainid": "e04af97f-00ab-448c-b238-e0ea2de18665"
+    },
+    "outside": {
+      "id": "703a2b64-3946-440b-b649-400c605e588e",
+      "name": "qa-gn1576-32-outside",
+      "domainid": "4b0518e7-c3c6-49dd-a4da-c94ae07e29ec"
+    },
+    "vm": "51253734-b0a5-4a37-92f2-013a99ee9110"
+  },
+  "offerings": {
+    "isolated": {
+      "id": "05ecbd13-da61-482e-8700-be65dd8bb947",
+      "name": "qa-gn1576-32-isolated-source",
+      "type": "Isolated",
+      "state": "Enabled",
+      "scope": "e04af97f-00ab-448c-b238-e0ea2de18665",
+      "zone": "991d2f57-0f37-4445-b956-09773d064816"
+    },
+    "shared": {
+      "id": "da3b9962-36d5-440f-8352-423fd5de28c2",
+      "name": "qa-gn1576-32-shared-source",
+      "type": "Shared",
+      "state": "Enabled",
+      "scope": "e04af97f-00ab-448c-b238-e0ea2de18665",
+      "zone": "991d2f57-0f37-4445-b956-09773d064816"
+    },
+    "isolated-ui": {
+      "id": "08777c92-e5c9-4661-b411-0e982a3684f3",
+      "name": "qa-gn1576-32-isolated-ui",
+      "type": "Isolated",
+      "state": "Enabled",
+      "scope": "e04af97f-00ab-448c-b238-e0ea2de18665",
+      "zone": "991d2f57-0f37-4445-b956-09773d064816"
+    },
+    "l2-ui": {
+      "id": "3b711ed0-157c-4f67-a81f-7b19aefa8f78",
+      "name": "qa-gn1576-32-l2-ui",
+      "type": "L2",
+      "state": "Enabled",
+      "scope": "e04af97f-00ab-448c-b238-e0ea2de18665",
+      "zone": "991d2f57-0f37-4445-b956-09773d064816"
+    },
+    "shared-ui": {
+      "id": "f4ad08ec-637f-49d5-bd54-7334fec404a2",
+      "name": "qa-gn1576-32-shared-ui",
+      "type": "Shared",
+      "state": "Enabled",
+      "scope": "e04af97f-00ab-448c-b238-e0ea2de18665",
+      "zone": "991d2f57-0f37-4445-b956-09773d064816"
+    }
+  },
+  "scope": {
+    "owner": {
+      "isolated": true,
+      "shared": true,
+      "isolated-ui": true,
+      "l2-ui": true,
+      "shared-ui": true
+    },
+    "outside": {
+      "isolated": false,
+      "shared": false,
+      "isolated-ui": false,
+      "l2-ui": false,
+      "shared-ui": false
+    }
+  },
+  "usedOfferingDeleteRejected": 431
+}

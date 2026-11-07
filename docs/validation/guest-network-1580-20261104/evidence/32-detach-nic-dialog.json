@@ -1,0 +1,99 @@
+{
+  "body": {
+    "bottom": 625,
+    "height": 352,
+    "left": 375,
+    "right": 895,
+    "top": 273,
+    "width": 520,
+    "x": 375,
+    "y": 273
+  },
+  "bodyClientHeight": 352,
+  "bodyClientWidth": 520,
+  "bodyScrollHeight": 352,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 520,
+  "colors": [
+    {
+      "background": "rgb(255, 248, 230)",
+      "color": "rgb(92, 59, 0)",
+      "text": "이 NIC의 통신이 중단됩니다. VM의 NIC만 제거하며 네트워크 자체와 다른 VM의 연결은 유지됩니다."
+    },
+    {
+      "background": "rgb(245, 34, 45)",
+      "color": "rgb(255, 255, 255)",
+      "text": "연결 해제"
+    }
+  ],
+  "content": {
+    "bottom": 682,
+    "height": 464,
+    "left": 375,
+    "right": 895,
+    "top": 218,
+    "width": 520,
+    "x": 375,
+    "y": 218
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1270,
+    "top": 0,
+    "width": 1270,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "INPUT"
+  },
+  "footer": {
+    "bottom": 682,
+    "height": 57,
+    "left": 375,
+    "right": 895,
+    "top": 625,
+    "width": 520,
+    "x": 375,
+    "y": 625
+  },
+  "header": {
+    "bottom": 273,
+    "height": 55,
+    "left": 375,
+    "right": 895,
+    "top": 218,
+    "width": 520,
+    "x": 375,
+    "y": 218
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 749,
+    "left": 256,
+    "right": 1270,
+    "top": 151,
+    "width": 1014,
+    "x": 256,
+    "y": 151
+  },
+  "primaryButton": {
+    "bottom": 670,
+    "height": 32,
+    "left": 783.640625,
+    "right": 871,
+    "top": 638,
+    "width": 87.359375,
+    "x": 783.640625,
+    "y": 638
+  },
+  "width": 1280,
+  "image_sha256": "62c0d4130b4cfb0f8c42c5805327d3972b9ae8ee444653049a868f80e23c3263"
+}

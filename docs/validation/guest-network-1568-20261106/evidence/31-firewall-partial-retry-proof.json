@@ -1,0 +1,45 @@
+{
+  "writeSequence": [
+    {
+      "sequence": 14297,
+      "command": "createFirewallRule",
+      "method": "POST",
+      "params": {}
+    },
+    {
+      "sequence": 14372,
+      "command": "createFirewallRule",
+      "method": "POST",
+      "params": {}
+    },
+    {
+      "sequence": 14482,
+      "command": "deleteFirewallRule",
+      "method": "POST",
+      "params": {
+        "id": "a5ccdfb3-b860-48aa-83f2-f077247b45b5"
+      }
+    },
+    {
+      "sequence": 14517,
+      "command": "createFirewallRule",
+      "method": "POST",
+      "params": {}
+    },
+    {
+      "sequence": 14577,
+      "command": "createFirewallRule",
+      "method": "POST",
+      "params": {}
+    }
+  ],
+  "createPosts": 4,
+  "deletePosts": 1,
+  "partialFailureCode": 537,
+  "successfullyDeletedStageRepeated": false,
+  "finalPorts": [
+    52369,
+    52370
+  ],
+  "status": "PASS"
+}

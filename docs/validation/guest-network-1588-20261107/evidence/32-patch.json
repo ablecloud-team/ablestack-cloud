@@ -1,0 +1,9 @@
+{
+  "target": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+  "entry": "org/apache/cloudstack/acl/ProjectRoleBasedApiAccessChecker.class",
+  "oldJarSha256": "53895b2fa85d4c4ddafe35d870e383108a3861301d3ee3a2b2aa52a2112aed6a",
+  "newJarSha256": "6563bbe5eff57d8fdf18ffa2996007b1f5f8a947faf3e863c71cef79ea5f56d2",
+  "classSha256": "567bf11f79b40bbdffbd924e5c16676348784dd14c16215834fc607437865197",
+  "unchangedEntries": 204656,
+  "sourceCommit": "9a29e0b0eb4"
+}

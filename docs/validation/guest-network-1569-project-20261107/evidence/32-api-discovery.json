@@ -1,0 +1,79 @@
+{
+  "admin": {
+    "errorCode": null,
+    "errorText": null,
+    "count": 1070,
+    "writeApis": {
+      "createNetwork": true,
+      "updateNetwork": true,
+      "addNicToVirtualMachine": true,
+      "removeNicFromVirtualMachine": true
+    }
+  },
+  "domainadmin": {
+    "errorCode": 531,
+    "errorText": "The user [User {\"id\":177,\"username\":\"qa-gn1569-32-domainadmin\",\"uuid\":\"32c9f677-e042-4874-bcca-d2adca838c1e\"}.] does not belong to the project [Project {\"domainId\":64,\"id\":57,\"name\":\"qa-gn1569-32-project\",\"uuid\":\"0db180fc-4a19-4f9a-b387-00599ffa86c0\"}.].",
+    "count": 0,
+    "writeApis": {
+      "createNetwork": false,
+      "updateNetwork": false,
+      "addNicToVirtualMachine": false,
+      "removeNicFromVirtualMachine": false
+    }
+  },
+  "owner": {
+    "errorCode": null,
+    "errorText": null,
+    "count": 465,
+    "writeApis": {
+      "createNetwork": true,
+      "updateNetwork": true,
+      "addNicToVirtualMachine": true,
+      "removeNicFromVirtualMachine": true
+    }
+  },
+  "member": {
+    "errorCode": null,
+    "errorText": null,
+    "count": 465,
+    "writeApis": {
+      "createNetwork": true,
+      "updateNetwork": true,
+      "addNicToVirtualMachine": true,
+      "removeNicFromVirtualMachine": true
+    }
+  },
+  "readonly": {
+    "errorCode": 401,
+    "errorText": "The given command 'listApis' either does not exist, is not available for user.",
+    "count": 0,
+    "writeApis": {
+      "createNetwork": false,
+      "updateNetwork": false,
+      "addNicToVirtualMachine": false,
+      "removeNicFromVirtualMachine": false
+    }
+  },
+  "peer": {
+    "errorCode": 432,
+    "errorText": "The API [listApis] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "count": 0,
+    "writeApis": {
+      "createNetwork": false,
+      "updateNetwork": false,
+      "addNicToVirtualMachine": false,
+      "removeNicFromVirtualMachine": false
+    }
+  },
+  "outsider": {
+    "errorCode": 432,
+    "errorText": "The API [listApis] does not exist or is not available for this account/user in project [0db180fc-4a19-4f9a-b387-00599ffa86c0].",
+    "count": 0,
+    "writeApis": {
+      "createNetwork": false,
+      "updateNetwork": false,
+      "addNicToVirtualMachine": false,
+      "removeNicFromVirtualMachine": false
+    }
+  }
+}

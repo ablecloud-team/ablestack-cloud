@@ -211,7 +211,7 @@
           <a-input v-model:value="bgpPeersForm.ip6address" />
         </a-form-item>
         <a-form-item name="password" ref="password" :label="$t('label.password')" class="form__item">
-          <a-input v-model:value="bgpPeersForm.password" />
+          <a-input-password v-model:value="bgpPeersForm.password" autocomplete="new-password" />
         </a-form-item>
         <div class="form__item">
           <div style="color: black;">{{ $t('label.set.reservation') }}</div>
@@ -276,7 +276,7 @@
             <a-input v-model:value="formUpdateBgpPeer.ip6address" />
           </a-form-item>
           <a-form-item name="password" ref="password" :label="$t('label.password')" class="form__item">
-            <a-input v-model:value="formUpdateBgpPeer.password" />
+            <a-input-password v-model:value="formUpdateBgpPeer.password" autocomplete="new-password" />
           </a-form-item>
         </div>
 
@@ -656,7 +656,7 @@ export default {
           asnumber: values.asnumber,
           ipaddress: values.ipaddress,
           ip6address: values.ip6address,
-          password: values.password,
+          password: values.password || undefined,
           domainid: values.domain,
           account: values.account
         }
@@ -706,7 +706,7 @@ export default {
           asnumber: values.asnumber,
           ipaddress: values.ipaddress,
           ip6address: values.ip6address,
-          password: values.password
+          password: values.password || undefined
         }
         postAPI('updateBgpPeer', params).then(response => {
           this.$pollJob({

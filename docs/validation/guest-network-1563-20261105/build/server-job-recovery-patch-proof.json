@@ -1,0 +1,26 @@
+{
+  "oldJarSha256": "a4891b6062b9652dc8d9f6f052ea1b998cc1f9c9e478b4d4a9bbb6e2f730af34",
+  "newJarSha256": "f542159d7d186554387ba5290e4f4a2be1a52a44cece143fa50fe76cffbdc0cb",
+  "changedEntries": [
+    "org/apache/cloudstack/api/command/user/job/ListAsyncJobsCmd.class",
+    "com/cloud/network/NetworkMigrationManagerImpl.class",
+    "META-INF/db/views/cloud.async_job_view.sql",
+    "com/cloud/api/query/QueryManagerImpl$1.class",
+    "com/cloud/api/query/QueryManagerImpl.class"
+  ],
+  "preservedEntries": 204652,
+  "classSha256": {
+    "org/apache/cloudstack/api/command/user/job/ListAsyncJobsCmd.class": "fbc46e66628b1bec5e41d919064b337122b975016906f8fc3d75be080a8626c0",
+    "com/cloud/network/NetworkMigrationManagerImpl.class": "19e542880af9841a7b48f29df94e74bca7637593e3d7d266c097748b5192dd63",
+    "META-INF/db/views/cloud.async_job_view.sql": "7e07a0c58cc3f46d1e6bd0da5b7db3bf75da98a1b199ac782df3a6d0e92cfd49",
+    "com/cloud/api/query/QueryManagerImpl$1.class": "676fa17a250f90c0f8edb390cfbbf7a4f80956d755829c59e38dfdf6d2b36a2d",
+    "com/cloud/api/query/QueryManagerImpl.class": "0f9d410007d33afcd8963ff5b0734022a31e647b2f9dc56f6763b57b4fe87ea8"
+  },
+  "sourceFiles": {
+    "api/src/main/java/org/apache/cloudstack/api/command/user/job/ListAsyncJobsCmd.java": "0cb64215d22b1d630f73bb0c044cdea8f1e2416330e888c7b3de331254ed1cf5",
+    "server/src/main/java/com/cloud/api/query/QueryManagerImpl.java": "a7530eea20f8c37ef93ebf46eaec0c0f403ca059330617a9917e804e04dd0f98",
+    "server/src/main/java/com/cloud/network/NetworkMigrationManagerImpl.java": "d8f74cd2c307d71c0d939be28dab8da28ce0a2741bc62880b193478b844b234e",
+    "engine/schema/src/main/resources/META-INF/db/views/cloud.async_job_view.sql": "7e07a0c58cc3f46d1e6bd0da5b7db3bf75da98a1b199ac782df3a6d0e92cfd49"
+  },
+  "sourceHead": "ec33bbc53101a554c4c9c1beb6665df8cddea2eb"
+}

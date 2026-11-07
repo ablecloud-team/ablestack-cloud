@@ -1,0 +1,462 @@
+{
+  "pvlan": {
+    "id": "372f0238-0648-4a0e-b6fa-2e81d364acbb",
+    "name": "qa-gn1572-31-pvlan",
+    "type": "Shared",
+    "acltype": "Domain",
+    "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+    "subdomainaccess": true,
+    "broadcasturi": "pvlan://789-c790",
+    "vlan": "N/A",
+    "networkofferingid": "981ce828-c6c9-447e-ba00-15e2890a6717",
+    "cidr": "198.18.31.0/27",
+    "gateway": "198.18.31.1",
+    "dns1": "8.8.8.8",
+    "state": "Setup",
+    "service": [
+      {
+        "name": "Dns",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "AllowDnsSuffixModification",
+            "value": "true",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "Dhcp",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "DhcpAccrossMultipleSubnets",
+            "value": "true",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "UserData",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": []
+      }
+    ],
+    "displaytext": "#1572 Shared UI: pvlan"
+  },
+  "nosub": {
+    "id": "2938dfbf-4f8c-4fc8-8f8e-62cd4da5103c",
+    "name": "qa-gn1572-31-nosub",
+    "type": "Shared",
+    "acltype": "Domain",
+    "domainid": "354e3795-2420-40d9-953a-88bab8e38035",
+    "subdomainaccess": false,
+    "broadcasturi": "vlan://787",
+    "vlan": "787",
+    "networkofferingid": "981ce828-c6c9-447e-ba00-15e2890a6717",
+    "cidr": "198.19.31.192/27",
+    "gateway": "198.19.31.193",
+    "dns1": "8.8.8.8",
+    "state": "Setup",
+    "service": [
+      {
+        "name": "Dns",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "AllowDnsSuffixModification",
+            "value": "true",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "Dhcp",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "DhcpAccrossMultipleSubnets",
+            "value": "true",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "UserData",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": []
+      }
+    ],
+    "displaytext": "#1572 Shared UI: nosub"
+  },
+  "dual": {
+    "id": "6e7050da-355d-41a1-af38-9012ed8d369a",
+    "name": "qa-gn1572-31-dual",
+    "type": "Shared",
+    "acltype": "Domain",
+    "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+    "subdomainaccess": true,
+    "broadcasturi": "vlan://788",
+    "vlan": "788",
+    "networkofferingid": "981ce828-c6c9-447e-ba00-15e2890a6717",
+    "cidr": "198.19.31.224/27",
+    "gateway": "198.19.31.225",
+    "ip6cidr": "fd72:31::/64",
+    "dns1": "8.8.8.8",
+    "ip6dns1": "fd72:31::53",
+    "state": "Setup",
+    "service": [
+      {
+        "name": "Dns",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "AllowDnsSuffixModification",
+            "value": "true",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "Dhcp",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "DhcpAccrossMultipleSubnets",
+            "value": "true",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "UserData",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": []
+      }
+    ],
+    "displaytext": "#1572 Shared UI: dual"
+  },
+  "related": {
+    "id": "b8ecb370-9264-454c-b34d-f7b182490a99",
+    "name": "qa-gn1572-31-related",
+    "type": "Shared",
+    "acltype": "Account",
+    "domainid": "354e3795-2420-40d9-953a-88bab8e38035",
+    "account": "qa-gn1572-31-owner",
+    "broadcasturi": "vlan://785",
+    "vlan": "785",
+    "networkofferingid": "0602f954-8aad-471a-b724-5bb95dd62495",
+    "cidr": "198.19.31.160/27",
+    "gateway": "198.19.31.161",
+    "dns1": "8.8.8.8",
+    "state": "Setup",
+    "service": [
+      {
+        "name": "Dns",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "AllowDnsSuffixModification",
+            "value": "true",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "Dhcp",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "DhcpAccrossMultipleSubnets",
+            "value": "true",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "UserData",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": []
+      }
+    ],
+    "associatednetworkid": "efdbf862-f91f-4be8-9cc5-22560e560c7b",
+    "displaytext": "#1572 Shared UI: related"
+  },
+  "all": {
+    "id": "6dde9ac4-bb32-40b7-9e5b-7e63b0f52b4f",
+    "name": "qa-gn1572-31-all",
+    "type": "Shared",
+    "acltype": "Domain",
+    "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+    "subdomainaccess": true,
+    "broadcasturi": "vlan://781",
+    "vlan": "781",
+    "networkofferingid": "981ce828-c6c9-447e-ba00-15e2890a6717",
+    "cidr": "198.19.31.0/27",
+    "gateway": "198.19.31.1",
+    "dns1": "8.8.8.8",
+    "state": "Setup",
+    "service": [
+      {
+        "name": "Dns",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "AllowDnsSuffixModification",
+            "value": "true",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "Dhcp",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "DhcpAccrossMultipleSubnets",
+            "value": "true",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "UserData",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": []
+      }
+    ],
+    "displaytext": "#1572 Shared UI: all"
+  },
+  "domain": {
+    "id": "c323222c-62b0-46fd-8ac1-bc4ff571a321",
+    "name": "qa-gn1572-31-domain",
+    "type": "Shared",
+    "acltype": "Domain",
+    "domainid": "354e3795-2420-40d9-953a-88bab8e38035",
+    "subdomainaccess": true,
+    "broadcasturi": "vlan://782",
+    "vlan": "782",
+    "networkofferingid": "981ce828-c6c9-447e-ba00-15e2890a6717",
+    "cidr": "198.19.31.32/27",
+    "gateway": "198.19.31.33",
+    "dns1": "8.8.8.8",
+    "state": "Setup",
+    "service": [
+      {
+        "name": "Dns",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "AllowDnsSuffixModification",
+            "value": "true",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "Dhcp",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "DhcpAccrossMultipleSubnets",
+            "value": "true",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "UserData",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": []
+      }
+    ],
+    "displaytext": "#1572 Shared UI: domain"
+  },
+  "account": {
+    "id": "ab30a829-8936-4058-836f-d66ed7d4db90",
+    "name": "qa-gn1572-31-account",
+    "type": "Shared",
+    "acltype": "Account",
+    "domainid": "354e3795-2420-40d9-953a-88bab8e38035",
+    "account": "qa-gn1572-31-owner",
+    "broadcasturi": "vlan://783",
+    "vlan": "783",
+    "networkofferingid": "981ce828-c6c9-447e-ba00-15e2890a6717",
+    "cidr": "198.19.31.64/27",
+    "gateway": "198.19.31.65",
+    "dns1": "8.8.8.8",
+    "state": "Setup",
+    "service": [
+      {
+        "name": "Dns",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "AllowDnsSuffixModification",
+            "value": "true",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "Dhcp",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "DhcpAccrossMultipleSubnets",
+            "value": "true",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "UserData",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": []
+      }
+    ],
+    "displaytext": "#1572 Shared 계정 범위 업데이트 확인"
+  },
+  "project": {
+    "id": "972c9bbf-6d05-4d15-b79a-f1d99647738a",
+    "name": "qa-gn1572-31-project",
+    "type": "Shared",
+    "acltype": "Account",
+    "domainid": "354e3795-2420-40d9-953a-88bab8e38035",
+    "project": "qa-gn1572-31-project",
+    "projectid": "80135e7e-9da0-4fe5-b54a-185374c35411",
+    "broadcasturi": "vlan://784",
+    "vlan": "784",
+    "networkofferingid": "981ce828-c6c9-447e-ba00-15e2890a6717",
+    "cidr": "198.19.31.96/27",
+    "gateway": "198.19.31.97",
+    "dns1": "8.8.8.8",
+    "state": "Setup",
+    "service": [
+      {
+        "name": "Dns",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "AllowDnsSuffixModification",
+            "value": "true",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "Dhcp",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "DhcpAccrossMultipleSubnets",
+            "value": "true",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "UserData",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": []
+      }
+    ],
+    "displaytext": "#1572 Shared UI: project"
+  }
+}

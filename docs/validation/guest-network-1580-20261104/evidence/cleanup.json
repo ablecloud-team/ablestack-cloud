@@ -1,0 +1,123 @@
+{
+  "31": {
+    "previous_fixtures": {
+      "networks": {
+        "shared": "903d1def-9929-4755-82ec-69296b6847fd",
+        "nosnat": "670c6673-068d-4436-b57c-b09acce6b65f"
+      },
+      "offerings": {
+        "nosnat-vr": "1f90ed2f-cece-430c-83f5-e6e1506f4801"
+      },
+      "vms": {
+        "nosnat": "1c3d4aa5-05da-4c7e-bda6-ae40038da042",
+        "shared": "87afcb72-9360-43a4-9b7e-662e66251490"
+      }
+    },
+    "operations": [
+      {
+        "command": "destroyVirtualMachine",
+        "id": "1c3d4aa5-05da-4c7e-bda6-ae40038da042",
+        "jobstatus": 1
+      },
+      {
+        "command": "destroyVirtualMachine",
+        "id": "87afcb72-9360-43a4-9b7e-662e66251490",
+        "jobstatus": 1
+      },
+      {
+        "command": "deleteNetwork",
+        "id": "903d1def-9929-4755-82ec-69296b6847fd",
+        "jobstatus": 1
+      },
+      {
+        "command": "deleteNetwork",
+        "id": "670c6673-068d-4436-b57c-b09acce6b65f",
+        "jobstatus": 1
+      },
+      {
+        "command": "deleteNetworkOffering",
+        "id": "1f90ed2f-cece-430c-83f5-e6e1506f4801"
+      }
+    ],
+    "storage_after": {
+      "1": {
+        "remaining_domains": [],
+        "remaining_roots": []
+      },
+      "2": {
+        "remaining_domains": [],
+        "remaining_roots": []
+      },
+      "3": {
+        "remaining_domains": [],
+        "remaining_roots": []
+      }
+    },
+    "temporary_hotplug_deleted": {
+      "breno12399-4093": false,
+      "eno12399.4093": false
+    }
+  },
+  "32": {
+    "previous_fixtures": {
+      "networks": {
+        "shared": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "nosnat": "1b6001c7-f30f-4b5b-8843-8b8e68b2720e"
+      },
+      "offerings": {
+        "nosnat-vr": "443433f5-773d-401c-820b-074d319b2c0b"
+      },
+      "vms": {
+        "nosnat": "be3fbc4b-255e-48b1-bce2-366fc417bb06",
+        "shared": "5984da27-5640-41f0-a378-abdbdfd6d0dd"
+      }
+    },
+    "operations": [
+      {
+        "command": "destroyVirtualMachine",
+        "id": "be3fbc4b-255e-48b1-bce2-366fc417bb06",
+        "jobstatus": 1
+      },
+      {
+        "command": "destroyVirtualMachine",
+        "id": "5984da27-5640-41f0-a378-abdbdfd6d0dd",
+        "jobstatus": 1
+      },
+      {
+        "command": "deleteNetwork",
+        "id": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "jobstatus": 1
+      },
+      {
+        "command": "deleteNetwork",
+        "id": "1b6001c7-f30f-4b5b-8843-8b8e68b2720e",
+        "jobstatus": 1
+      },
+      {
+        "command": "deleteNetworkOffering",
+        "id": "443433f5-773d-401c-820b-074d319b2c0b"
+      }
+    ],
+    "storage_after": {
+      "1": {
+        "remaining_domains": [],
+        "remaining_mappings": [],
+        "remaining_roots": []
+      },
+      "2": {
+        "remaining_domains": [],
+        "remaining_mappings": [],
+        "remaining_roots": []
+      },
+      "3": {
+        "remaining_domains": [],
+        "remaining_mappings": [],
+        "remaining_roots": []
+      }
+    },
+    "temporary_hotplug_deleted": {
+      "brlhfblgjc-4093": false,
+      "ens1f0np0.4093": false
+    }
+  }
+}

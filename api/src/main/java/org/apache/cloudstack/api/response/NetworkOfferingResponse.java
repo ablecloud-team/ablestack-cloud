@@ -127,6 +127,10 @@ public class NetworkOfferingResponse extends BaseResponseWithAnnotations {
     @Param(description = "Maximum number of concurrent connections to be handled by LB")
     private Integer concurrentConnections;
 
+    @SerializedName(ApiConstants.KEEPALIVE_ENABLED)
+    @Param(description = "Whether HTTP keepalive is enabled for HAProxy load balancing")
+    private Boolean keepAliveEnabled;
+
     @SerializedName(ApiConstants.SUPPORTS_STRECHED_L2_SUBNET)
     @Param(description = "True if network offering supports network that span multiple zones", since = "4.4")
     private Boolean supportsStrechedL2Subnet;
@@ -261,6 +265,10 @@ public class NetworkOfferingResponse extends BaseResponseWithAnnotations {
 
     public void setConcurrentConnections(Integer concurrentConnections) {
         this.concurrentConnections = concurrentConnections;
+    }
+
+    public void setKeepAliveEnabled(Boolean keepAliveEnabled) {
+        this.keepAliveEnabled = keepAliveEnabled;
     }
 
     public void setSupportsStrechedL2Subnet(Boolean supportsStrechedL2Subnet) {

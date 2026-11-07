@@ -1,0 +1,144 @@
+{
+  "api-build.log": {
+    "rawLogSha256": "4e39e7fa50f45111db4b9df2626125416eb2f72b6bc7036a9f200f131ecf4208",
+    "rawLogBytes": 75901,
+    "summary": [
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.089 s - in org.apache.cloudstack.api.command.test.AddAccountToProjectCmdTest",
+      "[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.test.AddHostCmdTest",
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s - in org.apache.cloudstack.api.command.test.ScaleVMCmdTest",
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.092 s - in org.apache.cloudstack.api.command.test.AddVpnUserCmdTest",
+      "[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.048 s - in org.apache.cloudstack.api.command.test.CreateAutoScaleVmProfileCmdTest",
+      "[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.038 s - in org.apache.cloudstack.api.command.test.UsageCmdTest",
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.test.ActivateProjectCmdTest",
+      "[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.test.UpdateAutoScaleVmProfileCmdTest",
+      "[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s - in org.apache.cloudstack.api.command.test.ImportRoleCmdTest",
+      "[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.api.command.test.UpdateRoleCmdTest",
+      "[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.api.command.test.ListCfgCmdTest",
+      "[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.087 s - in org.apache.cloudstack.api.command.offering.DomainAndZoneIdResolverTest",
+      "[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.usage.UsageUnitTypesTest",
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.network.BgpPeerTOTest",
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.058 s - in org.apache.cloudstack.cluster.ClusterDrsAlgorithmTest",
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.storage.volume.VolumeOnStorageTOTest",
+      "[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.451 s - in org.apache.cloudstack.storage.template.VnfTemplateUtilsTest",
+      "[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.storage.object.BucketUsageStatusTest",
+      "[INFO] Tests run: 1135, Failures: 0, Errors: 0, Skipped: 0",
+      "[INFO] BUILD SUCCESS"
+    ],
+    "localRawLog": "C:\\Users\\ablecloud\\.codex\\worktrees\\epic-1554-guest-networks\\ablestack-cloud\\docs\\validation\\guest-network-1563-20261105\\build\\api-build.log"
+  },
+  "api-checkstyle.log": {
+    "rawLogSha256": "bcf2329df5c75ec4f66aebb4d4fa157d8b2bb3f7dec04343dcb7b56ca9a71348",
+    "rawLogBytes": 3283,
+    "summary": [
+      "[INFO] BUILD FAILURE",
+      "[ERROR] Failed to execute goal org.apache.maven.plugins:maven-checkstyle-plugin:3.6.0:check (default-cli) on project cloud-api: Failed during checkstyle execution: There are 6 errors reported by Checkstyle 8.18 with cloud-style.xml ruleset. -> [Help 1]"
+    ],
+    "localRawLog": "C:\\Users\\ablecloud\\.codex\\worktrees\\epic-1554-guest-networks\\ablestack-cloud\\docs\\validation\\guest-network-1563-20261105\\build\\api-checkstyle.log"
+  },
+  "kvm-build.log": {
+    "rawLogSha256": "351d9b63b01db48e5e3637bad870ea7a35feeca8d0d39142a9915b8b9652505f",
+    "rawLogBytes": 23847,
+    "summary": [
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.079 s - in com.cloud.hypervisor.kvm.resource.wrapper.LibvirtReplugNicCommandWrapperTest",
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0",
+      "[INFO] BUILD SUCCESS"
+    ],
+    "localRawLog": "C:\\Users\\ablecloud\\.codex\\worktrees\\epic-1554-guest-networks\\ablestack-cloud\\docs\\validation\\guest-network-1563-20261105\\build\\kvm-build.log"
+  },
+  "kvm-checkstyle.log": {
+    "rawLogSha256": "e73672a0868585669881690702f9197dcf5276fe83ca19988a9c42dbdab7888d",
+    "rawLogBytes": 6651,
+    "summary": [
+      "[INFO] BUILD FAILURE",
+      "[ERROR] Failed to execute goal org.apache.maven.plugins:maven-checkstyle-plugin:3.6.0:check (default-cli) on project cloud-plugin-hypervisor-kvm: Failed during checkstyle execution: There are 19 errors reported by Checkstyle 8.18 with cloud-style.xml ruleset. -> [Help 1]"
+    ],
+    "localRawLog": "C:\\Users\\ablecloud\\.codex\\worktrees\\epic-1554-guest-networks\\ablestack-cloud\\docs\\validation\\guest-network-1563-20261105\\build\\kvm-checkstyle.log"
+  },
+  "schema-build.log": {
+    "rawLogSha256": "a4bfb404ecc120887d56963c32d2d39ca631f530254e89ae612a1fe73b266c3e",
+    "rawLogBytes": 100235,
+    "summary": [
+      "[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in com.cloud.network.as.AutoScaleVmProfileVOTest",
+      "[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.097 s - in com.cloud.storage.dao.VolumeDaoImplTest",
+      "[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.116 s - in com.cloud.storage.dao.StoragePoolTagsDaoImplTest",
+      "[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s - in com.cloud.storage.dao.DiskOfferingDaoImplTest",
+      "[INFO] Tests run: 20, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.128 s - in com.cloud.storage.dao.VMTemplateDaoImplTest",
+      "[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s - in com.cloud.storage.dao.GuestOSDaoConnectionTest",
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.058 s - in com.cloud.storage.dao.VnfTemplateNicDaoImplTest",
+      "[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.03 s - in com.cloud.storage.VnfTemplateNicVOTest",
+      "[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.cloud.storage.VnfTemplateDetailVOTest",
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.cloud.storage.InternalVmSnapshotAccountingTest",
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.upgrade.DrSchemaContractTest",
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.162 s - in org.apache.cloudstack.backup.dao.BackupDaoImplTest",
+      "[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.079 s - in org.apache.cloudstack.backup.dao.BackupOfferingDetailsDaoImplTest",
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.096 s - in org.apache.cloudstack.resourcedetail.ResourceDetailsDaoBaseTest",
+      "[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.427 s - in org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDaoImplTest",
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s - in org.apache.cloudstack.storage.datastore.db.ObjectStoreAccountCredentialVOTest",
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.178 s - in org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreDaoImplTest",
+      "[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.399 s - in org.apache.cloudstack.storage.datastore.db.ObjectStoreCapacityResponseTest",
+      "[INFO] Tests run: 441, Failures: 0, Errors: 0, Skipped: 0",
+      "[INFO] BUILD SUCCESS"
+    ],
+    "localRawLog": "C:\\Users\\ablecloud\\.codex\\worktrees\\epic-1554-guest-networks\\ablestack-cloud\\docs\\validation\\guest-network-1563-20261105\\build\\schema-build.log"
+  },
+  "server-build.log": {
+    "rawLogSha256": "6c9e4cf33e1350c9b7c16a41c398d38b4dc4653dda566c9604dc10463a6b7716",
+    "rawLogBytes": 4283,
+    "summary": [
+      "[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.187 s - in com.cloud.network.NetworkMigrationNicFailureTest",
+      "[INFO] Tests run: 72, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.762 s - in com.cloud.network.NetworkServiceImplTest",
+      "[INFO] Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.417 s - in com.cloud.network.NetworkMigrationRequestTest",
+      "[INFO] Tests run: 90, Failures: 0, Errors: 0, Skipped: 0",
+      "[INFO] BUILD SUCCESS"
+    ],
+    "localRawLog": "C:\\Users\\ablecloud\\.codex\\worktrees\\epic-1554-guest-networks\\ablestack-cloud\\docs\\validation\\guest-network-1563-20261105\\build\\server-build.log"
+  },
+  "server-checkstyle.log": {
+    "rawLogSha256": "36cd6a240797d7ea2bc48c3302d476f6fc78f6e2c341699ccb254cf770f308e2",
+    "rawLogBytes": 15383,
+    "summary": [
+      "[INFO] BUILD FAILURE",
+      "[ERROR] Failed to execute goal org.apache.maven.plugins:maven-checkstyle-plugin:3.6.0:check (default-cli) on project cloud-server: Failed during checkstyle execution: There are 62 errors reported by Checkstyle 8.18 with cloud-style.xml ruleset. -> [Help 1]"
+    ],
+    "localRawLog": "C:\\Users\\ablecloud\\.codex\\worktrees\\epic-1554-guest-networks\\ablestack-cloud\\docs\\validation\\guest-network-1563-20261105\\build\\server-checkstyle.log"
+  },
+  "server-focused-test.log": {
+    "rawLogSha256": "fbfcc58799f1f76412dc1cd1a2d12462b01e45c9514f7f210447739e3fbd3e05",
+    "rawLogBytes": 3000,
+    "summary": [
+      "[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.802 s - in com.cloud.network.NetworkMigrationNicFailureTest",
+      "[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0",
+      "[INFO] BUILD SUCCESS"
+    ],
+    "localRawLog": "C:\\Users\\ablecloud\\.codex\\worktrees\\epic-1554-guest-networks\\ablestack-cloud\\docs\\validation\\guest-network-1563-20261105\\build\\server-focused-test.log"
+  },
+  "ui-build.log": {
+    "rawLogSha256": "8bb52f71ef8e8b67c41267d4ae018c05c0b4e572c5d19303288dbad2ad13e500",
+    "rawLogBytes": 44168,
+    "summary": [
+      " DONE  Build complete. The dist directory is ready to be deployed."
+    ],
+    "localRawLog": "C:\\Users\\ablecloud\\.codex\\worktrees\\epic-1554-guest-networks\\ablestack-cloud\\docs\\validation\\guest-network-1563-20261105\\build\\ui-build.log"
+  },
+  "ui-lint.log": {
+    "rawLogSha256": "7b91ad6a7ad808c487d2f0b2eadb9865069dd070ec200f1ee4ea1a57126b00a0",
+    "rawLogBytes": 200,
+    "summary": [
+      " DONE  No lint errors found!"
+    ],
+    "localRawLog": "C:\\Users\\ablecloud\\.codex\\worktrees\\epic-1554-guest-networks\\ablestack-cloud\\docs\\validation\\guest-network-1563-20261105\\build\\ui-lint.log"
+  },
+  "ui-tests.log": {
+    "rawLogSha256": "2a9aa9089c60711968b700d8c3de3027118d05a5199c2db32e71977da2649536",
+    "rawLogBytes": 2185272,
+    "summary": [
+      "PASS tests/unit/views/network/UpdateNetworkOffering.spec.js (15.1s)",
+      "PASS tests/unit/views/network/NetworkOfferingDiagnostics.spec.js (5.817s)",
+      "PASS tests/unit/views/network/NetworkMigration.spec.js",
+      "PASS tests/unit/views/network/NetworkOperationPolicy.spec.js",
+      "Test Suites: 4 passed, 4 total",
+      "Tests:       95 passed, 95 total"
+    ],
+    "localRawLog": "C:\\Users\\ablecloud\\.codex\\worktrees\\epic-1554-guest-networks\\ablestack-cloud\\docs\\validation\\guest-network-1563-20261105\\build\\ui-tests.log"
+  }
+}

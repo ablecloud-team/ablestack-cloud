@@ -1,0 +1,2895 @@
+{
+  "31": [
+    {
+      "case": "source-nat-cannot-be-static",
+      "command": "enableStaticNat",
+      "params": {
+        "ipaddressid": "21a6e954-afa8-4bee-89c4-25c2745713b0",
+        "virtualmachineid": "ee5d34e7-fab2-4159-af9d-a28a55f87ebb",
+        "networkid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0"
+      },
+      "accepted": false,
+      "expected": false,
+      "pass_": true,
+      "errorCode": 431,
+      "errorText": "Can't enable static, ip address IPAddress {\"address\":\"10.10.31.143\",\"dataCenterId\":1,\"id\":46,\"uuid\":\"21a6e954-afa8-4bee-89c4-25c2745713b0\"} is a sourceNat ip address",
+      "seconds": 0.02
+    },
+    {
+      "case": "static-ip-allocate",
+      "command": "associateIpAddress",
+      "params": {
+        "networkid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.07
+    },
+    {
+      "case": "static-nat-enable",
+      "command": "enableStaticNat",
+      "params": {
+        "ipaddressid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+        "virtualmachineid": "ee5d34e7-fab2-4159-af9d-a28a55f87ebb",
+        "networkid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.11
+    },
+    {
+      "case": "static-nat-read",
+      "command": "listPublicIpAddresses",
+      "params": {
+        "id": "f9eda3b4-2655-453b-837a-28e46eb9c3f5"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.03,
+      "result": {
+        "count": 1,
+        "publicipaddress": [
+          {
+            "id": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+            "ipaddress": "10.10.31.110",
+            "allocated": "2026-11-07T22:55:42+0900",
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "issourcenat": false,
+            "account": "qa-gn1569-31-owner",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "domainpath": "ROOT/qa-gn1569-31-domain",
+            "allocationgeneration": "3a9694e1-3ed8-4478-914e-ab50b8148d5a",
+            "forvirtualnetwork": true,
+            "isstaticnat": true,
+            "issystem": false,
+            "virtualmachineid": "ee5d34e7-fab2-4159-af9d-a28a55f87ebb",
+            "virtualmachinetype": "User",
+            "vmipaddress": "10.176.31.21",
+            "virtualmachinename": "qa-gn1569-31-nat-vm",
+            "virtualmachinedisplayname": "qa-gn1569-31-nat-vm",
+            "associatednetworkid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+            "associatednetworkname": "qa-gn1569-31-nat",
+            "networkid": "8689dcfa-5d81-40d3-8db3-103be4a01d71",
+            "state": "Allocated",
+            "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+            "tags": [],
+            "isportable": false,
+            "hasrules": false,
+            "forsystemvms": false,
+            "forprovider": false,
+            "hasannotations": false
+          }
+        ]
+      }
+    },
+    {
+      "case": "static-nat-reject-pf",
+      "command": "createPortForwardingRule",
+      "params": {
+        "ipaddressid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+        "protocol": "tcp",
+        "publicport": 18569,
+        "privateport": 18569,
+        "virtualmachineid": "ee5d34e7-fab2-4159-af9d-a28a55f87ebb",
+        "networkid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+        "openfirewall": "false"
+      },
+      "accepted": false,
+      "expected": false,
+      "pass_": true,
+      "errorCode": 431,
+      "errorText": "Unable to create port forwarding rule; ip IPAddress {\"address\":\"10.10.31.110\",\"dataCenterId\":1,\"id\":13,\"uuid\":\"f9eda3b4-2655-453b-837a-28e46eb9c3f5\"} has static nat enabled",
+      "seconds": 0.02
+    },
+    {
+      "case": "static-nat-disable",
+      "command": "disableStaticNat",
+      "params": {
+        "ipaddressid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 4.04
+    },
+    {
+      "case": "static-nat-disabled-read",
+      "command": "listPublicIpAddresses",
+      "params": {
+        "id": "f9eda3b4-2655-453b-837a-28e46eb9c3f5"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "publicipaddress": [
+          {
+            "id": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+            "ipaddress": "10.10.31.110",
+            "allocated": "2026-11-07T22:55:42+0900",
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "issourcenat": false,
+            "account": "qa-gn1569-31-owner",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "domainpath": "ROOT/qa-gn1569-31-domain",
+            "allocationgeneration": "3a9694e1-3ed8-4478-914e-ab50b8148d5a",
+            "forvirtualnetwork": true,
+            "isstaticnat": false,
+            "issystem": false,
+            "associatednetworkid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+            "associatednetworkname": "qa-gn1569-31-nat",
+            "networkid": "8689dcfa-5d81-40d3-8db3-103be4a01d71",
+            "state": "Allocated",
+            "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+            "tags": [],
+            "isportable": false,
+            "hasrules": false,
+            "forsystemvms": false,
+            "forprovider": false,
+            "hasannotations": false
+          }
+        ]
+      }
+    },
+    {
+      "case": "lb-create",
+      "command": "createLoadBalancerRule",
+      "params": {
+        "networkid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+        "publicipid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+        "name": "qa-gn1569-31-reg-lb",
+        "algorithm": "roundrobin",
+        "publicport": 18569,
+        "privateport": 18569,
+        "openfirewall": "false",
+        "cidrlist": "192.0.2.156/32"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.07
+    },
+    {
+      "case": "lb-update",
+      "command": "updateLoadBalancerRule",
+      "params": {
+        "id": "739c314f-a5a9-418c-bc6c-6040a77f9046",
+        "algorithm": "leastconn",
+        "description": "GN1569 LB API/UI review"
+      },
+      "accepted": false,
+      "expected": true,
+      "pass_": false,
+      "errorCode": 530,
+      "errorText": "Cannot invoke \"String.equals(Object)\" because the return value of \"com.cloud.network.dao.LoadBalancerVO.getLbProtocol()\" is null",
+      "seconds": 4.04
+    },
+    {
+      "case": "lb-explicit-tcp-create",
+      "command": "createLoadBalancerRule",
+      "params": {
+        "networkid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+        "publicipid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+        "name": "qa-gn1569-31-reg-lb-tcp",
+        "algorithm": "roundrobin",
+        "publicport": 18572,
+        "privateport": 18572,
+        "protocol": "tcp",
+        "openfirewall": "false",
+        "cidrlist": "192.0.2.156/32"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.05
+    },
+    {
+      "case": "lb-explicit-tcp-update",
+      "command": "updateLoadBalancerRule",
+      "params": {
+        "id": "46b0048d-e3e9-48df-8df9-eebbcf465404",
+        "algorithm": "leastconn",
+        "description": "GN1569 LB explicit TCP API/UI review"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 4.05
+    },
+    {
+      "case": "lb-read",
+      "command": "listLoadBalancerRules",
+      "params": {
+        "id": "46b0048d-e3e9-48df-8df9-eebbcf465404"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.03,
+      "result": {
+        "count": 1,
+        "loadbalancerrule": [
+          {
+            "id": "46b0048d-e3e9-48df-8df9-eebbcf465404",
+            "name": "qa-gn1569-31-reg-lb-tcp",
+            "description": "GN1569 LB explicit TCP API/UI review",
+            "publicipid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+            "publicip": "10.10.31.110",
+            "publicport": "18572",
+            "privateport": "18572",
+            "algorithm": "leastconn",
+            "networkid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+            "cidrlist": "192.0.2.156/32",
+            "account": "qa-gn1569-31-owner",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "domainpath": "ROOT/qa-gn1569-31-domain",
+            "state": "Add",
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "protocol": "tcp",
+            "backendssl": false,
+            "tags": []
+          }
+        ]
+      }
+    },
+    {
+      "case": "lb-assign",
+      "command": "assignToLoadBalancerRule",
+      "params": {
+        "id": "46b0048d-e3e9-48df-8df9-eebbcf465404",
+        "virtualmachineids": "ee5d34e7-fab2-4159-af9d-a28a55f87ebb"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 4.04
+    },
+    {
+      "case": "lb-assignment-read",
+      "command": "listLoadBalancerRuleInstances",
+      "params": {
+        "id": "46b0048d-e3e9-48df-8df9-eebbcf465404"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.02,
+      "result": {
+        "count": 1,
+        "loadbalancerruleinstance": [
+          {
+            "id": "ee5d34e7-fab2-4159-af9d-a28a55f87ebb",
+            "name": "qa-gn1569-31-nat-vm",
+            "displayname": "qa-gn1569-31-nat-vm",
+            "account": "qa-gn1569-31-owner",
+            "userid": "8c56c525-7ba6-4acd-9233-5852c75d885c",
+            "username": "qa-gn1569-31-owner",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "domainpath": "ROOT/qa-gn1569-31-domain",
+            "created": "2026-11-06T18:03:29+0900",
+            "lastupdated": "2026-11-06T18:18:56+0900",
+            "state": "Running",
+            "haenable": true,
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "hostcontrolstate": "Enabled",
+            "templateid": "8d692729-7565-4e92-965b-ebaadc1efcb0",
+            "templatename": "Rocky-Linux-9-5-x86-64-Server-Cloud-Image.qcow2",
+            "templatetype": "USER",
+            "templateformat": "QCOW2",
+            "templatedisplaytext": "Rocky-Linux-9-5-x86-64-Server-Cloud-Image.qcow2",
+            "passwordenabled": false,
+            "isos": [],
+            "isomaxcount": 2,
+            "serviceofferingid": "cd928fb0-6e2b-4ec8-b02b-023aed55b2b1",
+            "serviceofferingname": "2Core 2GB",
+            "volumemutationblockedreason": "",
+            "cpunumber": 2,
+            "cpuspeed": 2000,
+            "memory": 2048,
+            "statslastsampled": 1794059765000,
+            "statscollectionstatus": "FRESH",
+            "cpuused": "0.1%",
+            "networkkbsread": 3,
+            "networkkbswrite": 0,
+            "diskkbsread": 0,
+            "diskkbswrite": 0,
+            "memorykbs": 2097152,
+            "memoryintfreekbs": 1218440,
+            "memorytargetkbs": 2097152,
+            "memoryintusablekbs": 0,
+            "diskioread": 0,
+            "diskiowrite": 0,
+            "guestosid": "9708b6ac-b253-11f1-a895-0024814c313f",
+            "rootdeviceid": 0,
+            "rootdevicetype": "ROOT",
+            "securitygroup": [],
+            "nic": [
+              {
+                "id": "c3fc3bc5-0b9f-42a5-8512-4cee8b6c023f",
+                "networkid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+                "networkname": "qa-gn1569-31-nat",
+                "netmask": "255.255.255.0",
+                "gateway": "10.176.31.1",
+                "ipaddress": "10.176.31.21",
+                "isolationuri": "vlan://176",
+                "broadcasturi": "vlan://176",
+                "traffictype": "Guest",
+                "type": "Isolated",
+                "isdefault": true,
+                "macaddress": "02:1f:02:11:00:01",
+                "secondaryip": [],
+                "extradhcpoption": [],
+                "deviceid": "0",
+                "enabled": true
+              },
+              {
+                "id": "d94dfd9a-0d61-4b30-a724-15e39b85c069",
+                "networkid": "9103d235-6ff9-42b7-ad1f-0225d21f507a",
+                "networkname": "qa-gn1569-31-l2",
+                "isolationuri": "vlan://791",
+                "broadcasturi": "vlan://791",
+                "traffictype": "Guest",
+                "type": "L2",
+                "isdefault": false,
+                "macaddress": "02:1f:02:13:00:01",
+                "secondaryip": [],
+                "extradhcpoption": [],
+                "deviceid": "1",
+                "enabled": true
+              }
+            ],
+            "hypervisor": "KVM",
+            "ipaddress": "10.176.31.21",
+            "details": {
+              "tpmversion": "NONE",
+              "rootDiskController": "osdefault"
+            },
+            "clonefastsourcepowerallowed": false,
+            "clonefastpowerallowed": false,
+            "readonlydetails": "dataDiskController, rootDiskController, backupValidationCommandTimeout, backupValidationScreenshotWait, backupValidationBootTimeout",
+            "affinitygroup": [],
+            "isdynamicallyscalable": true,
+            "deleteprotection": false,
+            "ostypeid": "9708b6ac-b253-11f1-a895-0024814c313f",
+            "osdisplayname": "Rocky Linux 9",
+            "pooltype": "SharedMountPoint",
+            "receivedbytes": 0,
+            "sentbytes": 0,
+            "vbmcport": "None",
+            "qemuagentversion": "9.0.0",
+            "kvdoenable": false,
+            "kvdoinuse": false,
+            "vbmcstatus": "Unallocated",
+            "tags": [],
+            "hasannotations": false
+          }
+        ]
+      }
+    },
+    {
+      "case": "lb-remove-backend",
+      "command": "removeFromLoadBalancerRule",
+      "params": {
+        "id": "46b0048d-e3e9-48df-8df9-eebbcf465404",
+        "virtualmachineids": "ee5d34e7-fab2-4159-af9d-a28a55f87ebb"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 4.07
+    },
+    {
+      "case": "lb-unassigned-read",
+      "command": "listLoadBalancerRuleInstances",
+      "params": {
+        "id": "46b0048d-e3e9-48df-8df9-eebbcf465404"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.02,
+      "result": {}
+    },
+    {
+      "case": "lb-restore-backend",
+      "command": "assignToLoadBalancerRule",
+      "params": {
+        "id": "46b0048d-e3e9-48df-8df9-eebbcf465404",
+        "virtualmachineids": "ee5d34e7-fab2-4159-af9d-a28a55f87ebb"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 4.04
+    },
+    {
+      "case": "stickiness-create",
+      "command": "createLBStickinessPolicy",
+      "params": {
+        "lbruleid": "46b0048d-e3e9-48df-8df9-eebbcf465404",
+        "name": "GN1569-cookie",
+        "methodname": "LbCookie",
+        "param[0].name": "cookie-name",
+        "param[0].value": "GN1569"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 4.06
+    },
+    {
+      "case": "stickiness-list",
+      "command": "listLBStickinessPolicies",
+      "params": {
+        "lbruleid": "46b0048d-e3e9-48df-8df9-eebbcf465404"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "stickinesspolicies": [
+          {
+            "lbruleid": "46b0048d-e3e9-48df-8df9-eebbcf465404",
+            "account": "qa-gn1569-31-owner",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "stickinesspolicy": [
+              {
+                "id": "356264a6-1dc9-46a4-8caf-7e2140cdaeaf",
+                "name": "GN1569-cookie",
+                "methodname": "LbCookie",
+                "params": {
+                  "cookie-name": "GN1569"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "stickiness-delete",
+      "command": "deleteLBStickinessPolicy",
+      "params": {
+        "id": "356264a6-1dc9-46a4-8caf-7e2140cdaeaf"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 4.05
+    },
+    {
+      "case": "stickiness-empty-read",
+      "command": "listLBStickinessPolicies",
+      "params": {
+        "lbruleid": "46b0048d-e3e9-48df-8df9-eebbcf465404"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "stickinesspolicies": [
+          {
+            "lbruleid": "46b0048d-e3e9-48df-8df9-eebbcf465404",
+            "account": "qa-gn1569-31-owner",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "stickinesspolicy": []
+          }
+        ]
+      }
+    },
+    {
+      "case": "stickiness-review-create",
+      "command": "createLBStickinessPolicy",
+      "params": {
+        "lbruleid": "46b0048d-e3e9-48df-8df9-eebbcf465404",
+        "name": "GN1569-review-cookie",
+        "methodname": "LbCookie",
+        "param[0].name": "cookie-name",
+        "param[0].value": "GN1569"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 4.07
+    },
+    {
+      "case": "tag-fw-create",
+      "command": "createFirewallRule",
+      "params": {
+        "ipaddressid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+        "protocol": "tcp",
+        "startport": 18570,
+        "endport": 18570,
+        "cidrlist": "192.0.2.156/32"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.05
+    },
+    {
+      "case": "tag-pf-create",
+      "command": "createPortForwardingRule",
+      "params": {
+        "ipaddressid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+        "protocol": "tcp",
+        "publicport": 18571,
+        "privateport": 18571,
+        "virtualmachineid": "ee5d34e7-fab2-4159-af9d-a28a55f87ebb",
+        "networkid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+        "openfirewall": "false"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.07
+    },
+    {
+      "case": "tag-create-Network",
+      "command": "createTags",
+      "params": {
+        "resourceids": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+        "resourcetype": "Network",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "Network"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.04
+    },
+    {
+      "case": "tag-filter-Network",
+      "command": "listTags",
+      "params": {
+        "resourceid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+        "resourcetype": "Network",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "tag": [
+          {
+            "key": "qa1569-reg",
+            "value": "Network",
+            "resourcetype": "Network",
+            "resourceid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+            "account": "qa-gn1569-31-owner",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "domainpath": "ROOT/qa-gn1569-31-domain"
+          }
+        ]
+      }
+    },
+    {
+      "case": "tag-delete-Network",
+      "command": "deleteTags",
+      "params": {
+        "resourceids": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+        "resourcetype": "Network",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "Network"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.03
+    },
+    {
+      "case": "tag-absent-Network",
+      "command": "listTags",
+      "params": {
+        "resourceid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+        "resourcetype": "Network",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {}
+    },
+    {
+      "case": "tag-create-PublicIpAddress",
+      "command": "createTags",
+      "params": {
+        "resourceids": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+        "resourcetype": "PublicIpAddress",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "PublicIpAddress"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.03
+    },
+    {
+      "case": "tag-filter-PublicIpAddress",
+      "command": "listTags",
+      "params": {
+        "resourceid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+        "resourcetype": "PublicIpAddress",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "tag": [
+          {
+            "key": "qa1569-reg",
+            "value": "PublicIpAddress",
+            "resourcetype": "PublicIpAddress",
+            "resourceid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+            "account": "qa-gn1569-31-owner",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "domainpath": "ROOT/qa-gn1569-31-domain"
+          }
+        ]
+      }
+    },
+    {
+      "case": "tag-delete-PublicIpAddress",
+      "command": "deleteTags",
+      "params": {
+        "resourceids": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+        "resourcetype": "PublicIpAddress",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "PublicIpAddress"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.03
+    },
+    {
+      "case": "tag-absent-PublicIpAddress",
+      "command": "listTags",
+      "params": {
+        "resourceid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+        "resourcetype": "PublicIpAddress",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {}
+    },
+    {
+      "case": "tag-create-FirewallRule",
+      "command": "createTags",
+      "params": {
+        "resourceids": "715503a3-052f-4349-8d00-3f2cba16f5ca",
+        "resourcetype": "FirewallRule",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "FirewallRule"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.05
+    },
+    {
+      "case": "tag-filter-FirewallRule",
+      "command": "listTags",
+      "params": {
+        "resourceid": "715503a3-052f-4349-8d00-3f2cba16f5ca",
+        "resourcetype": "FirewallRule",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "tag": [
+          {
+            "key": "qa1569-reg",
+            "value": "FirewallRule",
+            "resourcetype": "FirewallRule",
+            "resourceid": "715503a3-052f-4349-8d00-3f2cba16f5ca",
+            "account": "qa-gn1569-31-owner",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "domainpath": "ROOT/qa-gn1569-31-domain"
+          }
+        ]
+      }
+    },
+    {
+      "case": "tag-delete-FirewallRule",
+      "command": "deleteTags",
+      "params": {
+        "resourceids": "715503a3-052f-4349-8d00-3f2cba16f5ca",
+        "resourcetype": "FirewallRule",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "FirewallRule"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.03
+    },
+    {
+      "case": "tag-absent-FirewallRule",
+      "command": "listTags",
+      "params": {
+        "resourceid": "715503a3-052f-4349-8d00-3f2cba16f5ca",
+        "resourcetype": "FirewallRule",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.0,
+      "result": {}
+    },
+    {
+      "case": "tag-create-PortForwardingRule",
+      "command": "createTags",
+      "params": {
+        "resourceids": "e560c61a-0e81-428f-895b-239b959d298b",
+        "resourcetype": "PortForwardingRule",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "PortForwardingRule"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.03
+    },
+    {
+      "case": "tag-filter-PortForwardingRule",
+      "command": "listTags",
+      "params": {
+        "resourceid": "e560c61a-0e81-428f-895b-239b959d298b",
+        "resourcetype": "PortForwardingRule",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "tag": [
+          {
+            "key": "qa1569-reg",
+            "value": "PortForwardingRule",
+            "resourcetype": "PortForwardingRule",
+            "resourceid": "e560c61a-0e81-428f-895b-239b959d298b",
+            "account": "qa-gn1569-31-owner",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "domainpath": "ROOT/qa-gn1569-31-domain"
+          }
+        ]
+      }
+    },
+    {
+      "case": "tag-delete-PortForwardingRule",
+      "command": "deleteTags",
+      "params": {
+        "resourceids": "e560c61a-0e81-428f-895b-239b959d298b",
+        "resourcetype": "PortForwardingRule",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "PortForwardingRule"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.03
+    },
+    {
+      "case": "tag-absent-PortForwardingRule",
+      "command": "listTags",
+      "params": {
+        "resourceid": "e560c61a-0e81-428f-895b-239b959d298b",
+        "resourcetype": "PortForwardingRule",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {}
+    },
+    {
+      "case": "tag-create-LoadBalancer",
+      "command": "createTags",
+      "params": {
+        "resourceids": "46b0048d-e3e9-48df-8df9-eebbcf465404",
+        "resourcetype": "LoadBalancer",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "LoadBalancer"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.03
+    },
+    {
+      "case": "tag-filter-LoadBalancer",
+      "command": "listTags",
+      "params": {
+        "resourceid": "46b0048d-e3e9-48df-8df9-eebbcf465404",
+        "resourcetype": "LoadBalancer",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "tag": [
+          {
+            "key": "qa1569-reg",
+            "value": "LoadBalancer",
+            "resourcetype": "LoadBalancer",
+            "resourceid": "46b0048d-e3e9-48df-8df9-eebbcf465404",
+            "account": "qa-gn1569-31-owner",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "domainpath": "ROOT/qa-gn1569-31-domain"
+          }
+        ]
+      }
+    },
+    {
+      "case": "tag-delete-LoadBalancer",
+      "command": "deleteTags",
+      "params": {
+        "resourceids": "46b0048d-e3e9-48df-8df9-eebbcf465404",
+        "resourcetype": "LoadBalancer",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "LoadBalancer"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.03
+    },
+    {
+      "case": "tag-absent-LoadBalancer",
+      "command": "listTags",
+      "params": {
+        "resourceid": "46b0048d-e3e9-48df-8df9-eebbcf465404",
+        "resourcetype": "LoadBalancer",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.0,
+      "result": {}
+    },
+    {
+      "case": "comment-create-NETWORK",
+      "command": "addAnnotation",
+      "params": {
+        "entitytype": "NETWORK",
+        "entityid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+        "annotationfilter": "all",
+        "annotation": "GN1569 <b>문자열</b> & 한글"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.02
+    },
+    {
+      "case": "comment-list-NETWORK",
+      "command": "listAnnotations",
+      "params": {
+        "entitytype": "NETWORK",
+        "entityid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+        "annotationfilter": "all"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "annotation": [
+          {
+            "id": "8e300b9b-0a60-48c6-8139-46837d743745",
+            "entitytype": "NETWORK",
+            "entityid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+            "entityname": "qa-gn1569-31-nat",
+            "annotation": "GN1569 <b>문자열</b> & 한글",
+            "userid": "8c56c525-7ba6-4acd-9233-5852c75d885c",
+            "username": "qa-gn1569-31-owner",
+            "adminsonly": false,
+            "created": "2026-11-07T22:57:40+0900"
+          }
+        ]
+      }
+    },
+    {
+      "case": "comment-admin-visible-NETWORK",
+      "command": "updateAnnotationVisibility",
+      "params": {
+        "id": "8e300b9b-0a60-48c6-8139-46837d743745",
+        "adminsonly": "true"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01
+    },
+    {
+      "case": "comment-admin-read-NETWORK",
+      "command": "listAnnotations",
+      "params": {
+        "entitytype": "NETWORK",
+        "entityid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+        "annotationfilter": "all"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.0,
+      "result": {
+        "count": 1,
+        "annotation": [
+          {
+            "id": "8e300b9b-0a60-48c6-8139-46837d743745",
+            "entitytype": "NETWORK",
+            "entityid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+            "entityname": "qa-gn1569-31-nat",
+            "annotation": "GN1569 <b>문자열</b> & 한글",
+            "userid": "8c56c525-7ba6-4acd-9233-5852c75d885c",
+            "username": "qa-gn1569-31-owner",
+            "adminsonly": true,
+            "created": "2026-11-07T22:57:40+0900"
+          }
+        ]
+      }
+    },
+    {
+      "case": "comment-foreign-hidden-NETWORK",
+      "command": "listAnnotations",
+      "pass_": true,
+      "result": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "User 8bc9b4f5-4d95-411c-b848-d862cb3fe79b does not have permission to list annotations on the entity with uuid 9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0 of type NETWORK"
+      }
+    },
+    {
+      "case": "comment-delete-NETWORK",
+      "command": "removeAnnotation",
+      "params": {
+        "id": "8e300b9b-0a60-48c6-8139-46837d743745"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01
+    },
+    {
+      "case": "comment-absent-NETWORK",
+      "command": "listAnnotations",
+      "params": {
+        "entitytype": "NETWORK",
+        "entityid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+        "annotationfilter": "all"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.0,
+      "result": {}
+    },
+    {
+      "case": "event-page-NETWORK-1",
+      "command": "listEvents",
+      "params": {
+        "resourceid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+        "resourcetype": "Network",
+        "page": 1,
+        "pagesize": 1,
+        "listall": "true"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 5,
+        "event": [
+          {
+            "id": "a4303a72-51ff-415b-a635-a96f5c35a3ec",
+            "username": "qa-gn1569-31-owner",
+            "type": "ANNOTATION.CREATE",
+            "level": "INFO",
+            "description": "Successfully completed creating an annotation on an entity",
+            "account": "qa-gn1569-31-owner",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "domainpath": "ROOT/qa-gn1569-31-domain",
+            "resourceid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+            "resourcetype": "Network",
+            "resourcename": "#1569 nat integrated review",
+            "created": "2026-11-07T22:57:40+0900",
+            "state": "Completed"
+          }
+        ]
+      }
+    },
+    {
+      "case": "event-page-NETWORK-2",
+      "command": "listEvents",
+      "params": {
+        "resourceid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+        "resourcetype": "Network",
+        "page": 2,
+        "pagesize": 1,
+        "listall": "true"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.03,
+      "result": {
+        "count": 5,
+        "event": [
+          {
+            "id": "48ae5970-ad45-41fd-bb6e-a229d2438550",
+            "username": "admin",
+            "type": "NETWORK.RESTART",
+            "level": "INFO",
+            "description": "Restarting Network with ID: 9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+            "account": "qa-gn1569-31-owner",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "domainpath": "ROOT/qa-gn1569-31-domain",
+            "resourceid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+            "resourcetype": "Network",
+            "resourcename": "#1569 nat integrated review",
+            "created": "2026-11-06T18:35:31+0900",
+            "state": "Scheduled"
+          }
+        ]
+      }
+    },
+    {
+      "case": "comment-create-PUBLIC_IP_ADDRESS",
+      "command": "addAnnotation",
+      "params": {
+        "entitytype": "PUBLIC_IP_ADDRESS",
+        "entityid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+        "annotationfilter": "all",
+        "annotation": "GN1569 <b>문자열</b> & 한글"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01
+    },
+    {
+      "case": "comment-list-PUBLIC_IP_ADDRESS",
+      "command": "listAnnotations",
+      "params": {
+        "entitytype": "PUBLIC_IP_ADDRESS",
+        "entityid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+        "annotationfilter": "all"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "annotation": [
+          {
+            "id": "ff116c1c-b119-40c4-a2f8-0d7d078053af",
+            "entitytype": "PUBLIC_IP_ADDRESS",
+            "entityid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+            "entityname": "10.10.31.110",
+            "annotation": "GN1569 <b>문자열</b> & 한글",
+            "userid": "8c56c525-7ba6-4acd-9233-5852c75d885c",
+            "username": "qa-gn1569-31-owner",
+            "adminsonly": false,
+            "created": "2026-11-07T22:57:41+0900"
+          }
+        ]
+      }
+    },
+    {
+      "case": "comment-admin-visible-PUBLIC_IP_ADDRESS",
+      "command": "updateAnnotationVisibility",
+      "params": {
+        "id": "ff116c1c-b119-40c4-a2f8-0d7d078053af",
+        "adminsonly": "true"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01
+    },
+    {
+      "case": "comment-admin-read-PUBLIC_IP_ADDRESS",
+      "command": "listAnnotations",
+      "params": {
+        "entitytype": "PUBLIC_IP_ADDRESS",
+        "entityid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+        "annotationfilter": "all"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.03,
+      "result": {
+        "count": 1,
+        "annotation": [
+          {
+            "id": "ff116c1c-b119-40c4-a2f8-0d7d078053af",
+            "entitytype": "PUBLIC_IP_ADDRESS",
+            "entityid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+            "entityname": "10.10.31.110",
+            "annotation": "GN1569 <b>문자열</b> & 한글",
+            "userid": "8c56c525-7ba6-4acd-9233-5852c75d885c",
+            "username": "qa-gn1569-31-owner",
+            "adminsonly": true,
+            "created": "2026-11-07T22:57:41+0900"
+          }
+        ]
+      }
+    },
+    {
+      "case": "comment-foreign-hidden-PUBLIC_IP_ADDRESS",
+      "command": "listAnnotations",
+      "pass_": true,
+      "result": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "User 8bc9b4f5-4d95-411c-b848-d862cb3fe79b does not have permission to list annotations on the entity with uuid f9eda3b4-2655-453b-837a-28e46eb9c3f5 of type PUBLIC_IP_ADDRESS"
+      }
+    },
+    {
+      "case": "comment-delete-PUBLIC_IP_ADDRESS",
+      "command": "removeAnnotation",
+      "params": {
+        "id": "ff116c1c-b119-40c4-a2f8-0d7d078053af"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01
+    },
+    {
+      "case": "comment-absent-PUBLIC_IP_ADDRESS",
+      "command": "listAnnotations",
+      "params": {
+        "entitytype": "PUBLIC_IP_ADDRESS",
+        "entityid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+        "annotationfilter": "all"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.0,
+      "result": {}
+    },
+    {
+      "case": "event-page-PUBLIC_IP_ADDRESS-1",
+      "command": "listEvents",
+      "params": {
+        "resourceid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+        "resourcetype": "IpAddress",
+        "page": 1,
+        "pagesize": 1,
+        "listall": "true"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.02,
+      "result": {
+        "count": 5,
+        "event": [
+          {
+            "id": "9d6a2420-1c57-4a57-af51-6462c4727cd1",
+            "username": "qa-gn1569-31-owner",
+            "type": "ANNOTATION.CREATE",
+            "level": "INFO",
+            "description": "Successfully completed creating an annotation on an entity",
+            "account": "qa-gn1569-31-owner",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "domainpath": "ROOT/qa-gn1569-31-domain",
+            "resourceid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+            "resourcetype": "IpAddress",
+            "resourcename": "10.10.31.110",
+            "created": "2026-11-07T22:57:41+0900",
+            "state": "Completed"
+          }
+        ]
+      }
+    },
+    {
+      "case": "event-page-PUBLIC_IP_ADDRESS-2",
+      "command": "listEvents",
+      "params": {
+        "resourceid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+        "resourcetype": "IpAddress",
+        "page": 2,
+        "pagesize": 1,
+        "listall": "true"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 5,
+        "event": [
+          {
+            "id": "eea95b92-7f91-441b-bcf1-ef6bbbe5da76",
+            "username": "qa-gn1569-31-owner",
+            "type": "NET.IPASSIGN",
+            "level": "INFO",
+            "description": "Successfully completed associating Ip. IP address ID: f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+            "account": "qa-gn1569-31-owner",
+            "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+            "domain": "qa-gn1569-31-domain",
+            "domainpath": "ROOT/qa-gn1569-31-domain",
+            "resourceid": "f9eda3b4-2655-453b-837a-28e46eb9c3f5",
+            "resourcetype": "IpAddress",
+            "resourcename": "10.10.31.110",
+            "created": "2026-11-07T22:55:42+0900",
+            "state": "Completed",
+            "parentid": "920581c2-8fd1-43d9-9a23-6b033e0c0e9f"
+          }
+        ]
+      }
+    },
+    {
+      "case": "comment-review-create",
+      "command": "addAnnotation",
+      "params": {
+        "entitytype": "NETWORK",
+        "entityid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+        "annotation": "GN1569 확인용 <b>문자열</b> & 한글"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01
+    },
+    {
+      "case": "tag-review-create",
+      "command": "createTags",
+      "params": {
+        "resourceids": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+        "resourcetype": "Network",
+        "tags[0].key": "검증",
+        "tags[0].value": "#1569 역할·조건부 회귀"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.03
+    }
+  ],
+  "32": [
+    {
+      "case": "source-nat-cannot-be-static",
+      "command": "enableStaticNat",
+      "params": {
+        "ipaddressid": "04de4618-4265-4bfc-9b4c-95bc88ac1c2c",
+        "virtualmachineid": "d67429be-281f-443d-8ee6-ed7b7683e09d",
+        "networkid": "75ccea08-34d0-48b6-80a9-006202b76e39"
+      },
+      "accepted": false,
+      "expected": false,
+      "pass_": true,
+      "errorCode": 431,
+      "errorText": "Can't enable static, ip address IPAddress {\"address\":\"10.10.32.166\",\"dataCenterId\":1,\"id\":68,\"uuid\":\"04de4618-4265-4bfc-9b4c-95bc88ac1c2c\"} is a sourceNat ip address",
+      "seconds": 0.03
+    },
+    {
+      "case": "static-ip-allocate",
+      "command": "associateIpAddress",
+      "params": {
+        "networkid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.15
+    },
+    {
+      "case": "static-nat-enable",
+      "command": "enableStaticNat",
+      "params": {
+        "ipaddressid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+        "virtualmachineid": "d67429be-281f-443d-8ee6-ed7b7683e09d",
+        "networkid": "75ccea08-34d0-48b6-80a9-006202b76e39"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.46
+    },
+    {
+      "case": "static-nat-read",
+      "command": "listPublicIpAddresses",
+      "params": {
+        "id": "d670d49c-497f-46fe-940a-45c83202a1d7"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "publicipaddress": [
+          {
+            "id": "d670d49c-497f-46fe-940a-45c83202a1d7",
+            "ipaddress": "10.10.32.170",
+            "allocated": "2026-11-07T22:59:17+0900",
+            "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+            "zonename": "Zone",
+            "issourcenat": false,
+            "account": "qa-gn1569-32-owner",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "domainpath": "ROOT/qa-gn1569-32-domain",
+            "allocationgeneration": "479a0e76-0f1c-4d8f-ac73-ed6204cfeac3",
+            "forvirtualnetwork": true,
+            "isstaticnat": true,
+            "issystem": false,
+            "virtualmachineid": "d67429be-281f-443d-8ee6-ed7b7683e09d",
+            "virtualmachinetype": "User",
+            "vmipaddress": "10.176.32.75",
+            "virtualmachinename": "qa-gn1569-32-nat-vm",
+            "virtualmachinedisplayname": "qa-gn1569-32-nat-vm",
+            "associatednetworkid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+            "associatednetworkname": "qa-gn1569-32-nat",
+            "networkid": "4216b0b3-d054-46ab-88dd-9d025a1f3eb5",
+            "state": "Allocated",
+            "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+            "tags": [],
+            "isportable": false,
+            "hasrules": false,
+            "forsystemvms": false,
+            "forprovider": false,
+            "hasannotations": false
+          }
+        ]
+      }
+    },
+    {
+      "case": "static-nat-reject-pf",
+      "command": "createPortForwardingRule",
+      "params": {
+        "ipaddressid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+        "protocol": "tcp",
+        "publicport": 18569,
+        "privateport": 18569,
+        "virtualmachineid": "d67429be-281f-443d-8ee6-ed7b7683e09d",
+        "networkid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+        "openfirewall": "false"
+      },
+      "accepted": false,
+      "expected": false,
+      "pass_": true,
+      "errorCode": 431,
+      "errorText": "Unable to create port forwarding rule; ip IPAddress {\"address\":\"10.10.32.170\",\"dataCenterId\":1,\"id\":72,\"uuid\":\"d670d49c-497f-46fe-940a-45c83202a1d7\"} has static nat enabled",
+      "seconds": 0.05
+    },
+    {
+      "case": "static-nat-disable",
+      "command": "disableStaticNat",
+      "params": {
+        "ipaddressid": "d670d49c-497f-46fe-940a-45c83202a1d7"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 4.08
+    },
+    {
+      "case": "static-nat-disabled-read",
+      "command": "listPublicIpAddresses",
+      "params": {
+        "id": "d670d49c-497f-46fe-940a-45c83202a1d7"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "publicipaddress": [
+          {
+            "id": "d670d49c-497f-46fe-940a-45c83202a1d7",
+            "ipaddress": "10.10.32.170",
+            "allocated": "2026-11-07T22:59:17+0900",
+            "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+            "zonename": "Zone",
+            "issourcenat": false,
+            "account": "qa-gn1569-32-owner",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "domainpath": "ROOT/qa-gn1569-32-domain",
+            "allocationgeneration": "479a0e76-0f1c-4d8f-ac73-ed6204cfeac3",
+            "forvirtualnetwork": true,
+            "isstaticnat": false,
+            "issystem": false,
+            "associatednetworkid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+            "associatednetworkname": "qa-gn1569-32-nat",
+            "networkid": "4216b0b3-d054-46ab-88dd-9d025a1f3eb5",
+            "state": "Allocated",
+            "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+            "tags": [],
+            "isportable": false,
+            "hasrules": false,
+            "forsystemvms": false,
+            "forprovider": false,
+            "hasannotations": false
+          }
+        ]
+      }
+    },
+    {
+      "case": "lb-create",
+      "command": "createLoadBalancerRule",
+      "params": {
+        "networkid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+        "publicipid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+        "name": "qa-gn1569-32-reg-lb",
+        "algorithm": "roundrobin",
+        "publicport": 18569,
+        "privateport": 18569,
+        "openfirewall": "false",
+        "cidrlist": "192.0.2.156/32"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.13
+    },
+    {
+      "case": "lb-update",
+      "command": "updateLoadBalancerRule",
+      "params": {
+        "id": "3cc2a1c8-4362-44fd-9bd7-aeddd77c6f5e",
+        "algorithm": "leastconn",
+        "description": "GN1569 LB API/UI review"
+      },
+      "accepted": false,
+      "expected": true,
+      "pass_": false,
+      "errorCode": 530,
+      "errorText": "Cannot invoke \"String.equals(Object)\" because the return value of \"com.cloud.network.dao.LoadBalancerVO.getLbProtocol()\" is null",
+      "seconds": 4.09,
+      "knownDefect": "nullable LB protocol update"
+    },
+    {
+      "case": "lb-explicit-tcp-create",
+      "command": "createLoadBalancerRule",
+      "params": {
+        "networkid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+        "publicipid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+        "name": "qa-gn1569-32-reg-lb-tcp",
+        "algorithm": "roundrobin",
+        "publicport": 18572,
+        "privateport": 18572,
+        "protocol": "tcp",
+        "openfirewall": "false",
+        "cidrlist": "192.0.2.156/32"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.11
+    },
+    {
+      "case": "lb-explicit-tcp-update",
+      "command": "updateLoadBalancerRule",
+      "params": {
+        "id": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce",
+        "algorithm": "leastconn",
+        "description": "GN1569 LB explicit TCP API/UI review"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 4.08
+    },
+    {
+      "case": "lb-read",
+      "command": "listLoadBalancerRules",
+      "params": {
+        "id": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "loadbalancerrule": [
+          {
+            "id": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce",
+            "name": "qa-gn1569-32-reg-lb-tcp",
+            "description": "GN1569 LB explicit TCP API/UI review",
+            "publicipid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+            "publicip": "10.10.32.170",
+            "publicport": "18572",
+            "privateport": "18572",
+            "algorithm": "leastconn",
+            "networkid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+            "cidrlist": "192.0.2.156/32",
+            "account": "qa-gn1569-32-owner",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "domainpath": "ROOT/qa-gn1569-32-domain",
+            "state": "Add",
+            "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+            "zonename": "Zone",
+            "protocol": "tcp",
+            "backendssl": false,
+            "tags": []
+          }
+        ]
+      }
+    },
+    {
+      "case": "lb-assign",
+      "command": "assignToLoadBalancerRule",
+      "params": {
+        "id": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce",
+        "virtualmachineids": "d67429be-281f-443d-8ee6-ed7b7683e09d"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 4.1
+    },
+    {
+      "case": "lb-assignment-read",
+      "command": "listLoadBalancerRuleInstances",
+      "params": {
+        "id": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.04,
+      "result": {
+        "count": 1,
+        "loadbalancerruleinstance": [
+          {
+            "id": "d67429be-281f-443d-8ee6-ed7b7683e09d",
+            "name": "qa-gn1569-32-nat-vm",
+            "displayname": "qa-gn1569-32-nat-vm",
+            "account": "qa-gn1569-32-owner",
+            "userid": "033eb4f1-3313-416d-8ec0-99c17f8d5653",
+            "username": "qa-gn1569-32-owner",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "domainpath": "ROOT/qa-gn1569-32-domain",
+            "created": "2026-11-06T17:52:40+0900",
+            "lastupdated": "2026-11-06T18:18:59+0900",
+            "state": "Running",
+            "haenable": false,
+            "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+            "zonename": "Zone",
+            "hostcontrolstate": "Enabled",
+            "templateid": "b31d2c92-67b9-40c4-a137-4ff9778c6b0d",
+            "templatename": "Rocky-Linux-9-5-x86-64-Server-Cloud-Image.qcow2",
+            "templatetype": "USER",
+            "templateformat": "QCOW2",
+            "templatedisplaytext": "Rocky-Linux-9-5-x86-64-Server-Cloud-Image.qcow2",
+            "passwordenabled": false,
+            "isos": [],
+            "isomaxcount": 2,
+            "serviceofferingid": "b02ac1bf-2da7-46e1-8961-d94d76dad9ab",
+            "serviceofferingname": "AS-PROD-32-AS01-2C2G",
+            "volumemutationblockedreason": "",
+            "cpunumber": 2,
+            "cpuspeed": 2000,
+            "memory": 2048,
+            "statslastsampled": 1794059934000,
+            "statscollectionstatus": "FRESH",
+            "cpuused": "0.09%",
+            "networkkbsread": 3,
+            "networkkbswrite": 0,
+            "diskkbsread": 0,
+            "diskkbswrite": 0,
+            "memorykbs": 2097152,
+            "memoryintfreekbs": 1228440,
+            "memorytargetkbs": 2097152,
+            "memoryintusablekbs": 0,
+            "diskioread": 0,
+            "diskiowrite": 0,
+            "guestosid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+            "rootdeviceid": 0,
+            "rootdevicetype": "ROOT",
+            "securitygroup": [],
+            "nic": [
+              {
+                "id": "60a5043e-6958-4bfd-81c5-bb0cb52e4bbf",
+                "networkid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+                "networkname": "qa-gn1569-32-nat",
+                "netmask": "255.255.255.0",
+                "gateway": "10.176.32.1",
+                "ipaddress": "10.176.32.75",
+                "isolationuri": "vlan://108",
+                "broadcasturi": "vlan://108",
+                "traffictype": "Guest",
+                "type": "Isolated",
+                "isdefault": true,
+                "macaddress": "02:01:01:9e:00:01",
+                "secondaryip": [],
+                "extradhcpoption": [],
+                "deviceid": "0",
+                "enabled": true
+              },
+              {
+                "id": "5f5533a5-5511-4d36-91ec-cabe14664f89",
+                "networkid": "aefaf6fa-4255-4b64-9f28-2da2a25ea711",
+                "networkname": "qa-gn1569-32-l2",
+                "isolationuri": "vlan://791",
+                "broadcasturi": "vlan://791",
+                "traffictype": "Guest",
+                "type": "L2",
+                "isdefault": false,
+                "macaddress": "02:01:01:a0:00:01",
+                "secondaryip": [],
+                "extradhcpoption": [],
+                "deviceid": "1",
+                "enabled": true
+              }
+            ],
+            "hypervisor": "KVM",
+            "ipaddress": "10.176.32.75",
+            "details": {
+              "tpmversion": "NONE",
+              "rootDiskController": "osdefault"
+            },
+            "clonefastsourcepowerallowed": false,
+            "clonefastpowerallowed": false,
+            "readonlydetails": "dataDiskController, rootDiskController, backupValidationCommandTimeout, backupValidationScreenshotWait, backupValidationBootTimeout",
+            "affinitygroup": [],
+            "isdynamicallyscalable": true,
+            "deleteprotection": false,
+            "ostypeid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+            "osdisplayname": "Rocky Linux 9",
+            "pooltype": "RBD",
+            "receivedbytes": 0,
+            "sentbytes": 0,
+            "vbmcport": "None",
+            "qemuagentversion": "9.0.0",
+            "kvdoenable": false,
+            "kvdoinuse": false,
+            "vbmcstatus": "Unallocated",
+            "tags": [],
+            "hasannotations": false
+          }
+        ]
+      }
+    },
+    {
+      "case": "lb-remove-backend",
+      "command": "removeFromLoadBalancerRule",
+      "params": {
+        "id": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce",
+        "virtualmachineids": "d67429be-281f-443d-8ee6-ed7b7683e09d"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 4.12
+    },
+    {
+      "case": "lb-unassigned-read",
+      "command": "listLoadBalancerRuleInstances",
+      "params": {
+        "id": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {}
+    },
+    {
+      "case": "lb-restore-backend",
+      "command": "assignToLoadBalancerRule",
+      "params": {
+        "id": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce",
+        "virtualmachineids": "d67429be-281f-443d-8ee6-ed7b7683e09d"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 4.08
+    },
+    {
+      "case": "stickiness-create",
+      "command": "createLBStickinessPolicy",
+      "params": {
+        "lbruleid": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce",
+        "name": "GN1569-cookie",
+        "methodname": "LbCookie",
+        "param[0].name": "cookie-name",
+        "param[0].value": "GN1569"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 4.12
+    },
+    {
+      "case": "stickiness-list",
+      "command": "listLBStickinessPolicies",
+      "params": {
+        "lbruleid": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "stickinesspolicies": [
+          {
+            "lbruleid": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce",
+            "account": "qa-gn1569-32-owner",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "stickinesspolicy": [
+              {
+                "id": "010404d6-8f28-4a61-8389-d78bdd7672b5",
+                "name": "GN1569-cookie",
+                "methodname": "LbCookie",
+                "params": {
+                  "cookie-name": "GN1569"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "stickiness-delete",
+      "command": "deleteLBStickinessPolicy",
+      "params": {
+        "id": "010404d6-8f28-4a61-8389-d78bdd7672b5"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 4.1
+    },
+    {
+      "case": "stickiness-empty-read",
+      "command": "listLBStickinessPolicies",
+      "params": {
+        "lbruleid": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "stickinesspolicies": [
+          {
+            "lbruleid": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce",
+            "account": "qa-gn1569-32-owner",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "stickinesspolicy": []
+          }
+        ]
+      }
+    },
+    {
+      "case": "stickiness-review-create",
+      "command": "createLBStickinessPolicy",
+      "params": {
+        "lbruleid": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce",
+        "name": "GN1569-review-cookie",
+        "methodname": "LbCookie",
+        "param[0].name": "cookie-name",
+        "param[0].value": "GN1569"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 4.14
+    },
+    {
+      "case": "tag-fw-create",
+      "command": "createFirewallRule",
+      "params": {
+        "ipaddressid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+        "protocol": "tcp",
+        "startport": 18570,
+        "endport": 18570,
+        "cidrlist": "192.0.2.156/32"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.14
+    },
+    {
+      "case": "tag-pf-create",
+      "command": "createPortForwardingRule",
+      "params": {
+        "ipaddressid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+        "protocol": "tcp",
+        "publicport": 18571,
+        "privateport": 18571,
+        "virtualmachineid": "d67429be-281f-443d-8ee6-ed7b7683e09d",
+        "networkid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+        "openfirewall": "false"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.13
+    },
+    {
+      "case": "tag-create-Network",
+      "command": "createTags",
+      "params": {
+        "resourceids": "75ccea08-34d0-48b6-80a9-006202b76e39",
+        "resourcetype": "Network",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "Network"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.11
+    },
+    {
+      "case": "tag-filter-Network",
+      "command": "listTags",
+      "params": {
+        "resourceid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+        "resourcetype": "Network",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "tag": [
+          {
+            "key": "qa1569-reg",
+            "value": "Network",
+            "resourcetype": "Network",
+            "resourceid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+            "account": "qa-gn1569-32-owner",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "domainpath": "ROOT/qa-gn1569-32-domain"
+          }
+        ]
+      }
+    },
+    {
+      "case": "tag-delete-Network",
+      "command": "deleteTags",
+      "params": {
+        "resourceids": "75ccea08-34d0-48b6-80a9-006202b76e39",
+        "resourcetype": "Network",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "Network"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.09
+    },
+    {
+      "case": "tag-absent-Network",
+      "command": "listTags",
+      "params": {
+        "resourceid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+        "resourcetype": "Network",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {}
+    },
+    {
+      "case": "tag-create-PublicIpAddress",
+      "command": "createTags",
+      "params": {
+        "resourceids": "d670d49c-497f-46fe-940a-45c83202a1d7",
+        "resourcetype": "PublicIpAddress",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "PublicIpAddress"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.08
+    },
+    {
+      "case": "tag-filter-PublicIpAddress",
+      "command": "listTags",
+      "params": {
+        "resourceid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+        "resourcetype": "PublicIpAddress",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "tag": [
+          {
+            "key": "qa1569-reg",
+            "value": "PublicIpAddress",
+            "resourcetype": "PublicIpAddress",
+            "resourceid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+            "account": "qa-gn1569-32-owner",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "domainpath": "ROOT/qa-gn1569-32-domain"
+          }
+        ]
+      }
+    },
+    {
+      "case": "tag-delete-PublicIpAddress",
+      "command": "deleteTags",
+      "params": {
+        "resourceids": "d670d49c-497f-46fe-940a-45c83202a1d7",
+        "resourcetype": "PublicIpAddress",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "PublicIpAddress"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.07
+    },
+    {
+      "case": "tag-absent-PublicIpAddress",
+      "command": "listTags",
+      "params": {
+        "resourceid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+        "resourcetype": "PublicIpAddress",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.02,
+      "result": {}
+    },
+    {
+      "case": "tag-create-FirewallRule",
+      "command": "createTags",
+      "params": {
+        "resourceids": "b8ff799e-6cd0-4949-be4d-2d2d872028e8",
+        "resourcetype": "FirewallRule",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "FirewallRule"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.09
+    },
+    {
+      "case": "tag-filter-FirewallRule",
+      "command": "listTags",
+      "params": {
+        "resourceid": "b8ff799e-6cd0-4949-be4d-2d2d872028e8",
+        "resourcetype": "FirewallRule",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "tag": [
+          {
+            "key": "qa1569-reg",
+            "value": "FirewallRule",
+            "resourcetype": "FirewallRule",
+            "resourceid": "b8ff799e-6cd0-4949-be4d-2d2d872028e8",
+            "account": "qa-gn1569-32-owner",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "domainpath": "ROOT/qa-gn1569-32-domain"
+          }
+        ]
+      }
+    },
+    {
+      "case": "tag-delete-FirewallRule",
+      "command": "deleteTags",
+      "params": {
+        "resourceids": "b8ff799e-6cd0-4949-be4d-2d2d872028e8",
+        "resourcetype": "FirewallRule",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "FirewallRule"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.07
+    },
+    {
+      "case": "tag-absent-FirewallRule",
+      "command": "listTags",
+      "params": {
+        "resourceid": "b8ff799e-6cd0-4949-be4d-2d2d872028e8",
+        "resourcetype": "FirewallRule",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {}
+    },
+    {
+      "case": "tag-create-PortForwardingRule",
+      "command": "createTags",
+      "params": {
+        "resourceids": "6f25bb22-5ec5-4f96-a2e6-a0eb991b0690",
+        "resourcetype": "PortForwardingRule",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "PortForwardingRule"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.07
+    },
+    {
+      "case": "tag-filter-PortForwardingRule",
+      "command": "listTags",
+      "params": {
+        "resourceid": "6f25bb22-5ec5-4f96-a2e6-a0eb991b0690",
+        "resourcetype": "PortForwardingRule",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "tag": [
+          {
+            "key": "qa1569-reg",
+            "value": "PortForwardingRule",
+            "resourcetype": "PortForwardingRule",
+            "resourceid": "6f25bb22-5ec5-4f96-a2e6-a0eb991b0690",
+            "account": "qa-gn1569-32-owner",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "domainpath": "ROOT/qa-gn1569-32-domain"
+          }
+        ]
+      }
+    },
+    {
+      "case": "tag-delete-PortForwardingRule",
+      "command": "deleteTags",
+      "params": {
+        "resourceids": "6f25bb22-5ec5-4f96-a2e6-a0eb991b0690",
+        "resourcetype": "PortForwardingRule",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "PortForwardingRule"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.06
+    },
+    {
+      "case": "tag-absent-PortForwardingRule",
+      "command": "listTags",
+      "params": {
+        "resourceid": "6f25bb22-5ec5-4f96-a2e6-a0eb991b0690",
+        "resourcetype": "PortForwardingRule",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {}
+    },
+    {
+      "case": "tag-create-LoadBalancer",
+      "command": "createTags",
+      "params": {
+        "resourceids": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce",
+        "resourcetype": "LoadBalancer",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "LoadBalancer"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.06
+    },
+    {
+      "case": "tag-filter-LoadBalancer",
+      "command": "listTags",
+      "params": {
+        "resourceid": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce",
+        "resourcetype": "LoadBalancer",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "tag": [
+          {
+            "key": "qa1569-reg",
+            "value": "LoadBalancer",
+            "resourcetype": "LoadBalancer",
+            "resourceid": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce",
+            "account": "qa-gn1569-32-owner",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "domainpath": "ROOT/qa-gn1569-32-domain"
+          }
+        ]
+      }
+    },
+    {
+      "case": "tag-delete-LoadBalancer",
+      "command": "deleteTags",
+      "params": {
+        "resourceids": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce",
+        "resourcetype": "LoadBalancer",
+        "tags[0].key": "qa1569-reg",
+        "tags[0].value": "LoadBalancer"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 2.07
+    },
+    {
+      "case": "tag-absent-LoadBalancer",
+      "command": "listTags",
+      "params": {
+        "resourceid": "4b4dda8c-78e2-4dc8-b241-9362f92d02ce",
+        "resourcetype": "LoadBalancer",
+        "key": "qa1569-reg"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {}
+    },
+    {
+      "case": "comment-create-NETWORK",
+      "command": "addAnnotation",
+      "params": {
+        "entitytype": "NETWORK",
+        "entityid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+        "annotationfilter": "all",
+        "annotation": "GN1569 <b>문자열</b> & 한글"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.03
+    },
+    {
+      "case": "comment-list-NETWORK",
+      "command": "listAnnotations",
+      "params": {
+        "entitytype": "NETWORK",
+        "entityid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+        "annotationfilter": "all"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "annotation": [
+          {
+            "id": "1361ae01-1ff2-4834-9435-1d3937670a4f",
+            "entitytype": "NETWORK",
+            "entityid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+            "entityname": "qa-gn1569-32-nat",
+            "annotation": "GN1569 <b>문자열</b> & 한글",
+            "userid": "033eb4f1-3313-416d-8ec0-99c17f8d5653",
+            "username": "qa-gn1569-32-owner",
+            "adminsonly": false,
+            "created": "2026-11-07T23:00:27+0900"
+          }
+        ]
+      }
+    },
+    {
+      "case": "comment-admin-visible-NETWORK",
+      "command": "updateAnnotationVisibility",
+      "params": {
+        "id": "1361ae01-1ff2-4834-9435-1d3937670a4f",
+        "adminsonly": "true"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.02
+    },
+    {
+      "case": "comment-admin-read-NETWORK",
+      "command": "listAnnotations",
+      "params": {
+        "entitytype": "NETWORK",
+        "entityid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+        "annotationfilter": "all"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "annotation": [
+          {
+            "id": "1361ae01-1ff2-4834-9435-1d3937670a4f",
+            "entitytype": "NETWORK",
+            "entityid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+            "entityname": "qa-gn1569-32-nat",
+            "annotation": "GN1569 <b>문자열</b> & 한글",
+            "userid": "033eb4f1-3313-416d-8ec0-99c17f8d5653",
+            "username": "qa-gn1569-32-owner",
+            "adminsonly": true,
+            "created": "2026-11-07T23:00:27+0900"
+          }
+        ]
+      }
+    },
+    {
+      "case": "comment-foreign-hidden-NETWORK",
+      "command": "listAnnotations",
+      "pass_": true,
+      "result": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "User 584c98a3-060b-4f42-b20e-9e78c0f8630a does not have permission to list annotations on the entity with uuid 75ccea08-34d0-48b6-80a9-006202b76e39 of type NETWORK"
+      }
+    },
+    {
+      "case": "comment-delete-NETWORK",
+      "command": "removeAnnotation",
+      "params": {
+        "id": "1361ae01-1ff2-4834-9435-1d3937670a4f"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.03
+    },
+    {
+      "case": "comment-absent-NETWORK",
+      "command": "listAnnotations",
+      "params": {
+        "entitytype": "NETWORK",
+        "entityid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+        "annotationfilter": "all"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {}
+    },
+    {
+      "case": "event-page-NETWORK-1",
+      "command": "listEvents",
+      "params": {
+        "resourceid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+        "resourcetype": "Network",
+        "page": 1,
+        "pagesize": 1,
+        "listall": "true"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 5,
+        "event": [
+          {
+            "id": "74d3a8e1-3871-46cb-8983-b415773829cf",
+            "username": "qa-gn1569-32-owner",
+            "type": "ANNOTATION.CREATE",
+            "level": "INFO",
+            "description": "Successfully completed creating an annotation on an entity",
+            "account": "qa-gn1569-32-owner",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "domainpath": "ROOT/qa-gn1569-32-domain",
+            "resourceid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+            "resourcetype": "Network",
+            "resourcename": "#1569 nat integrated review",
+            "created": "2026-11-07T23:00:27+0900",
+            "state": "Completed"
+          }
+        ]
+      }
+    },
+    {
+      "case": "event-page-NETWORK-2",
+      "command": "listEvents",
+      "params": {
+        "resourceid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+        "resourcetype": "Network",
+        "page": 2,
+        "pagesize": 1,
+        "listall": "true"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 5,
+        "event": [
+          {
+            "id": "eb02c402-775d-4bc2-9d0d-62da31db76a9",
+            "username": "admin",
+            "type": "NETWORK.RESTART",
+            "level": "INFO",
+            "description": "Restarting Network with ID: 75ccea08-34d0-48b6-80a9-006202b76e39",
+            "account": "qa-gn1569-32-owner",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "domainpath": "ROOT/qa-gn1569-32-domain",
+            "resourceid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+            "resourcetype": "Network",
+            "resourcename": "#1569 nat integrated review",
+            "created": "2026-11-06T18:35:33+0900",
+            "state": "Scheduled"
+          }
+        ]
+      }
+    },
+    {
+      "case": "comment-create-PUBLIC_IP_ADDRESS",
+      "command": "addAnnotation",
+      "params": {
+        "entitytype": "PUBLIC_IP_ADDRESS",
+        "entityid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+        "annotationfilter": "all",
+        "annotation": "GN1569 <b>문자열</b> & 한글"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.03
+    },
+    {
+      "case": "comment-list-PUBLIC_IP_ADDRESS",
+      "command": "listAnnotations",
+      "params": {
+        "entitytype": "PUBLIC_IP_ADDRESS",
+        "entityid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+        "annotationfilter": "all"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "annotation": [
+          {
+            "id": "f69f4d02-2328-4b3a-bce2-3e16e99e12cc",
+            "entitytype": "PUBLIC_IP_ADDRESS",
+            "entityid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+            "entityname": "10.10.32.170",
+            "annotation": "GN1569 <b>문자열</b> & 한글",
+            "userid": "033eb4f1-3313-416d-8ec0-99c17f8d5653",
+            "username": "qa-gn1569-32-owner",
+            "adminsonly": false,
+            "created": "2026-11-07T23:00:27+0900"
+          }
+        ]
+      }
+    },
+    {
+      "case": "comment-admin-visible-PUBLIC_IP_ADDRESS",
+      "command": "updateAnnotationVisibility",
+      "params": {
+        "id": "f69f4d02-2328-4b3a-bce2-3e16e99e12cc",
+        "adminsonly": "true"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01
+    },
+    {
+      "case": "comment-admin-read-PUBLIC_IP_ADDRESS",
+      "command": "listAnnotations",
+      "params": {
+        "entitytype": "PUBLIC_IP_ADDRESS",
+        "entityid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+        "annotationfilter": "all"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 1,
+        "annotation": [
+          {
+            "id": "f69f4d02-2328-4b3a-bce2-3e16e99e12cc",
+            "entitytype": "PUBLIC_IP_ADDRESS",
+            "entityid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+            "entityname": "10.10.32.170",
+            "annotation": "GN1569 <b>문자열</b> & 한글",
+            "userid": "033eb4f1-3313-416d-8ec0-99c17f8d5653",
+            "username": "qa-gn1569-32-owner",
+            "adminsonly": true,
+            "created": "2026-11-07T23:00:27+0900"
+          }
+        ]
+      }
+    },
+    {
+      "case": "comment-foreign-hidden-PUBLIC_IP_ADDRESS",
+      "command": "listAnnotations",
+      "pass_": true,
+      "result": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "User 584c98a3-060b-4f42-b20e-9e78c0f8630a does not have permission to list annotations on the entity with uuid d670d49c-497f-46fe-940a-45c83202a1d7 of type PUBLIC_IP_ADDRESS"
+      }
+    },
+    {
+      "case": "comment-delete-PUBLIC_IP_ADDRESS",
+      "command": "removeAnnotation",
+      "params": {
+        "id": "f69f4d02-2328-4b3a-bce2-3e16e99e12cc"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.02
+    },
+    {
+      "case": "comment-absent-PUBLIC_IP_ADDRESS",
+      "command": "listAnnotations",
+      "params": {
+        "entitytype": "PUBLIC_IP_ADDRESS",
+        "entityid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+        "annotationfilter": "all"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {}
+    },
+    {
+      "case": "event-page-PUBLIC_IP_ADDRESS-1",
+      "command": "listEvents",
+      "params": {
+        "resourceid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+        "resourcetype": "IpAddress",
+        "page": 1,
+        "pagesize": 1,
+        "listall": "true"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 5,
+        "event": [
+          {
+            "id": "673ed895-e80c-4b04-a8e6-4f2642372d3b",
+            "username": "qa-gn1569-32-owner",
+            "type": "ANNOTATION.CREATE",
+            "level": "INFO",
+            "description": "Successfully completed creating an annotation on an entity",
+            "account": "qa-gn1569-32-owner",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "domainpath": "ROOT/qa-gn1569-32-domain",
+            "resourceid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+            "resourcetype": "IpAddress",
+            "resourcename": "10.10.32.170",
+            "created": "2026-11-07T23:00:27+0900",
+            "state": "Completed"
+          }
+        ]
+      }
+    },
+    {
+      "case": "event-page-PUBLIC_IP_ADDRESS-2",
+      "command": "listEvents",
+      "params": {
+        "resourceid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+        "resourcetype": "IpAddress",
+        "page": 2,
+        "pagesize": 1,
+        "listall": "true"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.01,
+      "result": {
+        "count": 5,
+        "event": [
+          {
+            "id": "8a3b01fa-d81f-42e5-b5e9-d9ed5c836ad4",
+            "username": "qa-gn1569-32-owner",
+            "type": "NET.IPASSIGN",
+            "level": "INFO",
+            "description": "Successfully completed associating Ip. IP address ID: d670d49c-497f-46fe-940a-45c83202a1d7",
+            "account": "qa-gn1569-32-owner",
+            "domainid": "a051d20d-2c05-43d5-833e-e231a80b12f7",
+            "domain": "qa-gn1569-32-domain",
+            "domainpath": "ROOT/qa-gn1569-32-domain",
+            "resourceid": "d670d49c-497f-46fe-940a-45c83202a1d7",
+            "resourcetype": "IpAddress",
+            "resourcename": "10.10.32.170",
+            "created": "2026-11-07T22:59:18+0900",
+            "state": "Completed",
+            "parentid": "97d3add8-3feb-49ed-87f6-7cfc6fd49421"
+          }
+        ]
+      }
+    },
+    {
+      "case": "comment-review-create",
+      "command": "addAnnotation",
+      "params": {
+        "entitytype": "NETWORK",
+        "entityid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+        "annotation": "GN1569 확인용 <b>문자열</b> & 한글"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.03
+    },
+    {
+      "case": "tag-review-create",
+      "command": "createTags",
+      "params": {
+        "resourceids": "75ccea08-34d0-48b6-80a9-006202b76e39",
+        "resourcetype": "Network",
+        "tags[0].key": "검증",
+        "tags[0].value": "#1569 역할·조건부 회귀"
+      },
+      "accepted": true,
+      "expected": true,
+      "pass_": true,
+      "errorCode": null,
+      "errorText": null,
+      "seconds": 0.07
+    }
+  ]
+}

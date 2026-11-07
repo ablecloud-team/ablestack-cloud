@@ -1,0 +1,23 @@
+{
+  "before": {
+    "id": "4a6d4597-4577-4db4-b8c6-0f17221f0412",
+    "name": "qa-gn1556-31-isolated",
+    "networkofferingid": "e79ea004-0d13-4055-bc23-ad039391c718",
+    "state": "Implemented",
+    "cidr": "10.252.31.0/24",
+    "gateway": "10.252.31.1",
+    "dns1": "8.8.8.8",
+    "dns2": null
+  },
+  "after": {
+    "id": "4a6d4597-4577-4db4-b8c6-0f17221f0412",
+    "name": "qa-gn1556-31-isolated",
+    "networkofferingid": "e79ea004-0d13-4055-bc23-ad039391c718",
+    "state": "Implemented",
+    "cidr": "10.252.31.0/24",
+    "gateway": "10.252.31.1",
+    "dns1": "8.8.8.8",
+    "dns2": null
+  },
+  "unchanged": true
+}

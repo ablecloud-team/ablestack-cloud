@@ -45,7 +45,7 @@
             <template #content v-if="visibleFilter">
               <a-form
                 style="min-width: 170px"
-                :class="{ 'storage-standard-search-form': ['listVolumes', 'listServiceOfferings', 'listDiskOfferings'].includes(apiName) }"
+                :class="{ 'storage-standard-search-form': ['listVolumes', 'listServiceOfferings', 'listDiskOfferings'].includes(apiName) || isGuestNetworkSearch, 'guest-network-search-form': isGuestNetworkSearch }"
                 :ref="formRef"
                 :model="form"
                 :rules="rules"
@@ -64,6 +64,12 @@
                     v-model:value="form.volumeid"
                     :scope="volumeScope"
                     @blocked="volumeLookupBlocked = $event" />
+                  <NetworkSearchSelect
+                    v-else-if="isGuestNetworkSearch && ['networkofferingid', 'physicalnetworkid'].includes(field.name)"
+                    :key="field.name + ':' + volumeLookupReset"
+                    v-model:value="form[field.name]"
+                    :kind="field.name"
+                    :scope="networkScope" />
                   <a-select
                     allowClear
                     v-else-if="field.type==='list'"
@@ -78,7 +84,7 @@
                     @popupScroll="moreVmOptions($event, field)"
                     :loading="field.loading"
                     :disabled="apiName === 'listAffinityGroups' && (field.loading || !!field.error || (field.name === 'account' && !form.domainid))"
-                    :placeholder="apiName === 'listAffinityGroups' && field.name === 'account' && !form.domainid ? $t('message.affinity.search.account.domain') : undefined"
+                    :placeholder="isGuestNetworkSearch && field.name === 'forvpc' ? $t('label.all') : apiName === 'listAffinityGroups' && field.name === 'account' && !form.domainid ? $t('message.affinity.search.account.domain') : undefined"
                     @input="field.name === 'virtualmachineid' && $route.name === 'vmsnapshot' ? null : onchange($event, field.name)"
                     @change="onSelectFieldChange(field.name)">
                     <a-select-option
@@ -185,6 +191,7 @@
 <script>
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI } from '@/api'
+import { sourceToken } from '@/utils/request'
 import { isAdmin } from '@/role'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import ResourceIcon from '@/components/view/ResourceIcon'
@@ -192,6 +199,7 @@ import Status from '@/components/widgets/Status'
 import SnapshotSearch from '@/components/view/SnapshotSearch'
 import SnapshotPolicySearch from '@/components/view/SnapshotPolicySearch'
 import VolumeSearchSelect from '@/components/view/VolumeSearchSelect'
+import NetworkSearchSelect from '@/components/view/NetworkSearchSelect'
 import { i18n } from '@/locales'
 import { affinityOwnerOptions, affinityTypeOptions } from '@/utils/affinityGroupCreation'
 
@@ -203,7 +211,8 @@ export default {
     Status,
     SnapshotSearch,
     SnapshotPolicySearch,
-    VolumeSearchSelect
+    VolumeSearchSelect,
+    NetworkSearchSelect
   },
   props: {
     searchFilters: {
@@ -276,6 +285,8 @@ export default {
     this.updateIsFiltered()
   },
   computed: {
+    isGuestNetworkSearch () { return this.apiName === 'listNetworks' && this.$route.meta?.name === 'guestnetwork' },
+    networkScope () { return Object.fromEntries(['zoneid', 'domainid', 'account'].filter(k => this.form[k]).map(k => [k, this.form[k]])) },
     volumeOwnerContext () {
       return JSON.stringify([this.$store.getters.userInfo?.id, this.$store.getters.userInfo?.roletype, this.$store.state?.user?.token, this.$store.getters.project?.id, this.$store.getters.listAllProjects, this.$route.query.projectid, Object.keys(this.$store.getters.apis || {}).sort()])
     },
@@ -324,6 +335,7 @@ export default {
       this.fetchDynamicFieldData(fieldname, event.target.value)
     },
     onSelectFieldChange (fieldname) {
+      if (this.isGuestNetworkSearch && fieldname === 'zoneid') this.form.physicalnetworkid = undefined
       if (this.apiName === 'listAffinityGroups') {
         if (fieldname === 'domainid') {
           this.form.account = undefined; this.form.projectid = undefined
@@ -334,7 +346,7 @@ export default {
       }
       const fetchAccountOptions = fieldname === 'domainid' && this.fields.some((field) => field.name === 'account')
       if (fetchAccountOptions) {
-        if (this.apiName === 'listCniConfiguration') this.form.account = undefined
+        if (this.isGuestNetworkSearch || this.apiName === 'listCniConfiguration') this.form.account = undefined
         this.fetchDynamicFieldData('account')
       }
 
@@ -351,6 +363,10 @@ export default {
       this.initFormFieldData()
     },
     retrieveFieldLabel (fieldName) {
+      if (this.isGuestNetworkSearch && fieldName === 'keyword') return this.$t('label.name')
+      if (fieldName === 'networkofferingid') return this.$t('label.network.offering')
+      if (fieldName === 'physicalnetworkid') return this.$t('label.physical.network')
+      if (fieldName === 'forvpc') return this.$t('label.network.search.forvpc')
       if (this.apiName === 'listAffinityGroups' && fieldName === 'projectid') return this.$t('label.project')
       if (fieldName === 'groupid') {
         fieldName = 'group'
@@ -416,7 +432,7 @@ export default {
           'clusterid', 'podid', 'groupid', 'entitytype', 'accounttype', 'systemvmtype', 'scope', 'provider',
           'type', 'scope', 'managementserverid', 'serviceofferingid',
           'diskofferingid', 'networkid', 'usagetype', 'restartrequired', 'gpuenabled',
-          'displaynetwork', 'guestiptype', 'usersource', 'arch', 'oscategoryid', 'templatetype', 'gpucardid', 'vgpuprofileid',
+          'displaynetwork', 'forvpc', 'guestiptype', 'usersource', 'arch', 'oscategoryid', 'templatetype', 'gpucardid', 'vgpuprofileid',
           'extensionid', 'backupoffering', 'volumeid', 'virtualmachineid', 'hsmprofileid', 'kmskeyid', 'current'].includes(item) || (item === 'status' && this.apiName === 'listBackups')
         ) {
           type = 'list'
@@ -443,6 +459,7 @@ export default {
       return arrayField
     },
     fetchStaticFieldData (arrayField) {
+      if (this.isGuestNetworkSearch && arrayField.includes('forvpc')) this.fields.find(f => f.name === 'forvpc').opts = [{ id: 'true', name: 'label.yes' }, { id: 'false', name: 'label.no' }]
       if (this.$route.name === 'vmsnapshot') {
         const type = this.fields.find(field => field.name === 'type')
         if (type) type.opts = [{ id: 'Disk', name: 'label.vmsnapshot.disk' }, { id: 'DiskAndMemory', name: 'label.vmsnapshot.disk.memory' }]
@@ -598,6 +615,7 @@ export default {
     async fetchDynamicFieldData (arrayField, searchKeyword) {
       if (this.apiName === 'listAffinityGroups') return this.fetchAffinityFilters(arrayField)
       if (this.apiName === 'listCniConfiguration') return this.fetchCniOwnerOptions(arrayField, searchKeyword)
+      const guestLookup = this.isGuestNetworkSearch
       const promises = []
       let typeIndex = -1
       let zoneIndex = -1
@@ -639,7 +657,7 @@ export default {
       if (arrayField.includes('zoneid')) {
         zoneIndex = this.fields.findIndex(item => item.name === 'zoneid')
         this.fields[zoneIndex].loading = true
-        promises.push(await this.fetchZones(searchKeyword))
+        promises.push(await this.fetchZones(searchKeyword, guestLookup))
       }
 
       if (arrayField.includes('extensionid')) {
@@ -651,13 +669,13 @@ export default {
       if (arrayField.includes('domainid')) {
         domainIndex = this.fields.findIndex(item => item.name === 'domainid')
         this.fields[domainIndex].loading = true
-        promises.push(await this.fetchDomains(searchKeyword))
+        promises.push(await this.fetchDomains(searchKeyword, guestLookup))
       }
 
       if (arrayField.includes('account')) {
         accountIndex = this.fields.findIndex(item => item.name === 'account')
         this.fields[accountIndex].loading = true
-        promises.push(await this.fetchAccounts(searchKeyword))
+        promises.push(await this.fetchAccounts(searchKeyword, guestLookup))
       }
 
       if (arrayField.includes('hypervisor')) {
@@ -994,7 +1012,7 @@ export default {
         if (kmsKeyIndex > -1) {
           this.fields[kmsKeyIndex].loading = false
         }
-        if (Array.isArray(arrayField) && !arrayField.includes('volumeid')) {
+        if (!this.isGuestNetworkSearch && Array.isArray(arrayField) && !arrayField.includes('volumeid')) {
           this.fillFormFieldValues()
         }
       })
@@ -1040,7 +1058,7 @@ export default {
     },
     initFormFieldData () {
       const arrayField = this.initFields()
-      if (['listCniConfiguration', 'listAffinityGroups'].includes(this.apiName) || arrayField.includes('volumeid')) this.fillFormFieldValues()
+      if (this.isGuestNetworkSearch || ['listCniConfiguration', 'listAffinityGroups'].includes(this.apiName) || arrayField.includes('volumeid')) this.fillFormFieldValues()
 
       this.fetchStaticFieldData(arrayField)
 
@@ -1074,7 +1092,8 @@ export default {
       this.inputKey = this.fieldValues['tags[0].key'] || null
       this.inputValue = this.fieldValues['tags[0].value'] || null
     },
-    fetchZones (searchKeyword) {
+    fetchZones (searchKeyword, guestLookup = this.isGuestNetworkSearch) {
+      if (guestLookup && (!this.isGuestNetworkSearch || !this.$store.state?.user?.token || !('listZones' in (this.$store.getters.apis || {})))) return Promise.resolve({ type: 'zoneid', data: [] })
       return new Promise((resolve, reject) => {
         getAPI('listZones', { showicon: true, keyword: searchKeyword }).then(json => {
           const zones = json.listzonesresponse.zone
@@ -1083,7 +1102,8 @@ export default {
             data: zones
           })
         }).catch(error => {
-          reject(error.response.headers['x-description'])
+          if (guestLookup && sourceToken.isCancel(error)) { resolve({ type: 'zoneid', data: [] }); return }
+          reject(error?.response?.headers?.['x-description'] || error)
         })
       })
     },
@@ -1100,7 +1120,8 @@ export default {
         })
       })
     },
-    fetchDomains (searchKeyword) {
+    fetchDomains (searchKeyword, guestLookup = this.isGuestNetworkSearch) {
+      if (guestLookup && (!this.isGuestNetworkSearch || !this.$store.state?.user?.token || !('listDomains' in (this.$store.getters.apis || {})))) return Promise.resolve({ type: 'domainid', data: [] })
       return new Promise((resolve, reject) => {
         getAPI('listDomains', { listAll: true, details: 'min', showicon: true, keyword: searchKeyword }).then(json => {
           const domain = json.listdomainsresponse.domain
@@ -1109,11 +1130,13 @@ export default {
             data: domain
           })
         }).catch(error => {
-          reject(error.response.headers['x-description'])
+          if (guestLookup && sourceToken.isCancel(error)) { resolve({ type: 'domainid', data: [] }); return }
+          reject(error?.response?.headers?.['x-description'] || error)
         })
       })
     },
-    fetchAccounts (searchKeyword) {
+    fetchAccounts (searchKeyword, guestLookup = this.isGuestNetworkSearch) {
+      if (guestLookup && (!this.isGuestNetworkSearch || !this.$store.state?.user?.token || !('listAccounts' in (this.$store.getters.apis || {})))) return Promise.resolve({ type: 'account', data: [] })
       return new Promise((resolve, reject) => {
         const params = { listAll: true, isrecursive: false, showicon: true, keyword: searchKeyword }
         if (this.form.domainid) {
@@ -1129,7 +1152,8 @@ export default {
             data: account
           })
         }).catch(error => {
-          reject(error.response.headers['x-description'])
+          if (guestLookup && sourceToken.isCancel(error)) { resolve({ type: 'account', data: [] }); return }
+          reject(error?.response?.headers?.['x-description'] || error)
         })
       })
     },
@@ -1886,7 +1910,7 @@ export default {
       this.$emit('change-filter', filter)
     },
     updateIsFiltered () {
-      const params = ['listCniConfiguration', 'listAffinityGroups'].includes(this.apiName) ? this.$route.query : this.searchParams
+      const params = this.isGuestNetworkSearch || ['listCniConfiguration', 'listAffinityGroups'].includes(this.apiName) ? this.$route.query : this.searchParams
       this.isFiltered = this.searchFilters.some(item => {
         if (params[item]) {
           return true

@@ -1,0 +1,51 @@
+{
+  "records": [
+    {
+      "requestId": "49180.2023",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "670c6673-068d-4436-b57c-b09acce6b65f",
+        "command": "listNetworks"
+      },
+      "status": 200,
+      "result": {
+        "count": 1
+      }
+    },
+    {
+      "requestId": "49180.2024",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "670c6673-068d-4436-b57c-b09acce6b65f",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 2
+      }
+    },
+    {
+      "requestId": "49180.2025",
+      "command": "deleteVlanIpRange",
+      "method": "POST",
+      "params": {
+        "command": "deleteVlanIpRange",
+        "id": "62f1aeca-cbb3-4829-b422-5ae5da1e2ebd"
+      },
+      "status": 431,
+      "result": {
+        "errorcode": 431,
+        "errortext": "1  Ips are in use. Cannot delete this vlan"
+      }
+    }
+  ],
+  "cursor": 7390,
+  "dialog": "IP 주소 범위 삭제\n\nqa-gn1557-31-nosnat · 172.26.31.30–172.26.31.35\n\n현재 IP 주소 범위를 삭제하시겠습니까?\n1 Ips are in use. Cannot delete this vlan\n취소\n예",
+  "rowRetained": 1
+}

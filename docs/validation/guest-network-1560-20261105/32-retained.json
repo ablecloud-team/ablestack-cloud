@@ -1,0 +1,92 @@
+{
+  "prefix": "qa-gn1560-32",
+  "networks": {
+    "isolated": "742cc1ad-e7e3-49e3-b4a9-49379d1edac6",
+    "shared": "74da0389-6849-4e0d-acaf-229740f0c149",
+    "l2": "aafc454b-8caf-496a-865a-25c919ae827d"
+  },
+  "ips": {
+    "unbound": {
+      "id": "3718e606-1ab1-48db-a660-7486d8dfc172",
+      "address": "10.10.32.165"
+    },
+    "staticnat": {
+      "id": "5b6fd789-f97f-4d64-bbc4-1b465488a45b",
+      "address": "10.10.32.164"
+    }
+  },
+  "vms": {
+    "link-review": "ab70f2d0-d1db-4980-9a48-637fa9aa5fcd"
+  },
+  "zone": "991d2f57-0f37-4445-b956-09773d064816",
+  "root": "2246448b-b23b-11f1-990e-0024811f8935",
+  "staticnatEnabled": true,
+  "routers": [
+    {
+      "id": "77e8926c-eba1-4b94-b491-c34bd0e71f9b",
+      "name": "r-358-VM",
+      "state": "Running",
+      "hostid": "bfe795b1-8fde-4361-bd1d-af421ab2bdc5"
+    },
+    {
+      "id": "7f62e312-c9df-4763-bdcf-ae0cbce24a2b",
+      "name": "r-359-VM",
+      "state": "Running",
+      "hostid": "05bc1189-abf8-4ec3-9ef5-02558863b628"
+    }
+  ],
+  "sourceNat": {
+    "id": "04de4618-4265-4bfc-9b4c-95bc88ac1c2c",
+    "ipaddress": "10.10.32.166"
+  },
+  "vm": {
+    "id": "ab70f2d0-d1db-4980-9a48-637fa9aa5fcd",
+    "name": "qa-gn1560-32-link-review",
+    "displayname": "qa-gn1560-32-link-review",
+    "state": "Running",
+    "hostid": "a7b3e91f-2248-436b-affb-e3b31b36ed62",
+    "nic": [
+      {
+        "id": "3a2e4843-5463-4c18-9d8e-77c4b12b0067",
+        "networkid": "742cc1ad-e7e3-49e3-b4a9-49379d1edac6",
+        "networkname": "qa-gn1560-32-isolated",
+        "netmask": "255.255.255.0",
+        "gateway": "10.60.32.1",
+        "ipaddress": "10.60.32.247",
+        "isolationuri": "vlan://112",
+        "broadcasturi": "vlan://112",
+        "traffictype": "Guest",
+        "type": "Isolated",
+        "isdefault": true,
+        "macaddress": "02:01:01:62:00:01",
+        "secondaryip": [],
+        "extradhcpoption": [],
+        "deviceid": "0",
+        "publicipid": "5b6fd789-f97f-4d64-bbc4-1b465488a45b",
+        "publicip": "10.10.32.164",
+        "enabled": true
+      },
+      {
+        "id": "481d6b7a-0f34-4334-8519-bf784c5820f2",
+        "networkid": "74da0389-6849-4e0d-acaf-229740f0c149",
+        "networkname": "qa-gn1560-32-shared",
+        "netmask": "255.255.255.0",
+        "gateway": "10.61.32.1",
+        "ipaddress": "10.61.32.20",
+        "isolationuri": "vlan://3660",
+        "broadcasturi": "vlan://3660",
+        "traffictype": "Guest",
+        "type": "Shared",
+        "isdefault": false,
+        "macaddress": "1e:01:3b:00:01:ff",
+        "secondaryip": [],
+        "extradhcpoption": [],
+        "deviceid": "1",
+        "enabled": true
+      }
+    ]
+  },
+  "placeholdersPreserved": 1,
+  "preservedOperationalNetworks": 9,
+  "preservedOperationalVms": 55
+}

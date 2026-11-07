@@ -1,0 +1,387 @@
+[
+  {
+    "cluster": 32,
+    "case": "sourceNat keyboard skips dash",
+    "status": "PASS",
+    "focusTarget": "#/guestnetwork/742cc1ad-e7e3-49e3-b4a9-49379d1edac6"
+  },
+  {
+    "cluster": 32,
+    "case": "Static NAT user link navigation",
+    "status": "PASS",
+    "url": "http://10.10.32.10:8080/client/#/vm/ab70f2d0-d1db-4980-9a48-637fa9aa5fcd"
+  },
+  {
+    "cluster": 31,
+    "case": "Source NAT keyboard skips dash",
+    "status": "PASS",
+    "href": "#/guestnetwork/dc162011-420a-4207-aced-c7a2a77bdd56",
+    "text": "qa-gn1560-31-isolated"
+  },
+  {
+    "cluster": 31,
+    "case": "Static NAT user link navigation",
+    "status": "PASS",
+    "url": "http://10.10.31.10:8080/client/#/vm/4e6e8d47-779b-41f6-a4de-6f9914a92c69"
+  },
+  {
+    "cluster": 32,
+    "case": "real ConsoleProxy Public IP link",
+    "status": "PASS",
+    "url": "http://10.10.32.10:8080/client/#/systemvm/59e31d5b-2a18-4e21-84f3-0a2a7fa77162"
+  },
+  {
+    "cluster": 32,
+    "case": "real SecondaryStorageVm Public IP link",
+    "status": "PASS",
+    "url": "http://10.10.32.10:8080/client/#/systemvm/eff7e920-577d-4576-8b54-933261930cc9"
+  },
+  {
+    "cluster": 31,
+    "case": "real ConsoleProxy Public IP link",
+    "status": "PASS",
+    "url": "http://10.10.31.10:8080/client/#/systemvm/355bd581-e0f2-43a7-8b27-95e8b46d5ed1"
+  },
+  {
+    "cluster": 31,
+    "case": "real SecondaryStorageVm Public IP link",
+    "status": "PASS",
+    "url": "http://10.10.31.10:8080/client/#/systemvm/1b8d7588-1dfa-490b-a8dd-53f647852403"
+  },
+  {
+    "cluster": 31,
+    "case": "Public IP summary and detail typed VM links",
+    "status": "PASS",
+    "cells": [
+      {
+        "text": "qa-gn1560-31-link-review",
+        "href": "#/vm/4e6e8d47-779b-41f6-a4de-6f9914a92c69"
+      },
+      {
+        "text": "qa-gn1560-31-link-review",
+        "href": "#/vm/4e6e8d47-779b-41f6-a4de-6f9914a92c69"
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "Public IP summary and detail typed VM links",
+    "status": "PASS",
+    "cells": [
+      {
+        "text": "qa-gn1560-32-link-review",
+        "href": "#/vm/ab70f2d0-d1db-4980-9a48-637fa9aa5fcd"
+      },
+      {
+        "text": "qa-gn1560-32-link-review",
+        "href": "#/vm/ab70f2d0-d1db-4980-9a48-637fa9aa5fcd"
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "instant dark theme",
+    "status": "PASS",
+    "mode": "dark",
+    "action_observation_ms": 463,
+    "dark": true
+  },
+  {
+    "cluster": 31,
+    "case": "instant light theme",
+    "status": "PASS",
+    "mode": "light",
+    "action_observation_ms": 534,
+    "dark": false
+  },
+  {
+    "cluster": 32,
+    "case": "instant dark theme",
+    "status": "PASS",
+    "mode": "dark",
+    "action_observation_ms": 464,
+    "dark": true
+  },
+  {
+    "cluster": 31,
+    "case": "Shared guest IPs plain; user/router typed; acquire disabled",
+    "status": "PASS",
+    "acquireDisabled": true,
+    "publicLinks": 0,
+    "vmLinks": [
+      "#/vm/4e6e8d47-779b-41f6-a4de-6f9914a92c69",
+      "#/router/403c4eea-91a2-4202-9aa0-9162a009edc1"
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "Shared guest IPs plain; user/router typed; acquire disabled",
+    "status": "PASS",
+    "acquireDisabled": true,
+    "publicLinks": 0,
+    "vmLinks": [
+      "#/vm/4e6e8d47-779b-41f6-a4de-6f9914a92c69",
+      "#/router/403c4eea-91a2-4202-9aa0-9162a009edc1"
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "Shared guest IPs plain; user/router typed; acquire disabled",
+    "status": "PASS",
+    "acquireDisabled": true,
+    "publicLinks": 0,
+    "vmLinks": [
+      "#/router/7f62e312-c9df-4763-bdcf-ae0cbce24a2b",
+      "#/vm/ab70f2d0-d1db-4980-9a48-637fa9aa5fcd"
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "instant Shared dark theme",
+    "status": "PASS",
+    "mode": "dark",
+    "action_observation_ms": 537,
+    "dark": true
+  },
+  {
+    "cluster": 32,
+    "case": "instant Shared light theme",
+    "status": "PASS",
+    "mode": "light",
+    "action_observation_ms": 453,
+    "dark": false
+  },
+  {
+    "cluster": 31,
+    "case": "real Shared DomainRouter navigation",
+    "status": "PASS",
+    "url": "http://10.10.31.10:8080/client/#/router/403c4eea-91a2-4202-9aa0-9162a009edc1"
+  },
+  {
+    "cluster": 31,
+    "case": "real Shared User navigation",
+    "status": "PASS",
+    "url": "http://10.10.31.10:8080/client/#/vm/4e6e8d47-779b-41f6-a4de-6f9914a92c69"
+  },
+  {
+    "cluster": 32,
+    "case": "real Shared DomainRouter navigation",
+    "status": "PASS",
+    "url": "http://10.10.32.10:8080/client/#/router/7f62e312-c9df-4763-bdcf-ae0cbce24a2b"
+  },
+  {
+    "cluster": 32,
+    "case": "real Shared User navigation",
+    "status": "PASS",
+    "url": "http://10.10.32.10:8080/client/#/vm/ab70f2d0-d1db-4980-9a48-637fa9aa5fcd"
+  },
+  {
+    "cluster": 31,
+    "case": "L2 invalid IP tab URL falls back to details",
+    "status": "PASS",
+    "url": "http://10.10.31.10:8080/client/#/guestnetwork/bfcfb954-8ee3-49ae-979f-cbccf69c316d?tab=details",
+    "tabs": [
+      "상세",
+      "VNF 기기",
+      "네트워크 권한",
+      "이벤트",
+      "코멘트"
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "L2 invalid IP tab URL falls back to details",
+    "status": "PASS",
+    "url": "http://10.10.32.10:8080/client/#/guestnetwork/aafc454b-8caf-496a-865a-25c919ae827d?tab=details",
+    "tabs": [
+      "상세",
+      "VNF 기기",
+      "네트워크 권한",
+      "이벤트",
+      "코멘트"
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "VPC Source NAT VM blank is noninteractive",
+    "status": "PASS",
+    "readonly": true,
+    "url": "http://10.10.31.10:8080/client/#/vpc/2c41c280-c915-4952-ab59-a527bf248c94?tab=ip",
+    "cells": [
+      {
+        "text": "—",
+        "href": null,
+        "focus": 0
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "VPC Source NAT VM blank is noninteractive",
+    "status": "PASS",
+    "readonly": true,
+    "url": "http://10.10.32.10:8080/client/#/vpc/b8d2a843-3310-46c3-9d64-aed4d5684721?tab=ip",
+    "cells": [
+      {
+        "text": "—",
+        "href": null,
+        "focus": 0
+      },
+      {
+        "text": "—",
+        "href": null,
+        "focus": 0
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "synthetic incomplete VM references",
+    "status": "PASS",
+    "synthetic": true,
+    "networkId": "dc162011-420a-4207-aced-c7a2a77bdd56",
+    "rows": 5,
+    "responses": 1,
+    "serverWrites": 0,
+    "cells": [
+      {
+        "focus": 1,
+        "href": "#/vm/4e6e8d47-779b-41f6-a4de-6f9914a92c69",
+        "text": "4e6e8d47-779b-41f6-a4de-6f9914a92c69"
+      },
+      {
+        "focus": 0,
+        "href": null,
+        "text": "—"
+      },
+      {
+        "focus": 0,
+        "href": null,
+        "text": "이름만 있는 VM"
+      },
+      {
+        "focus": 0,
+        "href": null,
+        "text": "알 수 없는 타입"
+      },
+      {
+        "focus": 0,
+        "href": null,
+        "text": "잘못된 ID"
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "synthetic incomplete VM references",
+    "status": "PASS",
+    "synthetic": true,
+    "networkId": "742cc1ad-e7e3-49e3-b4a9-49379d1edac6",
+    "rows": 5,
+    "responses": 1,
+    "serverWrites": 0,
+    "cells": [
+      {
+        "focus": 1,
+        "href": "#/vm/ab70f2d0-d1db-4980-9a48-637fa9aa5fcd",
+        "text": "ab70f2d0-d1db-4980-9a48-637fa9aa5fcd"
+      },
+      {
+        "focus": 0,
+        "href": null,
+        "text": "이름만 있는 VM"
+      },
+      {
+        "focus": 0,
+        "href": null,
+        "text": "—"
+      },
+      {
+        "focus": 0,
+        "href": null,
+        "text": "알 수 없는 타입"
+      },
+      {
+        "focus": 0,
+        "href": null,
+        "text": "잘못된 ID"
+      }
+    ],
+    "apiCommands": [
+      "listTags",
+      "listResourceIcon",
+      "listResourceIcon",
+      "listAccounts",
+      "listPublicIpAddresses",
+      "readyForShutdown"
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "unchanged acquire dialog desktop/mobile open and cancel",
+    "status": "PASS",
+    "serverWrites": 0
+  },
+  {
+    "cluster": 31,
+    "case": "unchanged acquire dialog desktop/mobile open and cancel",
+    "status": "PASS",
+    "serverWrites": 0
+  },
+  {
+    "cluster": 31,
+    "case": "Source NAT public IP summary/detail blank cell",
+    "status": "PASS",
+    "cells": [
+      {
+        "focus": 0,
+        "text": "—"
+      },
+      {
+        "focus": 0,
+        "text": "—"
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "breadcrumb returns to Public IP list",
+    "status": "PASS",
+    "url": "http://10.10.31.10:8080/client/#/publicip"
+  },
+  {
+    "cluster": 32,
+    "case": "Source NAT public IP summary/detail blank cell",
+    "status": "PASS",
+    "cells": [
+      {
+        "focus": 0,
+        "text": "—"
+      },
+      {
+        "focus": 0,
+        "text": "—"
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "breadcrumb returns to Public IP list",
+    "status": "PASS",
+    "url": "http://10.10.32.10:8080/client/#/publicip"
+  },
+  {
+    "cluster": 31,
+    "case": "final deployed Source NAT keyboard skips VM placeholder",
+    "status": "PASS",
+    "href": "#/guestnetwork/dc162011-420a-4207-aced-c7a2a77bdd56",
+    "text": "qa-gn1560-31-isolated"
+  },
+  {
+    "cluster": 32,
+    "case": "final deployed Source NAT keyboard skips VM placeholder",
+    "status": "PASS",
+    "href": "#/guestnetwork/742cc1ad-e7e3-49e3-b4a9-49379d1edac6",
+    "text": "qa-gn1560-32-isolated"
+  }
+]

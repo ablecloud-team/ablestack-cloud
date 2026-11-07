@@ -1,0 +1,99 @@
+{
+  "body": {
+    "bottom": 525,
+    "height": 216,
+    "left": 13,
+    "right": 377,
+    "top": 309,
+    "width": 364,
+    "x": 13,
+    "y": 309
+  },
+  "bodyClientHeight": 216,
+  "bodyClientWidth": 364,
+  "bodyScrollHeight": 216,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 364,
+  "colors": [
+    {
+      "background": "rgb(234, 244, 255)",
+      "color": "rgb(11, 59, 102)",
+      "text": "LB 서비스가 없는 오퍼링입니다. LB 연결 설정을 전송하지 않습니다."
+    },
+    {
+      "background": "rgb(242, 244, 247)",
+      "color": "rgb(123, 132, 145)",
+      "text": "확인"
+    }
+  ],
+  "content": {
+    "bottom": 591,
+    "height": 338,
+    "left": 12,
+    "right": 378,
+    "top": 253,
+    "width": 366,
+    "x": 12,
+    "y": 253
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 844,
+    "height": 844,
+    "left": 0,
+    "right": 390,
+    "top": 0,
+    "width": 390,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 380,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": {
+    "bottom": 590,
+    "height": 65,
+    "left": 13,
+    "right": 377,
+    "top": 525,
+    "width": 364,
+    "x": 13,
+    "y": 525
+  },
+  "header": {
+    "bottom": 309,
+    "height": 55,
+    "left": 13,
+    "right": 377,
+    "top": 254,
+    "width": 364,
+    "x": 13,
+    "y": 254
+  },
+  "height": 844,
+  "main": {
+    "bottom": 844,
+    "height": 676,
+    "left": 0,
+    "right": 380,
+    "top": 168,
+    "width": 380,
+    "x": 0,
+    "y": 168
+  },
+  "primaryButton": {
+    "bottom": 574,
+    "height": 32,
+    "left": 303.234375,
+    "right": 361,
+    "top": 542,
+    "width": 57.765625,
+    "x": 303.234375,
+    "y": 542
+  },
+  "width": 390,
+  "image_sha256": "0a4c8c60afe22a91a28017194e44c49e03ce8c1c8f815a1f54f970bfe22a1173"
+}

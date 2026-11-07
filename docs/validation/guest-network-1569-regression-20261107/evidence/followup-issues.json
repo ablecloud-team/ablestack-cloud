@@ -1,0 +1,26 @@
+{
+  "lb-null": {
+    "number": 1590,
+    "id": 6260017246,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1590",
+    "title": "[Europa][P1] 프로토콜 생략 LB 수정의 NPE와 Add 상태 잔류 개선",
+    "state": "open",
+    "linkedEpic": 1554
+  },
+  "tungsten-empty": {
+    "number": 1591,
+    "id": 6260044517,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1591",
+    "title": "[Europa][P2] 미등록 Tungsten 제공자의 Zone 지정 조회 NPE 개선",
+    "state": "open",
+    "linkedEpic": 1554
+  },
+  "revoked-summary": {
+    "number": 1592,
+    "id": 6260087932,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1592",
+    "title": "[Europa][P2] 공유 회수 후 VM 요약의 접근 불가 네트워크 링크 제거",
+    "state": "open",
+    "linkedEpic": 1554
+  }
+}

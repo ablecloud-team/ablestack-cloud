@@ -1,0 +1,158 @@
+{
+  "ui": {
+    "breadcrumb": {
+      "rect": {
+        "bottom": -500,
+        "height": 51,
+        "left": 25,
+        "right": 357,
+        "top": -551,
+        "width": 332,
+        "x": 25,
+        "y": -551
+      },
+      "text": "/가상머신용 네트워크/qa-gn1561-32-shared업데이트/"
+    },
+    "dark": true,
+    "height": 844,
+    "panels": [
+      {
+        "id": "rc-tabs-7-panel-comments",
+        "label": "rc-tabs-7-tab-comments"
+      }
+    ],
+    "position": "ant-tabs ant-tabs-top",
+    "scrollWidth": 380,
+    "tabs": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "controls": "rc-tabs-7-panel-details",
+        "id": "rc-tabs-7-tab-details",
+        "rect": {
+          "bottom": 520.5,
+          "height": 22,
+          "left": -323,
+          "right": -297.234375,
+          "top": 498.5,
+          "width": 25.765625,
+          "x": -323,
+          "y": 498.5
+        },
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "controls": "rc-tabs-7-panel-public.ip.addresses",
+        "id": "rc-tabs-7-tab-public.ip.addresses",
+        "rect": {
+          "bottom": 520.5,
+          "height": 22,
+          "left": -265.234375,
+          "right": -186.96875,
+          "top": 498.5,
+          "width": 78.265625,
+          "x": -265.234375,
+          "y": 498.5
+        },
+        "selected": "false",
+        "text": "IP Addresses"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "controls": "rc-tabs-7-panel-virtual.routers",
+        "id": "rc-tabs-7-tab-virtual.routers",
+        "rect": {
+          "bottom": 520.5,
+          "height": 22,
+          "left": -154.96875,
+          "right": -86.71875,
+          "top": 498.5,
+          "width": 68.25,
+          "x": -154.96875,
+          "y": 498.5
+        },
+        "selected": "false",
+        "text": "가상 라우터"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "controls": "rc-tabs-7-panel-vnf.appliances",
+        "id": "rc-tabs-7-tab-vnf.appliances",
+        "rect": {
+          "bottom": 520.5,
+          "height": 22,
+          "left": -54.71875,
+          "right": 0.890625,
+          "top": 498.5,
+          "width": 55.609375,
+          "x": -54.71875,
+          "y": 498.5
+        },
+        "selected": "false",
+        "text": "VNF 기기"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "controls": "rc-tabs-7-panel-guest.ip.range",
+        "id": "rc-tabs-7-tab-guest.ip.range",
+        "rect": {
+          "bottom": 520.5,
+          "height": 22,
+          "left": 32.890625,
+          "right": 146.125,
+          "top": 498.5,
+          "width": 113.234375,
+          "x": 32.890625,
+          "y": 498.5
+        },
+        "selected": "false",
+        "text": "게스트 IP 주소 범위"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "controls": "rc-tabs-7-panel-events",
+        "id": "rc-tabs-7-tab-events",
+        "rect": {
+          "bottom": 520.5,
+          "height": 22,
+          "left": 178.125,
+          "right": 216.765625,
+          "top": 498.5,
+          "width": 38.640625,
+          "x": 178.125,
+          "y": 498.5
+        },
+        "selected": "false",
+        "text": "이벤트"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(24, 144, 255)",
+        "controls": "rc-tabs-7-panel-comments",
+        "id": "rc-tabs-7-tab-comments",
+        "rect": {
+          "bottom": 520.5,
+          "height": 22,
+          "left": 248.765625,
+          "right": 287.40625,
+          "top": 498.5,
+          "width": 38.640625,
+          "x": 248.765625,
+          "y": 498.5
+        },
+        "selected": "true",
+        "text": "코멘트"
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/guestnetwork/ad365a9b-7ac2-40f4-8df8-b028fc10fc3a?tab=comments",
+    "width": 390
+  },
+  "method": "visible overflow option click"
+}

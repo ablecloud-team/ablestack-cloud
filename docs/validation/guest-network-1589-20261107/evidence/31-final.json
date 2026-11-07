@@ -1,0 +1,153 @@
+{
+  "cluster": 31,
+  "projectId": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+  "networkCount": 23,
+  "originalNetworksUnchanged": true,
+  "originalNicsUnchanged": true,
+  "originalMembershipsUnchanged": true,
+  "rulesRestored": true,
+  "restrictedApiCount": 461,
+  "restrictedReadsAllowed": true,
+  "restrictedFourWritesExcluded": true,
+  "roleId": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+  "members": [
+    {
+      "accountid": "1eadcc13-55aa-4f35-bb49-34116aca7997",
+      "account": "qa-gn1569-31-1589-user",
+      "role": "Regular",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "userid": "a9b467ae-48ad-4855-b863-2e4ca0d290e7"
+    },
+    {
+      "accountid": "73353822-7ca2-4187-8ef6-405e027fb1e9",
+      "account": "qa-gn1569-31-readonly",
+      "role": "Regular",
+      "projectroleid": "c715284e-63e6-40dc-9ef1-70cfd33ab521",
+      "userid": null
+    },
+    {
+      "accountid": "0f0cc814-dae9-4615-9124-bdd0b701242a",
+      "account": "qa-gn1569-31-member",
+      "role": "Regular",
+      "projectroleid": null,
+      "userid": null
+    },
+    {
+      "accountid": "0f981bb7-b32c-4766-a990-6974c224d4d4",
+      "account": "qa-gn1569-31-owner",
+      "role": "Admin",
+      "projectroleid": null,
+      "userid": null
+    }
+  ],
+  "uiNetwork": {
+    "id": "2f7a0562-3b1d-4fb5-91b0-55472d731e06",
+    "name": "qa-gn1569-31-prj-1589-ui-l2",
+    "displaytext": "UI1589 owner saved 31",
+    "type": "L2",
+    "state": "Implemented",
+    "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+  },
+  "apiNetworks": [
+    {
+      "id": "3705d624-3634-4c19-b83a-6843db009a9c",
+      "name": "qa-gn1569-31-prj-1589-root-l2",
+      "displaytext": "API1589 root saved",
+      "type": "L2",
+      "state": "Implemented",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+    },
+    {
+      "id": "ab9e1b96-a36c-4e7a-9c6b-8cdd802fa675",
+      "name": "qa-gn1569-31-prj-1589-owner-l2",
+      "displaytext": "API1589 owner saved",
+      "type": "L2",
+      "state": "Implemented",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+    },
+    {
+      "id": "c83f9673-1da8-4f0e-a4fa-cdcb181caaf6",
+      "name": "qa-gn1569-31-prj-1589-member-l2",
+      "displaytext": "API1589 member saved",
+      "type": "L2",
+      "state": "Implemented",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+    },
+    {
+      "id": "9b2dc601-e116-487f-95cb-de5ac784de90",
+      "name": "qa-gn1569-31-prj-1589-domainadmin-l2",
+      "displaytext": "API1589 domainadmin saved",
+      "type": "L2",
+      "state": "Implemented",
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+    }
+  ],
+  "userOnlyAccount": {
+    "id": "1eadcc13-55aa-4f35-bb49-34116aca7997",
+    "name": "qa-gn1569-31-1589-user",
+    "domainid": "f3772036-4b8f-41fd-83f2-b71751950364"
+  },
+  "vm": {
+    "id": "625141be-7145-4557-9d8f-731500c61cb0",
+    "name": "qa-gn1569-31-prj-vm",
+    "state": "Running",
+    "hostname": "ablecube31-3",
+    "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe"
+  },
+  "nics": [
+    {
+      "id": "e5cafb2d-5498-4f34-9e9b-db51c7562981",
+      "networkid": "424a28d7-1a3a-4b1f-974a-d09126fe7e46",
+      "networkname": "qa-gn1569-31-prj-base",
+      "isdefault": true,
+      "ipaddress": "10.180.31.25",
+      "macaddress": "1e:1f:3d:00:02:ee"
+    },
+    {
+      "id": "2e9e6ead-febc-4838-a88a-cd03c622d704",
+      "networkid": "d3669d88-bfdd-4053-8ef7-a58ea34808ad",
+      "networkname": "qa-gn1569-31-prj-l2",
+      "isdefault": false,
+      "ipaddress": null,
+      "macaddress": "02:1f:02:16:00:07"
+    },
+    {
+      "id": "15b9c87e-f054-488a-a6df-d1f86ca5483c",
+      "networkid": "728d66ef-7c24-4708-b5e3-33f687528456",
+      "networkname": "qa-gn1569-31-prj-1587-l2",
+      "isdefault": false,
+      "ipaddress": null,
+      "macaddress": "02:1f:02:24:00:01"
+    },
+    {
+      "id": "4af5028e-f034-459d-a40b-5cfca887b2bd",
+      "networkid": "2e36c615-ded0-4006-84ca-d210708b6250",
+      "networkname": "qa-gn1569-31-prj-1588-l2",
+      "isdefault": false,
+      "ipaddress": null,
+      "macaddress": "02:1f:02:28:00:01"
+    },
+    {
+      "id": "2c4f3500-e5d6-4c51-ad92-6fbcb36322e7",
+      "networkid": "3705d624-3634-4c19-b83a-6843db009a9c",
+      "networkname": "qa-gn1569-31-prj-1589-root-l2",
+      "isdefault": false,
+      "ipaddress": null,
+      "macaddress": "02:1f:02:29:00:02"
+    },
+    {
+      "id": "ad429ee0-f32e-40d4-b135-385aa160d9cb",
+      "networkid": "2f7a0562-3b1d-4fb5-91b0-55472d731e06",
+      "networkname": "qa-gn1569-31-prj-1589-ui-l2",
+      "isdefault": false,
+      "ipaddress": null,
+      "macaddress": "02:1f:02:2d:00:01"
+    }
+  ],
+  "asyncJobs": [
+    "159fda2c-d05f-47bd-8f4e-ca9fd48c1ffe\torg.apache.cloudstack.api.command.user.vm.AddNicToVMCmd\t1\t0\t2026-11-07 13:12:01",
+    "e9131530-56f3-423d-a32d-cea049bce2a5\torg.apache.cloudstack.api.command.user.network.UpdateNetworkCmd\t1\t0\t2026-11-07 13:11:28"
+  ],
+  "networkQuota": 30,
+  "quotaRestoreAfterCleanup": 20
+}

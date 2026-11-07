@@ -1,0 +1,74 @@
+{
+  "records": [
+    {
+      "requestId": "49180.2202",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "670c6673-068d-4436-b57c-b09acce6b65f",
+        "command": "listNetworks"
+      },
+      "status": 200,
+      "result": {
+        "count": 1
+      }
+    },
+    {
+      "requestId": "49180.2203",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "670c6673-068d-4436-b57c-b09acce6b65f",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 1
+      }
+    },
+    {
+      "requestId": "49180.2204",
+      "command": "createVlanIpRange",
+      "method": "POST",
+      "params": {
+        "command": "createVlanIpRange",
+        "networkid": "670c6673-068d-4436-b57c-b09acce6b65f",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "forvirtualnetwork": "false",
+        "startip": "172.26.31.15",
+        "endip": "172.26.31.25",
+        "gateway": "172.26.31.1",
+        "netmask": "255.255.255.0"
+      },
+      "status": 431,
+      "result": {
+        "errorcode": 431,
+        "errortext": "The IP range already has IPs that overlap with the new range. Please specify a different start IP/end IP."
+      }
+    }
+  ],
+  "cursor": 8689,
+  "dialog": "IP 주소 범위 추가\nThe IP range already has IPs that overlap with the new range. Please specify a different start IP/end IP.\n인터넷 프로토콜\nIPv4\nIPv4\n\n종료 IP를 비우면 시작 IP 한 개를 사용합니다.\n\nIPv4 시작 IP\nIPv4 종료 IP\n게이트웨이\n넷마스크\n취소\n확인",
+  "values": [
+    {
+      "name": "IPv4 시작 IP",
+      "value": "172.26.31.15"
+    },
+    {
+      "name": "IPv4 종료 IP",
+      "value": "172.26.31.25"
+    },
+    {
+      "name": "게이트웨이",
+      "value": "172.26.31.1"
+    },
+    {
+      "name": "넷마스크",
+      "value": "255.255.255.0"
+    }
+  ]
+}

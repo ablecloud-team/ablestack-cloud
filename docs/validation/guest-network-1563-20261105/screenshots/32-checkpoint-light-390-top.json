@@ -1,0 +1,104 @@
+{
+  "body": {
+    "bottom": 766,
+    "height": 698,
+    "left": 13,
+    "right": 377,
+    "top": 68,
+    "width": 364,
+    "x": 13,
+    "y": 68
+  },
+  "bodyClientHeight": 698,
+  "bodyClientWidth": 354,
+  "bodyScrollHeight": 1843,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 354,
+  "colors": [
+    {
+      "background": "rgb(255, 241, 240)",
+      "color": "rgb(112, 27, 27)",
+      "text": "Failed to implement destination network services: Destination network services c"
+    },
+    {
+      "background": "rgb(255, 248, 230)",
+      "color": "rgb(92, 59, 0)",
+      "text": "서버에 남은 이전 작업을 재개합니다. 목적 오퍼링과 물리망은 이전 실패의 값으로 고정되며 새 대상을 선택할 수 없습니다."
+    },
+    {
+      "background": "rgb(242, 244, 247)",
+      "color": "rgb(123, 132, 145)",
+      "text": "이전 작업 재개"
+    }
+  ],
+  "content": {
+    "bottom": 832,
+    "height": 820,
+    "left": 12,
+    "right": 378,
+    "top": 12,
+    "width": 366,
+    "x": 12,
+    "y": 12
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 844,
+    "height": 844,
+    "left": 0,
+    "right": 390,
+    "top": 0,
+    "width": 390,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 380,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": {
+    "bottom": 831,
+    "height": 65,
+    "left": 13,
+    "right": 377,
+    "top": 766,
+    "width": 364,
+    "x": 13,
+    "y": 766
+  },
+  "header": {
+    "bottom": 68,
+    "height": 55,
+    "left": 13,
+    "right": 377,
+    "top": 13,
+    "width": 364,
+    "x": 13,
+    "y": 13
+  },
+  "height": 844,
+  "main": {
+    "bottom": 844,
+    "height": 643,
+    "left": 0,
+    "right": 380,
+    "top": 201,
+    "width": 380,
+    "x": 0,
+    "y": 201
+  },
+  "primaryButton": {
+    "bottom": 815,
+    "height": 32,
+    "left": 244.046875,
+    "right": 361,
+    "top": 783,
+    "width": 116.953125,
+    "x": 244.046875,
+    "y": 783
+  },
+  "width": 390,
+  "image_sha256": "50fd52fee8e41f6f4324a7a3b64f62b8812e4c0ba5b568f9c8286438d3ed9e2c"
+}

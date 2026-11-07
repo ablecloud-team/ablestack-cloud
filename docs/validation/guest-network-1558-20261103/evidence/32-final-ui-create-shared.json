@@ -1,0 +1,156 @@
+{
+  "cluster": 32,
+  "label": "32-final-ui-create-shared",
+  "records": [
+    {
+      "cluster": 32,
+      "requestId": "29536.1769",
+      "command": "createNetwork",
+      "method": "POST",
+      "params": {
+        "command": "createNetwork",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "name": "qa-gn1558-32-shared-new",
+        "displaytext": "새 생성 설명 · shared\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\"",
+        "networkofferingid": "c0586d85-1ab3-41ba-8c6a-455ce47d6c3b",
+        "vlan": "772",
+        "acltype": "domain",
+        "gateway": "10.242.32.1",
+        "netmask": "255.255.255.0",
+        "startip": "10.242.32.10",
+        "endip": "10.242.32.20"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "29536.1770",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      }
+    }
+  ],
+  "expected_description": "새 생성 설명 · shared\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\"",
+  "responses": [
+    {
+      "request": {
+        "cluster": 32,
+        "requestId": "29536.1769",
+        "command": "createNetwork",
+        "method": "POST",
+        "params": {
+          "command": "createNetwork",
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "name": "qa-gn1558-32-shared-new",
+          "displaytext": "새 생성 설명 · shared\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\"",
+          "networkofferingid": "c0586d85-1ab3-41ba-8c6a-455ce47d6c3b",
+          "vlan": "772",
+          "acltype": "domain",
+          "gateway": "10.242.32.1",
+          "netmask": "255.255.255.0",
+          "startip": "10.242.32.10",
+          "endip": "10.242.32.20"
+        },
+        "status": 200
+      },
+      "result": {
+        "createnetworkresponse": {
+          "network": {
+            "id": "0ecfc27d-e3d1-4200-a5af-3128077e59d9",
+            "name": "qa-gn1558-32-shared-new",
+            "displaytext": "새 생성 설명 · shared\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\"",
+            "broadcastdomaintype": "Vlan",
+            "traffictype": "Guest",
+            "gateway": "10.242.32.1",
+            "netmask": "255.255.255.0",
+            "cidr": "10.242.32.0/24",
+            "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+            "zonename": "Zone",
+            "networkofferingid": "c0586d85-1ab3-41ba-8c6a-455ce47d6c3b",
+            "networkofferingname": "기본 공유 네트워크오퍼링",
+            "networkofferingdisplaytext": "기본 공유 네트워크오퍼링",
+            "networkofferingconservemode": true,
+            "networkofferingavailability": "Optional",
+            "issystem": false,
+            "state": "Setup",
+            "related": "0ecfc27d-e3d1-4200-a5af-3128077e59d9",
+            "broadcasturi": "vlan://772",
+            "dns1": "8.8.8.8",
+            "type": "Shared",
+            "vlan": "772",
+            "acltype": "Domain",
+            "subdomainaccess": true,
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "service": [
+              {
+                "name": "UserData",
+                "provider": [
+                  {
+                    "name": "VirtualRouter"
+                  }
+                ],
+                "capability": []
+              },
+              {
+                "name": "Dns",
+                "provider": [
+                  {
+                    "name": "VirtualRouter"
+                  }
+                ],
+                "capability": [
+                  {
+                    "name": "AllowDnsSuffixModification",
+                    "value": "true",
+                    "canchooseservicecapability": false
+                  }
+                ]
+              },
+              {
+                "name": "Dhcp",
+                "provider": [
+                  {
+                    "name": "VirtualRouter"
+                  }
+                ],
+                "capability": [
+                  {
+                    "name": "DhcpAccrossMultipleSubnets",
+                    "value": "true",
+                    "canchooseservicecapability": false
+                  }
+                ]
+              }
+            ],
+            "networkdomain": "cs1cloud.internal",
+            "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+            "restartrequired": false,
+            "specifyvlan": true,
+            "specifyipranges": true,
+            "canusefordeploy": true,
+            "ispersistent": false,
+            "tags": [],
+            "details": {},
+            "displaynetwork": true,
+            "strechedl2subnet": false,
+            "redundantrouter": false,
+            "supportsvmautoscaling": false,
+            "created": "2026-11-03T16:46:08+0900",
+            "receivedbytes": 0,
+            "sentbytes": 0,
+            "publicmtu": 1500,
+            "privatemtu": 1500,
+            "hasannotations": false
+          }
+        }
+      }
+    }
+  ]
+}

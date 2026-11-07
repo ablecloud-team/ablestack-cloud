@@ -1,0 +1,129 @@
+{
+  "synthetic": true,
+  "injected": 1,
+  "records": [
+    {
+      "requestId": "20580.3922",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "c00cbfae-a846-4071-af4d-eaa24f4d5a5b",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3923",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "networkid": "c00cbfae-a846-4071-af4d-eaa24f4d5a5b",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "state": "Enabled",
+        "guestiptype": "Isolated",
+        "forvpc": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3924",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "57d5169f-9570-443a-a562-1b94c6ffe85e",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3925",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "45d7e6ae-91f3-4394-8da9-2a5d6fd5f30c",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3926",
+      "command": "listPhysicalNetworks",
+      "method": "GET",
+      "params": {
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listPhysicalNetworks"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3927",
+      "command": "listTrafficTypes",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listTrafficTypes"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3928",
+      "command": "listNetworkServiceProviders",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listNetworkServiceProviders"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3930",
+      "command": "listVirtualRouterElements",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVirtualRouterElements"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3931",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "57d5169f-9570-443a-a562-1b94c6ffe85e",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "20580.3932",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "networkid": "c00cbfae-a846-4071-af4d-eaa24f4d5a5b",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "state": "Enabled",
+        "guestiptype": "Isolated",
+        "forvpc": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    }
+  ],
+  "cursor": 607
+}

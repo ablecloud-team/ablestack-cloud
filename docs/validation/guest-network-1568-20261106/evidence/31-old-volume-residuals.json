@@ -1,0 +1,15 @@
+{
+  "vmAndRouterUUIDs": [
+    "4000a4b3-bb19-4de9-b9cc-9f441f4e9551",
+    "82bec686-484f-460a-a7c9-5a280030ccf9",
+    "ffbc46a3-7278-4b61-8203-60fc0ab2ecf1"
+  ],
+  "activeResiduals": {
+    "activeVMs": 0,
+    "activeVolumes": 0,
+    "activeComputeDisks": 0,
+    "activeSystemOfferings": 0
+  },
+  "systemOfferingDeletionContract": "Inactive service offering and compute-only disk retained as history",
+  "status": "PASS"
+}

@@ -1,0 +1,34 @@
+{
+  "sequence": [
+    {
+      "insideDialog": true,
+      "label": null,
+      "tag": "BUTTON",
+      "text": "확인"
+    },
+    {
+      "insideDialog": true,
+      "label": null,
+      "tag": "DIV",
+      "text": ""
+    },
+    {
+      "insideDialog": true,
+      "label": "Close",
+      "tag": "BUTTON",
+      "text": ""
+    },
+    {
+      "insideDialog": true,
+      "label": null,
+      "tag": "INPUT",
+      "text": ""
+    },
+    {
+      "insideDialog": true,
+      "label": null,
+      "tag": "INPUT",
+      "text": ""
+    }
+  ]
+}

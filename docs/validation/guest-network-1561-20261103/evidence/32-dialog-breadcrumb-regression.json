@@ -1,0 +1,247 @@
+[
+  {
+    "cluster": 32,
+    "mode": "light",
+    "url": "http://10.10.32.10:8080/client/#/guestnetwork",
+    "dialog_open_close": true,
+    "update_posts": 0,
+    "records": [
+      {
+        "requestId": "43564.4605",
+        "command": "listTags",
+        "method": "GET",
+        "params": {
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listTags"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4606",
+        "command": "listNetworks",
+        "method": "GET",
+        "params": {
+          "listall": "true",
+          "id": "0043a541-ace0-4cb6-9a7e-941b3a296315",
+          "page": "1",
+          "pagesize": "20",
+          "command": "listNetworks"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4607",
+        "command": "listResourceIcon",
+        "method": "GET",
+        "params": {
+          "command": "listResourceIcon"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4608",
+        "command": "listResourceIcon",
+        "method": "GET",
+        "params": {
+          "command": "listResourceIcon"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4609",
+        "command": "listAccounts",
+        "method": "GET",
+        "params": {
+          "command": "listAccounts"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4610",
+        "command": "listResourceIcon",
+        "method": "GET",
+        "params": {
+          "command": "listResourceIcon"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4612",
+        "command": "listTags",
+        "method": "GET",
+        "params": {
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listTags"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4613",
+        "command": "listResourceIcon",
+        "method": "GET",
+        "params": {
+          "command": "listResourceIcon"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4614",
+        "command": "listResourceIcon",
+        "method": "GET",
+        "params": {
+          "command": "listResourceIcon"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4615",
+        "command": "listAccounts",
+        "method": "GET",
+        "params": {
+          "command": "listAccounts"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4618",
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {
+          "id": "e8d9487d-f70b-451f-8a58-7d26e8bfdc79",
+          "command": "listNetworkOfferings"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4619",
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {
+          "networkid": "0043a541-ace0-4cb6-9a7e-941b3a296315",
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "page": "1",
+          "pagesize": "500",
+          "command": "listNetworkOfferings"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4620",
+        "command": "listZones",
+        "method": "GET",
+        "params": {
+          "id": "991d2f57-0f37-4445-b956-09773d064816",
+          "command": "listZones"
+        },
+        "status": 200
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "mode": "dark",
+    "url": "http://10.10.32.10:8080/client/#/guestnetwork",
+    "dialog_open_close": true,
+    "update_posts": 0,
+    "records": [
+      {
+        "requestId": "43564.4629",
+        "command": "listNetworks",
+        "method": "GET",
+        "params": {
+          "listall": "true",
+          "id": "0043a541-ace0-4cb6-9a7e-941b3a296315",
+          "page": "1",
+          "pagesize": "20",
+          "command": "listNetworks"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4630",
+        "command": "listTags",
+        "method": "GET",
+        "params": {
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listTags"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4631",
+        "command": "listResourceIcon",
+        "method": "GET",
+        "params": {
+          "command": "listResourceIcon"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4632",
+        "command": "listResourceIcon",
+        "method": "GET",
+        "params": {
+          "command": "listResourceIcon"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4633",
+        "command": "listAccounts",
+        "method": "GET",
+        "params": {
+          "command": "listAccounts"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4635",
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {
+          "id": "e8d9487d-f70b-451f-8a58-7d26e8bfdc79",
+          "command": "listNetworkOfferings"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4636",
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {
+          "networkid": "0043a541-ace0-4cb6-9a7e-941b3a296315",
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "page": "1",
+          "pagesize": "500",
+          "command": "listNetworkOfferings"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4637",
+        "command": "listZones",
+        "method": "GET",
+        "params": {
+          "id": "991d2f57-0f37-4445-b956-09773d064816",
+          "command": "listZones"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "43564.4638",
+        "command": "readyForShutdown",
+        "method": "GET",
+        "params": {
+          "command": "readyForShutdown"
+        },
+        "status": 200
+      }
+    ]
+  }
+]

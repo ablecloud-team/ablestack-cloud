@@ -75,6 +75,7 @@ select
         WHEN async_job.instance_type = 'AutoScalePolicy' THEN autoscale_policies.uuid
         WHEN async_job.instance_type = 'AutoScaleVmProfile' THEN autoscale_vmprofiles.uuid
         WHEN async_job.instance_type = 'AutoScaleVmGroup' THEN autoscale_vmgroups.uuid
+        WHEN async_job.instance_type = 'Network' THEN networks.uuid
         ELSE null
         END instance_uuid
 from
@@ -126,4 +127,6 @@ from
         left join
     `cloud`.`autoscale_vmprofiles` ON async_job.instance_id = autoscale_vmprofiles.id
         left join
-    `cloud`.`autoscale_vmgroups` ON async_job.instance_id = autoscale_vmgroups.id;
+    `cloud`.`autoscale_vmgroups` ON async_job.instance_id = autoscale_vmgroups.id
+        left join
+    `cloud`.`networks` ON async_job.instance_type = 'Network' AND async_job.instance_id = networks.id;

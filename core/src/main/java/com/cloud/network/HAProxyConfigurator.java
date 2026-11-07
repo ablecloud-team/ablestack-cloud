@@ -584,7 +584,7 @@ public class HAProxyConfigurator implements LoadBalancerConfigurator {
         boolean http = (publicPort == NetUtils.HTTP_PORT && !keepAliveEnabled) || NetUtils.HTTP_PROTO.equals(lbTO.getLbProtocol());
         if (http || httpbasedStickiness || sslOffloading) {
             frontendConfigs.add("\tmode http");
-            String keepAliveLine = keepAliveEnabled ? "\tno option forceclose" : "\toption httpclose";
+            String keepAliveLine = keepAliveEnabled ? "\tno option httpclose" : "\toption httpclose";
             frontendConfigs.add(keepAliveLine);
         }
 

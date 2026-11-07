@@ -1,0 +1,326 @@
+[
+  {
+    "cluster": 31,
+    "type": "L2",
+    "tab": "상세",
+    "text": "이름\n\nqa-gn1568-31-l2\n아이디\n\n51dc8c55-8323-4bff-a004-259408bfb548\n설명\n\n#1568 retained UI review\n유형\n\nL2\n트래픽 유형\n\nGuest\nVLAN/VNI\n\n2010\n브로드 캐스트\n\nvlan://2010\n영구적\n\nfalse\n재시작 필요\n\nfalse\nRedundant 라우터\n\nfalse\nZone\n\nZone\n계정\n\nqa-gn1568-31-user\n도메인\n\nROOT\nDNS 1\n\n8.8.8.8"
+  },
+  {
+    "cluster": 31,
+    "type": "L2",
+    "tab": "VNF 기기",
+    "text": "이름\t상태\tIP 주소\t템플릿\tOS Display 명\t호스트\n\n\n데이터 없음"
+  },
+  {
+    "cluster": 31,
+    "type": "L2",
+    "tab": "네트워크 권한",
+    "text": "네트워크 권한 추가\n네트워크 권한 재설정\n\n\n\n도메인\t계정\t프로젝트\t\n\n\n데이터 없음"
+  },
+  {
+    "cluster": 31,
+    "type": "L2",
+    "tab": "이벤트",
+    "text": "업데이트\n열 선택\n레벨\n\t\n유형\n\t\n상태\n\t\n사용자 이름\n\t\n계정\n\t\n도메인\n\t\n생성일\n\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nERROR\tNETWORK.DELETE\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:00:15\nINFO\tNETWORK.DELETE\t\n시작\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:00:15\nINFO\tNETWORK.DELETE\t\n예정됨\n\tadmin\tqa-gn1568-31-user\tROOT\t2026. 11. 6. 오전 2:00:15\nINFO\tNETWORK.CREATE\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 1:54:56\n전체 4개 항목 중 1-4 표시\n1\n10 / 쪽"
+  },
+  {
+    "cluster": 31,
+    "type": "L2",
+    "tab": "코멘트",
+    "text": "보내기\n업데이트\n관리자만 표시\n코멘트 (0)\n\n등록된 코멘트가 없습니다.\n\n전체 0개 항목 중 0-0 표시\n1"
+  },
+  {
+    "cluster": 31,
+    "type": "Shared",
+    "tab": "상세",
+    "text": "이름\n\nqa-gn1568-31-shared\n아이디\n\ndb61a6c8-aa44-4290-91d7-936131e1698c\n설명\n\n#1568 retained UI review\n유형\n\n공유형 (Shared)\n트래픽 유형\n\nGuest\nVLAN/VNI\n\n2011\n브로드 캐스트\n\nvlan://2011\nCIDR\n\n10.170.31.0/24\n넷마스크\n\n255.255.255.0\n게이트웨이\n\n10.170.31.1\n영구적\n\nfalse\n재시작 필요\n\nfalse\nRedundant 라우터\n\nfalse\n네트워크 도메인\n\ncs1cloud.internal\nZone\n\nZone\n도메인\n\nROOT\nDNS 1\n\n1.1.1.1\nPublic 인터페이스 MTU\n\n1500\nIP 사용량 내보내기 제외\n\n포함\n\n이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+  },
+  {
+    "cluster": 31,
+    "type": "Shared",
+    "tab": "IP Addresses",
+    "text": "새 IP 주소 가져오기\n\tIP 주소\t상태\tVM\t네트워크\t\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n\t\n10.170.31.50\n\t\n할당됨\n\tr-888-VM\t\nqa-gn1568-31-shared\n\t\n\n\t\n10.170.31.51\n\t\n가능\n\t—\t\nqa-gn1568-31-shared\n\t\n\n\t\n10.170.31.52\n\t\n가능\n\t—\t\nqa-gn1568-31-shared\n\t\n\n\t\n10.170.31.53\n\t\n가능\n\t—\t\nqa-gn1568-31-shared\n\t\n\n\t\n10.170.31.54\n\t\n가능\n\t—\t\nqa-gn1568-31-shared\n\t\n\n\t\n10.170.31.55\n\t\n가능\n\t—\t\nqa-gn1568-31-shared\n\t\n\n\t\n10.170.31.56\n\t\n가능\n\t—\t\nqa-gn1568-31-shared\n\t\n\n\t\n10.170.31.57\n\t\n가능\n\t—\t\nqa-gn1568-31-shared\n\t\n\n\t\n10.170.31.58\n\t\n가능\n\t—\t\nqa-gn1568-31-shared\n\t\n\n\t\n10.170.31.59\n\t\n가능\n\t—\t\nqa-gn1568-31-shared\n\t\n전체 11 개 항목\n1\n2\n10 / 쪽"
+  },
+  {
+    "cluster": 31,
+    "type": "Shared",
+    "tab": "가상 라우터",
+    "text": "이름\t상태\tIP\t버전\t업그레이드 필요\tRedundant 라우터\t호스트\nr-888-VM\t\n실행 중\n\t\t4.21.0\t아니오\tfalse\tablecube31-2"
+  },
+  {
+    "cluster": 31,
+    "type": "Shared",
+    "tab": "VNF 기기",
+    "text": "이름\t상태\tIP 주소\t템플릿\tOS Display 명\t호스트\n\n\n데이터 없음"
+  },
+  {
+    "cluster": 31,
+    "type": "Shared",
+    "tab": "게스트 IP 주소 범위",
+    "text": "IP 주소 범위 추가\nIPv4\tIPv6\tVLAN/VNI\t작업\n\n \n\t\n \n\t\n \n\t\n \n\n\n10.170.31.50 – 10.170.31.60\n게이트웨이: 10.170.31.1 · 255.255.255.0\n\t\n—\n\t2011\t\n전체 1 개 항목\n1\n10 / 쪽"
+  },
+  {
+    "cluster": 31,
+    "type": "Shared",
+    "tab": "이벤트",
+    "text": "업데이트\n열 선택\n레벨\n\t\n유형\n\t\n상태\n\t\n사용자 이름\n\t\n계정\n\t\n도메인\n\t\n생성일\n\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nERROR\tNETWORK.DELETE\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:00:17\nINFO\tNETWORK.DELETE\t\n시작\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:00:17\nINFO\tNETWORK.DELETE\t\n예정됨\n\tadmin\tsystem\tROOT\t2026. 11. 6. 오전 2:00:17\nINFO\tNETWORK.CREATE\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 1:54:57\n전체 4개 항목 중 1-4 표시\n1\n10 / 쪽"
+  },
+  {
+    "cluster": 31,
+    "type": "Shared",
+    "tab": "코멘트",
+    "text": "보내기\n업데이트\n관리자만 표시\n코멘트 (0)\n\n등록된 코멘트가 없습니다.\n\n전체 0개 항목 중 0-0 표시\n1"
+  },
+  {
+    "cluster": 31,
+    "type": "Isolated",
+    "tab": "상세",
+    "text": "이름\n\nqa-gn1568-31-isolated\n아이디\n\n3f0c5ed8-2c32-4098-a478-9f017a8845a8\n설명\n\n#1568 retained UI review\n유형\n\n격리형 (Isolated)\n트래픽 유형\n\nGuest\nVLAN/VNI\n\n2020\n브로드 캐스트\n\nvlan://2020\nCIDR\n\n10.168.31.0/24\n넷마스크\n\n255.255.255.0\n게이트웨이\n\n10.168.31.1\n영구적\n\nfalse\n재시작 필요\n\nfalse\nRedundant 라우터\n\nfalse\n네트워크 도메인\n\ncs191cloud.internal\n기본 송신 정책\n\n거부(추가된 송신 규칙과 일치하는 트래픽이 허용됨)\nZone\n\nZone\n계정\n\nqa-gn1568-31-user\n도메인\n\nROOT\nDNS 1\n\n8.8.8.8\nPublic 인터페이스 MTU\n\n1500\nPrivate 인터페이스 MTU\n\n1500\n공용 NIC의 MAC 주소 유지\n\ntrue"
+  },
+  {
+    "cluster": 31,
+    "type": "Isolated",
+    "tab": "송신 규칙",
+    "text": "규칙 추가\n업데이트\n이 네트워크의 기본 송신 정책은 거부입니다.\n다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다.\n\tSource CIDR\t목적지 CIDR\t프로토콜\tICMP 유형/시작 포트\tICMP 코드/종료 포트\t작업\n\n\n데이터 없음\n\n전체 0 개 항목\n1\n10 / 쪽"
+  },
+  {
+    "cluster": 31,
+    "type": "Isolated",
+    "tab": "Public IP 주소",
+    "text": "새 IP 주소 가져오기\n\tIP 주소\t상태\tVM\t네트워크\t\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n\t10.10.31.110 Source NAT\t\n할당됨\n\t—\tqa-gn1568-31-isolated\t\n전체 1 개 항목\n1\n10 / 쪽"
+  },
+  {
+    "cluster": 31,
+    "type": "Isolated",
+    "tab": "가상 라우터",
+    "text": "이름\t상태\tIP\t버전\t업그레이드 필요\tRedundant 라우터\t호스트\nr-891-VM\t\n실행 중\n\t10.10.31.110\t4.21.0\t아니오\tfalse\tablecube31-2"
+  },
+  {
+    "cluster": 31,
+    "type": "Isolated",
+    "tab": "VNF 기기",
+    "text": "이름\t상태\tIP 주소\t템플릿\tOS Display 명\t호스트\n\n\n데이터 없음"
+  },
+  {
+    "cluster": 31,
+    "type": "Isolated",
+    "tab": "네트워크 권한",
+    "text": "네트워크 권한 추가\n네트워크 권한 재설정\n\n\n\n도메인\t계정\t프로젝트\t\n\n\n데이터 없음"
+  },
+  {
+    "cluster": 31,
+    "type": "Isolated",
+    "tab": "이벤트",
+    "text": "업데이트\n열 선택\n레벨\n\t\n유형\n\t\n상태\n\t\n사용자 이름\n\t\n계정\n\t\n도메인\n\t\n생성일\n\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nINFO\tNETWORK.MIGRATE\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:21:54\nINFO\tNETWORK.DELETE\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:21:54\nINFO\tVPN.REMOTE.ACCESS.DESTROY\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:21:53\nINFO\tVPN.REMOTE.ACCESS.DESTROY\t\n시작\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:21:53\nINFO\tFIREWALL.CLOSE\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:21:53\nINFO\tFIREWALL.CLOSE\t\n시작\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:21:53\nINFO\tFIREWALL.CLOSE\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:21:53\nINFO\tFIREWALL.CLOSE\t\n시작\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:21:53\nINFO\tNETWORK.DELETE\t\n시작\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:21:49\nINFO\tFIREWALL.OPEN\t\n생성됨\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:21:20\n전체 18개 항목 중 1-10 표시\n1\n2\n10 / 쪽\n이동하기"
+  },
+  {
+    "cluster": 31,
+    "type": "Isolated",
+    "tab": "코멘트",
+    "text": "보내기\n업데이트\n관리자만 표시\n코멘트 (0)\n\n등록된 코멘트가 없습니다.\n\n전체 0개 항목 중 0-0 표시\n1"
+  },
+  {
+    "cluster": 32,
+    "type": "Isolated",
+    "tab": "상세",
+    "text": "이름\n\nqa-gn1568-32-isolated\n아이디\n\n1171cd96-ad12-420e-88d0-70636b7bdb7d\n설명\n\n#1568 retained UI review\n유형\n\n격리형 (Isolated)\n트래픽 유형\n\nGuest\nVLAN/VNI\n\n2031\n브로드 캐스트\n\nvlan://2031\nCIDR\n\n10.168.32.0/24\n넷마스크\n\n255.255.255.0\n게이트웨이\n\n10.168.32.1\n영구적\n\nfalse\n재시작 필요\n\nfalse\nRedundant 라우터\n\nfalse\n네트워크 도메인\n\ncsd5cloud.internal\n기본 송신 정책\n\n거부(추가된 송신 규칙과 일치하는 트래픽이 허용됨)\nZone\n\nZone\n계정\n\nqa-gn1568-32-user\n도메인\n\nROOT\nDNS 1\n\n8.8.8.8\nPublic 인터페이스 MTU\n\n1500\nPrivate 인터페이스 MTU\n\n1500\n공용 NIC의 MAC 주소 유지\n\ntrue"
+  },
+  {
+    "cluster": 32,
+    "type": "Isolated",
+    "tab": "송신 규칙",
+    "text": "규칙 추가\n업데이트\n이 네트워크의 기본 송신 정책은 거부입니다.\n다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다.\n\tSource CIDR\t목적지 CIDR\t프로토콜\tICMP 유형/시작 포트\tICMP 코드/종료 포트\t작업\n\n\t10.168.32.0/24\t198.51.100.0/24\tTCP\t45679\t45679\t\n\n\n\t10.168.32.0/24\t198.51.100.0/24\tTCP\t45678\t45678\t\n전체 2 개 항목\n1\n10 / 쪽"
+  },
+  {
+    "cluster": 32,
+    "type": "Isolated",
+    "tab": "Public IP 주소",
+    "text": "새 IP 주소 가져오기\n\tIP 주소\t상태\tVM\t네트워크\t\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n\t10.10.32.163 Source NAT\t\n할당됨\n\t—\tqa-gn1568-32-isolated\t\n전체 1 개 항목\n1\n10 / 쪽"
+  },
+  {
+    "cluster": 32,
+    "type": "Isolated",
+    "tab": "가상 라우터",
+    "text": "이름\t상태\tIP\t버전\t업그레이드 필요\tRedundant 라우터\t호스트\nr-378-VM\t\n실행 중\n\t10.10.32.163\t4.21.0\t아니오\tfalse\tablecube32-3"
+  },
+  {
+    "cluster": 32,
+    "type": "Isolated",
+    "tab": "VNF 기기",
+    "text": "이름\t상태\tIP 주소\t템플릿\tOS Display 명\t호스트\n\n\n데이터 없음"
+  },
+  {
+    "cluster": 32,
+    "type": "Isolated",
+    "tab": "네트워크 권한",
+    "text": "네트워크 권한 추가\n네트워크 권한 재설정\n\n\n\n도메인\t계정\t프로젝트\t\n\n\n데이터 없음"
+  },
+  {
+    "cluster": 32,
+    "type": "Isolated",
+    "tab": "이벤트",
+    "text": "업데이트\n열 선택\n레벨\n\t\n유형\n\t\n상태\n\t\n사용자 이름\n\t\n계정\n\t\n도메인\n\t\n생성일\n\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nINFO\tNETWORK.MIGRATE\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:23:22\nINFO\tNETWORK.DELETE\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:23:22\nINFO\tVPN.REMOTE.ACCESS.DESTROY\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:23:21\nINFO\tVPN.REMOTE.ACCESS.DESTROY\t\n시작\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:23:21\nINFO\tFIREWALL.CLOSE\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:23:21\nINFO\tFIREWALL.CLOSE\t\n시작\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:23:21\nINFO\tVPN.REMOTE.ACCESS.DESTROY\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:23:21\nINFO\tVPN.REMOTE.ACCESS.DESTROY\t\n시작\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:23:21\nINFO\tFIREWALL.CLOSE\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:23:21\nINFO\tFIREWALL.CLOSE\t\n시작\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:23:21\n전체 22개 항목 중 1-10 표시\n1\n2\n3\n10 / 쪽\n이동하기"
+  },
+  {
+    "cluster": 32,
+    "type": "Isolated",
+    "tab": "코멘트",
+    "text": "보내기\n업데이트\n관리자만 표시\n코멘트 (0)\n\n등록된 코멘트가 없습니다.\n\n전체 0개 항목 중 0-0 표시\n1"
+  },
+  {
+    "cluster": 32,
+    "type": "L2",
+    "tab": "상세",
+    "text": "이름\n\nqa-gn1568-32-l2\n아이디\n\necf3ac29-e12b-467e-ade0-47026f663ff4\n설명\n\n#1568 retained UI review\n유형\n\nL2\n트래픽 유형\n\nGuest\nVLAN/VNI\n\n2020\n브로드 캐스트\n\nvlan://2020\n영구적\n\nfalse\n재시작 필요\n\nfalse\nRedundant 라우터\n\nfalse\nZone\n\nZone\n계정\n\nqa-gn1568-32-user\n도메인\n\nROOT\nDNS 1\n\n8.8.8.8"
+  },
+  {
+    "cluster": 32,
+    "type": "L2",
+    "tab": "VNF 기기",
+    "text": "이름\t상태\tIP 주소\t템플릿\tOS Display 명\t호스트\n\n\n데이터 없음"
+  },
+  {
+    "cluster": 32,
+    "type": "L2",
+    "tab": "네트워크 권한",
+    "text": "네트워크 권한 추가\n네트워크 권한 재설정\n\n\n\n도메인\t계정\t프로젝트\t\n\n\n데이터 없음"
+  },
+  {
+    "cluster": 32,
+    "type": "L2",
+    "tab": "이벤트",
+    "text": "업데이트\n열 선택\n레벨\n\t\n유형\n\t\n상태\n\t\n사용자 이름\n\t\n계정\n\t\n도메인\n\t\n생성일\n\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nERROR\tNETWORK.DELETE\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:00:15\nINFO\tNETWORK.DELETE\t\n시작\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:00:15\nINFO\tNETWORK.DELETE\t\n예정됨\n\tadmin\tqa-gn1568-32-user\tROOT\t2026. 11. 6. 오전 2:00:15\nINFO\tNETWORK.CREATE\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 1:54:57\n전체 4개 항목 중 1-4 표시\n1\n10 / 쪽"
+  },
+  {
+    "cluster": 32,
+    "type": "L2",
+    "tab": "코멘트",
+    "text": "보내기\n업데이트\n관리자만 표시\n코멘트 (0)\n\n등록된 코멘트가 없습니다.\n\n전체 0개 항목 중 0-0 표시\n1"
+  },
+  {
+    "cluster": 32,
+    "type": "Shared",
+    "tab": "상세",
+    "text": "이름\n\nqa-gn1568-32-shared\n아이디\n\n4401793f-ab5b-4e45-a5c1-adb4c53bc986\n설명\n\n#1568 retained UI review\n유형\n\n공유형 (Shared)\n트래픽 유형\n\nGuest\nVLAN/VNI\n\n2021\n브로드 캐스트\n\nvlan://2021\nCIDR\n\n10.170.32.0/24\n넷마스크\n\n255.255.255.0\n게이트웨이\n\n10.170.32.1\n영구적\n\nfalse\n재시작 필요\n\nfalse\nRedundant 라우터\n\nfalse\n네트워크 도메인\n\ncs1cloud.internal\nZone\n\nZone\n도메인\n\nROOT\nDNS 1\n\n1.1.1.1\nPublic 인터페이스 MTU\n\n1500\nIP 사용량 내보내기 제외\n\n포함\n\n이 설정으로 새로 발생하는 IP 사용량을 listUsageRecords 내보내기에서 제외합니다. IP 주소 표시나 네트워크 접근 권한은 바꾸지 않으며, 기존 할당과 과거 사용량을 소급 재계산·삭제하지 않습니다."
+  },
+  {
+    "cluster": 32,
+    "type": "Shared",
+    "tab": "IP Addresses",
+    "text": "새 IP 주소 가져오기\n\tIP 주소\t상태\tVM\t네트워크\t\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n\t\n10.170.32.50\n\t\n할당됨\n\tr-375-VM\t\nqa-gn1568-32-shared\n\t\n\n\t\n10.170.32.51\n\t\n가능\n\t—\t\nqa-gn1568-32-shared\n\t\n\n\t\n10.170.32.52\n\t\n가능\n\t—\t\nqa-gn1568-32-shared\n\t\n\n\t\n10.170.32.53\n\t\n가능\n\t—\t\nqa-gn1568-32-shared\n\t\n\n\t\n10.170.32.54\n\t\n가능\n\t—\t\nqa-gn1568-32-shared\n\t\n\n\t\n10.170.32.55\n\t\n가능\n\t—\t\nqa-gn1568-32-shared\n\t\n\n\t\n10.170.32.56\n\t\n가능\n\t—\t\nqa-gn1568-32-shared\n\t\n\n\t\n10.170.32.57\n\t\n가능\n\t—\t\nqa-gn1568-32-shared\n\t\n\n\t\n10.170.32.58\n\t\n할당됨\n\tqa-gn1568-32-review-vm\t\nqa-gn1568-32-shared\n\t\n\n\t\n10.170.32.59\n\t\n가능\n\t—\t\nqa-gn1568-32-shared\n\t\n전체 11 개 항목\n1\n2\n10 / 쪽"
+  },
+  {
+    "cluster": 32,
+    "type": "Shared",
+    "tab": "가상 라우터",
+    "text": "이름\t상태\tIP\t버전\t업그레이드 필요\tRedundant 라우터\t호스트\nr-375-VM\t\n실행 중\n\t\t4.21.0\t아니오\tfalse\tablecube32-3"
+  },
+  {
+    "cluster": 32,
+    "type": "Shared",
+    "tab": "VNF 기기",
+    "text": "이름\t상태\tIP 주소\t템플릿\tOS Display 명\t호스트\n\n\n데이터 없음"
+  },
+  {
+    "cluster": 32,
+    "type": "Shared",
+    "tab": "게스트 IP 주소 범위",
+    "text": "IP 주소 범위 추가\nIPv4\tIPv6\tVLAN/VNI\t작업\n\n \n\t\n \n\t\n \n\t\n \n\n\n10.170.32.50 – 10.170.32.60\n게이트웨이: 10.170.32.1 · 255.255.255.0\n\t\n—\n\t2021\t\n전체 1 개 항목\n1\n10 / 쪽"
+  },
+  {
+    "cluster": 32,
+    "type": "Shared",
+    "tab": "이벤트",
+    "text": "업데이트\n열 선택\n레벨\n\t\n유형\n\t\n상태\n\t\n사용자 이름\n\t\n계정\n\t\n도메인\n\t\n생성일\n\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nERROR\tNETWORK.DELETE\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:00:18\nINFO\tNETWORK.DELETE\t\n시작\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:00:18\nINFO\tNETWORK.DELETE\t\n예정됨\n\tadmin\tsystem\tROOT\t2026. 11. 6. 오전 2:00:18\nINFO\tNETWORK.CREATE\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 1:54:57\n전체 4개 항목 중 1-4 표시\n1\n10 / 쪽"
+  },
+  {
+    "cluster": 32,
+    "type": "Shared",
+    "tab": "코멘트",
+    "text": "보내기\n업데이트\n관리자만 표시\n코멘트 (0)\n\n등록된 코멘트가 없습니다.\n\n전체 0개 항목 중 0-0 표시\n1"
+  },
+  {
+    "cluster": 31,
+    "type": "PublicIP",
+    "tab": "상세",
+    "text": "IP 주소\n\n10.10.31.143\n아이디\n\n21a6e954-afa8-4bee-89c4-25c2745713b0\n연결된 네트워크 이름\n\nqa-gn1568-31-isolated\n네트워크\n\n8689dcfa-5d81-40d3-8db3-103be4a01d71\nSource NAT\n\nfalse\nStatic NAT\n\nfalse\nVM 이름\n—\n할당됨\n\n2026-11-06T02:38:18+0900\n계정\n\nqa-gn1568-31-user\n도메인\n\nROOT\nZone\n\nZone"
+  },
+  {
+    "cluster": 31,
+    "type": "PublicIP",
+    "tab": "방화벽",
+    "text": "규칙 추가\n업데이트\n\tSource CIDR\t프로토콜\t시작 포트/ICMP 유형\t종료 포트/ICMP 코드\t상태\t작업\n\n\n데이터 없음\n\n전체 0 개 항목\n1\n10 / 쪽"
+  },
+  {
+    "cluster": 31,
+    "type": "PublicIP",
+    "tab": "포트 포워딩",
+    "text": "규칙 추가\n업데이트\n\t게스트 포트\t공인 포트\t프로토콜\t상태\tVM\t작업\n\n\n데이터 없음\n\n전체 0 개 항목\n1\n10 / 쪽"
+  },
+  {
+    "cluster": 31,
+    "type": "PublicIP",
+    "tab": "부하 분산",
+    "text": "규칙 추가\n업데이트\n\t\n\t이름\t공인 / 게스트 포트\t알고리즘 / 프로토콜\t대상 VM\tSource CIDR 목록\t상태\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n\n데이터 없음\n\n전체 0 개 항목\n1\n10 / 쪽"
+  },
+  {
+    "cluster": 31,
+    "type": "PublicIP",
+    "tab": "가상 사설망(VPN)",
+    "text": "VPN 활성화\n\n"
+  },
+  {
+    "cluster": 31,
+    "type": "PublicIP",
+    "tab": "이벤트",
+    "text": "업데이트\n열 선택\n레벨\n\t\n유형\n\t\n상태\n\t\n사용자 이름\n\t\n계정\n\t\n도메인\n\t\n생성일\n\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nINFO\t네트워크 IP 할당\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:38:18\nINFO\t네트워크 IP 할당\t\n시작\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:38:18\nINFO\t네트워크 IP 할당\t\n예정됨\n\tadmin\tqa-gn1568-31-user\tROOT\t2026. 11. 6. 오전 2:38:18\nINFO\t네트워크 IP 할당\t\n생성됨\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:38:18\nINFO\t네트워크 IP 할당\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 5. 오전 9:41:56\nINFO\t네트워크 IP 할당\t\n시작\n\tadmin\tadmin\tROOT\t2026. 11. 5. 오전 9:41:56\nINFO\t네트워크 IP 할당\t\n예정됨\n\tadmin\tadmin\tROOT\t2026. 11. 5. 오전 9:41:56\nINFO\t네트워크 IP 할당\t\n생성됨\n\tadmin\tadmin\tROOT\t2026. 11. 5. 오전 9:41:56\n전체 8개 항목 중 1-8 표시\n1\n10 / 쪽"
+  },
+  {
+    "cluster": 31,
+    "type": "PublicIP",
+    "tab": "코멘트",
+    "text": "보내기\n업데이트\n관리자만 표시\n코멘트 (0)\n\n등록된 코멘트가 없습니다.\n\n전체 0개 항목 중 0-0 표시\n1"
+  },
+  {
+    "cluster": 32,
+    "type": "PublicIP",
+    "tab": "상세",
+    "text": "IP 주소\n\n10.10.32.166\n아이디\n\n04de4618-4265-4bfc-9b4c-95bc88ac1c2c\n연결된 네트워크 이름\n\nqa-gn1568-32-isolated\n네트워크\n\n4216b0b3-d054-46ab-88dd-9d025a1f3eb5\nSource NAT\n\nfalse\nStatic NAT\n\nfalse\nVM 이름\n—\n할당됨\n\n2026-11-06T02:38:39+0900\n계정\n\nqa-gn1568-32-user\n도메인\n\nROOT\nZone\n\nZone"
+  },
+  {
+    "cluster": 32,
+    "type": "PublicIP",
+    "tab": "방화벽",
+    "text": "규칙 추가\n업데이트\n\tSource CIDR\t프로토콜\t시작 포트/ICMP 유형\t종료 포트/ICMP 코드\t상태\t작업\n\n\n데이터 없음\n\n전체 0 개 항목\n1\n10 / 쪽"
+  },
+  {
+    "cluster": 32,
+    "type": "PublicIP",
+    "tab": "포트 포워딩",
+    "text": "규칙 추가\n업데이트\n\t게스트 포트\t공인 포트\t프로토콜\t상태\tVM\t작업\n\n\n데이터 없음\n\n전체 0 개 항목\n1\n10 / 쪽"
+  },
+  {
+    "cluster": 32,
+    "type": "PublicIP",
+    "tab": "부하 분산",
+    "text": "규칙 추가\n업데이트\n\t\n\t이름\t공인 / 게스트 포트\t알고리즘 / 프로토콜\t대상 VM\tSource CIDR 목록\t상태\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n\n데이터 없음\n\n전체 0 개 항목\n1\n10 / 쪽"
+  },
+  {
+    "cluster": 32,
+    "type": "PublicIP",
+    "tab": "가상 사설망(VPN)",
+    "text": "VPN 활성화\n\n"
+  },
+  {
+    "cluster": 32,
+    "type": "PublicIP",
+    "tab": "이벤트",
+    "text": "업데이트\n열 선택\n레벨\n\t\n유형\n\t\n상태\n\t\n사용자 이름\n\t\n계정\n\t\n도메인\n\t\n생성일\n\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nINFO\t네트워크 IP 할당\t\n완료\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:38:39\nINFO\t네트워크 IP 할당\t\n시작\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:38:39\nINFO\t네트워크 IP 할당\t\n예정됨\n\tadmin\tqa-gn1568-32-user\tROOT\t2026. 11. 6. 오전 2:38:39\nINFO\t네트워크 IP 할당\t\n생성됨\n\tadmin\tadmin\tROOT\t2026. 11. 6. 오전 2:38:39\n전체 4개 항목 중 1-4 표시\n1\n10 / 쪽"
+  },
+  {
+    "cluster": 32,
+    "type": "PublicIP",
+    "tab": "코멘트",
+    "text": "보내기\n업데이트\n관리자만 표시\n코멘트 (0)\n\n등록된 코멘트가 없습니다.\n\n전체 0개 항목 중 0-0 표시\n1"
+  }
+]

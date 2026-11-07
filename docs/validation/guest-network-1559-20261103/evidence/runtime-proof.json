@@ -1,0 +1,310 @@
+[
+  {
+    "cluster": 31,
+    "isolated_patch_proof": [
+      {
+        "network": "a",
+        "router": "r-837-VM",
+        "router_id_preserved": true,
+        "signature_mtime_increased": true,
+        "livepatch_log_created": true,
+        "signature_matches_host_package": true,
+        "runtime": {
+          "id": "3de558b9-cbd8-480f-b019-732679be812d",
+          "name": "r-837-VM",
+          "hostid": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+          "hostname": "ablecube31-2",
+          "guestnetworkid": "98e4b4b0-e163-4114-84b8-cc87a06e3a6e",
+          "guestipaddress": "10.249.31.1",
+          "linklocalip": "169.254.249.119",
+          "state": "Running",
+          "scriptsversion": "c1d1cbda6f5bcf2541e88b0bce829d4ef12c05092796c75d9bea132be116e3017346f58ef91fcafb729945d4e24a1b8042b9af49b756e9a62cbd5491f172c4a5",
+          "templateversion": null,
+          "version": "4.21.0",
+          "requiresupgrade": false,
+          "network_key": "a",
+          "temporary_known_hosts": "/tmp/qa-gn1559-31-3de558b9-cbd8-480f-b019-732679be812d-knownhosts",
+          "patch": {
+            "signature": "c1d1cbda6f5bcf2541e88b0bce829d4ef12c05092796c75d9bea132be116e3017346f58ef91fcafb729945d4e24a1b8042b9af49b756e9a62cbd5491f172c4a5",
+            "signature_mtime_ns": 1793688451246501880,
+            "livepatch_log_exists": true,
+            "log_mtime_ns": 1793688451242501944,
+            "log_bytes": 264942,
+            "log_markers": [
+              "checksum:  c1d1cbda6f5bcf2541e88b0bce829d4ef12c05092796c75d9bea132be116e3017346f58ef91fcafb729945d4e24a1b8042b9af49b756e9a62cbd5491f172c4a5"
+            ]
+          },
+          "host_patch_packages": [
+            {
+              "path": "/usr/share/cloudstack-common/vms/cloud-scripts.tgz",
+              "sha512": "c1d1cbda6f5bcf2541e88b0bce829d4ef12c05092796c75d9bea132be116e3017346f58ef91fcafb729945d4e24a1b8042b9af49b756e9a62cbd5491f172c4a5"
+            }
+          ],
+          "router_to_vm_ping": "PING 10.249.31.248 (10.249.31.248): 56 data bytes\n64 bytes from 10.249.31.248: icmp_seq=0 ttl=64 time=0.257 ms\n64 bytes from 10.249.31.248: icmp_seq=1 ttl=64 time=0.230 ms\n--- 10.249.31.248 ping statistics ---\n2 packets transmitted, 2 packets received, 0% packet loss\nround-trip min/avg/max/stddev = 0.230/0.243/0.257/0.000 ms\n"
+        }
+      }
+    ],
+    "shared_final_patch_proof": {
+      "id": "a70c2720-992e-43d8-be35-8c8502849bb6",
+      "name": "r-841-VM",
+      "hostid": "384871b9-7c75-4717-a673-e96a76abeb71",
+      "hostname": "ablecube31-3",
+      "guestnetworkid": "c648aa81-e649-48d6-b296-7735be04a7ce",
+      "guestipaddress": "10.247.31.10",
+      "linklocalip": "169.254.135.204",
+      "state": "Running",
+      "scriptsversion": "c1d1cbda6f5bcf2541e88b0bce829d4ef12c05092796c75d9bea132be116e3017346f58ef91fcafb729945d4e24a1b8042b9af49b756e9a62cbd5491f172c4a5",
+      "templateversion": null,
+      "version": "4.21.0",
+      "requiresupgrade": false,
+      "network_key": "shared",
+      "temporary_known_hosts": "/tmp/qa-gn1559-31-a70c2720-992e-43d8-be35-8c8502849bb6-knownhosts",
+      "patch": {
+        "signature": "c1d1cbda6f5bcf2541e88b0bce829d4ef12c05092796c75d9bea132be116e3017346f58ef91fcafb729945d4e24a1b8042b9af49b756e9a62cbd5491f172c4a5",
+        "signature_mtime_ns": 1793689850904000000,
+        "livepatch_log_exists": true,
+        "log_mtime_ns": 1793689850904000000,
+        "log_bytes": 526111,
+        "log_markers": [
+          "checksum:  c1d1cbda6f5bcf2541e88b0bce829d4ef12c05092796c75d9bea132be116e3017346f58ef91fcafb729945d4e24a1b8042b9af49b756e9a62cbd5491f172c4a5",
+          "checksum:  c1d1cbda6f5bcf2541e88b0bce829d4ef12c05092796c75d9bea132be116e3017346f58ef91fcafb729945d4e24a1b8042b9af49b756e9a62cbd5491f172c4a5"
+        ]
+      },
+      "host_patch_packages": [
+        {
+          "path": "/usr/share/cloudstack-common/vms/cloud-scripts.tgz",
+          "sha512": "c1d1cbda6f5bcf2541e88b0bce829d4ef12c05092796c75d9bea132be116e3017346f58ef91fcafb729945d4e24a1b8042b9af49b756e9a62cbd5491f172c4a5"
+        }
+      ]
+    },
+    "vm_preservation": {
+      "a": {
+        "uuid_unchanged": true,
+        "nic_unchanged": true,
+        "running": true,
+        "domuuid": "76411fce-7839-4420-be54-be4e4fb04457",
+        "nic": [
+          {
+            "id": "a6a76651-0ac0-4845-b3ef-1c62ff679b30",
+            "networkid": "98e4b4b0-e163-4114-84b8-cc87a06e3a6e",
+            "networkname": "qa-gn1559-31-a",
+            "netmask": "255.255.255.0",
+            "gateway": "10.249.31.1",
+            "ipaddress": "10.249.31.248",
+            "isolationuri": "vlan://177",
+            "broadcasturi": "vlan://177",
+            "traffictype": "Guest",
+            "type": "Isolated",
+            "isdefault": true,
+            "macaddress": "02:1f:01:8e:00:01",
+            "secondaryip": [],
+            "extradhcpoption": [],
+            "deviceid": "0",
+            "enabled": true
+          }
+        ]
+      },
+      "b": {
+        "uuid_unchanged": true,
+        "nic_unchanged": true,
+        "running": true,
+        "domuuid": "d1946571-3d19-4eb9-9578-0ba7bc45e1bd",
+        "nic": [
+          {
+            "id": "0f1150a4-1705-4e8d-b877-b8f227163591",
+            "networkid": "22c51c5f-4654-46eb-a996-59d2040475d0",
+            "networkname": "qa-gn1559-31-b",
+            "netmask": "255.255.255.0",
+            "gateway": "10.248.31.1",
+            "ipaddress": "10.248.31.172",
+            "isolationuri": "vlan://161",
+            "broadcasturi": "vlan://161",
+            "traffictype": "Guest",
+            "type": "Isolated",
+            "isdefault": true,
+            "macaddress": "02:1f:01:8f:00:01",
+            "secondaryip": [],
+            "extradhcpoption": [],
+            "deviceid": "0",
+            "enabled": true
+          }
+        ]
+      }
+    },
+    "cleanup_recreated_b_router": true
+  },
+  {
+    "cluster": 32,
+    "isolated_patch_proof": [
+      {
+        "network": "a",
+        "router": "r-330-VM",
+        "router_id_preserved": true,
+        "signature_mtime_increased": true,
+        "livepatch_log_created": true,
+        "signature_matches_host_package": true,
+        "runtime": {
+          "id": "6032ba5f-879b-4f5d-b449-36f685fcbb55",
+          "name": "r-330-VM",
+          "hostid": "bfe795b1-8fde-4361-bd1d-af421ab2bdc5",
+          "hostname": "ablecube32-1",
+          "guestnetworkid": "8cfea604-007c-42c4-b5a9-5ceee79fe440",
+          "guestipaddress": "10.249.32.1",
+          "linklocalip": "169.254.197.26",
+          "state": "Running",
+          "scriptsversion": "4ef7592d9485f0f26b6b9f7396e08358774480e02eae0d3e8c6bb567f7a14ffe460359ba751b7f75ec79a06324258d12cbba123787bb3500638e90e760bce594",
+          "templateversion": null,
+          "version": "4.21.0",
+          "requiresupgrade": false,
+          "network_key": "a",
+          "temporary_known_hosts": "/tmp/qa-gn1559-32-6032ba5f-879b-4f5d-b449-36f685fcbb55-knownhosts",
+          "patch": {
+            "signature": "4ef7592d9485f0f26b6b9f7396e08358774480e02eae0d3e8c6bb567f7a14ffe460359ba751b7f75ec79a06324258d12cbba123787bb3500638e90e760bce594",
+            "signature_mtime_ns": 1793688509969413911,
+            "livepatch_log_exists": true,
+            "log_mtime_ns": 1793688509969413911,
+            "log_bytes": 264164,
+            "log_markers": [
+              "checksum:  4ef7592d9485f0f26b6b9f7396e08358774480e02eae0d3e8c6bb567f7a14ffe460359ba751b7f75ec79a06324258d12cbba123787bb3500638e90e760bce594"
+            ]
+          },
+          "host_patch_packages": [
+            {
+              "path": "/usr/share/cloudstack-common/vms/cloud-scripts.tgz",
+              "sha512": "4ef7592d9485f0f26b6b9f7396e08358774480e02eae0d3e8c6bb567f7a14ffe460359ba751b7f75ec79a06324258d12cbba123787bb3500638e90e760bce594"
+            }
+          ],
+          "router_to_vm_ping": "PING 10.249.32.56 (10.249.32.56): 56 data bytes\n64 bytes from 10.249.32.56: icmp_seq=0 ttl=64 time=0.321 ms\n64 bytes from 10.249.32.56: icmp_seq=1 ttl=64 time=0.280 ms\n--- 10.249.32.56 ping statistics ---\n2 packets transmitted, 2 packets received, 0% packet loss\nround-trip min/avg/max/stddev = 0.280/0.300/0.321/0.000 ms\n"
+        }
+      },
+      {
+        "network": "b",
+        "router": "r-332-VM",
+        "router_id_preserved": true,
+        "signature_mtime_increased": true,
+        "livepatch_log_created": true,
+        "signature_matches_host_package": true,
+        "runtime": {
+          "id": "0ee4df25-0aae-4981-bfc3-e6ecac3d5ce8",
+          "name": "r-332-VM",
+          "hostid": "a7b3e91f-2248-436b-affb-e3b31b36ed62",
+          "hostname": "ablecube32-2",
+          "guestnetworkid": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+          "guestipaddress": "10.248.32.1",
+          "linklocalip": "169.254.189.150",
+          "state": "Running",
+          "scriptsversion": "4ef7592d9485f0f26b6b9f7396e08358774480e02eae0d3e8c6bb567f7a14ffe460359ba751b7f75ec79a06324258d12cbba123787bb3500638e90e760bce594",
+          "templateversion": null,
+          "version": "4.21.0",
+          "requiresupgrade": false,
+          "network_key": "b",
+          "temporary_known_hosts": "/tmp/qa-gn1559-32-0ee4df25-0aae-4981-bfc3-e6ecac3d5ce8-knownhosts",
+          "patch": {
+            "signature": "4ef7592d9485f0f26b6b9f7396e08358774480e02eae0d3e8c6bb567f7a14ffe460359ba751b7f75ec79a06324258d12cbba123787bb3500638e90e760bce594",
+            "signature_mtime_ns": 1793688490647092168,
+            "livepatch_log_exists": true,
+            "log_mtime_ns": 1793688490647092168,
+            "log_bytes": 264114,
+            "log_markers": [
+              "checksum:  4ef7592d9485f0f26b6b9f7396e08358774480e02eae0d3e8c6bb567f7a14ffe460359ba751b7f75ec79a06324258d12cbba123787bb3500638e90e760bce594"
+            ]
+          },
+          "host_patch_packages": [
+            {
+              "path": "/usr/share/cloudstack-common/vms/cloud-scripts.tgz",
+              "sha512": "4ef7592d9485f0f26b6b9f7396e08358774480e02eae0d3e8c6bb567f7a14ffe460359ba751b7f75ec79a06324258d12cbba123787bb3500638e90e760bce594"
+            }
+          ],
+          "router_to_vm_ping": "PING 10.248.32.15 (10.248.32.15): 56 data bytes\n64 bytes from 10.248.32.15: icmp_seq=0 ttl=64 time=0.252 ms\n64 bytes from 10.248.32.15: icmp_seq=1 ttl=64 time=0.225 ms\n--- 10.248.32.15 ping statistics ---\n2 packets transmitted, 2 packets received, 0% packet loss\nround-trip min/avg/max/stddev = 0.225/0.238/0.252/0.000 ms\n"
+        }
+      }
+    ],
+    "shared_final_patch_proof": {
+      "id": "db2e2092-aed2-49bc-875e-f1afc5c8d6ff",
+      "name": "r-334-VM",
+      "hostid": "bfe795b1-8fde-4361-bd1d-af421ab2bdc5",
+      "hostname": "ablecube32-1",
+      "guestnetworkid": "18396f3e-b560-45de-ba65-c04b05b535be",
+      "guestipaddress": "10.247.32.10",
+      "linklocalip": "169.254.235.125",
+      "state": "Running",
+      "scriptsversion": "4ef7592d9485f0f26b6b9f7396e08358774480e02eae0d3e8c6bb567f7a14ffe460359ba751b7f75ec79a06324258d12cbba123787bb3500638e90e760bce594",
+      "templateversion": null,
+      "version": "4.21.0",
+      "requiresupgrade": false,
+      "network_key": "shared",
+      "temporary_known_hosts": "/tmp/qa-gn1559-32-db2e2092-aed2-49bc-875e-f1afc5c8d6ff-knownhosts",
+      "patch": {
+        "signature": "4ef7592d9485f0f26b6b9f7396e08358774480e02eae0d3e8c6bb567f7a14ffe460359ba751b7f75ec79a06324258d12cbba123787bb3500638e90e760bce594",
+        "signature_mtime_ns": 1793689070316000000,
+        "livepatch_log_exists": true,
+        "log_mtime_ns": 1793689070316000000,
+        "log_bytes": 262455,
+        "log_markers": [
+          "checksum:  4ef7592d9485f0f26b6b9f7396e08358774480e02eae0d3e8c6bb567f7a14ffe460359ba751b7f75ec79a06324258d12cbba123787bb3500638e90e760bce594"
+        ]
+      },
+      "host_patch_packages": [
+        {
+          "path": "/usr/share/cloudstack-common/vms/cloud-scripts.tgz",
+          "sha512": "4ef7592d9485f0f26b6b9f7396e08358774480e02eae0d3e8c6bb567f7a14ffe460359ba751b7f75ec79a06324258d12cbba123787bb3500638e90e760bce594"
+        }
+      ]
+    },
+    "vm_preservation": {
+      "a": {
+        "uuid_unchanged": true,
+        "nic_unchanged": true,
+        "running": true,
+        "domuuid": "fb8adba2-6df7-482e-a61b-5522abfa0a85",
+        "nic": [
+          {
+            "id": "485d9277-2426-4a5c-bfe9-a2d6ff9059f9",
+            "networkid": "8cfea604-007c-42c4-b5a9-5ceee79fe440",
+            "networkname": "qa-gn1559-32-a",
+            "netmask": "255.255.255.0",
+            "gateway": "10.249.32.1",
+            "ipaddress": "10.249.32.56",
+            "isolationuri": "vlan://175",
+            "broadcasturi": "vlan://175",
+            "traffictype": "Guest",
+            "type": "Isolated",
+            "isdefault": true,
+            "macaddress": "02:01:01:24:00:01",
+            "secondaryip": [],
+            "extradhcpoption": [],
+            "deviceid": "0",
+            "enabled": true
+          }
+        ]
+      },
+      "b": {
+        "uuid_unchanged": true,
+        "nic_unchanged": true,
+        "running": true,
+        "domuuid": "969fc095-2a33-4573-bdfb-a5ba5ecbafdd",
+        "nic": [
+          {
+            "id": "e37f2808-6835-43a5-8f27-3b3763a2087e",
+            "networkid": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+            "networkname": "qa-gn1559-32-b",
+            "netmask": "255.255.255.0",
+            "gateway": "10.248.32.1",
+            "ipaddress": "10.248.32.15",
+            "isolationuri": "vlan://143",
+            "broadcasturi": "vlan://143",
+            "traffictype": "Guest",
+            "type": "Isolated",
+            "isdefault": true,
+            "macaddress": "02:01:01:25:00:01",
+            "secondaryip": [],
+            "extradhcpoption": [],
+            "deviceid": "0",
+            "enabled": true
+          }
+        ]
+      }
+    },
+    "cleanup_recreated_b_router": true
+  }
+]

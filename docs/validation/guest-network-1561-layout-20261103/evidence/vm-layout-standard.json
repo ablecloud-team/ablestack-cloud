@@ -1,0 +1,115 @@
+{
+  "banners": [
+    {
+      "background": [
+        234,
+        244,
+        255
+      ],
+      "color": "rgb(11, 59, 102)",
+      "rect": {
+        "bottom": 436,
+        "height": 62,
+        "left": 706.578125,
+        "right": 1222.984375,
+        "top": 374,
+        "width": 516.40625,
+        "x": 706.578125,
+        "y": 374
+      },
+      "text": "VM 스냅샷이 있어 볼륨 생성 및 연결·기존 볼륨 연결·분리를 사용할 수 없습니다. 디스크 구성을 변경하려면 VM 스냅샷을 먼저 삭제해야 합니다."
+    }
+  ],
+  "dark": false,
+  "dialog": null,
+  "document_width": 1270,
+  "guidance_before_table": true,
+  "table": {
+    "bottom": 588,
+    "height": 140,
+    "left": 706.578125,
+    "right": 1222.984375,
+    "top": 448,
+    "width": 516.40625,
+    "x": 706.578125,
+    "y": 448
+  },
+  "toolbar": {
+    "buttons": [
+      {
+        "disabled": true,
+        "rect": {
+          "bottom": 314,
+          "height": 32,
+          "left": 706.578125,
+          "right": 832.65625,
+          "top": 282,
+          "width": 126.078125,
+          "x": 706.578125,
+          "y": 282
+        },
+        "text": "생성 및 연결"
+      },
+      {
+        "disabled": true,
+        "rect": {
+          "bottom": 314,
+          "height": 32,
+          "left": 840.65625,
+          "right": 957.609375,
+          "top": 282,
+          "width": 116.953125,
+          "x": 840.65625,
+          "y": 282
+        },
+        "text": "기존 볼륨 연결"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 314,
+          "height": 32,
+          "left": 965.609375,
+          "right": 1071.140625,
+          "top": 282,
+          "width": 105.53125,
+          "x": 965.609375,
+          "y": 282
+        },
+        "text": "업데이트"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 354,
+          "height": 32,
+          "left": 1189.984375,
+          "right": 1221.984375,
+          "top": 322,
+          "width": 32,
+          "x": 1189.984375,
+          "y": 322
+        },
+        "text": ""
+      }
+    ],
+    "gap": "8px",
+    "marginBottom": "20px",
+    "rect": {
+      "bottom": 354,
+      "height": 72,
+      "left": 706.578125,
+      "right": 1222.984375,
+      "top": 282,
+      "width": 516.40625,
+      "x": 706.578125,
+      "y": 282
+    }
+  },
+  "toolbar_before_guidance": true,
+  "url": "http://10.10.31.10:8080/client/#/vm/05f940bb-5ca7-4f58-8e41-ed8440758f0b?tab=volumes",
+  "viewport": {
+    "height": 900,
+    "width": 1280
+  }
+}

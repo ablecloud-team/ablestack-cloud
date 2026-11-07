@@ -1,0 +1,33 @@
+{
+  "failed_vm": "0c6790c5-d3e1-4fbb-8a39-81a6e712510d",
+  "result": {
+    "queryasyncjobresultresponse": {
+      "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domainpath": "ROOT",
+      "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+      "cmd": "org.apache.cloudstack.api.command.admin.vm.DestroyVMCmdByAdmin",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "virtualmachine": {
+          "volumemutationblockedreason": "",
+          "securitygroup": [],
+          "nic": [],
+          "affinitygroup": [],
+          "deleteprotection": false,
+          "tags": []
+        }
+      },
+      "jobinstancetype": "VirtualMachine",
+      "jobinstanceid": "0c6790c5-d3e1-4fbb-8a39-81a6e712510d",
+      "created": "2026-11-04T10:23:56+0900",
+      "completed": "2026-11-04T10:24:03+0900",
+      "jobid": "0d0b539a-b336-4cfd-8dae-6ac41a15f392",
+      "jobstatus": 1
+    }
+  },
+  "db": "0c6790c5-d3e1-4fbb-8a39-81a6e712510d\tExpunging\t2026-11-04 01:24:03\ne887b963-dedd-4778-8e09-d053d34bae91\tDestroy\t2026-11-04 01:16:51\n"
+}

@@ -7,9 +7,14 @@ import { detailTabRouteKey } from './listRefreshMixin'
 export function detailTabContext (vm, commands = []) {
   const getters = vm.$store?.getters || {}
   return JSON.stringify([detailTabRouteKey(vm.$route), vm.resource?.id,
-    vm.resourceType || vm.$route?.meta?.resourceType, getters.project?.id,
+    vm.resourceType || vm.$route?.meta?.resourceType, getters.project?.id, vm.resource?.projectid, getters.userInfo?.domainid,
     getters.userInfo?.id, getters.userInfo?.roleid, getters.userInfo?.roletype,
     vm.$store?.state?.user?.token, commands.map(command => command in (getters.apis || {}))])
+}
+
+export function detailTabProject (vm) {
+  if (!['guestnetwork', 'publicip'].includes(vm.$route?.meta?.name)) return {}
+  return vm.resource?.projectid ? { projectid: vm.resource.projectid } : { ignoreproject: true }
 }
 
 export function detailTabDenied (error) {

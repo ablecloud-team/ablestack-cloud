@@ -1,0 +1,21 @@
+{
+  "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+  "account": "admin",
+  "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+  "domainpath": "ROOT",
+  "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+  "cmd": "org.apache.cloudstack.api.command.admin.network.MigrateNetworkCmd",
+  "jobprocstatus": 0,
+  "jobresultcode": 530,
+  "jobresulttype": "object",
+  "jobresult": {
+    "errorcode": 530,
+    "errortext": "Failed to implement destination network services: Destination network services could not be implemented. Check router offering capacity and host prerequisites, then resume the same destination."
+  },
+  "jobinstancetype": "Network",
+  "jobinstanceid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+  "created": "2026-11-05T23:32:24+0900",
+  "completed": "2026-11-05T23:32:27+0900",
+  "jobid": "a5bc1854-8dc7-4c8d-add3-400700dad58b",
+  "jobstatus": 2
+}

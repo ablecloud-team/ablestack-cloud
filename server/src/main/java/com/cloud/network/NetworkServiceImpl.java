@@ -3011,7 +3011,13 @@ public class NetworkServiceImpl extends ManagerBase implements NetworkService, C
         User callerUser = _accountMgr.getActiveUser(CallContext.current().getCallingUserId());
         ReservationContext context = new ReservationContextImpl(null, null, callerUser, owner);
 
-        return _networkMgr.destroyNetwork(networkId, context, forced);
+        boolean deleted = _networkMgr.destroyNetwork(networkId, context, forced);
+        if (!deleted) {
+            throw new CloudRuntimeException(String.format(
+                    "Network %s was not deleted. Check router shutdown, IP/range release and router volume cleanup, refresh its dependencies, then retry only this network. No automatic forced deletion was performed.",
+                    network.getUuid()));
+        }
+        return true;
     }
 
     @Override
@@ -3881,8 +3887,17 @@ public class NetworkServiceImpl extends ManagerBase implements NetworkService, C
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_NETWORK_MIGRATE, eventDescription = "migrating network", async = true)
     public Network migrateGuestNetwork(long networkId, long networkOfferingId, Account callerAccount, User callerUser, boolean resume) {
+        if (!_accountMgr.isRootAdmin(callerAccount.getId())) {
+            throw new PermissionDeniedException("Only Root Admin can migrate a network to another physical network.");
+        }
         NetworkVO network = _networksDao.findById(networkId);
         NetworkOffering newNtwkOff = _networkOfferingDao.findById(networkOfferingId);
+        if (network == null || newNtwkOff == null || newNtwkOff.isSystemOnly()) {
+            throw new InvalidParameterValueException("Unable to find the network or a non-system network offering.");
+        }
+        if (newNtwkOff.getState() != NetworkOffering.State.Enabled) {
+            throw new InvalidParameterValueException("The destination network offering must be enabled.");
+        }
 
         //perform below validation if the network is vpc network
         if (network.getVpcId() != null) {
@@ -3897,16 +3912,38 @@ public class NetworkServiceImpl extends ManagerBase implements NetworkService, C
 
         verifyNetworkCanBeMigrated(callerAccount, network);
 
+        boolean checkpoint = network.getRelated() != network.getId();
+        if (resume && !checkpoint) {
+            throw new InvalidParameterValueException("There is no previous network migration to resume. Start a new migration with resume=false.");
+        }
+        if (!resume && checkpoint) {
+            throw new InvalidParameterValueException("A previous network migration is incomplete. Resume it using the same destination offering.");
+        }
+        if (checkpoint) {
+            NetworkVO previous = _networksDao.findById(network.getRelated());
+            if (previous == null || previous.getRelated() != network.getId() || previous.getAccountId() != network.getAccountId()) {
+                throw new InvalidParameterValueException("The previous network migration checkpoint is inconsistent. Review the network state before retrying.");
+            }
+            if (network.getNetworkOfferingId() != networkOfferingId) {
+                throw new InvalidParameterValueException("The destination offering must match the previous network migration.");
+            }
+        }
+
         //Retrieve new Physical NetworkId
         long newPhysicalNetworkId = findPhysicalNetworkId(network.getDataCenterId(), newNtwkOff.getTags(), newNtwkOff.getTrafficType());
+        PhysicalNetworkVO destination = _physicalNetworkDao.findById(newPhysicalNetworkId);
+        if (destination == null || destination.getState() != PhysicalNetwork.State.Enabled) {
+            throw new InvalidParameterValueException("The destination physical network must be enabled.");
+        }
+        if (!resume && Objects.equals(network.getPhysicalNetworkId(), newPhysicalNetworkId)) {
+            throw new InvalidParameterValueException("Use updateNetwork for an offering change within the same physical network.");
+        }
+        if (resume && !Objects.equals(network.getPhysicalNetworkId(), newPhysicalNetworkId)) {
+            throw new InvalidParameterValueException("The destination offering no longer resolves to the physical network of the previous migration.");
+        }
 
         final long oldNetworkOfferingId = network.getNetworkOfferingId();
         NetworkOffering oldNtwkOff = _networkOfferingDao.findByIdIncludingRemoved(oldNetworkOfferingId);
-
-        if (!resume && network.getRelated() != network.getId()) {
-            logger.warn("Related network is not equal to network id. You might want to re-run migration with resume = true command.");
-            throw new CloudRuntimeException("Failed to migrate network as previous migration left this network in transient condition. Specify resume as true.");
-        }
 
         if (networkNeedsMigration(network, newPhysicalNetworkId, oldNtwkOff, newNtwkOff)) {
             return migrateNetworkToPhysicalNetwork(network, oldNtwkOff, newNtwkOff, null, null, newPhysicalNetworkId, callerAccount, callerUser);
@@ -3967,10 +4004,14 @@ public class NetworkServiceImpl extends ManagerBase implements NetworkService, C
             DeployDestination dest = new DeployDestination(zone, null, null, null);
             logger.debug("Implementing the network " + network + " elements and resources as a part of network update");
             try {
-                networkInNewPhysicalNet = _networkMgr.implementNetwork(networkInNewPhysicalNet.getId(), dest, context).second();
+                var implemented = _networkMgr.implementNetwork(networkInNewPhysicalNet.getId(), dest, context);
+                if (implemented == null || implemented.second() == null) {
+                    throw new CloudRuntimeException("Destination network services could not be implemented. Check router offering capacity and host prerequisites, then resume the same destination.");
+                }
+                networkInNewPhysicalNet = implemented.second();
             } catch (Exception ex) {
                 logger.warn("Failed to implement network " + network + " elements and resources as a part of network update due to ", ex);
-                CloudRuntimeException e = new CloudRuntimeException("Failed to implement network (with specified id) elements and resources as a part of network update");
+                CloudRuntimeException e = new CloudRuntimeException("Failed to implement destination network services: " + ex.getMessage(), ex);
                 e.addProxyObject(network.getUuid(), "networkId");
                 throw e;
             }
@@ -4161,7 +4202,10 @@ public class NetworkServiceImpl extends ManagerBase implements NetworkService, C
                 throw new InvalidParameterValueException("Can't upgrade from network offering " + oldNtwkOff.getUuid() + " to " + newNtwkOff.getUuid() + "; check logs for more information");
             }
 
-            List<VMInstanceVO> vmInstances = _vmDao.listNonRemovedVmsByTypeAndNetwork(network.getId(), null);
+            List<VMInstanceVO> vmInstances = new ArrayList<>(_vmDao.listNonRemovedVmsByTypeAndNetwork(network.getId(), null));
+            if (network.getRelated() != network.getId()) {
+                vmInstances.addAll(_vmDao.listNonRemovedVmsByTypeAndNetwork(network.getRelated(), null));
+            }
             boolean vmStateIsNotTransitioning = vmInstances.stream().anyMatch(vm -> vm.getState() != VirtualMachine.State.Stopped && vm.getState() != VirtualMachine.State.Running);
             if (vmStateIsNotTransitioning) {
                 throw new CloudRuntimeException("Failed to migrate network as at least one VM is not in running or stopped state.");
@@ -4187,6 +4231,10 @@ public class NetworkServiceImpl extends ManagerBase implements NetworkService, C
         // allow to upgrade only Guest networks
         if (network.getTrafficType() != TrafficType.Guest) {
             throw new InvalidParameterValueException("Can't allow networks which traffic type is not " + TrafficType.Guest);
+        }
+
+        if (network.getGuestType() != GuestType.Isolated) {
+            throw new InvalidParameterValueException("Physical network migration is supported only for Isolated networks.");
         }
 
         _accountMgr.checkAccess(callerAccount, null, true, network);

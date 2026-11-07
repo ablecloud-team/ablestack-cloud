@@ -158,6 +158,29 @@ public class NetworkModelTest {
     }
 
     @Test
+    public void testGetStartIpAddressSkipsIpv6OnlyRanges() {
+        NetworkModelImpl model = new NetworkModelImpl();
+        model._vlanDao = mock(VlanDao.class);
+        VlanVO ipv6Only = mock(VlanVO.class);
+        VlanVO high = mock(VlanVO.class);
+        VlanVO low = mock(VlanVO.class);
+        when(high.getIpRange()).thenReturn("172.27.31.30-172.27.31.34");
+        when(low.getIpRange()).thenReturn("172.27.31.10-172.27.31.20");
+        when(model._vlanDao.listVlansByNetworkId(1L)).thenReturn(Arrays.asList(ipv6Only, high, low));
+        Assert.assertEquals("172.27.31.10", model.getStartIpAddress(1L));
+    }
+
+    @Test
+    public void testGetStartIpAddressWithNoIpv4Range() {
+        NetworkModelImpl model = new NetworkModelImpl();
+        model._vlanDao = mock(VlanDao.class);
+        when(model._vlanDao.listVlansByNetworkId(1L)).thenReturn(Collections.singletonList(mock(VlanVO.class)));
+        Assert.assertNull(model.getStartIpAddress(1L));
+        when(model._vlanDao.listVlansByNetworkId(1L)).thenReturn(Collections.emptyList());
+        Assert.assertNull(model.getStartIpAddress(1L));
+    }
+
+    @Test
     public void testGetSourceNatIpAddressForGuestNetwork() {
         NetworkModelImpl modelImpl = new NetworkModelImpl();
         IPAddressDao ipAddressDao = mock(IPAddressDao.class);

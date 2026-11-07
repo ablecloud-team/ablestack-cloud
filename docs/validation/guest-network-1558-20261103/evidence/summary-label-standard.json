@@ -1,0 +1,64 @@
+[
+  {
+    "cluster": 31,
+    "source": "ff5dbd2425f3a47610b294130c1c5cce28ed4f79",
+    "labels": [
+      {
+        "color": "rgb(75, 85, 99)",
+        "font_size": "14px",
+        "line_height": "22.001px",
+        "margin_bottom": "5px",
+        "text": "아이디",
+        "weight": "700"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "font_size": "14px",
+        "line_height": "22.001px",
+        "margin_bottom": "5px",
+        "text": "설명",
+        "weight": "700"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "font_size": "14px",
+        "line_height": "22.001px",
+        "margin_bottom": "5px",
+        "text": "네트워크 오퍼링",
+        "weight": "700"
+      }
+    ],
+    "match": true
+  },
+  {
+    "cluster": 32,
+    "source": "ff5dbd2425f3a47610b294130c1c5cce28ed4f79",
+    "labels": [
+      {
+        "color": "rgba(255, 255, 255, 0.65)",
+        "font_size": "14px",
+        "line_height": "22.001px",
+        "margin_bottom": "5px",
+        "text": "아이디",
+        "weight": "700"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.65)",
+        "font_size": "14px",
+        "line_height": "22.001px",
+        "margin_bottom": "5px",
+        "text": "설명",
+        "weight": "700"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.65)",
+        "font_size": "14px",
+        "line_height": "22.001px",
+        "margin_bottom": "5px",
+        "text": "네트워크 오퍼링",
+        "weight": "700"
+      }
+    ],
+    "match": true
+  }
+]

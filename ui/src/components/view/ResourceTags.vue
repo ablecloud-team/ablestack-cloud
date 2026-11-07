@@ -64,6 +64,7 @@ export default {
   props: {
     resource: { type: Object, required: true },
     resourceType: { type: String, required: true },
+    parentIpId: { type: String, default: '' },
     canEdit: { type: Boolean, default: false }
   },
   data () {
@@ -89,13 +90,18 @@ export default {
     identity () { return tagIdentity(this.$store) },
     context () { return tagContext(this.$store, this.resource, this.resourceType) },
     viewScope () {
-      return JSON.stringify([this.context, this.$route.fullPath, this.$route.meta.resourceType,
+      return JSON.stringify([this.context, this.$route.fullPath, this.$route.meta.resourceType, this.parentIpId,
         ...['listTags', 'createTags', 'deleteTags'].map(api => api in this.$store.getters.apis), this.canEdit])
     },
     bindingKey () { return JSON.stringify([this.viewScope, this.available]) },
     available () {
-      if (!this.resource?.id || this.resourceType !== this.$route.meta.resourceType || !('listTags' in this.$store.getters.apis)) return false
+      if (!this.resource?.id || !('listTags' in this.$store.getters.apis)) return false
       const routeId = this.$route.params?.id
+      if (this.parentIpId) {
+        return ['FirewallRule', 'PortForwardingRule', 'LoadBalancer'].includes(this.resourceType) &&
+          (this.$route.meta.name !== 'publicip' || routeId === this.parentIpId)
+      }
+      if (this.resourceType !== this.$route.meta.resourceType) return false
       if (/^[0-9a-f-]{36}$/i.test(routeId || '') && routeId !== this.resource.id) return false
       const selected = this.$store.getters.project?.id
       const project = ['0', '-1'].includes(String(selected)) ? '' : selected

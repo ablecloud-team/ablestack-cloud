@@ -1,0 +1,1055 @@
+{
+  "31-shared": {
+    "primary": {
+      "sshExit": 0,
+      "error": "",
+      "guest": {
+        "vm": "e0ab98ea-2495-4f86-871f-ebd61786dbd3",
+        "hostname": "qa-gn1569-31-shared-vm",
+        "peer": "ff81dfc9-7acb-46f7-828a-ceb1577a16cf",
+        "ip": "10.178.31.25",
+        "peerIp": "10.178.31.16",
+        "timestamp": 1794037009.9655275,
+        "addresses": [
+          {
+            "ifindex": 1,
+            "ifname": "lo",
+            "flags": [
+              "LOOPBACK",
+              "UP",
+              "LOWER_UP"
+            ],
+            "mtu": 65536,
+            "qdisc": "noqueue",
+            "operstate": "UNKNOWN",
+            "group": "default",
+            "txqlen": 1000,
+            "link_type": "loopback",
+            "address": "00:00:00:00:00:00",
+            "broadcast": "00:00:00:00:00:00",
+            "addr_info": [
+              {
+                "family": "inet",
+                "local": "127.0.0.1",
+                "prefixlen": 8,
+                "scope": "host",
+                "label": "lo",
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              },
+              {
+                "family": "inet6",
+                "local": "::1",
+                "prefixlen": 128,
+                "scope": "host",
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              }
+            ]
+          },
+          {
+            "ifindex": 2,
+            "ifname": "ens3",
+            "flags": [
+              "BROADCAST",
+              "MULTICAST",
+              "UP",
+              "LOWER_UP"
+            ],
+            "mtu": 1500,
+            "qdisc": "fq_codel",
+            "operstate": "UP",
+            "group": "default",
+            "txqlen": 1000,
+            "link_type": "ether",
+            "address": "1e:1f:9e:00:02:cb",
+            "broadcast": "ff:ff:ff:ff:ff:ff",
+            "altnames": [
+              "enp0s3"
+            ],
+            "addr_info": [
+              {
+                "family": "inet",
+                "local": "10.178.31.25",
+                "prefixlen": 27,
+                "broadcast": "10.178.31.31",
+                "scope": "global",
+                "noprefixroute": true,
+                "label": "ens3",
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              },
+              {
+                "family": "inet6",
+                "local": "fe80::1c1f:9eff:fe00:2cb",
+                "prefixlen": 64,
+                "scope": "link",
+                "noprefixroute": true,
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              }
+            ]
+          }
+        ],
+        "routes": [
+          {
+            "dst": "default",
+            "gateway": "10.178.31.1",
+            "dev": "ens3",
+            "protocol": "dhcp",
+            "prefsrc": "10.178.31.25",
+            "metric": 100,
+            "flags": []
+          },
+          {
+            "dst": "10.178.31.0/27",
+            "dev": "ens3",
+            "protocol": "kernel",
+            "scope": "link",
+            "prefsrc": "10.178.31.25",
+            "metric": 100,
+            "flags": []
+          }
+        ],
+        "resolvers": [
+          "search cs1a8cloud.internal",
+          "nameserver 10.178.31.10",
+          "nameserver 8.8.8.8"
+        ],
+        "dhcp": "DHCP4.OPTION[1]:                        broadcast_address = 10.178.31.31\nDHCP4.OPTION[2]:                        dhcp_client_identifier = 01:1e:1f:9e:00:02:cb\nDHCP4.OPTION[3]:                        dhcp_lease_time = 4294967295\nDHCP4.OPTION[4]:                        dhcp_server_identifier = 10.178.31.10\nDHCP4.OPTION[5]:                        domain_name = cs1a8cloud.internal\nDHCP4.OPTION[6]:                        domain_name_servers = 10.178.31.10 8.8.8.8\nDHCP4.OPTION[7]:                        filename = pxelinux.0\nDHCP4.OPTION[8]:                        host_name = qa-gn1569-31-shared-vm\nDHCP4.OPTION[9]:                        interface_mtu = 1500\nDHCP4.OPTION[10]:                       ip_address = 10.178.31.25\nDHCP4.OPTION[11]:                       next_server = 10.178.31.10\nDHCP4.OPTION[12]:                       requested_broadcast_address = 1\nDHCP4.OPTION[13]:                       requested_domain_name = 1\nDHCP4.OPTION[14]:                       requested_domain_name_servers = 1\nDHCP4.OPTION[15]:                       requested_domain_search = 1\nDHCP4.OPTION[16]:                       requested_host_name = 1\nDHCP4.OPTION[17]:                       requested_interface_mtu = 1\nDHCP4.OPTION[18]:                       requested_ms_classless_static_routes = 1\nDHCP4.OPTION[19]:                       requested_nis_domain = 1\nDHCP4.OPTION[20]:                       requested_nis_servers = 1\nDHCP4.OPTION[21]:                       requested_ntp_servers = 1\nDHCP4.OPTION[22]:                       requested_rfc3442_classless_static_routes = 1\nDHCP4.OPTION[23]:                       requested_root_path = 1\nDHCP4.OPTION[24]:                       requested_routers = 1\nDHCP4.OPTION[25]:                       requested_static_routes = 1\nDHCP4.OPTION[26]:                       requested_subnet_mask = 1\nDHCP4.OPTION[27]:                       requested_time_offset = 1\nDHCP4.OPTION[28]:                       requested_wpad = 1\nDHCP4.OPTION[29]:                       routers = 10.178.31.1\nDHCP4.OPTION[30]:                       subnet_mask = 255.255.255.224\n\n",
+        "cloudInitResult": {
+          "v1": {
+            "datasource": "DataSourceCloudStack",
+            "errors": []
+          }
+        },
+        "addressMatches": true,
+        "gatewayMatches": true,
+        "dhcpServerMatches": true,
+        "routerPing": {
+          "target": "10.178.31.10",
+          "exit": 0,
+          "summary": [
+            "3 packets transmitted, 3 received, 0% packet loss, time 2054ms",
+            "rtt min/avg/max/mdev = 0.102/0.148/0.180/0.033 ms"
+          ]
+        },
+        "peerPing": {
+          "target": "10.178.31.16",
+          "exit": 0,
+          "summary": [
+            "3 packets transmitted, 3 received, 0% packet loss, time 2046ms",
+            "rtt min/avg/max/mdev = 0.153/0.156/0.159/0.002 ms"
+          ]
+        },
+        "gatewayPing": {
+          "target": "10.178.31.1",
+          "exit": 1,
+          "summary": [
+            "3 packets transmitted, 0 received, +3 errors, 100% packet loss, time 2046ms",
+            "pipe 3"
+          ]
+        },
+        "dnsSelf": {
+          "name": "qa-gn1569-31-shared-vm.cs1a8cloud.internal",
+          "server": "10.178.31.10",
+          "rcode": 0,
+          "matchedId": true,
+          "addresses": [
+            "10.178.31.25"
+          ]
+        },
+        "dnsPeer": {
+          "name": "qa-gn1569-31-shared-peer.cs1a8cloud.internal",
+          "server": "10.178.31.10",
+          "rcode": 0,
+          "matchedId": true,
+          "addresses": [
+            "10.178.31.16"
+          ]
+        },
+        "peerTcp22": "SSH-2.0-OpenSSH_8.7",
+        "pass": true
+      }
+    },
+    "peer": {
+      "sshExit": 0,
+      "error": "",
+      "guest": {
+        "vm": "ff81dfc9-7acb-46f7-828a-ceb1577a16cf",
+        "hostname": "qa-gn1569-31-shared-peer",
+        "peer": "e0ab98ea-2495-4f86-871f-ebd61786dbd3",
+        "ip": "10.178.31.16",
+        "peerIp": "10.178.31.25",
+        "timestamp": 1794037009.9545007,
+        "addresses": [
+          {
+            "ifindex": 1,
+            "ifname": "lo",
+            "flags": [
+              "LOOPBACK",
+              "UP",
+              "LOWER_UP"
+            ],
+            "mtu": 65536,
+            "qdisc": "noqueue",
+            "operstate": "UNKNOWN",
+            "group": "default",
+            "txqlen": 1000,
+            "link_type": "loopback",
+            "address": "00:00:00:00:00:00",
+            "broadcast": "00:00:00:00:00:00",
+            "addr_info": [
+              {
+                "family": "inet",
+                "local": "127.0.0.1",
+                "prefixlen": 8,
+                "scope": "host",
+                "label": "lo",
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              },
+              {
+                "family": "inet6",
+                "local": "::1",
+                "prefixlen": 128,
+                "scope": "host",
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              }
+            ]
+          },
+          {
+            "ifindex": 2,
+            "ifname": "ens3",
+            "flags": [
+              "BROADCAST",
+              "MULTICAST",
+              "UP",
+              "LOWER_UP"
+            ],
+            "mtu": 1500,
+            "qdisc": "fq_codel",
+            "operstate": "UP",
+            "group": "default",
+            "txqlen": 1000,
+            "link_type": "ether",
+            "address": "1e:1f:cd:00:02:c2",
+            "broadcast": "ff:ff:ff:ff:ff:ff",
+            "altnames": [
+              "enp0s3"
+            ],
+            "addr_info": [
+              {
+                "family": "inet",
+                "local": "10.178.31.16",
+                "prefixlen": 27,
+                "broadcast": "10.178.31.31",
+                "scope": "global",
+                "noprefixroute": true,
+                "label": "ens3",
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              },
+              {
+                "family": "inet6",
+                "local": "fe80::1c1f:cdff:fe00:2c2",
+                "prefixlen": 64,
+                "scope": "link",
+                "noprefixroute": true,
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              }
+            ]
+          }
+        ],
+        "routes": [
+          {
+            "dst": "default",
+            "gateway": "10.178.31.1",
+            "dev": "ens3",
+            "protocol": "dhcp",
+            "prefsrc": "10.178.31.16",
+            "metric": 100,
+            "flags": []
+          },
+          {
+            "dst": "10.178.31.0/27",
+            "dev": "ens3",
+            "protocol": "kernel",
+            "scope": "link",
+            "prefsrc": "10.178.31.16",
+            "metric": 100,
+            "flags": []
+          }
+        ],
+        "resolvers": [
+          "search cs1a8cloud.internal",
+          "nameserver 10.178.31.10",
+          "nameserver 8.8.8.8"
+        ],
+        "dhcp": "DHCP4.OPTION[1]:                        broadcast_address = 10.178.31.31\nDHCP4.OPTION[2]:                        dhcp_client_identifier = 01:1e:1f:cd:00:02:c2\nDHCP4.OPTION[3]:                        dhcp_lease_time = 4294967295\nDHCP4.OPTION[4]:                        dhcp_server_identifier = 10.178.31.10\nDHCP4.OPTION[5]:                        domain_name = cs1a8cloud.internal\nDHCP4.OPTION[6]:                        domain_name_servers = 10.178.31.10 8.8.8.8\nDHCP4.OPTION[7]:                        filename = pxelinux.0\nDHCP4.OPTION[8]:                        host_name = qa-gn1569-31-shared-peer\nDHCP4.OPTION[9]:                        interface_mtu = 1500\nDHCP4.OPTION[10]:                       ip_address = 10.178.31.16\nDHCP4.OPTION[11]:                       next_server = 10.178.31.10\nDHCP4.OPTION[12]:                       requested_broadcast_address = 1\nDHCP4.OPTION[13]:                       requested_domain_name = 1\nDHCP4.OPTION[14]:                       requested_domain_name_servers = 1\nDHCP4.OPTION[15]:                       requested_domain_search = 1\nDHCP4.OPTION[16]:                       requested_host_name = 1\nDHCP4.OPTION[17]:                       requested_interface_mtu = 1\nDHCP4.OPTION[18]:                       requested_ms_classless_static_routes = 1\nDHCP4.OPTION[19]:                       requested_nis_domain = 1\nDHCP4.OPTION[20]:                       requested_nis_servers = 1\nDHCP4.OPTION[21]:                       requested_ntp_servers = 1\nDHCP4.OPTION[22]:                       requested_rfc3442_classless_static_routes = 1\nDHCP4.OPTION[23]:                       requested_root_path = 1\nDHCP4.OPTION[24]:                       requested_routers = 1\nDHCP4.OPTION[25]:                       requested_static_routes = 1\nDHCP4.OPTION[26]:                       requested_subnet_mask = 1\nDHCP4.OPTION[27]:                       requested_time_offset = 1\nDHCP4.OPTION[28]:                       requested_wpad = 1\nDHCP4.OPTION[29]:                       routers = 10.178.31.1\nDHCP4.OPTION[30]:                       subnet_mask = 255.255.255.224\n\n",
+        "cloudInitResult": {
+          "v1": {
+            "datasource": "DataSourceCloudStack",
+            "errors": []
+          }
+        },
+        "addressMatches": true,
+        "gatewayMatches": true,
+        "dhcpServerMatches": true,
+        "routerPing": {
+          "target": "10.178.31.10",
+          "exit": 0,
+          "summary": [
+            "3 packets transmitted, 3 received, 0% packet loss, time 2068ms",
+            "rtt min/avg/max/mdev = 0.193/0.264/0.324/0.054 ms"
+          ]
+        },
+        "peerPing": {
+          "target": "10.178.31.25",
+          "exit": 0,
+          "summary": [
+            "3 packets transmitted, 3 received, 0% packet loss, time 2046ms",
+            "rtt min/avg/max/mdev = 0.225/0.307/0.349/0.057 ms"
+          ]
+        },
+        "gatewayPing": {
+          "target": "10.178.31.1",
+          "exit": 1,
+          "summary": [
+            "3 packets transmitted, 0 received, +3 errors, 100% packet loss, time 2046ms",
+            "pipe 3"
+          ]
+        },
+        "dnsSelf": {
+          "name": "qa-gn1569-31-shared-peer.cs1a8cloud.internal",
+          "server": "10.178.31.10",
+          "rcode": 0,
+          "matchedId": true,
+          "addresses": [
+            "10.178.31.16"
+          ]
+        },
+        "dnsPeer": {
+          "name": "qa-gn1569-31-shared-vm.cs1a8cloud.internal",
+          "server": "10.178.31.10",
+          "rcode": 0,
+          "matchedId": true,
+          "addresses": [
+            "10.178.31.25"
+          ]
+        },
+        "peerTcp22": "SSH-2.0-OpenSSH_8.7",
+        "pass": true
+      }
+    },
+    "boot": {
+      "exit": 0,
+      "out": "uid=1000(qa-net) gid=1000(qa-net) groups=1000(qa-net) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023\nstatus: done\nextended_status: degraded done\nboot_status_code: enabled-by-generator\nlast_update: Sat, 07 Nov 2026 07:32:05 +0000\ndetail:\nDataSourceCloudStack\nerrors: []\nrecoverable_errors:\nWARNING:\n\t- Empty network config found\n\t- Empty network config found\n\t- Empty network config found\n\t- Empty network config found\n\n---\n1: lo    inet 127.0.0.1/8 scope host lo\\       valid_lft forever preferred_lft forever\n2: ens3    inet 10.178.31.25/27 brd 10.178.31.31 scope global noprefixroute ens3\\       valid_lft forever preferred_lft forever\ndefault via 10.178.31.1 dev ens3 proto dhcp src 10.178.31.25 metric 100 \n10.178.31.0/27 dev ens3 proto kernel scope link src 10.178.31.25 metric 100 \n# Generated by NetworkManager\nsearch cs1a8cloud.internal\nnameserver 10.178.31.10\nnameserver 8.8.8.8\n\n---\nDHCP4.OPTION[1]:                        broadcast_address = 10.178.31.31\nDHCP4.OPTION[2]:                        dhcp_client_identifier = 01:1e:1f:9e:00:02:cb\nDHCP4.OPTION[3]:                        dhcp_lease_time = 4294967295\nDHCP4.OPTION[4]:                        dhcp_server_identifier = 10.178.31.10\nDHCP4.OPTION[5]:                        domain_name = cs1a8cloud.internal\nDHCP4.OPTION[6]:                        domain_name_servers = 10.178.31.10 8.8.8.8\nDHCP4.OPTION[7]:                        filename = pxelinux.0\nDHCP4.OPTION[8]:                        host_name = qa-gn1569-31-shared-vm\nDHCP4.OPTION[9]:                        interface_mtu = 1500\nDHCP4.OPTION[10]:                       ip_address = 10.178.31.25\nDHCP4.OPTION[11]:                       next_server = 10.178.31.10\nDHCP4.OPTION[12]:                       requested_broadcast_address = 1\nDHCP4.OPTION[13]:                       requested_domain_name = 1\nDHCP4.OPTION[14]:                       requested_domain_name_servers = 1\nDHCP4.OPTION[15]:                       requested_domain_search = 1\nDHCP4.OPTION[16]:                       requested_host_name = 1\nDHCP4.OPTION[17]:                       requested_interface_mtu = 1\nDHCP4.OPTION[18]:                       requested_ms_classless_static_routes = 1\nDHCP4.OPTION[19]:                       requested_nis_domain = 1\nDHCP4.OPTION[20]:                       requested_nis_servers = 1\nDHCP4.OPTION[21]:                       requested_ntp_servers = 1\nDHCP4.OPTION[22]:                       requested_rfc3442_classless_static_routes = 1\nDHCP4.OPTION[23]:                       requested_root_path = 1\nDHCP4.OPTION[24]:                       requested_routers = 1\nDHCP4.OPTION[25]:                       requested_static_routes = 1\nDHCP4.OPTION[26]:                       requested_subnet_mask = 1\nDHCP4.OPTION[27]:                       requested_time_offset = 1\nDHCP4.OPTION[28]:                       requested_wpad = 1\nDHCP4.OPTION[29]:                       routers = 10.178.31.1\nDHCP4.OPTION[30]:                       subnet_mask = 255.255.255.224\n\n\n---\n{\n \"v1\": {\n  \"datasource\": \"DataSourceCloudStack\",\n  \"errors\": []\n }\n}\n",
+      "error": "Warning: Permanently added '10.178.31.25' (ED25519) to the list of known hosts.\n"
+    }
+  },
+  "32-shared": {
+    "primary": {
+      "sshExit": 0,
+      "error": "",
+      "guest": {
+        "vm": "c0ae91e3-1538-49c7-94cb-a513c50e08ee",
+        "hostname": "qa-gn1569-32-shared-vm",
+        "peer": "f309cc72-72dc-4f43-b18e-723e87098f22",
+        "ip": "10.178.32.20",
+        "peerIp": "10.178.32.21",
+        "timestamp": 1794037010.3706906,
+        "addresses": [
+          {
+            "ifindex": 1,
+            "ifname": "lo",
+            "flags": [
+              "LOOPBACK",
+              "UP",
+              "LOWER_UP"
+            ],
+            "mtu": 65536,
+            "qdisc": "noqueue",
+            "operstate": "UNKNOWN",
+            "group": "default",
+            "txqlen": 1000,
+            "link_type": "loopback",
+            "address": "00:00:00:00:00:00",
+            "broadcast": "00:00:00:00:00:00",
+            "addr_info": [
+              {
+                "family": "inet",
+                "local": "127.0.0.1",
+                "prefixlen": 8,
+                "scope": "host",
+                "label": "lo",
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              },
+              {
+                "family": "inet6",
+                "local": "::1",
+                "prefixlen": 128,
+                "scope": "host",
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              }
+            ]
+          },
+          {
+            "ifindex": 2,
+            "ifname": "ens3",
+            "flags": [
+              "BROADCAST",
+              "MULTICAST",
+              "UP",
+              "LOWER_UP"
+            ],
+            "mtu": 1500,
+            "qdisc": "fq_codel",
+            "operstate": "UP",
+            "group": "default",
+            "txqlen": 1000,
+            "link_type": "ether",
+            "address": "1e:01:8a:00:02:c4",
+            "broadcast": "ff:ff:ff:ff:ff:ff",
+            "altnames": [
+              "enp0s3"
+            ],
+            "addr_info": [
+              {
+                "family": "inet",
+                "local": "10.178.32.20",
+                "prefixlen": 27,
+                "broadcast": "10.178.32.31",
+                "scope": "global",
+                "noprefixroute": true,
+                "label": "ens3",
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              },
+              {
+                "family": "inet6",
+                "local": "fe80::1c01:8aff:fe00:2c4",
+                "prefixlen": 64,
+                "scope": "link",
+                "noprefixroute": true,
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              }
+            ]
+          }
+        ],
+        "routes": [
+          {
+            "dst": "default",
+            "gateway": "10.178.32.1",
+            "dev": "ens3",
+            "protocol": "dhcp",
+            "prefsrc": "10.178.32.20",
+            "metric": 100,
+            "flags": []
+          },
+          {
+            "dst": "10.178.32.0/27",
+            "dev": "ens3",
+            "protocol": "kernel",
+            "scope": "link",
+            "prefsrc": "10.178.32.20",
+            "metric": 100,
+            "flags": []
+          }
+        ],
+        "resolvers": [
+          "search cseccloud.internal",
+          "nameserver 10.178.32.10",
+          "nameserver 8.8.8.8"
+        ],
+        "dhcp": "DHCP4.OPTION[1]:                        broadcast_address = 10.178.32.31\nDHCP4.OPTION[2]:                        dhcp_client_identifier = 01:1e:01:8a:00:02:c4\nDHCP4.OPTION[3]:                        dhcp_lease_time = 4294967295\nDHCP4.OPTION[4]:                        dhcp_server_identifier = 10.178.32.10\nDHCP4.OPTION[5]:                        domain_name = cseccloud.internal\nDHCP4.OPTION[6]:                        domain_name_servers = 10.178.32.10 8.8.8.8\nDHCP4.OPTION[7]:                        filename = pxelinux.0\nDHCP4.OPTION[8]:                        host_name = qa-gn1569-32-shared-vm\nDHCP4.OPTION[9]:                        interface_mtu = 1500\nDHCP4.OPTION[10]:                       ip_address = 10.178.32.20\nDHCP4.OPTION[11]:                       next_server = 10.178.32.10\nDHCP4.OPTION[12]:                       requested_broadcast_address = 1\nDHCP4.OPTION[13]:                       requested_domain_name = 1\nDHCP4.OPTION[14]:                       requested_domain_name_servers = 1\nDHCP4.OPTION[15]:                       requested_domain_search = 1\nDHCP4.OPTION[16]:                       requested_host_name = 1\nDHCP4.OPTION[17]:                       requested_interface_mtu = 1\nDHCP4.OPTION[18]:                       requested_ms_classless_static_routes = 1\nDHCP4.OPTION[19]:                       requested_nis_domain = 1\nDHCP4.OPTION[20]:                       requested_nis_servers = 1\nDHCP4.OPTION[21]:                       requested_ntp_servers = 1\nDHCP4.OPTION[22]:                       requested_rfc3442_classless_static_routes = 1\nDHCP4.OPTION[23]:                       requested_root_path = 1\nDHCP4.OPTION[24]:                       requested_routers = 1\nDHCP4.OPTION[25]:                       requested_static_routes = 1\nDHCP4.OPTION[26]:                       requested_subnet_mask = 1\nDHCP4.OPTION[27]:                       requested_time_offset = 1\nDHCP4.OPTION[28]:                       requested_wpad = 1\nDHCP4.OPTION[29]:                       routers = 10.178.32.1\nDHCP4.OPTION[30]:                       subnet_mask = 255.255.255.224\n\n",
+        "cloudInitResult": {
+          "v1": {
+            "datasource": "DataSourceCloudStack",
+            "errors": []
+          }
+        },
+        "addressMatches": true,
+        "gatewayMatches": true,
+        "dhcpServerMatches": true,
+        "routerPing": {
+          "target": "10.178.32.10",
+          "exit": 0,
+          "summary": [
+            "3 packets transmitted, 3 received, 0% packet loss, time 2030ms",
+            "rtt min/avg/max/mdev = 0.140/0.187/0.280/0.065 ms"
+          ]
+        },
+        "peerPing": {
+          "target": "10.178.32.21",
+          "exit": 0,
+          "summary": [
+            "3 packets transmitted, 3 received, 0% packet loss, time 2045ms",
+            "rtt min/avg/max/mdev = 0.265/0.291/0.323/0.023 ms"
+          ]
+        },
+        "gatewayPing": {
+          "target": "10.178.32.1",
+          "exit": 1,
+          "summary": [
+            "3 packets transmitted, 0 received, +3 errors, 100% packet loss, time 2045ms",
+            "pipe 3"
+          ]
+        },
+        "dnsSelf": {
+          "name": "qa-gn1569-32-shared-vm.cseccloud.internal",
+          "server": "10.178.32.10",
+          "rcode": 0,
+          "matchedId": true,
+          "addresses": [
+            "10.178.32.20"
+          ]
+        },
+        "dnsPeer": {
+          "name": "qa-gn1569-32-shared-peer.cseccloud.internal",
+          "server": "10.178.32.10",
+          "rcode": 0,
+          "matchedId": true,
+          "addresses": [
+            "10.178.32.21"
+          ]
+        },
+        "peerTcp22": "SSH-2.0-OpenSSH_8.7",
+        "pass": true
+      }
+    },
+    "peer": {
+      "sshExit": 0,
+      "error": "",
+      "guest": {
+        "vm": "f309cc72-72dc-4f43-b18e-723e87098f22",
+        "hostname": "qa-gn1569-32-shared-peer",
+        "peer": "c0ae91e3-1538-49c7-94cb-a513c50e08ee",
+        "ip": "10.178.32.21",
+        "peerIp": "10.178.32.20",
+        "timestamp": 1794037017.9023798,
+        "addresses": [
+          {
+            "ifindex": 1,
+            "ifname": "lo",
+            "flags": [
+              "LOOPBACK",
+              "UP",
+              "LOWER_UP"
+            ],
+            "mtu": 65536,
+            "qdisc": "noqueue",
+            "operstate": "UNKNOWN",
+            "group": "default",
+            "txqlen": 1000,
+            "link_type": "loopback",
+            "address": "00:00:00:00:00:00",
+            "broadcast": "00:00:00:00:00:00",
+            "addr_info": [
+              {
+                "family": "inet",
+                "local": "127.0.0.1",
+                "prefixlen": 8,
+                "scope": "host",
+                "label": "lo",
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              },
+              {
+                "family": "inet6",
+                "local": "::1",
+                "prefixlen": 128,
+                "scope": "host",
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              }
+            ]
+          },
+          {
+            "ifindex": 2,
+            "ifname": "ens3",
+            "flags": [
+              "BROADCAST",
+              "MULTICAST",
+              "UP",
+              "LOWER_UP"
+            ],
+            "mtu": 1500,
+            "qdisc": "fq_codel",
+            "operstate": "UP",
+            "group": "default",
+            "txqlen": 1000,
+            "link_type": "ether",
+            "address": "1e:01:d6:00:02:c5",
+            "broadcast": "ff:ff:ff:ff:ff:ff",
+            "altnames": [
+              "enp0s3"
+            ],
+            "addr_info": [
+              {
+                "family": "inet",
+                "local": "10.178.32.21",
+                "prefixlen": 27,
+                "broadcast": "10.178.32.31",
+                "scope": "global",
+                "noprefixroute": true,
+                "label": "ens3",
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              },
+              {
+                "family": "inet6",
+                "local": "fe80::1c01:d6ff:fe00:2c5",
+                "prefixlen": 64,
+                "scope": "link",
+                "noprefixroute": true,
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              }
+            ]
+          }
+        ],
+        "routes": [
+          {
+            "dst": "default",
+            "gateway": "10.178.32.1",
+            "dev": "ens3",
+            "protocol": "dhcp",
+            "prefsrc": "10.178.32.21",
+            "metric": 100,
+            "flags": []
+          },
+          {
+            "dst": "10.178.32.0/27",
+            "dev": "ens3",
+            "protocol": "kernel",
+            "scope": "link",
+            "prefsrc": "10.178.32.21",
+            "metric": 100,
+            "flags": []
+          }
+        ],
+        "resolvers": [
+          "search cseccloud.internal",
+          "nameserver 10.178.32.10",
+          "nameserver 8.8.8.8"
+        ],
+        "dhcp": "DHCP4.OPTION[1]:                        broadcast_address = 10.178.32.31\nDHCP4.OPTION[2]:                        dhcp_client_identifier = 01:1e:01:d6:00:02:c5\nDHCP4.OPTION[3]:                        dhcp_lease_time = 4294967295\nDHCP4.OPTION[4]:                        dhcp_server_identifier = 10.178.32.10\nDHCP4.OPTION[5]:                        domain_name = cseccloud.internal\nDHCP4.OPTION[6]:                        domain_name_servers = 10.178.32.10 8.8.8.8\nDHCP4.OPTION[7]:                        filename = pxelinux.0\nDHCP4.OPTION[8]:                        host_name = qa-gn1569-32-shared-peer\nDHCP4.OPTION[9]:                        interface_mtu = 1500\nDHCP4.OPTION[10]:                       ip_address = 10.178.32.21\nDHCP4.OPTION[11]:                       next_server = 10.178.32.10\nDHCP4.OPTION[12]:                       requested_broadcast_address = 1\nDHCP4.OPTION[13]:                       requested_domain_name = 1\nDHCP4.OPTION[14]:                       requested_domain_name_servers = 1\nDHCP4.OPTION[15]:                       requested_domain_search = 1\nDHCP4.OPTION[16]:                       requested_host_name = 1\nDHCP4.OPTION[17]:                       requested_interface_mtu = 1\nDHCP4.OPTION[18]:                       requested_ms_classless_static_routes = 1\nDHCP4.OPTION[19]:                       requested_nis_domain = 1\nDHCP4.OPTION[20]:                       requested_nis_servers = 1\nDHCP4.OPTION[21]:                       requested_ntp_servers = 1\nDHCP4.OPTION[22]:                       requested_rfc3442_classless_static_routes = 1\nDHCP4.OPTION[23]:                       requested_root_path = 1\nDHCP4.OPTION[24]:                       requested_routers = 1\nDHCP4.OPTION[25]:                       requested_static_routes = 1\nDHCP4.OPTION[26]:                       requested_subnet_mask = 1\nDHCP4.OPTION[27]:                       requested_time_offset = 1\nDHCP4.OPTION[28]:                       requested_wpad = 1\nDHCP4.OPTION[29]:                       routers = 10.178.32.1\nDHCP4.OPTION[30]:                       subnet_mask = 255.255.255.224\n\n",
+        "cloudInitResult": {
+          "v1": {
+            "datasource": "DataSourceCloudStack",
+            "errors": []
+          }
+        },
+        "addressMatches": true,
+        "gatewayMatches": true,
+        "dhcpServerMatches": true,
+        "routerPing": {
+          "target": "10.178.32.10",
+          "exit": 0,
+          "summary": [
+            "3 packets transmitted, 3 received, 0% packet loss, time 2029ms",
+            "rtt min/avg/max/mdev = 0.201/0.215/0.231/0.012 ms"
+          ]
+        },
+        "peerPing": {
+          "target": "10.178.32.20",
+          "exit": 0,
+          "summary": [
+            "3 packets transmitted, 3 received, 0% packet loss, time 2046ms",
+            "rtt min/avg/max/mdev = 0.218/0.243/0.282/0.027 ms"
+          ]
+        },
+        "gatewayPing": {
+          "target": "10.178.32.1",
+          "exit": 1,
+          "summary": [
+            "3 packets transmitted, 0 received, +3 errors, 100% packet loss, time 2045ms",
+            "pipe 3"
+          ]
+        },
+        "dnsSelf": {
+          "name": "qa-gn1569-32-shared-peer.cseccloud.internal",
+          "server": "10.178.32.10",
+          "rcode": 0,
+          "matchedId": true,
+          "addresses": [
+            "10.178.32.21"
+          ]
+        },
+        "dnsPeer": {
+          "name": "qa-gn1569-32-shared-vm.cseccloud.internal",
+          "server": "10.178.32.10",
+          "rcode": 0,
+          "matchedId": true,
+          "addresses": [
+            "10.178.32.20"
+          ]
+        },
+        "peerTcp22": "SSH-2.0-OpenSSH_8.7",
+        "pass": true
+      }
+    },
+    "boot": {
+      "exit": 0,
+      "out": "uid=1000(qa-net) gid=1000(qa-net) groups=1000(qa-net) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023\nstatus: done\nextended_status: degraded done\nboot_status_code: enabled-by-generator\nlast_update: Sat, 07 Nov 2026 07:32:57 +0000\ndetail:\nDataSourceCloudStack\nerrors: []\nrecoverable_errors:\nWARNING:\n\t- Empty network config found\n\t- Empty network config found\n\t- Empty network config found\n\t- Empty network config found\n\n---\n1: lo    inet 127.0.0.1/8 scope host lo\\       valid_lft forever preferred_lft forever\n2: ens3    inet 10.178.32.20/27 brd 10.178.32.31 scope global noprefixroute ens3\\       valid_lft forever preferred_lft forever\ndefault via 10.178.32.1 dev ens3 proto dhcp src 10.178.32.20 metric 100 \n10.178.32.0/27 dev ens3 proto kernel scope link src 10.178.32.20 metric 100 \n# Generated by NetworkManager\nsearch cseccloud.internal\nnameserver 10.178.32.10\nnameserver 8.8.8.8\n\n---\nDHCP4.OPTION[1]:                        broadcast_address = 10.178.32.31\nDHCP4.OPTION[2]:                        dhcp_client_identifier = 01:1e:01:8a:00:02:c4\nDHCP4.OPTION[3]:                        dhcp_lease_time = 4294967295\nDHCP4.OPTION[4]:                        dhcp_server_identifier = 10.178.32.10\nDHCP4.OPTION[5]:                        domain_name = cseccloud.internal\nDHCP4.OPTION[6]:                        domain_name_servers = 10.178.32.10 8.8.8.8\nDHCP4.OPTION[7]:                        filename = pxelinux.0\nDHCP4.OPTION[8]:                        host_name = qa-gn1569-32-shared-vm\nDHCP4.OPTION[9]:                        interface_mtu = 1500\nDHCP4.OPTION[10]:                       ip_address = 10.178.32.20\nDHCP4.OPTION[11]:                       next_server = 10.178.32.10\nDHCP4.OPTION[12]:                       requested_broadcast_address = 1\nDHCP4.OPTION[13]:                       requested_domain_name = 1\nDHCP4.OPTION[14]:                       requested_domain_name_servers = 1\nDHCP4.OPTION[15]:                       requested_domain_search = 1\nDHCP4.OPTION[16]:                       requested_host_name = 1\nDHCP4.OPTION[17]:                       requested_interface_mtu = 1\nDHCP4.OPTION[18]:                       requested_ms_classless_static_routes = 1\nDHCP4.OPTION[19]:                       requested_nis_domain = 1\nDHCP4.OPTION[20]:                       requested_nis_servers = 1\nDHCP4.OPTION[21]:                       requested_ntp_servers = 1\nDHCP4.OPTION[22]:                       requested_rfc3442_classless_static_routes = 1\nDHCP4.OPTION[23]:                       requested_root_path = 1\nDHCP4.OPTION[24]:                       requested_routers = 1\nDHCP4.OPTION[25]:                       requested_static_routes = 1\nDHCP4.OPTION[26]:                       requested_subnet_mask = 1\nDHCP4.OPTION[27]:                       requested_time_offset = 1\nDHCP4.OPTION[28]:                       requested_wpad = 1\nDHCP4.OPTION[29]:                       routers = 10.178.32.1\nDHCP4.OPTION[30]:                       subnet_mask = 255.255.255.224\n\n\n---\n{\n \"v1\": {\n  \"datasource\": \"DataSourceCloudStack\",\n  \"errors\": []\n }\n}\n",
+      "error": "Warning: Permanently added '10.178.32.20' (ED25519) to the list of known hosts.\n"
+    }
+  },
+  "32-nosnat": {
+    "primary": {
+      "sshExit": 0,
+      "error": "",
+      "guest": {
+        "vm": "23dbc3f4-4378-4fef-9420-959d724ae98e",
+        "hostname": "qa-gn1569-32-nosnat-vm",
+        "peer": "ef8ecf84-8508-4bda-b69a-eb1e2914969f",
+        "ip": "10.177.32.20",
+        "peerIp": "10.177.32.21",
+        "timestamp": 1794037018.3521922,
+        "addresses": [
+          {
+            "ifindex": 1,
+            "ifname": "lo",
+            "flags": [
+              "LOOPBACK",
+              "UP",
+              "LOWER_UP"
+            ],
+            "mtu": 65536,
+            "qdisc": "noqueue",
+            "operstate": "UNKNOWN",
+            "group": "default",
+            "txqlen": 1000,
+            "link_type": "loopback",
+            "address": "00:00:00:00:00:00",
+            "broadcast": "00:00:00:00:00:00",
+            "addr_info": [
+              {
+                "family": "inet",
+                "local": "127.0.0.1",
+                "prefixlen": 8,
+                "scope": "host",
+                "label": "lo",
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              },
+              {
+                "family": "inet6",
+                "local": "::1",
+                "prefixlen": 128,
+                "scope": "host",
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              }
+            ]
+          },
+          {
+            "ifindex": 2,
+            "ifname": "ens3",
+            "flags": [
+              "BROADCAST",
+              "MULTICAST",
+              "UP",
+              "LOWER_UP"
+            ],
+            "mtu": 1500,
+            "qdisc": "fq_codel",
+            "operstate": "UP",
+            "group": "default",
+            "txqlen": 1000,
+            "link_type": "ether",
+            "address": "1e:01:90:00:02:b4",
+            "broadcast": "ff:ff:ff:ff:ff:ff",
+            "altnames": [
+              "enp0s3"
+            ],
+            "addr_info": [
+              {
+                "family": "inet",
+                "local": "10.177.32.20",
+                "prefixlen": 27,
+                "broadcast": "10.177.32.31",
+                "scope": "global",
+                "noprefixroute": true,
+                "label": "ens3",
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              },
+              {
+                "family": "inet6",
+                "local": "fe80::1c01:90ff:fe00:2b4",
+                "prefixlen": 64,
+                "scope": "link",
+                "noprefixroute": true,
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              }
+            ]
+          }
+        ],
+        "routes": [
+          {
+            "dst": "default",
+            "gateway": "10.177.32.1",
+            "dev": "ens3",
+            "protocol": "dhcp",
+            "prefsrc": "10.177.32.20",
+            "metric": 100,
+            "flags": []
+          },
+          {
+            "dst": "10.177.32.0/27",
+            "dev": "ens3",
+            "protocol": "kernel",
+            "scope": "link",
+            "prefsrc": "10.177.32.20",
+            "metric": 100,
+            "flags": []
+          }
+        ],
+        "resolvers": [
+          "search cseccloud.internal",
+          "nameserver 10.177.32.10",
+          "nameserver 8.8.8.8"
+        ],
+        "dhcp": "DHCP4.OPTION[1]:                        broadcast_address = 10.177.32.31\nDHCP4.OPTION[2]:                        dhcp_client_identifier = 01:1e:01:90:00:02:b4\nDHCP4.OPTION[3]:                        dhcp_lease_time = 4294967295\nDHCP4.OPTION[4]:                        dhcp_server_identifier = 10.177.32.10\nDHCP4.OPTION[5]:                        domain_name = cseccloud.internal\nDHCP4.OPTION[6]:                        domain_name_servers = 10.177.32.10 8.8.8.8\nDHCP4.OPTION[7]:                        filename = pxelinux.0\nDHCP4.OPTION[8]:                        host_name = qa-gn1569-32-nosnat-vm\nDHCP4.OPTION[9]:                        interface_mtu = 1500\nDHCP4.OPTION[10]:                       ip_address = 10.177.32.20\nDHCP4.OPTION[11]:                       next_server = 10.177.32.10\nDHCP4.OPTION[12]:                       requested_broadcast_address = 1\nDHCP4.OPTION[13]:                       requested_domain_name = 1\nDHCP4.OPTION[14]:                       requested_domain_name_servers = 1\nDHCP4.OPTION[15]:                       requested_domain_search = 1\nDHCP4.OPTION[16]:                       requested_host_name = 1\nDHCP4.OPTION[17]:                       requested_interface_mtu = 1\nDHCP4.OPTION[18]:                       requested_ms_classless_static_routes = 1\nDHCP4.OPTION[19]:                       requested_nis_domain = 1\nDHCP4.OPTION[20]:                       requested_nis_servers = 1\nDHCP4.OPTION[21]:                       requested_ntp_servers = 1\nDHCP4.OPTION[22]:                       requested_rfc3442_classless_static_routes = 1\nDHCP4.OPTION[23]:                       requested_root_path = 1\nDHCP4.OPTION[24]:                       requested_routers = 1\nDHCP4.OPTION[25]:                       requested_static_routes = 1\nDHCP4.OPTION[26]:                       requested_subnet_mask = 1\nDHCP4.OPTION[27]:                       requested_time_offset = 1\nDHCP4.OPTION[28]:                       requested_wpad = 1\nDHCP4.OPTION[29]:                       routers = 10.177.32.1\nDHCP4.OPTION[30]:                       subnet_mask = 255.255.255.224\n\n",
+        "cloudInitResult": {
+          "v1": {
+            "datasource": "DataSourceCloudStack",
+            "errors": []
+          }
+        },
+        "addressMatches": true,
+        "gatewayMatches": true,
+        "dhcpServerMatches": true,
+        "routerPing": {
+          "target": "10.177.32.10",
+          "exit": 0,
+          "summary": [
+            "3 packets transmitted, 3 received, 0% packet loss, time 2031ms",
+            "rtt min/avg/max/mdev = 0.141/0.156/0.167/0.011 ms"
+          ]
+        },
+        "peerPing": {
+          "target": "10.177.32.21",
+          "exit": 0,
+          "summary": [
+            "3 packets transmitted, 3 received, 0% packet loss, time 2045ms",
+            "rtt min/avg/max/mdev = 0.122/0.284/0.577/0.207 ms"
+          ]
+        },
+        "gatewayPing": {
+          "target": "10.177.32.1",
+          "exit": 1,
+          "summary": [
+            "3 packets transmitted, 0 received, +3 errors, 100% packet loss, time 2045ms",
+            "pipe 3"
+          ]
+        },
+        "dnsSelf": {
+          "name": "qa-gn1569-32-nosnat-vm.cseccloud.internal",
+          "server": "10.177.32.10",
+          "rcode": 0,
+          "matchedId": true,
+          "addresses": [
+            "10.177.32.20"
+          ]
+        },
+        "dnsPeer": {
+          "name": "qa-gn1569-32-nosnat-peer.cseccloud.internal",
+          "server": "10.177.32.10",
+          "rcode": 0,
+          "matchedId": true,
+          "addresses": [
+            "10.177.32.21"
+          ]
+        },
+        "peerTcp22": "SSH-2.0-OpenSSH_8.7",
+        "pass": true
+      }
+    },
+    "peer": {
+      "sshExit": 0,
+      "error": "Warning: Permanently added '10.177.32.21' (ED25519) to the list of known hosts.",
+      "guest": {
+        "vm": "ef8ecf84-8508-4bda-b69a-eb1e2914969f",
+        "hostname": "qa-gn1569-32-nosnat-peer",
+        "peer": "23dbc3f4-4378-4fef-9420-959d724ae98e",
+        "ip": "10.177.32.21",
+        "peerIp": "10.177.32.20",
+        "timestamp": 1794037018.2477715,
+        "addresses": [
+          {
+            "ifindex": 1,
+            "ifname": "lo",
+            "flags": [
+              "LOOPBACK",
+              "UP",
+              "LOWER_UP"
+            ],
+            "mtu": 65536,
+            "qdisc": "noqueue",
+            "operstate": "UNKNOWN",
+            "group": "default",
+            "txqlen": 1000,
+            "link_type": "loopback",
+            "address": "00:00:00:00:00:00",
+            "broadcast": "00:00:00:00:00:00",
+            "addr_info": [
+              {
+                "family": "inet",
+                "local": "127.0.0.1",
+                "prefixlen": 8,
+                "scope": "host",
+                "label": "lo",
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              },
+              {
+                "family": "inet6",
+                "local": "::1",
+                "prefixlen": 128,
+                "scope": "host",
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              }
+            ]
+          },
+          {
+            "ifindex": 2,
+            "ifname": "ens3",
+            "flags": [
+              "BROADCAST",
+              "MULTICAST",
+              "UP",
+              "LOWER_UP"
+            ],
+            "mtu": 1500,
+            "qdisc": "fq_codel",
+            "operstate": "UP",
+            "group": "default",
+            "txqlen": 1000,
+            "link_type": "ether",
+            "address": "1e:01:1d:00:02:b5",
+            "broadcast": "ff:ff:ff:ff:ff:ff",
+            "altnames": [
+              "enp0s3"
+            ],
+            "addr_info": [
+              {
+                "family": "inet",
+                "local": "10.177.32.21",
+                "prefixlen": 27,
+                "broadcast": "10.177.32.31",
+                "scope": "global",
+                "noprefixroute": true,
+                "label": "ens3",
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              },
+              {
+                "family": "inet6",
+                "local": "fe80::1c01:1dff:fe00:2b5",
+                "prefixlen": 64,
+                "scope": "link",
+                "noprefixroute": true,
+                "valid_life_time": 4294967295,
+                "preferred_life_time": 4294967295
+              }
+            ]
+          }
+        ],
+        "routes": [
+          {
+            "dst": "default",
+            "gateway": "10.177.32.1",
+            "dev": "ens3",
+            "protocol": "dhcp",
+            "prefsrc": "10.177.32.21",
+            "metric": 100,
+            "flags": []
+          },
+          {
+            "dst": "10.177.32.0/27",
+            "dev": "ens3",
+            "protocol": "kernel",
+            "scope": "link",
+            "prefsrc": "10.177.32.21",
+            "metric": 100,
+            "flags": []
+          }
+        ],
+        "resolvers": [
+          "search cseccloud.internal",
+          "nameserver 10.177.32.10",
+          "nameserver 8.8.8.8"
+        ],
+        "dhcp": "DHCP4.OPTION[1]:                        broadcast_address = 10.177.32.31\nDHCP4.OPTION[2]:                        dhcp_client_identifier = 01:1e:01:1d:00:02:b5\nDHCP4.OPTION[3]:                        dhcp_lease_time = 4294967295\nDHCP4.OPTION[4]:                        dhcp_server_identifier = 10.177.32.10\nDHCP4.OPTION[5]:                        domain_name = cseccloud.internal\nDHCP4.OPTION[6]:                        domain_name_servers = 10.177.32.10 8.8.8.8\nDHCP4.OPTION[7]:                        filename = pxelinux.0\nDHCP4.OPTION[8]:                        host_name = qa-gn1569-32-nosnat-peer\nDHCP4.OPTION[9]:                        interface_mtu = 1500\nDHCP4.OPTION[10]:                       ip_address = 10.177.32.21\nDHCP4.OPTION[11]:                       next_server = 10.177.32.10\nDHCP4.OPTION[12]:                       requested_broadcast_address = 1\nDHCP4.OPTION[13]:                       requested_domain_name = 1\nDHCP4.OPTION[14]:                       requested_domain_name_servers = 1\nDHCP4.OPTION[15]:                       requested_domain_search = 1\nDHCP4.OPTION[16]:                       requested_host_name = 1\nDHCP4.OPTION[17]:                       requested_interface_mtu = 1\nDHCP4.OPTION[18]:                       requested_ms_classless_static_routes = 1\nDHCP4.OPTION[19]:                       requested_nis_domain = 1\nDHCP4.OPTION[20]:                       requested_nis_servers = 1\nDHCP4.OPTION[21]:                       requested_ntp_servers = 1\nDHCP4.OPTION[22]:                       requested_rfc3442_classless_static_routes = 1\nDHCP4.OPTION[23]:                       requested_root_path = 1\nDHCP4.OPTION[24]:                       requested_routers = 1\nDHCP4.OPTION[25]:                       requested_static_routes = 1\nDHCP4.OPTION[26]:                       requested_subnet_mask = 1\nDHCP4.OPTION[27]:                       requested_time_offset = 1\nDHCP4.OPTION[28]:                       requested_wpad = 1\nDHCP4.OPTION[29]:                       routers = 10.177.32.1\nDHCP4.OPTION[30]:                       subnet_mask = 255.255.255.224\n\n",
+        "cloudInitResult": {
+          "v1": {
+            "datasource": "DataSourceCloudStack",
+            "errors": []
+          }
+        },
+        "addressMatches": true,
+        "gatewayMatches": true,
+        "dhcpServerMatches": true,
+        "routerPing": {
+          "target": "10.177.32.10",
+          "exit": 0,
+          "summary": [
+            "3 packets transmitted, 3 received, 0% packet loss, time 2078ms",
+            "rtt min/avg/max/mdev = 0.110/0.123/0.137/0.011 ms"
+          ]
+        },
+        "peerPing": {
+          "target": "10.177.32.20",
+          "exit": 0,
+          "summary": [
+            "3 packets transmitted, 3 received, 0% packet loss, time 2046ms",
+            "rtt min/avg/max/mdev = 0.107/0.131/0.156/0.020 ms"
+          ]
+        },
+        "gatewayPing": {
+          "target": "10.177.32.1",
+          "exit": 1,
+          "summary": [
+            "3 packets transmitted, 0 received, +3 errors, 100% packet loss, time 2046ms",
+            "pipe 3"
+          ]
+        },
+        "dnsSelf": {
+          "name": "qa-gn1569-32-nosnat-peer.cseccloud.internal",
+          "server": "10.177.32.10",
+          "rcode": 0,
+          "matchedId": true,
+          "addresses": [
+            "10.177.32.21"
+          ]
+        },
+        "dnsPeer": {
+          "name": "qa-gn1569-32-nosnat-vm.cseccloud.internal",
+          "server": "10.177.32.10",
+          "rcode": 0,
+          "matchedId": true,
+          "addresses": [
+            "10.177.32.20"
+          ]
+        },
+        "peerTcp22": "SSH-2.0-OpenSSH_8.7",
+        "pass": true
+      }
+    },
+    "boot": {
+      "exit": 0,
+      "out": "uid=1000(qa-net) gid=1000(qa-net) groups=1000(qa-net) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023\nstatus: done\nextended_status: degraded done\nboot_status_code: enabled-by-generator\nlast_update: Sat, 07 Nov 2026 07:33:53 +0000\ndetail:\nDataSourceCloudStack\nerrors: []\nrecoverable_errors:\nWARNING:\n\t- Empty network config found\n\t- Empty network config found\n\t- Empty network config found\n\t- Empty network config found\n\n---\n1: lo    inet 127.0.0.1/8 scope host lo\\       valid_lft forever preferred_lft forever\n2: ens3    inet 10.177.32.20/27 brd 10.177.32.31 scope global noprefixroute ens3\\       valid_lft forever preferred_lft forever\ndefault via 10.177.32.1 dev ens3 proto dhcp src 10.177.32.20 metric 100 \n10.177.32.0/27 dev ens3 proto kernel scope link src 10.177.32.20 metric 100 \n# Generated by NetworkManager\nsearch cseccloud.internal\nnameserver 10.177.32.10\nnameserver 8.8.8.8\n\n---\nDHCP4.OPTION[1]:                        broadcast_address = 10.177.32.31\nDHCP4.OPTION[2]:                        dhcp_client_identifier = 01:1e:01:90:00:02:b4\nDHCP4.OPTION[3]:                        dhcp_lease_time = 4294967295\nDHCP4.OPTION[4]:                        dhcp_server_identifier = 10.177.32.10\nDHCP4.OPTION[5]:                        domain_name = cseccloud.internal\nDHCP4.OPTION[6]:                        domain_name_servers = 10.177.32.10 8.8.8.8\nDHCP4.OPTION[7]:                        filename = pxelinux.0\nDHCP4.OPTION[8]:                        host_name = qa-gn1569-32-nosnat-vm\nDHCP4.OPTION[9]:                        interface_mtu = 1500\nDHCP4.OPTION[10]:                       ip_address = 10.177.32.20\nDHCP4.OPTION[11]:                       next_server = 10.177.32.10\nDHCP4.OPTION[12]:                       requested_broadcast_address = 1\nDHCP4.OPTION[13]:                       requested_domain_name = 1\nDHCP4.OPTION[14]:                       requested_domain_name_servers = 1\nDHCP4.OPTION[15]:                       requested_domain_search = 1\nDHCP4.OPTION[16]:                       requested_host_name = 1\nDHCP4.OPTION[17]:                       requested_interface_mtu = 1\nDHCP4.OPTION[18]:                       requested_ms_classless_static_routes = 1\nDHCP4.OPTION[19]:                       requested_nis_domain = 1\nDHCP4.OPTION[20]:                       requested_nis_servers = 1\nDHCP4.OPTION[21]:                       requested_ntp_servers = 1\nDHCP4.OPTION[22]:                       requested_rfc3442_classless_static_routes = 1\nDHCP4.OPTION[23]:                       requested_root_path = 1\nDHCP4.OPTION[24]:                       requested_routers = 1\nDHCP4.OPTION[25]:                       requested_static_routes = 1\nDHCP4.OPTION[26]:                       requested_subnet_mask = 1\nDHCP4.OPTION[27]:                       requested_time_offset = 1\nDHCP4.OPTION[28]:                       requested_wpad = 1\nDHCP4.OPTION[29]:                       routers = 10.177.32.1\nDHCP4.OPTION[30]:                       subnet_mask = 255.255.255.224\n\n\n---\n{\n \"v1\": {\n  \"datasource\": \"DataSourceCloudStack\",\n  \"errors\": []\n }\n}\n",
+      "error": "Warning: Permanently added '10.177.32.20' (ED25519) to the list of known hosts.\n"
+    }
+  }
+}

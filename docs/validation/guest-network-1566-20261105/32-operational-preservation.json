@@ -1,0 +1,20 @@
+{
+  "comparisons": [
+    {
+      "command": "listNetworks",
+      "baselineRows": 9,
+      "changedExisting": []
+    },
+    {
+      "command": "listVirtualMachines",
+      "baselineRows": 55,
+      "changedExisting": []
+    },
+    {
+      "command": "listNetworkOfferings",
+      "baselineRows": 15,
+      "changedExisting": []
+    }
+  ],
+  "status": "PASS"
+}

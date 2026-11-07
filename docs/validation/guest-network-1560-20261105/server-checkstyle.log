@@ -1,0 +1,92 @@
+[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.apache.cloudstack:cloud-plugin-hypervisor-kvm:jar:4.23.0.0
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.json:json:jar -> duplicate declaration of version (?) @ line 130, column 21
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] 
+[INFO] -----------------< org.apache.cloudstack:cloud-server >-----------------
+[INFO] Building Apache CloudStack Server 4.23.0.0
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (default-cli) @ cloud-server ---
+[INFO] Starting audit...
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/main/java/com/cloud/vm/VmCloneBatchManager.java:19: Using the '.*' form of import should be avoided - com.cloud.exception.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/main/java/com/cloud/vm/VmCloneBatchManager.java:35: Using the '.*' form of import should be avoided - org.apache.cloudstack.api.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/main/java/com/cloud/vm/VmCloneBatchManager.java:46: Using the '.*' form of import should be avoided - java.util.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/tags/SnapshotTagCreationTest.java:15: Using the '.*' form of import should be avoided - org.junit.Assert.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/tags/SnapshotTagCreationTest.java:16: Using the '.*' form of import should be avoided - org.mockito.ArgumentMatchers.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/tags/SnapshotTagCreationTest.java:17: Using the '.*' form of import should be avoided - org.mockito.Mockito.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/AllocatedVmCloneTest.java:16: Using the '.*' form of import should be avoided - com.cloud.storage.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/AllocatedVmCloneTest.java:29: Using the '.*' form of import should be avoided - org.junit.Assert.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/AllocatedVmCloneTest.java:30: Using the '.*' form of import should be avoided - org.mockito.Mockito.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneStartTest.java:25: Using the '.*' form of import should be avoided - org.junit.Assert.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneStartTest.java:26: Using the '.*' form of import should be avoided - org.mockito.Mockito.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/CloneSnapshotCleanupTest.java:14: Using the '.*' form of import should be avoided - com.cloud.storage.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/CloneSnapshotCleanupTest.java:15: Using the '.*' form of import should be avoided - com.cloud.storage.dao.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/CloneSnapshotCleanupTest.java:16: Using the '.*' form of import should be avoided - com.cloud.vm.snapshot.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/CloneSnapshotCleanupTest.java:17: Using the '.*' form of import should be avoided - com.cloud.vm.snapshot.dao.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/CloneSnapshotCleanupTest.java:18: Using the '.*' form of import should be avoided - org.apache.cloudstack.framework.jobs.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/CloneSnapshotCleanupTest.java:24: Using the '.*' form of import should be avoided - org.junit.Assert.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/CloneSnapshotCleanupTest.java:25: Using the '.*' form of import should be avoided - org.mockito.Mockito.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneBatchManagerTest.java:19: Using the '.*' form of import should be avoided - org.junit.Assert.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneBatchManagerTest.java:20: Using the '.*' form of import should be avoided - org.mockito.Mockito.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneBatchManagerTest.java:22: Using the '.*' form of import should be avoided - com.cloud.exception.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneBatchManagerTest.java:23: Using the '.*' form of import should be avoided - com.cloud.storage.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneBatchManagerTest.java:24: Using the '.*' form of import should be avoided - com.cloud.storage.dao.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneBatchManagerTest.java:25: Using the '.*' form of import should be avoided - com.cloud.user.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneBatchManagerTest.java:26: Using the '.*' form of import should be avoided - com.cloud.vm.dao.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneBatchManagerTest.java:33: Using the '.*' form of import should be avoided - org.junit.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneBatchManagerTest.java:35: Using the '.*' form of import should be avoided - java.util.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/CloneApiContractTest.java:29: Using the '.*' form of import should be avoided - org.junit.Assert.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/CloneApiContractTest.java:30: Using the '.*' form of import should be avoided - org.mockito.Mockito.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneFailureCleanupTest.java:18: Using the '.*' form of import should be avoided - org.junit.Assert.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneFailureCleanupTest.java:19: Using the '.*' form of import should be avoided - org.mockito.Mockito.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneFailureCleanupTest.java:20: Using the '.*' form of import should be avoided - org.junit.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneFailureCleanupTest.java:21: Using the '.*' form of import should be avoided - java.util.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneFailureCleanupTest.java:22: Using the '.*' form of import should be avoided - com.cloud.storage.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneFailureCleanupTest.java:24: Using the '.*' form of import should be avoided - com.cloud.storage.dao.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneFailureCleanupTest.java:25: Using the '.*' form of import should be avoided - com.cloud.vm.dao.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneFailureCleanupTest.java:26: Using the '.*' form of import should be avoided - com.cloud.user.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/vm/VmCloneFailureCleanupTest.java:27: Using the '.*' form of import should be avoided - org.apache.cloudstack.storage.datastore.db.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/api/ApiResponseHelperBucketCredentialsTest.java:19: Using the '.*' form of import should be avoided - org.junit.Assert.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/api/ApiResponseHelperBucketCredentialsTest.java:20: Using the '.*' form of import should be avoided - org.mockito.Mockito.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotTagLifecycleTest.java:15: Using the '.*' form of import should be avoided - org.junit.Assert.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotTagLifecycleTest.java:16: Using the '.*' form of import should be avoided - org.mockito.ArgumentMatchers.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotTagLifecycleTest.java:17: Using the '.*' form of import should be avoided - org.mockito.Mockito.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotPolicyTimezoneTest.java:15: Using the '.*' form of import should be avoided - org.junit.Assert.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotPolicyListOrderingTest.java:12: Using the '.*' form of import should be avoided - org.junit.Assert.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotPolicySchedulingTest.java:40: Using the '.*' form of import should be avoided - org.junit.Assert.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotPolicySchedulingTest.java:41: Using the '.*' form of import should be avoided - org.mockito.ArgumentMatchers.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotPolicySchedulingTest.java:42: Using the '.*' form of import should be avoided - org.mockito.Mockito.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotPolicyEditingTest.java:27: Using the '.*' form of import should be avoided - org.junit.Assert.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotPolicyEditingTest.java:28: Using the '.*' form of import should be avoided - org.mockito.ArgumentMatchers.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotPolicyEditingTest.java:29: Using the '.*' form of import should be avoided - org.mockito.Mockito.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotPolicyBulkContractTest.java:21: Using the '.*' form of import should be avoided - org.junit.Assert.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotPolicyBulkContractTest.java:22: Using the '.*' form of import should be avoided - org.mockito.Mockito.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotPolicyContextTest.java:21: Using the '.*' form of import should be avoided - org.mockito.Mockito.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotPolicyScopeTest.java:25: Using the '.*' form of import should be avoided - org.junit.Assert.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotPolicyScopeTest.java:26: Using the '.*' form of import should be avoided - org.mockito.Mockito.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotPolicyDisplayPermissionTest.java:22: Using the '.*' form of import should be avoided - org.junit.Assert.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotPolicyDisplayPermissionTest.java:23: Using the '.*' form of import should be avoided - org.mockito.ArgumentMatchers.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotPolicyDisplayPermissionTest.java:24: Using the '.*' form of import should be avoided - org.mockito.Mockito.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotPolicyInputValidatorTest.java:16: Using the '.*' form of import should be avoided - org.junit.Assert.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/snapshot/SnapshotPolicyRetentionTest.java:11: Using the '.*' form of import should be avoided - org.junit.Assert.*. [AvoidStarImport]
+[ERROR] /home/ablecloud/work/dhslove/cloud-epic-1554/server/src/test/java/com/cloud/storage/VolumeExportGuardTest.java:28: Using the '.*' form of import should be avoided - org.mockito.Mockito.*. [AvoidStarImport]
+Audit done.
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.879 s
+[INFO] Finished at: 2026-11-05T10:15:52+09:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-checkstyle-plugin:3.6.0:check (default-cli) on project cloud-server: Failed during checkstyle execution: There are 62 errors reported by Checkstyle 8.18 with cloud-style.xml ruleset. -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

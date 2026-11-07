@@ -1,0 +1,23 @@
+{
+  "static_files_verified": 648,
+  "static_hash_mismatches": [],
+  "index_sha256": "e911d4addd8efa52cf9c3e572f112c08e0bbd5965802c0bb498945a17171bfa3",
+  "server_runtime_protected_unchanged": true,
+  "web_inf_present": true,
+  "http": 200,
+  "jar_sha256": "df0f900602bc90d5e11a7dd327ea16d5f917d8507001b85ed7464708dd5e5f10",
+  "module_classes_verified": 18,
+  "markers": {
+    "network-offering-diagnostics": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true,
+    "network-create-isolated-": true,
+    "network-create-l2-": true,
+    "network-create-shared-": true
+  },
+  "service": "active",
+  "pid": "497588",
+  "new_linkage_errors": [],
+  "disk_free": 159597940736
+}

@@ -1,0 +1,22 @@
+{
+  "api": {
+    "entry": "org/apache/cloudstack/acl/ProjectRoleService.class",
+    "runtimeHash": "94782018881ad83d1a2b2c0462491644e4fb96d847e22d118144e6fba0976817",
+    "compiledBeforeHash": "94782018881ad83d1a2b2c0462491644e4fb96d847e22d118144e6fba0976817"
+  },
+  "serverManager": {
+    "entry": "org/apache/cloudstack/acl/ProjectRoleManagerImpl.class",
+    "runtimeHash": "ab6e94780c447a18e3960f19e9089427e262500aa632bf7683ccaeb2c8faf646",
+    "compiledBeforeHash": "ab6e94780c447a18e3960f19e9089427e262500aa632bf7683ccaeb2c8faf646"
+  },
+  "serverChecker": {
+    "entry": "com/cloud/acl/DomainChecker.class",
+    "runtimeHash": "72b4110f022be73432dc123f1b04a79ebe9f1ca7605f59a33ad546a73dbd8fef",
+    "compiledBeforeHash": "72b4110f022be73432dc123f1b04a79ebe9f1ca7605f59a33ad546a73dbd8fef"
+  },
+  "acl": {
+    "entry": "org/apache/cloudstack/acl/ProjectRoleBasedApiAccessChecker.class",
+    "runtimeHash": "567bf11f79b40bbdffbd924e5c16676348784dd14c16215834fc607437865197",
+    "compiledBeforeHash": "567bf11f79b40bbdffbd924e5c16676348784dd14c16215834fc607437865197"
+  }
+}

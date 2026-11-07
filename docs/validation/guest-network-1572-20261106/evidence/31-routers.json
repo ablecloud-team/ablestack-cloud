@@ -1,0 +1,12 @@
+[
+  {
+    "id": "166a1b33-99bd-44b7-8c3c-59dc648204b3",
+    "name": "r-934-VM",
+    "state": "Running",
+    "hostname": "ablecube31-2",
+    "hostid": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+    "linklocalip": "169.254.121.177",
+    "guestipaddress": "198.19.31.74",
+    "guestnetworkid": "ab30a829-8936-4058-836f-d66ed7d4db90"
+  }
+]

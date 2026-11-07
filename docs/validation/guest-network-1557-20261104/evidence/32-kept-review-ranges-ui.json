@@ -1,0 +1,83 @@
+[
+  {
+    "key": "nosnat",
+    "family": "ipv4",
+    "label": "32-nosnat-ipv4-kept-review-create",
+    "posts": [
+      {
+        "requestId": "40480.8741",
+        "command": "createVlanIpRange",
+        "method": "POST",
+        "params": {
+          "command": "createVlanIpRange",
+          "networkid": "1b6001c7-f30f-4b5b-8843-8b8e68b2720e",
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "forvirtualnetwork": "false",
+          "startip": "172.26.32.80",
+          "endip": "172.26.32.84",
+          "gateway": "172.26.32.1",
+          "netmask": "255.255.255.0"
+        },
+        "status": 200,
+        "result": {
+          "id": "3d43cbf8-6868-4750-ad9e-e2737bef868a"
+        }
+      }
+    ],
+    "ui": "IP 주소 범위 추가\nIPv4\tIPv6\tVLAN/VNI\t작업\n\n \n\t\n \n\t\n \n\t\n \n\n\n172.26.32.10 – 172.26.32.20\n게이트웨이: 172.26.32.1 · 255.255.255.0\n\t\n—\n\t642\t\n\n\n172.26.32.80 – 172.26.32.84\n게이트웨이: 172.26.32.1 · 255.255.255.0\n\t\n—\n\t642\t\n전체 2 개 항목\n1\n10 / 쪽"
+  },
+  {
+    "key": "shared",
+    "family": "ipv4",
+    "label": "32-shared-ipv4-kept-review-create",
+    "posts": [
+      {
+        "requestId": "40480.8760",
+        "command": "createVlanIpRange",
+        "method": "POST",
+        "params": {
+          "command": "createVlanIpRange",
+          "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "forvirtualnetwork": "false",
+          "startip": "172.27.32.80",
+          "endip": "172.27.32.84",
+          "gateway": "172.27.32.1",
+          "netmask": "255.255.255.0"
+        },
+        "status": 200,
+        "result": {
+          "id": "dbeed0c7-ef74-4430-b394-d63c56fb0e60"
+        }
+      }
+    ],
+    "ui": "IP 주소 범위 추가\nIPv4\tIPv6\tVLAN/VNI\t작업\n\n \n\t\n \n\t\n \n\t\n \n\n\n172.27.32.10 – 172.27.32.20\n게이트웨이: 172.27.32.1 · 255.255.255.0\n\t\nfd32:1557::10 – fd32:1557::20\n게이트웨이: fd32:1557::1\nfd32:1557::/64\n\t652\t\n\n\n172.27.32.80 – 172.27.32.84\n게이트웨이: 172.27.32.1 · 255.255.255.0\n\t\n—\n\t652\t\n전체 2 개 항목\n1\n10 / 쪽"
+  },
+  {
+    "key": "shared",
+    "family": "ipv6",
+    "label": "32-shared-ipv6-kept-review-create",
+    "posts": [
+      {
+        "requestId": "40480.8768",
+        "command": "createVlanIpRange",
+        "method": "POST",
+        "params": {
+          "command": "createVlanIpRange",
+          "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "forvirtualnetwork": "false",
+          "startipv6": "fd32:1557::80",
+          "endipv6": "fd32:1557::84",
+          "ip6gateway": "fd32:1557::1",
+          "ip6cidr": "fd32:1557::/64"
+        },
+        "status": 200,
+        "result": {
+          "id": "4639aaa2-031a-4092-a924-57824cd8482f"
+        }
+      }
+    ],
+    "ui": "IP 주소 범위 추가\nIPv4\tIPv6\tVLAN/VNI\t작업\n\n \n\t\n \n\t\n \n\t\n \n\n\n172.27.32.10 – 172.27.32.20\n게이트웨이: 172.27.32.1 · 255.255.255.0\n\t\nfd32:1557::10 – fd32:1557::20\n게이트웨이: fd32:1557::1\nfd32:1557::/64\n\t652\t\n\n\n172.27.32.80 – 172.27.32.84\n게이트웨이: 172.27.32.1 · 255.255.255.0\n\t\n—\n\t652\t\n\n\n—\n\t\nfd32:1557::80 – fd32:1557::84\n게이트웨이: fd32:1557::1\nfd32:1557::/64\n\t652\t\n전체 3 개 항목\n1\n10 / 쪽"
+  }
+]

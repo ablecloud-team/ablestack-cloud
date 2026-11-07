@@ -1,0 +1,3137 @@
+[
+  {
+    "c": 31,
+    "key": "shared",
+    "mode": "dark",
+    "w": 1280,
+    "h": 900,
+    "view": "list",
+    "themeResult": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1794
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": true,
+      "dialog": null,
+      "documentWidth": 1270,
+      "height": 900,
+      "table": {
+        "bottom": 418.90625,
+        "height": 364.90625,
+        "left": 751.5625,
+        "right": 1222.984375,
+        "top": 54,
+        "width": 471.421875,
+        "x": 751.5625,
+        "y": 54
+      },
+      "texts": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "172.27.31.10 – 172.27.31.20"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "게이트웨이: 172.27.31.1 · 255.255.255.0"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "fd31:1557::10 – fd31:1557::20"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "게이트웨이: fd31:1557::1"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "fd31:1557::/64"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "—"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "fd31:1557::30 – fd31:1557::35"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "게이트웨이: fd31:1557::1"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "fd31:1557::/64"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "172.27.31.80 – 172.27.31.84"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "게이트웨이: 172.27.31.1 · 255.255.255.0"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "—"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "—"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "fd31:1557::80 – fd31:1557::84"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "게이트웨이: fd31:1557::1"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "fd31:1557::/64"
+        }
+      ],
+      "toolbar": {
+        "bottom": 42,
+        "height": 32,
+        "left": 751.5625,
+        "right": 1222.984375,
+        "top": 10,
+        "width": 471.421875,
+        "x": 751.5625,
+        "y": 10
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/903d1def-9929-4755-82ec-69296b6847fd?tab=guest.ip.range",
+      "width": 1280
+    }
+  },
+  {
+    "c": 31,
+    "key": "shared",
+    "mode": "dark",
+    "w": 1280,
+    "h": 900,
+    "view": "add",
+    "themeResult": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1794
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": true,
+      "dialog": {
+        "body": {
+          "bottom": 800,
+          "height": 710,
+          "left": 161,
+          "right": 1119,
+          "top": 90,
+          "width": 958,
+          "x": 161,
+          "y": 90
+        },
+        "bodyClientWidth": 948,
+        "bodyScrollWidth": 948,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 849,
+              "height": 32,
+              "left": 967.46875,
+              "right": 1025.234375,
+              "top": 817,
+              "width": 57.765625,
+              "x": 967.46875,
+              "y": 817
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 849,
+              "height": 32,
+              "left": 1033.234375,
+              "right": 1091,
+              "top": 817,
+              "width": 57.765625,
+              "x": 1033.234375,
+              "y": 817
+            },
+            "text": "확인"
+          }
+        ],
+        "fields": [
+          {
+            "label": "인터넷 프로토콜",
+            "rect": {
+              "bottom": 176,
+              "height": 62,
+              "left": 189,
+              "right": 1081,
+              "top": 114,
+              "width": 892,
+              "x": 189,
+              "y": 114
+            }
+          },
+          {
+            "label": "IPv4 시작 IP",
+            "rect": {
+              "bottom": 318,
+              "height": 62,
+              "left": 189,
+              "right": 1081,
+              "top": 256,
+              "width": 892,
+              "x": 189,
+              "y": 256
+            }
+          },
+          {
+            "label": "IPv4 종료 IP",
+            "rect": {
+              "bottom": 392,
+              "height": 62,
+              "left": 189,
+              "right": 1081,
+              "top": 330,
+              "width": 892,
+              "x": 189,
+              "y": 330
+            }
+          },
+          {
+            "label": "게이트웨이",
+            "rect": {
+              "bottom": 466,
+              "height": 62,
+              "left": 189,
+              "right": 1081,
+              "top": 404,
+              "width": 892,
+              "x": 189,
+              "y": 404
+            }
+          },
+          {
+            "label": "넷마스크",
+            "rect": {
+              "bottom": 540,
+              "height": 62,
+              "left": 189,
+              "right": 1081,
+              "top": 478,
+              "width": 892,
+              "x": 189,
+              "y": 478
+            }
+          },
+          {
+            "label": "IPv6 시작 IP",
+            "rect": {
+              "bottom": 686,
+              "height": 62,
+              "left": 189,
+              "right": 1081,
+              "top": 624,
+              "width": 892,
+              "x": 189,
+              "y": 624
+            }
+          },
+          {
+            "label": "IPv6 종료 IP",
+            "rect": {
+              "bottom": 760,
+              "height": 62,
+              "left": 189,
+              "right": 1081,
+              "top": 698,
+              "width": 892,
+              "x": 189,
+              "y": 698
+            }
+          },
+          {
+            "label": "IPv6 게이트웨이",
+            "rect": {
+              "bottom": 834,
+              "height": 62,
+              "left": 189,
+              "right": 1081,
+              "top": 772,
+              "width": 892,
+              "x": 189,
+              "y": 772
+            }
+          },
+          {
+            "label": "IPv6 CIDR",
+            "rect": {
+              "bottom": 908,
+              "height": 62,
+              "left": 189,
+              "right": 1081,
+              "top": 846,
+              "width": 892,
+              "x": 189,
+              "y": 846
+            }
+          }
+        ],
+        "footer": {
+          "bottom": 865,
+          "height": 65,
+          "left": 161,
+          "right": 1119,
+          "top": 800,
+          "width": 958,
+          "x": 161,
+          "y": 800
+        },
+        "rect": {
+          "bottom": 866,
+          "height": 832,
+          "left": 160,
+          "right": 1120,
+          "top": 34,
+          "width": 960,
+          "x": 160,
+          "y": 34
+        }
+      },
+      "documentWidth": 1270,
+      "height": 900,
+      "table": {
+        "bottom": 706.90625,
+        "height": 364.90625,
+        "left": 751.5625,
+        "right": 1222.984375,
+        "top": 342,
+        "width": 471.421875,
+        "x": 751.5625,
+        "y": 342
+      },
+      "texts": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "인터넷 프로토콜"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4 + IPv6"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "종료 IP를 비우면 시작 IP 한 개를 사용합니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4 시작 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4 종료 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "게이트웨이"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "넷마스크"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "종료 IP를 비우면 시작 IP 한 개를 사용합니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 시작 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 종료 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 게이트웨이"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 CIDR"
+        }
+      ],
+      "toolbar": {
+        "bottom": 330,
+        "height": 32,
+        "left": 751.5625,
+        "right": 1222.984375,
+        "top": 298,
+        "width": 471.421875,
+        "x": 751.5625,
+        "y": 298
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/903d1def-9929-4755-82ec-69296b6847fd?tab=guest.ip.range",
+      "width": 1280
+    }
+  },
+  {
+    "c": 31,
+    "key": "shared",
+    "mode": "dark",
+    "w": 1280,
+    "h": 900,
+    "view": "edit",
+    "themeResult": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1794
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": true,
+      "dialog": {
+        "body": {
+          "bottom": 800,
+          "height": 710,
+          "left": 161,
+          "right": 1119,
+          "top": 90,
+          "width": 958,
+          "x": 161,
+          "y": 90
+        },
+        "bodyClientWidth": 948,
+        "bodyScrollWidth": 948,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 849,
+              "height": 32,
+              "left": 967.46875,
+              "right": 1025.234375,
+              "top": 817,
+              "width": 57.765625,
+              "x": 967.46875,
+              "y": 817
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 849,
+              "height": 32,
+              "left": 1033.234375,
+              "right": 1091,
+              "top": 817,
+              "width": 57.765625,
+              "x": 1033.234375,
+              "y": 817
+            },
+            "text": "확인"
+          }
+        ],
+        "fields": [
+          {
+            "label": "인터넷 프로토콜",
+            "rect": {
+              "bottom": 176,
+              "height": 62,
+              "left": 189,
+              "right": 1081,
+              "top": 114,
+              "width": 892,
+              "x": 189,
+              "y": 114
+            }
+          },
+          {
+            "label": "IPv4 시작 IP",
+            "rect": {
+              "bottom": 318,
+              "height": 62,
+              "left": 189,
+              "right": 1081,
+              "top": 256,
+              "width": 892,
+              "x": 189,
+              "y": 256
+            }
+          },
+          {
+            "label": "IPv4 종료 IP",
+            "rect": {
+              "bottom": 392,
+              "height": 62,
+              "left": 189,
+              "right": 1081,
+              "top": 330,
+              "width": 892,
+              "x": 189,
+              "y": 330
+            }
+          },
+          {
+            "label": "게이트웨이",
+            "rect": {
+              "bottom": 466,
+              "height": 62,
+              "left": 189,
+              "right": 1081,
+              "top": 404,
+              "width": 892,
+              "x": 189,
+              "y": 404
+            }
+          },
+          {
+            "label": "넷마스크",
+            "rect": {
+              "bottom": 540,
+              "height": 62,
+              "left": 189,
+              "right": 1081,
+              "top": 478,
+              "width": 892,
+              "x": 189,
+              "y": 478
+            }
+          },
+          {
+            "label": "IPv6 시작 IP",
+            "rect": {
+              "bottom": 686,
+              "height": 62,
+              "left": 189,
+              "right": 1081,
+              "top": 624,
+              "width": 892,
+              "x": 189,
+              "y": 624
+            }
+          },
+          {
+            "label": "IPv6 종료 IP",
+            "rect": {
+              "bottom": 760,
+              "height": 62,
+              "left": 189,
+              "right": 1081,
+              "top": 698,
+              "width": 892,
+              "x": 189,
+              "y": 698
+            }
+          },
+          {
+            "label": "IPv6 게이트웨이",
+            "rect": {
+              "bottom": 834,
+              "height": 62,
+              "left": 189,
+              "right": 1081,
+              "top": 772,
+              "width": 892,
+              "x": 189,
+              "y": 772
+            }
+          },
+          {
+            "label": "IPv6 CIDR",
+            "rect": {
+              "bottom": 908,
+              "height": 62,
+              "left": 189,
+              "right": 1081,
+              "top": 846,
+              "width": 892,
+              "x": 189,
+              "y": 846
+            }
+          }
+        ],
+        "footer": {
+          "bottom": 865,
+          "height": 65,
+          "left": 161,
+          "right": 1119,
+          "top": 800,
+          "width": 958,
+          "x": 161,
+          "y": 800
+        },
+        "rect": {
+          "bottom": 866,
+          "height": 832,
+          "left": 160,
+          "right": 1120,
+          "top": 34,
+          "width": 960,
+          "x": 160,
+          "y": 34
+        }
+      },
+      "documentWidth": 1270,
+      "height": 900,
+      "table": {
+        "bottom": 706.90625,
+        "height": 364.90625,
+        "left": 751.5625,
+        "right": 1222.984375,
+        "top": 342,
+        "width": 471.421875,
+        "x": 751.5625,
+        "y": 342
+      },
+      "texts": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "인터넷 프로토콜"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4 + IPv6"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "종료 IP를 비우면 시작 IP 한 개를 사용합니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4 시작 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4 종료 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "게이트웨이"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "넷마스크"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "종료 IP를 비우면 시작 IP 한 개를 사용합니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 시작 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 종료 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 게이트웨이"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 CIDR"
+        }
+      ],
+      "toolbar": {
+        "bottom": 330,
+        "height": 32,
+        "left": 751.5625,
+        "right": 1222.984375,
+        "top": 298,
+        "width": 471.421875,
+        "x": 751.5625,
+        "y": 298
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/903d1def-9929-4755-82ec-69296b6847fd?tab=guest.ip.range",
+      "width": 1280
+    }
+  },
+  {
+    "c": 31,
+    "key": "shared",
+    "mode": "dark",
+    "w": 1280,
+    "h": 900,
+    "view": "delete",
+    "themeResult": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1794
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": true,
+      "dialog": {
+        "body": {
+          "bottom": 518,
+          "height": 146,
+          "left": 401,
+          "right": 879,
+          "top": 372,
+          "width": 478,
+          "x": 401,
+          "y": 372
+        },
+        "bodyClientWidth": 478,
+        "bodyScrollWidth": 478,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 567,
+              "height": 32,
+              "left": 732.34375,
+              "right": 790.109375,
+              "top": 535,
+              "width": 57.765625,
+              "x": 732.34375,
+              "y": 535
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 567,
+              "height": 32,
+              "left": 806.109375,
+              "right": 851,
+              "top": 535,
+              "width": 44.890625,
+              "x": 806.109375,
+              "y": 535
+            },
+            "text": "예"
+          }
+        ],
+        "fields": [],
+        "footer": {
+          "bottom": 583,
+          "height": 65,
+          "left": 401,
+          "right": 879,
+          "top": 518,
+          "width": 478,
+          "x": 401,
+          "y": 518
+        },
+        "rect": {
+          "bottom": 584,
+          "height": 268,
+          "left": 400,
+          "right": 880,
+          "top": 316,
+          "width": 480,
+          "x": 400,
+          "y": 316
+        }
+      },
+      "documentWidth": 1270,
+      "height": 900,
+      "table": {
+        "bottom": 706.90625,
+        "height": 364.90625,
+        "left": 751.5625,
+        "right": 1222.984375,
+        "top": 342,
+        "width": 471.421875,
+        "x": 751.5625,
+        "y": 342
+      },
+      "texts": [
+        {
+          "background": [
+            64.24,
+            58.620000000000005,
+            43.22
+          ],
+          "color": "rgb(255, 231, 163)",
+          "text": "현재 IP 주소 범위를 삭제하시겠습니까?"
+        }
+      ],
+      "toolbar": {
+        "bottom": 330,
+        "height": 32,
+        "left": 751.5625,
+        "right": 1222.984375,
+        "top": 298,
+        "width": 471.421875,
+        "x": 751.5625,
+        "y": 298
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/903d1def-9929-4755-82ec-69296b6847fd?tab=guest.ip.range",
+      "width": 1280
+    }
+  },
+  {
+    "c": 31,
+    "key": "shared",
+    "mode": "dark",
+    "w": 768,
+    "h": 1024,
+    "view": "list",
+    "themeResult": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1794
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": true,
+      "dialog": null,
+      "documentWidth": 758,
+      "height": 1024,
+      "table": {
+        "bottom": 1543.40625,
+        "height": 364.90625,
+        "left": 286.234375,
+        "right": 711,
+        "top": 1178.5,
+        "width": 424.765625,
+        "x": 286.234375,
+        "y": 1178.5
+      },
+      "texts": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "172.27.31.10 – 172.27.31.20"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "게이트웨이: 172.27.31.1 · 255.255.255.0"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "fd31:1557::10 – fd31:1557::20"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "게이트웨이: fd31:1557::1"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "fd31:1557::/64"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "—"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "fd31:1557::30 – fd31:1557::35"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "게이트웨이: fd31:1557::1"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "fd31:1557::/64"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "172.27.31.80 – 172.27.31.84"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "게이트웨이: 172.27.31.1 · 255.255.255.0"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "—"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "—"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "fd31:1557::80 – fd31:1557::84"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "게이트웨이: fd31:1557::1"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "fd31:1557::/64"
+        }
+      ],
+      "toolbar": {
+        "bottom": 1166.5,
+        "height": 32,
+        "left": 286.234375,
+        "right": 711,
+        "top": 1134.5,
+        "width": 424.765625,
+        "x": 286.234375,
+        "y": 1134.5
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/903d1def-9929-4755-82ec-69296b6847fd?tab=guest.ip.range",
+      "width": 768
+    }
+  },
+  {
+    "c": 31,
+    "key": "shared",
+    "mode": "dark",
+    "w": 768,
+    "h": 1024,
+    "view": "add",
+    "themeResult": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1794
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": true,
+      "dialog": {
+        "body": {
+          "bottom": 862,
+          "height": 710,
+          "left": 25,
+          "right": 743,
+          "top": 152,
+          "width": 718,
+          "x": 25,
+          "y": 152
+        },
+        "bodyClientWidth": 708,
+        "bodyScrollWidth": 708,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 911,
+              "height": 32,
+              "left": 591.46875,
+              "right": 649.234375,
+              "top": 879,
+              "width": 57.765625,
+              "x": 591.46875,
+              "y": 879
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 911,
+              "height": 32,
+              "left": 657.234375,
+              "right": 715,
+              "top": 879,
+              "width": 57.765625,
+              "x": 657.234375,
+              "y": 879
+            },
+            "text": "확인"
+          }
+        ],
+        "fields": [
+          {
+            "label": "인터넷 프로토콜",
+            "rect": {
+              "bottom": 238,
+              "height": 62,
+              "left": 53,
+              "right": 705,
+              "top": 176,
+              "width": 652,
+              "x": 53,
+              "y": 176
+            }
+          },
+          {
+            "label": "IPv4 시작 IP",
+            "rect": {
+              "bottom": 380,
+              "height": 62,
+              "left": 53,
+              "right": 705,
+              "top": 318,
+              "width": 652,
+              "x": 53,
+              "y": 318
+            }
+          },
+          {
+            "label": "IPv4 종료 IP",
+            "rect": {
+              "bottom": 454,
+              "height": 62,
+              "left": 53,
+              "right": 705,
+              "top": 392,
+              "width": 652,
+              "x": 53,
+              "y": 392
+            }
+          },
+          {
+            "label": "게이트웨이",
+            "rect": {
+              "bottom": 528,
+              "height": 62,
+              "left": 53,
+              "right": 705,
+              "top": 466,
+              "width": 652,
+              "x": 53,
+              "y": 466
+            }
+          },
+          {
+            "label": "넷마스크",
+            "rect": {
+              "bottom": 602,
+              "height": 62,
+              "left": 53,
+              "right": 705,
+              "top": 540,
+              "width": 652,
+              "x": 53,
+              "y": 540
+            }
+          },
+          {
+            "label": "IPv6 시작 IP",
+            "rect": {
+              "bottom": 748,
+              "height": 62,
+              "left": 53,
+              "right": 705,
+              "top": 686,
+              "width": 652,
+              "x": 53,
+              "y": 686
+            }
+          },
+          {
+            "label": "IPv6 종료 IP",
+            "rect": {
+              "bottom": 822,
+              "height": 62,
+              "left": 53,
+              "right": 705,
+              "top": 760,
+              "width": 652,
+              "x": 53,
+              "y": 760
+            }
+          },
+          {
+            "label": "IPv6 게이트웨이",
+            "rect": {
+              "bottom": 896,
+              "height": 62,
+              "left": 53,
+              "right": 705,
+              "top": 834,
+              "width": 652,
+              "x": 53,
+              "y": 834
+            }
+          },
+          {
+            "label": "IPv6 CIDR",
+            "rect": {
+              "bottom": 970,
+              "height": 62,
+              "left": 53,
+              "right": 705,
+              "top": 908,
+              "width": 652,
+              "x": 53,
+              "y": 908
+            }
+          }
+        ],
+        "footer": {
+          "bottom": 927,
+          "height": 65,
+          "left": 25,
+          "right": 743,
+          "top": 862,
+          "width": 718,
+          "x": 25,
+          "y": 862
+        },
+        "rect": {
+          "bottom": 928,
+          "height": 832,
+          "left": 24,
+          "right": 744,
+          "top": 96,
+          "width": 720,
+          "x": 24,
+          "y": 96
+        }
+      },
+      "documentWidth": 758,
+      "height": 1024,
+      "table": {
+        "bottom": 953.40625,
+        "height": 364.90625,
+        "left": 286.234375,
+        "right": 711,
+        "top": 588.5,
+        "width": 424.765625,
+        "x": 286.234375,
+        "y": 588.5
+      },
+      "texts": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "인터넷 프로토콜"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4 + IPv6"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "종료 IP를 비우면 시작 IP 한 개를 사용합니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4 시작 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4 종료 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "게이트웨이"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "넷마스크"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "종료 IP를 비우면 시작 IP 한 개를 사용합니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 시작 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 종료 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 게이트웨이"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 CIDR"
+        }
+      ],
+      "toolbar": {
+        "bottom": 576.5,
+        "height": 32,
+        "left": 286.234375,
+        "right": 711,
+        "top": 544.5,
+        "width": 424.765625,
+        "x": 286.234375,
+        "y": 544.5
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/903d1def-9929-4755-82ec-69296b6847fd?tab=guest.ip.range",
+      "width": 768
+    }
+  },
+  {
+    "c": 31,
+    "key": "shared",
+    "mode": "dark",
+    "w": 768,
+    "h": 1024,
+    "view": "edit",
+    "themeResult": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1794
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": true,
+      "dialog": {
+        "body": {
+          "bottom": 862,
+          "height": 710,
+          "left": 25,
+          "right": 743,
+          "top": 152,
+          "width": 718,
+          "x": 25,
+          "y": 152
+        },
+        "bodyClientWidth": 708,
+        "bodyScrollWidth": 708,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 911,
+              "height": 32,
+              "left": 591.46875,
+              "right": 649.234375,
+              "top": 879,
+              "width": 57.765625,
+              "x": 591.46875,
+              "y": 879
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 911,
+              "height": 32,
+              "left": 657.234375,
+              "right": 715,
+              "top": 879,
+              "width": 57.765625,
+              "x": 657.234375,
+              "y": 879
+            },
+            "text": "확인"
+          }
+        ],
+        "fields": [
+          {
+            "label": "인터넷 프로토콜",
+            "rect": {
+              "bottom": 238,
+              "height": 62,
+              "left": 53,
+              "right": 705,
+              "top": 176,
+              "width": 652,
+              "x": 53,
+              "y": 176
+            }
+          },
+          {
+            "label": "IPv4 시작 IP",
+            "rect": {
+              "bottom": 380,
+              "height": 62,
+              "left": 53,
+              "right": 705,
+              "top": 318,
+              "width": 652,
+              "x": 53,
+              "y": 318
+            }
+          },
+          {
+            "label": "IPv4 종료 IP",
+            "rect": {
+              "bottom": 454,
+              "height": 62,
+              "left": 53,
+              "right": 705,
+              "top": 392,
+              "width": 652,
+              "x": 53,
+              "y": 392
+            }
+          },
+          {
+            "label": "게이트웨이",
+            "rect": {
+              "bottom": 528,
+              "height": 62,
+              "left": 53,
+              "right": 705,
+              "top": 466,
+              "width": 652,
+              "x": 53,
+              "y": 466
+            }
+          },
+          {
+            "label": "넷마스크",
+            "rect": {
+              "bottom": 602,
+              "height": 62,
+              "left": 53,
+              "right": 705,
+              "top": 540,
+              "width": 652,
+              "x": 53,
+              "y": 540
+            }
+          },
+          {
+            "label": "IPv6 시작 IP",
+            "rect": {
+              "bottom": 748,
+              "height": 62,
+              "left": 53,
+              "right": 705,
+              "top": 686,
+              "width": 652,
+              "x": 53,
+              "y": 686
+            }
+          },
+          {
+            "label": "IPv6 종료 IP",
+            "rect": {
+              "bottom": 822,
+              "height": 62,
+              "left": 53,
+              "right": 705,
+              "top": 760,
+              "width": 652,
+              "x": 53,
+              "y": 760
+            }
+          },
+          {
+            "label": "IPv6 게이트웨이",
+            "rect": {
+              "bottom": 896,
+              "height": 62,
+              "left": 53,
+              "right": 705,
+              "top": 834,
+              "width": 652,
+              "x": 53,
+              "y": 834
+            }
+          },
+          {
+            "label": "IPv6 CIDR",
+            "rect": {
+              "bottom": 970,
+              "height": 62,
+              "left": 53,
+              "right": 705,
+              "top": 908,
+              "width": 652,
+              "x": 53,
+              "y": 908
+            }
+          }
+        ],
+        "footer": {
+          "bottom": 927,
+          "height": 65,
+          "left": 25,
+          "right": 743,
+          "top": 862,
+          "width": 718,
+          "x": 25,
+          "y": 862
+        },
+        "rect": {
+          "bottom": 928,
+          "height": 832,
+          "left": 24,
+          "right": 744,
+          "top": 96,
+          "width": 720,
+          "x": 24,
+          "y": 96
+        }
+      },
+      "documentWidth": 758,
+      "height": 1024,
+      "table": {
+        "bottom": 936.40625,
+        "height": 364.90625,
+        "left": 286.234375,
+        "right": 711,
+        "top": 571.5,
+        "width": 424.765625,
+        "x": 286.234375,
+        "y": 571.5
+      },
+      "texts": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "인터넷 프로토콜"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4 + IPv6"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "종료 IP를 비우면 시작 IP 한 개를 사용합니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4 시작 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4 종료 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "게이트웨이"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "넷마스크"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "종료 IP를 비우면 시작 IP 한 개를 사용합니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 시작 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 종료 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 게이트웨이"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 CIDR"
+        }
+      ],
+      "toolbar": {
+        "bottom": 559.5,
+        "height": 32,
+        "left": 286.234375,
+        "right": 711,
+        "top": 527.5,
+        "width": 424.765625,
+        "x": 286.234375,
+        "y": 527.5
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/903d1def-9929-4755-82ec-69296b6847fd?tab=guest.ip.range",
+      "width": 768
+    }
+  },
+  {
+    "c": 31,
+    "key": "shared",
+    "mode": "dark",
+    "w": 768,
+    "h": 1024,
+    "view": "delete",
+    "themeResult": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1794
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": true,
+      "dialog": {
+        "body": {
+          "bottom": 580,
+          "height": 146,
+          "left": 145,
+          "right": 623,
+          "top": 434,
+          "width": 478,
+          "x": 145,
+          "y": 434
+        },
+        "bodyClientWidth": 478,
+        "bodyScrollWidth": 478,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 629,
+              "height": 32,
+              "left": 476.34375,
+              "right": 534.109375,
+              "top": 597,
+              "width": 57.765625,
+              "x": 476.34375,
+              "y": 597
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 629,
+              "height": 32,
+              "left": 550.109375,
+              "right": 595,
+              "top": 597,
+              "width": 44.890625,
+              "x": 550.109375,
+              "y": 597
+            },
+            "text": "예"
+          }
+        ],
+        "fields": [],
+        "footer": {
+          "bottom": 645,
+          "height": 65,
+          "left": 145,
+          "right": 623,
+          "top": 580,
+          "width": 478,
+          "x": 145,
+          "y": 580
+        },
+        "rect": {
+          "bottom": 646,
+          "height": 268,
+          "left": 144,
+          "right": 624,
+          "top": 378,
+          "width": 480,
+          "x": 144,
+          "y": 378
+        }
+      },
+      "documentWidth": 758,
+      "height": 1024,
+      "table": {
+        "bottom": 936.40625,
+        "height": 364.90625,
+        "left": 286.234375,
+        "right": 711,
+        "top": 571.5,
+        "width": 424.765625,
+        "x": 286.234375,
+        "y": 571.5
+      },
+      "texts": [
+        {
+          "background": [
+            64.24,
+            58.620000000000005,
+            43.22
+          ],
+          "color": "rgb(255, 231, 163)",
+          "text": "현재 IP 주소 범위를 삭제하시겠습니까?"
+        }
+      ],
+      "toolbar": {
+        "bottom": 559.5,
+        "height": 32,
+        "left": 286.234375,
+        "right": 711,
+        "top": 527.5,
+        "width": 424.765625,
+        "x": 286.234375,
+        "y": 527.5
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/903d1def-9929-4755-82ec-69296b6847fd?tab=guest.ip.range",
+      "width": 768
+    }
+  },
+  {
+    "c": 31,
+    "key": "shared",
+    "mode": "dark",
+    "w": 390,
+    "h": 844,
+    "view": "list",
+    "themeResult": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1794
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": true,
+      "dialog": null,
+      "documentWidth": 380,
+      "height": 844,
+      "table": {
+        "bottom": 1034.40625,
+        "height": 364.90625,
+        "left": 37,
+        "right": 333,
+        "top": 669.5,
+        "width": 296,
+        "x": 37,
+        "y": 669.5
+      },
+      "texts": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "172.27.31.10 – 172.27.31.20"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "게이트웨이: 172.27.31.1 · 255.255.255.0"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "fd31:1557::10 – fd31:1557::20"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "게이트웨이: fd31:1557::1"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "fd31:1557::/64"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "—"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "fd31:1557::30 – fd31:1557::35"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "게이트웨이: fd31:1557::1"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "fd31:1557::/64"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "172.27.31.80 – 172.27.31.84"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "게이트웨이: 172.27.31.1 · 255.255.255.0"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "—"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "—"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "fd31:1557::80 – fd31:1557::84"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "게이트웨이: fd31:1557::1"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "text": "fd31:1557::/64"
+        }
+      ],
+      "toolbar": {
+        "bottom": 657.5,
+        "height": 32,
+        "left": 37,
+        "right": 333,
+        "top": 625.5,
+        "width": 296,
+        "x": 37,
+        "y": 625.5
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/903d1def-9929-4755-82ec-69296b6847fd?tab=guest.ip.range",
+      "width": 390
+    }
+  },
+  {
+    "c": 31,
+    "key": "shared",
+    "mode": "dark",
+    "w": 390,
+    "h": 844,
+    "view": "add",
+    "themeResult": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1794
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": true,
+      "dialog": {
+        "body": {
+          "bottom": 766,
+          "height": 698,
+          "left": 13,
+          "right": 377,
+          "top": 68,
+          "width": 364,
+          "x": 13,
+          "y": 68
+        },
+        "bodyClientWidth": 354,
+        "bodyScrollWidth": 354,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 815,
+              "height": 32,
+              "left": 237.46875,
+              "right": 295.234375,
+              "top": 783,
+              "width": 57.765625,
+              "x": 237.46875,
+              "y": 783
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 815,
+              "height": 32,
+              "left": 303.234375,
+              "right": 361,
+              "top": 783,
+              "width": 57.765625,
+              "x": 303.234375,
+              "y": 783
+            },
+            "text": "확인"
+          }
+        ],
+        "fields": [
+          {
+            "label": "인터넷 프로토콜",
+            "rect": {
+              "bottom": 146,
+              "height": 62,
+              "left": 29,
+              "right": 351,
+              "top": 84,
+              "width": 322,
+              "x": 29,
+              "y": 84
+            }
+          },
+          {
+            "label": "IPv4 시작 IP",
+            "rect": {
+              "bottom": 288,
+              "height": 62,
+              "left": 29,
+              "right": 351,
+              "top": 226,
+              "width": 322,
+              "x": 29,
+              "y": 226
+            }
+          },
+          {
+            "label": "IPv4 종료 IP",
+            "rect": {
+              "bottom": 362,
+              "height": 62,
+              "left": 29,
+              "right": 351,
+              "top": 300,
+              "width": 322,
+              "x": 29,
+              "y": 300
+            }
+          },
+          {
+            "label": "게이트웨이",
+            "rect": {
+              "bottom": 436,
+              "height": 62,
+              "left": 29,
+              "right": 351,
+              "top": 374,
+              "width": 322,
+              "x": 29,
+              "y": 374
+            }
+          },
+          {
+            "label": "넷마스크",
+            "rect": {
+              "bottom": 510,
+              "height": 62,
+              "left": 29,
+              "right": 351,
+              "top": 448,
+              "width": 322,
+              "x": 29,
+              "y": 448
+            }
+          },
+          {
+            "label": "IPv6 시작 IP",
+            "rect": {
+              "bottom": 656,
+              "height": 62,
+              "left": 29,
+              "right": 351,
+              "top": 594,
+              "width": 322,
+              "x": 29,
+              "y": 594
+            }
+          },
+          {
+            "label": "IPv6 종료 IP",
+            "rect": {
+              "bottom": 730,
+              "height": 62,
+              "left": 29,
+              "right": 351,
+              "top": 668,
+              "width": 322,
+              "x": 29,
+              "y": 668
+            }
+          },
+          {
+            "label": "IPv6 게이트웨이",
+            "rect": {
+              "bottom": 804,
+              "height": 62,
+              "left": 29,
+              "right": 351,
+              "top": 742,
+              "width": 322,
+              "x": 29,
+              "y": 742
+            }
+          },
+          {
+            "label": "IPv6 CIDR",
+            "rect": {
+              "bottom": 878,
+              "height": 62,
+              "left": 29,
+              "right": 351,
+              "top": 816,
+              "width": 322,
+              "x": 29,
+              "y": 816
+            }
+          }
+        ],
+        "footer": {
+          "bottom": 831,
+          "height": 65,
+          "left": 13,
+          "right": 377,
+          "top": 766,
+          "width": 364,
+          "x": 13,
+          "y": 766
+        },
+        "rect": {
+          "bottom": 832,
+          "height": 820,
+          "left": 12,
+          "right": 378,
+          "top": 12,
+          "width": 366,
+          "x": 12,
+          "y": 12
+        }
+      },
+      "documentWidth": 380,
+      "height": 844,
+      "table": {
+        "bottom": 890.40625,
+        "height": 364.90625,
+        "left": 37,
+        "right": 333,
+        "top": 525.5,
+        "width": 296,
+        "x": 37,
+        "y": 525.5
+      },
+      "texts": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "인터넷 프로토콜"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4 + IPv6"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "종료 IP를 비우면 시작 IP 한 개를 사용합니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4 시작 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4 종료 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "게이트웨이"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "넷마스크"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "종료 IP를 비우면 시작 IP 한 개를 사용합니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 시작 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 종료 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 게이트웨이"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 CIDR"
+        }
+      ],
+      "toolbar": {
+        "bottom": 513.5,
+        "height": 32,
+        "left": 37,
+        "right": 333,
+        "top": 481.5,
+        "width": 296,
+        "x": 37,
+        "y": 481.5
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/903d1def-9929-4755-82ec-69296b6847fd?tab=guest.ip.range",
+      "width": 390
+    }
+  },
+  {
+    "c": 31,
+    "key": "shared",
+    "mode": "dark",
+    "w": 390,
+    "h": 844,
+    "view": "edit",
+    "themeResult": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1794
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": true,
+      "dialog": {
+        "body": {
+          "bottom": 766,
+          "height": 698,
+          "left": 13,
+          "right": 377,
+          "top": 68,
+          "width": 364,
+          "x": 13,
+          "y": 68
+        },
+        "bodyClientWidth": 354,
+        "bodyScrollWidth": 354,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 815,
+              "height": 32,
+              "left": 237.46875,
+              "right": 295.234375,
+              "top": 783,
+              "width": 57.765625,
+              "x": 237.46875,
+              "y": 783
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 815,
+              "height": 32,
+              "left": 303.234375,
+              "right": 361,
+              "top": 783,
+              "width": 57.765625,
+              "x": 303.234375,
+              "y": 783
+            },
+            "text": "확인"
+          }
+        ],
+        "fields": [
+          {
+            "label": "인터넷 프로토콜",
+            "rect": {
+              "bottom": 146,
+              "height": 62,
+              "left": 29,
+              "right": 351,
+              "top": 84,
+              "width": 322,
+              "x": 29,
+              "y": 84
+            }
+          },
+          {
+            "label": "IPv4 시작 IP",
+            "rect": {
+              "bottom": 288,
+              "height": 62,
+              "left": 29,
+              "right": 351,
+              "top": 226,
+              "width": 322,
+              "x": 29,
+              "y": 226
+            }
+          },
+          {
+            "label": "IPv4 종료 IP",
+            "rect": {
+              "bottom": 362,
+              "height": 62,
+              "left": 29,
+              "right": 351,
+              "top": 300,
+              "width": 322,
+              "x": 29,
+              "y": 300
+            }
+          },
+          {
+            "label": "게이트웨이",
+            "rect": {
+              "bottom": 436,
+              "height": 62,
+              "left": 29,
+              "right": 351,
+              "top": 374,
+              "width": 322,
+              "x": 29,
+              "y": 374
+            }
+          },
+          {
+            "label": "넷마스크",
+            "rect": {
+              "bottom": 510,
+              "height": 62,
+              "left": 29,
+              "right": 351,
+              "top": 448,
+              "width": 322,
+              "x": 29,
+              "y": 448
+            }
+          },
+          {
+            "label": "IPv6 시작 IP",
+            "rect": {
+              "bottom": 656,
+              "height": 62,
+              "left": 29,
+              "right": 351,
+              "top": 594,
+              "width": 322,
+              "x": 29,
+              "y": 594
+            }
+          },
+          {
+            "label": "IPv6 종료 IP",
+            "rect": {
+              "bottom": 730,
+              "height": 62,
+              "left": 29,
+              "right": 351,
+              "top": 668,
+              "width": 322,
+              "x": 29,
+              "y": 668
+            }
+          },
+          {
+            "label": "IPv6 게이트웨이",
+            "rect": {
+              "bottom": 804,
+              "height": 62,
+              "left": 29,
+              "right": 351,
+              "top": 742,
+              "width": 322,
+              "x": 29,
+              "y": 742
+            }
+          },
+          {
+            "label": "IPv6 CIDR",
+            "rect": {
+              "bottom": 878,
+              "height": 62,
+              "left": 29,
+              "right": 351,
+              "top": 816,
+              "width": 322,
+              "x": 29,
+              "y": 816
+            }
+          }
+        ],
+        "footer": {
+          "bottom": 831,
+          "height": 65,
+          "left": 13,
+          "right": 377,
+          "top": 766,
+          "width": 364,
+          "x": 13,
+          "y": 766
+        },
+        "rect": {
+          "bottom": 832,
+          "height": 820,
+          "left": 12,
+          "right": 378,
+          "top": 12,
+          "width": 366,
+          "x": 12,
+          "y": 12
+        }
+      },
+      "documentWidth": 380,
+      "height": 844,
+      "table": {
+        "bottom": 782.40625,
+        "height": 364.90625,
+        "left": 37,
+        "right": 333,
+        "top": 417.5,
+        "width": 296,
+        "x": 37,
+        "y": 417.5
+      },
+      "texts": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "인터넷 프로토콜"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4 + IPv6"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "종료 IP를 비우면 시작 IP 한 개를 사용합니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4 시작 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv4 종료 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "게이트웨이"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "넷마스크"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "종료 IP를 비우면 시작 IP 한 개를 사용합니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 시작 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 종료 IP"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 게이트웨이"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "IPv6 CIDR"
+        }
+      ],
+      "toolbar": {
+        "bottom": 405.5,
+        "height": 32,
+        "left": 37,
+        "right": 333,
+        "top": 373.5,
+        "width": 296,
+        "x": 37,
+        "y": 373.5
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/903d1def-9929-4755-82ec-69296b6847fd?tab=guest.ip.range",
+      "width": 390
+    }
+  },
+  {
+    "c": 31,
+    "key": "shared",
+    "mode": "dark",
+    "w": 390,
+    "h": 844,
+    "view": "delete",
+    "themeResult": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1794
+    },
+    "measurement": {
+      "alerts": [],
+      "dark": true,
+      "dialog": {
+        "body": {
+          "bottom": 482,
+          "height": 130,
+          "left": 13,
+          "right": 377,
+          "top": 352,
+          "width": 364,
+          "x": 13,
+          "y": 352
+        },
+        "bodyClientWidth": 364,
+        "bodyScrollWidth": 364,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 531,
+              "height": 32,
+              "left": 242.34375,
+              "right": 300.109375,
+              "top": 499,
+              "width": 57.765625,
+              "x": 242.34375,
+              "y": 499
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 531,
+              "height": 32,
+              "left": 316.109375,
+              "right": 361,
+              "top": 499,
+              "width": 44.890625,
+              "x": 316.109375,
+              "y": 499
+            },
+            "text": "예"
+          }
+        ],
+        "fields": [],
+        "footer": {
+          "bottom": 547,
+          "height": 65,
+          "left": 13,
+          "right": 377,
+          "top": 482,
+          "width": 364,
+          "x": 13,
+          "y": 482
+        },
+        "rect": {
+          "bottom": 548,
+          "height": 252,
+          "left": 12,
+          "right": 378,
+          "top": 296,
+          "width": 366,
+          "x": 12,
+          "y": 296
+        }
+      },
+      "documentWidth": 380,
+      "height": 844,
+      "table": {
+        "bottom": 782.40625,
+        "height": 364.90625,
+        "left": 37,
+        "right": 333,
+        "top": 417.5,
+        "width": 296,
+        "x": 37,
+        "y": 417.5
+      },
+      "texts": [
+        {
+          "background": [
+            64.24,
+            58.620000000000005,
+            43.22
+          ],
+          "color": "rgb(255, 231, 163)",
+          "text": "현재 IP 주소 범위를 삭제하시겠습니까?"
+        }
+      ],
+      "toolbar": {
+        "bottom": 405.5,
+        "height": 32,
+        "left": 37,
+        "right": 333,
+        "top": 373.5,
+        "width": 296,
+        "x": 37,
+        "y": 373.5
+      },
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/903d1def-9929-4755-82ec-69296b6847fd?tab=guest.ip.range",
+      "width": 390
+    }
+  }
+]

@@ -1,0 +1,20 @@
+{
+  "cluster": 32,
+  "label": "32-user-owned-restart",
+  "records": [],
+  "before": [
+    {
+      "id": "8cfea604-007c-42c4-b5a9-5ceee79fe440",
+      "status": "idle",
+      "text": "qa-gn1559-32-a\nIsolated · Implemented · qa-gn1559-32-user\n8cfea604-007c-42c4-b5a9-5ceee79fe440\n대기"
+    }
+  ],
+  "rows": [
+    {
+      "id": "8cfea604-007c-42c4-b5a9-5ceee79fe440",
+      "status": "success",
+      "text": "qa-gn1559-32-a\nIsolated · Implemented · qa-gn1559-32-user\n8cfea604-007c-42c4-b5a9-5ceee79fe440\n완료\n작업: 077eeff2-2fd0-4ecb-a3c8-e35a2f70af4c"
+    }
+  ],
+  "responses": []
+}

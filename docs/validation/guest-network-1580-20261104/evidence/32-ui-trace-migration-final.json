@@ -1,0 +1,34 @@
+{
+  "records": [
+    {
+      "requestId": "40480.10984",
+      "command": "migrateVirtualMachine",
+      "method": "POST",
+      "params": {
+        "command": "migrateVirtualMachine",
+        "hostid": "05bc1189-abf8-4ec3-9ef5-02558863b628",
+        "virtualmachineid": "5aa5afbd-7846-4663-82ae-3fb101e3bc04"
+      },
+      "http": 200,
+      "result": {
+        "jobid": "d9173ab6-c8af-4b53-bdcc-699e27a4df3f"
+      }
+    },
+    {
+      "requestId": "40480.10985",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "d9173ab6-c8af-4b53-bdcc-699e27a4df3f",
+        "command": "queryAsyncJobResult"
+      },
+      "http": 200,
+      "result": {
+        "jobid": "d9173ab6-c8af-4b53-bdcc-699e27a4df3f",
+        "jobstatus": 0,
+        "jobresultcode": 0
+      }
+    }
+  ],
+  "cursor": 20013
+}

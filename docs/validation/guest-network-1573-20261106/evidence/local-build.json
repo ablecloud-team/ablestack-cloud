@@ -1,0 +1,38 @@
+{
+  "source": "4e50975df463464b361db780625a21e094cbc840",
+  "suites": "7 passed, 7 total",
+  "tests": "124 passed, 124 total",
+  "ui-lint": {
+    "exit": 0,
+    "command": [
+      "npx",
+      "vue-cli-service",
+      "lint",
+      "--no-fix",
+      "src/views/network/VpnDetails.vue"
+    ]
+  },
+  "ui-tests": {
+    "exit": 0,
+    "command": [
+      "npm",
+      "run",
+      "test:unit",
+      "--",
+      "--runInBand",
+      "--coverage=false",
+      "NetworkRuleLayout.spec.js",
+      "ConditionalGuestNetwork.spec.js",
+      "NetworkTabs.spec.js",
+      "ResourceView.spec.js",
+      "KubernetesManagementPorts.spec.js",
+      "KubernetesNetworkUi.spec.js",
+      "networkMutation.spec.js"
+    ]
+  },
+  "ui-build": {
+    "exit": 0,
+    "command": "npm run build",
+    "productionSourceMap": false
+  }
+}

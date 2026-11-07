@@ -1,0 +1,157 @@
+{
+  "cluster": 31,
+  "retained_network_count": 8,
+  "retained_networks": [
+    {
+      "id": "d5147259-90f9-4663-aff4-0261558ae629",
+      "name": "qa-gn1565-31-vpc-tier",
+      "type": "Isolated",
+      "networkofferingid": "dc536f7b-7c49-4f57-bcae-8576af82176c",
+      "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+      "projectid": null,
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "state": "Allocated"
+    },
+    {
+      "id": "7d0c9d5b-dfe9-44d5-bc5f-ecd96167dac0",
+      "name": "qa-gn1565-31-project",
+      "type": "L2",
+      "networkofferingid": "2c643246-508a-4446-a730-ca9214cc3281",
+      "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+      "projectid": "99a681f2-6f83-4db1-a9b1-f5fd7dd9a3d1",
+      "domainid": "1f1e93e7-f97d-42dc-97c5-0f9a33725e33",
+      "account": null,
+      "state": "Setup"
+    },
+    {
+      "id": "5934cab6-4251-4c3f-a490-c48d916bcc31",
+      "name": "qa-gn1565-31-user-b",
+      "type": "L2",
+      "networkofferingid": "279e19c0-12a6-458d-b08f-8ba1171a35ce",
+      "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+      "projectid": null,
+      "domainid": "6d645e32-2d7c-41b3-b1a1-01f99f4a2996",
+      "account": "qa-gn1565-31-user-b",
+      "state": "Setup"
+    },
+    {
+      "id": "a7a61adf-d31d-4d81-a0e6-66e1ab4fa8db",
+      "name": "qa-gn1565-31-admin-a",
+      "type": "L2",
+      "networkofferingid": "86f9b033-6a0d-4851-8833-1feb1f5f1a8e",
+      "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+      "projectid": null,
+      "domainid": "1f1e93e7-f97d-42dc-97c5-0f9a33725e33",
+      "account": "qa-gn1565-31-admin-a",
+      "state": "Setup"
+    },
+    {
+      "id": "00049f7f-9088-4cf3-904d-1de64430ab15",
+      "name": "qa-gn1565-31-user-a",
+      "type": "L2",
+      "networkofferingid": "86f9b033-6a0d-4851-8833-1feb1f5f1a8e",
+      "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+      "projectid": null,
+      "domainid": "1f1e93e7-f97d-42dc-97c5-0f9a33725e33",
+      "account": "qa-gn1565-31-user-a",
+      "state": "Setup"
+    },
+    {
+      "id": "023fb085-8626-410e-bf78-d178f9de0b4e",
+      "name": "qa-gn1565-31-shared",
+      "type": "Shared",
+      "networkofferingid": "af57b512-b8cd-49bb-b250-23c85585bd16",
+      "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+      "projectid": null,
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "state": "Setup"
+    },
+    {
+      "id": "21aed6eb-a54d-4b5f-9eed-45e60fc2b7fb",
+      "name": "qa-gn1565-31-isolated",
+      "type": "Isolated",
+      "networkofferingid": "46a69931-ebbf-4aee-9d3d-12d03315a949",
+      "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+      "projectid": null,
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "state": "Allocated"
+    },
+    {
+      "id": "e2bb5595-29f3-40dd-9131-b312ad8d3646",
+      "name": "qa-gn1565-31-l2-01",
+      "type": "L2",
+      "networkofferingid": "2c643246-508a-4446-a730-ca9214cc3281",
+      "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+      "projectid": null,
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "state": "Setup"
+    }
+  ],
+  "used_disabled_all_scope_count": 2,
+  "used_offering_deletion_rejected": {
+    "deletenetworkofferingresponse": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "Can't delete network offering NetworkOffering {\"id\":40,\"name\":\"qa-gn1565-31-used\",\"trafficType\":\"Guest\",\"uuid\":\"2c643246-508a-4446-a730-ca9214cc3281\"} as its used by 2 networks. To make the network offering unavailable, disable it"
+    }
+  },
+  "preservation": {
+    "listNetworks": {
+      "baseline_preserved": 22,
+      "current": 29,
+      "stable_fields": [
+        "id",
+        "name",
+        "type",
+        "networkofferingid",
+        "zoneid",
+        "domainid",
+        "account",
+        "projectid",
+        "cidr",
+        "broadcasturi"
+      ],
+      "differences": []
+    },
+    "listNetworkOfferings": {
+      "baseline_preserved": 24,
+      "current": 28,
+      "stable_fields": [
+        "id",
+        "name",
+        "state",
+        "guestiptype",
+        "domain",
+        "zone",
+        "service"
+      ],
+      "differences": []
+    },
+    "listVirtualMachines": {
+      "baseline_preserved": 121,
+      "current": 121,
+      "stable_fields": [
+        "id",
+        "name",
+        "state"
+      ],
+      "differences": []
+    },
+    "listRouters": {
+      "baseline_preserved": 12,
+      "current": 13,
+      "stable_fields": [
+        "id",
+        "name",
+        "state"
+      ],
+      "differences": []
+    }
+  },
+  "status": "PASS"
+}

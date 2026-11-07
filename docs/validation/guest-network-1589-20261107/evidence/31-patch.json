@@ -1,0 +1,19 @@
+{
+  "target": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+  "oldJarSha256": "785c9c48617f4bc7a93f39fd18774ca366213d925917c0947615300d126edcb4",
+  "newJarSha256": "990d6adf0b6b4e3fcef85527414aad465be3f9642dbed02f908e6e0568def860",
+  "classes": {
+    "org/apache/cloudstack/acl/ProjectRoleService.class": "5b08b251d6e30e1eed9e5a0497c76ff56a6ba2f6021f56b659663f75d6dafba1",
+    "org/apache/cloudstack/acl/ProjectRoleManagerImpl.class": "a7022039eacf6edcc02baa90e91ee6a59058cb3c790c7b5f549c541ead421492",
+    "com/cloud/acl/DomainChecker.class": "12aadacc95f37c7103af9f94f01a7636d42d6765ddd7ef72709dba6004f4cc2b",
+    "org/apache/cloudstack/acl/ProjectRoleBasedApiAccessChecker.class": "7fe8fb718a5aa7aa8f067c200c0117831fc67e253e8ec4328fce44b76d068e59"
+  },
+  "changedEntries": [
+    "org/apache/cloudstack/acl/ProjectRoleService.class",
+    "com/cloud/acl/DomainChecker.class",
+    "org/apache/cloudstack/acl/ProjectRoleManagerImpl.class",
+    "org/apache/cloudstack/acl/ProjectRoleBasedApiAccessChecker.class"
+  ],
+  "unchangedEntries": 204653,
+  "sourceCommit": "77782614bbc6c40e864ed890945946ea5be79819"
+}

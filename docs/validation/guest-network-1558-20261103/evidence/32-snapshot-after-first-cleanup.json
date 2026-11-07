@@ -1,0 +1,27 @@
+{
+  "api": [
+    {
+      "id": "897b203b-5ee6-4e13-ad50-a295bbb6cb02",
+      "name": "qa-gn1558-32-isolated-renamed",
+      "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+      "type": "Isolated",
+      "state": "Allocated",
+      "networkofferingid": "e8d9487d-f70b-451f-8a58-7d26e8bfdc79",
+      "cidr": "10.245.32.0/24",
+      "gateway": "10.245.32.1",
+      "vlan": null,
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "dns1": "8.8.8.8",
+      "dns2": null
+    }
+  ],
+  "db": [
+    {
+      "id": "897b203b-5ee6-4e13-ad50-a295bbb6cb02",
+      "name": "qa-gn1558-32-isolated-renamed",
+      "state": "Allocated",
+      "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    }
+  ]
+}

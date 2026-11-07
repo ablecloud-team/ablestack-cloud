@@ -1,0 +1,20 @@
+{
+  "protected": {
+    "server_files": {
+      "WEB-INF/web.xml": "04772d62c28054b1947a84e7b83f2f7c0ab343dc457f0b5e730a631d2ef08c25"
+    },
+    "runtime_files": {
+      "config.json": "56e421a72d76daa8dcd007eb0e8669ee2951f3940e02b00e4123c0cf9c2a03ff",
+      "cloud-image-templates.json": "63e1a3c3556e678b4a6298046e68328febc2a37e3f5b05dcce0b5abd62c43b74"
+    },
+    "large_file": {
+      "inode": 27209289,
+      "size": 29194321920,
+      "mtime_ns": 1791859614464247580
+    },
+    "mold_pid": "896810"
+  },
+  "http": 200,
+  "backup_bytes": 6146471,
+  "disk_free": 533585920
+}

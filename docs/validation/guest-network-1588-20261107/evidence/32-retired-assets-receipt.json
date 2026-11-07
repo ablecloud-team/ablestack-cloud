@@ -1,0 +1,11 @@
+{
+  "retiredFilesRemoved": 12,
+  "bytesFreed": 217907916,
+  "beforeFree": 235991040,
+  "afterFree": 453931008,
+  "activeFilesPreserved": 663,
+  "webInfPresent": true,
+  "backupSha256": "f0ec0c42c16a11abb850b5ce79cd737fa34d58ba50c1656ef2c9a0bb9840191f",
+  "remoteBackup": "/dev/shm/gn1588-retired-ui-20261107-210643/retired-assets.tar.gz",
+  "durableWslBackup": "/home/ablecloud/work/guest-network-1588-validation/32-retired-assets-backup.tar.gz"
+}

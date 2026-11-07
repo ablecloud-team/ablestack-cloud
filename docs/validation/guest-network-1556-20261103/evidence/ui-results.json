@@ -1,0 +1,121 @@
+[
+  {
+    "case": "31-current-disabled-independent-edit",
+    "status": "PASS",
+    "jobid": "0eed9ad8-c4ca-489f-a314-952f5508590e",
+    "offering": "e79ea004-0d13-4055-bc23-ad039391c718"
+  },
+  {
+    "case": "32-current-disabled-independent-edit",
+    "status": "PASS",
+    "jobid": "d53991f1-0baf-4c87-b758-5c910ea8181e",
+    "offering": "b4720373-1c4f-44c9-848e-ae563d0d9260"
+  },
+  {
+    "case": "31-candidate-lookup-failure",
+    "status": "PASS",
+    "synthetic": "XHR HTTP 500",
+    "applyBlocked": true,
+    "inputPreserved": "qa-gn1556-31-failure-input",
+    "backgroundRetained": true
+  },
+  {
+    "case": "31-zero-candidate-response",
+    "status": "PASS",
+    "synthetic": "XHR count=0",
+    "fault": {
+      "mode": "empty",
+      "injected": 1,
+      "continued": 1,
+      "synthetic": true
+    },
+    "targetNameRetained": true,
+    "unavailableVisible": true,
+    "comparisonHidden": true,
+    "applyBlocked": true
+  },
+  {
+    "case": "31-zero-candidates-current-keep-save",
+    "status": "PASS",
+    "jobid": "370e8dd4-9588-49d7-9b19-8a9d652b871d"
+  },
+  {
+    "case": "31-real-concurrent-target-disable",
+    "status": "PASS",
+    "postCountBefore": 2,
+    "postCountAfter": 2,
+    "input": "qa-gn1556-31-concurrent-retained",
+    "blocked": true,
+    "unavailable": true
+  },
+  {
+    "cluster": 32,
+    "case": "candidate-500",
+    "synthetic": true,
+    "input": "qa-gn1556-32-failure-input",
+    "applyEnabled": false
+  },
+  {
+    "cluster": 32,
+    "case": "candidate-zero-selected-disappeared",
+    "synthetic": true,
+    "input": "qa-gn1556-32-failure-input",
+    "applyEnabled": false,
+    "comparisonCount": 0
+  },
+  {
+    "cluster": 32,
+    "case": "zero-candidate-current-keep-save",
+    "jobstatus": 1,
+    "offering": "b4720373-1c4f-44c9-848e-ae563d0d9260",
+    "dialogClosed": true
+  },
+  {
+    "cluster": 32,
+    "case": "real-concurrent-target-disabled",
+    "newPosts": 0,
+    "applyEnabled": false,
+    "selectedUnavailable": "네트워크 업데이트\nqa-gn1556-32-isolated\nIsolated · Zone · admin\n네트워크 또는 변경 가능 오퍼링이 바뀌었습니다. 후보를 다시 조회하거나 대화상자를 다시 열어 선택하세요. 변경 요청은 전송하지 않았습니다.\n이름\n설명\nSource NAT IP 주소\n네트워크 오퍼링\nqa-gn1556-32-target · 변경 불가\n오퍼링 다시 조회\nCIDR\n네트워크 도메인\nDNS 1\nDNS 2\n네트워크 표시 이름\n공용 NIC의 MAC 주소 유지\n강제\n취소\n변경 내용 확인"
+  },
+  {
+    "cluster": 32,
+    "case": "late-isolated-response-after-l2-navigation",
+    "heldRequests": 1,
+    "dialog": "네트워크 업데이트\nqa-gn1556-32-l2\nL2 · Zone · admin\n이름\n설명\nSource NAT IP 주소\nCIDR\n네트워크 표시 이름\n강제\n취소\n확인",
+    "offeringSelectorCount": 0,
+    "name": "qa-gn1556-32-l2"
+  },
+  {
+    "cluster": 32,
+    "case": "shared-update-no-offering-change",
+    "selectorCount": 0,
+    "name": "qa-gn1556-32-shared"
+  },
+  {
+    "cluster": 31,
+    "case": "late-isolated-response-after-l2-navigation",
+    "heldRequests": 1,
+    "offeringSelectorCount": 0,
+    "name": "qa-gn1556-31-l2"
+  },
+  {
+    "cluster": 31,
+    "case": "shared-update-no-offering-change",
+    "selectorCount": 0,
+    "name": "qa-gn1556-31-shared"
+  },
+  {
+    "cluster": 31,
+    "case": "final-build-offering-transition",
+    "jobstatus": 1,
+    "offering": "e79ea004-0d13-4055-bc23-ad039391c718",
+    "dialogClosed": true
+  },
+  {
+    "cluster": 32,
+    "case": "final-build-offering-transition",
+    "jobstatus": 1,
+    "offering": "f842db3f-30d3-4573-b4c0-26d996cc9a31",
+    "dialogClosed": true
+  }
+]

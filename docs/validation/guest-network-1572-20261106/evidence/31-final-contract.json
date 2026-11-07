@@ -1,0 +1,69 @@
+{
+  "account": [
+    {
+      "id": "b830b25f-e4b3-4c57-a30e-bda0b7a6b846",
+      "vlan": "783",
+      "networkid": "ab30a829-8936-4058-836f-d66ed7d4db90",
+      "startip": "198.19.31.74",
+      "endip": "198.19.31.86",
+      "gateway": "198.19.31.65",
+      "netmask": "255.255.255.224"
+    },
+    {
+      "id": "2d15c32f-6269-4e67-a414-c0ca72eb9594",
+      "vlan": "783",
+      "networkid": "ab30a829-8936-4058-836f-d66ed7d4db90",
+      "startip": "198.19.31.87",
+      "endip": "198.19.31.91",
+      "gateway": "198.19.31.65",
+      "netmask": "255.255.255.224"
+    }
+  ],
+  "all": [
+    {
+      "id": "d87928b3-7655-4855-a2be-c2e14508f39a",
+      "vlan": "781",
+      "networkid": "6dde9ac4-bb32-40b7-9e5b-7e63b0f52b4f",
+      "startip": "198.19.31.10",
+      "endip": "198.19.31.22",
+      "gateway": "198.19.31.1",
+      "netmask": "255.255.255.224"
+    }
+  ],
+  "dual": [
+    {
+      "id": "78754f2b-8f3c-46d5-a43a-2c3f0a768dd6",
+      "vlan": "788",
+      "networkid": "6e7050da-355d-41a1-af38-9012ed8d369a",
+      "startip": "198.19.31.234",
+      "endip": "198.19.31.246",
+      "gateway": "198.19.31.225",
+      "netmask": "255.255.255.224",
+      "startipv6": "fd72:31::100",
+      "endipv6": "fd72:31::110",
+      "ip6gateway": "fd72:31::1",
+      "ip6cidr": "fd72:31::/64"
+    }
+  ],
+  "released": {
+    "ipaddress": "198.19.31.13",
+    "state": "Free",
+    "networkid": "6dde9ac4-bb32-40b7-9e5b-7e63b0f52b4f",
+    "forvirtualnetwork": false
+  },
+  "dnsInventory": {
+    "DnsZones": 0,
+    "DnsServers": 0
+  },
+  "rootWide": {
+    "acltype": "Domain",
+    "rootDomain": true,
+    "subdomainaccess": true
+  },
+  "nonFixtureStandaloneSharedCount": 0,
+  "db": {
+    "active_nics": 2,
+    "running_vms": 2,
+    "active_networks": 9
+  }
+}

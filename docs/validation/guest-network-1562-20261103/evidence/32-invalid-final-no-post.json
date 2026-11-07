@@ -1,0 +1,151 @@
+{
+  "records": [
+    {
+      "requestId": "40480.3676",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3688",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "guestiptype": "Isolated",
+        "state": "Enabled",
+        "forvpc": "false",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3689",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "e8d9487d-f70b-451f-8a58-7d26e8bfdc79",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3690",
+      "command": "listPhysicalNetworks",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listPhysicalNetworks"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3691",
+      "command": "listTrafficTypes",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listTrafficTypes"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3692",
+      "command": "listNetworkServiceProviders",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listNetworkServiceProviders"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3693",
+      "command": "listVirtualRouterElements",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVirtualRouterElements"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3694",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "f702f1af-8e1d-4ea8-bdb2-4f012e24cfda",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3695",
+      "command": "listPhysicalNetworks",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listPhysicalNetworks"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3696",
+      "command": "listTrafficTypes",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listTrafficTypes"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3697",
+      "command": "listNetworkServiceProviders",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listNetworkServiceProviders"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3698",
+      "command": "listVirtualRouterElements",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVirtualRouterElements"
+      },
+      "status": 200
+    }
+  ],
+  "cursor": 4710,
+  "confirm_disabled": true,
+  "provider_message": "서비스·제공자 확인서비스·제공자 구성이 맞지 않아 적용할 수 없습니다. 다른 오퍼링을 선택하거나 관리자에게 아래 구성을 확인해 주세요.Physical Network 1 · f9ed8d65-60ae-45c3-8ee0-e37e1b453b0bFirewall → VpcVirtualRouter: 제공자가 이 서비스를 제공하도록 설정되어 있지 않습니다.서비스 제공자 (8)UserData → VpcVirtualRouter · 설정 확인Vpn → VpcVirtualRouter · 설정 확인StaticNat → VpcVirtualRouter · 설정 확인PortForwarding → VpcVirtualRouter · 설정 확인Dns → VpcVirtualRouter · 설정 확인Lb → VpcVirtualRouter · 설정 확인Dhcp → VpcVirtualRouter · 설정 확인Firewall → VpcVirtualRouter · 제공자가 이 서비스를 제공하도록 설정되어 있지 않습니다."
+}

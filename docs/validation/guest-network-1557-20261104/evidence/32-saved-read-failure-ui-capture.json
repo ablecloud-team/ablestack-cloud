@@ -1,0 +1,104 @@
+{
+  "body": {
+    "bottom": 742,
+    "height": 594,
+    "left": 161,
+    "right": 1119,
+    "top": 148,
+    "width": 958,
+    "x": 161,
+    "y": 148
+  },
+  "bodyClientHeight": 594,
+  "bodyClientWidth": 958,
+  "bodyScrollHeight": 594,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 958,
+  "colors": [
+    {
+      "background": "rgb(255, 248, 230)",
+      "color": "rgb(92, 59, 0)",
+      "text": "QA range read failure (synthetic response)"
+    },
+    {
+      "background": "rgb(234, 244, 255)",
+      "color": "rgb(11, 59, 102)",
+      "text": "중복 저장을 방지하기 위해 결과만 다시 조회합니다."
+    },
+    {
+      "background": "rgb(9, 105, 218)",
+      "color": "rgb(255, 255, 255)",
+      "text": "결과 다시 조회"
+    }
+  ],
+  "content": {
+    "bottom": 808,
+    "height": 716,
+    "left": 160,
+    "right": 1120,
+    "top": 92,
+    "width": 960,
+    "x": 160,
+    "y": 92
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1280,
+    "top": 0,
+    "width": 1280,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": {
+    "bottom": 807,
+    "height": 65,
+    "left": 161,
+    "right": 1119,
+    "top": 742,
+    "width": 958,
+    "x": 161,
+    "y": 742
+  },
+  "header": {
+    "bottom": 148,
+    "height": 55,
+    "left": 161,
+    "right": 1119,
+    "top": 93,
+    "width": 958,
+    "x": 161,
+    "y": 93
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 749,
+    "left": 256,
+    "right": 1270,
+    "top": 151,
+    "width": 1014,
+    "x": 256,
+    "y": 151
+  },
+  "primaryButton": {
+    "bottom": 791,
+    "height": 32,
+    "left": 974.046875,
+    "right": 1091,
+    "top": 759,
+    "width": 116.953125,
+    "x": 974.046875,
+    "y": 759
+  },
+  "width": 1280,
+  "image_sha256": "cfb35eb952637fe82159143bef03b349903d72fad3e70dea19398631df592a60"
+}

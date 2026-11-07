@@ -1,0 +1,34 @@
+{
+  "host": "10.10.32.1",
+  "phase": "different",
+  "pairs": [
+    {
+      "vm": "c400bb38-8b48-4ddb-be8a-540567fbfc67",
+      "network": "838c260d-dfca-4589-8568-7db4dd292229",
+      "broadcast": "vlan://772",
+      "mac": "02:01:01:91:00:01",
+      "address": "ens8             UP             198.18.32.11/24",
+      "isdefault": false,
+      "pingExit": 1,
+      "packets": [
+        "",
+        "--- 198.18.32.12 ping statistics ---",
+        "3 packets transmitted, 0 received, 100% packet loss, time 2025ms"
+      ]
+    },
+    {
+      "vm": "4b892475-6676-465d-a6eb-3d50d32ebffb",
+      "network": "ff71bb9c-3113-4edb-9c89-44a855ac451a",
+      "broadcast": "vlan://773",
+      "mac": "02:01:01:90:00:03",
+      "address": "ens8             UP             198.18.32.12/24",
+      "isdefault": false,
+      "pingExit": 1,
+      "packets": [
+        "",
+        "--- 198.18.32.11 ping statistics ---",
+        "3 packets transmitted, 0 received, 100% packet loss, time 2063ms"
+      ]
+    }
+  ]
+}

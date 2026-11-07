@@ -1,0 +1,183 @@
+{
+  "31": {
+    "jobs": {
+      "l2Connect": {
+        "jobid": "792e76f0-9f8c-491b-a848-311862c9d478",
+        "jobstatus": 1,
+        "jobresultcode": 0
+      },
+      "restart": {
+        "jobid": "e9dd56bd-4e5f-47bd-afbd-2648eaeef63b",
+        "jobstatus": 1,
+        "jobresultcode": 0
+      }
+    },
+    "vms": {
+      "shared": {
+        "id": "e0ab98ea-2495-4f86-871f-ebd61786dbd3",
+        "name": "qa-gn1569-31-shared-vm",
+        "instancename": "i-424-937-VM",
+        "hostname": "ablecube31-3",
+        "state": "Running",
+        "nics": [
+          {
+            "id": "977bad67-e62e-4b23-b455-2c88880d62d8",
+            "networkid": "0346f16d-8a02-4fb6-860a-cc380def63f4",
+            "ipaddress": "10.178.31.25",
+            "macaddress": "1e:1f:9e:00:02:cb",
+            "isdefault": true,
+            "deviceid": "0"
+          }
+        ]
+      },
+      "nosnat": {
+        "id": "cae707e9-1851-4ce1-a63c-ecd5173a64f7",
+        "name": "qa-gn1569-31-nosnat-vm",
+        "instancename": "i-424-939-VM",
+        "hostname": "ablecube31-2",
+        "state": "Running",
+        "nics": [
+          {
+            "id": "f9a4ad3b-a8de-411c-b8b4-1ecc3c3d3dbc",
+            "networkid": "b056b626-fe5e-4b75-ba17-78e421162dd7",
+            "ipaddress": "10.177.31.25",
+            "macaddress": "1e:1f:58:00:02:bb",
+            "isdefault": true,
+            "deviceid": "0"
+          }
+        ]
+      },
+      "nat": {
+        "id": "ee5d34e7-fab2-4159-af9d-a28a55f87ebb",
+        "name": "qa-gn1569-31-nat-vm",
+        "instancename": "i-424-941-VM",
+        "hostname": "ablecube31-1",
+        "state": "Running",
+        "nics": [
+          {
+            "id": "c3fc3bc5-0b9f-42a5-8512-4cee8b6c023f",
+            "networkid": "9c79eaa6-e3de-4892-9cb9-fecb6b6f15a0",
+            "ipaddress": "10.176.31.21",
+            "macaddress": "02:1f:02:11:00:01",
+            "isdefault": true,
+            "deviceid": "0"
+          },
+          {
+            "id": "d94dfd9a-0d61-4b30-a724-15e39b85c069",
+            "networkid": "9103d235-6ff9-42b7-ad1f-0225d21f507a",
+            "ipaddress": null,
+            "macaddress": "02:1f:02:13:00:01",
+            "isdefault": false,
+            "deviceid": "1"
+          }
+        ]
+      }
+    }
+  },
+  "32": {
+    "jobs": {
+      "l2Connect": {
+        "jobid": "f97d55c5-dbd3-47fa-b1e5-1b4666a5c1a7",
+        "jobstatus": 1,
+        "jobresultcode": 0
+      },
+      "restart": {
+        "jobid": "9c5402c8-5cb3-45a8-8c8d-b622598c9aa7",
+        "jobstatus": 1,
+        "jobresultcode": 0
+      }
+    },
+    "vms": {
+      "nat": {
+        "id": "d67429be-281f-443d-8ee6-ed7b7683e09d",
+        "name": "qa-gn1569-32-nat-vm",
+        "instancename": "i-236-410-VM",
+        "hostname": "ablecube32-3",
+        "state": "Running",
+        "nics": [
+          {
+            "id": "60a5043e-6958-4bfd-81c5-bb0cb52e4bbf",
+            "networkid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+            "ipaddress": "10.176.32.75",
+            "macaddress": "02:01:01:9e:00:01",
+            "isdefault": true,
+            "deviceid": "0"
+          },
+          {
+            "id": "5f5533a5-5511-4d36-91ec-cabe14664f89",
+            "networkid": "aefaf6fa-4255-4b64-9f28-2da2a25ea711",
+            "ipaddress": null,
+            "macaddress": "02:01:01:a0:00:01",
+            "isdefault": false,
+            "deviceid": "1"
+          }
+        ]
+      },
+      "shared": {
+        "id": "c0ae91e3-1538-49c7-94cb-a513c50e08ee",
+        "name": "qa-gn1569-32-shared-vm",
+        "instancename": "i-236-412-VM",
+        "hostname": "ablecube32-2",
+        "state": "Running",
+        "nics": [
+          {
+            "id": "d2bcc0ff-cfbd-49a6-89eb-5b992e365440",
+            "networkid": "eb1c8ca5-d19b-49a7-9de5-5575549a2b6e",
+            "ipaddress": "10.178.32.20",
+            "macaddress": "1e:01:8a:00:02:c4",
+            "isdefault": true,
+            "deviceid": "0"
+          }
+        ]
+      },
+      "nosnat": {
+        "id": "23dbc3f4-4378-4fef-9420-959d724ae98e",
+        "name": "qa-gn1569-32-nosnat-vm",
+        "instancename": "i-236-414-VM",
+        "hostname": "ablecube32-2",
+        "state": "Running",
+        "nics": [
+          {
+            "id": "397fde63-5edd-4695-8f91-751ce13dfc87",
+            "networkid": "28a009ed-333e-4968-8a8e-3f5b2f9ca667",
+            "ipaddress": "10.177.32.20",
+            "macaddress": "1e:01:90:00:02:b4",
+            "isdefault": true,
+            "deviceid": "0"
+          }
+        ]
+      }
+    },
+    "dnsBrowser": [
+      {
+        "requestId": "56612.10334",
+        "fields": {
+          "id": "75ccea08-34d0-48b6-80a9-006202b76e39",
+          "name": "qa-gn1569-32-nat",
+          "dns1": "8.8.8.8",
+          "dns2": "1.0.0.1"
+        },
+        "receipt": {
+          "updatenetworkresponse": {
+            "jobid": "145e2964-067c-4bd7-b340-8fc095dc233c"
+          }
+        }
+      }
+    ],
+    "dnsJob": {
+      "jobid": "145e2964-067c-4bd7-b340-8fc095dc233c",
+      "jobstatus": 1,
+      "jobresultcode": 0,
+      "jobinstanceid": "75ccea08-34d0-48b6-80a9-006202b76e39",
+      "errortext": null,
+      "network": [
+        {
+          "id": "75ccea08-34d0-48b6-80a9-006202b76e39",
+          "dns1": "8.8.8.8",
+          "dns2": "1.0.0.1",
+          "state": "Implemented"
+        }
+      ]
+    }
+  }
+}

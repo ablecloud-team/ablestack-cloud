@@ -1,0 +1,43 @@
+{
+  "metadata": [
+    {
+      "vm": "743d3dbd-822c-4fde-bb3d-d74475ba0d5e",
+      "path": "5070596b-ca26-47bd-a559-d5c1389a9e24",
+      "state": "Expunging",
+      "volume": "5070596b-ca26-47bd-a559-d5c1389a9e24",
+      "removed": null,
+      "volumeState": "Destroy",
+      "volumeRemoved": null
+    },
+    {
+      "nic": "5f6c85d1-cfb0-4790-a456-9fd510504678",
+      "nicVm": 376,
+      "state": "Allocated",
+      "network": "51cccc36-8c11-4832-9a5e-9abc91ab8e59",
+      "removed": null,
+      "nicRemoved": "2026-11-05 17:15:12.000000"
+    },
+    {
+      "nic": "7c3395d5-de9f-414f-8b4e-9ea908140d0b",
+      "nicVm": 377,
+      "state": "Allocated",
+      "network": "51cccc36-8c11-4832-9a5e-9abc91ab8e59",
+      "removed": null,
+      "nicRemoved": "2026-11-05 17:33:05.000000"
+    }
+  ],
+  "errors": [
+    "2026-11-06 02:33:06,564 DEBUG [c.c.a.t.Request] (AgentManager-Handler-4:[]) (logid:) Seq 3-1303510617147048381: Processing:  { Ans: , MgmtId: 156789560745, via: 3, Ver: v1, Flags: 10, [{\"com.cloud.agent.api.Answer\":{\"result\":\"false\",\"details\":\"com.cloud.utils.exception.CloudRuntimeException: org.libvirt.LibvirtException: failed to remove volume 'rbd/5070596b-ca26-47bd-a559-d5c1389a9e24': No such file or directory\",\"wait\":\"0\",\"bypassHostMaintenance\":\"false\"}}] }",
+    "2026-11-06 02:33:06,574 WARN  [o.a.c.e.o.NetworkOrchestrator] (API-Job-Executor-17:[ctx-93f84e66, job-6753, ctx-05498948]) (logid:ece38239) Unable to complete destroy of the network due to element: VirtualRouter com.cloud.utils.exception.CloudRuntimeException: Router root volume 5070596b-ca26-47bd-a559-d5c1389a9e24 was not expunged. Inspect storage mappings and retry normal network/router deletion after the cause is resolved.",
+    "2026-11-06 02:33:06,583 ERROR [c.c.a.ApiAsyncJobDispatcher] (API-Job-Executor-17:[ctx-93f84e66, job-6753]) (logid:ece38239) Unexpected exception while executing org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd com.cloud.utils.exception.CloudRuntimeException: Network 51cccc36-8c11-4832-9a5e-9abc91ab8e59 was not deleted. Check router shutdown, IP/range release and router volume cleanup, refresh its dependencies, then retry only this network. No automatic forced deletion was performed.",
+    "2026-11-06 02:33:06,584 DEBUG [o.a.c.f.j.i.AsyncJobManagerImpl] (API-Job-Executor-17:[ctx-93f84e66, job-6753]) (logid:ece38239) Complete async job-6753, jobStatus: FAILED, resultCode: 530, result: org.apache.cloudstack.api.response.ExceptionResponse/null/{\"uuidList\":[],\"errorcode\":\"530\",\"errortext\":\"Network 51cccc36-8c11-4832-9a5e-9abc91ab8e59 was not deleted. Check router shutdown, IP/range release and router volume cleanup, refresh its dependencies, then retry only this network. No automatic forced deletion was performed.\"}",
+    "2026-11-06 02:34:22,536 DEBUG [c.c.a.t.Request] (AgentManager-Handler-15:[]) (logid:) Seq 3-1303510617147048388: Processing:  { Ans: , MgmtId: 156789560745, via: 3, Ver: v1, Flags: 10, [{\"com.cloud.agent.api.Answer\":{\"result\":\"false\",\"details\":\"com.cloud.utils.exception.CloudRuntimeException: org.libvirt.LibvirtException: failed to remove volume 'rbd/5070596b-ca26-47bd-a559-d5c1389a9e24': No such file or directory\",\"wait\":\"0\",\"bypassHostMaintenance\":\"false\"}}] }",
+    "2026-11-06 02:34:22,547 WARN  [o.a.c.e.o.NetworkOrchestrator] (API-Job-Executor-18:[ctx-15b74939, job-6755, ctx-3edc0821]) (logid:1b5bc3e3) Unable to complete destroy of the network due to element: VirtualRouter com.cloud.utils.exception.CloudRuntimeException: Router root volume 5070596b-ca26-47bd-a559-d5c1389a9e24 was not expunged. Inspect storage mappings and retry normal network/router deletion after the cause is resolved.",
+    "2026-11-06 02:34:22,557 ERROR [c.c.a.ApiAsyncJobDispatcher] (API-Job-Executor-18:[ctx-15b74939, job-6755]) (logid:1b5bc3e3) Unexpected exception while executing org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd com.cloud.utils.exception.CloudRuntimeException: Network 51cccc36-8c11-4832-9a5e-9abc91ab8e59 was not deleted. Check router shutdown, IP/range release and router volume cleanup, refresh its dependencies, then retry only this network. No automatic forced deletion was performed.",
+    "2026-11-06 02:34:22,557 DEBUG [o.a.c.f.j.i.AsyncJobManagerImpl] (API-Job-Executor-18:[ctx-15b74939, job-6755]) (logid:1b5bc3e3) Complete async job-6755, jobStatus: FAILED, resultCode: 530, result: org.apache.cloudstack.api.response.ExceptionResponse/null/{\"uuidList\":[],\"errorcode\":\"530\",\"errortext\":\"Network 51cccc36-8c11-4832-9a5e-9abc91ab8e59 was not deleted. Check router shutdown, IP/range release and router volume cleanup, refresh its dependencies, then retry only this network. No automatic forced deletion was performed.\"}"
+  ],
+  "physicalImageExists": true,
+  "watchersAfterCauseRelease": 0,
+  "operatorRecoveryRequired": true,
+  "followup": "https://github.com/ablecloud-team/ablestack-cloud/issues/1586"
+}

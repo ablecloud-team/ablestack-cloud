@@ -1,0 +1,99 @@
+{
+  "body": {
+    "bottom": 766,
+    "height": 698,
+    "left": 13,
+    "right": 377,
+    "top": 68,
+    "width": 364,
+    "x": 13,
+    "y": 68
+  },
+  "bodyClientHeight": 698,
+  "bodyClientWidth": 354,
+  "bodyScrollHeight": 2472,
+  "bodyScrollTop": 1350,
+  "bodyScrollWidth": 354,
+  "colors": [
+    {
+      "background": "rgb(255, 248, 230)",
+      "color": "rgb(92, 59, 0)",
+      "text": "IPv6 support in ABLESTACK - Isolated networks and VPC tiers을 제공하는 IPv6 지원 네트워크/V"
+    },
+    {
+      "background": "rgb(9, 105, 218)",
+      "color": "rgb(255, 255, 255)",
+      "text": "확인"
+    }
+  ],
+  "content": {
+    "bottom": 832,
+    "height": 820,
+    "left": 12,
+    "right": 378,
+    "top": 12,
+    "width": 366,
+    "x": 12,
+    "y": 12
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 844,
+    "height": 844,
+    "left": 0,
+    "right": 390,
+    "top": 0,
+    "width": 390,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 380,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "INPUT"
+  },
+  "footer": {
+    "bottom": 831,
+    "height": 65,
+    "left": 13,
+    "right": 377,
+    "top": 766,
+    "width": 364,
+    "x": 13,
+    "y": 766
+  },
+  "header": {
+    "bottom": 68,
+    "height": 55,
+    "left": 13,
+    "right": 377,
+    "top": 13,
+    "width": 364,
+    "x": 13,
+    "y": 13
+  },
+  "height": 844,
+  "main": {
+    "bottom": 844,
+    "height": 676,
+    "left": 0,
+    "right": 380,
+    "top": 168,
+    "width": 380,
+    "x": 0,
+    "y": 168
+  },
+  "primaryButton": {
+    "bottom": 815,
+    "height": 32,
+    "left": 303.234375,
+    "right": 361,
+    "top": 783,
+    "width": 57.765625,
+    "x": 303.234375,
+    "y": 783
+  },
+  "width": 390,
+  "image_sha256": "a9511b2516056003213c72ba86f3b19195443a89db2a9c94e135b3b3e8e1e9e8"
+}

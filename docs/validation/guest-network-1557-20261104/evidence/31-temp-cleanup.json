@@ -1,0 +1,44 @@
+{
+  "nosnat": {
+    "vm": {
+      "id": "845447ac-82e8-4e99-a338-8da56b208d5d",
+      "name": "qa-gn1557-31-nosnat-temp",
+      "instancename": "i-2-855-VM",
+      "hostid": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+      "hostname": "ablecube31-2"
+    },
+    "volumes": [
+      {
+        "id": "9238dac4-1271-4874-8b74-bdb0c7068d7a",
+        "name": "ROOT-855",
+        "path": "9238dac4-1271-4874-8b74-bdb0c7068d7a",
+        "storage": "Primary",
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "state": "Ready"
+      }
+    ],
+    "jobstatus": 1,
+    "db": "845447ac-82e8-4e99-a338-8da56b208d5d\tExpunging\t2026-11-04 01:56:09\n7f55d624-5483-411e-85eb-2af380d4673f\tDeallocating\t2026-11-04 01:56:09\n172.26.31.31\tFree\tNULL\tNULL\tNULL\n9238dac4-1271-4874-8b74-bdb0c7068d7a\tExpunged\t2026-11-04 01:56:09\n"
+  },
+  "shared": {
+    "vm": {
+      "id": "a9731a85-4b3a-45f4-acb0-b3c197e7e1a9",
+      "name": "qa-gn1557-31-shared-temp",
+      "instancename": "i-2-856-VM",
+      "hostid": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+      "hostname": "ablecube31-2"
+    },
+    "volumes": [
+      {
+        "id": "ec2e8747-98f0-4970-bb08-c1c0070491ab",
+        "name": "ROOT-856",
+        "path": "ec2e8747-98f0-4970-bb08-c1c0070491ab",
+        "storage": "Primary",
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "state": "Ready"
+      }
+    ],
+    "jobstatus": 1,
+    "db": "a9731a85-4b3a-45f4-acb0-b3c197e7e1a9\tExpunging\t2026-11-04 01:56:21\n7ead55cd-3815-4a06-ac9f-b9f0fc322a8f\tDeallocating\t2026-11-04 01:56:21\n172.27.31.31\tFree\tNULL\tNULL\tNULL\nec2e8747-98f0-4970-bb08-c1c0070491ab\tExpunged\t2026-11-04 01:56:21\n"
+  }
+}

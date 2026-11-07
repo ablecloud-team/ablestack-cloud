@@ -15,102 +15,44 @@
 // specific language governing permissions and limitations
 // under the License.
 
-export function buildServiceCapabilityParams (params, values, selectedServiceProviderMap, registeredServicePackages) {
-  const supportedServices = Object.keys(selectedServiceProviderMap)
-  params.supportedservices = supportedServices.join(',')
-  for (const k in supportedServices) {
-    params[`serviceProviderList[${k}].service`] = supportedServices[k]
-    params[`serviceProviderList[${k}].provider`] = selectedServiceProviderMap[supportedServices[k]]
+export function buildServiceCapabilityParams (params, values, providers, packages) {
+  const services = Object.entries(providers)
+  params.supportedservices = services.map(([service]) => service).join(',')
+  services.forEach(([service, provider], index) => {
+    params[`serviceProviderList[${index}].service`] = service
+    params[`serviceProviderList[${index}].provider`] = provider
+  })
+  let index = 0
+  const capability = (service, name, value) => {
+    if (value == null || value === '') return
+    params[`serviceCapabilityList[${index}].service`] = service
+    params[`serviceCapabilityList[${index}].capabilitytype`] = name
+    params[`serviceCapabilityList[${index++}].capabilityvalue`] = value
   }
-  let serviceCapabilityIndex = 0
-  if (supportedServices.includes('Connectivity')) {
-    if (values.supportsstrechedl2subnet === true) {
-      params[`serviceCapabilityList[${serviceCapabilityIndex}].service`] = 'Connectivity'
-      params[`serviceCapabilityList[${serviceCapabilityIndex}].capabilitytype`] = 'RegionLevelVpc'
-      params[`serviceCapabilityList[${serviceCapabilityIndex}].capabilityvalue`] = true
-      serviceCapabilityIndex++
-    }
-    if (values.supportspublicaccess === true) {
-      params[`serviceCapabilityList[${serviceCapabilityIndex}].service`] = 'Connectivity'
-      params[`serviceCapabilityList[${serviceCapabilityIndex}].capabilitytype`] = 'DistributedRouter'
-      params[`serviceCapabilityList[${serviceCapabilityIndex}].capabilityvalue`] = true
-      serviceCapabilityIndex++
-    }
-    delete params.supportsstrechedl2subnet
-    delete params.supportspublicaccess
+  if (providers.Connectivity) {
+    capability('Connectivity', 'RegionLevelVpc', values.supportsstrechedl2subnet)
+    capability('Connectivity', 'DistributedRouter', values.supportspublicaccess)
   }
-  // SourceNat capabilities
-  if (supportedServices.includes('SourceNat')) {
-    if (values.redundantroutercapability === true) {
-      params[`serviceCapabilityList[${serviceCapabilityIndex}].service`] = 'SourceNat'
-      params[`serviceCapabilityList[${serviceCapabilityIndex}].capabilitytype`] = 'RedundantRouter'
-      params[`serviceCapabilityList[${serviceCapabilityIndex}].capabilityvalue`] = true
-      serviceCapabilityIndex++
-    }
-    params[`servicecapabilitylist[${serviceCapabilityIndex}].service`] = 'SourceNat'
-    params[`servicecapabilitylist[${serviceCapabilityIndex}].capabilitytype`] = 'SupportedSourceNatTypes'
-    params[`servicecapabilitylist[${serviceCapabilityIndex}].capabilityvalue`] = values.sourcenattype
-    serviceCapabilityIndex++
-    delete params.redundantroutercapability
-    delete params.sourcenattype
-  } else if (values.redundantroutercapability === true) {
-    params[`serviceCapabilityList[${serviceCapabilityIndex}].service`] = 'Gateway'
-    params[`serviceCapabilityList[${serviceCapabilityIndex}].capabilitytype`] = 'RedundantRouter'
-    params[`serviceCapabilityList[${serviceCapabilityIndex}].capabilityvalue`] = true
-    serviceCapabilityIndex++
+  if (providers.SourceNat) {
+    capability('SourceNat', 'SupportedSourceNatTypes', values.sourcenattype)
+    if (providers.SourceNat !== 'VpcVirtualRouter') capability('SourceNat', 'RedundantRouter', values.redundantroutercapability)
   }
-  // StaticNat capabilities
-  if (supportedServices.includes('SourceNat')) {
-    if (values.elasticip === true) {
-      params[`servicecapabilitylist[${serviceCapabilityIndex}].service`] = 'StaticNat'
-      params[`servicecapabilitylist[${serviceCapabilityIndex}].capabilitytype`] = 'ElasticIp'
-      params[`servicecapabilitylist[${serviceCapabilityIndex}].capabilityvalue`] = true
-      serviceCapabilityIndex++
-    }
-    if (values.elasticip === true || values.associatepublicip === true) {
-      params[`servicecapabilitylist[${serviceCapabilityIndex}].service`] = 'StaticNat'
-      params[`servicecapabilitylist[${serviceCapabilityIndex}].capabilitytype`] = 'associatePublicIP'
-      params[`servicecapabilitylist[${serviceCapabilityIndex}].capabilityvalue`] = values.associatepublicip
-      serviceCapabilityIndex++
-    }
-    delete params.elasticip
-    delete params.associatepublicip
+  const shared = values.guestiptype === 'shared'
+  if (shared && providers.StaticNat === 'Netscaler') {
+    capability('StaticNat', 'ElasticIp', values.elasticip)
+    if (values.elasticip) capability('StaticNat', 'associatePublicIP', values.associatepublicip ?? false)
   }
-  // Lb capabilities
-  if (supportedServices.includes('Lb')) {
-    if ('vmautoscalingcapability' in values) {
-      params[`servicecapabilitylist[${serviceCapabilityIndex}].service`] = 'lb'
-      params[`servicecapabilitylist[${serviceCapabilityIndex}].capabilitytype`] = 'VmAutoScaling'
-      params[`servicecapabilitylist[${serviceCapabilityIndex}].capabilityvalue`] = values.vmautoscalingcapability
-      serviceCapabilityIndex++
-    }
-    if (values.elasticlb === true) {
-      params[`servicecapabilitylist[${serviceCapabilityIndex}].service`] = 'lb'
-      params[`servicecapabilitylist[${serviceCapabilityIndex}].capabilitytype`] = 'ElasticLb'
-      params[`servicecapabilitylist[${serviceCapabilityIndex}].capabilityvalue`] = true
-      serviceCapabilityIndex++
-    }
-    if (values.inlinemode === true && ((selectedServiceProviderMap.Lb === 'F5BigIp') || (selectedServiceProviderMap.Lb === 'Netscaler'))) {
-      params[`servicecapabilitylist[${serviceCapabilityIndex}].service`] = 'lb'
-      params[`servicecapabilitylist[${serviceCapabilityIndex}].capabilitytype`] = 'InlineMode'
-      params[`servicecapabilitylist[${serviceCapabilityIndex}].capabilityvalue`] = values.inlinemode
-      serviceCapabilityIndex++
-    }
-    params[`servicecapabilitylist[${serviceCapabilityIndex}].service`] = 'lb'
-    params[`servicecapabilitylist[${serviceCapabilityIndex}].capabilitytype`] = 'SupportedLbIsolation'
-    params[`servicecapabilitylist[${serviceCapabilityIndex}].capabilityvalue`] = values.isolation || 'dedicated'
-    serviceCapabilityIndex++
-    if (selectedServiceProviderMap.Lb === 'InternalLbVm') {
-      params[`servicecapabilitylist[${serviceCapabilityIndex}].service`] = 'lb'
-      params[`servicecapabilitylist[${serviceCapabilityIndex}].capabilitytype`] = 'lbSchemes'
-      params[`servicecapabilitylist[${serviceCapabilityIndex}].capabilityvalue`] = 'internal'
-      serviceCapabilityIndex++
-    }
-    if ('netscalerservicepackages' in values &&
-      registeredServicePackages.length > values.netscalerservicepackages &&
-      'netscalerservicepackagesdescription' in values) {
-      params['details[0].servicepackageuuid'] = registeredServicePackages[values.netscalerservicepackages].id
-      params['details[1].servicepackagedescription'] = values.netscalerservicepackagesdescription
+  const lb = providers.Lb
+  if (lb) {
+    if (['VirtualRouter', 'VpcVirtualRouter', 'Netscaler'].includes(lb)) capability('Lb', 'VmAutoScaling', values.vmautoscalingcapability)
+    if (shared && lb === 'Netscaler') capability('Lb', 'ElasticLb', values.elasticlb)
+    if (['F5BigIp', 'Netscaler'].includes(lb) && providers.Firewall === 'JuniperSRX') capability('Lb', 'InlineMode', values.inlinemode)
+    capability('Lb', 'SupportedLbIsolation', values.isolation || 'dedicated')
+    if (lb === 'InternalLbVm') capability('Lb', 'lbSchemes', 'internal')
+    const pkg = lb === 'Netscaler' ? packages[values.netscalerservicepackages] : null
+    if (pkg && values.netscalerservicepackagesdescription) {
+      params['details[0].servicepackageuuid'] = pkg.id
+      params['details[0].servicepackagedescription'] = values.netscalerservicepackagesdescription
     }
   }
 }

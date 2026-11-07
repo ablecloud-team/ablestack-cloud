@@ -1,0 +1,91 @@
+[
+  {
+    "command": "deleteLoadBalancerRule",
+    "args": {
+      "id": "1d59766c-2002-4f4b-81ff-8e44b6f4ef2e"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteFirewallRule",
+    "args": {
+      "id": "d360f585-0c47-48ea-be6e-aeb91ad81c78"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "destroyVirtualMachine",
+    "args": {
+      "id": "4e17f7fc-b2a5-431a-af42-a5cee88734c8",
+      "expunge": "true"
+    },
+    "result": {
+      "virtualmachine": {
+        "volumemutationblockedreason": "",
+        "securitygroup": [],
+        "nic": [],
+        "affinitygroup": [],
+        "deleteprotection": false,
+        "tags": []
+      }
+    }
+  },
+  {
+    "command": "deleteNetwork",
+    "args": {
+      "id": "9bf0afda-a536-4356-a4d9-27cfdaffc916"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteNetworkOffering",
+    "args": {
+      "id": "b567eab0-6a63-455d-9b00-279d5e122d33"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteNetworkOffering",
+    "args": {
+      "id": "59b8b401-d7e8-4ca4-ac13-afa33a2e2229"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteNetworkOffering",
+    "args": {
+      "id": "3712e69e-0234-44af-9feb-44c48bae94ab"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteNetworkOffering",
+    "args": {
+      "id": "e7b92926-2ac9-4d41-9c2d-e84a33e0339f"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteNetworkOffering",
+    "args": {
+      "id": "23e262cc-9763-4ac7-b74a-f546f12ad9fa"
+    },
+    "result": {
+      "success": true
+    }
+  }
+]

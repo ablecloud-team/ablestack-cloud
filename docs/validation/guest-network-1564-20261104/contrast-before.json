@@ -1,0 +1,20 @@
+{
+  "ancestors": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "class": "network-ip-usage-control"
+    },
+    {
+      "background": "rgb(34, 40, 47)",
+      "class": "ant-modal-body"
+    },
+    {
+      "background": "rgb(34, 40, 47)",
+      "class": "ant-modal-content"
+    }
+  ],
+  "background": "rgba(255, 255, 255, 0.45)",
+  "checked": "false",
+  "fontSize": "12px",
+  "foreground": "rgb(255, 255, 255)"
+}

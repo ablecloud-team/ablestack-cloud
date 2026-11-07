@@ -1,0 +1,17 @@
+{
+  "oldJarSha256": "53895b2fa85d4c4ddafe35d870e383108a3861301d3ee3a2b2aa52a2112aed6a",
+  "newJarSha256": "6563bbe5eff57d8fdf18ffa2996007b1f5f8a947faf3e863c71cef79ea5f56d2",
+  "classSha256": "567bf11f79b40bbdffbd924e5c16676348784dd14c16215834fc607437865197",
+  "changedEntries": [
+    "org/apache/cloudstack/acl/ProjectRoleBasedApiAccessChecker.class"
+  ],
+  "protectedWebFiles": 664,
+  "protectedWebUnchanged": true,
+  "webInfPresent": true,
+  "http": 200,
+  "oldPID": "894433",
+  "newPID": "1085971",
+  "restartSeconds": 34.3,
+  "service": "active",
+  "remoteStage": "/dev/shm/gn1588-20261107-210236"
+}

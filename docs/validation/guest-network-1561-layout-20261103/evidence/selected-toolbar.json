@@ -1,0 +1,212 @@
+[
+  {
+    "cluster": 31,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            23,
+            43,
+            61
+          ],
+          "color": "rgb(214, 235, 255)",
+          "rect": {
+            "bottom": 571.5,
+            "height": 84,
+            "left": 37,
+            "right": 333,
+            "top": 487.5,
+            "width": 296,
+            "x": 37,
+            "y": 487.5
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": true,
+      "dialog": null,
+      "document_width": 380,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 747.5,
+        "height": 164,
+        "left": 37,
+        "right": 333,
+        "top": 583.5,
+        "width": 296,
+        "x": 37,
+        "y": 583.5
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 427.5,
+              "height": 32,
+              "left": 37,
+              "right": 146.359375,
+              "top": 395.5,
+              "width": 109.359375,
+              "x": 37,
+              "y": 395.5
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 427.5,
+              "height": 32,
+              "left": 154.359375,
+              "right": 259.890625,
+              "top": 395.5,
+              "width": 105.53125,
+              "x": 154.359375,
+              "y": 395.5
+            },
+            "text": "업데이트"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 467.5,
+              "height": 32,
+              "left": 37,
+              "right": 261.65625,
+              "top": 435.5,
+              "width": 224.65625,
+              "x": 37,
+              "y": 435.5
+            },
+            "text": "Egress 방화벽 규칙 대량 삭제"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 467.5,
+          "height": 72,
+          "left": 37,
+          "right": 333,
+          "top": 395.5,
+          "width": 296,
+          "x": 37,
+          "y": 395.5
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/d7e5f610-7ca4-420b-a562-5646f73f3cd3?tab=egress.rules",
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    },
+    "delete_clicked": false
+  },
+  {
+    "cluster": 32,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            23,
+            43,
+            61
+          ],
+          "color": "rgb(214, 235, 255)",
+          "rect": {
+            "bottom": 571.5,
+            "height": 84,
+            "left": 37,
+            "right": 333,
+            "top": 487.5,
+            "width": 296,
+            "x": 37,
+            "y": 487.5
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": true,
+      "dialog": null,
+      "document_width": 380,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 747.5,
+        "height": 164,
+        "left": 37,
+        "right": 333,
+        "top": 583.5,
+        "width": 296,
+        "x": 37,
+        "y": 583.5
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 427.5,
+              "height": 32,
+              "left": 37,
+              "right": 146.359375,
+              "top": 395.5,
+              "width": 109.359375,
+              "x": 37,
+              "y": 395.5
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 427.5,
+              "height": 32,
+              "left": 154.359375,
+              "right": 259.890625,
+              "top": 395.5,
+              "width": 105.53125,
+              "x": 154.359375,
+              "y": 395.5
+            },
+            "text": "업데이트"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 467.5,
+              "height": 32,
+              "left": 37,
+              "right": 261.65625,
+              "top": 435.5,
+              "width": 224.65625,
+              "x": 37,
+              "y": 435.5
+            },
+            "text": "Egress 방화벽 규칙 대량 삭제"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 467.5,
+          "height": 72,
+          "left": 37,
+          "right": 333,
+          "top": 395.5,
+          "width": 296,
+          "x": 37,
+          "y": 395.5
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=egress.rules",
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    },
+    "delete_clicked": false
+  }
+]

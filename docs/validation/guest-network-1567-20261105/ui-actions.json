@@ -1,0 +1,550 @@
+[
+  {
+    "cluster": 31,
+    "case": "Root normal update Isolated",
+    "status": "PASS",
+    "requests": [
+      {
+        "command": "updateNetwork",
+        "method": "POST",
+        "params": {
+          "id": "c5867039-56f1-453b-afe8-9790f6e2f749",
+          "name": "qa-gn1567-31-isolated",
+          "displaytext": "#1567 UI 31 Isolated 일반 수정 확인"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "888924a0-3f6c-4d8b-a9c7-b463a6c88623"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "Root standard update l2",
+    "status": "PASS",
+    "description": "#1567 UI 31 l2 Root 일반 수정 검증 완료",
+    "requests": [
+      {
+        "command": "updateNetwork",
+        "method": "POST",
+        "params": {
+          "id": "e6ed550b-c561-4372-93ad-421fdcda20a1",
+          "name": "qa-gn1567-31-l2",
+          "displaytext": "#1567 UI 31 l2 Root 일반 수정 검증 완료"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "be5b2492-c8f7-485f-9d4c-53d639829a96"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "be5b2492-c8f7-485f-9d4c-53d639829a96"
+        }
+      }
+    ],
+    "uiDescriptionObserved": true
+  },
+  {
+    "cluster": 31,
+    "case": "Root standard update shared",
+    "status": "PASS",
+    "description": "#1567 UI 31 shared Root 일반 수정 검증 완료",
+    "requests": [
+      {
+        "command": "updateNetwork",
+        "method": "POST",
+        "params": {
+          "id": "2b7b778e-3ad5-4d6f-8d32-b362c539f3a8",
+          "name": "qa-gn1567-31-shared",
+          "displaytext": "#1567 UI 31 shared Root 일반 수정 검증 완료"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "31508f28-287b-41c1-a4aa-9b98187b2530"
+        }
+      }
+    ],
+    "uiDescriptionObserved": true
+  },
+  {
+    "cluster": 32,
+    "case": "Root standard update isolated",
+    "status": "PASS",
+    "description": "#1567 UI 32 isolated Root 일반 수정 검증 완료",
+    "requests": [
+      {
+        "command": "updateNetwork",
+        "method": "POST",
+        "params": {
+          "id": "7f279b12-d465-486a-8cb8-2779db98f509",
+          "name": "qa-gn1567-32-isolated",
+          "displaytext": "#1567 UI 32 isolated Root 일반 수정 검증 완료"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "3b3dda16-e596-4a9b-b9fe-17d2d850d6f5"
+        }
+      }
+    ],
+    "uiDescriptionObserved": true
+  },
+  {
+    "cluster": 31,
+    "case": "in-use delete rejection isolated",
+    "status": "SUBMITTED",
+    "networkId": "c5867039-56f1-453b-afe8-9790f6e2f749",
+    "expectedJobStatus": 2,
+    "requests": [
+      {
+        "command": "deleteNetwork",
+        "method": "POST",
+        "params": {
+          "id": "c5867039-56f1-453b-afe8-9790f6e2f749"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "8662939a-cbf7-446a-bccf-11efa386a736"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "Root standard update shared",
+    "status": "SUBMITTED",
+    "description": "#1567 UI 32 shared Root 일반 수정 검증 완료",
+    "requests": [
+      {
+        "command": "updateNetwork",
+        "method": "POST",
+        "params": {
+          "id": "91c1c365-1c9e-4d7b-adc2-1a637b997787",
+          "name": "qa-gn1567-32-shared",
+          "displaytext": "#1567 UI 32 shared Root 일반 수정 검증 완료"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "7b69f20b-f1a3-4907-9758-46764684628e"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "in-use delete rejection shared",
+    "status": "SUBMITTED",
+    "networkId": "2b7b778e-3ad5-4d6f-8d32-b362c539f3a8",
+    "expectedJobStatus": 2,
+    "requests": [
+      {
+        "command": "deleteNetwork",
+        "method": "POST",
+        "params": {
+          "id": "2b7b778e-3ad5-4d6f-8d32-b362c539f3a8"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "6e70d576-65f9-4d10-b930-980bd2d8ac24"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "Root standard update l2",
+    "status": "SUBMITTED",
+    "description": "#1567 UI 32 l2 Root 일반 수정 검증 완료",
+    "requests": [
+      {
+        "command": "updateNetwork",
+        "method": "POST",
+        "params": {
+          "id": "c209a465-1926-4669-bcd6-09f64baa285e",
+          "name": "qa-gn1567-32-l2",
+          "displaytext": "#1567 UI 32 l2 Root 일반 수정 검증 완료"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "f90f51ce-6337-47d8-aa2c-07c98d397ed2"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "in-use delete rejection l2",
+    "status": "SUBMITTED",
+    "networkId": "e6ed550b-c561-4372-93ad-421fdcda20a1",
+    "expectedJobStatus": 2,
+    "requests": [
+      {
+        "command": "deleteNetwork",
+        "method": "POST",
+        "params": {
+          "id": "e6ed550b-c561-4372-93ad-421fdcda20a1"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "0e6615b3-5c2d-48fa-9a7a-cfb2247642ec"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "in-use delete rejection isolated",
+    "status": "SUBMITTED",
+    "networkId": "7f279b12-d465-486a-8cb8-2779db98f509",
+    "expectedJobStatus": 2,
+    "requests": [
+      {
+        "command": "deleteNetwork",
+        "method": "POST",
+        "params": {
+          "id": "7f279b12-d465-486a-8cb8-2779db98f509"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "268ebbe1-d47f-487a-a70f-cd759fff304a"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "instant dark theme",
+    "mode": "dark",
+    "action_observation_ms": 468,
+    "dark": true,
+    "status": "PASS"
+  },
+  {
+    "cluster": 32,
+    "case": "instant dark theme",
+    "mode": "dark",
+    "action_observation_ms": 475,
+    "dark": true,
+    "status": "PASS"
+  },
+  {
+    "cluster": 32,
+    "case": "User standard update user-isolated",
+    "status": "SUBMITTED",
+    "description": "#1567 UI 32 user-isolated User 일반 수정 검증 완료",
+    "requests": [
+      {
+        "command": "updateNetwork",
+        "method": "POST",
+        "params": {
+          "id": "55bf7bcd-d4bb-4589-9080-5955ae95d5ce",
+          "name": "qa-gn1567-32-user-isolated",
+          "displaytext": "#1567 UI 32 user-isolated User 일반 수정 검증 완료"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "20e6ec35-f59b-4daf-a753-f6e5ede3df2f"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "20e6ec35-f59b-4daf-a753-f6e5ede3df2f"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "User standard update user-isolated",
+    "status": "SUBMITTED",
+    "description": "#1567 UI 31 user-isolated User 일반 수정 검증 완료",
+    "requests": [
+      {
+        "command": "updateNetwork",
+        "method": "POST",
+        "params": {
+          "id": "f7d3cc74-79b9-4c1c-a494-82af95e2bbb4",
+          "name": "qa-gn1567-31-user-isolated",
+          "displaytext": "#1567 UI 31 user-isolated User 일반 수정 검증 완료"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "ebef5b9a-5487-46af-b4ae-b6cf4828e92f"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "DomainAdmin standard update user-isolated",
+    "status": "SUBMITTED",
+    "description": "#1567 UI 31 user-isolated DomainAdmin 일반 수정 검증 완료",
+    "requests": [
+      {
+        "command": "updateNetwork",
+        "method": "POST",
+        "params": {
+          "id": "f7d3cc74-79b9-4c1c-a494-82af95e2bbb4",
+          "name": "qa-gn1567-31-user-isolated",
+          "displaytext": "#1567 UI 31 user-isolated DomainAdmin 일반 수정 검증 완료"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "5f47038a-0e29-4271-86d1-96b23234d2b9"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "DomainAdmin standard update user-isolated",
+    "status": "SUBMITTED",
+    "description": "#1567 UI 32 user-isolated DomainAdmin 일반 수정 검증 완료",
+    "requests": [
+      {
+        "command": "updateNetwork",
+        "method": "POST",
+        "params": {
+          "id": "55bf7bcd-d4bb-4589-9080-5955ae95d5ce",
+          "name": "qa-gn1567-32-user-isolated",
+          "displaytext": "#1567 UI 32 user-isolated DomainAdmin 일반 수정 검증 완료"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "5575bc69-23bf-4d86-b08e-153ce295310f"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "in-use delete rejection shared",
+    "status": "SUBMITTED",
+    "networkId": "91c1c365-1c9e-4d7b-adc2-1a637b997787",
+    "expectedJobStatus": 2,
+    "requests": [
+      {
+        "command": "deleteNetwork",
+        "method": "POST",
+        "params": {
+          "id": "91c1c365-1c9e-4d7b-adc2-1a637b997787"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "f9e752ea-12be-42f0-8df7-fc7012abc672"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "empty delete isolated",
+    "status": "SUBMITTED",
+    "networkId": "28eb3a60-1a46-49af-afd1-0f4684a23e44",
+    "expectedJobStatus": 1,
+    "requests": [
+      {
+        "command": "deleteNetwork",
+        "method": "POST",
+        "params": {
+          "id": "28eb3a60-1a46-49af-afd1-0f4684a23e44"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "58338a97-fff8-4f2d-98ed-880938dd8d21"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "in-use delete rejection l2",
+    "status": "SUBMITTED",
+    "networkId": "c209a465-1926-4669-bcd6-09f64baa285e",
+    "expectedJobStatus": 2,
+    "requests": [
+      {
+        "command": "deleteNetwork",
+        "method": "POST",
+        "params": {
+          "id": "c209a465-1926-4669-bcd6-09f64baa285e"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "ac5e8a37-b5c5-4dfe-994e-e5411f4dd531"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "empty delete shared",
+    "status": "SUBMITTED",
+    "networkId": "36fba883-af1c-4aab-9624-81bbfda663c6",
+    "expectedJobStatus": 1,
+    "requests": [
+      {
+        "command": "deleteNetwork",
+        "method": "POST",
+        "params": {
+          "id": "36fba883-af1c-4aab-9624-81bbfda663c6"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "58f07ec7-bf80-4905-afdb-e54c78cc2d7a"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "empty delete isolated",
+    "status": "SUBMITTED",
+    "networkId": "668f52c6-7cff-4993-be56-e8cd8e25e5c5",
+    "expectedJobStatus": 1,
+    "requests": [
+      {
+        "command": "deleteNetwork",
+        "method": "POST",
+        "params": {
+          "id": "668f52c6-7cff-4993-be56-e8cd8e25e5c5"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "0ecc2527-825c-4c61-a8eb-87af7e40d12a"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "empty delete l2",
+    "status": "SUBMITTED",
+    "networkId": "3130b5f9-4479-4885-b36b-2c58535fd853",
+    "expectedJobStatus": 1,
+    "requests": [
+      {
+        "command": "deleteNetwork",
+        "method": "POST",
+        "params": {
+          "id": "3130b5f9-4479-4885-b36b-2c58535fd853"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "35566c9c-0e9a-4416-a19c-26f72b976b2f"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "empty delete shared",
+    "status": "SUBMITTED",
+    "networkId": "ab3c0964-6805-4f75-9a90-8d26c1ac5969",
+    "expectedJobStatus": 1,
+    "requests": [
+      {
+        "command": "deleteNetwork",
+        "method": "POST",
+        "params": {
+          "id": "ab3c0964-6805-4f75-9a90-8d26c1ac5969"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "d3ab5aad-77bd-4ed1-8c73-d4fa93f1ea2b"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "empty delete l2",
+    "status": "SUBMITTED",
+    "networkId": "9a9ab974-6dec-4412-ab1a-479d615003a3",
+    "expectedJobStatus": 1,
+    "requests": [
+      {
+        "command": "deleteNetwork",
+        "method": "POST",
+        "params": {
+          "id": "9a9ab974-6dec-4412-ab1a-479d615003a3"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "c384fb7d-4175-403b-95fc-af02da7ce945"
+        }
+      }
+    ]
+  }
+]

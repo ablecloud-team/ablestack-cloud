@@ -1,0 +1,20 @@
+{
+  "isolated": [
+    {
+      "id": "24349aef-a1ec-4543-a0f4-4786bcac4d00",
+      "name": "qa-gn1574-32-skudonet",
+      "state": "Running",
+      "templateid": "988540bc-63e7-469e-936d-a985b6a23b62",
+      "templatename": "qa-gn1574-32-skudonet-7-2-1",
+      "hostname": "ablecube32-1",
+      "nic": [
+        {
+          "networkid": "fffda682-bdb8-4046-a0d6-53b6f74a9fe8",
+          "ipaddress": "10.175.32.240"
+        }
+      ]
+    }
+  ],
+  "shared": [],
+  "l2": []
+}

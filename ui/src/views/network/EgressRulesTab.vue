@@ -17,17 +17,36 @@
 
 <template>
   <div>
-    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <div>
-      <a-alert
-        type="info">
-        <template #message>
-        <div
-          v-html="$t('message.egress.rules.info.for.network').replace('%x', resource.egressdefaultpolicy ? '<b>' + $t('label.allow') + '</b>' :
-          '<b>' + $t('label.deny') + '</b>').replace('%y', resource.egressdefaultpolicy ? '<b>' + $t('message.denied') + '</b>' : '<b>' + $t('message.allowed') + '</b>.')" />
-        </template>
-      </a-alert>
-      <a-divider />
+    <NetworkRulesToolbar :can-add="'createEgressFirewallRule' in $store.getters.apis" :loading="loading || networkMutationBusy" @add="openAddRule" @refresh="fetchData" >
+      <a-button
+        v-if="(('deleteEgressFirewallRule' in $store.getters.apis) && this.selectedRowKeys.length > 0)"
+        type="primary"
+        danger
+        @click="bulkActionConfirmation()">
+        <template #icon><delete-outlined /></template>
+        {{ $t('label.action.bulk.delete.egress.firewall.rules') }}
+      </a-button>
+    </NetworkRulesToolbar>
+    <a-alert v-if="listRefreshFailed" class="network-rules-guidance" type="warning" show-icon :message="$t('message.list.refresh.stale')" />
+    <a-alert
+      class="network-rules-guidance"
+      type="info">
+      <template #message>
+      <div
+        v-html="$t('message.egress.rules.info.for.network').replace('%x', resource.egressdefaultpolicy ? '<b>' + $t('label.allow') + '</b>' :
+        '<b>' + $t('label.deny') + '</b>').replace('%y', resource.egressdefaultpolicy ? '<b>' + $t('message.denied') + '</b>' : '<b>' + $t('message.allowed') + '</b>.')" />
+      </template>
+    </a-alert>
+    <MoldDialog
+      class="network-rule-dialog"
+      size="lg"
+      focus-guard
+      :visible="addRuleVisible"
+      :title="$t('label.network.rule.add')"
+      :closable="!networkMutationSubmitting"
+      :keyboard="!networkMutationSubmitting"
+      @cancel="!networkMutationSubmitting && (addRuleVisible = false)">
+      <NetworkMutationStatus :operation="networkMutation" @recheck="recheckNetworkMutation" />
       <div class="form" v-ctrl-enter="addRule">
         <div class="form__item">
           <div class="form__label">{{ $t('label.sourcecidr') }}</div>
@@ -91,25 +110,13 @@
             </a-select-option>
           </a-select>
         </div>
-        <div class="form__item">
-          <a-button ref="submit" :disabled="!('createEgressFirewallRule' in $store.getters.apis)" type="primary" @click="addRule">
-            <template #icon><plus-outlined /></template>
-            {{ $t('label.add') }}
-          </a-button>
-        </div>
       </div>
-    </div>
+      <template #footer>
+        <a-button :disabled="networkMutationSubmitting" @click="addRuleVisible = false">{{ $t('label.cancel') }}</a-button>
+        <a-button type="primary" :loading="networkMutationBusy" :disabled="!('createEgressFirewallRule' in $store.getters.apis) || loading || networkMutationBlocked" @click="addRule">{{ $t('label.add') }}</a-button>
+      </template>
+    </MoldDialog>
 
-    <a-divider/>
-    <a-button
-      v-if="(('deleteEgressFirewallRule' in $store.getters.apis) && this.selectedRowKeys.length > 0)"
-      type="primary"
-      danger
-      style="width: 100%; margin-bottom: 15px"
-      @click="bulkActionConfirmation()">
-      <template #icon><delete-outlined /></template>
-      {{ $t('label.action.bulk.delete.egress.firewall.rules') }}
-    </a-button>
     <a-table
       size="small"
       style="overflow-y: auto"
@@ -176,20 +183,27 @@
 
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import { networkMutationMixin } from '@/utils/networkMutation'
+import NetworkMutationStatus from '@/components/view/NetworkMutationStatus'
 
 import { getAPI, postAPI } from '@/api'
+import NetworkRulesToolbar from '@/components/view/NetworkRulesToolbar'
+import MoldDialog from '@/components/view/MoldDialog'
 import Status from '@/components/widgets/Status'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import BulkActionView from '@/components/view/BulkActionView'
 import eventBus from '@/config/eventBus'
 
 export default {
-  mixins: [listRefreshMixin(['fetchData'])],
+  mixins: [listRefreshMixin(['fetchData']), networkMutationMixin],
   name: 'EgressRulesTab',
   components: {
+    MoldDialog,
+    NetworkRulesToolbar,
     Status,
     TooltipButton,
-    BulkActionView
+    BulkActionView,
+    NetworkMutationStatus
   },
   props: {
     resource: {
@@ -199,6 +213,7 @@ export default {
   },
   data () {
     return {
+      addRuleVisible: false,
       selectedRowKeys: [],
       showGroupActionModal: false,
       selectedItems: [],
@@ -418,33 +433,16 @@ export default {
         this.loading = false
       })
     },
-    addRule () {
-      if (this.loading) return
-      this.loading = true
-      postAPI('createEgressFirewallRule', { ...this.newRule }).then(response => {
-        this.$pollJob({
-          jobId: response.createegressfirewallruleresponse.jobid,
-          successMessage: this.$t('message.success.add.egress.rule'),
-          successMethod: () => {
-            this.resetAllRules()
-            this.fetchData()
-          },
-          errorMessage: this.$t('message.add.egress.rule.failed'),
-          errorMethod: () => {
-            this.resetAllRules()
-            this.fetchData()
-          },
-          loadingMessage: this.$t('message.add.egress.rule.processing'),
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.resetAllRules()
-            this.fetchData()
-          }
-        })
-      }).catch(error => {
-        this.$notifyError(error)
+    openAddRule () {
+      if (this.networkMutation?.status === 'success') this.resetNetworkMutation()
+      this.addRuleVisible = true
+    },
+    async addRule () {
+      if (this.loading || this.networkMutationBlocked) return
+      return this.submitNetworkMutation('createEgressFirewallRule', { ...this.newRule }, async () => {
+        this.addRuleVisible = false
         this.resetAllRules()
-        this.fetchData()
+        await this.fetchData()
       })
     },
     resetAllRules () {
@@ -530,40 +528,6 @@ export default {
 
   }
 
-  .form {
-    display: flex;
-    margin-right: -20px;
-    margin-bottom: 20px;
-    flex-direction: column;
-    align-items: flex-end;
-
-    @media (min-width: 760px) {
-      flex-direction: row;
-    }
-
-    &__item {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      padding-right: 20px;
-      margin-bottom: 20px;
-
-      @media (min-width: 760px) {
-        margin-bottom: 0;
-      }
-
-      input,
-      .ant-select {
-        margin-top: auto;
-      }
-
-    }
-
-    &__label {
-      font-weight: bold;
-    }
-
-  }
   .pagination {
     margin-top: 20px;
   }

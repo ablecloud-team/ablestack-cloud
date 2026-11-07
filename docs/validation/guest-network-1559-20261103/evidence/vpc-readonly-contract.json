@@ -1,0 +1,14 @@
+[
+  {
+    "cluster": 31,
+    "cleanup_enabled": false,
+    "redundant_enabled": false,
+    "submitted": false
+  },
+  {
+    "cluster": 32,
+    "cleanup_enabled": false,
+    "redundant_enabled": false,
+    "submitted": false
+  }
+]

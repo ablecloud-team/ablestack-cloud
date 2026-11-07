@@ -1,0 +1,46 @@
+{
+  "write": {
+    "owner-isolated": {
+      "networkid": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+      "writeAllowed": true,
+      "code": null
+    },
+    "peer-isolated": {
+      "networkid": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+      "writeAllowed": false,
+      "code": 531
+    },
+    "admin-child-isolated": {
+      "networkid": "7363462e-e0ad-47ba-9edb-25eed6e085a8",
+      "writeAllowed": true,
+      "code": null
+    },
+    "child-shared": {
+      "networkid": "45d3e8ae-925d-497b-963f-f99ea587d419",
+      "writeAllowed": false,
+      "code": 531
+    },
+    "nonmember-shared-project": {
+      "networkid": "4192b423-7e47-4270-bd43-85694ba786fd",
+      "writeAllowed": false,
+      "code": 531
+    },
+    "owner-shared-account": {
+      "networkid": "9a3d0f49-1357-4082-a473-6ec9c77edda0",
+      "writeAllowed": false,
+      "code": 531
+    }
+  },
+  "storage": {
+    "owner": {
+      "volumeId": "342597b6-e723-4603-ad5b-bf44dae3450f",
+      "poolType": "SharedMountPoint",
+      "poolId": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    "peer": {
+      "volumeId": "3f0c84cc-8859-4c5b-921d-d6c0ec3dfb0c",
+      "poolType": "SharedMountPoint",
+      "poolId": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    }
+  }
+}

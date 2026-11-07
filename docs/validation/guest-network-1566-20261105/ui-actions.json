@@ -1,0 +1,626 @@
+[
+  {
+    "cluster": 31,
+    "case": "UI initial LB creation and assignment",
+    "requests": [
+      {
+        "command": "createLoadBalancerRule",
+        "method": "POST",
+        "params": {
+          "networkid": "4b9726af-b1cc-4d22-89da-b700e57d14e4",
+          "publicipid": "25328461-bb0a-4b4e-8852-258ad4227d7f",
+          "algorithm": "roundrobin",
+          "name": "qa-gn1566-31-http",
+          "privateport": "8080",
+          "protocol": "http",
+          "publicport": "80",
+          "cidrlist": "10.10.0.0/16"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "0fb25bc3-8f62-4805-bf77-e6d9c251aa4a"
+        }
+      },
+      {
+        "command": "assignToLoadBalancerRule",
+        "method": "POST",
+        "params": {
+          "id": "b31d0c16-10d2-4d63-851f-a94a27a46a00"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "db2dcfea-41bf-4375-bb88-f723d37702f9"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "db2dcfea-41bf-4375-bb88-f723d37702f9"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "UI existing LB assignment recovery after core fix",
+    "requests": [
+      {
+        "command": "assignToLoadBalancerRule",
+        "method": "POST",
+        "params": {
+          "id": "b31d0c16-10d2-4d63-851f-a94a27a46a00"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "b7354840-4c98-4c2b-87ea-4726c97ba8a3"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "UI initial LB creation and assignment",
+    "requests": [
+      {
+        "command": "createLoadBalancerRule",
+        "method": "POST",
+        "params": {
+          "networkid": "9bf0afda-a536-4356-a4d9-27cfdaffc916",
+          "publicipid": "04de4618-4265-4bfc-9b4c-95bc88ac1c2c",
+          "algorithm": "roundrobin",
+          "name": "qa-gn1566-32-http",
+          "privateport": "8080",
+          "protocol": "http",
+          "publicport": "80",
+          "cidrlist": "10.10.0.0/16"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "61bfda50-816e-4ce2-ac1e-f44d217f7f28"
+        }
+      },
+      {
+        "command": "assignToLoadBalancerRule",
+        "method": "POST",
+        "params": {
+          "id": "1d59766c-2002-4f4b-81ff-8e44b6f4ef2e"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "2bbfa4af-71ea-4979-88b6-2110e7f35614"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobId": "2bbfa4af-71ea-4979-88b6-2110e7f35614"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "UI offering 513/false save",
+    "requests": []
+  },
+  {
+    "cluster": 32,
+    "case": "UI offering 513/false save",
+    "requests": []
+  },
+  {
+    "cluster": 31,
+    "case": "UI LB rule apply 513/false",
+    "requests": []
+  },
+  {
+    "cluster": 32,
+    "case": "UI LB rule apply 513/false",
+    "requests": []
+  },
+  {
+    "cluster": 31,
+    "case": "UI clone preserves 513/false",
+    "requests": []
+  },
+  {
+    "cluster": 32,
+    "case": "UI clone preserves 513/false",
+    "requests": []
+  },
+  {
+    "cluster": 31,
+    "case": "UI create HAProxy offering 321/false",
+    "requests": []
+  },
+  {
+    "cluster": 32,
+    "case": "UI create HAProxy offering 321/false",
+    "requests": []
+  },
+  {
+    "cluster": 31,
+    "label": "invalid-preserved",
+    "checks": [
+      {
+        "input": "-1",
+        "preserved": "-1",
+        "text": "LB 연결 설정\nqa-gn1566-31-seed\n\nIsolated · d5f8bded-2ead-4d13-addc-17fe7ae8c7d7\n\n0~2147483647 정수입니다(API Integer와 DB unsigned Integer의 공통 범위). 빈 입력은 기존 값 유지, 0은 제공자의 자동 산정을 뜻합니다. 실제 연결 용량은 라우터 자원·파일 제한에 따라 달라지므로 운영 값은 별도로 검토하세요.\n업데이트\nLB 연결 설정\n\nHAProxy를 사용하는 LB 제공자의 설정입니다. 오퍼링 저장은 실행 중인 LB를 즉시 변경하지 않습니다. 이후 LB 규칙을 적용하거나 네트워크를 명시적으로 재시작할 때 사용됩니다. 기존 네트워크는 자동 재시작하지 않습니다.\n\n최대 동시 연결 수\n\n0~2147483647 정수입니다(API Integer와 DB unsigned Integer의 공통 범위). 빈 입력은 기존 값 유지, 0은 제공자의 자동 산정을 뜻합니다. 실제 연결 용량은 라우터 자원·파일 제한에 따라 달라지므로 운영 값은 별도로 검토하세요.\n\nHTTP Keepalive\n비활성화\n취소\n확인"
+      },
+      {
+        "input": "1.5",
+        "preserved": "1.5",
+        "text": "LB 연결 설정\nqa-gn1566-31-seed\n\nIsolated · d5f8bded-2ead-4d13-addc-17fe7ae8c7d7\n\n0~2147483647 정수입니다(API Integer와 DB unsigned Integer의 공통 범위). 빈 입력은 기존 값 유지, 0은 제공자의 자동 산정을 뜻합니다. 실제 연결 용량은 라우터 자원·파일 제한에 따라 달라지므로 운영 값은 별도로 검토하세요.\n업데이트\nLB 연결 설정\n\nHAProxy를 사용하는 LB 제공자의 설정입니다. 오퍼링 저장은 실행 중인 LB를 즉시 변경하지 않습니다. 이후 LB 규칙을 적용하거나 네트워크를 명시적으로 재시작할 때 사용됩니다. 기존 네트워크는 자동 재시작하지 않습니다.\n\n최대 동시 연결 수\n\n0~2147483647 정수입니다(API Integer와 DB unsigned Integer의 공통 범위). 빈 입력은 기존 값 유지, 0은 제공자의 자동 산정을 뜻합니다. 실제 연결 용량은 라우터 자원·파일 제한에 따라 달라지므로 운영 값은 별도로 검토하세요.\n\nHTTP Keepalive\n비활성화\n취소\n확인"
+      },
+      {
+        "input": "2147483648",
+        "preserved": "2147483648",
+        "text": "LB 연결 설정\nqa-gn1566-31-seed\n\nIsolated · d5f8bded-2ead-4d13-addc-17fe7ae8c7d7\n\n0~2147483647 정수입니다(API Integer와 DB unsigned Integer의 공통 범위). 빈 입력은 기존 값 유지, 0은 제공자의 자동 산정을 뜻합니다. 실제 연결 용량은 라우터 자원·파일 제한에 따라 달라지므로 운영 값은 별도로 검토하세요.\n업데이트\nLB 연결 설정\n\nHAProxy를 사용하는 LB 제공자의 설정입니다. 오퍼링 저장은 실행 중인 LB를 즉시 변경하지 않습니다. 이후 LB 규칙을 적용하거나 네트워크를 명시적으로 재시작할 때 사용됩니다. 기존 네트워크는 자동 재시작하지 않습니다.\n\n최대 동시 연결 수\n\n0~2147483647 정수입니다(API Integer와 DB unsigned Integer의 공통 범위). 빈 입력은 기존 값 유지, 0은 제공자의 자동 산정을 뜻합니다. 실제 연결 용량은 라우터 자원·파일 제한에 따라 달라지므로 운영 값은 별도로 검토하세요.\n\nHTTP Keepalive\n비활성화\n취소\n확인"
+      }
+    ],
+    "requests": []
+  },
+  {
+    "cluster": 31,
+    "label": "true-only-save",
+    "requests": []
+  },
+  {
+    "cluster": 32,
+    "label": "blank-noop",
+    "requests": []
+  },
+  {
+    "cluster": 32,
+    "label": "true-only-save",
+    "requests": []
+  },
+  {
+    "cluster": 32,
+    "label": "create-L2-excluded",
+    "text": "네트워크 오퍼링 추가\n이름\n설명\n네트워크 속도(Mb/s)\n게스트 유형\nIsolated\nL2\nshared\nVLAN 지정\n영구적 \n제공자\nName of the provider providing the service\n사용자 데이터\n비규칙 모드\n없음\n승인\n거부\nMAC 주소 변경\n없음\n승인\n거부\nMac 변조 전송\n없음\n승인\n거부\nMAC Learning\n없음\n승인\n거부\nLB 서비스가 없는 오퍼링입니다. LB 연결 설정을 전송하지 않습니다.\n태그\n공개\nZone\nThe ID of the containing zone(s), null for public offerings\n네트워크 오퍼링 활성화\n취소\n확인",
+    "fieldCount": 0
+  },
+  {
+    "cluster": 32,
+    "label": "create-Shared-excluded",
+    "text": "네트워크 오퍼링 추가\n이름\n설명\n네트워크 속도(Mb/s)\n게스트 유형\nIsolated\nL2\nshared\nVLAN 지정\n제공자\nName of the provider providing the service\n비규칙 모드\n없음\n승인\n거부\nMAC 주소 변경\n없음\n승인\n거부\nMac 변조 전송\n없음\n승인\n거부\nMAC Learning\n없음\n승인\n거부\n지원되는 서비스\nVpn\nDhcp\nDns\nFirewall\nLb\nUserData\nSourceNat\nStaticNat\nPortForwarding\nSecurityGroup\nNetworkACL\nConnectivity\nCustomAction\nBaremetalPxeService\nLB 서비스가 없는 오퍼링입니다. LB 연결 설정을 전송하지 않습니다.\n컴퓨트 오퍼링\n가상 라우터 생성을 위한 필수 서비스(VPN, DHCP, DNS, Firewall, LB, UserData, SourceNat, StaticNat, PortForwarding)가 없기 때문에 활성화되면 가상 라우터가 생성되지 않고 컴퓨팅 오퍼링이 사용되지 않습니다.\nThe service offering ID used by virtual router provider\n절약 모드\n태그\n공개\nZone\nThe ID of the containing zone(s), null for public offerings\n네트워크 오퍼링 활성화\n취소\n확인",
+    "fieldCount": 0
+  },
+  {
+    "cluster": 32,
+    "label": "apply-true-via-LB-rule",
+    "requests": []
+  },
+  {
+    "cluster": 31,
+    "label": "apply-true-via-LB-rule",
+    "requests": []
+  },
+  {
+    "cluster": 31,
+    "label": "false-only-final-recording",
+    "requests": [
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {
+          "id": "d5f8bded-2ead-4d13-addc-17fe7ae8c7d7"
+        }
+      },
+      {
+        "command": "updateNetworkOffering",
+        "method": "POST",
+        "params": {
+          "id": "d5f8bded-2ead-4d13-addc-17fe7ae8c7d7",
+          "keepaliveenabled": "false"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {
+          "id": "d5f8bded-2ead-4d13-addc-17fe7ae8c7d7"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {
+          "id": "d5f8bded-2ead-4d13-addc-17fe7ae8c7d7"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "label": "UI-clone-final",
+    "requests": [
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {
+          "guestiptype": "Isolated"
+        }
+      },
+      {
+        "command": "cloneNetworkOffering",
+        "method": "POST",
+        "params": {
+          "sourceofferingid": "d5f8bded-2ead-4d13-addc-17fe7ae8c7d7",
+          "name": "qa-gn1566-31-ui-clone",
+          "displaytext": "#1566 HAProxy validation",
+          "guestiptype": "isolated",
+          "supportedservices": "Vpn,Dhcp,Dns,Firewall,Lb,UserData,SourceNat,StaticNat,PortForwarding",
+          "serviceProviderList[0].service": "Vpn",
+          "serviceProviderList[0].provider": "VirtualRouter",
+          "serviceProviderList[1].service": "Dhcp",
+          "serviceProviderList[1].provider": "VirtualRouter",
+          "serviceProviderList[2].service": "Dns",
+          "serviceProviderList[2].provider": "VirtualRouter",
+          "serviceProviderList[3].service": "Firewall",
+          "serviceProviderList[3].provider": "VirtualRouter",
+          "serviceProviderList[4].service": "Lb",
+          "serviceProviderList[4].provider": "VirtualRouter",
+          "serviceProviderList[5].service": "UserData",
+          "serviceProviderList[5].provider": "VirtualRouter",
+          "serviceProviderList[6].service": "SourceNat",
+          "serviceProviderList[6].provider": "VirtualRouter",
+          "serviceProviderList[7].service": "StaticNat",
+          "serviceProviderList[7].provider": "VirtualRouter",
+          "serviceProviderList[8].service": "PortForwarding",
+          "serviceProviderList[8].provider": "VirtualRouter",
+          "servicecapabilitylist[0].service": "SourceNat",
+          "servicecapabilitylist[0].capabilitytype": "SupportedSourceNatTypes",
+          "servicecapabilitylist[0].capabilityvalue": "peraccount",
+          "servicecapabilitylist[1].service": "lb",
+          "servicecapabilitylist[1].capabilitytype": "VmAutoScaling",
+          "servicecapabilitylist[1].capabilityvalue": "true",
+          "servicecapabilitylist[2].service": "lb",
+          "servicecapabilitylist[2].capabilitytype": "SupportedLbIsolation",
+          "servicecapabilitylist[2].capabilityvalue": "dedicated",
+          "enable": "false"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {
+          "id": "d5f8bded-2ead-4d13-addc-17fe7ae8c7d7"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "label": "read-refresh-failure",
+    "draft": "600",
+    "saveEnabled": false,
+    "text": "LB 연결 설정\nqa-gn1566-31-seed\n\nIsolated · d5f8bded-2ead-4d13-addc-17fe7ae8c7d7\n\n오퍼링의 현재 값 또는 저장 결과를 확인하지 못했습니다. 새로고침 후 다시 확인하세요.\n업데이트\nLB 연결 설정\n\nHAProxy를 사용하는 LB 제공자의 설정입니다. 오퍼링 저장은 실행 중인 LB를 즉시 변경하지 않습니다. 이후 LB 규칙을 적용하거나 네트워크를 명시적으로 재시작할 때 사용됩니다. 기존 네트워크는 자동 재시작하지 않습니다.\n\n최대 동시 연결 수\n\n0~2147483647 정수입니다(API Integer와 DB unsigned Integer의 공통 범위). 빈 입력은 기존 값 유지, 0은 제공자의 자동 산정을 뜻합니다. 실제 연결 용량은 라우터 자원·파일 제한에 따라 달라지므로 운영 값은 별도로 검토하세요.\n\nHTTP Keepalive\n비활성화\n취소\n확인",
+    "networkBlockRemoved": true
+  },
+  {
+    "cluster": 31,
+    "label": "true-only-final-recording",
+    "requests": [
+      {
+        "command": "updateNetworkOffering",
+        "method": "POST",
+        "params": {
+          "id": "d5f8bded-2ead-4d13-addc-17fe7ae8c7d7",
+          "keepaliveenabled": "true"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {
+          "id": "d5f8bded-2ead-4d13-addc-17fe7ae8c7d7"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {
+          "id": "d5f8bded-2ead-4d13-addc-17fe7ae8c7d7"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "label": "L2-excluded",
+    "text": "LB 연결 설정\n기본 L2 VLAN 네트워크오퍼링\n\nL2 · 79ec5c18-b71c-4f7a-9b5d-8694b16b8a54\n\n업데이트\nLB 서비스가 없는 오퍼링입니다. LB 연결 설정을 전송하지 않습니다.\n취소\n확인",
+    "saveEnabled": false,
+    "fields": 0
+  },
+  {
+    "cluster": 31,
+    "label": "Shared-ELB-excluded",
+    "text": "LB 연결 설정\nDefaultSharedNetscalerEIPandELBNetworkOffering\n\nShared · 7a2c33b8-4f22-4156-b1f1-881e86323103\n\n업데이트\nL2·Shared의 LB 예외 조합은 이번 지원 범위에 포함하지 않습니다. 서비스·제공자와 실제 적용 경로를 별도로 검증해야 합니다.\n취소\n확인",
+    "saveEnabled": false,
+    "fields": 0
+  },
+  {
+    "cluster": 31,
+    "label": "UI-clone-fixed-final",
+    "evidenceWindow": "retained final request window; earlier loading events evicted",
+    "requests": [
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {
+          "guestiptype": "Isolated"
+        }
+      },
+      {
+        "command": "cloneNetworkOffering",
+        "method": "POST",
+        "params": {
+          "sourceofferingid": "d5f8bded-2ead-4d13-addc-17fe7ae8c7d7",
+          "name": "qa-gn1566-31-ui-clone",
+          "displaytext": "#1566 HAProxy validation",
+          "guestiptype": "isolated",
+          "supportedservices": "Vpn,Dhcp,Dns,Firewall,Lb,UserData,SourceNat,StaticNat,PortForwarding",
+          "serviceProviderList[0].service": "Vpn",
+          "serviceProviderList[0].provider": "VirtualRouter",
+          "serviceProviderList[1].service": "Dhcp",
+          "serviceProviderList[1].provider": "VirtualRouter",
+          "serviceProviderList[2].service": "Dns",
+          "serviceProviderList[2].provider": "VirtualRouter",
+          "serviceProviderList[3].service": "Firewall",
+          "serviceProviderList[3].provider": "VirtualRouter",
+          "serviceProviderList[4].service": "Lb",
+          "serviceProviderList[4].provider": "VirtualRouter",
+          "serviceProviderList[5].service": "UserData",
+          "serviceProviderList[5].provider": "VirtualRouter",
+          "serviceProviderList[6].service": "SourceNat",
+          "serviceProviderList[6].provider": "VirtualRouter",
+          "serviceProviderList[7].service": "StaticNat",
+          "serviceProviderList[7].provider": "VirtualRouter",
+          "serviceProviderList[8].service": "PortForwarding",
+          "serviceProviderList[8].provider": "VirtualRouter",
+          "servicecapabilitylist[0].service": "SourceNat",
+          "servicecapabilitylist[0].capabilitytype": "SupportedSourceNatTypes",
+          "servicecapabilitylist[0].capabilityvalue": "peraccount",
+          "servicecapabilitylist[1].service": "lb",
+          "servicecapabilitylist[1].capabilitytype": "VmAutoScaling",
+          "servicecapabilitylist[1].capabilityvalue": "true",
+          "servicecapabilitylist[2].service": "lb",
+          "servicecapabilitylist[2].capabilitytype": "SupportedLbIsolation",
+          "servicecapabilitylist[2].capabilityvalue": "dedicated",
+          "enable": "false",
+          "maxconnections": "513",
+          "keepaliveenabled": "true"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {
+          "id": "d5f8bded-2ead-4d13-addc-17fe7ae8c7d7"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {
+          "id": "d5f8bded-2ead-4d13-addc-17fe7ae8c7d7"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "label": "create-invalid-preserved-final",
+    "draft": "-1",
+    "requests": []
+  },
+  {
+    "cluster": 31,
+    "label": "UI-create-fixed-final",
+    "requests": [
+      {
+        "command": "createNetworkOffering",
+        "method": "POST",
+        "params": {
+          "guestiptype": "isolated",
+          "name": "qa-gn1566-31-ui-create",
+          "supportedservices": "Vpn,Dhcp,Dns,Firewall,Lb,UserData,SourceNat,StaticNat,PortForwarding",
+          "serviceProviderList[0].service": "Vpn",
+          "serviceProviderList[0].provider": "VirtualRouter",
+          "serviceProviderList[1].service": "Dhcp",
+          "serviceProviderList[1].provider": "VirtualRouter",
+          "serviceProviderList[2].service": "Dns",
+          "serviceProviderList[2].provider": "VirtualRouter",
+          "serviceProviderList[3].service": "Firewall",
+          "serviceProviderList[3].provider": "VirtualRouter",
+          "serviceProviderList[4].service": "Lb",
+          "serviceProviderList[4].provider": "VirtualRouter",
+          "serviceProviderList[5].service": "UserData",
+          "serviceProviderList[5].provider": "VirtualRouter",
+          "serviceProviderList[6].service": "SourceNat",
+          "serviceProviderList[6].provider": "VirtualRouter",
+          "serviceProviderList[7].service": "StaticNat",
+          "serviceProviderList[7].provider": "VirtualRouter",
+          "serviceProviderList[8].service": "PortForwarding",
+          "serviceProviderList[8].provider": "VirtualRouter",
+          "servicecapabilitylist[0].service": "SourceNat",
+          "servicecapabilitylist[0].capabilitytype": "SupportedSourceNatTypes",
+          "servicecapabilitylist[0].capabilityvalue": "peraccount",
+          "servicecapabilitylist[1].service": "lb",
+          "servicecapabilitylist[1].capabilitytype": "VmAutoScaling",
+          "servicecapabilitylist[1].capabilityvalue": "true",
+          "servicecapabilitylist[2].service": "lb",
+          "servicecapabilitylist[2].capabilitytype": "SupportedLbIsolation",
+          "servicecapabilitylist[2].capabilityvalue": "dedicated",
+          "maxconnections": "321",
+          "keepaliveenabled": "false"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {}
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "label": "UI-clone-fixed-final",
+    "requests": [
+      {
+        "command": "cloneNetworkOffering",
+        "method": "POST",
+        "params": {
+          "sourceofferingid": "b567eab0-6a63-455d-9b00-279d5e122d33",
+          "name": "qa-gn1566-32-ui-clone",
+          "displaytext": "#1566 HAProxy validation",
+          "guestiptype": "isolated",
+          "supportedservices": "Vpn,Dhcp,Dns,Firewall,Lb,UserData,SourceNat,StaticNat,PortForwarding",
+          "serviceProviderList[0].service": "Vpn",
+          "serviceProviderList[0].provider": "VirtualRouter",
+          "serviceProviderList[1].service": "Dhcp",
+          "serviceProviderList[1].provider": "VirtualRouter",
+          "serviceProviderList[2].service": "Dns",
+          "serviceProviderList[2].provider": "VirtualRouter",
+          "serviceProviderList[3].service": "Firewall",
+          "serviceProviderList[3].provider": "VirtualRouter",
+          "serviceProviderList[4].service": "Lb",
+          "serviceProviderList[4].provider": "VirtualRouter",
+          "serviceProviderList[5].service": "UserData",
+          "serviceProviderList[5].provider": "VirtualRouter",
+          "serviceProviderList[6].service": "SourceNat",
+          "serviceProviderList[6].provider": "VirtualRouter",
+          "serviceProviderList[7].service": "StaticNat",
+          "serviceProviderList[7].provider": "VirtualRouter",
+          "serviceProviderList[8].service": "PortForwarding",
+          "serviceProviderList[8].provider": "VirtualRouter",
+          "servicecapabilitylist[0].service": "SourceNat",
+          "servicecapabilitylist[0].capabilitytype": "SupportedSourceNatTypes",
+          "servicecapabilitylist[0].capabilityvalue": "peraccount",
+          "servicecapabilitylist[1].service": "lb",
+          "servicecapabilitylist[1].capabilitytype": "VmAutoScaling",
+          "servicecapabilitylist[1].capabilityvalue": "true",
+          "servicecapabilitylist[2].service": "lb",
+          "servicecapabilitylist[2].capabilitytype": "SupportedLbIsolation",
+          "servicecapabilitylist[2].capabilityvalue": "dedicated",
+          "enable": "false",
+          "maxconnections": "513",
+          "keepaliveenabled": "true"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {
+          "id": "b567eab0-6a63-455d-9b00-279d5e122d33"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "label": "UI-create-fixed-final",
+    "requests": [
+      {
+        "command": "createNetworkOffering",
+        "method": "POST",
+        "params": {
+          "guestiptype": "isolated",
+          "name": "qa-gn1566-32-ui-create",
+          "supportedservices": "Vpn,Dhcp,Dns,Firewall,Lb,UserData,SourceNat,StaticNat,PortForwarding",
+          "serviceProviderList[0].service": "Vpn",
+          "serviceProviderList[0].provider": "VirtualRouter",
+          "serviceProviderList[1].service": "Dhcp",
+          "serviceProviderList[1].provider": "VirtualRouter",
+          "serviceProviderList[2].service": "Dns",
+          "serviceProviderList[2].provider": "VirtualRouter",
+          "serviceProviderList[3].service": "Firewall",
+          "serviceProviderList[3].provider": "VirtualRouter",
+          "serviceProviderList[4].service": "Lb",
+          "serviceProviderList[4].provider": "VirtualRouter",
+          "serviceProviderList[5].service": "UserData",
+          "serviceProviderList[5].provider": "VirtualRouter",
+          "serviceProviderList[6].service": "SourceNat",
+          "serviceProviderList[6].provider": "VirtualRouter",
+          "serviceProviderList[7].service": "StaticNat",
+          "serviceProviderList[7].provider": "VirtualRouter",
+          "serviceProviderList[8].service": "PortForwarding",
+          "serviceProviderList[8].provider": "VirtualRouter",
+          "servicecapabilitylist[0].service": "SourceNat",
+          "servicecapabilitylist[0].capabilitytype": "SupportedSourceNatTypes",
+          "servicecapabilitylist[0].capabilityvalue": "peraccount",
+          "servicecapabilitylist[1].service": "lb",
+          "servicecapabilitylist[1].capabilitytype": "VmAutoScaling",
+          "servicecapabilitylist[1].capabilityvalue": "true",
+          "servicecapabilitylist[2].service": "lb",
+          "servicecapabilitylist[2].capabilitytype": "SupportedLbIsolation",
+          "servicecapabilitylist[2].capabilityvalue": "dedicated",
+          "maxconnections": "321",
+          "keepaliveenabled": "false"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {}
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "label": "list-detail-used-network",
+    "url": "http://10.10.32.10:8080/client/#/networkoffering/b567eab0-6a63-455d-9b00-279d5e122d33?tab=network.offering.used.networks",
+    "text": "사용 네트워크 보기\n현재 계정·도메인·프로젝트 범위에서 조회할 수 있는 네트워크만 표시합니다. 오퍼링 비활성화·삭제 전 사용 영향을 확인하세요. 최종 삭제 허용 여부는 서버가 판단합니다.\n\n조회 가능한 네트워크: 1개\n\n이름\t상태\t유형\tVPC\t계정 / 프로젝트\tZone\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nqa-gn1566-32-lb\t\nImplemented\n\tIsolated\t\tadmin\tZone\n전체 1\n1\n20 / 쪽"
+  },
+  {
+    "cluster": 32,
+    "label": "blank-noop-final-recording",
+    "requests": []
+  },
+  {
+    "cluster": 32,
+    "label": "breadcrumb-return",
+    "url": "http://10.10.32.10:8080/client/#/networkoffering",
+    "search": ""
+  },
+  {
+    "cluster": 31,
+    "label": "keyboard-tab-escape",
+    "focusAfterTab": {
+      "id": "form_item_keepaliveenabled",
+      "role": "combobox"
+    },
+    "modalCount": 0
+  },
+  {
+    "cluster": 31,
+    "label": "final-LB-tab",
+    "url": "http://10.10.31.10:8080/client/#/publicip/25328461-bb0a-4b4e-8852-258ad4227d7f?tab=loadbalancing",
+    "text": "규칙 추가\n업데이트\n\t\n\t이름\t공인 / 게스트 포트\t알고리즘 / 프로토콜\t대상 VM\tSource CIDR 목록\t상태\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n\t\n\tqa-gn1566-31-http\t80 / 8080\tRound-robin\nHTTP\t\nqa-gn1566-31-backend\n\t10.10.0.0/16\tActive\t\n설정\n전체 1 개 항목\n1\n10 / 쪽"
+  },
+  {
+    "cluster": 32,
+    "label": "final-LB-tab",
+    "url": "http://10.10.32.10:8080/client/#/publicip/04de4618-4265-4bfc-9b4c-95bc88ac1c2c?tab=loadbalancing",
+    "text": "규칙 추가\n업데이트\n\t\n\t이름\t공인 / 게스트 포트\t알고리즘 / 프로토콜\t대상 VM\tSource CIDR 목록\t상태\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n\t\n\tqa-gn1566-32-http\t80 / 8080\tRound-robin\nHTTP\t\nqa-gn1566-32-backend\n\t10.10.0.0/16\tActive\t\n설정\n전체 1 개 항목\n1\n10 / 쪽"
+  }
+]

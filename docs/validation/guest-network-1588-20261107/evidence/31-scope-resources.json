@@ -1,0 +1,59 @@
+{
+  "childDomain": {
+    "id": "d4f7b77a-b7ae-4b1b-9644-09611dfb66e0",
+    "name": "qa-gn1569-31-1588-child"
+  },
+  "childAccount": {
+    "id": "99ac5e9b-279c-48f7-81f5-1bddc1ab6e2f",
+    "name": "qa-gn1569-31-1588-child-owner",
+    "domainid": "d4f7b77a-b7ae-4b1b-9644-09611dfb66e0"
+  },
+  "childProject": {
+    "id": "a9119ae8-35f7-4524-a208-0cdb3b1d590f",
+    "name": "qa-gn1569-31-1588-child-project",
+    "domainid": "d4f7b77a-b7ae-4b1b-9644-09611dfb66e0",
+    "displaytext": "GN1588 descendant project"
+  },
+  "outsideProject": {
+    "id": "115290de-b12e-4c13-b227-fd02c33fdd76",
+    "name": "qa-gn1569-31-1588-outside-project",
+    "domainid": "786cc789-53f0-473a-b6cb-c7d3dab8104e",
+    "displaytext": "GN1588 outside domain project"
+  },
+  "outsideOffering": {
+    "id": "6cf0abeb-ae2d-418f-9bf3-3cfe440960ff",
+    "name": "qa-gn1569-31-1588-outside-l2-auto",
+    "domainid": "786cc789-53f0-473a-b6cb-c7d3dab8104e",
+    "displaytext": "GN1588 scoped outside L2"
+  },
+  "childOffering": {
+    "id": "b84ffe4a-bb50-49d3-ad5e-822c85b0faa1",
+    "name": "qa-gn1569-31-1588-child-l2-auto",
+    "domainid": "d4f7b77a-b7ae-4b1b-9644-09611dfb66e0",
+    "displaytext": "GN1588 scoped child L2"
+  },
+  "outsideNetwork": {
+    "id": "a65bbe05-b430-4279-a55a-ce2fae3db0f6",
+    "name": "qa-gn1569-31-1588-outside-l2",
+    "domainid": "786cc789-53f0-473a-b6cb-c7d3dab8104e",
+    "projectid": "115290de-b12e-4c13-b227-fd02c33fdd76",
+    "displaytext": "GN1588 protected outside project",
+    "type": "L2"
+  },
+  "apiNetwork": {
+    "id": "39e5b141-b9e0-499e-862d-9b4d29f6a734",
+    "name": "qa-gn1569-31-prj-1588-api-l2",
+    "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+    "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+    "displaytext": "GN1588 domain scope apiNetwork",
+    "type": "L2"
+  },
+  "childNetwork": {
+    "id": "7717d494-7e80-49fb-a445-c814642ccde1",
+    "name": "qa-gn1569-31-1588-child-l2",
+    "domainid": "d4f7b77a-b7ae-4b1b-9644-09611dfb66e0",
+    "projectid": "a9119ae8-35f7-4524-a208-0cdb3b1d590f",
+    "displaytext": "GN1588 domain scope childNetwork",
+    "type": "L2"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "source_head": "7b73c11f72854b90b2ada2b88cc62ba4c3c9527f",
+  "ui_built_commit": "1c3e9e1f21cc52cd91414cee20448ca6eacbabf0",
+  "java_built_commit": "60ac6deebda7409280076fae71d20ea15c2899c7",
+  "header_only_followup": true,
+  "runtime_component_unchanged_after_build": true,
+  "maven": {
+    "command": "mvn -pl engine/orchestration -Dtest=DefaultOfferingProvidersTest,NetworkOrchestratorTest -Drat.skip=true package",
+    "result": "PASS",
+    "tests": 65,
+    "suites": [
+      {
+        "name": "org.apache.cloudstack.engine.orchestration.DefaultOfferingProvidersTest",
+        "tests": "4",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "org.apache.cloudstack.engine.orchestration.NetworkOrchestratorTest",
+        "tests": "61",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0"
+      }
+    ],
+    "jar_sha256": "5dac65cf7812b2733c209d714c37627c9b6f57e97ae83755d875c8ea766379bc"
+  },
+  "ui": {
+    "focused_suites": 4,
+    "tests": 121,
+    "result": "PASS",
+    "lint": "PASS: full UI and changed files",
+    "production_build": "PASS: local WSL ext4, Node20",
+    "build_command": "NODE_OPTIONS=\"--openssl-legacy-provider --max-old-space-size=6144\" npm run build"
+  },
+  "full_cloud_build_started": false,
+  "manual_actions_started": false
+}

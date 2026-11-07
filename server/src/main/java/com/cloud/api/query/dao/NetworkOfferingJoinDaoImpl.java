@@ -104,6 +104,7 @@ public class NetworkOfferingJoinDaoImpl extends GenericDaoBase<NetworkOfferingJo
         networkOfferingResponse.setIsPersistent(offering.isPersistent());
         networkOfferingResponse.setEgressDefaultPolicy(offering.isEgressDefaultPolicy());
         networkOfferingResponse.setConcurrentConnections(offering.getConcurrentConnections());
+        networkOfferingResponse.setKeepAliveEnabled(offering.isKeepAliveEnabled());
         networkOfferingResponse.setSupportsStrechedL2Subnet(offering.isSupportingStrechedL2());
         networkOfferingResponse.setSupportsPublicAccess(offering.isSupportingPublicAccess());
         networkOfferingResponse.setSupportsInternalLb(offering.isInternalLb());

@@ -1,0 +1,87 @@
+{
+  "records": [
+    {
+      "requestId": "40480.8446",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "1b6001c7-f30f-4b5b-8843-8b8e68b2720e",
+        "command": "listNetworks"
+      },
+      "status": 200,
+      "result": {
+        "count": 1
+      }
+    },
+    {
+      "requestId": "40480.8447",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "1b6001c7-f30f-4b5b-8843-8b8e68b2720e",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 2
+      }
+    },
+    {
+      "requestId": "40480.8448",
+      "command": "updateVlanIpRange",
+      "method": "POST",
+      "params": {
+        "command": "updateVlanIpRange",
+        "id": "9daabb08-f7ff-4e20-a97b-36f737445397",
+        "startip": "172.26.32.50",
+        "endip": "172.26.32.55",
+        "gateway": "172.26.32.1",
+        "netmask": "255.255.255.0"
+      },
+      "status": 200,
+      "result": {
+        "id": "9daabb08-f7ff-4e20-a97b-36f737445397"
+      }
+    },
+    {
+      "requestId": "40480.8449",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "1b6001c7-f30f-4b5b-8843-8b8e68b2720e",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 2
+      }
+    },
+    {
+      "requestId": "40480.8450",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "1b6001c7-f30f-4b5b-8843-8b8e68b2720e",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "10",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 2
+      }
+    }
+  ],
+  "cursor": 4648,
+  "ui": "IP 주소 범위 추가\nIPv4\tIPv6\tVLAN/VNI\t작업\n\n \n\t\n \n\t\n \n\t\n \n\n\n172.26.32.10 – 172.26.32.20\n게이트웨이: 172.26.32.1 · 255.255.255.0\n\t\n—\n\t642\t\n\n\n172.26.32.50 – 172.26.32.55\n게이트웨이: 172.26.32.1 · 255.255.255.0\n\t\n—\n\t642\t\n전체 2 개 항목\n1\n10 / 쪽"
+}

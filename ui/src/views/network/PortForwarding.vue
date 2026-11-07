@@ -17,19 +17,17 @@
 
 <template>
   <div>
-    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <network-rules-toolbar :can-add="'createPortForwardingRule' in $store.getters.apis" :loading="loading" @add="openRuleDialog()" @refresh="fetchData" />
-
-    <a-divider/>
-    <a-button
-      v-if="(('deletePortForwardingRule' in $store.getters.apis) && this.selectedItems.length > 0)"
-      type="primary"
-      danger
-      style="width: 100%; margin-bottom: 15px"
-      @click="bulkActionConfirmation()">
-      <template #icon><delete-outlined /></template>
-      {{ $t('label.action.bulk.delete.portforward.rules') }}
-    </a-button>
+    <network-rules-toolbar :can-add="'createPortForwardingRule' in $store.getters.apis" :loading="loading || networkMutationBusy" @add="openRuleDialog()" @refresh="fetchData" >
+      <a-button
+        v-if="(('deletePortForwardingRule' in $store.getters.apis) && this.selectedItems.length > 0)"
+        type="primary"
+        danger
+        @click="bulkActionConfirmation()">
+        <template #icon><delete-outlined /></template>
+        {{ $t('label.action.bulk.delete.portforward.rules') }}
+      </a-button>
+    </network-rules-toolbar>
+    <a-alert v-if="listRefreshFailed" class="network-rules-guidance" type="warning" show-icon :message="$t('message.list.refresh.stale')" />
     <a-table
       size="small"
       style="overflow-y: auto"
@@ -70,8 +68,9 @@
             <tooltip-button
               :tooltip="$t('label.tags')"
               icon="tag-outlined"
+              :disabled="!('listTags' in $store.getters.apis)"
               buttonClass="rule-action"
-              @onClick="() => openTagsModal(record.id)" />
+              @onClick="() => openTagsModal(record)" />
             <a-popconfirm :title="$t('label.delete') + '?'" @confirm="deleteRule(record)" :disabled="isProtectedManagementRule(record)">
             <tooltip-button
               :tooltip="isProtectedManagementRule(record) ? $t('message.kubernetes.management.rule.delete.disabled') : $t('label.remove.rule')"
@@ -102,72 +101,24 @@
       </template>
     </a-pagination>
 
-    <a-modal
-centered
-class="mold-dialog network-rule-dialog"
-      :title="$t('label.edit.tags')"
-      :visible="tagsModalVisible"
-      :footer="null"
-      :closable="true"
-      :maskClosable="false"
-      :afterClose="closeModal"
-      @cancel="tagsModalVisible = false">
-      <span v-show="tagsModalLoading" class="tags-modal-loading">
-        <loading-outlined />
-      </span>
+    <RuleTagsDialog
+      v-if="tagRule && tagRule.parentId === resource.id"
+      :resource="resource"
+      :rule="tagRule"
+      resource-type="PortForwardingRule"
+      @cancel="tagRule = null" />
 
-      <a-form
-        :ref="formRef"
-        :model="form"
-        :rules="rules"
-        class="add-tags"
-        @finish="handleAddTag"
-        v-ctrl-enter="handleAddTag"
-       >
-        <div class="add-tags__input">
-          <p class="add-tags__label">{{ $t('label.key') }}</p>
-          <a-form-item name="key" ref="key">
-            <a-input
-              v-focus="true"
-              v-model:value="form.key" />
-          </a-form-item>
-        </div>
-        <div class="add-tags__input">
-          <p class="add-tags__label">{{ $t('label.value') }}</p>
-          <a-form-item name="value" ref="value">
-            <a-input v-model:value="form.value" />
-          </a-form-item>
-        </div>
-
-        <a-button style="margin-bottom: 5px;" type="primary" ref="submit" @click="handleAddTag">{{ $t('label.add') }}</a-button>
-      </a-form>
-
-      <a-divider />
-
-      <div v-show="!tagsModalLoading" class="tags-container">
-        <div class="tags" v-for="(tag, index) in tags" :key="index">
-          <a-tag :key="index" :closable="true" @close="() => handleDeleteTag(tag)">
-            {{ tag.key }} = {{ tag.value }}
-          </a-tag>
-        </div>
-      </div>
-
-      <a-button class="add-tags-done" @click="tagsModalVisible = false" type="primary">{{ $t('label.done') }}</a-button>
-    </a-modal>
-
-    <a-modal
-centered
-class="mold-dialog network-rule-dialog"
-      :title="$t(editingRule ? 'label.edit' : 'label.network.rule.add')"
-      :maskClosable="false"
-      :closable="true"
+    <MoldDialog
+      class="network-rule-dialog"
+      size="lg"
+      focus-guard
       :visible="addVmModalVisible"
-
-      :width="920"
-      :footer="null"
-      @cancel="closeModal">
-      <div class="mold-form-dialog">
-      <div class="mold-form-content" v-ctrl-enter="addRule"><NetworkRuleContext :resource="resource" />
+      :title="$t(editingRule ? 'label.edit' : 'label.network.rule.add')"
+      :closable="!networkMutationSubmitting"
+      :keyboard="!networkMutationSubmitting"
+      @cancel="!networkMutationSubmitting && closeModal()">
+      <div>
+      <div v-ctrl-enter="addRule"><NetworkRuleContext :resource="resource" /><NetworkMutationStatus :operation="networkMutation" @recheck="recheckNetworkMutation" />
         <div class="form">
           <div class="form__item form__item--full"><div class="form__label">{{ $t('label.protocol') }}</div><a-select v-model:value="newRule.protocol" :disabled="!!editingRule"><a-select-option value="tcp">TCP</a-select-option><a-select-option value="udp">UDP</a-select-option></a-select></div>
           <div class="form__item"><div class="form__label">{{ $t('label.publicport') }} · {{ $t('label.start') }}</div><a-input-number v-model:value="newRule.publicport" :min="1" :max="65535" :disabled="!!editingRule" style="width: 100%" /></div>
@@ -184,7 +135,7 @@ class="mold-dialog network-rule-dialog"
           <a-select
             v-focus="'vpcid' in resource && (!('associatednetworkid' in resource) || vpcConserveMode)"
             v-model:value="selectedTier"
-            @change="fetchVirtualMachines()"
+            @change="changeTargetTier"
             :placeholder="$t('label.select.tier')"
             showSearch
             optionFilterProp="label"
@@ -274,12 +225,12 @@ class="mold-dialog network-rule-dialog"
           </template>
         </a-pagination>
       </div>
-      <div :span="24" class="action-button">
-        <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
-        <a-button type="primary" ref="submit" :disabled="newRule.virtualmachineid === null" @click="addRule">{{ $t('label.ok') }}</a-button>
       </div>
-      </div>
-    </a-modal>
+      <template #footer>
+        <a-button :disabled="networkMutationSubmitting" @click="closeModal">{{ $t('label.cancel') }}</a-button>
+        <a-button type="primary" ref="submit" :loading="networkMutationBusy" :disabled="!nics.includes(newRule.vmguestip) || addVmModalNicLoading || addVmModalLoading || loading || networkMutationBlocked" @click="addRule">{{ $t('label.ok') }}</a-button>
+      </template>
+    </MoldDialog>
 
     <bulk-action-view
       v-if="showConfirmationAction || showGroupActionModal"
@@ -303,10 +254,14 @@ class="mold-dialog network-rule-dialog"
 <script>
 import { validForwardPorts } from '@/utils/networkRuleForm'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import { networkMutationMixin } from '@/utils/networkMutation'
+import NetworkMutationStatus from '@/components/view/NetworkMutationStatus'
+import { publicIpNicAddresses, publicIpScope } from '@/utils/publicIpRules'
+import MoldDialog from '@/components/view/MoldDialog'
 
-import { reactive, ref, toRaw } from 'vue'
 import NetworkRuleContext from '@/components/view/NetworkRuleContext'
 import NetworkRulesToolbar from '@/components/view/NetworkRulesToolbar'
+import RuleTagsDialog from '@/components/view/RuleTagsDialog.vue'
 import { getAPI, postAPI } from '@/api'
 import { clusterManagementPorts, listAllKubernetesPortRules, listKubernetesClustersForIp } from '@/utils/kubernetesPorts'
 import Status from '@/components/widgets/Status'
@@ -316,8 +271,11 @@ import eventBus from '@/config/eventBus'
 import TooltipLabel from '@/components/widgets/TooltipLabel.vue'
 
 export default {
-  mixins: [listRefreshMixin(['fetchPFRules'])],
+  mixins: [listRefreshMixin(['fetchPFRules']), networkMutationMixin],
   components: {
+    RuleTagsDialog,
+    NetworkMutationStatus,
+    MoldDialog,
     NetworkRuleContext,
     NetworkRulesToolbar,
     TooltipLabel,
@@ -366,11 +324,10 @@ export default {
         vmguestip: null,
         virtualmachineid: null
       },
-      tagsModalVisible: false,
-      selectedRule: null,
+      tagRule: null,
       selectedTier: null,
-      tags: [],
-      tagsModalLoading: false,
+      nicRequest: 0,
+      vmRequest: 0,
       addVmModalVisible: false,
       addVmModalLoading: false,
       addVmModalNicLoading: false,
@@ -462,11 +419,11 @@ export default {
     this.apiParams = this.$getApiParams('createPortForwardingRule')
   },
   created () {
-    this.initForm()
     this.fetchData()
     this.fetchKubernetesManagementPorts()
   },
   watch: {
+    'resource.id' () { this.tagRule = null },
     resource: {
       deep: true,
       handler (newItem) {
@@ -504,14 +461,6 @@ export default {
         if (current()) this.kubernetesPortsUnavailable = true
       }
     },
-    initForm () {
-      this.formRef = ref()
-      this.form = reactive({})
-      this.rules = reactive({
-        key: [{ required: true, message: this.$t('message.specify.tag.key') }],
-        value: [{ required: true, message: this.$t('message.specify.tag.value') }]
-      })
-    },
     fetchData () {
       this.fetchVpc()
       this.fetchListTiers()
@@ -537,7 +486,7 @@ export default {
       })
     },
     fetchListTiers () {
-      this.selectedTier = null
+      if (!this.resource.vpcid) return
       this.tiers.loading = true
       getAPI('listNetworks', {
         supportedservices: 'PortForwarding',
@@ -545,7 +494,7 @@ export default {
         listall: this.resource.vpcid !== null
       }).then(json => {
         this.tiers.data = json.listnetworksresponse.network || []
-        if (this.tiers.data && this.tiers.data.length > 0) {
+        if (!this.tiers.data.some(tier => tier.id === this.selectedTier) && this.tiers.data.length > 0) {
           this.selectedTier = this.tiers.data[0].id
         }
       }).catch(error => {
@@ -706,41 +655,33 @@ export default {
         this.fetchData()
       })
     },
-    addRule () {
-      if (this.loading) return
+    async addRule () {
+      if (this.loading || this.networkMutationBlocked) return
       if (!validForwardPorts(this.newRule)) { this.$notification.error({ message: this.$t('label.required'), description: this.$t('message.network.ports.invalid') }); return }
-      this.loading = true
-      if (this.editingRule && this.isProtectedManagementRule(this.editingRule)) { this.loading = false; return }
-      if (!this.newRule.virtualmachineid || !this.newRule.vmguestip) { this.loading = false; return }
-      const networkId = ('vpcid' in this.resource && (!('associatednetworkid' in this.resource) || this.vpcConserveMode)) ? this.selectedTier : this.resource.associatednetworkid
+      if (this.editingRule && this.isProtectedManagementRule(this.editingRule)) { return }
+      if (this.addVmModalNicLoading || this.addVmModalLoading || !this.newRule.virtualmachineid || !this.nics.includes(this.newRule.vmguestip)) return
+      const networkId = this.targetNetworkId()
+      if (!networkId) return
       const api = this.editingRule ? 'updatePortForwardingRule' : 'createPortForwardingRule'
-      if (!this.$store.getters.apis[api]) { this.loading = false; return }
+      if (!this.$store.getters.apis[api]) { return }
       const params = this.editingRule
         ? { id: this.editingRule.id, privateport: this.newRule.privateport, privateendport: this.newRule.privateendport, virtualmachineid: this.newRule.virtualmachineid, vmguestip: this.newRule.vmguestip, ...(this.isVPC() ? { cidrlist: this.newRule.cidrlist } : {}) }
-        : { ...this.newRule, ipaddressid: this.resource.id, networkid: networkId }
-      postAPI(api, params).then(response => {
-        this.$pollJob({
-          jobId: response[api.toLowerCase() + 'response'].jobid,
-          successMessage: this.$t('message.success.add.port.forward'),
-          successMethod: () => {
-            this.closeModal()
-            this.fetchData()
-          },
-          errorMessage: this.$t('message.add.port.forward.failed'),
-          errorMethod: () => {
-            this.loading = false
-            this.fetchData()
-          },
-          loadingMessage: this.$t('message.add.port.forward.processing'),
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.loading = false
-            this.fetchData()
-          }
-        })
-      }).catch(error => {
-        this.$notifyError(error)
-        this.fetchData()
+        : {
+          ipaddressid: this.resource.id,
+          networkid: networkId,
+          protocol: this.newRule.protocol,
+          privateport: this.newRule.privateport,
+          privateendport: this.newRule.privateendport,
+          publicport: this.newRule.publicport,
+          publicendport: this.newRule.publicendport,
+          virtualmachineid: this.newRule.virtualmachineid,
+          vmguestip: this.newRule.vmguestip,
+          openfirewall: this.newRule.openfirewall,
+          ...(this.isVPC() ? { cidrlist: this.newRule.cidrlist } : {})
+        }
+      return this.submitNetworkMutation(api, params, async () => {
+        this.closeModal()
+        await this.fetchData()
       })
     },
     resetAllRules () {
@@ -750,17 +691,15 @@ export default {
       this.newRule.publicport = null
       this.newRule.publicendport = null
       this.newRule.openfirewall = false
+      this.newRule.cidrlist = null
       this.newRule.vmguestip = null
       this.newRule.virtualmachineid = null
     },
-    resetTagInputs () {
-      if (this.formRef.value) {
-        this.formRef.value.resetFields()
-      }
-    },
     closeModal () {
-      this.selectedRule = null
-      this.tagsModalVisible = false
+      if (this.networkMutationBlocked) { this.addVmModalVisible = false; return }
+      this.tagRule = null
+      this.nicRequest++
+      this.vmRequest++
       this.addVmModalVisible = false
       this.newRule.virtualmachineid = null
       this.addVmModalLoading = false
@@ -768,103 +707,22 @@ export default {
       this.showConfirmationAction = false
       this.nics = []
       this.checked = false
-      this.resetTagInputs()
     },
-    openTagsModal (id) {
-      this.initForm()
-      this.tagsModalLoading = true
-      this.selectedRule = id
-      this.tagsModalVisible = true
-      this.tags = []
-      getAPI('listTags', {
-        resourceId: id,
-        resourceType: 'PortForwardingRule',
-        listAll: true
-      }).then(response => {
-        this.tags = response.listtagsresponse.tag
-        this.tagsModalLoading = false
-      }).catch(error => {
-        this.$notifyError(error)
-        this.closeModal()
-      })
-    },
-    handleAddTag (e) {
-      if (this.tagsModalLoading) return
-      this.tagsModalLoading = true
-
-      e.preventDefault()
-      this.formRef.value.validate().then(() => {
-        const values = toRaw(this.form)
-        this.tagsModalLoading = false
-
-        postAPI('createTags', {
-          'tags[0].key': values.key,
-          'tags[0].value': values.value,
-          resourceIds: this.selectedRule,
-          resourceType: 'PortForwardingRule'
-        }).then(response => {
-          this.$pollJob({
-            jobId: response.createtagsresponse.jobid,
-            successMessage: this.$t('message.success.add.tag'),
-            successMethod: () => {
-              this.parentToggleLoading()
-              this.openTagsModal(this.selectedRule)
-            },
-            errorMessage: this.$t('message.add.tag.failed'),
-            errorMethod: () => {
-              this.parentToggleLoading()
-              this.closeModal()
-            },
-            loadingMessage: this.$t('message.add.tag.processing'),
-            catchMessage: this.$t('error.fetching.async.job.result'),
-            catchMethod: () => {
-              this.parentFetchData()
-              this.parentToggleLoading()
-              this.closeModal()
-            }
-          })
-        })
-      }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
-      })
-    },
-    handleDeleteTag (tag) {
-      this.tagsModalLoading = true
-      postAPI('deleteTags', {
-        'tags[0].key': tag.key,
-        'tags[0].value': tag.value,
-        resourceIds: this.selectedRule,
-        resourceType: 'PortForwardingRule'
-      }).then(response => {
-        this.$pollJob({
-          jobId: response.deletetagsresponse.jobid,
-          successMessage: this.$t('message.success.delete.tag'),
-          successMethod: () => {
-            this.parentToggleLoading()
-            this.openTagsModal(this.selectedRule)
-          },
-          errorMessage: this.$t('message.delete.tag.failed'),
-          errorMethod: () => {
-            this.parentToggleLoading()
-            this.closeModal()
-          },
-          loadingMessage: this.$t('message.delete.tag.processing'),
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.parentFetchData()
-            this.parentToggleLoading()
-            this.closeModal()
-          }
-        })
-      }).catch(error => {
-        this.$notifyError(error)
-      })
+    openTagsModal (rule) {
+      if (!rule.id || !this.resource.id || !('listTags' in this.$store.getters.apis)) return
+      this.tagRule = { id: rule.id, parentId: this.resource.id, canEdit: !this.isProtectedManagementRule(rule) }
     },
     openRuleDialog (rule) {
+      if (this.networkMutationBlocked) { this.addVmModalVisible = true; return }
+      this.resetNetworkMutation()
       if (rule && this.isProtectedManagementRule(rule)) return
       this.editingRule = rule || null
       this.resetAllRules()
-      if (rule) { this.newRule = { ...rule }; this.checked = rule.virtualmachineid }
+      if (rule) {
+        if (this.resource.vpcid && rule.networkid) this.selectedTier = rule.networkid
+        this.newRule = { ...rule }
+        this.checked = rule.virtualmachineid
+      }
       this.openAddVMModal()
       if (rule) this.fetchNics({ target: { value: rule.virtualmachineid } })
     },
@@ -873,51 +731,75 @@ export default {
       this.addVmModalVisible = true
       this.fetchVirtualMachines()
     },
-    fetchNics (e) {
-      this.nics = []
-      this.addVmModalNicLoading = true
-      this.newRule.virtualmachineid = e.target.value
-      getAPI('listNics', {
-        virtualmachineid: e.target.value,
-        networkid: ('vpcid' in this.resource && (!('associatednetworkid' in this.resource) || this.vpcConserveMode)) ? this.selectedTier : this.resource.associatednetworkid
-      }).then(response => {
-        if (!response.listnicsresponse.nic || response.listnicsresponse.nic.length < 1) return
-        const nic = response.listnicsresponse.nic[0]
-        this.nics.push(nic.ipaddress)
-        if (nic.secondaryip && nic.secondaryip.length > 0) {
-          this.nics.push(...nic.secondaryip.map(ip => ip.ipaddress))
-        }
-        this.newRule.vmguestip = this.nics[0]
-        this.addVmModalNicLoading = false
-      }).catch(error => {
-        this.$notifyError(error)
-        this.closeModal()
-      })
+    targetNetworkId () {
+      return this.resource.vpcid && (!this.resource.associatednetworkid || this.vpcConserveMode)
+        ? this.selectedTier : this.resource.associatednetworkid
     },
-    fetchVirtualMachines () {
+    changeTargetTier () {
+      this.nicRequest++
+      this.nics = []
+      this.checked = false
+      this.newRule.virtualmachineid = null
+      this.newRule.vmguestip = null
+      this.addVmModalNicLoading = false
+      this.vmPage = 1
+      this.fetchVirtualMachines()
+    },
+    async fetchNics (e) {
+      const vmId = e.target.value
+      const networkId = this.targetNetworkId()
+      const scope = this.networkMutationScope
+      const request = ++this.nicRequest
+      const previous = this.newRule.virtualmachineid === vmId ? this.newRule.vmguestip : null
+      this.nics = []
+      this.newRule.vmguestip = null
+      this.newRule.virtualmachineid = vmId
+      if (!networkId || !vmId) return
+      this.addVmModalNicLoading = true
+      const current = () => request === this.nicRequest && !this.networkMutationDisposed &&
+        scope === this.networkMutationScope && networkId === this.targetNetworkId()
+      try {
+        const json = await getAPI('listNics', { virtualmachineid: vmId, networkid: networkId })
+        if (!current()) return
+        this.nics = publicIpNicAddresses(json.listnicsresponse.nic, networkId)
+        this.newRule.vmguestip = this.nics.includes(previous) ? previous : this.nics[0] || null
+      } catch (error) {
+        if (current()) this.$notifyError(error)
+      } finally {
+        if (current()) this.addVmModalNicLoading = false
+      }
+    },
+    async fetchVirtualMachines () {
+      const request = ++this.vmRequest
+      const networkId = this.targetNetworkId()
+      const scope = this.networkMutationScope
       this.vmCount = 0
       this.vms = []
-      this.addVmModalLoading = true
-      const networkId = ('vpcid' in this.resource && (!('associatednetworkid' in this.resource) || this.vpcConserveMode)) ? this.selectedTier : this.resource.associatednetworkid
       if (!networkId) {
         this.addVmModalLoading = false
         return
       }
-      getAPI('listVirtualMachines', {
-        listAll: true,
-        state: 'Present',
-        keyword: this.searchQuery,
-        page: this.vmPage,
-        pagesize: this.vmPageSize,
-        networkid: networkId
-      }).then(response => {
+      this.addVmModalLoading = true
+      const current = () => request === this.vmRequest && !this.networkMutationDisposed &&
+        scope === this.networkMutationScope && networkId === this.targetNetworkId()
+      try {
+        const response = await getAPI('listVirtualMachines', {
+          ...publicIpScope(this.resource),
+          listall: true,
+          state: 'Present',
+          keyword: this.searchQuery,
+          page: this.vmPage,
+          pagesize: this.vmPageSize,
+          networkid: networkId
+        })
+        if (!current()) return
         this.vmCount = response.listvirtualmachinesresponse.count || 0
         this.vms = response.listvirtualmachinesresponse.virtualmachine || []
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.addVmModalLoading = false
-      })
+      } catch (error) {
+        if (current()) this.$notifyError(error)
+      } finally {
+        if (current()) this.addVmModalLoading = false
+      }
     },
     handleChangePage (page, pageSize) {
       this.page = page
@@ -944,7 +826,7 @@ export default {
       this.fetchVirtualMachines()
     },
     isVPC () {
-      return 'vpcid' in this.resource
+      return !!this.resource.vpcid
     }
   }
 }
@@ -1053,52 +935,6 @@ export default {
       margin-right: 10px;
     }
 
-  }
-
-  .tags {
-    margin-bottom: 10px;
-  }
-
-  .add-tags {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-
-    &__input {
-      margin-right: 10px;
-    }
-
-    &__label {
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-
-  }
-
-  .tags-container {
-    display: flex;
-    flex-wrap: wrap;
-    margin-bottom: 10px;
-  }
-
-  .add-tags-done {
-    display: block;
-    margin-left: auto;
-  }
-
-  .tags-modal-loading {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0,0,0,0.5);
-    z-index: 1;
-    color: #1890ff;
-    font-size: 2rem;
   }
 
   .vm-modal {

@@ -1,0 +1,112 @@
+[
+  {
+    "label": "31-vm-standard-list-light",
+    "width": 1280,
+    "height": 900,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/vm",
+    "sha256": "8cd1809e8186124d02150eb080419a88c729c66fc6776af6537e418c8d67afe1"
+  },
+  {
+    "label": "31-l2-list-tablet-light",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/guestnetwork?q=qa-gn1571-31&keyword=qa-gn1571-31&page=1&pagesize=20",
+    "sha256": "20b0b06b22f64a3944c78cbb5b6ebdda3147574d3d904832ee9be1df2467cb30"
+  },
+  {
+    "label": "31-create-configdrive-tablet-light",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/guestnetwork",
+    "sha256": "d14a55a78ff31a3beb583ce48df2703291ce9f0ae90ba9a79f5f41d2cda07682"
+  },
+  {
+    "label": "31-configdrive-detail-light",
+    "width": 1280,
+    "height": 900,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/guestnetwork/a5fee678-3cbc-4143-9f52-aaa5a2e1b30c?tab=details",
+    "sha256": "726ff4e014980b601376d26c8977fdcebe734e21343291e00acb813fb0f45804"
+  },
+  {
+    "label": "31-l2-edit-tablet-light",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/guestnetwork/86576f1d-a931-4f17-a18a-ff81d2e6ad16?tab=details",
+    "sha256": "e8dce74b852c9405153c32bc8cd218fb737c3f4c859eb98e6b28da8384db6794"
+  },
+  {
+    "label": "31-vm-nic-add-l2-light",
+    "width": 1280,
+    "height": 900,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dark": false,
+    "path": "#/vm/71b13a06-9e2e-446d-b13a-c526cc816d78?tab=nics",
+    "sha256": "a9329015f65d159fe9f1477f18235a6409587ddfb5a3299deb1b191e432dda94"
+  },
+  {
+    "label": "32-create-pvlan-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork",
+    "sha256": "4daa150ac697f1aaa359c8a75500c13b5efed5b94479143d879d8bea0f308945"
+  },
+  {
+    "label": "32-pvlan-detail-tablet-dark",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 758,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork/5ca442a3-e49e-42f9-87a1-56016435718b?tab=details",
+    "sha256": "66b0e7f6a376ebb3333bf364e842ff62ca9bcd95c5a7291eb7e910c84e291609"
+  },
+  {
+    "label": "32-l2-unsupported-tab-dark",
+    "width": 1280,
+    "height": 900,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork/db79bbb9-f0a7-4f6e-a21d-440e4ca8f4f1?tab=details",
+    "sha256": "ac63a729f37763955ef71aad4f981bf97dff9186835a6202707c7e8a1cf42872"
+  },
+  {
+    "label": "32-vm-nic-l2-mobile-dark",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 380,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/vm/a3f6dc52-5f46-476a-aa70-253683154f52?tab=nics",
+    "sha256": "819fefc79d03b74104dd176ae16bc64033d62394d0a4c06badf2b23226796f89"
+  },
+  {
+    "label": "32-owner-l2-create-dark",
+    "width": 1280,
+    "height": 900,
+    "documentWidth": 1270,
+    "dialogOverflow": 0,
+    "dark": true,
+    "path": "#/guestnetwork",
+    "sha256": "2c2b3b241eac586b1ffe5c29db4ffa3d2956dad114de309f895805abed91eedd"
+  }
+]

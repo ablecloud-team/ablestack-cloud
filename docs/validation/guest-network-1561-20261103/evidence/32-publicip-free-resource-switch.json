@@ -1,0 +1,85 @@
+{
+  "ui": {
+    "breadcrumb": {
+      "rect": {
+        "bottom": 126,
+        "height": 29,
+        "left": 281,
+        "right": 763,
+        "top": 97,
+        "width": 482,
+        "x": 281,
+        "y": 97
+      },
+      "text": "/Public IP 주소/10.10.32.104업데이트/"
+    },
+    "dark": false,
+    "height": 900,
+    "panels": [
+      {
+        "id": "rc-tabs-1-panel-details",
+        "label": "rc-tabs-1-tab-details"
+      }
+    ],
+    "position": "ant-tabs ant-tabs-left",
+    "scrollWidth": 1270,
+    "tabs": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(24, 144, 255)",
+        "controls": "rc-tabs-1-panel-details",
+        "id": "rc-tabs-1-tab-details",
+        "rect": {
+          "bottom": 244,
+          "height": 22,
+          "left": 593.25,
+          "right": 619.015625,
+          "top": 222,
+          "width": 25.765625,
+          "x": 593.25,
+          "y": 222
+        },
+        "selected": "true",
+        "text": "상세"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-1-panel-events",
+        "id": "rc-tabs-1-tab-events",
+        "rect": {
+          "bottom": 298,
+          "height": 22,
+          "left": 593.25,
+          "right": 631.890625,
+          "top": 276,
+          "width": 38.640625,
+          "x": 593.25,
+          "y": 276
+        },
+        "selected": "false",
+        "text": "이벤트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-1-panel-comments",
+        "id": "rc-tabs-1-tab-comments",
+        "rect": {
+          "bottom": 352,
+          "height": 22,
+          "left": 593.25,
+          "right": 631.890625,
+          "top": 330,
+          "width": 38.640625,
+          "x": 593.25,
+          "y": 330
+        },
+        "selected": "false",
+        "text": "코멘트"
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/publicip/9f028022-7776-41a5-9c2f-9517e20d8c7e?tab=details",
+    "width": 1280
+  }
+}

@@ -1,0 +1,530 @@
+[
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "action": "before-project-switch",
+    "completed": false,
+    "expectedError": 401
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "action": "before-project-switch",
+    "completed": false,
+    "expectedError": 401
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "action": "login",
+    "completed": true,
+    "account": "qa-gn1569-31-readonly"
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "action": "project-switch",
+    "completed": true,
+    "target": "qa-gn1569-31-project"
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "action": "network-list",
+    "completed": true,
+    "createButtonVisible": 0
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "action": "network-update-restricted",
+    "completed": true,
+    "updateMenuCount": 0
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "action": "nic-actions-restricted",
+    "completed": true,
+    "createAttachCount": 0,
+    "attachCount": 0,
+    "detachCount": 0
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "login",
+    "completed": true,
+    "account": "qa-gn1569-31-owner"
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "project-switch",
+    "completed": true,
+    "target": "qa-gn1569-31-project"
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "owner-network-create-available",
+    "completed": true,
+    "networkAddButtonCount": 1
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "owner-create-environment-quota",
+    "completed": false,
+    "errorCode": 535,
+    "resolvedBy": "QA project quota 20 -> 30"
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "owner-ui-create",
+    "completed": true,
+    "networkName": "qa-gn1569-31-prj-1589-ui-l2"
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "owner-ui-update",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "network-breadcrumb",
+    "completed": true
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "action": "login",
+    "completed": true,
+    "account": "qa-gn1569-32-readonly"
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "action": "project-switch",
+    "completed": true,
+    "target": "qa-gn1569-32-project"
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "action": "network-list",
+    "completed": true,
+    "networkAddButtonCount": 0
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "action": "network-update-restricted",
+    "completed": true,
+    "updateMenuCount": 0
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "action": "nic-actions-restricted",
+    "completed": true,
+    "createAttachCount": 0,
+    "attachCount": 0,
+    "detachCount": 0
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "action": "owner-ui-nic-attach",
+    "completed": true,
+    "kept": true
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "action": "login",
+    "completed": true,
+    "account": "qa-gn1569-32-owner"
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "action": "project-switch",
+    "completed": true,
+    "target": "qa-gn1569-32-project"
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "action": "owner-ui-create",
+    "completed": true,
+    "networkName": "qa-gn1569-32-prj-1589-ui-l2"
+  },
+  {
+    "cluster": 31,
+    "role": "member",
+    "action": "login",
+    "completed": true,
+    "account": "qa-gn1569-31-member"
+  },
+  {
+    "cluster": 31,
+    "role": "member",
+    "action": "project-switch",
+    "completed": true,
+    "target": "qa-gn1569-31-project"
+  },
+  {
+    "cluster": 31,
+    "role": "member",
+    "action": "member-network-actions",
+    "completed": true,
+    "networkAddEnabled": true
+  },
+  {
+    "cluster": 31,
+    "role": "member",
+    "action": "member-nic-actions",
+    "completed": true,
+    "attachEnabled": true
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "action": "owner-ui-update",
+    "completed": true
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "action": "network-breadcrumb",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "root",
+    "action": "login",
+    "completed": true,
+    "account": "admin"
+  },
+  {
+    "cluster": 31,
+    "role": "root",
+    "action": "project-switch",
+    "completed": true,
+    "target": "qa-gn1569-31-project"
+  },
+  {
+    "cluster": 31,
+    "role": "root",
+    "action": "root-network-actions",
+    "completed": true,
+    "networkAddEnabled": true
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "login",
+    "completed": true,
+    "account": "qa-gn1569-31-domainadmin"
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "project-switch",
+    "completed": true,
+    "target": "qa-gn1569-31-project"
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "action": "domainadmin-network-actions",
+    "completed": true,
+    "networkAddEnabled": true
+  },
+  {
+    "cluster": 31,
+    "role": "peer",
+    "action": "login",
+    "completed": true,
+    "account": "qa-gn1569-31-peer"
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "action": "owner-ui-nic-attach",
+    "completed": true,
+    "kept": true
+  },
+  {
+    "cluster": 32,
+    "role": "member",
+    "action": "login",
+    "completed": true,
+    "account": "qa-gn1569-32-member"
+  },
+  {
+    "cluster": 32,
+    "role": "member",
+    "action": "project-switch",
+    "completed": true,
+    "target": "qa-gn1569-32-project"
+  },
+  {
+    "cluster": 32,
+    "role": "member",
+    "action": "member-network-actions",
+    "completed": true,
+    "networkAddEnabled": true
+  },
+  {
+    "cluster": 32,
+    "role": "member",
+    "action": "member-nic-actions",
+    "completed": true,
+    "attachEnabled": true
+  },
+  {
+    "cluster": 31,
+    "role": "peer",
+    "action": "nonmember-direct-network",
+    "completed": true,
+    "detailsVisible": false
+  },
+  {
+    "cluster": 31,
+    "role": "user-only",
+    "action": "login",
+    "completed": true,
+    "account": "qa-gn1569-31-1589-user"
+  },
+  {
+    "cluster": 31,
+    "role": "user-only",
+    "action": "project-switch",
+    "completed": true,
+    "target": "qa-gn1569-31-project"
+  },
+  {
+    "cluster": 31,
+    "role": "user-only",
+    "action": "user-only-ui-project-read",
+    "completed": true,
+    "networkAddButtonCount": 0
+  },
+  {
+    "cluster": 32,
+    "role": "root",
+    "action": "login",
+    "completed": true,
+    "account": "admin"
+  },
+  {
+    "cluster": 32,
+    "role": "root",
+    "action": "project-switch",
+    "completed": true,
+    "target": "qa-gn1569-32-project"
+  },
+  {
+    "cluster": 32,
+    "role": "root",
+    "action": "root-network-actions",
+    "completed": true,
+    "networkAddEnabled": true
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "login",
+    "completed": true,
+    "account": "qa-gn1569-32-domainadmin"
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "project-switch",
+    "completed": true,
+    "target": "qa-gn1569-32-project"
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "action": "domainadmin-network-actions",
+    "completed": true,
+    "networkAddEnabled": true
+  },
+  {
+    "cluster": 32,
+    "role": "peer",
+    "action": "login",
+    "completed": true,
+    "account": "qa-gn1569-32-peer"
+  },
+  {
+    "cluster": 32,
+    "role": "peer",
+    "action": "nonmember-direct-network",
+    "completed": true,
+    "detailsVisible": false
+  },
+  {
+    "cluster": 32,
+    "role": "user-only",
+    "action": "login",
+    "completed": true,
+    "account": "qa-gn1569-32-1589-user"
+  },
+  {
+    "cluster": 32,
+    "role": "user-only",
+    "action": "project-switch",
+    "completed": true,
+    "target": "qa-gn1569-32-project"
+  },
+  {
+    "cluster": 32,
+    "role": "user-only",
+    "action": "user-only-ui-project-read",
+    "completed": true,
+    "networkAddButtonCount": 0
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "action": "login",
+    "completed": true,
+    "account": "qa-gn1569-31-readonly"
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "action": "project-switch",
+    "completed": true,
+    "target": "qa-gn1569-31-project"
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "action": "restricted-network-add-hidden",
+    "completed": true,
+    "networkAddButtonCount": 0
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "action": "project-switch",
+    "completed": true,
+    "target": "기본 보기"
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "action": "project-switch",
+    "completed": true,
+    "target": "qa-gn1569-31-project"
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "action": "mobile-project-roundtrip",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "action": "isolated-detail-and-public-ip",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "action": "shared-detail-read",
+    "completed": true
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "action": "login",
+    "completed": true,
+    "account": "qa-gn1569-32-readonly"
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "action": "project-switch",
+    "completed": true,
+    "target": "qa-gn1569-32-project"
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "action": "project-switch",
+    "completed": true,
+    "target": "기본 보기"
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "action": "project-switch",
+    "completed": true,
+    "target": "qa-gn1569-32-project"
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "action": "mobile-project-roundtrip",
+    "completed": true
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "action": "isolated-detail-and-public-ip",
+    "completed": true
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "action": "shared-detail-read",
+    "completed": true
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "action": "final-nic-restrictions",
+    "completed": true,
+    "createAttachCount": 0,
+    "attachCount": 0,
+    "detachCount": 0
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "action": "final-nic-restrictions",
+    "completed": true,
+    "createAttachCount": 0,
+    "attachCount": 0,
+    "detachCount": 0
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "action": "final-review-screen",
+    "completed": true,
+    "resourcesKept": true,
+    "nicCount": 6,
+    "viewportOverrideCleared": true
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "action": "final-review-screen",
+    "completed": true,
+    "resourcesKept": true,
+    "nicCount": 6,
+    "viewportOverrideCleared": true
+  }
+]

@@ -1,0 +1,76 @@
+{
+  "body": {
+    "bottom": 584,
+    "height": 213,
+    "left": 410,
+    "right": 860,
+    "top": 371,
+    "width": 450,
+    "x": 410,
+    "y": 371
+  },
+  "bodyClientHeight": 213,
+  "bodyClientWidth": 450,
+  "bodyScrollHeight": 213,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 450,
+  "colors": [
+    {
+      "background": "rgb(255, 248, 230)",
+      "color": "rgb(92, 59, 0)",
+      "text": "새로운 IP를 가져올 것인지 확인하십시오."
+    }
+  ],
+  "content": {
+    "bottom": 584,
+    "height": 268,
+    "left": 410,
+    "right": 860,
+    "top": 316,
+    "width": 450,
+    "x": 410,
+    "y": 316
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1270,
+    "top": 0,
+    "width": 1270,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": null,
+  "header": {
+    "bottom": 371,
+    "height": 55,
+    "left": 410,
+    "right": 860,
+    "top": 316,
+    "width": 450,
+    "x": 410,
+    "y": 316
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 749,
+    "left": 256,
+    "right": 1270,
+    "top": 151,
+    "width": 1014,
+    "x": 256,
+    "y": 151
+  },
+  "primaryButton": null,
+  "width": 1280,
+  "image_sha256": "09e2c5cc84125bc75159a0689ae956dbd458100dfd58612d85e2d18828040127"
+}

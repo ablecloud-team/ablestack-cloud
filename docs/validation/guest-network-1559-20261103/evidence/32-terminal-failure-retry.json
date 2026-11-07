@@ -1,0 +1,277 @@
+{
+  "cluster": 32,
+  "label": "32-terminal-failure-retry",
+  "records": [
+    {
+      "cluster": 32,
+      "requestId": "20636.1727",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+        "listall": "true",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1728",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "e8d9487d-f70b-451f-8a58-7d26e8bfdc79",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1729",
+      "command": "listRouters",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "networkid": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+        "command": "listRouters"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1730",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+        "listall": "true",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1731",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "e8d9487d-f70b-451f-8a58-7d26e8bfdc79",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1732",
+      "command": "listRouters",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "networkid": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+        "command": "listRouters"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1733",
+      "command": "restartNetwork",
+      "method": "POST",
+      "params": {
+        "command": "restartNetwork",
+        "id": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+        "cleanup": "false",
+        "makeredundant": "false",
+        "livepatch": "false"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1734",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "9f0cf891-d783-411d-bbc1-ca0d5c1c47b4",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1737",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "9f0cf891-d783-411d-bbc1-ca0d5c1c47b4",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1738",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "id": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1739",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+        "listall": "true",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1740",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "e8d9487d-f70b-451f-8a58-7d26e8bfdc79",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1741",
+      "command": "listRouters",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "networkid": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+        "command": "listRouters"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1742",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "id": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "status": 200
+    }
+  ],
+  "before": [
+    {
+      "id": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+      "status": "failed",
+      "text": "qa-gn1559-32-b\nIsolated · Implemented · admin\ne1fd3f61-0cfc-4027-b0ca-6537e9ba71de\n실패\nQA terminal job failure (synthetic; no restart executed)\n작업: 15590000-0000-4000-8000-000000000000"
+    }
+  ],
+  "rows": [
+    {
+      "id": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+      "status": "success",
+      "text": "qa-gn1559-32-b\nIsolated · Implemented · admin\ne1fd3f61-0cfc-4027-b0ca-6537e9ba71de\n완료\n작업: 9f0cf891-d783-411d-bbc1-ca0d5c1c47b4"
+    }
+  ],
+  "responses": [
+    {
+      "request": {
+        "cluster": 32,
+        "requestId": "20636.1733",
+        "command": "restartNetwork",
+        "method": "POST",
+        "params": {
+          "command": "restartNetwork",
+          "id": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+          "cleanup": "false",
+          "makeredundant": "false",
+          "livepatch": "false"
+        },
+        "status": 200
+      },
+      "result": {
+        "restartnetworkresponse": {
+          "jobid": "9f0cf891-d783-411d-bbc1-ca0d5c1c47b4"
+        }
+      }
+    },
+    {
+      "request": {
+        "cluster": 32,
+        "requestId": "20636.1734",
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobid": "9f0cf891-d783-411d-bbc1-ca0d5c1c47b4",
+          "command": "queryAsyncJobResult"
+        },
+        "status": 200
+      },
+      "result": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.network.RestartNetworkCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobinstancetype": "Network",
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-11-03T15:51:45+0900",
+          "jobid": "9f0cf891-d783-411d-bbc1-ca0d5c1c47b4",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "request": {
+        "cluster": 32,
+        "requestId": "20636.1737",
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobid": "9f0cf891-d783-411d-bbc1-ca0d5c1c47b4",
+          "command": "queryAsyncJobResult"
+        },
+        "status": 200
+      },
+      "result": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.network.RestartNetworkCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "success": true
+          },
+          "jobinstancetype": "Network",
+          "created": "2026-11-03T15:51:45+0900",
+          "completed": "2026-11-03T15:51:46+0900",
+          "jobid": "9f0cf891-d783-411d-bbc1-ca0d5c1c47b4",
+          "jobstatus": 1
+        }
+      }
+    }
+  ]
+}

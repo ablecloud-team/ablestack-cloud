@@ -1,0 +1,16 @@
+{
+  "root_path": "/dev/rbd/rbd/e6caa909-0811-47db-961c-98e48136dce7",
+  "path_exists": false,
+  "domain_exit": 1,
+  "rbd_exit": 2,
+  "rbd_error": "rbd: error opening image e6caa909-0811-47db-961c-98e48136dce7: (2) No such file or directory\n",
+  "DB_active_counts": {
+    "active_networks": 0,
+    "active_offerings": 0,
+    "active_vms": 0,
+    "active_volumes": 0,
+    "active_routers": 0,
+    "active_fixture_router_volumes": 0,
+    "active_fixture_guest_nics": 0
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "sourceIp": {
+    "id": "25328461-bb0a-4b4e-8852-258ad4227d7f",
+    "ipaddress": "10.10.31.142",
+    "state": "Allocated",
+    "issourcenat": true,
+    "isstaticnat": false,
+    "issystem": false,
+    "hasrules": true,
+    "virtualmachineid": null,
+    "vmipaddress": null,
+    "associatednetworkid": "ab0ffe86-80b4-4db6-a352-4234a8e5c84c"
+  },
+  "rulesIp": {
+    "id": "21a6e954-afa8-4bee-89c4-25c2745713b0",
+    "ipaddress": "10.10.31.143",
+    "state": "Allocated",
+    "issourcenat": false,
+    "isstaticnat": false,
+    "issystem": false,
+    "hasrules": true,
+    "virtualmachineid": null,
+    "vmipaddress": null,
+    "associatednetworkid": "ab0ffe86-80b4-4db6-a352-4234a8e5c84c"
+  },
+  "natIp": {
+    "id": "b2f14a08-e535-49d6-b3a7-8b545cf9e469",
+    "ipaddress": "10.10.31.141",
+    "state": "Allocated",
+    "issourcenat": false,
+    "isstaticnat": true,
+    "issystem": false,
+    "hasrules": false,
+    "virtualmachineid": "1ef4af6f-635e-41fc-b006-41e9b5e527f2",
+    "vmipaddress": "10.179.31.224",
+    "associatednetworkid": "ab0ffe86-80b4-4db6-a352-4234a8e5c84c"
+  },
+  "releasedOrdinaryIp": {
+    "id": "ae4ec34f-141b-4625-bb7d-c2d1cc044e41",
+    "state": "not-listed"
+  },
+  "firewall": [
+    {
+      "id": "aaede0dc-d2de-46af-a32e-8a9aec03a482",
+      "protocol": "tcp",
+      "startport": 49171,
+      "endport": 49171,
+      "cidrlist": "192.0.2.0/24",
+      "state": "Active"
+    }
+  ],
+  "pf": [
+    {
+      "id": "ef759dfe-ed38-4025-95df-0946e17854a7",
+      "protocol": "tcp",
+      "publicport": "49172",
+      "privateport": "2222",
+      "virtualmachineid": "1ef4af6f-635e-41fc-b006-41e9b5e527f2",
+      "vmguestip": "10.179.31.78",
+      "state": "Active"
+    }
+  ],
+  "lb": [
+    {
+      "id": "0a5c581a-ec04-4a52-913a-07ca44b9c677",
+      "name": "qa-gn1573-31-lb",
+      "protocol": "tcp",
+      "publicport": "49173",
+      "privateport": "22",
+      "algorithm": "roundrobin",
+      "state": "Active",
+      "targets": [
+        {
+          "vm": "1ef4af6f-635e-41fc-b006-41e9b5e527f2",
+          "ips": [
+            "10.179.31.78"
+          ]
+        }
+      ],
+      "stickiness": [
+        {
+          "lbruleid": "0a5c581a-ec04-4a52-913a-07ca44b9c677",
+          "account": "qa-gn1573-31-owner",
+          "domainid": "6d8cbd12-bbae-471c-9805-a2f75c47167a",
+          "domain": "qa-gn1573-31-scope",
+          "stickinesspolicy": [
+            {
+              "id": "1d8f0e9e-8c7f-4fe8-85eb-a101fc5c7648",
+              "name": "qa-gn1573-source",
+              "methodname": "SourceBased",
+              "fordisplay": true,
+              "params": {
+                "expire": "30m",
+                "tablesize": "10k"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "vpn": [
+    {
+      "id": "2909cd01-6b81-4e94-87b3-e7a6e774342a",
+      "publicip": "10.10.31.142",
+      "state": "Running",
+      "iprange": "10.1.2.2-10.1.2.8"
+    }
+  ]
+}

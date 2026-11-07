@@ -1,0 +1,239 @@
+{
+  "ui": {
+    "breadcrumb": {
+      "rect": {
+        "bottom": 172,
+        "height": 29,
+        "left": 281,
+        "right": 763,
+        "top": 143,
+        "width": 482,
+        "x": 281,
+        "y": 143
+      },
+      "text": "/가상머신용 네트워크/qa-gn1561-31-nosnat업데이트/"
+    },
+    "dark": false,
+    "height": 900,
+    "panels": [
+      {
+        "id": "rc-tabs-3-panel-public.ip.addresses",
+        "label": "rc-tabs-3-tab-public.ip.addresses"
+      }
+    ],
+    "position": "ant-tabs ant-tabs-left",
+    "scrollWidth": 1270,
+    "tabs": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-3-panel-details",
+        "id": "rc-tabs-3-tab-details",
+        "rect": {
+          "bottom": 290,
+          "height": 22,
+          "left": 590.328125,
+          "right": 616.09375,
+          "top": 268,
+          "width": 25.765625,
+          "x": 590.328125,
+          "y": 268
+        },
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-3-panel-egress.rules",
+        "id": "rc-tabs-3-tab-egress.rules",
+        "rect": {
+          "bottom": 344,
+          "height": 22,
+          "left": 590.328125,
+          "right": 645.6875,
+          "top": 322,
+          "width": 55.359375,
+          "x": 590.328125,
+          "y": 322
+        },
+        "selected": "false",
+        "text": "송신 규칙"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(24, 144, 255)",
+        "controls": "rc-tabs-3-panel-public.ip.addresses",
+        "id": "rc-tabs-3-tab-public.ip.addresses",
+        "rect": {
+          "bottom": 398,
+          "height": 22,
+          "left": 590.328125,
+          "right": 672.578125,
+          "top": 376,
+          "width": 82.25,
+          "x": 590.328125,
+          "y": 376
+        },
+        "selected": "true",
+        "text": "Public IP 주소"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-3-panel-virtual.routers",
+        "id": "rc-tabs-3-tab-virtual.routers",
+        "rect": {
+          "bottom": 452,
+          "height": 22,
+          "left": 590.328125,
+          "right": 658.578125,
+          "top": 430,
+          "width": 68.25,
+          "x": 590.328125,
+          "y": 430
+        },
+        "selected": "false",
+        "text": "가상 라우터"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-3-panel-vnf.appliances",
+        "id": "rc-tabs-3-tab-vnf.appliances",
+        "rect": {
+          "bottom": 506,
+          "height": 22,
+          "left": 590.328125,
+          "right": 645.9375,
+          "top": 484,
+          "width": 55.609375,
+          "x": 590.328125,
+          "y": 484
+        },
+        "selected": "false",
+        "text": "VNF 기기"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-3-panel-network.permissions",
+        "id": "rc-tabs-3-tab-network.permissions",
+        "rect": {
+          "bottom": 560,
+          "height": 22,
+          "left": 590.328125,
+          "right": 671.453125,
+          "top": 538,
+          "width": 81.125,
+          "x": 590.328125,
+          "y": 538
+        },
+        "selected": "false",
+        "text": "네트워크 권한"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-3-panel-events",
+        "id": "rc-tabs-3-tab-events",
+        "rect": {
+          "bottom": 614,
+          "height": 22,
+          "left": 590.328125,
+          "right": 628.96875,
+          "top": 592,
+          "width": 38.640625,
+          "x": 590.328125,
+          "y": 592
+        },
+        "selected": "false",
+        "text": "이벤트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-3-panel-comments",
+        "id": "rc-tabs-3-tab-comments",
+        "rect": {
+          "bottom": 668,
+          "height": 22,
+          "left": 590.328125,
+          "right": 628.96875,
+          "top": 646,
+          "width": 38.640625,
+          "x": 590.328125,
+          "y": 646
+        },
+        "selected": "false",
+        "text": "코멘트"
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/guestnetwork/deb7c278-df2f-4686-8d97-78800942110b?tab=public.ip.addresses",
+    "width": 1280
+  },
+  "records": [
+    {
+      "requestId": "13616.2597",
+      "command": "listZones",
+      "method": "GET",
+      "params": {
+        "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "command": "listZones"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "13616.2598",
+      "command": "listTags",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "13616.2599",
+      "command": "listResourceIcon",
+      "method": "GET",
+      "params": {
+        "command": "listResourceIcon"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "13616.2600",
+      "command": "listResourceIcon",
+      "method": "GET",
+      "params": {
+        "command": "listResourceIcon"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "13616.2601",
+      "command": "listAccounts",
+      "method": "GET",
+      "params": {
+        "command": "listAccounts"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "13616.2602",
+      "command": "listPublicIpAddresses",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "page": "1",
+        "pagesize": "10",
+        "associatednetworkid": "deb7c278-df2f-4686-8d97-78800942110b",
+        "command": "listPublicIpAddresses"
+      },
+      "status": 200
+    }
+  ]
+}

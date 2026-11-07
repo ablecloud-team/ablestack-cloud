@@ -1,0 +1,152 @@
+[
+  {
+    "path": "screenshots/31-dns-light-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "cac54c2760e68598e7e88afba9a8eea9718cbdc6b194ffa656e5450c9419afb6"
+  },
+  {
+    "path": "screenshots/31-dns-light-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "sha256": "f6a056109973c813104d91f92ab702dd17c76a24b82b502c9f4b9bbef9df7361"
+  },
+  {
+    "path": "screenshots/31-dns-light-390.jpg",
+    "width": 390,
+    "height": 844,
+    "sha256": "9a9047d1425e1dccc9c2e50b50c5ff95e396e22037802f5f03c72e3bc75fed28"
+  },
+  {
+    "path": "screenshots/31-dns-dark-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "0f7dc6c3b3e710eda77f182338da827bf04260392e5eeeaa2bad92f46ebd7438"
+  },
+  {
+    "path": "screenshots/31-dns-dark-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "sha256": "441527ca4636f075b543db672e98c81af58e5dd29906d4c029df350ff31dfdf4"
+  },
+  {
+    "path": "screenshots/31-dns-dark-390.jpg",
+    "width": 390,
+    "height": 844,
+    "sha256": "5f1898ef71ae853e652fc17efcda4762cf75c34d5607e1497ae45c34ea7087e0"
+  },
+  {
+    "path": "screenshots/32-dns-light-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "4f5e4eded72be8bd997be6645ad83c019e7ef05a00420f91226e06adc73579c0"
+  },
+  {
+    "path": "screenshots/32-dns-light-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "sha256": "5f8514b10b7a931f285e8a5b33d173ad056fea78044850f660d49267e85f2a36"
+  },
+  {
+    "path": "screenshots/32-dns-light-390.jpg",
+    "width": 390,
+    "height": 844,
+    "sha256": "50d3f254b83af66d59d474953223122e6f24bd869ec04aed6fb3e96dedb8d722"
+  },
+  {
+    "path": "screenshots/32-dns-dark-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "76dba78b7156596cf882a5dcbc6db15bd349ba2531a1fbfedfbc6e303c1b17e0"
+  },
+  {
+    "path": "screenshots/32-dns-dark-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "sha256": "6dc875187816f83f59931329ebee72b076bb94764338d8137f90d7ba85c3eb30"
+  },
+  {
+    "path": "screenshots/32-dns-dark-390.jpg",
+    "width": 390,
+    "height": 844,
+    "sha256": "4ebc40aea90981c414f77fb3423ebb551f3e8334601e5cd69ca4fed63f95873d"
+  },
+  {
+    "path": "screenshots/31-before-error.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "ffb90f39d95a9ac4c8e4a5b3896e49c4ce2d22d97749086577d66364fcc5a09e"
+  },
+  {
+    "path": "screenshots/31-isolated-final-light.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "3c9ffea40b73f477c7b01d977d9e995e859193df429b6020c94e78150ffa1388"
+  },
+  {
+    "path": "screenshots/31-final-read-error.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "81d8f9bb145295e1907470b42e4ed163df5d85d6daa92c7cab756998258aafe8"
+  },
+  {
+    "path": "screenshots/31-navigation-vm-nic-dark.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "c20007209e09971a624d208075e95324fb7f568d345243d88c8b328e81c1bec0"
+  },
+  {
+    "path": "screenshots/31-cleanup-ui-empty.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "e0d33a23f46aa7caaf324988018d2111553424a9b097bc237ded2370afeec3df"
+  },
+  {
+    "path": "screenshots/32-before-error.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "4162d7f08789e0326cb8a02b9d7ba77e8abef8c5850f70908ffcead40f376b8c"
+  },
+  {
+    "path": "screenshots/32-isolated-final-light.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "92e0cf3b53f1707847c1efeb0525c0d1c3cb723da8754d7d8335cae6beee8987"
+  },
+  {
+    "path": "screenshots/32-final-read-error.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "bd2c684a36ba24e528a8ca3c83ec1f6caed1b357df9a3b3f4dc1e51df3349f01"
+  },
+  {
+    "path": "screenshots/32-navigation-vm-nic-dark.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "4ea82f4245d36365bd24fc6f1702a585aca8236fb819b92807706beac0459c30"
+  },
+  {
+    "path": "screenshots/32-cleanup-ui-empty.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "7a606d34dc64647540ec94243dc71ba802433684ad0c572b91db7142eabd94b9"
+  },
+  {
+    "path": "screenshots/31-mobile-job-error.jpg",
+    "width": 390,
+    "height": 844,
+    "sha256": "e3f64c7022d28be67f858d616e4ee7c5cc147c4934ed54371dbc5793d07ffc15"
+  },
+  {
+    "path": "screenshots/32-http-error.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "fa229eafb49b17b8a2998a78ae15c21d900274de9984555fd210219fae0217ef"
+  },
+  {
+    "path": "screenshots/31-vm-standard-details.jpg",
+    "width": 1280,
+    "height": 900,
+    "sha256": "46d0b683f3a47409b386f4cba30d74d628c914463418ff06112ad94f8d6915d6"
+  }
+]

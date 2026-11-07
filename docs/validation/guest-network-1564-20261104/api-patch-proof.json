@@ -1,0 +1,11 @@
+{
+  "changedEntries": [
+    "org/apache/cloudstack/api/command/admin/network/UpdateNetworkCmdByAdmin.class"
+  ],
+  "preservedEntries": 204656,
+  "classSha256": "3d0347c056e6109824adf1e34e0cbb707e9d90f1ffb064eb9b32c5ca2a01faf6",
+  "oldJarSha256": "58d8aaf66db1c5c68dca70bfdac064dfce55a9928ef764e3279ab2a56f674561",
+  "newJarSha256": "0817a8f2e74fe03a4ba268a20f8a610492d2c81d3b1818ba708b5e785f0c02a0",
+  "module": "cloud-api",
+  "sourceHead": "44466c2ecfd3b285590edb8532d3ee8d8771520d"
+}

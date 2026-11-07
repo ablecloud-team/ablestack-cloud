@@ -1,0 +1,22 @@
+{
+  "owner": {
+    "isolated": {
+      "visible": true,
+      "code": null
+    },
+    "shared": {
+      "visible": true,
+      "code": null
+    }
+  },
+  "outside": {
+    "isolated": {
+      "visible": false,
+      "code": null
+    },
+    "shared": {
+      "visible": false,
+      "code": null
+    }
+  }
+}

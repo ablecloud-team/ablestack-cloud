@@ -1,0 +1,23 @@
+[
+  {
+    "id": "159baf9a-89ad-4a94-91dc-e7395a670bf4",
+    "name": "ablecube31-1",
+    "state": "Up",
+    "type": "Routing",
+    "resourcestate": "Enabled"
+  },
+  {
+    "id": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+    "name": "ablecube31-2",
+    "state": "Up",
+    "type": "Routing",
+    "resourcestate": "Enabled"
+  },
+  {
+    "id": "384871b9-7c75-4717-a673-e96a76abeb71",
+    "name": "ablecube31-3",
+    "state": "Up",
+    "type": "Routing",
+    "resourcestate": "Enabled"
+  }
+]

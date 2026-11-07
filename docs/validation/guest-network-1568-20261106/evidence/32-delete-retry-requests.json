@@ -1,0 +1,227 @@
+{
+  "cursor": 9196,
+  "requests": [
+    {
+      "sequence": 8994,
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "51cccc36-8c11-4832-9a5e-9abc91ab8e59"
+      }
+    },
+    {
+      "sequence": 8999,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "networkid": "51cccc36-8c11-4832-9a5e-9abc91ab8e59"
+      }
+    },
+    {
+      "sequence": 9000,
+      "command": "listRouters",
+      "method": "GET",
+      "params": {
+        "networkid": "51cccc36-8c11-4832-9a5e-9abc91ab8e59"
+      }
+    },
+    {
+      "sequence": 9001,
+      "command": "listPublicIpAddresses",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "sequence": 9002,
+      "command": "listAsyncJobs",
+      "method": "GET",
+      "params": {
+        "resourceid": "51cccc36-8c11-4832-9a5e-9abc91ab8e59",
+        "resourcetype": "Network",
+        "includecompleted": "true"
+      }
+    },
+    {
+      "sequence": 9027,
+      "command": "deleteNetwork",
+      "method": "POST",
+      "params": {
+        "id": "51cccc36-8c11-4832-9a5e-9abc91ab8e59"
+      }
+    },
+    {
+      "sequence": 9034,
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "247c7947-4dd1-403b-a625-c1e4087f4f90"
+      }
+    },
+    {
+      "sequence": 9039,
+      "command": "readyForShutdown",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "sequence": 9050,
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "247c7947-4dd1-403b-a625-c1e4087f4f90"
+      }
+    },
+    {
+      "sequence": 9055,
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "51cccc36-8c11-4832-9a5e-9abc91ab8e59"
+      }
+    },
+    {
+      "sequence": 9062,
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "4401793f-ab5b-4e45-a5c1-adb4c53bc986"
+      }
+    },
+    {
+      "sequence": 9069,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "networkid": "4401793f-ab5b-4e45-a5c1-adb4c53bc986"
+      }
+    },
+    {
+      "sequence": 9070,
+      "command": "listRouters",
+      "method": "GET",
+      "params": {
+        "networkid": "4401793f-ab5b-4e45-a5c1-adb4c53bc986"
+      }
+    },
+    {
+      "sequence": 9071,
+      "command": "listPublicIpAddresses",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "sequence": 9072,
+      "command": "listAsyncJobs",
+      "method": "GET",
+      "params": {
+        "resourceid": "4401793f-ab5b-4e45-a5c1-adb4c53bc986",
+        "resourcetype": "Network",
+        "includecompleted": "true"
+      }
+    },
+    {
+      "sequence": 9097,
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "ecf3ac29-e12b-467e-ade0-47026f663ff4"
+      }
+    },
+    {
+      "sequence": 9104,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "networkid": "ecf3ac29-e12b-467e-ade0-47026f663ff4"
+      }
+    },
+    {
+      "sequence": 9105,
+      "command": "listRouters",
+      "method": "GET",
+      "params": {
+        "networkid": "ecf3ac29-e12b-467e-ade0-47026f663ff4"
+      }
+    },
+    {
+      "sequence": 9106,
+      "command": "listPublicIpAddresses",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "sequence": 9107,
+      "command": "listAsyncJobs",
+      "method": "GET",
+      "params": {
+        "resourceid": "ecf3ac29-e12b-467e-ade0-47026f663ff4",
+        "resourcetype": "Network",
+        "includecompleted": "true"
+      }
+    },
+    {
+      "sequence": 9132,
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "1171cd96-ad12-420e-88d0-70636b7bdb7d"
+      }
+    },
+    {
+      "sequence": 9139,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "networkid": "1171cd96-ad12-420e-88d0-70636b7bdb7d"
+      }
+    },
+    {
+      "sequence": 9140,
+      "command": "listRouters",
+      "method": "GET",
+      "params": {
+        "networkid": "1171cd96-ad12-420e-88d0-70636b7bdb7d"
+      }
+    },
+    {
+      "sequence": 9141,
+      "command": "listPublicIpAddresses",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "sequence": 9142,
+      "command": "listAsyncJobs",
+      "method": "GET",
+      "params": {
+        "resourceid": "1171cd96-ad12-420e-88d0-70636b7bdb7d",
+        "resourcetype": "Network",
+        "includecompleted": "true"
+      }
+    },
+    {
+      "sequence": 9167,
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "sequence": 9176,
+      "command": "readyForShutdown",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "sequence": 9183,
+      "command": "readyForShutdown",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "sequence": 9190,
+      "command": "listHostsMetrics",
+      "method": "GET",
+      "params": {}
+    }
+  ]
+}

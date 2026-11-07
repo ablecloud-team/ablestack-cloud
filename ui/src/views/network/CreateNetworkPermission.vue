@@ -1,186 +1,148 @@
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements. See the NOTICE file for ownership information.
+// Licensed under the Apache License, Version 2.0; http://www.apache.org/licenses/LICENSE-2.0
+// Distributed on an AS IS BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND.
 
 <template>
-  <a-spin :spinning="loading">
-    <div class="form-layout" v-ctrl-enter="handleSubmit">
-      <div class="form">
-        <a-form
-          :ref="formRef"
-          :model="form"
-          :rules="rules"
-          @finish="handleSubmit"
-          layout="vertical">
-          <a-form-item v-if="isAdminOrDomainAdmin()" name="accountids" ref="accountids">
-            <template #label>
-              <tooltip-label :title="$t('label.account')" :tooltip="apiParams.accountids.description"/>
-            </template>
-            <infinite-scroll-select
-              v-model:value="form.accountids"
-              mode="multiple"
-              :placeholder="apiParams.accountids.description"
-              api="listAccounts"
-              :apiParams="accountsApiParams"
-              resourceType="account"
-              defaultIcon="team-outlined" />
-          </a-form-item>
-          <a-form-item v-if="isAdminOrDomainAdmin()" name="projectids" ref="projectids">
-            <template #label>
-              <tooltip-label :title="$t('label.project')" :tooltip="apiParams.projectids.description"/>
-            </template>
-            <infinite-scroll-select
-              v-model:value="form.projectids"
-              mode="multiple"
-              :placeholder="apiParams.projectids.description"
-              api="listProjects"
-              :apiParams="projectsApiParams"
-              resourceType="project"
-              defaultIcon="project-outlined" />
-          </a-form-item>
-          <a-form-item v-if="!isAdminOrDomainAdmin()">
-            <template #label>
-              <tooltip-label :title="$t('label.accounts')" :tooltip="apiParams.accounts.description"/>
-            </template>
-            <a-input
-              v-model:value="form.accounts"
-              :placeholder="apiParams.accounts.description"
-              v-focus="true" />
-          </a-form-item>
-          <div :span="24" class="action-button">
-            <a-button
-              :loading="loading"
-              @click="closeAction">
-              {{ this.$t('label.cancel') }}
-            </a-button>
-            <a-button
-              :loading="loading"
-              type="primary"
-              ref="submit"
-              @click="handleSubmit">
-              {{ this.$t('label.ok') }}
-            </a-button>
-          </div>
-        </a-form>
-      </div>
-    </div>
-  </a-spin>
+  <MoldDialog
+    size="md"
+    focus-guard
+    :title="$t('label.add.network.permission')"
+    :closable="!busy"
+    :keyboard="!busy"
+    @cancel="$emit('close-action')">
+    <p class="permission-context">{{ resource.name }} · {{ resource.domain }} · {{ resource.account }}</p>
+    <p>{{ $t('message.network.permission.same.domain') }}</p>
+    <a-alert v-if="error || lookupError" type="error" show-icon :message="errorMessage" />
+    <a-form layout="vertical" class="permission-fields">
+      <a-form-item :label="$t('label.account')">
+        <a-select
+          v-if="accountPicker"
+          v-model:value="draft.accountids"
+          :options="accountOptions"
+          :aria-label="$t('label.account')"
+          :loading="loading"
+          :disabled="busy || loading || !!lookupError"
+          mode="multiple"
+          option-filter-prop="label"
+          :placeholder="$t('label.select')" />
+        <a-input
+          v-else
+          v-model:value="draft.accounts"
+          :aria-label="$t('label.accounts')"
+          :placeholder="$t('message.network.permission.account.names')"
+          :disabled="busy"
+          @keydown.ctrl.enter.prevent="submit" />
+      </a-form-item>
+      <a-form-item v-if="projectPicker" :label="$t('label.project')">
+        <a-select
+          v-model:value="draft.projectids"
+          :options="projectOptions"
+          :aria-label="$t('label.project')"
+          :loading="loading"
+          :disabled="busy || loading || !!lookupError"
+          mode="multiple"
+          option-filter-prop="label"
+          :placeholder="$t('label.select')" />
+      </a-form-item>
+    </a-form>
+    <template #footer>
+      <a-button v-if="lookupError" :disabled="busy" :loading="loading" @click="fetchCandidates">{{ $t('label.retry') }}</a-button>
+      <a-button v-if="error && !ready" :disabled="busy" @click="$emit('refresh')">{{ $t('label.refresh') }}</a-button>
+      <a-button :disabled="busy" @click="$emit('close-action')">{{ $t('label.cancel') }}</a-button>
+      <a-button type="primary" :disabled="!canSubmit" :loading="busy" @click="submit">{{ $t('label.ok') }}</a-button>
+    </template>
+  </MoldDialog>
 </template>
 
 <script>
-import { postAPI } from '@/api'
-import { isAdminOrDomainAdmin } from '@/role'
-import { ref, reactive, toRaw } from 'vue'
-import ResourceIcon from '@/components/view/ResourceIcon'
-import TooltipLabel from '@/components/widgets/TooltipLabel'
-import InfiniteScrollSelect from '@/components/widgets/InfiniteScrollSelect'
+import { getAPI } from '@/api'
+import MoldDialog from '@/components/view/MoldDialog'
+import { scopedOwnershipOptions } from '@/utils/scopedOwnership'
+import { permissionGrant } from '@/utils/networkPermissions'
 
 export default {
-  name: 'CreateNetworkPermissions',
-  components: {
-    TooltipLabel,
-    ResourceIcon,
-    InfiniteScrollSelect
-  },
+  name: 'CreateNetworkPermission',
+  components: { MoldDialog },
   props: {
-    resource: {
-      type: Object,
-      required: true
-    }
+    resource: { type: Object, required: true },
+    permissions: { type: Array, required: true },
+    busy: { type: Boolean, default: false },
+    ready: { type: Boolean, default: false },
+    error: { type: String, default: '' }
   },
+  emits: ['submit', 'refresh', 'close-action'],
   data () {
-    return {
-      loading: false
-    }
-  },
-  created () {
-    this.formRef = ref()
-    this.form = reactive({})
-    this.rules = reactive({})
-    this.apiParams = this.$getApiParams('createNetworkPermissions')
+    return { draft: { accountids: [], projectids: [], accounts: '' }, accounts: [], projects: [], loading: false, lookupError: '', disposed: false }
   },
   computed: {
-    accountsApiParams () {
-      return {
-        details: 'min',
-        domainid: this.resource.domainid
-      }
+    errorMessage () {
+      const message = this.error || this.lookupError
+      return message.startsWith('message.') ? this.$t(message) : message
     },
-    projectsApiParams () {
-      return {
-        details: 'min'
-      }
+    accountPicker () {
+      const { apis, userInfo } = this.$store.getters
+      return ['Admin', 'DomainAdmin'].includes(userInfo.roletype) && 'listAccounts' in apis
+    },
+    projectPicker () { return 'listProjects' in this.$store.getters.apis },
+    accountOptions () {
+      return this.accounts.filter(row => !this.permissions.some(permission => permission.accountid === row.id))
+        .map(row => ({ value: row.id, label: row.name }))
+    },
+    projectOptions () {
+      return this.projects.filter(row => !this.permissions.some(permission => permission.projectid === row.id))
+        .map(row => ({ value: row.id, label: row.name }))
+    },
+    targets () {
+      return permissionGrant({
+        accounts: this.accountPicker ? '' : this.draft.accounts,
+        accountids: this.draft.accountids.filter(id => this.accountOptions.some(row => row.value === id)),
+        projectids: this.draft.projectids.filter(id => this.projectOptions.some(row => row.value === id))
+      }, this.resource, this.permissions)
+    },
+    canSubmit () { return this.ready && !this.loading && !this.lookupError && Object.keys(this.targets).length > 0 }
+  },
+  watch: {
+    permissions () {
+      this.draft.accountids = this.draft.accountids.filter(id => this.accountOptions.some(row => row.value === id))
+      this.draft.projectids = this.draft.projectids.filter(id => this.projectOptions.some(row => row.value === id))
     }
   },
+  created () { this.fetchCandidates() },
+  beforeUnmount () { this.disposed = true },
   methods: {
-    isAdminOrDomainAdmin () {
-      return isAdminOrDomainAdmin()
-    },
-    handleSubmit (e) {
-      e.preventDefault()
+    async fetchCandidates () {
       if (this.loading) return
-      this.formRef.value.validate().then(() => {
-        const values = toRaw(this.form)
-        const params = {}
-        params.networkid = this.resource.id
-        if (values.accountids && values.accountids.length > 0) {
-          params.accountids = values.accountids.join(',')
-        }
-        if (values.projectids && values.projectids.length > 0) {
-          params.projectids = values.projectids.join(',')
-        }
-        if (values.accounts && values.accounts.length > 0) {
-          params.accounts = values.accounts
-        }
-
-        this.loading = true
-
-        postAPI('createNetworkPermissions', params)
-          .then(() => {
-            this.$notification.success({
-              message: this.$t('message.success.add.network.permissions')
-            })
-            this.closeAction()
-            this.$emit('refresh-data')
-          }).catch(error => {
-            this.$notification.error({
-              message: `${this.$t('label.error')} ${error.response.status}`,
-              description: error.response.data.createnetworkpermissionsresponse.errortext || error.response.data.errorresponse.errortext,
-              duration: 0
-            })
-          }).finally(() => {
-            this.loading = false
-          })
-      }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
-      })
+      this.loading = true
+      this.lookupError = ''
+      const params = { domainid: this.resource.domainid, listall: true, ignoreproject: true }
+      try {
+        const [accounts, projects] = await Promise.all([
+          this.accountPicker ? scopedOwnershipOptions(getAPI, 'accounts', { ...params, isrecursive: false, state: 'Enabled' }) : [],
+          this.projectPicker ? scopedOwnershipOptions(getAPI, 'projects', { ...params, isrecursive: false, state: 'Active' }) : []
+        ])
+        if (this.disposed) return
+        this.accounts = accounts.filter(row => row.name !== this.resource.account)
+        this.projects = projects
+      } catch (error) {
+        if (!this.disposed) this.lookupError = 'message.network.permission.candidates.failed'
+      } finally {
+        if (!this.disposed) this.loading = false
+      }
     },
-    closeAction () {
-      this.$emit('close-action')
+    submit () {
+      if (!this.canSubmit) return
+      this.$emit('submit', {
+        accounts: this.targets.accounts,
+        accountids: this.targets.accountids?.split(','),
+        projectids: this.targets.projectids?.split(',')
+      })
     }
   }
 }
 </script>
 
-<style lang="less" scoped>
-.form-layout {
-  width: 60vw;
-
-  @media (min-width: 500px) {
-    width: 450px;
-  }
-}
+<style scoped>
+.permission-context { font-weight: 600; overflow-wrap: anywhere; }
+.permission-fields { margin-top: 16px; }
 </style>

@@ -1,0 +1,117 @@
+{
+  "api": [
+    {
+      "id": "00cb5c3a-198a-449f-915d-e3b9d6212f66",
+      "name": "qa-gn1564-31-shared-false",
+      "type": "Shared",
+      "details": {
+        "hideIpAddressUsage": "false"
+      },
+      "projectid": null,
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "displaynetwork": true
+    },
+    {
+      "id": "8fbf5ecf-6b69-4b19-aad2-a64fdbcd80a2",
+      "name": "qa-gn1564-31-shared-true",
+      "type": "Shared",
+      "details": {
+        "hideIpAddressUsage": "true"
+      },
+      "projectid": null,
+      "account": "qa-gn1564-31-user",
+      "domainid": "d5e03c07-6865-42eb-a8cb-92bb9c316270",
+      "displaynetwork": true
+    },
+    {
+      "id": "dd811939-2194-4563-9296-3bed06ebe85d",
+      "name": "qa-gn1564-31-shared-domain",
+      "type": "Shared",
+      "details": {
+        "hideIpAddressUsage": "true"
+      },
+      "projectid": null,
+      "account": null,
+      "domainid": "d5e03c07-6865-42eb-a8cb-92bb9c316270",
+      "displaynetwork": true
+    },
+    {
+      "id": "7414ae66-bdd6-40d1-b550-cb788c37661c",
+      "name": "qa-gn1564-31-shared-all",
+      "type": "Shared",
+      "details": {},
+      "projectid": null,
+      "account": null,
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "displaynetwork": true
+    },
+    {
+      "id": "264eecfb-fd96-452d-950b-5b39356c626e",
+      "name": "qa-gn1564-31-shared-project",
+      "type": "Shared",
+      "details": {},
+      "projectid": "3042d636-88c0-4f41-8c1b-e8b4a05b18ed",
+      "account": null,
+      "domainid": "d5e03c07-6865-42eb-a8cb-92bb9c316270",
+      "displaynetwork": true
+    },
+    {
+      "id": "6c6223b6-8d8e-4fd3-b6e2-bab27272abf1",
+      "name": "qa-gn1564-31-l2",
+      "type": "L2",
+      "details": {},
+      "projectid": null,
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "displaynetwork": true
+    },
+    {
+      "id": "2586eb7b-5633-43bf-942c-a7bfdadd6f7c",
+      "name": "qa-gn1564-31-isolated",
+      "type": "Isolated",
+      "details": {},
+      "projectid": null,
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "displaynetwork": true
+    }
+  ],
+  "db": [
+    {
+      "id": "00cb5c3a-198a-449f-915d-e3b9d6212f66",
+      "name": "qa-gn1564-31-shared-false",
+      "setting": "false"
+    },
+    {
+      "id": "2586eb7b-5633-43bf-942c-a7bfdadd6f7c",
+      "name": "qa-gn1564-31-isolated",
+      "setting": null
+    },
+    {
+      "id": "264eecfb-fd96-452d-950b-5b39356c626e",
+      "name": "qa-gn1564-31-shared-project",
+      "setting": null
+    },
+    {
+      "id": "6c6223b6-8d8e-4fd3-b6e2-bab27272abf1",
+      "name": "qa-gn1564-31-l2",
+      "setting": null
+    },
+    {
+      "id": "7414ae66-bdd6-40d1-b550-cb788c37661c",
+      "name": "qa-gn1564-31-shared-all",
+      "setting": null
+    },
+    {
+      "id": "8fbf5ecf-6b69-4b19-aad2-a64fdbcd80a2",
+      "name": "qa-gn1564-31-shared-true",
+      "setting": "true"
+    },
+    {
+      "id": "dd811939-2194-4563-9296-3bed06ebe85d",
+      "name": "qa-gn1564-31-shared-domain",
+      "setting": "true"
+    }
+  ]
+}

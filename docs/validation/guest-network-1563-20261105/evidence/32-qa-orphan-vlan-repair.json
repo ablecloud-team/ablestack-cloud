@@ -1,0 +1,11 @@
+{
+  "qaOnly": true,
+  "physicalNetwork": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+  "vlan": "3201",
+  "before": "103\t206\t3201\t2\t2026-11-05 13:03:22\t36548c6c-37e8-4f1c-8b9f-67ab0d82f1dc\n",
+  "after": "103\t206\t3201\tNULL\tNULL\tNULL\n",
+  "activeNetworkReferences": 0,
+  "updatedRows": 1,
+  "operation": "Same released fields as DataCenterVnetDaoImpl.release; no active network or NIC was changed.",
+  "status": "PASS"
+}

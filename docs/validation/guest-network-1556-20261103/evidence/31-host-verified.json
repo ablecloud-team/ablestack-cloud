@@ -1,0 +1,15 @@
+{
+  "domain": "i-2-814-VM",
+  "host": "10.10.31.1",
+  "domblklist": " Type   Device   Target   Source\n------------------------------------------------------------------------------\n file   disk     sda      /mnt/glue-gfs/c2242d6a-349d-4ebf-a46d-f8c6c1556ceb\n file   cdrom    hdc      -\n file   cdrom    hdd      -\n\n",
+  "router": {
+    "id": "56e7edc8-66cd-4939-8740-70a374f2303f",
+    "name": "r-817-VM",
+    "hostname": "ablecube31-1",
+    "linklocalip": "169.254.195.163",
+    "guestipaddress": "10.252.31.1",
+    "guestnetworkid": "4a6d4597-4577-4db4-b8c6-0f17221f0412"
+  },
+  "router_to_guest_ping": "PING 10.252.31.199 (10.252.31.199): 56 data bytes\n64 bytes from 10.252.31.199: icmp_seq=0 ttl=64 time=0.311 ms\n64 bytes from 10.252.31.199: icmp_seq=1 ttl=64 time=0.264 ms\n--- 10.252.31.199 ping statistics ---\n2 packets transmitted, 2 packets received, 0% packet loss\nround-trip min/avg/max/stddev = 0.264/0.287/0.311/0.024 ms\n",
+  "temporary_known_hosts": "/tmp/qa-gn1556-router-31-knownhosts"
+}

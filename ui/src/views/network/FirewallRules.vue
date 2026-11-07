@@ -17,20 +17,30 @@
 
 <template>
   <div>
-    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <network-rules-toolbar :can-add="'createFirewallRule' in $store.getters.apis" :loading="loading" @add="openRuleDialog()" @refresh="fetchData" />
-    <a-modal
-centered
-class="mold-dialog network-rule-dialog"
-:visible="createModalVisible"
-:title="$t(replacingRule ? 'label.network.rule.replace' : 'label.network.rule.add')"
-:width="760"
-:footer="null"
-:mask-closable="false"
-@cancel="createModalVisible = false">
-      <div class="mold-form-dialog">
-        <div class="mold-form-content"><NetworkRuleContext :resource="resource" />
+    <network-rules-toolbar :can-add="'createFirewallRule' in $store.getters.apis" :loading="loading || networkMutationBusy" @add="openRuleDialog()" @refresh="fetchData" >
+      <a-button
+        v-if="(('deleteFirewallRule' in $store.getters.apis) && this.selectedItems.length > 0)"
+        type="primary"
+        danger
+        @click="bulkActionConfirmation()">
+        <template #icon><delete-outlined /></template>
+        {{ $t('label.action.bulk.delete.firewall.rules') }}
+      </a-button>
+    </network-rules-toolbar>
+    <a-alert v-if="listRefreshFailed" class="network-rules-guidance" type="warning" show-icon :message="$t('message.list.refresh.stale')" />
+    <MoldDialog
+      class="network-rule-dialog"
+      size="lg"
+      focus-guard
+      :visible="createModalVisible"
+      :title="$t(replacingRule ? 'label.network.rule.replace' : 'label.network.rule.add')"
+      :closable="!networkMutationSubmitting"
+      :keyboard="!networkMutationSubmitting"
+      @cancel="!networkMutationSubmitting && (createModalVisible = false)">
+      <div>
+        <div><NetworkRuleContext :resource="resource" /><NetworkMutationStatus :operation="networkMutation" @recheck="recheckNetworkMutation" />
           <a-alert v-if="replacingRule" class="mold-dialog-summary" type="warning" show-icon :message="$t('message.network.rule.replace')" />
+<a-alert v-if="replacementDeleted" class="mold-dialog-summary" type="warning" show-icon :message="$t('message.public.ip.restore.rule')" />
 <div class="form" v-ctrl-enter="addRule">
         <div class="form__item form__item--full">
           <div class="form__label">{{ $t('label.sourcecidr') }}</div>
@@ -92,20 +102,13 @@ class="mold-dialog network-rule-dialog"
 
       </div>
         </div>
-        <div class="action-button"><a-button :disabled="loading" @click="createModalVisible = false">{{ $t('label.cancel') }}</a-button><a-button type="primary" :loading="loading" @click="addRule">{{ $t('label.ok') }}</a-button></div>
       </div>
-    </a-modal>
-
-    <a-divider/>
-    <a-button
-      v-if="(('deleteFirewallRule' in $store.getters.apis) && this.selectedItems.length > 0)"
-      type="primary"
-      danger
-      style="width: 100%; margin-bottom: 15px"
-      @click="bulkActionConfirmation()">
-      <template #icon><delete-outlined /></template>
-      {{ $t('label.action.bulk.delete.firewall.rules') }}
-    </a-button>
+      <template #footer>
+        <a-button :disabled="networkMutationSubmitting" @click="createModalVisible = false">{{ $t('label.cancel') }}</a-button>
+        <a-button v-if="replacementDeleted" :disabled="networkMutationBlocked || loading" @click="restoreRule">{{ $t('label.public.ip.restore.rule') }}</a-button>
+        <a-button type="primary" :loading="networkMutationBusy" :disabled="loading || networkMutationBlocked" @click="addRule">{{ $t('label.ok') }}</a-button>
+      </template>
+    </MoldDialog>
     <a-table
       size="small"
       style="overflow-y: auto"
@@ -127,12 +130,13 @@ class="mold-dialog network-rule-dialog"
         </template>
         <template v-if="column.key === 'actions'">
           <div class="actions">
-            <tooltip-button :tooltip="$t('label.network.rule.replace')" icon="edit-outlined" :disabled="isProtectedManagementRule(record) || !('deleteFirewallRule' in $store.getters.apis) || !('createFirewallRule' in $store.getters.apis)" @onClick="openRuleDialog(record)" />
+            <tooltip-button :tooltip="$t('label.network.rule.replace')" icon="edit-outlined" :disabled="isProtectedManagementRule(record) || !!record.tags?.length || !('deleteFirewallRule' in $store.getters.apis) || !('createFirewallRule' in $store.getters.apis)" @onClick="openRuleDialog(record)" />
             <tooltip-button
               :tooltip="$t('label.edit.tags')"
               icon="tag-outlined"
+              :disabled="!('listTags' in $store.getters.apis)"
               buttonClass="rule-action"
-              @onClick="() => openTagsModal(record.id)" />
+              @onClick="() => openTagsModal(record)" />
             <a-popconfirm :title="$t('label.delete') + '?'" @confirm="deleteRule(record)" :disabled="isProtectedManagementRule(record)">
             <tooltip-button
               :tooltip="isProtectedManagementRule(record) ? $t('message.kubernetes.management.rule.delete.disabled') : $t('label.delete')"
@@ -163,61 +167,12 @@ class="mold-dialog network-rule-dialog"
       </template>
     </a-pagination>
 
-    <a-modal
-centered
-class="mold-dialog network-rule-dialog"
-      :title="$t('label.edit.tags')"
-      :visible="tagsModalVisible"
-      :footer="null"
-      :closable="true"
-      :afterClose="closeModal"
-      :maskClosable="false"
-      @cancel="tagsModalVisible = false">
-      <a-form
-        layout="vertical"
-        :ref="formRef"
-        :model="form"
-        :rules="rules"
-        @finish="handleAddTag"
-        v-ctrl-enter="handleAddTag"
-       >
-        <div class="add-tags">
-          <div class="add-tags__input">
-            <p class="add-tags__label">{{ $t('label.key') }}</p>
-            <a-form-item name="key" ref="key">
-              <a-input
-                v-focus="true"
-                v-model:value="form.key" />
-            </a-form-item>
-          </div>
-          <div class="add-tags__input">
-            <p class="add-tags__label">{{ $t('label.value') }}</p>
-            <a-form-item name="value" ref="value">
-              <a-input v-model:value="form.value" />
-            </a-form-item>
-          </div>
-          <a-button
-            style="margin-bottom: 5px;"
-            ref="submit"
-            type="primary"
-            :disabled="!('createTags' in $store.getters.apis)"
-            @click="handleAddTag"
-            :loading="addTagLoading">{{ $t('label.add') }}</a-button>
-        </div>
-      </a-form>
-
-      <a-divider />
-
-      <div class="tags-container">
-        <span class="tags" v-for="(tag) in tags" :key="tag.key">
-          <a-tag :key="tag.key" :closable="'deleteTags' in $store.getters.apis" @close="() => handleDeleteTag(tag)">
-            {{ tag.key }} = {{ tag.value }}
-          </a-tag>
-        </span>
-      </div>
-
-      <a-button class="add-tags-done" @click="tagsModalVisible = false" type="primary">{{ $t('label.done') }}</a-button>
-    </a-modal>
+    <RuleTagsDialog
+      v-if="tagRule && tagRule.parentId === resource.id"
+      :resource="resource"
+      :rule="tagRule"
+      resource-type="FirewallRule"
+      @cancel="tagRule = null" />
 
     <bulk-action-view
       v-if="showConfirmationAction || showGroupActionModal"
@@ -240,10 +195,14 @@ class="mold-dialog network-rule-dialog"
 <script>
 import { validPortRange } from '@/utils/networkRuleForm'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import { conditionalFirewallRule } from '@/utils/conditionalFirewallRule'
+import { networkMutationMixin } from '@/utils/networkMutation'
+import NetworkMutationStatus from '@/components/view/NetworkMutationStatus'
+import MoldDialog from '@/components/view/MoldDialog'
 
-import { reactive, ref, toRaw } from 'vue'
 import NetworkRuleContext from '@/components/view/NetworkRuleContext'
 import NetworkRulesToolbar from '@/components/view/NetworkRulesToolbar'
+import RuleTagsDialog from '@/components/view/RuleTagsDialog.vue'
 import { getAPI, postAPI } from '@/api'
 import { clusterManagementPorts, listAllKubernetesPortRules, listKubernetesClustersForIp } from '@/utils/kubernetesPorts'
 import Status from '@/components/widgets/Status'
@@ -252,8 +211,11 @@ import BulkActionView from '@/components/view/BulkActionView'
 import eventBus from '@/config/eventBus'
 
 export default {
-  mixins: [listRefreshMixin(['fetchData'])],
+  mixins: [listRefreshMixin(['fetchData']), networkMutationMixin],
   components: {
+    RuleTagsDialog,
+    NetworkMutationStatus,
+    MoldDialog,
     NetworkRuleContext,
     NetworkRulesToolbar,
     Status,
@@ -287,7 +249,6 @@ export default {
         confirmMessage: this.$t('label.confirm.delete.firewall.rules')
       },
       loading: true,
-      addTagLoading: false,
       firewallRules: [],
       kubernetesManagementPorts: [],
       kubernetesPortsRequest: 0,
@@ -304,9 +265,7 @@ export default {
       protocolNumbers: [],
       icmpTypes: [],
       icmpCodes: [],
-      tagsModalVisible: false,
-      selectedRule: null,
-      tags: [],
+      tagRule: null,
       totalCount: 0,
       page: 1,
       pageSize: 10,
@@ -344,12 +303,12 @@ export default {
     }
   },
   created () {
-    this.initForm()
     this.fetchNetworkProtocols()
     this.fetchData()
     this.fetchKubernetesManagementPorts()
   },
   watch: {
+    'resource.id' () { this.tagRule = null },
     resource: {
       deep: true,
       handler (newItem) {
@@ -386,14 +345,6 @@ export default {
       } catch (error) {
         if (current()) this.kubernetesPortsUnavailable = true
       }
-    },
-    initForm () {
-      this.formRef = ref()
-      this.form = reactive({})
-      this.rules = reactive({
-        key: [{ required: true, message: this.$t('message.specify.tag.key') }],
-        value: [{ required: true, message: this.$t('message.specify.tag.value') }]
-      })
     },
     fetchNetworkProtocols () {
       getAPI('listNetworkProtocols', {
@@ -575,6 +526,9 @@ export default {
       })
     },
     openRuleDialog (rule) {
+      if (this.networkMutationBlocked || this.replacementDeleted) { this.createModalVisible = true; return }
+      if (rule && (this.isProtectedManagementRule(rule) || rule.tags?.length)) return
+      this.resetNetworkMutation()
       this.replacingRule = rule || null
       this.replacementDeleted = false
       this.resetAllRules()
@@ -582,47 +536,41 @@ export default {
       this.createModalVisible = true
     },
     async addRule () {
-      if (this.loading) return
+      if (this.loading || this.networkMutationBlocked) return
       if (['tcp', 'udp'].includes(this.newRule.protocol) && !validPortRange(this.newRule.startport, this.newRule.endport)) { this.$notification.error({ message: this.$t('label.required'), description: this.$t('message.network.ports.invalid') }); return }
       if (!this.$store.getters.apis.createFirewallRule || (this.replacingRule && this.isProtectedManagementRule(this.replacingRule))) return
-      this.loading = true
+      const params = this.firewallPayload(this.newRule)
+      if (!params) {
+        this.$notification.error({ message: this.$t('message.guest.feature.invalid.rule') })
+        return
+      }
       if (this.replacingRule && !this.replacementDeleted) {
-        try {
-          const response = await postAPI('deleteFirewallRule', { id: this.replacingRule.id })
-          await new Promise((resolve, reject) => this.$pollJob({ jobId: response.deletefirewallruleresponse.jobid, successMethod: resolve, errorMethod: reject, catchMethod: reject }))
-          this.replacementDeleted = true
-        } catch (error) { this.$notifyError(error); this.loading = false; return }
+        const deleted = await this.submitNetworkMutation('deleteFirewallRule', { id: this.replacingRule.id }, () => { this.replacementDeleted = true })
+        if (!deleted) return
       }
-      if (this.newRule.cidrlist == null || this.newRule.cidrlist.trim?.() === '') {
-        delete this.newRule.cidrlist
-      }
-      postAPI('createFirewallRule', { ...this.newRule }).then(response => {
-        this.$pollJob({
-          jobId: response.createfirewallruleresponse.jobid,
-          successMessage: this.$t('message.success.add.firewall.rule'),
-          successMethod: () => {
-            this.createModalVisible = false
-            this.fetchData()
-          },
-          errorMessage: this.$t('message.add.firewall.rule.failed'),
-          errorMethod: () => {
-            this.fetchData()
-          },
-          loadingMessage: this.$t('message.add.firewall.rule.processing'),
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.fetchData()
-          }
-        })
-      }).catch(error => {
-        this.$notifyError(error)
-        this.fetchData()
-      })
+      return this.submitNetworkMutation('createFirewallRule', params, this.finishReplacement)
+    },
+    firewallPayload (rule) {
+      const params = conditionalFirewallRule({ ...rule, traffictype: 'ingress' }, this.resource.id)
+      if (!params) return null
+      const { protocol, cidrlist, startport, endport, icmptype, icmpcode } = params
+      return { ipaddressid: this.resource.id, protocol, cidrlist, startport, endport, icmptype, icmpcode }
+    },
+    async restoreRule () {
+      if (!this.replacementDeleted || this.networkMutationBlocked || !this.replacingRule) return
+      const params = this.firewallPayload(this.replacingRule)
+      if (params) await this.submitNetworkMutation('createFirewallRule', params, this.finishReplacement)
+    },
+    async finishReplacement () {
+      this.replacingRule = null
+      this.replacementDeleted = false
+      this.createModalVisible = false
+      await this.fetchData()
     },
     resetAllRules () {
       this.newRule.protocol = 'tcp'
       this.newRule.cidrlist = null
-      this.newRule.networkid = this.resource.id
+      this.newRule.ipaddressid = this.resource.id
       this.resetRulePorts()
     },
     resetRulePorts () {
@@ -632,101 +580,12 @@ export default {
       this.newRule.endport = null
     },
     closeModal () {
-      this.selectedRule = null
-      this.tagsModalVisible = false
-      this.form.key = null
-      this.form.value = null
+      this.tagRule = null
       this.showConfirmationAction = false
     },
-    openTagsModal (id) {
-      this.initForm()
-      this.selectedRule = id
-      this.tagsModalVisible = true
-
-      getAPI('listTags', {
-        resourceId: id,
-        resourceType: 'FirewallRule',
-        listAll: true
-      }).then(response => {
-        this.tags = response.listtagsresponse.tag || []
-      }).catch(error => {
-        this.$notifyError(error)
-        this.closeModal()
-      })
-    },
-    handleAddTag (e) {
-      e.preventDefault()
-      if (this.addTagLoading) return
-
-      this.formRef.value.validate().then(() => {
-        const values = toRaw(this.form)
-
-        this.addTagLoading = true
-        postAPI('createTags', {
-          'tags[0].key': values.key,
-          'tags[0].value': values.value,
-          resourceIds: this.selectedRule,
-          resourceType: 'FirewallRule'
-        }).then(response => {
-          this.$pollJob({
-            jobId: response.createtagsresponse.jobid,
-            successMessage: this.$t('message.success.add.tag'),
-            successMethod: () => {
-              this.parentToggleLoading()
-              this.openTagsModal(this.selectedRule)
-            },
-            errorMessage: this.$t('message.add.tag.failed'),
-            errorMethod: () => {
-              this.parentToggleLoading()
-              this.closeModal()
-            },
-            loadingMessage: this.$t('message.add.tag.processing'),
-            catchMessage: this.$t('error.fetching.async.job.result'),
-            catchMethod: () => {
-              this.parentFetchData()
-              this.parentToggleLoading()
-              this.closeModal()
-            }
-          })
-        }).catch(error => {
-          this.$notifyError(error)
-        }).finally(() => {
-          this.addTagLoading = false
-        })
-      }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
-      })
-    },
-    handleDeleteTag (tag) {
-      postAPI('deleteTags', {
-        'tags[0].key': tag.key,
-        'tags[0].value': tag.value,
-        resourceIds: this.selectedRule,
-        resourceType: 'FirewallRule'
-      }).then(response => {
-        this.$pollJob({
-          jobId: response.deletetagsresponse.jobid,
-          successMessage: this.$t('message.success.delete.tag'),
-          successMethod: () => {
-            this.parentToggleLoading()
-            this.openTagsModal(this.selectedRule)
-          },
-          errorMessage: this.$t('message.delete.tag.failed'),
-          errorMethod: () => {
-            this.parentToggleLoading()
-            this.closeModal()
-          },
-          loadingMessage: this.$t('message.delete.tag.processing'),
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.parentFetchData()
-            this.parentToggleLoading()
-            this.closeModal()
-          }
-        })
-      }).catch(error => {
-        this.$notifyError(error)
-      })
+    openTagsModal (rule) {
+      if (!rule.id || !this.resource.id || !('listTags' in this.$store.getters.apis)) return
+      this.tagRule = { id: rule.id, parentId: this.resource.id, canEdit: !this.isProtectedManagementRule(rule) }
     },
     handleChangePage (page, pageSize) {
       this.page = page
@@ -838,36 +697,6 @@ export default {
 
   }
 
-  .tags {
-    margin-bottom: 10px;
-  }
-
-  .add-tags {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-
-    &__input {
-      margin-right: 10px;
-    }
-
-    &__label {
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-
-  }
-
-  .tags-container {
-    display: flex;
-    flex-wrap: wrap;
-    margin-bottom: 10px;
-  }
-
-  .add-tags-done {
-    display: block;
-    margin-left: auto;
-  }
   .pagination {
     margin-top: 20px;
   }

@@ -20,6 +20,8 @@
     <div class="form-layout" v-ctrl-enter="handleSubmit">
       <div class="form">
         <a-form
+          :id="formName"
+          :name="formName"
           :ref="formRef"
           :model="form"
           :rules="rules"
@@ -39,8 +41,9 @@
             <template #label>
               <tooltip-label :title="$t('label.displaytext')" :tooltip="apiParams.displaytext.description"/>
             </template>
-            <a-input
+            <a-textarea
              v-model:value="form.displaytext"
+              :auto-size="{ minRows: 2, maxRows: 5 }"
               :placeholder="apiParams.displaytext.description"/>
           </a-form-item>
           <a-form-item ref="zoneid" name="zoneid">
@@ -55,9 +58,10 @@
                 return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }"
               :loading="zoneLoading"
+              :disabled="zoneLoading || actionLoading"
               :placeholder="apiParams.zoneid.description"
-              @change="val => { handleZoneChange(zones[val]) }">
-              <a-select-option v-for="(opt, optIndex) in this.zones" :key="optIndex" :label="opt.name || opt.description">
+              @change="val => handleZoneChange(zones.find(zone => zone.id === val))">
+              <a-select-option v-for="opt in zones" :key="opt.id" :value="opt.id" :label="opt.name || opt.description">
                 <span>
                   <resource-icon v-if="opt.icon" :image="opt.icon.base64image" size="1x" style="margin-right: 5px"/>
                   <global-outlined v-else style="margin-right: 5px" />
@@ -66,7 +70,7 @@
               </a-select-option>
             </a-select>
           </a-form-item>
-          <ownership-selection v-if="!submitHandler && isAdminOrDomainAdmin()" @fetch-owner="fetchOwnerOptions"/>
+          <ownership-selection v-if="chooseOwner" safe-scope :disabled="actionLoading" @fetch-owner="fetchOwnerOptions"/>
           <a-form-item
             ref="networkdomain"
             name="networkdomain"
@@ -90,18 +94,25 @@
                 return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }"
               :loading="networkOfferingLoading"
+              :disabled="!ownerReady || zoneLoading || actionLoading || networkOfferingLoading"
               :placeholder="apiParams.networkofferingid.description"
-              @change="val => { handleNetworkOfferingChange(networkOfferings[val]) }">
-              <a-select-option v-for="(opt, optIndex) in networkOfferings" :key="optIndex" :label="opt.displaytext || opt.name || opt.description">
+              @change="val => handleNetworkOfferingChange(networkOfferings.find(offering => offering.id === val))">
+              <a-select-option v-for="opt in networkOfferings" :key="opt.id" :value="opt.id" :label="opt.displaytext || opt.name || opt.description">
                 {{ opt.displaytext || opt.name || opt.description }}
               </a-select-option>
             </a-select>
-            <a-alert type="warning" v-if="!this.hasVPC">
+            <a-alert v-if="choiceError" type="error" show-icon class="network-choice-alert" :message="$t('message.request.failed')">
+              <template #action>
+                <a-button size="small" @click="retryChoices">{{ $t('label.refresh') }}</a-button>
+              </template>
+            </a-alert>
+            <a-alert type="warning" v-else-if="hasVPC === false" class="network-choice-alert">
               <template #message>
                 <span v-html="$t('message.warn.vpc.offerings')"/>
               </template>
             </a-alert>
           </a-form-item>
+          <network-offering-diagnostics ref="offeringDiagnostics" :offering="selectedNetworkOffering" :zone-id="selectedZone?.id" @state="providerCheck = $event" />
           <a-form-item ref="asnumber" name="asnumber" v-if="isASNumberRequired()">
             <template #label>
               <tooltip-label :title="$t('label.asnumber')" :tooltip="apiParams.asnumber.description"/>
@@ -114,9 +125,8 @@
                 return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }"
               :loading="asNumberLoading"
-              :placeholder="apiParams.asnumber.description"
-              @change="val => { handleASNumberChange(val) }">
-              <a-select-option v-for="(opt, optIndex) in asNumbersZone" :key="optIndex" :label="opt.asnumber">
+              :placeholder="apiParams.asnumber.description">
+              <a-select-option v-for="opt in asNumbersZone" :key="opt.asnumber" :value="opt.asnumber" :label="String(opt.asnumber)">
                 {{ opt.asnumber }}
               </a-select-option>
             </a-select>
@@ -178,13 +188,12 @@
               :filterOption="(input, option) => {
                 return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }"
-              :loading="vpcLoading"
-              :placeholder="apiParams.vpcid.description"
-              @change="val => { selectedVpc = vpcs[val] }">
-              <a-select-option v-for="(opt, optIndex) in vpcs" :key="optIndex" :label="opt.name || opt.description">
+              :placeholder="apiParams.vpcid.description">
+              <a-select-option v-for="opt in compatibleVpcs" :key="opt.id" :value="opt.id" :label="opt.name || opt.description">
                 {{ opt.name || opt.description }}
               </a-select-option>
             </a-select>
+            <a-alert v-if="!compatibleVpcs.length" class="network-choice-alert" type="warning" show-icon :message="$t('message.network.diagnostics.vpc.incompatible')" />
           </a-form-item>
           <a-form-item
             ref="externalid"
@@ -299,7 +308,7 @@
               v-model:value="form.sourcenatipaddress"
               :placeholder="apiParams.sourcenatipaddress?.description"/>
           </a-form-item>
-          <a-form-item name="keepMacAddressOnPublicNic" ref="keepMacAddressOnPublicNic" v-if="isAdmin() && !selectedNetworkOffering?.forvpc">
+          <a-form-item name="keepMacAddressOnPublicNic" ref="keepMacAddressOnPublicNic" v-if="isAdmin() && selectedNetworkOfferingSupportsSourceNat && !selectedNetworkOffering?.forvpc">
             <template #label>
               <tooltip-label
                 :title="$t('label.keep.mac.address.on.public.nic')"
@@ -308,7 +317,7 @@
             </template>
             <a-switch v-model:checked="form.keepMacAddressOnPublicNic" />
           </a-form-item>
-          <div v-if="!submitHandler" :span="24" class="action-button">
+          <MoldDialogActions v-if="!submitHandler && active" :busy="actionLoading">
             <a-button
               :loading="actionLoading"
               @click="closeAction">
@@ -317,12 +326,14 @@
             <a-button
               :loading="actionLoading"
               ref="submit"
+              :disabled="!canSubmit"
               type="primary"
+              :form="formName"
               htmlType="submit"
               @click="handleSubmit">
               {{ $t('label.ok') }}
             </a-button>
-          </div>
+          </MoldDialogActions>
         </a-form>
       </div>
     </div>
@@ -330,23 +341,29 @@
 </template>
 
 <script>
-import { ref, reactive, toRaw } from 'vue'
+import { ref, reactive, toRaw, getCurrentInstance } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import { isAdmin, isAdminOrDomainAdmin } from '@/role'
 import { mixinForm } from '@/utils/mixin'
+import { vpcSupportsTierOffering } from '@/utils/networkOfferingDiagnostics'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
+import NetworkOfferingDiagnostics from '@/components/network/NetworkOfferingDiagnostics.vue'
+import MoldDialogActions from '@/components/view/MoldDialogActions.vue'
 import OwnershipSelection from '@/views/compute/wizard/OwnershipSelection.vue'
 
 export default {
   name: 'CreateIsolatedNetworkForm',
   mixins: [mixinForm],
   components: {
+    NetworkOfferingDiagnostics,
+    MoldDialogActions,
     TooltipLabel,
     ResourceIcon,
     OwnershipSelection
   },
   props: {
+    active: { type: Boolean, default: true },
     submitHandler: { type: Function, default: null },
     loading: {
       type: Boolean,
@@ -361,12 +378,17 @@ export default {
       default: () => { return {} }
     }
   },
+  setup () { return { formName: 'network-create-isolated-' + getCurrentInstance().uid } },
   data () {
     return {
       actionLoading: false,
+      providerCheck: { blocked: false },
       owner: {},
-      accountVisible: isAdminOrDomainAdmin(),
-      accountLoading: false,
+      ownerReady: false,
+      zoneRequest: 0,
+      offeringRequest: 0,
+      asNumberRequest: 0,
+      choiceError: '',
       zones: [],
       zoneLoading: false,
       selectedZone: {},
@@ -374,8 +396,6 @@ export default {
       networkOfferingLoading: false,
       selectedNetworkOffering: {},
       vpcs: [],
-      vpcLoading: false,
-      selectedVpc: {},
       privateMtuMax: 1500,
       publicMtuMax: 1500,
       minMTU: 68,
@@ -383,15 +403,20 @@ export default {
       errorPrivateMtu: '',
       setMTU: false,
       asNumberLoading: false,
-      selectedAsNumber: 0,
       asNumbersZone: [],
-      hasVPC: true
+      hasVPC: null
     }
   },
   watch: {
+    actionLoading (value) { this.$emit('busy', value) },
+    activeProject () {
+      this.setImplicitOwner()
+      this.updateOfferings()
+    },
     resource: {
       deep: true,
       handler () {
+        this.setImplicitOwner()
         this.fetchData()
       }
     }
@@ -401,10 +426,27 @@ export default {
   },
   created () {
     this.initForm()
-    if (this.submitHandler) this.owner = { account: this.resource.projectid ? null : this.resource.account, domainid: this.resource.domainid, projectid: this.resource.projectid }
+    this.setImplicitOwner()
     this.fetchData()
   },
+  beforeUnmount () {
+    this.zoneRequest++
+    this.offeringRequest++
+    this.asNumberRequest++
+  },
   computed: {
+    activeProject () { return this.$store.getters.project?.id },
+    chooseOwner () { return !this.submitHandler && isAdminOrDomainAdmin() && !this.activeProject },
+    compatibleVpcs () {
+      return this.vpcs.filter(vpc => vpcSupportsTierOffering(vpc, this.selectedNetworkOffering))
+    },
+    canSubmit () {
+      return this.active && !this.loading && !this.actionLoading && this.ownerReady && !this.zoneLoading &&
+        !this.networkOfferingLoading && !this.asNumberLoading && !this.choiceError &&
+        !this.providerCheck.blocked && !!this.selectedZone?.id && !!this.selectedNetworkOffering?.id &&
+        (!this.selectedNetworkOffering.forvpc || this.compatibleVpcs.some(vpc => vpc.id === this.form.vpcid)) &&
+        (!this.isASNumberRequired() || this.asNumbersZone.some(row => row.asnumber === this.form.asnumber))
+    },
     selectedNetworkOfferingSupportsDns () {
       if (this.selectedNetworkOffering) {
         const services = this.selectedNetworkOffering?.service || []
@@ -430,196 +472,157 @@ export default {
       })
       this.rules = reactive({
         name: [{ required: true, message: this.$t('message.error.name') }],
-        zoneid: [{ type: 'number', required: true, message: this.$t('message.error.select') }],
-        networkofferingid: [{ type: 'number', required: true, message: this.$t('message.error.select') }],
+        zoneid: [{ required: true, message: this.$t('message.error.select') }],
+        networkofferingid: [{ required: true, message: this.$t('message.error.select') }],
         vpcid: [{ required: true, message: this.$t('message.error.select') }]
       })
     },
     fetchData () {
       this.fetchZoneData()
-      this.allowSettingMTU()
-    },
-    allowSettingMTU () {
     },
     isAdmin () {
       return isAdmin()
     },
-    isAdminOrDomainAdmin () {
-      return isAdminOrDomainAdmin()
-    },
     isASNumberRequired () {
-      return !this.isObjectEmpty(this.selectedNetworkOffering) && this.selectedNetworkOffering.specifyasnumber && this.selectedNetworkOffering?.routingmode.toLowerCase() === 'dynamic'
+      return this.selectedNetworkOffering?.specifyasnumber &&
+        this.selectedNetworkOffering.routingmode?.toLowerCase() === 'dynamic'
     },
     isObjectEmpty (obj) {
-      return !(obj !== null && obj !== undefined && Object.keys(obj).length > 0 && obj.constructor === Object)
-    },
-    arrayHasItems (array) {
-      return array !== null && array !== undefined && Array.isArray(array) && array.length > 0
+      return !obj || !Object.keys(obj).length
     },
     isValidTextValueForKey (obj, key) {
       return key in obj && obj[key] != null && String(obj[key]).length > 0
     },
-    fetchZoneData () {
-      this.zones = []
-      const params = {}
+    setImplicitOwner () {
+      if (this.chooseOwner) {
+        this.ownerReady = false
+        return
+      }
+      const scope = this.submitHandler ? this.resource : {}
+      const projectid = this.submitHandler ? scope.projectid : this.activeProject
+      this.owner = projectid ? { projectid } : { account: scope.account, domainid: scope.domainid }
+      this.ownerReady = true
+    },
+    async fetchZoneData () {
+      const request = ++this.zoneRequest
+      const previous = this.form.zoneid
+      this.zoneLoading = true
+      this.choiceError = ''
+      this.selectedZone = {}
+      this.updateOfferings()
+      const params = { showicon: true }
       if (this.resource.zoneid && (this.submitHandler || this.$route.name === 'deployVirtualMachine' || this.$route.path.startsWith('/backup'))) {
         params.id = this.resource.zoneid
       }
-      params.showicon = true
-      this.zoneLoading = true
-      getAPI('listZones', params).then(json => {
-        for (const i in json.listzonesresponse.zone) {
-          const zone = json.listzonesresponse.zone[i]
-          if (zone.networktype === 'Advanced' && zone.securitygroupsenabled !== true && zone.type !== 'Edge') {
-            this.zones.push(zone)
-          }
-        }
-        this.zoneLoading = false
-        if (this.arrayHasItems(this.zones)) {
-          this.form.zoneid = 0
-          this.handleZoneChange(this.zones[0])
-        }
-      })
+      try {
+        const json = await getAPI('listZones', params, { preserveOnFailure: true })
+        if (request !== this.zoneRequest) return
+        this.zones = (json.listzonesresponse.zone || []).filter(zone =>
+          zone.networktype === 'Advanced' && zone.securitygroupsenabled !== true && zone.type !== 'Edge')
+        const selected = this.zones.find(zone => zone.id === previous) || this.zones[0]
+        this.form.zoneid = selected?.id
+        this.handleZoneChange(selected)
+      } catch (_) {
+        if (request === this.zoneRequest) this.choiceError = 'zone'
+      } finally {
+        if (request === this.zoneRequest) this.zoneLoading = false
+      }
     },
     handleZoneChange (zone) {
-      this.selectedZone = zone
+      const changed = this.selectedZone?.id !== zone?.id
+      this.selectedZone = zone || {}
       this.setMTU = zone?.allowuserspecifyvrmtu || false
       this.privateMtuMax = zone?.routerprivateinterfacemaxmtu || 1500
       this.publicMtuMax = zone?.routerpublicinterfacemaxmtu || 1500
-      this.updateVPCCheckAndFetchNetworkOfferingData()
-      if (this.isASNumberRequired()) {
-        this.fetchZoneASNumbers()
+      if (changed) {
+        this.updateMtu(true)
+        this.updateMtu(false)
       }
+      this.updateOfferings()
     },
-    fetchZoneASNumbers () {
-      const params = {}
-      this.asNumberLoading = true
-      params.zoneid = this.selectedZone.id
-      params.isallocated = false
-      getAPI('listASNumbers', params).then(json => {
-        this.asNumbersZone = json.listasnumbersresponse.asnumber
-        this.asNumberLoading = false
-      })
+    retryChoices () {
+      if (this.choiceError === 'zone') return this.fetchZoneData()
+      if (this.choiceError === 'asnumber') return this.fetchZoneASNumbers()
+      return this.updateOfferings()
     },
-    handleASNumberChange (selectedIndex) {
-      this.selectedAsNumber = this.asNumbersZone[selectedIndex].asnumber
-      this.form.asnumber = this.selectedAsNumber
+    fetchOwnerOptions (options) {
+      this.ownerReady = options.ready
+      this.owner = options.selectedAccountType === 'Project'
+        ? { projectid: options.selectedProject, domainid: options.selectedDomain }
+        : { account: options.selectedAccount, domainid: options.selectedDomain }
+      this.updateOfferings()
     },
-    fetchOwnerOptions (OwnerOptions) {
-      this.owner = {
-        projectid: null,
-        domainid: this.$store.getters.userInfo.domainid,
-        account: this.$store.getters.userInfo.account
-      }
-      if (OwnerOptions.selectedAccountType === 'Account') {
-        if (!OwnerOptions.selectedAccount) {
-          return
-        }
-        this.owner.account = OwnerOptions.selectedAccount
-        this.owner.domainid = OwnerOptions.selectedDomain
-        this.owner.projectid = null
-      } else if (OwnerOptions.selectedAccountType === 'Project') {
-        if (!OwnerOptions.selectedProject) {
-          return
-        }
-        this.owner.account = null
-        this.owner.domainid = null
-        this.owner.projectid = OwnerOptions.selectedProject
-      }
-      if (OwnerOptions.initialized && isAdminOrDomainAdmin()) {
-        this.updateVPCCheckAndFetchNetworkOfferingData()
-      }
-    },
-    updateVPCCheckAndFetchNetworkOfferingData () {
-      if (this.vpc !== null) { // from VPC section
-        this.fetchNetworkOfferingData(true)
-      } else { // from guest network section
-        const params = {
-          account: this.owner.account,
-          projectid: this.owner.projectid,
-          domainid: this.owner.domainid
-        }
-        this.networkOfferingLoading = true
-        if ('listVPCs' in this.$store.getters.apis) {
-          getAPI('listVPCs', params).then(json => {
-            const listVPCs = json.listvpcsresponse.vpc
-            this.hasVPC = this.arrayHasItems(listVPCs)
-            if (!this.hasVPC) {
-              this.fetchNetworkOfferingData(false)
-            } else {
-              this.fetchNetworkOfferingData()
-            }
-          })
-        } else {
-          this.fetchNetworkOfferingData(false)
-        }
-      }
-    },
-    fetchNetworkOfferingData (forVpc) {
-      this.networkOfferingLoading = true
-      const params = {
-        zoneid: this.selectedZone.id,
-        guestiptype: 'Isolated',
-        state: 'Enabled'
-      }
-      if (isAdminOrDomainAdmin() && this.owner.domainid !== '-1') { // domain is visible only for admins
-        params.domainid = this.owner.domainid
-      }
-      if (!isAdmin()) { // normal user is not aware of the VLANs in the system, so normal user is not allowed to create network with network offerings whose specifyvlan = true
-        params.specifyvlan = false
-      }
-      if (forVpc !== null) {
-        params.forvpc = forVpc
-      }
+    async updateOfferings () {
+      const request = ++this.offeringRequest
+      const zone = this.selectedZone
+      const previous = this.form.networkofferingid
       this.networkOfferings = []
-      this.selectedNetworkOffering = {}
-      getAPI('listNetworkOfferings', params).then(json => {
-        this.networkOfferings = json.listnetworkofferingsresponse.networkoffering || []
-        this.networkOfferings = this.networkOfferings.filter(offering => offering.fornsx === this.selectedZone.isnsxenabled)
-        if (!this.selectedZone.routedmodeenabled) {
-          this.networkOfferings = this.networkOfferings.filter(offering => offering.networkmode !== 'ROUTED')
+      this.vpcs = []
+      this.hasVPC = null
+      this.form.networkofferingid = undefined
+      this.handleNetworkOfferingChange(null)
+      this.networkOfferingLoading = !!zone?.id && this.ownerReady
+      if (!this.networkOfferingLoading) return
+      this.choiceError = ''
+      const owner = { ...this.owner }
+      try {
+        if ('listVPCs' in this.$store.getters.apis) {
+          const vpcScope = this.vpc ? { id: this.vpc.id } : { ...owner, zoneid: zone.id }
+          const json = await getAPI('listVPCs', vpcScope, { preserveOnFailure: true })
+          if (request !== this.offeringRequest) return
+          this.vpcs = (json.listvpcsresponse.vpc || []).filter(vpc => vpc.zoneid === zone.id)
         }
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.networkOfferingLoading = false
-        if (this.arrayHasItems(this.networkOfferings)) {
-          this.form.networkofferingid = 0
-          this.handleNetworkOfferingChange(this.networkOfferings[0])
-        }
-      })
+        this.hasVPC = this.vpcs.length > 0
+        const params = { zoneid: zone.id, guestiptype: 'Isolated', state: 'Enabled' }
+        if (this.vpc || !this.hasVPC) params.forvpc = !!this.vpc
+        if (isAdminOrDomainAdmin() && owner.domainid && owner.domainid !== '-1') params.domainid = owner.domainid
+        if (!isAdmin()) params.specifyvlan = false
+        const json = await getAPI('listNetworkOfferings', params, { preserveOnFailure: true })
+        if (request !== this.offeringRequest) return
+        this.networkOfferings = (json.listnetworkofferingsresponse.networkoffering || []).filter(offering =>
+          !!offering.fornsx === !!zone.isnsxenabled && (zone.routedmodeenabled || offering.networkmode !== 'ROUTED'))
+        const selected = this.networkOfferings.find(offering => offering.id === previous) || this.networkOfferings[0]
+        this.form.networkofferingid = selected?.id
+        this.handleNetworkOfferingChange(selected)
+      } catch (_) {
+        if (request === this.offeringRequest) this.choiceError = 'offering'
+      } finally {
+        if (request === this.offeringRequest) this.networkOfferingLoading = false
+      }
     },
-    handleNetworkOfferingChange (networkOffering) {
-      this.selectedNetworkOffering = networkOffering
-      if (networkOffering.forvpc) {
-        this.fetchVpcData()
-      }
-      if (this.isASNumberRequired()) {
-        this.fetchZoneASNumbers()
-      }
+    handleNetworkOfferingChange (offering) {
+      this.selectedNetworkOffering = offering || {}
+      this.form.vpcid = offering?.forvpc ? this.compatibleVpcs[0]?.id : undefined
+      this.form.asnumber = undefined
+      this.asNumbersZone = []
+      this.asNumberLoading = false
+      this.asNumberRequest++
+      if (this.choiceError === 'asnumber') this.choiceError = ''
+      if (this.isASNumberRequired()) this.fetchZoneASNumbers()
     },
-    fetchVpcData () {
-      this.vpcLoading = true
-      const params = {
-        listAll: true,
-        details: 'min'
+    async fetchZoneASNumbers () {
+      const request = ++this.asNumberRequest
+      this.asNumberLoading = true
+      this.choiceError = ''
+      try {
+        const json = await getAPI('listASNumbers', { zoneid: this.selectedZone.id, isallocated: false }, { preserveOnFailure: true })
+        if (request === this.asNumberRequest) this.asNumbersZone = json.listasnumbersresponse.asnumber || []
+      } catch (_) {
+        if (request === this.asNumberRequest) this.choiceError = 'asnumber'
+      } finally {
+        if (request === this.asNumberRequest) this.asNumberLoading = false
       }
-      if (this.vpc !== null) {
-        params.id = this.vpc.id
-      }
-      getAPI('listVPCs', params).then(json => {
-        this.vpcs = json.listvpcsresponse.vpc
-      }).finally(() => {
-        this.vpcLoading = false
-        if (this.arrayHasItems(this.vpcs)) {
-          this.form.vpcid = 0
-          this.selectedVpc = this.vpcs[0]
-        }
-      })
     },
     handleSubmit () {
-      if (this.actionLoading) return
-      this.formRef.value.validate().then(() => {
+      if (!this.canSubmit) return
+      this.formRef.value.validate().then(async () => {
+        if (!this.canSubmit) return
+        this.actionLoading = true
+        const scope = JSON.stringify([this.form, this.owner, this.selectedZone, this.selectedNetworkOffering, this.offeringRequest])
+        if (!await this.$refs.offeringDiagnostics.validate() || scope !== JSON.stringify([this.form, this.owner, this.selectedZone, this.selectedNetworkOffering, this.offeringRequest])) {
+          this.actionLoading = false
+          return
+        }
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
         this.actionLoading = true
@@ -627,8 +630,7 @@ export default {
           zoneId: this.selectedZone.id,
           name: values.name,
           displayText: values.displaytext,
-          networkOfferingId: this.selectedNetworkOffering.id,
-          keepmacaddressonpublicnic: values.keepMacAddressOnPublicNic
+          networkOfferingId: this.selectedNetworkOffering.id
         }
         const usefulFields = ['gateway', 'netmask', 'cidrsize', 'startip', 'startipv4', 'endip', 'endipv4', 'dns1', 'dns2', 'ip6dns1', 'ip6dns2', 'sourcenatipaddress', 'externalid', 'vpcid', 'vlan', 'networkdomain']
         for (const field of usefulFields) {
@@ -642,17 +644,10 @@ export default {
         if (this.isValidTextValueForKey(values, 'privatemtu')) {
           params.privatemtu = values.privatemtu
         }
-        if ('vpcid' in values) {
-          params.vpcid = this.selectedVpc.id
+        if ('keepMacAddressOnPublicNic' in values && this.selectedNetworkOfferingSupportsSourceNat) {
+          params.keepmacaddressonpublicnic = values.keepMacAddressOnPublicNic
         }
-
-        if (this.owner.account) {
-          params.account = this.owner.account
-          params.domainid = this.owner.domainid
-        } else if (this.owner.projectid) {
-          params.domainid = this.owner.domainid
-          params.projectid = this.owner.projectid
-        }
+        Object.assign(params, this.owner)
 
         if ('asnumber' in values && this.isASNumberRequired()) {
           params.asnumber = values.asnumber
@@ -663,7 +658,7 @@ export default {
           this.actionLoading = false
           return
         }
-        postAPI('createNetwork', params).then(json => {
+        postAPI('createNetwork', params, { preserveOnFailure: true }).then(() => {
           this.$notification.success({
             message: 'Network',
             description: this.$t('message.success.create.isolated.network')
@@ -676,7 +671,9 @@ export default {
           this.actionLoading = false
         })
       }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
+        this.actionLoading = false
+        if (error.errorFields?.length) this.formRef.value.scrollToField(error.errorFields[0].name)
+        else this.$notifyError(error)
       })
     },
     updateMtu (isPublic) {
@@ -721,10 +718,8 @@ export default {
 
 <style lang="less" scoped>
 .form-layout {
-  width: 80vw;
-  @media (min-width: 700px) {
-    width: 600px;
-  }
+  width: 100%;
+  min-width: 0;
 
   .ant-tag {
     margin-bottom: 10px;
@@ -737,6 +732,10 @@ export default {
   :deep(.ant-divider-horizontal) {
     margin-top: 0;
   }
+}
+
+.network-choice-alert {
+  margin-top: 8px;
 }
 
 .form {

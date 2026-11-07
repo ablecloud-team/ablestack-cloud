@@ -1,0 +1,17 @@
+{
+  "sourceHead": "15e73de0834b61b29b79c376fecf1e744f783b78",
+  "license": {
+    "result": "FAILURE",
+    "unapproved": 3544,
+    "matchesPreviousTaskBaselineCount": true,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/42044808184"
+  },
+  "lint": {
+    "result": "FAILURE",
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/42044808093",
+    "scope": "whole repository",
+    "newVueHeaderHookChangeCorrected": true,
+    "notes": "Whole-repository pre-commit changes many existing files and reports existing license/Markdown findings. No whole CI success claimed."
+  },
+  "finalHeadChecks": "Re-read after evidence publication."
+}

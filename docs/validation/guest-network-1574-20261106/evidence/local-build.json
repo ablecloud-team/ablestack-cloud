@@ -1,0 +1,41 @@
+{
+  "source": "efdb872c8dfdba16190587deea93c70dc88bdd2b",
+  "suites": "4 passed, 4 total",
+  "tests": "87 passed, 87 total",
+  "ui-lint": {
+    "exit": 0,
+    "command": [
+      "npx",
+      "vue-cli-service",
+      "lint",
+      "--no-fix",
+      "src/views/network/Ipv6FirewallRulesTab.vue",
+      "src/views/network/RoutingFirewallRulesTab.vue",
+      "tests/unit/views/network/NetworkRuleLayout.spec.js",
+      "tests/unit/views/network/NetworkTabs.spec.js"
+    ]
+  },
+  "ui-tests": {
+    "exit": 0,
+    "command": [
+      "npm",
+      "run",
+      "test:unit",
+      "--",
+      "--runInBand",
+      "--coverage=false",
+      "NetworkRuleLayout.spec.js",
+      "ConditionalGuestNetwork.spec.js",
+      "NetworkTabs.spec.js",
+      "ResourceView.spec.js"
+    ]
+  },
+  "ui-build": {
+    "exit": 0,
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ]
+  }
+}

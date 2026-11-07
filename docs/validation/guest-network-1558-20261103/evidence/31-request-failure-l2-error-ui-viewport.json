@@ -1,0 +1,104 @@
+{
+  "body": {
+    "bottom": 736,
+    "height": 582,
+    "left": 161,
+    "right": 1119,
+    "top": 154,
+    "width": 958,
+    "x": 161,
+    "y": 154
+  },
+  "bodyClientHeight": 582,
+  "bodyClientWidth": 958,
+  "bodyScrollHeight": 582,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 958,
+  "colors": [
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(75, 85, 99)",
+      "text": "L2 · Zone · admin"
+    },
+    {
+      "background": "rgb(255, 241, 240)",
+      "color": "rgb(112, 27, 27)",
+      "text": "QA description request refusal (synthetic; not sent to server)"
+    },
+    {
+      "background": "rgb(9, 105, 218)",
+      "color": "rgb(255, 255, 255)",
+      "text": "확인"
+    }
+  ],
+  "content": {
+    "bottom": 802,
+    "height": 704,
+    "left": 160,
+    "right": 1120,
+    "top": 98,
+    "width": 960,
+    "x": 160,
+    "y": 98
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1280,
+    "top": 0,
+    "width": 1280,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "BODY"
+  },
+  "footer": {
+    "bottom": 801,
+    "height": 65,
+    "left": 161,
+    "right": 1119,
+    "top": 736,
+    "width": 958,
+    "x": 161,
+    "y": 736
+  },
+  "header": {
+    "bottom": 154,
+    "height": 55,
+    "left": 161,
+    "right": 1119,
+    "top": 99,
+    "width": 958,
+    "x": 161,
+    "y": 99
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 776,
+    "left": 256,
+    "right": 1270,
+    "top": 124,
+    "width": 1014,
+    "x": 256,
+    "y": 124
+  },
+  "primaryButton": {
+    "bottom": 785,
+    "height": 32,
+    "left": 1033.234375,
+    "right": 1091,
+    "top": 753,
+    "width": 57.765625,
+    "x": 1033.234375,
+    "y": 753
+  },
+  "width": 1280,
+  "image_sha256": "811927d7c02f28b7a39754239d19f21b7cf460cc5fdaff4801074bc35ef0052c"
+}

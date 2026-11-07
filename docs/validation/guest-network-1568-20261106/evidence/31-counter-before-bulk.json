@@ -1,0 +1,17 @@
+{
+  "accounts": [
+    {
+      "actual": 3,
+      "account": "admin",
+      "expected": 3
+    },
+    {
+      "actual": 2,
+      "account": "qa-gn1568-31-user",
+      "expected": 2
+    }
+  ],
+  "apiUserNetworkTotal": 2,
+  "directDbCounterUpdates": 0,
+  "status": "PASS"
+}

@@ -1,0 +1,60 @@
+{
+  "account": [
+    {
+      "id": "dd8c5d9e-901f-4565-9e94-bff03882ff07",
+      "vlan": "783",
+      "networkid": "edcc66a7-ad24-4252-a96b-b202833845c4",
+      "startip": "198.19.32.74",
+      "endip": "198.19.32.86",
+      "gateway": "198.19.32.65",
+      "netmask": "255.255.255.224"
+    }
+  ],
+  "all": [
+    {
+      "id": "565f3af3-26a9-4a39-b4ce-00927e049743",
+      "vlan": "781",
+      "networkid": "a06138fb-771e-4a3a-b6aa-6679cd3b7b04",
+      "startip": "198.19.32.10",
+      "endip": "198.19.32.22",
+      "gateway": "198.19.32.1",
+      "netmask": "255.255.255.224"
+    }
+  ],
+  "dual": [
+    {
+      "id": "6343990a-c99f-4dc6-b013-f00beada65bd",
+      "vlan": "788",
+      "networkid": "e6aa59e1-4f2a-4d41-82aa-26bd082b8548",
+      "startip": "198.19.32.234",
+      "endip": "198.19.32.246",
+      "gateway": "198.19.32.225",
+      "netmask": "255.255.255.224",
+      "startipv6": "fd72:32::100",
+      "endipv6": "fd72:32::110",
+      "ip6gateway": "fd72:32::1",
+      "ip6cidr": "fd72:32::/64"
+    }
+  ],
+  "released": {
+    "ipaddress": "198.19.32.18",
+    "state": "Free",
+    "networkid": "a06138fb-771e-4a3a-b6aa-6679cd3b7b04",
+    "forvirtualnetwork": false
+  },
+  "dnsInventory": {
+    "DnsZones": 0,
+    "DnsServers": 0
+  },
+  "rootWide": {
+    "acltype": "Domain",
+    "rootDomain": true,
+    "subdomainaccess": true
+  },
+  "nonFixtureStandaloneSharedCount": 0,
+  "db": {
+    "active_nics": 2,
+    "running_vms": 2,
+    "active_networks": 7
+  }
+}

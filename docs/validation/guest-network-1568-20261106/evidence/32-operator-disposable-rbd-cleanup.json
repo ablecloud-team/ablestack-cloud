@@ -1,0 +1,45 @@
+{
+  "router": "743d3dbd-822c-4fde-bb3d-d74475ba0d5e",
+  "image": "5070596b-ca26-47bd-a559-d5c1389a9e24",
+  "hostDomains": [
+    {
+      "host": "10.10.32.1",
+      "domainAbsent": true
+    },
+    {
+      "host": "10.10.32.2",
+      "domainAbsent": true
+    },
+    {
+      "host": "10.10.32.3",
+      "domainAbsent": true
+    }
+  ],
+  "statusBefore": {
+    "exit": 0,
+    "stdout": "{\"watchers\":[]}\n",
+    "stderr": ""
+  },
+  "infoBefore": {
+    "exit": 0,
+    "stdout": "{\"name\":\"5070596b-ca26-47bd-a559-d5c1389a9e24\",\"id\":\"75d364bd7799a8\",\"size\":5242880000,\"objects\":1250,\"order\":22,\"object_size\":4194304,\"snapshot_count\":0,\"block_name_prefix\":\"rbd_data.75d364bd7799a8\",\"format\":2,\"features\":[\"layering\",\"exclusive-lock\",\"object-map\",\"fast-diff\",\"deep-flatten\"],\"op_features\":[],\"flags\":[],\"create_timestamp\":\"Fri Nov  6 02:00:23 2026\",\"access_timestamp\":\"Fri Nov  6 02:00:23 2026\",\"modify_timestamp\":\"Fri Nov  6 02:00:23 2026\",\"parent\":{\"pool\":\"rbd\",\"pool_namespace\":\"\",\"image\":\"f109233d-9f06-4420-b2bf-c8393d95df4f\",\"id\":\"3de61ddb0a83\",\"snapshot\":\"cloudstack-base-snap\",\"trash\":false,\"overlap\":5242880000}}\n",
+    "stderr": ""
+  },
+  "normalRbdRemove": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "libvirtCacheRefresh": {
+    "exit": 0,
+    "stdout": "Pool 91cae554-3fce-3f93-89d1-cefaf9bf8122 refreshed\n\n",
+    "stderr": ""
+  },
+  "physicalAbsenceAfter": {
+    "exit": 2,
+    "stdout": "",
+    "stderr": "rbd: error opening image 5070596b-ca26-47bd-a559-d5c1389a9e24: (2) No such file or directory\n"
+  },
+  "forced": false,
+  "directDbUpdates": 0
+}

@@ -17,7 +17,7 @@
 
 <template>
   <div class="detail-tab-toolbar">
-    <a-button type="primary" :disabled="!canAdd || loading" @click="$emit('add')"><template #icon><plus-outlined /></template>{{ $t('label.network.rule.add') }}</a-button>
+    <a-button v-if="showAdd" type="primary" :disabled="!canAdd || loading" @click="$emit('add')"><template #icon><plus-outlined /></template><slot name="add-label">{{ $t('label.network.rule.add') }}</slot></a-button>
     <a-button :loading="loading" @click="$emit('refresh')"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
     <slot />
   </div>
@@ -25,7 +25,7 @@
 <script>
 export default {
   name: 'NetworkRulesToolbar',
-  props: { canAdd: { type: Boolean, default: false }, loading: { type: Boolean, default: false } },
+  props: { showAdd: { type: Boolean, default: true }, canAdd: { type: Boolean, default: false }, loading: { type: Boolean, default: false } },
   emits: ['add', 'refresh']
 }
 </script>

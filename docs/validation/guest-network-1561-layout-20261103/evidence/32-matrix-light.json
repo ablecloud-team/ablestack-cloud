@@ -1,0 +1,3410 @@
+[
+  {
+    "name": "32-after-egress-light-1280",
+    "kind": "egress",
+    "mode": "light",
+    "synthetic": false,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 397,
+            "height": 62,
+            "left": 720.578125,
+            "right": 1222.984375,
+            "top": 335,
+            "width": 502.40625,
+            "x": 720.578125,
+            "y": 335
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": null,
+      "document_width": 1270,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 541,
+        "height": 132,
+        "left": 720.578125,
+        "right": 1222.984375,
+        "top": 409,
+        "width": 502.40625,
+        "x": 720.578125,
+        "y": 409
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 315,
+              "height": 32,
+              "left": 720.578125,
+              "right": 829.9375,
+              "top": 283,
+              "width": 109.359375,
+              "x": 720.578125,
+              "y": 283
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 315,
+              "height": 32,
+              "left": 837.9375,
+              "right": 943.46875,
+              "top": 283,
+              "width": 105.53125,
+              "x": 837.9375,
+              "y": 283
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 315,
+          "height": 32,
+          "left": 720.578125,
+          "right": 1222.984375,
+          "top": 283,
+          "width": 502.40625,
+          "x": 720.578125,
+          "y": 283
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=egress.rules&review=egress-light",
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    }
+  },
+  {
+    "name": "32-after-egress-light-768",
+    "kind": "egress",
+    "mode": "light",
+    "synthetic": false,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 1358.703125,
+            "height": 62,
+            "left": 255.25,
+            "right": 711,
+            "top": 1296.703125,
+            "width": 455.75,
+            "x": 255.25,
+            "y": 1296.703125
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": null,
+      "document_width": 758,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 1524.703125,
+        "height": 154,
+        "left": 255.25,
+        "right": 711,
+        "top": 1370.703125,
+        "width": 455.75,
+        "x": 255.25,
+        "y": 1370.703125
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 1276.703125,
+              "height": 32,
+              "left": 255.25,
+              "right": 364.609375,
+              "top": 1244.703125,
+              "width": 109.359375,
+              "x": 255.25,
+              "y": 1244.703125
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 1276.703125,
+              "height": 32,
+              "left": 372.609375,
+              "right": 478.140625,
+              "top": 1244.703125,
+              "width": 105.53125,
+              "x": 372.609375,
+              "y": 1244.703125
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 1276.703125,
+          "height": 32,
+          "left": 255.25,
+          "right": 711,
+          "top": 1244.703125,
+          "width": 455.75,
+          "x": 255.25,
+          "y": 1244.703125
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=egress.rules&review=egress-light",
+      "viewport": {
+        "height": 1024,
+        "width": 768
+      }
+    }
+  },
+  {
+    "name": "32-after-egress-light-390",
+    "kind": "egress",
+    "mode": "light",
+    "synthetic": false,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 572.5,
+            "height": 84,
+            "left": 37,
+            "right": 333,
+            "top": 488.5,
+            "width": 296,
+            "x": 37,
+            "y": 488.5
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": null,
+      "document_width": 380,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 748.5,
+        "height": 164,
+        "left": 37,
+        "right": 333,
+        "top": 584.5,
+        "width": 296,
+        "x": 37,
+        "y": 584.5
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 468.5,
+              "height": 32,
+              "left": 37,
+              "right": 146.359375,
+              "top": 436.5,
+              "width": 109.359375,
+              "x": 37,
+              "y": 436.5
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 468.5,
+              "height": 32,
+              "left": 154.359375,
+              "right": 259.890625,
+              "top": 436.5,
+              "width": 105.53125,
+              "x": 154.359375,
+              "y": 436.5
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 468.5,
+          "height": 32,
+          "left": 37,
+          "right": 333,
+          "top": 436.5,
+          "width": 296,
+          "x": 37,
+          "y": 436.5
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=egress.rules&review=egress-light",
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    }
+  },
+  {
+    "name": "32-dialog-egress-light-1280",
+    "kind": "egress",
+    "mode": "light",
+    "synthetic": false,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 397,
+            "height": 62,
+            "left": 720.578125,
+            "right": 1222.984375,
+            "top": 335,
+            "width": 502.40625,
+            "x": 720.578125,
+            "y": 335
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": {
+        "body": {
+          "bottom": 658,
+          "height": 426,
+          "left": 161,
+          "right": 1119,
+          "top": 232,
+          "width": 958,
+          "x": 161,
+          "y": 232
+        },
+        "bodyClientWidth": 958,
+        "bodyScrollWidth": 958,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 707,
+              "height": 32,
+              "left": 959.46875,
+              "right": 1017.234375,
+              "top": 675,
+              "width": 57.765625,
+              "x": 959.46875,
+              "y": 675
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 707,
+              "height": 32,
+              "left": 1033.234375,
+              "right": 1091,
+              "top": 675,
+              "width": 57.765625,
+              "x": 1033.234375,
+              "y": 675
+            },
+            "text": "추가"
+          }
+        ],
+        "footer": {
+          "bottom": 723,
+          "height": 65,
+          "left": 161,
+          "right": 1119,
+          "top": 658,
+          "width": 958,
+          "x": 161,
+          "y": 658
+        },
+        "formGrid": "902px",
+        "items": [
+          {
+            "label": "Source CIDR",
+            "rect": {
+              "bottom": 318,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 256,
+              "width": 902,
+              "x": 189,
+              "y": 256
+            }
+          },
+          {
+            "label": "목적지 CIDR",
+            "rect": {
+              "bottom": 392,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 330,
+              "width": 902,
+              "x": 189,
+              "y": 330
+            }
+          },
+          {
+            "label": "프로토콜",
+            "rect": {
+              "bottom": 466,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 404,
+              "width": 902,
+              "x": 189,
+              "y": 404
+            }
+          },
+          {
+            "label": "시작 포트",
+            "rect": {
+              "bottom": 540,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 478,
+              "width": 902,
+              "x": 189,
+              "y": 478
+            }
+          },
+          {
+            "label": "종료 포트",
+            "rect": {
+              "bottom": 614,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 552,
+              "width": 902,
+              "x": 189,
+              "y": 552
+            }
+          }
+        ],
+        "labels": [
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "Source CIDR"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "목적지 CIDR"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "프로토콜"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "시작 포트"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "종료 포트"
+          }
+        ],
+        "rect": {
+          "bottom": 724,
+          "height": 548,
+          "left": 160,
+          "right": 1120,
+          "top": 176,
+          "width": 960,
+          "x": 160,
+          "y": 176
+        }
+      },
+      "document_width": 1270,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 541,
+        "height": 132,
+        "left": 720.578125,
+        "right": 1222.984375,
+        "top": 409,
+        "width": 502.40625,
+        "x": 720.578125,
+        "y": 409
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 315,
+              "height": 32,
+              "left": 720.578125,
+              "right": 829.9375,
+              "top": 283,
+              "width": 109.359375,
+              "x": 720.578125,
+              "y": 283
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 315,
+              "height": 32,
+              "left": 837.9375,
+              "right": 943.46875,
+              "top": 283,
+              "width": 105.53125,
+              "x": 837.9375,
+              "y": 283
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 315,
+          "height": 32,
+          "left": 720.578125,
+          "right": 1222.984375,
+          "top": 283,
+          "width": 502.40625,
+          "x": 720.578125,
+          "y": 283
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=egress.rules&review=egress-light",
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    }
+  },
+  {
+    "name": "32-dialog-egress-light-768",
+    "kind": "egress",
+    "mode": "light",
+    "synthetic": false,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 1376.5,
+            "height": 62,
+            "left": 255.25,
+            "right": 711,
+            "top": 1314.5,
+            "width": 455.75,
+            "x": 255.25,
+            "y": 1314.5
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": {
+        "body": {
+          "bottom": 720,
+          "height": 426,
+          "left": 25,
+          "right": 743,
+          "top": 294,
+          "width": 718,
+          "x": 25,
+          "y": 294
+        },
+        "bodyClientWidth": 718,
+        "bodyScrollWidth": 718,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 769,
+              "height": 32,
+              "left": 583.46875,
+              "right": 641.234375,
+              "top": 737,
+              "width": 57.765625,
+              "x": 583.46875,
+              "y": 737
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 769,
+              "height": 32,
+              "left": 657.234375,
+              "right": 715,
+              "top": 737,
+              "width": 57.765625,
+              "x": 657.234375,
+              "y": 737
+            },
+            "text": "추가"
+          }
+        ],
+        "footer": {
+          "bottom": 785,
+          "height": 65,
+          "left": 25,
+          "right": 743,
+          "top": 720,
+          "width": 718,
+          "x": 25,
+          "y": 720
+        },
+        "formGrid": "662px",
+        "items": [
+          {
+            "label": "Source CIDR",
+            "rect": {
+              "bottom": 380,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 318,
+              "width": 662,
+              "x": 53,
+              "y": 318
+            }
+          },
+          {
+            "label": "목적지 CIDR",
+            "rect": {
+              "bottom": 454,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 392,
+              "width": 662,
+              "x": 53,
+              "y": 392
+            }
+          },
+          {
+            "label": "프로토콜",
+            "rect": {
+              "bottom": 528,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 466,
+              "width": 662,
+              "x": 53,
+              "y": 466
+            }
+          },
+          {
+            "label": "시작 포트",
+            "rect": {
+              "bottom": 602,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 540,
+              "width": 662,
+              "x": 53,
+              "y": 540
+            }
+          },
+          {
+            "label": "종료 포트",
+            "rect": {
+              "bottom": 676,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 614,
+              "width": 662,
+              "x": 53,
+              "y": 614
+            }
+          }
+        ],
+        "labels": [
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "Source CIDR"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "목적지 CIDR"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "프로토콜"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "시작 포트"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "종료 포트"
+          }
+        ],
+        "rect": {
+          "bottom": 786,
+          "height": 548,
+          "left": 24,
+          "right": 744,
+          "top": 238,
+          "width": 720,
+          "x": 24,
+          "y": 238
+        }
+      },
+      "document_width": 758,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 1542.5,
+        "height": 154,
+        "left": 255.25,
+        "right": 711,
+        "top": 1388.5,
+        "width": 455.75,
+        "x": 255.25,
+        "y": 1388.5
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 1294.5,
+              "height": 32,
+              "left": 255.25,
+              "right": 364.609375,
+              "top": 1262.5,
+              "width": 109.359375,
+              "x": 255.25,
+              "y": 1262.5
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 1294.5,
+              "height": 32,
+              "left": 372.609375,
+              "right": 478.140625,
+              "top": 1262.5,
+              "width": 105.53125,
+              "x": 372.609375,
+              "y": 1262.5
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 1294.5,
+          "height": 32,
+          "left": 255.25,
+          "right": 711,
+          "top": 1262.5,
+          "width": 455.75,
+          "x": 255.25,
+          "y": 1262.5
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=egress.rules&review=egress-light",
+      "viewport": {
+        "height": 1024,
+        "width": 768
+      }
+    }
+  },
+  {
+    "name": "32-dialog-egress-light-390",
+    "kind": "egress",
+    "mode": "light",
+    "synthetic": false,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 1524.5,
+            "height": 84,
+            "left": 37,
+            "right": 333,
+            "top": 1440.5,
+            "width": 296,
+            "x": 37,
+            "y": 1440.5
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": {
+        "body": {
+          "bottom": 622,
+          "height": 410,
+          "left": 13,
+          "right": 377,
+          "top": 212,
+          "width": 364,
+          "x": 13,
+          "y": 212
+        },
+        "bodyClientWidth": 364,
+        "bodyScrollWidth": 364,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 671,
+              "height": 32,
+              "left": 229.46875,
+              "right": 287.234375,
+              "top": 639,
+              "width": 57.765625,
+              "x": 229.46875,
+              "y": 639
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 671,
+              "height": 32,
+              "left": 303.234375,
+              "right": 361,
+              "top": 639,
+              "width": 57.765625,
+              "x": 303.234375,
+              "y": 639
+            },
+            "text": "추가"
+          }
+        ],
+        "footer": {
+          "bottom": 687,
+          "height": 65,
+          "left": 13,
+          "right": 377,
+          "top": 622,
+          "width": 364,
+          "x": 13,
+          "y": 622
+        },
+        "formGrid": "332px",
+        "items": [
+          {
+            "label": "Source CIDR",
+            "rect": {
+              "bottom": 290,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 228,
+              "width": 332,
+              "x": 29,
+              "y": 228
+            }
+          },
+          {
+            "label": "목적지 CIDR",
+            "rect": {
+              "bottom": 364,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 302,
+              "width": 332,
+              "x": 29,
+              "y": 302
+            }
+          },
+          {
+            "label": "프로토콜",
+            "rect": {
+              "bottom": 438,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 376,
+              "width": 332,
+              "x": 29,
+              "y": 376
+            }
+          },
+          {
+            "label": "시작 포트",
+            "rect": {
+              "bottom": 512,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 450,
+              "width": 332,
+              "x": 29,
+              "y": 450
+            }
+          },
+          {
+            "label": "종료 포트",
+            "rect": {
+              "bottom": 586,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 524,
+              "width": 332,
+              "x": 29,
+              "y": 524
+            }
+          }
+        ],
+        "labels": [
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "Source CIDR"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "목적지 CIDR"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "프로토콜"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "시작 포트"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "종료 포트"
+          }
+        ],
+        "rect": {
+          "bottom": 688,
+          "height": 532,
+          "left": 12,
+          "right": 378,
+          "top": 156,
+          "width": 366,
+          "x": 12,
+          "y": 156
+        }
+      },
+      "document_width": 380,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 1700.5,
+        "height": 164,
+        "left": 37,
+        "right": 333,
+        "top": 1536.5,
+        "width": 296,
+        "x": 37,
+        "y": 1536.5
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 1420.5,
+              "height": 32,
+              "left": 37,
+              "right": 146.359375,
+              "top": 1388.5,
+              "width": 109.359375,
+              "x": 37,
+              "y": 1388.5
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 1420.5,
+              "height": 32,
+              "left": 154.359375,
+              "right": 259.890625,
+              "top": 1388.5,
+              "width": 105.53125,
+              "x": 154.359375,
+              "y": 1388.5
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 1420.5,
+          "height": 32,
+          "left": 37,
+          "right": 333,
+          "top": 1388.5,
+          "width": 296,
+          "x": 37,
+          "y": 1388.5
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=egress.rules&review=egress-light",
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    }
+  },
+  {
+    "name": "32-after-routing-light-1280",
+    "kind": "routing",
+    "mode": "light",
+    "synthetic": true,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 63.171875,
+            "height": 62,
+            "left": 749.109375,
+            "right": 1222.984375,
+            "top": 1.171875,
+            "width": 473.875,
+            "x": 749.109375,
+            "y": 1.171875
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": null,
+      "document_width": 1270,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 239.171875,
+        "height": 164,
+        "left": 749.109375,
+        "right": 1222.984375,
+        "top": 75.171875,
+        "width": 473.875,
+        "x": 749.109375,
+        "y": 75.171875
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": -18.828125,
+              "height": 32,
+              "left": 749.109375,
+              "right": 858.46875,
+              "top": -50.828125,
+              "width": 109.359375,
+              "x": 749.109375,
+              "y": -50.828125
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": -18.828125,
+              "height": 32,
+              "left": 866.46875,
+              "right": 972,
+              "top": -50.828125,
+              "width": 105.53125,
+              "x": 866.46875,
+              "y": -50.828125
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": -18.828125,
+          "height": 32,
+          "left": 749.109375,
+          "right": 1222.984375,
+          "top": -50.828125,
+          "width": 473.875,
+          "x": 749.109375,
+          "y": -50.828125
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=routing.firewall&review=routing-light",
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    }
+  },
+  {
+    "name": "32-after-routing-light-768",
+    "kind": "routing",
+    "mode": "light",
+    "synthetic": true,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 996.015625,
+            "height": 62,
+            "left": 283.78125,
+            "right": 711,
+            "top": 934.015625,
+            "width": 427.21875,
+            "x": 283.78125,
+            "y": 934.015625
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": null,
+      "document_width": 758,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 1172.015625,
+        "height": 164,
+        "left": 283.78125,
+        "right": 711,
+        "top": 1008.015625,
+        "width": 427.21875,
+        "x": 283.78125,
+        "y": 1008.015625
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 914.015625,
+              "height": 32,
+              "left": 283.78125,
+              "right": 393.140625,
+              "top": 882.015625,
+              "width": 109.359375,
+              "x": 283.78125,
+              "y": 882.015625
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 914.015625,
+              "height": 32,
+              "left": 401.140625,
+              "right": 506.671875,
+              "top": 882.015625,
+              "width": 105.53125,
+              "x": 401.140625,
+              "y": 882.015625
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 914.015625,
+          "height": 32,
+          "left": 283.78125,
+          "right": 711,
+          "top": 882.015625,
+          "width": 427.21875,
+          "x": 283.78125,
+          "y": 882.015625
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=routing.firewall&review=routing-light",
+      "viewport": {
+        "height": 1024,
+        "width": 768
+      }
+    }
+  },
+  {
+    "name": "32-after-routing-light-390",
+    "kind": "routing",
+    "mode": "light",
+    "synthetic": true,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 582.5,
+            "height": 84,
+            "left": 37,
+            "right": 333,
+            "top": 498.5,
+            "width": 296,
+            "x": 37,
+            "y": 498.5
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": null,
+      "document_width": 380,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 758.5,
+        "height": 164,
+        "left": 37,
+        "right": 333,
+        "top": 594.5,
+        "width": 296,
+        "x": 37,
+        "y": 594.5
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 478.5,
+              "height": 32,
+              "left": 37,
+              "right": 146.359375,
+              "top": 446.5,
+              "width": 109.359375,
+              "x": 37,
+              "y": 446.5
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 478.5,
+              "height": 32,
+              "left": 154.359375,
+              "right": 259.890625,
+              "top": 446.5,
+              "width": 105.53125,
+              "x": 154.359375,
+              "y": 446.5
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 478.5,
+          "height": 32,
+          "left": 37,
+          "right": 333,
+          "top": 446.5,
+          "width": 296,
+          "x": 37,
+          "y": 446.5
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=routing.firewall&review=routing-light",
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    }
+  },
+  {
+    "name": "32-dialog-routing-light-1280",
+    "kind": "routing",
+    "mode": "light",
+    "synthetic": true,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 439,
+            "height": 62,
+            "left": 749.109375,
+            "right": 1222.984375,
+            "top": 377,
+            "width": 473.875,
+            "x": 749.109375,
+            "y": 377
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": {
+        "body": {
+          "bottom": 695,
+          "height": 500,
+          "left": 161,
+          "right": 1119,
+          "top": 195,
+          "width": 958,
+          "x": 161,
+          "y": 195
+        },
+        "bodyClientWidth": 958,
+        "bodyScrollWidth": 958,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 744,
+              "height": 32,
+              "left": 959.46875,
+              "right": 1017.234375,
+              "top": 712,
+              "width": 57.765625,
+              "x": 959.46875,
+              "y": 712
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 744,
+              "height": 32,
+              "left": 1033.234375,
+              "right": 1091,
+              "top": 712,
+              "width": 57.765625,
+              "x": 1033.234375,
+              "y": 712
+            },
+            "text": "추가"
+          }
+        ],
+        "footer": {
+          "bottom": 760,
+          "height": 65,
+          "left": 161,
+          "right": 1119,
+          "top": 695,
+          "width": 958,
+          "x": 161,
+          "y": 695
+        },
+        "formGrid": "902px",
+        "items": [
+          {
+            "label": "Source CIDR",
+            "rect": {
+              "bottom": 281,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 219,
+              "width": 902,
+              "x": 189,
+              "y": 219
+            }
+          },
+          {
+            "label": "목적지 CIDR",
+            "rect": {
+              "bottom": 355,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 293,
+              "width": 902,
+              "x": 189,
+              "y": 293
+            }
+          },
+          {
+            "label": "트래픽 유형",
+            "rect": {
+              "bottom": 429,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 367,
+              "width": 902,
+              "x": 189,
+              "y": 367
+            }
+          },
+          {
+            "label": "프로토콜",
+            "rect": {
+              "bottom": 503,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 441,
+              "width": 902,
+              "x": 189,
+              "y": 441
+            }
+          },
+          {
+            "label": "시작 포트",
+            "rect": {
+              "bottom": 577,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 515,
+              "width": 902,
+              "x": 189,
+              "y": 515
+            }
+          },
+          {
+            "label": "종료 포트",
+            "rect": {
+              "bottom": 651,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 589,
+              "width": 902,
+              "x": 189,
+              "y": 589
+            }
+          }
+        ],
+        "labels": [
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "Source CIDR"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "목적지 CIDR"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "트래픽 유형"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "프로토콜"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "시작 포트"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "종료 포트"
+          }
+        ],
+        "rect": {
+          "bottom": 761,
+          "height": 622,
+          "left": 160,
+          "right": 1120,
+          "top": 139,
+          "width": 960,
+          "x": 160,
+          "y": 139
+        }
+      },
+      "document_width": 1270,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 615,
+        "height": 164,
+        "left": 749.109375,
+        "right": 1222.984375,
+        "top": 451,
+        "width": 473.875,
+        "x": 749.109375,
+        "y": 451
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 357,
+              "height": 32,
+              "left": 749.109375,
+              "right": 858.46875,
+              "top": 325,
+              "width": 109.359375,
+              "x": 749.109375,
+              "y": 325
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 357,
+              "height": 32,
+              "left": 866.46875,
+              "right": 972,
+              "top": 325,
+              "width": 105.53125,
+              "x": 866.46875,
+              "y": 325
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 357,
+          "height": 32,
+          "left": 749.109375,
+          "right": 1222.984375,
+          "top": 325,
+          "width": 473.875,
+          "x": 749.109375,
+          "y": 325
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=routing.firewall&review=routing-light",
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    }
+  },
+  {
+    "name": "32-dialog-routing-light-768",
+    "kind": "routing",
+    "mode": "light",
+    "synthetic": true,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 1376.5,
+            "height": 62,
+            "left": 283.78125,
+            "right": 711,
+            "top": 1314.5,
+            "width": 427.21875,
+            "x": 283.78125,
+            "y": 1314.5
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": {
+        "body": {
+          "bottom": 757,
+          "height": 500,
+          "left": 25,
+          "right": 743,
+          "top": 257,
+          "width": 718,
+          "x": 25,
+          "y": 257
+        },
+        "bodyClientWidth": 718,
+        "bodyScrollWidth": 718,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 806,
+              "height": 32,
+              "left": 583.46875,
+              "right": 641.234375,
+              "top": 774,
+              "width": 57.765625,
+              "x": 583.46875,
+              "y": 774
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 806,
+              "height": 32,
+              "left": 657.234375,
+              "right": 715,
+              "top": 774,
+              "width": 57.765625,
+              "x": 657.234375,
+              "y": 774
+            },
+            "text": "추가"
+          }
+        ],
+        "footer": {
+          "bottom": 822,
+          "height": 65,
+          "left": 25,
+          "right": 743,
+          "top": 757,
+          "width": 718,
+          "x": 25,
+          "y": 757
+        },
+        "formGrid": "662px",
+        "items": [
+          {
+            "label": "Source CIDR",
+            "rect": {
+              "bottom": 343,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 281,
+              "width": 662,
+              "x": 53,
+              "y": 281
+            }
+          },
+          {
+            "label": "목적지 CIDR",
+            "rect": {
+              "bottom": 417,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 355,
+              "width": 662,
+              "x": 53,
+              "y": 355
+            }
+          },
+          {
+            "label": "트래픽 유형",
+            "rect": {
+              "bottom": 491,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 429,
+              "width": 662,
+              "x": 53,
+              "y": 429
+            }
+          },
+          {
+            "label": "프로토콜",
+            "rect": {
+              "bottom": 565,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 503,
+              "width": 662,
+              "x": 53,
+              "y": 503
+            }
+          },
+          {
+            "label": "시작 포트",
+            "rect": {
+              "bottom": 639,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 577,
+              "width": 662,
+              "x": 53,
+              "y": 577
+            }
+          },
+          {
+            "label": "종료 포트",
+            "rect": {
+              "bottom": 713,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 651,
+              "width": 662,
+              "x": 53,
+              "y": 651
+            }
+          }
+        ],
+        "labels": [
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "Source CIDR"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "목적지 CIDR"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "트래픽 유형"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "프로토콜"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "시작 포트"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "종료 포트"
+          }
+        ],
+        "rect": {
+          "bottom": 823,
+          "height": 622,
+          "left": 24,
+          "right": 744,
+          "top": 201,
+          "width": 720,
+          "x": 24,
+          "y": 201
+        }
+      },
+      "document_width": 758,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 1552.5,
+        "height": 164,
+        "left": 283.78125,
+        "right": 711,
+        "top": 1388.5,
+        "width": 427.21875,
+        "x": 283.78125,
+        "y": 1388.5
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 1294.5,
+              "height": 32,
+              "left": 283.78125,
+              "right": 393.140625,
+              "top": 1262.5,
+              "width": 109.359375,
+              "x": 283.78125,
+              "y": 1262.5
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 1294.5,
+              "height": 32,
+              "left": 401.140625,
+              "right": 506.671875,
+              "top": 1262.5,
+              "width": 105.53125,
+              "x": 401.140625,
+              "y": 1262.5
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 1294.5,
+          "height": 32,
+          "left": 283.78125,
+          "right": 711,
+          "top": 1262.5,
+          "width": 427.21875,
+          "x": 283.78125,
+          "y": 1262.5
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=routing.firewall&review=routing-light",
+      "viewport": {
+        "height": 1024,
+        "width": 768
+      }
+    }
+  },
+  {
+    "name": "32-dialog-routing-light-390",
+    "kind": "routing",
+    "mode": "light",
+    "synthetic": true,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 1524.5,
+            "height": 84,
+            "left": 37,
+            "right": 333,
+            "top": 1440.5,
+            "width": 296,
+            "x": 37,
+            "y": 1440.5
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": {
+        "body": {
+          "bottom": 659,
+          "height": 484,
+          "left": 13,
+          "right": 377,
+          "top": 175,
+          "width": 364,
+          "x": 13,
+          "y": 175
+        },
+        "bodyClientWidth": 364,
+        "bodyScrollWidth": 364,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 708,
+              "height": 32,
+              "left": 229.46875,
+              "right": 287.234375,
+              "top": 676,
+              "width": 57.765625,
+              "x": 229.46875,
+              "y": 676
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 708,
+              "height": 32,
+              "left": 303.234375,
+              "right": 361,
+              "top": 676,
+              "width": 57.765625,
+              "x": 303.234375,
+              "y": 676
+            },
+            "text": "추가"
+          }
+        ],
+        "footer": {
+          "bottom": 724,
+          "height": 65,
+          "left": 13,
+          "right": 377,
+          "top": 659,
+          "width": 364,
+          "x": 13,
+          "y": 659
+        },
+        "formGrid": "332px",
+        "items": [
+          {
+            "label": "Source CIDR",
+            "rect": {
+              "bottom": 253,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 191,
+              "width": 332,
+              "x": 29,
+              "y": 191
+            }
+          },
+          {
+            "label": "목적지 CIDR",
+            "rect": {
+              "bottom": 327,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 265,
+              "width": 332,
+              "x": 29,
+              "y": 265
+            }
+          },
+          {
+            "label": "트래픽 유형",
+            "rect": {
+              "bottom": 401,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 339,
+              "width": 332,
+              "x": 29,
+              "y": 339
+            }
+          },
+          {
+            "label": "프로토콜",
+            "rect": {
+              "bottom": 475,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 413,
+              "width": 332,
+              "x": 29,
+              "y": 413
+            }
+          },
+          {
+            "label": "시작 포트",
+            "rect": {
+              "bottom": 549,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 487,
+              "width": 332,
+              "x": 29,
+              "y": 487
+            }
+          },
+          {
+            "label": "종료 포트",
+            "rect": {
+              "bottom": 623,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 561,
+              "width": 332,
+              "x": 29,
+              "y": 561
+            }
+          }
+        ],
+        "labels": [
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "Source CIDR"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "목적지 CIDR"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "트래픽 유형"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "프로토콜"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "시작 포트"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "종료 포트"
+          }
+        ],
+        "rect": {
+          "bottom": 725,
+          "height": 606,
+          "left": 12,
+          "right": 378,
+          "top": 119,
+          "width": 366,
+          "x": 12,
+          "y": 119
+        }
+      },
+      "document_width": 380,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 1700.5,
+        "height": 164,
+        "left": 37,
+        "right": 333,
+        "top": 1536.5,
+        "width": 296,
+        "x": 37,
+        "y": 1536.5
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 1420.5,
+              "height": 32,
+              "left": 37,
+              "right": 146.359375,
+              "top": 1388.5,
+              "width": 109.359375,
+              "x": 37,
+              "y": 1388.5
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 1420.5,
+              "height": 32,
+              "left": 154.359375,
+              "right": 259.890625,
+              "top": 1388.5,
+              "width": 105.53125,
+              "x": 154.359375,
+              "y": 1388.5
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 1420.5,
+          "height": 32,
+          "left": 37,
+          "right": 333,
+          "top": 1388.5,
+          "width": 296,
+          "x": 37,
+          "y": 1388.5
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=routing.firewall&review=routing-light",
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    }
+  },
+  {
+    "name": "32-after-ipv6-light-1280",
+    "kind": "ipv6",
+    "mode": "light",
+    "synthetic": true,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 28.0625,
+            "height": 62,
+            "left": 720.578125,
+            "right": 1222.984375,
+            "top": -33.9375,
+            "width": 502.40625,
+            "x": 720.578125,
+            "y": -33.9375
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": null,
+      "document_width": 1270,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 274.0625,
+        "height": 234,
+        "left": 720.578125,
+        "right": 1222.984375,
+        "top": 40.0625,
+        "width": 502.40625,
+        "x": 720.578125,
+        "y": 40.0625
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": -53.9375,
+              "height": 32,
+              "left": 720.578125,
+              "right": 829.9375,
+              "top": -85.9375,
+              "width": 109.359375,
+              "x": 720.578125,
+              "y": -85.9375
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": -53.9375,
+              "height": 32,
+              "left": 837.9375,
+              "right": 943.46875,
+              "top": -85.9375,
+              "width": 105.53125,
+              "x": 837.9375,
+              "y": -85.9375
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": -53.9375,
+          "height": 32,
+          "left": 720.578125,
+          "right": 1222.984375,
+          "top": -85.9375,
+          "width": 502.40625,
+          "x": 720.578125,
+          "y": -85.9375
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=ip.v6.firewall&review=ipv6-light",
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    }
+  },
+  {
+    "name": "32-after-ipv6-light-768",
+    "kind": "ipv6",
+    "mode": "light",
+    "synthetic": true,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 988.25,
+            "height": 62,
+            "left": 255.25,
+            "right": 711,
+            "top": 926.25,
+            "width": 455.75,
+            "x": 255.25,
+            "y": 926.25
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": null,
+      "document_width": 758,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 1256.25,
+        "height": 256,
+        "left": 255.25,
+        "right": 711,
+        "top": 1000.25,
+        "width": 455.75,
+        "x": 255.25,
+        "y": 1000.25
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 906.25,
+              "height": 32,
+              "left": 255.25,
+              "right": 364.609375,
+              "top": 874.25,
+              "width": 109.359375,
+              "x": 255.25,
+              "y": 874.25
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 906.25,
+              "height": 32,
+              "left": 372.609375,
+              "right": 478.140625,
+              "top": 874.25,
+              "width": 105.53125,
+              "x": 372.609375,
+              "y": 874.25
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 906.25,
+          "height": 32,
+          "left": 255.25,
+          "right": 711,
+          "top": 874.25,
+          "width": 455.75,
+          "x": 255.25,
+          "y": 874.25
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=ip.v6.firewall&review=ipv6-light",
+      "viewport": {
+        "height": 1024,
+        "width": 768
+      }
+    }
+  },
+  {
+    "name": "32-after-ipv6-light-390",
+    "kind": "ipv6",
+    "mode": "light",
+    "synthetic": true,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 458.5,
+            "height": 84,
+            "left": 37,
+            "right": 333,
+            "top": 374.5,
+            "width": 296,
+            "x": 37,
+            "y": 374.5
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": null,
+      "document_width": 380,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 758.5,
+        "height": 288,
+        "left": 37,
+        "right": 333,
+        "top": 470.5,
+        "width": 296,
+        "x": 37,
+        "y": 470.5
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 354.5,
+              "height": 32,
+              "left": 37,
+              "right": 146.359375,
+              "top": 322.5,
+              "width": 109.359375,
+              "x": 37,
+              "y": 322.5
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 354.5,
+              "height": 32,
+              "left": 154.359375,
+              "right": 259.890625,
+              "top": 322.5,
+              "width": 105.53125,
+              "x": 154.359375,
+              "y": 322.5
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 354.5,
+          "height": 32,
+          "left": 37,
+          "right": 333,
+          "top": 322.5,
+          "width": 296,
+          "x": 37,
+          "y": 322.5
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=ip.v6.firewall&review=ipv6-light",
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    }
+  },
+  {
+    "name": "32-dialog-ipv6-light-1280",
+    "kind": "ipv6",
+    "mode": "light",
+    "synthetic": true,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 439,
+            "height": 62,
+            "left": 720.578125,
+            "right": 1222.984375,
+            "top": 377,
+            "width": 502.40625,
+            "x": 720.578125,
+            "y": 377
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": {
+        "body": {
+          "bottom": 695,
+          "height": 500,
+          "left": 161,
+          "right": 1119,
+          "top": 195,
+          "width": 958,
+          "x": 161,
+          "y": 195
+        },
+        "bodyClientWidth": 958,
+        "bodyScrollWidth": 958,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 744,
+              "height": 32,
+              "left": 959.46875,
+              "right": 1017.234375,
+              "top": 712,
+              "width": 57.765625,
+              "x": 959.46875,
+              "y": 712
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 744,
+              "height": 32,
+              "left": 1033.234375,
+              "right": 1091,
+              "top": 712,
+              "width": 57.765625,
+              "x": 1033.234375,
+              "y": 712
+            },
+            "text": "추가"
+          }
+        ],
+        "footer": {
+          "bottom": 760,
+          "height": 65,
+          "left": 161,
+          "right": 1119,
+          "top": 695,
+          "width": 958,
+          "x": 161,
+          "y": 695
+        },
+        "formGrid": "902px",
+        "items": [
+          {
+            "label": "Source CIDR",
+            "rect": {
+              "bottom": 281,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 219,
+              "width": 902,
+              "x": 189,
+              "y": 219
+            }
+          },
+          {
+            "label": "목적지 CIDR",
+            "rect": {
+              "bottom": 355,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 293,
+              "width": 902,
+              "x": 189,
+              "y": 293
+            }
+          },
+          {
+            "label": "트래픽 유형",
+            "rect": {
+              "bottom": 429,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 367,
+              "width": 902,
+              "x": 189,
+              "y": 367
+            }
+          },
+          {
+            "label": "프로토콜",
+            "rect": {
+              "bottom": 503,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 441,
+              "width": 902,
+              "x": 189,
+              "y": 441
+            }
+          },
+          {
+            "label": "시작 포트",
+            "rect": {
+              "bottom": 577,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 515,
+              "width": 902,
+              "x": 189,
+              "y": 515
+            }
+          },
+          {
+            "label": "종료 포트",
+            "rect": {
+              "bottom": 651,
+              "height": 62,
+              "left": 189,
+              "right": 1091,
+              "top": 589,
+              "width": 902,
+              "x": 189,
+              "y": 589
+            }
+          }
+        ],
+        "labels": [
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "Source CIDR"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "목적지 CIDR"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "트래픽 유형"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "프로토콜"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "시작 포트"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "종료 포트"
+          }
+        ],
+        "rect": {
+          "bottom": 761,
+          "height": 622,
+          "left": 160,
+          "right": 1120,
+          "top": 139,
+          "width": 960,
+          "x": 160,
+          "y": 139
+        }
+      },
+      "document_width": 1270,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 685,
+        "height": 234,
+        "left": 720.578125,
+        "right": 1222.984375,
+        "top": 451,
+        "width": 502.40625,
+        "x": 720.578125,
+        "y": 451
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 357,
+              "height": 32,
+              "left": 720.578125,
+              "right": 829.9375,
+              "top": 325,
+              "width": 109.359375,
+              "x": 720.578125,
+              "y": 325
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 357,
+              "height": 32,
+              "left": 837.9375,
+              "right": 943.46875,
+              "top": 325,
+              "width": 105.53125,
+              "x": 837.9375,
+              "y": 325
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 357,
+          "height": 32,
+          "left": 720.578125,
+          "right": 1222.984375,
+          "top": 325,
+          "width": 502.40625,
+          "x": 720.578125,
+          "y": 325
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=ip.v6.firewall&review=ipv6-light",
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    }
+  },
+  {
+    "name": "32-dialog-ipv6-light-768",
+    "kind": "ipv6",
+    "mode": "light",
+    "synthetic": true,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 1376.5,
+            "height": 62,
+            "left": 255.25,
+            "right": 711,
+            "top": 1314.5,
+            "width": 455.75,
+            "x": 255.25,
+            "y": 1314.5
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": {
+        "body": {
+          "bottom": 757,
+          "height": 500,
+          "left": 25,
+          "right": 743,
+          "top": 257,
+          "width": 718,
+          "x": 25,
+          "y": 257
+        },
+        "bodyClientWidth": 718,
+        "bodyScrollWidth": 718,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 806,
+              "height": 32,
+              "left": 583.46875,
+              "right": 641.234375,
+              "top": 774,
+              "width": 57.765625,
+              "x": 583.46875,
+              "y": 774
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 806,
+              "height": 32,
+              "left": 657.234375,
+              "right": 715,
+              "top": 774,
+              "width": 57.765625,
+              "x": 657.234375,
+              "y": 774
+            },
+            "text": "추가"
+          }
+        ],
+        "footer": {
+          "bottom": 822,
+          "height": 65,
+          "left": 25,
+          "right": 743,
+          "top": 757,
+          "width": 718,
+          "x": 25,
+          "y": 757
+        },
+        "formGrid": "662px",
+        "items": [
+          {
+            "label": "Source CIDR",
+            "rect": {
+              "bottom": 343,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 281,
+              "width": 662,
+              "x": 53,
+              "y": 281
+            }
+          },
+          {
+            "label": "목적지 CIDR",
+            "rect": {
+              "bottom": 417,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 355,
+              "width": 662,
+              "x": 53,
+              "y": 355
+            }
+          },
+          {
+            "label": "트래픽 유형",
+            "rect": {
+              "bottom": 491,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 429,
+              "width": 662,
+              "x": 53,
+              "y": 429
+            }
+          },
+          {
+            "label": "프로토콜",
+            "rect": {
+              "bottom": 565,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 503,
+              "width": 662,
+              "x": 53,
+              "y": 503
+            }
+          },
+          {
+            "label": "시작 포트",
+            "rect": {
+              "bottom": 639,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 577,
+              "width": 662,
+              "x": 53,
+              "y": 577
+            }
+          },
+          {
+            "label": "종료 포트",
+            "rect": {
+              "bottom": 713,
+              "height": 62,
+              "left": 53,
+              "right": 715,
+              "top": 651,
+              "width": 662,
+              "x": 53,
+              "y": 651
+            }
+          }
+        ],
+        "labels": [
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "Source CIDR"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "목적지 CIDR"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "트래픽 유형"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "프로토콜"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "시작 포트"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "종료 포트"
+          }
+        ],
+        "rect": {
+          "bottom": 823,
+          "height": 622,
+          "left": 24,
+          "right": 744,
+          "top": 201,
+          "width": 720,
+          "x": 24,
+          "y": 201
+        }
+      },
+      "document_width": 758,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 1644.5,
+        "height": 256,
+        "left": 255.25,
+        "right": 711,
+        "top": 1388.5,
+        "width": 455.75,
+        "x": 255.25,
+        "y": 1388.5
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 1294.5,
+              "height": 32,
+              "left": 255.25,
+              "right": 364.609375,
+              "top": 1262.5,
+              "width": 109.359375,
+              "x": 255.25,
+              "y": 1262.5
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 1294.5,
+              "height": 32,
+              "left": 372.609375,
+              "right": 478.140625,
+              "top": 1262.5,
+              "width": 105.53125,
+              "x": 372.609375,
+              "y": 1262.5
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 1294.5,
+          "height": 32,
+          "left": 255.25,
+          "right": 711,
+          "top": 1262.5,
+          "width": 455.75,
+          "x": 255.25,
+          "y": 1262.5
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=ip.v6.firewall&review=ipv6-light",
+      "viewport": {
+        "height": 1024,
+        "width": 768
+      }
+    }
+  },
+  {
+    "name": "32-dialog-ipv6-light-390",
+    "kind": "ipv6",
+    "mode": "light",
+    "synthetic": true,
+    "layout": {
+      "banners": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "rect": {
+            "bottom": 1524.5,
+            "height": 84,
+            "left": 37,
+            "right": 333,
+            "top": 1440.5,
+            "width": 296,
+            "x": 37,
+            "y": 1440.5
+          },
+          "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+        }
+      ],
+      "dark": false,
+      "dialog": {
+        "body": {
+          "bottom": 659,
+          "height": 484,
+          "left": 13,
+          "right": 377,
+          "top": 175,
+          "width": 364,
+          "x": 13,
+          "y": 175
+        },
+        "bodyClientWidth": 364,
+        "bodyScrollWidth": 364,
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 708,
+              "height": 32,
+              "left": 229.46875,
+              "right": 287.234375,
+              "top": 676,
+              "width": 57.765625,
+              "x": 229.46875,
+              "y": 676
+            },
+            "text": "취소"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 708,
+              "height": 32,
+              "left": 303.234375,
+              "right": 361,
+              "top": 676,
+              "width": 57.765625,
+              "x": 303.234375,
+              "y": 676
+            },
+            "text": "추가"
+          }
+        ],
+        "footer": {
+          "bottom": 724,
+          "height": 65,
+          "left": 13,
+          "right": 377,
+          "top": 659,
+          "width": 364,
+          "x": 13,
+          "y": 659
+        },
+        "formGrid": "332px",
+        "items": [
+          {
+            "label": "Source CIDR",
+            "rect": {
+              "bottom": 253,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 191,
+              "width": 332,
+              "x": 29,
+              "y": 191
+            }
+          },
+          {
+            "label": "목적지 CIDR",
+            "rect": {
+              "bottom": 327,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 265,
+              "width": 332,
+              "x": 29,
+              "y": 265
+            }
+          },
+          {
+            "label": "트래픽 유형",
+            "rect": {
+              "bottom": 401,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 339,
+              "width": 332,
+              "x": 29,
+              "y": 339
+            }
+          },
+          {
+            "label": "프로토콜",
+            "rect": {
+              "bottom": 475,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 413,
+              "width": 332,
+              "x": 29,
+              "y": 413
+            }
+          },
+          {
+            "label": "시작 포트",
+            "rect": {
+              "bottom": 549,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 487,
+              "width": 332,
+              "x": 29,
+              "y": 487
+            }
+          },
+          {
+            "label": "종료 포트",
+            "rect": {
+              "bottom": 623,
+              "height": 62,
+              "left": 29,
+              "right": 361,
+              "top": 561,
+              "width": 332,
+              "x": 29,
+              "y": 561
+            }
+          }
+        ],
+        "labels": [
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "Source CIDR"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "목적지 CIDR"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "트래픽 유형"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "프로토콜"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "시작 포트"
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "color": "rgb(31, 41, 55)",
+            "text": "종료 포트"
+          }
+        ],
+        "rect": {
+          "bottom": 725,
+          "height": 606,
+          "left": 12,
+          "right": 378,
+          "top": 119,
+          "width": 366,
+          "x": 12,
+          "y": 119
+        }
+      },
+      "document_width": 380,
+      "guidance_before_table": true,
+      "table": {
+        "bottom": 1824.5,
+        "height": 288,
+        "left": 37,
+        "right": 333,
+        "top": 1536.5,
+        "width": 296,
+        "x": 37,
+        "y": 1536.5
+      },
+      "toolbar": {
+        "buttons": [
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 1420.5,
+              "height": 32,
+              "left": 37,
+              "right": 146.359375,
+              "top": 1388.5,
+              "width": 109.359375,
+              "x": 37,
+              "y": 1388.5
+            },
+            "text": "규칙 추가"
+          },
+          {
+            "disabled": false,
+            "rect": {
+              "bottom": 1420.5,
+              "height": 32,
+              "left": 154.359375,
+              "right": 259.890625,
+              "top": 1388.5,
+              "width": 105.53125,
+              "x": 154.359375,
+              "y": 1388.5
+            },
+            "text": "업데이트"
+          }
+        ],
+        "gap": "8px",
+        "marginBottom": "20px",
+        "rect": {
+          "bottom": 1420.5,
+          "height": 32,
+          "left": 37,
+          "right": 333,
+          "top": 1388.5,
+          "width": 296,
+          "x": 37,
+          "y": 1388.5
+        }
+      },
+      "toolbar_before_guidance": true,
+      "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=ip.v6.firewall&review=ipv6-light",
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    }
+  }
+]

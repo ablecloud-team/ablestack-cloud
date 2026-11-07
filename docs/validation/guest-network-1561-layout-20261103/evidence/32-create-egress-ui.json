@@ -1,0 +1,138 @@
+{
+  "records": [
+    {
+      "requestId": "44156.1881",
+      "command": "createEgressFirewallRule",
+      "method": "POST",
+      "params": {
+        "command": "createEgressFirewallRule",
+        "protocol": "tcp",
+        "cidrlist": "10.1.1.0/24",
+        "destcidrlist": "198.51.100.0/24",
+        "networkid": "1da0930c-3896-46f1-989c-af06da33c5d8",
+        "startport": "18080",
+        "endport": "18080"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "20876215-2755-4728-999a-efe23100f59b"
+      }
+    },
+    {
+      "requestId": "44156.1882",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobId": "20876215-2755-4728-999a-efe23100f59b",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "20876215-2755-4728-999a-efe23100f59b",
+        "jobstatus": 0
+      }
+    },
+    {
+      "requestId": "44156.1884",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobId": "20876215-2755-4728-999a-efe23100f59b",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "20876215-2755-4728-999a-efe23100f59b",
+        "jobstatus": 1
+      }
+    }
+  ],
+  "cursor": 7481,
+  "layout": {
+    "banners": [
+      {
+        "background": [
+          234,
+          244,
+          255
+        ],
+        "color": "rgb(11, 59, 102)",
+        "rect": {
+          "bottom": 401,
+          "height": 62,
+          "left": 720.578125,
+          "right": 1222.984375,
+          "top": 339,
+          "width": 502.40625,
+          "x": 720.578125,
+          "y": 339
+        },
+        "text": "이 네트워크의 기본 송신 정책은 거부입니다.  다음 규칙과 일치하는 발신 트래픽은 허가됨.가 됩니다."
+      }
+    ],
+    "dark": false,
+    "dialog": null,
+    "document_width": 1270,
+    "guidance_before_table": true,
+    "table": {
+      "bottom": 545,
+      "height": 132,
+      "left": 720.578125,
+      "right": 1222.984375,
+      "top": 413,
+      "width": 502.40625,
+      "x": 720.578125,
+      "y": 413
+    },
+    "toolbar": {
+      "buttons": [
+        {
+          "disabled": false,
+          "rect": {
+            "bottom": 319,
+            "height": 32,
+            "left": 720.578125,
+            "right": 829.9375,
+            "top": 287,
+            "width": 109.359375,
+            "x": 720.578125,
+            "y": 287
+          },
+          "text": "규칙 추가"
+        },
+        {
+          "disabled": false,
+          "rect": {
+            "bottom": 319,
+            "height": 32,
+            "left": 837.9375,
+            "right": 943.46875,
+            "top": 287,
+            "width": 105.53125,
+            "x": 837.9375,
+            "y": 287
+          },
+          "text": "업데이트"
+        }
+      ],
+      "gap": "8px",
+      "marginBottom": "20px",
+      "rect": {
+        "bottom": 319,
+        "height": 32,
+        "left": 720.578125,
+        "right": 1222.984375,
+        "top": 287,
+        "width": 502.40625,
+        "x": 720.578125,
+        "y": 287
+      }
+    },
+    "toolbar_before_guidance": true,
+    "url": "http://10.10.32.10:8080/client/#/guestnetwork/1da0930c-3896-46f1-989c-af06da33c5d8?tab=egress.rules&layout=DualStack2",
+    "viewport": {
+      "height": 900,
+      "width": 1280
+    }
+  }
+}

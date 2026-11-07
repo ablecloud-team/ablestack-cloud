@@ -1,0 +1,53 @@
+{
+  "apiFullCheckstyleErrors": [
+    {
+      "file": "api/src/main/java/org/apache/cloudstack/api/command/user/vm/CleanupVMCloneBatchCmd.java",
+      "line": "19",
+      "severity": "error",
+      "message": "Using the '.*' form of import should be avoided - org.apache.cloudstack.api.*.",
+      "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck"
+    },
+    {
+      "file": "api/src/test/java/com/cloud/storage/VolumeAllocationCloneTest.java",
+      "line": "17",
+      "severity": "error",
+      "message": "Using the '.*' form of import should be avoided - org.junit.Assert.*.",
+      "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck"
+    },
+    {
+      "file": "api/src/test/java/org/apache/cloudstack/api/command/user/vm/CloneVMCmdTest.java",
+      "line": "23",
+      "severity": "error",
+      "message": "Using the '.*' form of import should be avoided - org.junit.Assert.*.",
+      "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck"
+    },
+    {
+      "file": "api/src/test/java/org/apache/cloudstack/api/command/user/vm/CloneVMCmdTest.java",
+      "line": "24",
+      "severity": "error",
+      "message": "Using the '.*' form of import should be avoided - org.mockito.Mockito.*.",
+      "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck"
+    },
+    {
+      "file": "api/src/test/java/org/apache/cloudstack/api/command/user/vm/VmCloneBatchResponseTest.java",
+      "line": "19",
+      "severity": "error",
+      "message": "Using the '.*' form of import should be avoided - org.junit.Assert.*.",
+      "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck"
+    },
+    {
+      "file": "api/src/test/java/org/apache/cloudstack/api/command/user/config/CapabilitiesSnapshotPolicyTest.java",
+      "line": "13",
+      "severity": "error",
+      "message": "Using the '.*' form of import should be avoided - org.junit.Assert.*.",
+      "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck"
+    }
+  ],
+  "changedFilesScanned": [
+    "api/src/main/java/org/apache/cloudstack/api/command/admin/network/UpdateNetworkCmdByAdmin.java",
+    "api/src/test/java/org/apache/cloudstack/api/command/admin/network/UpdateNetworkUsageCmdTest.java"
+  ],
+  "changedFileErrors": 0,
+  "unrelatedErrorFilesUnchangedSince": "256d7a10ab0331da1377d64a301da317549d5179",
+  "usageCheckstyle": "PASS"
+}

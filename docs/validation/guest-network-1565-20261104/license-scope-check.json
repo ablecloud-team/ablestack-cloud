@@ -1,0 +1,46 @@
+{
+  "tool": "Apache RAT 0.12 CLI -x, explicit changed-file subset",
+  "files": [
+    {
+      "name": "docs/validation/guest-network-1565-20261104/README.ko.md",
+      "approved": "true"
+    },
+    {
+      "name": "docs/validation/guest-network-1565-20261104/build-final-tail.txt",
+      "approved": "true"
+    },
+    {
+      "name": "docs/validation/guest-network-1565-20261104/license-final-tail.txt",
+      "approved": "true"
+    },
+    {
+      "name": "docs/validation/guest-network-1565-20261104/lint-cancel-tail.txt",
+      "approved": "true"
+    },
+    {
+      "name": "docs/validation/guest-network-1565-20261104/lint-final-tail.txt",
+      "approved": "true"
+    },
+    {
+      "name": "docs/validation/guest-network-1565-20261104/resources.ko.md",
+      "approved": "true"
+    },
+    {
+      "name": "docs/validation/guest-network-1565-20261104/screenshots.ko.md",
+      "approved": "true"
+    },
+    {
+      "name": "docs/validation/guest-network-1565-20261104/unit-final-tail.txt",
+      "approved": "true"
+    },
+    {
+      "name": "ui/src/components/view/NetworkSearchSelect.vue",
+      "approved": "true"
+    },
+    {
+      "name": "ui/src/views/offering/NetworkOfferingUsage.vue",
+      "approved": "true"
+    }
+  ],
+  "unapproved": 0
+}

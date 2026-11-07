@@ -1,0 +1,190 @@
+{
+  "cluster": 32,
+  "label": "32-terminal-job-failure",
+  "records": [
+    {
+      "cluster": 32,
+      "requestId": "20636.1716",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+        "listall": "true",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1717",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "e8d9487d-f70b-451f-8a58-7d26e8bfdc79",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1718",
+      "command": "listRouters",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "networkid": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+        "command": "listRouters"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1720",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+        "listall": "true",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1721",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "e8d9487d-f70b-451f-8a58-7d26e8bfdc79",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1722",
+      "command": "listRouters",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "networkid": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+        "command": "listRouters"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1723",
+      "command": "restartNetwork",
+      "method": "POST",
+      "params": {
+        "command": "restartNetwork",
+        "id": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+        "cleanup": "false",
+        "makeredundant": "false",
+        "livepatch": "false"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1724",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "15590000-0000-4000-8000-000000000000",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1725",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "id": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 32,
+      "requestId": "20636.1726",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "id": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "status": 200
+    }
+  ],
+  "before": [
+    {
+      "id": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+      "status": "idle",
+      "text": "qa-gn1559-32-b\nIsolated · Implemented · admin\ne1fd3f61-0cfc-4027-b0ca-6537e9ba71de\n대기"
+    }
+  ],
+  "rows": [
+    {
+      "id": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+      "status": "failed",
+      "text": "qa-gn1559-32-b\nIsolated · Implemented · admin\ne1fd3f61-0cfc-4027-b0ca-6537e9ba71de\n실패\nQA terminal job failure (synthetic; no restart executed)\n작업: 15590000-0000-4000-8000-000000000000"
+    }
+  ],
+  "responses": [
+    {
+      "request": {
+        "cluster": 32,
+        "requestId": "20636.1723",
+        "command": "restartNetwork",
+        "method": "POST",
+        "params": {
+          "command": "restartNetwork",
+          "id": "e1fd3f61-0cfc-4027-b0ca-6537e9ba71de",
+          "cleanup": "false",
+          "makeredundant": "false",
+          "livepatch": "false"
+        },
+        "status": 200
+      },
+      "result": {
+        "restartnetworkresponse": {
+          "jobid": "15590000-0000-4000-8000-000000000000"
+        }
+      }
+    },
+    {
+      "request": {
+        "cluster": 32,
+        "requestId": "20636.1724",
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobid": "15590000-0000-4000-8000-000000000000",
+          "command": "queryAsyncJobResult"
+        },
+        "status": 200
+      },
+      "result": {
+        "queryasyncjobresultresponse": {
+          "jobid": "15590000-0000-4000-8000-000000000000",
+          "jobstatus": 2,
+          "jobresultcode": 530,
+          "jobresult": {
+            "errorcode": 530,
+            "errortext": "QA terminal job failure (synthetic; no restart executed)"
+          }
+        }
+      }
+    }
+  ]
+}

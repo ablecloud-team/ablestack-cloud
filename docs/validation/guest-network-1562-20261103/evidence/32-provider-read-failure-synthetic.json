@@ -1,0 +1,140 @@
+{
+  "synthetic": true,
+  "injected": 1,
+  "layout": {
+    "dark": true,
+    "dialog": {
+      "body": {
+        "bottom": 766,
+        "height": 698,
+        "left": 13,
+        "right": 377,
+        "top": 68,
+        "width": 364,
+        "x": 13,
+        "y": 68
+      },
+      "bodyClientWidth": 354,
+      "bodyScrollWidth": 354,
+      "diagnostics": {
+        "busy": "false",
+        "error": true,
+        "rect": {
+          "bottom": 548.421875,
+          "height": 143.421875,
+          "left": 29,
+          "right": 351,
+          "top": 405,
+          "width": 322,
+          "x": 29,
+          "y": 405
+        },
+        "success": false,
+        "text": "서비스·제공자 확인서비스·제공자 구성을 조회하지 못했습니다. 다시 확인한 뒤 적용해 주세요.",
+        "texts": [
+          {
+            "background": [
+              34,
+              40,
+              47
+            ],
+            "color": "rgb(240, 243, 246)",
+            "text": "서비스·제공자 확인"
+          },
+          {
+            "background": [
+              64.94,
+              45.18,
+              51.48
+            ],
+            "color": "rgb(255, 210, 210)",
+            "text": "서비스·제공자 구성을 조회하지 못했습니다. 다시 확인한 뒤 적용해 주세요."
+          },
+          {
+            "background": [
+              64.94,
+              45.18,
+              51.48
+            ],
+            "color": "rgb(255, 210, 210)",
+            "text": ""
+          }
+        ],
+        "warning": false
+      },
+      "footer": {
+        "bottom": 831,
+        "height": 65,
+        "left": 13,
+        "right": 377,
+        "top": 766,
+        "width": 364,
+        "x": 13,
+        "y": 766
+      },
+      "footerButtons": [
+        {
+          "disabled": false,
+          "rect": {
+            "bottom": 815,
+            "height": 32,
+            "left": 170.28125,
+            "right": 228.046875,
+            "top": 783,
+            "width": 57.765625,
+            "x": 170.28125,
+            "y": 783
+          },
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "rect": {
+            "bottom": 815,
+            "height": 32,
+            "left": 244.046875,
+            "right": 361,
+            "top": 783,
+            "width": 116.953125,
+            "x": 244.046875,
+            "y": 783
+          },
+          "text": "변경 내용 확인"
+        }
+      ],
+      "rect": {
+        "bottom": 832,
+        "height": 820,
+        "left": 12,
+        "right": 378,
+        "top": 12,
+        "width": 366,
+        "x": 12,
+        "y": 12
+      },
+      "scrollers": [
+        {
+          "className": "ant-modal-body",
+          "clientHeight": 698,
+          "rect": {
+            "bottom": 766,
+            "height": 698,
+            "left": 13,
+            "right": 377,
+            "top": 68,
+            "width": 364,
+            "x": 13,
+            "y": 68
+          },
+          "scrollHeight": 2645
+        }
+      ]
+    },
+    "document_width": 380,
+    "url": "http://10.10.32.10:8080/client/#/guestnetwork/5449857d-5504-4c40-b749-fdccfb09b527",
+    "viewport": {
+      "height": 844,
+      "width": 390
+    }
+  }
+}

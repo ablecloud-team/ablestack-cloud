@@ -1,0 +1,214 @@
+{
+  "nat": {
+    "network": "caea7915-8bed-4265-94e5-22748cbee88e",
+    "vm": "0f2ccdef-031c-41d1-b993-fb6edfdb1d39",
+    "host": "10.10.31.2",
+    "nicIp": "10.171.31.248",
+    "sshExit": 255,
+    "sshReason": [
+      "kex_exchange_identification: Connection closed by remote host",
+      "Connection closed by UNKNOWN port 65535"
+    ]
+  },
+  "nosnat": {
+    "network": "eac5e03a-07c9-4d23-99ec-0f74d5c5349f",
+    "vm": "dddeac1b-95e8-46a0-960f-b969f900f02f",
+    "host": "10.10.31.1",
+    "nicIp": "10.172.31.50",
+    "sshExit": 255,
+    "sshReason": [
+      "Warning: Permanently added '10.172.31.50' (ED25519) to the list of known hosts.",
+      "qa-net@10.172.31.50: Permission denied (publickey,gssapi-keyex,gssapi-with-mic,password)."
+    ]
+  },
+  "static": {
+    "network": "0fa185ab-1fc1-4e89-bd23-eec3e97269bb",
+    "vm": "4fc03925-e497-40f6-9b76-51ef31ab7d2d",
+    "host": "10.10.31.3",
+    "nicIp": "10.173.31.6",
+    "sshExit": 0,
+    "guest": {
+      "addresses": [
+        {
+          "ifindex": 1,
+          "ifname": "lo",
+          "flags": [
+            "LOOPBACK",
+            "UP",
+            "LOWER_UP"
+          ],
+          "mtu": 65536,
+          "qdisc": "noqueue",
+          "operstate": "UNKNOWN",
+          "group": "default",
+          "txqlen": 1000,
+          "addr_info": [
+            {
+              "family": "inet",
+              "local": "127.0.0.1",
+              "prefixlen": 8,
+              "scope": "host",
+              "label": "lo",
+              "valid_life_time": 4294967295,
+              "preferred_life_time": 4294967295
+            }
+          ]
+        },
+        {
+          "ifindex": 2,
+          "ifname": "ens3",
+          "flags": [
+            "BROADCAST",
+            "MULTICAST",
+            "UP",
+            "LOWER_UP"
+          ],
+          "mtu": 1500,
+          "qdisc": "fq_codel",
+          "operstate": "UP",
+          "group": "default",
+          "txqlen": 1000,
+          "altnames": [
+            "enp0s3"
+          ],
+          "addr_info": [
+            {
+              "family": "inet",
+              "local": "10.173.31.6",
+              "prefixlen": 27,
+              "broadcast": "10.173.31.31",
+              "scope": "global",
+              "noprefixroute": true,
+              "label": "ens3",
+              "valid_life_time": 4294967295,
+              "preferred_life_time": 4294967295
+            }
+          ]
+        }
+      ],
+      "routes": [
+        {
+          "dst": "default",
+          "gateway": "10.173.31.1",
+          "dev": "ens3",
+          "protocol": "dhcp",
+          "prefsrc": "10.173.31.6",
+          "metric": 100,
+          "flags": []
+        },
+        {
+          "dst": "10.173.31.0/27",
+          "dev": "ens3",
+          "protocol": "kernel",
+          "scope": "link",
+          "prefsrc": "10.173.31.6",
+          "metric": 100,
+          "flags": []
+        }
+      ],
+      "resolvers": [
+        "search cs19fcloud.internal",
+        "nameserver 10.173.31.1",
+        "nameserver 8.8.8.8"
+      ],
+      "gatewayPing": 0,
+      "addressMatchesNic": true,
+      "defaultGatewayMatchesNic": true
+    }
+  },
+  "vpc": {
+    "network": "b51cf142-4a0d-4131-b690-28f04704552c",
+    "vm": "19e6e147-217c-4f6a-b8f8-8a96ea83bcdb",
+    "host": "10.10.31.3",
+    "nicIp": "10.170.31.29",
+    "sshExit": 0,
+    "guest": {
+      "addresses": [
+        {
+          "ifindex": 1,
+          "ifname": "lo",
+          "flags": [
+            "LOOPBACK",
+            "UP",
+            "LOWER_UP"
+          ],
+          "mtu": 65536,
+          "qdisc": "noqueue",
+          "operstate": "UNKNOWN",
+          "group": "default",
+          "txqlen": 1000,
+          "addr_info": [
+            {
+              "family": "inet",
+              "local": "127.0.0.1",
+              "prefixlen": 8,
+              "scope": "host",
+              "label": "lo",
+              "valid_life_time": 4294967295,
+              "preferred_life_time": 4294967295
+            }
+          ]
+        },
+        {
+          "ifindex": 2,
+          "ifname": "ens3",
+          "flags": [
+            "BROADCAST",
+            "MULTICAST",
+            "UP",
+            "LOWER_UP"
+          ],
+          "mtu": 1500,
+          "qdisc": "fq_codel",
+          "operstate": "UP",
+          "group": "default",
+          "txqlen": 1000,
+          "altnames": [
+            "enp0s3"
+          ],
+          "addr_info": [
+            {
+              "family": "inet",
+              "local": "10.170.31.29",
+              "prefixlen": 27,
+              "broadcast": "10.170.31.31",
+              "scope": "global",
+              "noprefixroute": true,
+              "label": "ens3",
+              "valid_life_time": 4294967295,
+              "preferred_life_time": 4294967295
+            }
+          ]
+        }
+      ],
+      "routes": [
+        {
+          "dst": "default",
+          "gateway": "10.170.31.1",
+          "dev": "ens3",
+          "protocol": "dhcp",
+          "prefsrc": "10.170.31.29",
+          "metric": 100,
+          "flags": []
+        },
+        {
+          "dst": "10.170.31.0/27",
+          "dev": "ens3",
+          "protocol": "kernel",
+          "scope": "link",
+          "prefsrc": "10.170.31.29",
+          "metric": 100,
+          "flags": []
+        }
+      ],
+      "resolvers": [
+        "search cs19fcloud.internal",
+        "nameserver 10.170.31.1",
+        "nameserver 8.8.8.8"
+      ],
+      "gatewayPing": 0,
+      "addressMatchesNic": true,
+      "defaultGatewayMatchesNic": true
+    }
+  }
+}

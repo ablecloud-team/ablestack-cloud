@@ -1,0 +1,14 @@
+{
+  "url": "https://www.haproxy.org/download/2.6/src/haproxy-2.6.12.tar.gz",
+  "archiveSha256": "58f9edb26bf3288f4b502658399281cc5d6478468bd178eafe579c8f41895854",
+  "snippets": [
+    {
+      "file": "haproxy-2.6.12/src/haproxy.c",
+      "line": 2428
+    },
+    {
+      "file": "haproxy-2.6.12/src/cfgparse-global.c",
+      "line": 607
+    }
+  ]
+}

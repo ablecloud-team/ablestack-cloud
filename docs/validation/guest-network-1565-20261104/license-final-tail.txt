@@ -1,0 +1,37 @@
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+
+build	RAT licence checks	2026-11-04T09:49:30.8123134Z [INFO] Exclude: .gitattributes
+build	RAT licence checks	2026-11-04T09:49:30.8123575Z [INFO] Exclude: .github/workflows/*.md
+build	RAT licence checks	2026-11-04T09:49:30.8124435Z [INFO] Exclude: .github/workflows/*.lock.ya?ml
+build	RAT licence checks	2026-11-04T09:49:30.8125029Z [INFO] Exclude: .github/aw/**
+build	RAT licence checks	2026-11-04T09:49:31.1959633Z [INFO] 29443 resources included (use -debug for more details)
+build	RAT licence checks	2026-11-04T09:49:35.7024861Z [INFO] Rat check: Summary over all files. Unapproved: 3540, unknown: 3540, generated: 0, approved: 14305 licenses.
+build	RAT licence checks	2026-11-04T09:49:35.7045459Z [INFO] ------------------------------------------------------------------------
+build	RAT licence checks	2026-11-04T09:49:35.7046320Z [INFO] BUILD FAILURE
+build	RAT licence checks	2026-11-04T09:49:35.7046828Z [INFO] ------------------------------------------------------------------------
+build	RAT licence checks	2026-11-04T09:49:35.7047911Z [INFO] Total time:  16.835 s
+build	RAT licence checks	2026-11-04T09:49:35.7069810Z [INFO] Finished at: 2026-11-04T09:49:35Z
+build	RAT licence checks	2026-11-04T09:49:35.7070476Z [INFO] ------------------------------------------------------------------------
+build	RAT licence checks	2026-11-04T09:49:35.7072110Z [ERROR] Failed to execute goal org.apache.rat:apache-rat-plugin:0.12:check (default-cli) on project cloudstack: Too many files with unapproved license: 3540 See RAT report in: /home/runner/work/ablestack-cloud/ablestack-cloud/target/rat.txt -> [Help 1]
+build	RAT licence checks	2026-11-04T09:49:35.7073519Z [ERROR] 
+build	RAT licence checks	2026-11-04T09:49:35.7074096Z [ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+build	RAT licence checks	2026-11-04T09:49:35.7075054Z [ERROR] Re-run Maven using the -X switch to enable full debug logging.
+build	RAT licence checks	2026-11-04T09:49:35.7075607Z [ERROR] 
+build	RAT licence checks	2026-11-04T09:49:35.7076290Z [ERROR] For more information about the errors and possible solutions, please read the following articles:
+build	RAT licence checks	2026-11-04T09:49:35.7077230Z [ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+build	RAT licence checks	2026-11-04T09:49:35.7381779Z ##[error]Process completed with exit code 1.

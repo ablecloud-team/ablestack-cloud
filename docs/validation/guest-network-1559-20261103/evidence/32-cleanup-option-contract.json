@@ -1,0 +1,6 @@
+{
+  "cleanup": "true",
+  "livepatch": "false",
+  "livepatchEnabled": false,
+  "redundancyEnabled": false
+}

@@ -1,0 +1,10 @@
+{
+  "markers": {
+    "revalidating API permissions": true,
+    "Project discovery scope changed": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  },
+  "webInfPresent": true
+}

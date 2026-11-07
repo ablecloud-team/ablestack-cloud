@@ -74,6 +74,7 @@
                   <AffinityGroupPolicy v-if="resource.type && $route.meta.name === 'affinitygroup'" :type="resource.type" compact />
                   <a-tag v-else-if="resource.type">
                     <span v-if="['USER.LOGIN', 'USER.LOGOUT', 'ROUTER.HEALTH.CHECKS', 'FIREWALL.CLOSE', 'ALERT.SERVICE.DOMAINROUTER'].includes(resource.type)">{{ $t(resource.type.toLowerCase()) }}</span>
+                    <span v-else-if="$route.meta.name === 'guestnetwork'">{{ $t(networkTypeLabel(resource.type)) }}</span>
                     <span v-else>
                       {{ resource.type }}
                     </span>
@@ -709,12 +710,15 @@
                 <resource-label :resourceType="resource.resourcetype" :resourceId="resource.resourceid" :resourceName="resource.resourcename" />
               </div>
             </div>
-            <div class="resource-detail-item" v-if="resource.virtualmachineid && $route.meta.name !== 'snapshot'">
+            <div class="resource-detail-item" v-if="(resource.virtualmachineid || $route.meta.name === 'publicip') && $route.meta.name !== 'snapshot'">
               <div class="resource-detail-item__label">{{ $t('label.vmname') }}</div>
               <div class="resource-detail-item__details">
-                <desktop-outlined />
-                <router-link v-if="volumeVmPath(resource, $router)" :to="{ path: volumeVmPath(resource, $router) }">{{ resource.vmname || resource.vm || resource.virtualmachinename || resource.virtualmachineid }} </router-link>
-                <span v-else>{{ resource.vmname || resource.virtualmachinename || resource.virtualmachineid }}</span>
+                <network-ip-vm-link v-if="$route.meta.name === 'publicip'" :record="resource" />
+                <template v-else>
+                  <desktop-outlined />
+                  <router-link v-if="volumeVmPath(resource, $router)" :to="{ path: volumeVmPath(resource, $router) }">{{ resource.vmname || resource.vm || resource.virtualmachinename || resource.virtualmachineid }} </router-link>
+                  <span v-else>{{ resource.vmname || resource.virtualmachinename || resource.virtualmachineid }}</span>
+                </template>
                 <status class="status status--end" :text="resource.vmstate" v-if="resource.vmstate"/>
               </div>
             </div>
@@ -1136,7 +1140,10 @@
 </template>
 
 <script>
+import { networkTypeLabel } from '@/utils/networkLifecycle'
+import { offeringNetworkQuery } from '@/utils/guestNetworkSearch'
 import { volumeVmPath } from '@/utils/storageUi'
+import NetworkIpVmLink from '@/components/widgets/NetworkIpVmLink'
 import { policyVolumePath } from '@/utils/snapshotPolicyDetail'
 import { creationVmOsName } from '@/utils/creationVmPresentation'
 import BucketUsageStatus from '@/components/view/BucketUsageStatus'
@@ -1166,6 +1173,7 @@ import ResourceContextMenu from '@/components/view/ResourceContextMenu'
 export default {
   name: 'InfoCard',
   components: {
+    NetworkIpVmLink,
     BucketUsageStatus,
     AffinityGroupPolicy,
     Console,
@@ -1376,6 +1384,7 @@ export default {
     }
   },
   methods: {
+    networkTypeLabel,
     policyVolumePath,
     volumeVmPath,
     sshKeyPairNameLink,
@@ -1580,6 +1589,7 @@ export default {
       return ['Admin'].includes(this.$store.getters.userInfo.roletype)
     },
     getRouterQuery (item) {
+      if (item.param === 'networkofferingid' && item.name === 'guestnetwork') return offeringNetworkQuery(this.resource, this.$route, this.$store.getters)
       const query = {}
       if (item.value) {
         query[item.param] = this.resource[item.value]

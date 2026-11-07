@@ -1,0 +1,32 @@
+{
+  "maxId": 13485,
+  "count": 13485,
+  "sha256": "973c44d2be907de3182d771c18469c8720be5b6f8f25bc794437baf391bd407e",
+  "fields": [
+    "id",
+    "zone_id",
+    "account_id",
+    "domain_id",
+    "description",
+    "usage_display",
+    "usage_type",
+    "raw_usage",
+    "vm_instance_id",
+    "vm_name",
+    "offering_id",
+    "template_id",
+    "usage_id",
+    "type",
+    "size",
+    "network_id",
+    "start_date",
+    "end_date",
+    "virtual_size",
+    "cpu_speed",
+    "cpu_cores",
+    "memory",
+    "is_hidden",
+    "state"
+  ],
+  "unchanged": true
+}

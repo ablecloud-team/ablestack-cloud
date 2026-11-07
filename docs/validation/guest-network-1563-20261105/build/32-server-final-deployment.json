@@ -1,0 +1,24 @@
+{
+  "jarSha256": "488e7dbd7c89081108db157ce1fbc656646cd9e26671a9624498707cdd2283a4",
+  "classSha256": {
+    "com/cloud/network/NetworkServiceImpl$6.class": "c7f3e29ce53ec4b6d24added5d0204b564059c664955fe43112f6b0274ab24f2",
+    "com/cloud/network/NetworkServiceImpl$12.class": "25cdb54945c7be2a71082ff1386ddc9833ffa3dc4b3c6c9633b948061d1f738d",
+    "com/cloud/network/NetworkServiceImpl$13.class": "2ca5bf4eb98e236ed9e22fd1b63a20098db1442de92f77f5bed71bd57edf8950",
+    "com/cloud/network/NetworkServiceImpl$7.class": "05ed339d5124f3e7646bc3d019fdc9a90513f235903fcc181388a1905276394d",
+    "com/cloud/network/NetworkServiceImpl$8.class": "f89717723b27adfcf098eba228257a70f80c43edbd2f3802ee6885dc57e33b48",
+    "com/cloud/network/NetworkServiceImpl$11.class": "5c9f0395be7ad29876f38dbdda4cc9aa88c36a2b59823281969711a0be9de06d",
+    "com/cloud/network/NetworkServiceImpl$9.class": "b0a2914c3d03620c039ea435080c1328d966e1ea061905271bce5274a8f43c9e",
+    "com/cloud/network/NetworkServiceImpl$10.class": "e361c9bed86055964ea6f239d853e33746cbe53432f83f57ffe28a266f645684",
+    "com/cloud/network/NetworkServiceImpl.class": "f27f43996663ebfc316819e818bbc0a173709d915d68415a01c7ff967b606fa2"
+  },
+  "beforePID": "954781",
+  "afterPID": "957795",
+  "WEB-INF": true,
+  "protectedStaticUnchanged": true,
+  "http": 200,
+  "restartSeconds": 43.3,
+  "diskFree": 516345856,
+  "cluster": 32,
+  "stage": "/dev/shm/gn1563-server-20261105-232758",
+  "backup": "/home/ablecloud/work/guest-network-1563-validation/management-vlan-1563.jar"
+}

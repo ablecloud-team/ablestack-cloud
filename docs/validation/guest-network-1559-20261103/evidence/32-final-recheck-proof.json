@@ -1,0 +1,13 @@
+{
+  "restart_posts": 1,
+  "job_ids": [
+    "e07d8423-449f-4985-8c50-92134b2ecaee"
+  ],
+  "rows": [
+    {
+      "id": "18396f3e-b560-45de-ba65-c04b05b535be",
+      "status": "success",
+      "text": "qa-gn1559-32-shared\nShared · Setup · ROOT\n18396f3e-b560-45de-ba65-c04b05b535be\n완료\n작업: e07d8423-449f-4985-8c50-92134b2ecaee"
+    }
+  ]
+}

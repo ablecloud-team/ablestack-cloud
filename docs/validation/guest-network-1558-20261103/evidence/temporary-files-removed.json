@@ -1,0 +1,5 @@
+{
+  "initial_and_final_remote_tmpfs_staging": true,
+  "no_fixture_private_keys_or_host_trust_files_created": true,
+  "durable_WSL_backups_preserved": true
+}

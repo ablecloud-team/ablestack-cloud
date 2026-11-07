@@ -1,0 +1,6 @@
+{
+  "url": "http://10.10.32.10:8080/client/#/guestnetwork/ad365a9b-7ac2-40f4-8df8-b028fc10fc3a?tab=function(e)%7Breturn%22Shared%22%3D%3D%3De.type%3F%22ip.addresses%22%3A%22public.ip.addresses%22%7D",
+  "selected": [
+    "IP Addresses"
+  ]
+}

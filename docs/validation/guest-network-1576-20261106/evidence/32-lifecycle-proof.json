@@ -1,0 +1,16 @@
+{
+  "stateChange": "UI and post-VM API recheck",
+  "states": [
+    "Disabled",
+    "Enabled"
+  ],
+  "candidate": [
+    false,
+    true
+  ],
+  "sameRunningVm": true,
+  "sameNic": true,
+  "sameNetworkServices": true,
+  "sharedCloneRateMbps": 321,
+  "sameSharedCloneScopeAndServices": true
+}

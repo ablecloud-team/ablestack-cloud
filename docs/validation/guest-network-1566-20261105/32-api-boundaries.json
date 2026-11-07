@@ -1,0 +1,1525 @@
+{
+  "operations": [
+    {
+      "command": "createNetworkOffering",
+      "params": {
+        "name": "qa-gn1566-32-api-create-verified",
+        "displaytext": "#1566 API and DB boundary only, not applied to a network",
+        "guestiptype": "Isolated",
+        "traffictype": "Guest",
+        "supportedservices": "Dns,Dhcp,SourceNat,StaticNat,Lb,Vpn,UserData,PortForwarding,Firewall",
+        "maxconnections": 321,
+        "keepaliveenabled": "true",
+        "availability": "Optional",
+        "enable": "true",
+        "serviceproviderlist[0].service": "Dns",
+        "serviceproviderlist[0].provider": "VirtualRouter",
+        "serviceproviderlist[1].service": "Dhcp",
+        "serviceproviderlist[1].provider": "VirtualRouter",
+        "serviceproviderlist[2].service": "SourceNat",
+        "serviceproviderlist[2].provider": "VirtualRouter",
+        "serviceproviderlist[3].service": "StaticNat",
+        "serviceproviderlist[3].provider": "VirtualRouter",
+        "serviceproviderlist[4].service": "Lb",
+        "serviceproviderlist[4].provider": "VirtualRouter",
+        "serviceproviderlist[5].service": "Vpn",
+        "serviceproviderlist[5].provider": "VirtualRouter",
+        "serviceproviderlist[6].service": "UserData",
+        "serviceproviderlist[6].provider": "VirtualRouter",
+        "serviceproviderlist[7].service": "PortForwarding",
+        "serviceproviderlist[7].provider": "VirtualRouter",
+        "serviceproviderlist[8].service": "Firewall",
+        "serviceproviderlist[8].provider": "VirtualRouter"
+      },
+      "response": {
+        "networkoffering": {
+          "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+          "name": "qa-gn1566-32-api-create-verified",
+          "displaytext": "#1566 API and DB boundary only, not applied to a network",
+          "created": "2026-11-05T15:47:42+0900",
+          "traffictype": "Guest",
+          "isdefault": false,
+          "specifyvlan": false,
+          "conservemode": true,
+          "specifyipranges": false,
+          "availability": "Optional",
+          "networkrate": 10000,
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "serviceofferingid": "c4176ed2-9166-468e-97f7-50bfc5d33fb3",
+          "service": [
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "SourceNat",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "SupportedSourceNatTypes",
+                  "value": "peraccount",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "RedundantRouter",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "StaticNat",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "ElasticIp",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "AssociatePublicIP",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Lb",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "SupportedLBIsolation",
+                  "value": "shared",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "ElasticLb",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "InlineMode",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "VmAutoScaling",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Vpn",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "PortForwarding",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Firewall",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            }
+          ],
+          "forvpc": false,
+          "fornsx": false,
+          "fortungsten": false,
+          "ispersistent": false,
+          "egressdefaultpolicy": true,
+          "maxconnections": 321,
+          "keepaliveenabled": true,
+          "supportsstrechedl2subnet": false,
+          "supportspublicaccess": false,
+          "supportsinternallb": false,
+          "internetprotocol": "IPv4",
+          "specifyasnumber": false,
+          "hasannotations": false
+        }
+      }
+    },
+    {
+      "command": "updateNetworkOffering",
+      "params": {
+        "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+        "maxconnections": 0
+      },
+      "response": {
+        "networkoffering": {
+          "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+          "name": "qa-gn1566-32-api-create-verified",
+          "displaytext": "#1566 API and DB boundary only, not applied to a network",
+          "created": "2026-11-05T15:47:42+0900",
+          "traffictype": "Guest",
+          "isdefault": false,
+          "specifyvlan": false,
+          "conservemode": true,
+          "specifyipranges": false,
+          "availability": "Optional",
+          "networkrate": 10000,
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "serviceofferingid": "c4176ed2-9166-468e-97f7-50bfc5d33fb3",
+          "service": [
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "SourceNat",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "SupportedSourceNatTypes",
+                  "value": "peraccount",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "RedundantRouter",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "StaticNat",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "ElasticIp",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "AssociatePublicIP",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Lb",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "SupportedLBIsolation",
+                  "value": "shared",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "ElasticLb",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "InlineMode",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "VmAutoScaling",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Vpn",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "PortForwarding",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Firewall",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            }
+          ],
+          "forvpc": false,
+          "fornsx": false,
+          "fortungsten": false,
+          "ispersistent": false,
+          "egressdefaultpolicy": true,
+          "maxconnections": 0,
+          "keepaliveenabled": true,
+          "supportsstrechedl2subnet": false,
+          "supportspublicaccess": false,
+          "supportsinternallb": false,
+          "internetprotocol": "IPv4",
+          "specifyasnumber": false,
+          "hasannotations": false
+        }
+      }
+    },
+    {
+      "command": "updateNetworkOffering",
+      "params": {
+        "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+        "maxconnections": 1
+      },
+      "response": {
+        "networkoffering": {
+          "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+          "name": "qa-gn1566-32-api-create-verified",
+          "displaytext": "#1566 API and DB boundary only, not applied to a network",
+          "created": "2026-11-05T15:47:42+0900",
+          "traffictype": "Guest",
+          "isdefault": false,
+          "specifyvlan": false,
+          "conservemode": true,
+          "specifyipranges": false,
+          "availability": "Optional",
+          "networkrate": 10000,
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "serviceofferingid": "c4176ed2-9166-468e-97f7-50bfc5d33fb3",
+          "service": [
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "SourceNat",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "SupportedSourceNatTypes",
+                  "value": "peraccount",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "RedundantRouter",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "StaticNat",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "ElasticIp",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "AssociatePublicIP",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Lb",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "SupportedLBIsolation",
+                  "value": "shared",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "ElasticLb",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "InlineMode",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "VmAutoScaling",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Vpn",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "PortForwarding",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Firewall",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            }
+          ],
+          "forvpc": false,
+          "fornsx": false,
+          "fortungsten": false,
+          "ispersistent": false,
+          "egressdefaultpolicy": true,
+          "maxconnections": 1,
+          "keepaliveenabled": true,
+          "supportsstrechedl2subnet": false,
+          "supportspublicaccess": false,
+          "supportsinternallb": false,
+          "internetprotocol": "IPv4",
+          "specifyasnumber": false,
+          "hasannotations": false
+        }
+      }
+    },
+    {
+      "command": "updateNetworkOffering",
+      "params": {
+        "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+        "maxconnections": 2147483647
+      },
+      "response": {
+        "networkoffering": {
+          "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+          "name": "qa-gn1566-32-api-create-verified",
+          "displaytext": "#1566 API and DB boundary only, not applied to a network",
+          "created": "2026-11-05T15:47:42+0900",
+          "traffictype": "Guest",
+          "isdefault": false,
+          "specifyvlan": false,
+          "conservemode": true,
+          "specifyipranges": false,
+          "availability": "Optional",
+          "networkrate": 10000,
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "serviceofferingid": "c4176ed2-9166-468e-97f7-50bfc5d33fb3",
+          "service": [
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "SourceNat",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "SupportedSourceNatTypes",
+                  "value": "peraccount",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "RedundantRouter",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "StaticNat",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "ElasticIp",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "AssociatePublicIP",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Lb",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "SupportedLBIsolation",
+                  "value": "shared",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "ElasticLb",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "InlineMode",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "VmAutoScaling",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Vpn",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "PortForwarding",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Firewall",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            }
+          ],
+          "forvpc": false,
+          "fornsx": false,
+          "fortungsten": false,
+          "ispersistent": false,
+          "egressdefaultpolicy": true,
+          "maxconnections": 2147483647,
+          "keepaliveenabled": true,
+          "supportsstrechedl2subnet": false,
+          "supportspublicaccess": false,
+          "supportsinternallb": false,
+          "internetprotocol": "IPv4",
+          "specifyasnumber": false,
+          "hasannotations": false
+        }
+      }
+    },
+    {
+      "command": "updateNetworkOffering",
+      "params": {
+        "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+        "keepaliveenabled": "false"
+      },
+      "response": {
+        "networkoffering": {
+          "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+          "name": "qa-gn1566-32-api-create-verified",
+          "displaytext": "#1566 API and DB boundary only, not applied to a network",
+          "created": "2026-11-05T15:47:42+0900",
+          "traffictype": "Guest",
+          "isdefault": false,
+          "specifyvlan": false,
+          "conservemode": true,
+          "specifyipranges": false,
+          "availability": "Optional",
+          "networkrate": 10000,
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "serviceofferingid": "c4176ed2-9166-468e-97f7-50bfc5d33fb3",
+          "service": [
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "SourceNat",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "SupportedSourceNatTypes",
+                  "value": "peraccount",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "RedundantRouter",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "StaticNat",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "ElasticIp",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "AssociatePublicIP",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Lb",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "SupportedLBIsolation",
+                  "value": "shared",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "ElasticLb",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "InlineMode",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "VmAutoScaling",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Vpn",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "PortForwarding",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Firewall",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            }
+          ],
+          "forvpc": false,
+          "fornsx": false,
+          "fortungsten": false,
+          "ispersistent": false,
+          "egressdefaultpolicy": true,
+          "maxconnections": 2147483647,
+          "keepaliveenabled": false,
+          "supportsstrechedl2subnet": false,
+          "supportspublicaccess": false,
+          "supportsinternallb": false,
+          "internetprotocol": "IPv4",
+          "specifyasnumber": false,
+          "hasannotations": false
+        }
+      }
+    },
+    {
+      "command": "updateNetworkOffering",
+      "params": {
+        "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+        "keepaliveenabled": "true"
+      },
+      "response": {
+        "networkoffering": {
+          "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+          "name": "qa-gn1566-32-api-create-verified",
+          "displaytext": "#1566 API and DB boundary only, not applied to a network",
+          "created": "2026-11-05T15:47:42+0900",
+          "traffictype": "Guest",
+          "isdefault": false,
+          "specifyvlan": false,
+          "conservemode": true,
+          "specifyipranges": false,
+          "availability": "Optional",
+          "networkrate": 10000,
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "serviceofferingid": "c4176ed2-9166-468e-97f7-50bfc5d33fb3",
+          "service": [
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "SourceNat",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "SupportedSourceNatTypes",
+                  "value": "peraccount",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "RedundantRouter",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "StaticNat",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "ElasticIp",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "AssociatePublicIP",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Lb",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "SupportedLBIsolation",
+                  "value": "shared",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "ElasticLb",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "InlineMode",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "VmAutoScaling",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Vpn",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "PortForwarding",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Firewall",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            }
+          ],
+          "forvpc": false,
+          "fornsx": false,
+          "fortungsten": false,
+          "ispersistent": false,
+          "egressdefaultpolicy": true,
+          "maxconnections": 2147483647,
+          "keepaliveenabled": true,
+          "supportsstrechedl2subnet": false,
+          "supportspublicaccess": false,
+          "supportsinternallb": false,
+          "internetprotocol": "IPv4",
+          "specifyasnumber": false,
+          "hasannotations": false
+        }
+      }
+    },
+    {
+      "command": "updateNetworkOffering",
+      "params": {
+        "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+        "keepaliveenabled": "false"
+      },
+      "response": {
+        "networkoffering": {
+          "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+          "name": "qa-gn1566-32-api-create-verified",
+          "displaytext": "#1566 API and DB boundary only, not applied to a network",
+          "created": "2026-11-05T15:47:42+0900",
+          "traffictype": "Guest",
+          "isdefault": false,
+          "specifyvlan": false,
+          "conservemode": true,
+          "specifyipranges": false,
+          "availability": "Optional",
+          "networkrate": 10000,
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "serviceofferingid": "c4176ed2-9166-468e-97f7-50bfc5d33fb3",
+          "service": [
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "SourceNat",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "SupportedSourceNatTypes",
+                  "value": "peraccount",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "RedundantRouter",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "StaticNat",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "ElasticIp",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "AssociatePublicIP",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Lb",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "SupportedLBIsolation",
+                  "value": "shared",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "ElasticLb",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "InlineMode",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "VmAutoScaling",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Vpn",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "PortForwarding",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Firewall",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            }
+          ],
+          "forvpc": false,
+          "fornsx": false,
+          "fortungsten": false,
+          "ispersistent": false,
+          "egressdefaultpolicy": true,
+          "maxconnections": 2147483647,
+          "keepaliveenabled": false,
+          "supportsstrechedl2subnet": false,
+          "supportspublicaccess": false,
+          "supportsinternallb": false,
+          "internetprotocol": "IPv4",
+          "specifyasnumber": false,
+          "hasannotations": false
+        }
+      }
+    },
+    {
+      "command": "updateNetworkOffering",
+      "params": {
+        "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+        "maxconnections": -2147483649
+      },
+      "response": {
+        "updatenetworkofferingresponse": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 9999,
+          "errortext": "Unable to execute API command updatenetworkoffering due to invalid value -2147483649 for parameter maxconnections"
+        }
+      },
+      "expectedRejection": true
+    },
+    {
+      "command": "updateNetworkOffering",
+      "params": {
+        "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+        "maxconnections": -2147483648
+      },
+      "response": {
+        "updatenetworkofferingresponse": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "Maximum concurrent connections must be between 0 and 2147483647 (API integer and database unsigned integer range)."
+        }
+      },
+      "expectedRejection": true
+    },
+    {
+      "command": "updateNetworkOffering",
+      "params": {
+        "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+        "maxconnections": -1
+      },
+      "response": {
+        "updatenetworkofferingresponse": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "Maximum concurrent connections must be between 0 and 2147483647 (API integer and database unsigned integer range)."
+        }
+      },
+      "expectedRejection": true
+    },
+    {
+      "command": "updateNetworkOffering",
+      "params": {
+        "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+        "maxconnections": 2147483648
+      },
+      "response": {
+        "updatenetworkofferingresponse": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 9999,
+          "errortext": "Unable to execute API command updatenetworkoffering due to invalid value 2147483648 for parameter maxconnections"
+        }
+      },
+      "expectedRejection": true
+    },
+    {
+      "command": "updateNetworkOffering",
+      "params": {
+        "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+        "maxconnections": "1.5"
+      },
+      "response": {
+        "updatenetworkofferingresponse": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 9999,
+          "errortext": "Unable to execute API command updatenetworkoffering due to invalid value 1.5 for parameter maxconnections"
+        }
+      },
+      "expectedRejection": true
+    },
+    {
+      "command": "updateNetworkOffering",
+      "params": {
+        "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+        "maxconnections": 321,
+        "keepaliveenabled": "true"
+      },
+      "response": {
+        "networkoffering": {
+          "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+          "name": "qa-gn1566-32-api-create-verified",
+          "displaytext": "#1566 API and DB boundary only, not applied to a network",
+          "created": "2026-11-05T15:47:42+0900",
+          "traffictype": "Guest",
+          "isdefault": false,
+          "specifyvlan": false,
+          "conservemode": true,
+          "specifyipranges": false,
+          "availability": "Optional",
+          "networkrate": 10000,
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "serviceofferingid": "c4176ed2-9166-468e-97f7-50bfc5d33fb3",
+          "service": [
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "SourceNat",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "SupportedSourceNatTypes",
+                  "value": "peraccount",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "RedundantRouter",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "StaticNat",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "ElasticIp",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "AssociatePublicIP",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Lb",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ],
+              "capability": [
+                {
+                  "name": "SupportedLBIsolation",
+                  "value": "shared",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "ElasticLb",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "InlineMode",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                },
+                {
+                  "name": "VmAutoScaling",
+                  "value": "false",
+                  "canchooseservicecapability": false
+                }
+              ]
+            },
+            {
+              "name": "Vpn",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "PortForwarding",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Firewall",
+              "provider": [
+                {
+                  "name": "VirtualRouter"
+                }
+              ]
+            }
+          ],
+          "forvpc": false,
+          "fornsx": false,
+          "fortungsten": false,
+          "ispersistent": false,
+          "egressdefaultpolicy": true,
+          "maxconnections": 321,
+          "keepaliveenabled": true,
+          "supportsstrechedl2subnet": false,
+          "supportspublicaccess": false,
+          "supportsinternallb": false,
+          "internetprotocol": "IPv4",
+          "specifyasnumber": false,
+          "hasannotations": false
+        }
+      }
+    }
+  ],
+  "appliedToNetwork": false,
+  "final": {
+    "id": "3712e69e-0234-44af-9feb-44c48bae94ab",
+    "name": "qa-gn1566-32-api-create-verified",
+    "displaytext": "#1566 API and DB boundary only, not applied to a network",
+    "created": "2026-11-05T15:47:42+0900",
+    "traffictype": "Guest",
+    "isdefault": false,
+    "specifyvlan": false,
+    "conservemode": true,
+    "specifyipranges": false,
+    "availability": "Optional",
+    "networkrate": 10000,
+    "state": "Enabled",
+    "guestiptype": "Isolated",
+    "serviceofferingid": "c4176ed2-9166-468e-97f7-50bfc5d33fb3",
+    "service": [
+      {
+        "name": "Dns",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ]
+      },
+      {
+        "name": "Dhcp",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ]
+      },
+      {
+        "name": "SourceNat",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "SupportedSourceNatTypes",
+            "value": "peraccount",
+            "canchooseservicecapability": false
+          },
+          {
+            "name": "RedundantRouter",
+            "value": "false",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "StaticNat",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "ElasticIp",
+            "value": "false",
+            "canchooseservicecapability": false
+          },
+          {
+            "name": "AssociatePublicIP",
+            "value": "false",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "Lb",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ],
+        "capability": [
+          {
+            "name": "SupportedLBIsolation",
+            "value": "shared",
+            "canchooseservicecapability": false
+          },
+          {
+            "name": "ElasticLb",
+            "value": "false",
+            "canchooseservicecapability": false
+          },
+          {
+            "name": "InlineMode",
+            "value": "false",
+            "canchooseservicecapability": false
+          },
+          {
+            "name": "VmAutoScaling",
+            "value": "false",
+            "canchooseservicecapability": false
+          }
+        ]
+      },
+      {
+        "name": "Vpn",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ]
+      },
+      {
+        "name": "UserData",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ]
+      },
+      {
+        "name": "PortForwarding",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ]
+      },
+      {
+        "name": "Firewall",
+        "provider": [
+          {
+            "name": "VirtualRouter"
+          }
+        ]
+      }
+    ],
+    "forvpc": false,
+    "fornsx": false,
+    "fortungsten": false,
+    "ispersistent": false,
+    "egressdefaultpolicy": true,
+    "maxconnections": 321,
+    "keepaliveenabled": true,
+    "supportsstrechedl2subnet": false,
+    "supportspublicaccess": false,
+    "supportsinternallb": false,
+    "internetprotocol": "IPv4",
+    "specifyasnumber": false,
+    "hasannotations": false
+  },
+  "status": "PASS"
+}

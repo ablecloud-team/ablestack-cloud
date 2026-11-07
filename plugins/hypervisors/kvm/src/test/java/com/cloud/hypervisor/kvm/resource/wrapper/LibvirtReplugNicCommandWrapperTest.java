@@ -207,7 +207,8 @@ public class LibvirtReplugNicCommandWrapperTest {
 
         when(_domain.getXMLDesc(0))
                 .thenReturn(fullfile)
-                .thenReturn(part_1 + part_3);
+                .thenReturn(part_1 + part_3)
+                .thenReturn(fullfile.replace("vnet10", "vnet20"));
         when(conn.domainLookupByName(Mockito.anyString())).thenReturn(_domain);
         when(helper.getConnectionByVmName(Mockito.anyString())).thenReturn(conn);
 
@@ -241,7 +242,16 @@ public class LibvirtReplugNicCommandWrapperTest {
     }
 
     @Test
-    public void testReplugNic() throws LibvirtException {
+    public void testReplugEnabledNicWithNewTapName() throws LibvirtException {
+        replugNicWithNewTapName(true);
+    }
+
+    @Test
+    public void testReplugDisabledNicWithNewTapName() throws LibvirtException {
+        replugNicWithNewTapName(false);
+    }
+
+    private void replugNicWithNewTapName(boolean enabled) throws LibvirtException {
         final String expectedDetachXml =
                 "<interface type='bridge'>\n"
                         + "<source bridge='breth2-234'/>\n"
@@ -271,7 +281,7 @@ public class LibvirtReplugNicCommandWrapperTest {
         final String expectedUpdateXml =
                 "<interface type='bridge'>\n"
                         + "<source bridge='eth0'/>\n"
-                        + "<target dev='vnet10'/>\n"
+                        + "<target dev='vnet20'/>\n"
                         + "<mac address='02:00:7c:98:00:02'/>\n"
                         + "<model type='virtio'/>\n"
                         + "<virtualport type='openvswitch'>\n"
@@ -292,16 +302,18 @@ public class LibvirtReplugNicCommandWrapperTest {
         final LibvirtReplugNicCommandWrapper wrapper = new LibvirtReplugNicCommandWrapper();
         final NicTO nic = new NicTO();
         nic.setType(Networks.TrafficType.Guest);
+        nic.setEnabled(enabled);
         nic.setName(GUEST_BR);
         nic.setBroadcastType(Networks.BroadcastDomainType.Vlan);
         nic.setMac("02:00:7c:98:00:02");
         nic.setBroadcastUri(Networks.BroadcastDomainType.Vlan.toUri(100));
         final ReplugNicCommand command = new ReplugNicCommand(nic, "i-85-285-VM", VirtualMachine.Type.User);
         final Answer result = wrapper.execute(command, res);
+        org.junit.Assert.assertTrue(result.getDetails(), result.getResult());
 
         verify(_domain).detachDevice(expectedDetachXml);
         verify(_domain).attachDevice(expectedAttachXml);
-        verify(_domain).updateDeviceFlags(expectedUpdateXml, LibvirtReplugNicCommandWrapper.DomainAffect.LIVE.getValue());
+        verify(_domain).updateDeviceFlags(enabled ? expectedUpdateXml : expectedUpdateXml.replace("<link state='up'/>", "<link state='down'/>"), LibvirtReplugNicCommandWrapper.DomainAffect.LIVE.getValue());
     }
 
 }

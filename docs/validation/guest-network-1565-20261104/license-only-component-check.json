@@ -1,0 +1,12 @@
+[
+  {
+    "file": "ui/src/components/view/NetworkSearchSelect.vue",
+    "templateScriptStylesIdentical": true,
+    "sha256": "066a41c559116bef22f74f3907566bcc3759d71594c014c21d7722125df1d0cc"
+  },
+  {
+    "file": "ui/src/views/offering/NetworkOfferingUsage.vue",
+    "templateScriptStylesIdentical": true,
+    "sha256": "12996924d0c45ef005d5f17f76153fd0faeb362fcef93760b88f4239bc3e6653"
+  }
+]

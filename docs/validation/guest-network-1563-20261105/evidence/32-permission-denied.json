@@ -1,0 +1,19 @@
+{
+  "role": "User",
+  "ownedNetwork": "5df4bffd-4df1-465b-9823-a98078ee6991",
+  "command": "migrateNetwork",
+  "params": {
+    "networkid": "5df4bffd-4df1-465b-9823-a98078ee6991",
+    "networkofferingid": "24a28f8c-9c5e-445f-b120-d56e48943eca",
+    "resume": "false"
+  },
+  "response": {
+    "errorresponse": {
+      "uuidList": [],
+      "errorcode": 432,
+      "cserrorcode": 9999,
+      "errortext": "The API [migrateNetwork] does not exist or is not available for the account qa-gn1563-32-user."
+    }
+  },
+  "status": "PASS"
+}

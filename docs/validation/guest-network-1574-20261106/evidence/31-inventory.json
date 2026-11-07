@@ -1,0 +1,30 @@
+{
+  "vnf": [
+    {
+      "id": "a266b0ca-6ae3-4325-8889-ded28e4461be",
+      "type": "ROOT",
+      "state": "Ready",
+      "storagetype": "shared",
+      "storage": "Primary",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+      "poolType": "SharedMountPoint"
+    }
+  ],
+  "staticVm": [
+    {
+      "id": "de40dd74-9a47-481d-bd92-e2cb64d55572",
+      "type": "ROOT",
+      "state": "Ready",
+      "storagetype": "shared",
+      "storage": "Primary",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+      "poolType": "SharedMountPoint"
+    }
+  ],
+  "qaActiveNetworks": [
+    "qa-gn1574-31-isolated",
+    "qa-gn1574-31-l2",
+    "qa-gn1574-31-shared",
+    "qa-gn1574-31-static"
+  ]
+}

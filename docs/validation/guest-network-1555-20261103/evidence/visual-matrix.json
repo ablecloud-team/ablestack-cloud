@@ -1,0 +1,1485 @@
+{
+  "themes": [
+    {
+      "mode": "light",
+      "action_observation_ms": 46,
+      "dark": false
+    },
+    {
+      "mode": "dark",
+      "action_observation_ms": 426,
+      "dark": true
+    },
+    {
+      "mode": "dark",
+      "action_observation_ms": 452,
+      "dark": true
+    }
+  ],
+  "conditions": [
+    {
+      "cluster": 31,
+      "mode": "light",
+      "width": 1280,
+      "height": 900,
+      "measurement": {
+        "body": {
+          "bottom": 800,
+          "height": 710,
+          "left": 161,
+          "right": 1119,
+          "top": 90,
+          "width": 958,
+          "x": 161,
+          "y": 90
+        },
+        "bodyClientWidth": 948,
+        "bodyScrollWidth": 948,
+        "dark": false,
+        "fields": [
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_dns1",
+            "rect": {
+              "bottom": 566,
+              "height": 32,
+              "left": 189,
+              "right": 629,
+              "top": 534,
+              "width": 440,
+              "x": 189,
+              "y": 534
+            },
+            "value": "8.8.8.8"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_dns2",
+            "rect": {
+              "bottom": 566,
+              "height": 32,
+              "left": 641,
+              "right": 1081,
+              "top": 534,
+              "width": 440,
+              "x": 641,
+              "y": 534
+            },
+            "value": "1.1.1.1"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns1",
+            "rect": {
+              "bottom": 634,
+              "height": 32,
+              "left": 189,
+              "right": 629,
+              "top": 602,
+              "width": 440,
+              "x": 189,
+              "y": 602
+            },
+            "value": "2606:4700:4700::1111"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns2",
+            "rect": {
+              "bottom": 634,
+              "height": 32,
+              "left": 641,
+              "right": 1081,
+              "top": 602,
+              "width": 440,
+              "x": 641,
+              "y": 602
+            },
+            "value": "2606:4700:4700::1001"
+          }
+        ],
+        "footer": {
+          "bottom": 865,
+          "height": 65,
+          "left": 161,
+          "right": 1119,
+          "top": 800,
+          "width": 958,
+          "x": 161,
+          "y": 800
+        },
+        "height": 900,
+        "help": {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "rect": {
+            "bottom": 492,
+            "height": 22,
+            "left": 189,
+            "right": 1081,
+            "top": 470,
+            "width": 892,
+            "x": 189,
+            "y": 470
+          },
+          "text": "DNS는 주소 계열별로 두 값을 함께 저장합니다. 두 값을 모두 비우면 Zone 기본 DNS를 사용합니다. DNS 1을 비울 때는 DNS 2도 함께 비워 주세요."
+        },
+        "variables": {
+          "secondary": "#4b5563"
+        },
+        "width": 1280
+      }
+    },
+    {
+      "cluster": 31,
+      "mode": "light",
+      "width": 768,
+      "height": 1024,
+      "measurement": {
+        "body": {
+          "bottom": 862,
+          "height": 710,
+          "left": 25,
+          "right": 743,
+          "top": 152,
+          "width": 718,
+          "x": 25,
+          "y": 152
+        },
+        "bodyClientWidth": 708,
+        "bodyScrollWidth": 708,
+        "dark": false,
+        "fields": [
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_dns1",
+            "rect": {
+              "bottom": 628,
+              "height": 32,
+              "left": 53,
+              "right": 373,
+              "top": 596,
+              "width": 320,
+              "x": 53,
+              "y": 596
+            },
+            "value": "8.8.8.8"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_dns2",
+            "rect": {
+              "bottom": 628,
+              "height": 32,
+              "left": 385,
+              "right": 705,
+              "top": 596,
+              "width": 320,
+              "x": 385,
+              "y": 596
+            },
+            "value": "1.1.1.1"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns1",
+            "rect": {
+              "bottom": 696,
+              "height": 32,
+              "left": 53,
+              "right": 373,
+              "top": 664,
+              "width": 320,
+              "x": 53,
+              "y": 664
+            },
+            "value": "2606:4700:4700::1111"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns2",
+            "rect": {
+              "bottom": 696,
+              "height": 32,
+              "left": 385,
+              "right": 705,
+              "top": 664,
+              "width": 320,
+              "x": 385,
+              "y": 664
+            },
+            "value": "2606:4700:4700::1001"
+          }
+        ],
+        "footer": {
+          "bottom": 927,
+          "height": 65,
+          "left": 25,
+          "right": 743,
+          "top": 862,
+          "width": 718,
+          "x": 25,
+          "y": 862
+        },
+        "height": 1024,
+        "help": {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "rect": {
+            "bottom": 554,
+            "height": 44,
+            "left": 53,
+            "right": 705,
+            "top": 510,
+            "width": 652,
+            "x": 53,
+            "y": 510
+          },
+          "text": "DNS는 주소 계열별로 두 값을 함께 저장합니다. 두 값을 모두 비우면 Zone 기본 DNS를 사용합니다. DNS 1을 비울 때는 DNS 2도 함께 비워 주세요."
+        },
+        "variables": {
+          "secondary": "#4b5563"
+        },
+        "width": 768
+      }
+    },
+    {
+      "cluster": 31,
+      "mode": "light",
+      "width": 390,
+      "height": 844,
+      "measurement": {
+        "body": {
+          "bottom": 766,
+          "height": 698,
+          "left": 13,
+          "right": 377,
+          "top": 68,
+          "width": 364,
+          "x": 13,
+          "y": 68
+        },
+        "bodyClientWidth": 354,
+        "bodyScrollWidth": 354,
+        "dark": false,
+        "fields": [
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_dns1",
+            "rect": {
+              "bottom": 404,
+              "height": 32,
+              "left": 29,
+              "right": 351,
+              "top": 372,
+              "width": 322,
+              "x": 29,
+              "y": 372
+            },
+            "value": "8.8.8.8"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_dns2",
+            "rect": {
+              "bottom": 472,
+              "height": 32,
+              "left": 29,
+              "right": 351,
+              "top": 440,
+              "width": 322,
+              "x": 29,
+              "y": 440
+            },
+            "value": "1.1.1.1"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns1",
+            "rect": {
+              "bottom": 540,
+              "height": 32,
+              "left": 29,
+              "right": 351,
+              "top": 508,
+              "width": 322,
+              "x": 29,
+              "y": 508
+            },
+            "value": "2606:4700:4700::1111"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns2",
+            "rect": {
+              "bottom": 608,
+              "height": 32,
+              "left": 29,
+              "right": 351,
+              "top": 576,
+              "width": 322,
+              "x": 29,
+              "y": 576
+            },
+            "value": "2606:4700:4700::1001"
+          }
+        ],
+        "footer": {
+          "bottom": 831,
+          "height": 65,
+          "left": 13,
+          "right": 377,
+          "top": 766,
+          "width": 364,
+          "x": 13,
+          "y": 766
+        },
+        "height": 844,
+        "help": {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "rect": {
+            "bottom": 330,
+            "height": 66,
+            "left": 29,
+            "right": 351,
+            "top": 264,
+            "width": 322,
+            "x": 29,
+            "y": 264
+          },
+          "text": "DNS는 주소 계열별로 두 값을 함께 저장합니다. 두 값을 모두 비우면 Zone 기본 DNS를 사용합니다. DNS 1을 비울 때는 DNS 2도 함께 비워 주세요."
+        },
+        "variables": {
+          "secondary": "#4b5563"
+        },
+        "width": 390
+      }
+    },
+    {
+      "cluster": 31,
+      "mode": "dark",
+      "width": 1280,
+      "height": 900,
+      "measurement": {
+        "body": {
+          "bottom": 800,
+          "height": 710,
+          "left": 161,
+          "right": 1119,
+          "top": 90,
+          "width": 958,
+          "x": 161,
+          "y": 90
+        },
+        "bodyClientWidth": 948,
+        "bodyScrollWidth": 948,
+        "dark": true,
+        "fields": [
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_dns1",
+            "rect": {
+              "bottom": 566,
+              "height": 32,
+              "left": 189,
+              "right": 629,
+              "top": 534,
+              "width": 440,
+              "x": 189,
+              "y": 534
+            },
+            "value": "8.8.8.8"
+          },
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_dns2",
+            "rect": {
+              "bottom": 566,
+              "height": 32,
+              "left": 641,
+              "right": 1081,
+              "top": 534,
+              "width": 440,
+              "x": 641,
+              "y": 534
+            },
+            "value": "1.1.1.1"
+          },
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns1",
+            "rect": {
+              "bottom": 634,
+              "height": 32,
+              "left": 189,
+              "right": 629,
+              "top": 602,
+              "width": 440,
+              "x": 189,
+              "y": 602
+            },
+            "value": "2606:4700:4700::1111"
+          },
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns2",
+            "rect": {
+              "bottom": 634,
+              "height": 32,
+              "left": 641,
+              "right": 1081,
+              "top": 602,
+              "width": 440,
+              "x": 641,
+              "y": 602
+            },
+            "value": "2606:4700:4700::1001"
+          }
+        ],
+        "footer": {
+          "bottom": 865,
+          "height": 65,
+          "left": 161,
+          "right": 1119,
+          "top": 800,
+          "width": 958,
+          "x": 161,
+          "y": 800
+        },
+        "height": 900,
+        "help": {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "rect": {
+            "bottom": 492,
+            "height": 22,
+            "left": 189,
+            "right": 1081,
+            "top": 470,
+            "width": 892,
+            "x": 189,
+            "y": 470
+          },
+          "text": "DNS는 주소 계열별로 두 값을 함께 저장합니다. 두 값을 모두 비우면 Zone 기본 DNS를 사용합니다. DNS 1을 비울 때는 DNS 2도 함께 비워 주세요."
+        },
+        "variables": {
+          "secondary": "#c5ccd4"
+        },
+        "width": 1280
+      }
+    },
+    {
+      "cluster": 31,
+      "mode": "dark",
+      "width": 768,
+      "height": 1024,
+      "measurement": {
+        "body": {
+          "bottom": 862,
+          "height": 710,
+          "left": 25,
+          "right": 743,
+          "top": 152,
+          "width": 718,
+          "x": 25,
+          "y": 152
+        },
+        "bodyClientWidth": 708,
+        "bodyScrollWidth": 708,
+        "dark": true,
+        "fields": [
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_dns1",
+            "rect": {
+              "bottom": 628,
+              "height": 32,
+              "left": 53,
+              "right": 373,
+              "top": 596,
+              "width": 320,
+              "x": 53,
+              "y": 596
+            },
+            "value": "8.8.8.8"
+          },
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_dns2",
+            "rect": {
+              "bottom": 628,
+              "height": 32,
+              "left": 385,
+              "right": 705,
+              "top": 596,
+              "width": 320,
+              "x": 385,
+              "y": 596
+            },
+            "value": "1.1.1.1"
+          },
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns1",
+            "rect": {
+              "bottom": 696,
+              "height": 32,
+              "left": 53,
+              "right": 373,
+              "top": 664,
+              "width": 320,
+              "x": 53,
+              "y": 664
+            },
+            "value": "2606:4700:4700::1111"
+          },
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns2",
+            "rect": {
+              "bottom": 696,
+              "height": 32,
+              "left": 385,
+              "right": 705,
+              "top": 664,
+              "width": 320,
+              "x": 385,
+              "y": 664
+            },
+            "value": "2606:4700:4700::1001"
+          }
+        ],
+        "footer": {
+          "bottom": 927,
+          "height": 65,
+          "left": 25,
+          "right": 743,
+          "top": 862,
+          "width": 718,
+          "x": 25,
+          "y": 862
+        },
+        "height": 1024,
+        "help": {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "rect": {
+            "bottom": 554,
+            "height": 44,
+            "left": 53,
+            "right": 705,
+            "top": 510,
+            "width": 652,
+            "x": 53,
+            "y": 510
+          },
+          "text": "DNS는 주소 계열별로 두 값을 함께 저장합니다. 두 값을 모두 비우면 Zone 기본 DNS를 사용합니다. DNS 1을 비울 때는 DNS 2도 함께 비워 주세요."
+        },
+        "variables": {
+          "secondary": "#c5ccd4"
+        },
+        "width": 768
+      }
+    },
+    {
+      "cluster": 31,
+      "mode": "dark",
+      "width": 390,
+      "height": 844,
+      "measurement": {
+        "body": {
+          "bottom": 766,
+          "height": 698,
+          "left": 13,
+          "right": 377,
+          "top": 68,
+          "width": 364,
+          "x": 13,
+          "y": 68
+        },
+        "bodyClientWidth": 354,
+        "bodyScrollWidth": 354,
+        "dark": true,
+        "fields": [
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_dns1",
+            "rect": {
+              "bottom": 404,
+              "height": 32,
+              "left": 29,
+              "right": 351,
+              "top": 372,
+              "width": 322,
+              "x": 29,
+              "y": 372
+            },
+            "value": "8.8.8.8"
+          },
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_dns2",
+            "rect": {
+              "bottom": 472,
+              "height": 32,
+              "left": 29,
+              "right": 351,
+              "top": 440,
+              "width": 322,
+              "x": 29,
+              "y": 440
+            },
+            "value": "1.1.1.1"
+          },
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns1",
+            "rect": {
+              "bottom": 540,
+              "height": 32,
+              "left": 29,
+              "right": 351,
+              "top": 508,
+              "width": 322,
+              "x": 29,
+              "y": 508
+            },
+            "value": "2606:4700:4700::1111"
+          },
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns2",
+            "rect": {
+              "bottom": 608,
+              "height": 32,
+              "left": 29,
+              "right": 351,
+              "top": 576,
+              "width": 322,
+              "x": 29,
+              "y": 576
+            },
+            "value": "2606:4700:4700::1001"
+          }
+        ],
+        "footer": {
+          "bottom": 831,
+          "height": 65,
+          "left": 13,
+          "right": 377,
+          "top": 766,
+          "width": 364,
+          "x": 13,
+          "y": 766
+        },
+        "height": 844,
+        "help": {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "rect": {
+            "bottom": 330,
+            "height": 66,
+            "left": 29,
+            "right": 351,
+            "top": 264,
+            "width": 322,
+            "x": 29,
+            "y": 264
+          },
+          "text": "DNS는 주소 계열별로 두 값을 함께 저장합니다. 두 값을 모두 비우면 Zone 기본 DNS를 사용합니다. DNS 1을 비울 때는 DNS 2도 함께 비워 주세요."
+        },
+        "variables": {
+          "secondary": "#c5ccd4"
+        },
+        "width": 390
+      }
+    },
+    {
+      "cluster": 32,
+      "mode": "light",
+      "width": 1280,
+      "height": 900,
+      "measurement": {
+        "body": {
+          "bottom": 800,
+          "height": 710,
+          "left": 161,
+          "right": 1119,
+          "top": 90,
+          "width": 958,
+          "x": 161,
+          "y": 90
+        },
+        "bodyClientWidth": 948,
+        "bodyScrollWidth": 948,
+        "dark": false,
+        "fields": [
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_dns1",
+            "rect": {
+              "bottom": 566,
+              "height": 32,
+              "left": 189,
+              "right": 629,
+              "top": 534,
+              "width": 440,
+              "x": 189,
+              "y": 534
+            },
+            "value": "8.8.8.8"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_dns2",
+            "rect": {
+              "bottom": 566,
+              "height": 32,
+              "left": 641,
+              "right": 1081,
+              "top": 534,
+              "width": 440,
+              "x": 641,
+              "y": 534
+            },
+            "value": "1.1.1.1"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns1",
+            "rect": {
+              "bottom": 634,
+              "height": 32,
+              "left": 189,
+              "right": 629,
+              "top": 602,
+              "width": 440,
+              "x": 189,
+              "y": 602
+            },
+            "value": "2606:4700:4700::1111"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns2",
+            "rect": {
+              "bottom": 634,
+              "height": 32,
+              "left": 641,
+              "right": 1081,
+              "top": 602,
+              "width": 440,
+              "x": 641,
+              "y": 602
+            },
+            "value": "2606:4700:4700::1001"
+          }
+        ],
+        "footer": {
+          "bottom": 865,
+          "height": 65,
+          "left": 161,
+          "right": 1119,
+          "top": 800,
+          "width": 958,
+          "x": 161,
+          "y": 800
+        },
+        "height": 900,
+        "help": {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "rect": {
+            "bottom": 492,
+            "height": 22,
+            "left": 189,
+            "right": 1081,
+            "top": 470,
+            "width": 892,
+            "x": 189,
+            "y": 470
+          },
+          "text": "DNS는 주소 계열별로 두 값을 함께 저장합니다. 두 값을 모두 비우면 Zone 기본 DNS를 사용합니다. DNS 1을 비울 때는 DNS 2도 함께 비워 주세요."
+        },
+        "variables": {
+          "secondary": "#4b5563"
+        },
+        "width": 1280
+      }
+    },
+    {
+      "cluster": 32,
+      "mode": "light",
+      "width": 768,
+      "height": 1024,
+      "measurement": {
+        "body": {
+          "bottom": 862,
+          "height": 710,
+          "left": 25,
+          "right": 743,
+          "top": 152,
+          "width": 718,
+          "x": 25,
+          "y": 152
+        },
+        "bodyClientWidth": 708,
+        "bodyScrollWidth": 708,
+        "dark": false,
+        "fields": [
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_dns1",
+            "rect": {
+              "bottom": 628,
+              "height": 32,
+              "left": 53,
+              "right": 373,
+              "top": 596,
+              "width": 320,
+              "x": 53,
+              "y": 596
+            },
+            "value": "8.8.8.8"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_dns2",
+            "rect": {
+              "bottom": 628,
+              "height": 32,
+              "left": 385,
+              "right": 705,
+              "top": 596,
+              "width": 320,
+              "x": 385,
+              "y": 596
+            },
+            "value": "1.1.1.1"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns1",
+            "rect": {
+              "bottom": 696,
+              "height": 32,
+              "left": 53,
+              "right": 373,
+              "top": 664,
+              "width": 320,
+              "x": 53,
+              "y": 664
+            },
+            "value": "2606:4700:4700::1111"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns2",
+            "rect": {
+              "bottom": 696,
+              "height": 32,
+              "left": 385,
+              "right": 705,
+              "top": 664,
+              "width": 320,
+              "x": 385,
+              "y": 664
+            },
+            "value": "2606:4700:4700::1001"
+          }
+        ],
+        "footer": {
+          "bottom": 927,
+          "height": 65,
+          "left": 25,
+          "right": 743,
+          "top": 862,
+          "width": 718,
+          "x": 25,
+          "y": 862
+        },
+        "height": 1024,
+        "help": {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "rect": {
+            "bottom": 554,
+            "height": 44,
+            "left": 53,
+            "right": 705,
+            "top": 510,
+            "width": 652,
+            "x": 53,
+            "y": 510
+          },
+          "text": "DNS는 주소 계열별로 두 값을 함께 저장합니다. 두 값을 모두 비우면 Zone 기본 DNS를 사용합니다. DNS 1을 비울 때는 DNS 2도 함께 비워 주세요."
+        },
+        "variables": {
+          "secondary": "#4b5563"
+        },
+        "width": 768
+      }
+    },
+    {
+      "cluster": 32,
+      "mode": "light",
+      "width": 390,
+      "height": 844,
+      "measurement": {
+        "body": {
+          "bottom": 766,
+          "height": 698,
+          "left": 13,
+          "right": 377,
+          "top": 68,
+          "width": 364,
+          "x": 13,
+          "y": 68
+        },
+        "bodyClientWidth": 354,
+        "bodyScrollWidth": 354,
+        "dark": false,
+        "fields": [
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_dns1",
+            "rect": {
+              "bottom": 404,
+              "height": 32,
+              "left": 29,
+              "right": 351,
+              "top": 372,
+              "width": 322,
+              "x": 29,
+              "y": 372
+            },
+            "value": "8.8.8.8"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_dns2",
+            "rect": {
+              "bottom": 472,
+              "height": 32,
+              "left": 29,
+              "right": 351,
+              "top": 440,
+              "width": 322,
+              "x": 29,
+              "y": 440
+            },
+            "value": "1.1.1.1"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns1",
+            "rect": {
+              "bottom": 540,
+              "height": 32,
+              "left": 29,
+              "right": 351,
+              "top": 508,
+              "width": 322,
+              "x": 29,
+              "y": 508
+            },
+            "value": "2606:4700:4700::1111"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "color": "rgb(31, 41, 55)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns2",
+            "rect": {
+              "bottom": 608,
+              "height": 32,
+              "left": 29,
+              "right": 351,
+              "top": 576,
+              "width": 322,
+              "x": 29,
+              "y": 576
+            },
+            "value": "2606:4700:4700::1001"
+          }
+        ],
+        "footer": {
+          "bottom": 831,
+          "height": 65,
+          "left": 13,
+          "right": 377,
+          "top": 766,
+          "width": 364,
+          "x": 13,
+          "y": 766
+        },
+        "height": 844,
+        "help": {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "rect": {
+            "bottom": 330,
+            "height": 66,
+            "left": 29,
+            "right": 351,
+            "top": 264,
+            "width": 322,
+            "x": 29,
+            "y": 264
+          },
+          "text": "DNS는 주소 계열별로 두 값을 함께 저장합니다. 두 값을 모두 비우면 Zone 기본 DNS를 사용합니다. DNS 1을 비울 때는 DNS 2도 함께 비워 주세요."
+        },
+        "variables": {
+          "secondary": "#4b5563"
+        },
+        "width": 390
+      }
+    },
+    {
+      "cluster": 32,
+      "mode": "dark",
+      "width": 1280,
+      "height": 900,
+      "measurement": {
+        "body": {
+          "bottom": 800,
+          "height": 710,
+          "left": 161,
+          "right": 1119,
+          "top": 90,
+          "width": 958,
+          "x": 161,
+          "y": 90
+        },
+        "bodyClientWidth": 948,
+        "bodyScrollWidth": 948,
+        "dark": true,
+        "fields": [
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_dns1",
+            "rect": {
+              "bottom": 566,
+              "height": 32,
+              "left": 189,
+              "right": 629,
+              "top": 534,
+              "width": 440,
+              "x": 189,
+              "y": 534
+            },
+            "value": "8.8.8.8"
+          },
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_dns2",
+            "rect": {
+              "bottom": 566,
+              "height": 32,
+              "left": 641,
+              "right": 1081,
+              "top": 534,
+              "width": 440,
+              "x": 641,
+              "y": 534
+            },
+            "value": "1.1.1.1"
+          },
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns1",
+            "rect": {
+              "bottom": 634,
+              "height": 32,
+              "left": 189,
+              "right": 629,
+              "top": 602,
+              "width": 440,
+              "x": 189,
+              "y": 602
+            },
+            "value": "2606:4700:4700::1111"
+          },
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns2",
+            "rect": {
+              "bottom": 634,
+              "height": 32,
+              "left": 641,
+              "right": 1081,
+              "top": 602,
+              "width": 440,
+              "x": 641,
+              "y": 602
+            },
+            "value": "2606:4700:4700::1001"
+          }
+        ],
+        "footer": {
+          "bottom": 865,
+          "height": 65,
+          "left": 161,
+          "right": 1119,
+          "top": 800,
+          "width": 958,
+          "x": 161,
+          "y": 800
+        },
+        "height": 900,
+        "help": {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "rect": {
+            "bottom": 492,
+            "height": 22,
+            "left": 189,
+            "right": 1081,
+            "top": 470,
+            "width": 892,
+            "x": 189,
+            "y": 470
+          },
+          "text": "DNS는 주소 계열별로 두 값을 함께 저장합니다. 두 값을 모두 비우면 Zone 기본 DNS를 사용합니다. DNS 1을 비울 때는 DNS 2도 함께 비워 주세요."
+        },
+        "variables": {
+          "secondary": "#c5ccd4"
+        },
+        "width": 1280
+      }
+    },
+    {
+      "cluster": 32,
+      "mode": "dark",
+      "width": 768,
+      "height": 1024,
+      "measurement": {
+        "body": {
+          "bottom": 862,
+          "height": 710,
+          "left": 25,
+          "right": 743,
+          "top": 152,
+          "width": 718,
+          "x": 25,
+          "y": 152
+        },
+        "bodyClientWidth": 708,
+        "bodyScrollWidth": 708,
+        "dark": true,
+        "fields": [
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_dns1",
+            "rect": {
+              "bottom": 628,
+              "height": 32,
+              "left": 53,
+              "right": 373,
+              "top": 596,
+              "width": 320,
+              "x": 53,
+              "y": 596
+            },
+            "value": "8.8.8.8"
+          },
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_dns2",
+            "rect": {
+              "bottom": 628,
+              "height": 32,
+              "left": 385,
+              "right": 705,
+              "top": 596,
+              "width": 320,
+              "x": 385,
+              "y": 596
+            },
+            "value": "1.1.1.1"
+          },
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns1",
+            "rect": {
+              "bottom": 696,
+              "height": 32,
+              "left": 53,
+              "right": 373,
+              "top": 664,
+              "width": 320,
+              "x": 53,
+              "y": 664
+            },
+            "value": "2606:4700:4700::1111"
+          },
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns2",
+            "rect": {
+              "bottom": 696,
+              "height": 32,
+              "left": 385,
+              "right": 705,
+              "top": 664,
+              "width": 320,
+              "x": 385,
+              "y": 664
+            },
+            "value": "2606:4700:4700::1001"
+          }
+        ],
+        "footer": {
+          "bottom": 927,
+          "height": 65,
+          "left": 25,
+          "right": 743,
+          "top": 862,
+          "width": 718,
+          "x": 25,
+          "y": 862
+        },
+        "height": 1024,
+        "help": {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "rect": {
+            "bottom": 554,
+            "height": 44,
+            "left": 53,
+            "right": 705,
+            "top": 510,
+            "width": 652,
+            "x": 53,
+            "y": 510
+          },
+          "text": "DNS는 주소 계열별로 두 값을 함께 저장합니다. 두 값을 모두 비우면 Zone 기본 DNS를 사용합니다. DNS 1을 비울 때는 DNS 2도 함께 비워 주세요."
+        },
+        "variables": {
+          "secondary": "#c5ccd4"
+        },
+        "width": 768
+      }
+    },
+    {
+      "cluster": 32,
+      "mode": "dark",
+      "width": 390,
+      "height": 844,
+      "measurement": {
+        "body": {
+          "bottom": 766,
+          "height": 698,
+          "left": 13,
+          "right": 377,
+          "top": 68,
+          "width": 364,
+          "x": 13,
+          "y": 68
+        },
+        "bodyClientWidth": 354,
+        "bodyScrollWidth": 354,
+        "dark": true,
+        "fields": [
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_dns1",
+            "rect": {
+              "bottom": 404,
+              "height": 32,
+              "left": 29,
+              "right": 351,
+              "top": 372,
+              "width": 322,
+              "x": 29,
+              "y": 372
+            },
+            "value": "8.8.8.8"
+          },
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_dns2",
+            "rect": {
+              "bottom": 472,
+              "height": 32,
+              "left": 29,
+              "right": 351,
+              "top": 440,
+              "width": 322,
+              "x": 29,
+              "y": 440
+            },
+            "value": "1.1.1.1"
+          },
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns1",
+            "rect": {
+              "bottom": 540,
+              "height": 32,
+              "left": 29,
+              "right": 351,
+              "top": 508,
+              "width": 322,
+              "x": 29,
+              "y": 508
+            },
+            "value": "2606:4700:4700::1111"
+          },
+          {
+            "background": "rgb(27, 33, 40)",
+            "color": "rgb(240, 243, 246)",
+            "fontSize": "14px",
+            "id": "form_item_ip6dns2",
+            "rect": {
+              "bottom": 608,
+              "height": 32,
+              "left": 29,
+              "right": 351,
+              "top": 576,
+              "width": 322,
+              "x": 29,
+              "y": 576
+            },
+            "value": "2606:4700:4700::1001"
+          }
+        ],
+        "footer": {
+          "bottom": 831,
+          "height": 65,
+          "left": 13,
+          "right": 377,
+          "top": 766,
+          "width": 364,
+          "x": 13,
+          "y": 766
+        },
+        "height": 844,
+        "help": {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "rect": {
+            "bottom": 330,
+            "height": 66,
+            "left": 29,
+            "right": 351,
+            "top": 264,
+            "width": 322,
+            "x": 29,
+            "y": 264
+          },
+          "text": "DNS는 주소 계열별로 두 값을 함께 저장합니다. 두 값을 모두 비우면 Zone 기본 DNS를 사용합니다. DNS 1을 비울 때는 DNS 2도 함께 비워 주세요."
+        },
+        "variables": {
+          "secondary": "#c5ccd4"
+        },
+        "width": 390
+      }
+    }
+  ]
+}

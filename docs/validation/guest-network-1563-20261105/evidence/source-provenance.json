@@ -1,0 +1,17 @@
+{
+  "runtimeLogicCommit": "15e73de0834b61b29b79c376fecf1e744f783b78",
+  "testLicenseCommit": "666675987b1a6b24e01382924311dd147b799429",
+  "postRuntimeChanges": "Canonical Vue license header and explicit imports in unit test only; Vue template/script/style body unchanged.",
+  "managementJarSha256": "488e7dbd7c89081108db157ce1fbc656646cd9e26671a9624498707cdd2283a4",
+  "uiIndexSha256": "6858db7755568a151ffbcda6ff92c24e8160d384d6e0f9276b94ffdab9af6c56",
+  "previousTestResourcesRemoved": {
+    "networks": 2,
+    "vms": 2,
+    "routers": 2,
+    "offerings": 10
+  },
+  "wholeCloudBuild": false,
+  "manualActionsBuild": false,
+  "prMerged": false,
+  "newTestResourcesRetained": true
+}

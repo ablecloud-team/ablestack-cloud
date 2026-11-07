@@ -1,0 +1,39 @@
+{
+  "oldVm": {
+    "id": "1db1bdb3-7f4f-4194-92e4-f3a72a9a46bd",
+    "name": "qa-gn1566-32-backend",
+    "instancename": "i-2-363-VM",
+    "hostid": "bfe795b1-8fde-4361-bd1d-af421ab2bdc5",
+    "nic": [
+      {
+        "id": "e16d3117-0b4a-4441-bc0f-3cfdce100e4f",
+        "networkid": "9bf0afda-a536-4356-a4d9-27cfdaffc916",
+        "networkname": "qa-gn1566-32-lb",
+        "netmask": "255.255.255.0",
+        "gateway": "10.76.32.1",
+        "ipaddress": "10.76.32.171",
+        "isolationuri": "vlan://139",
+        "broadcasturi": "vlan://139",
+        "traffictype": "Guest",
+        "type": "Isolated",
+        "isdefault": true,
+        "macaddress": "02:01:01:6c:00:01",
+        "secondaryip": [],
+        "extradhcpoption": [],
+        "deviceid": "0",
+        "enabled": true
+      }
+    ]
+  },
+  "removal": {
+    "virtualmachine": {
+      "volumemutationblockedreason": "",
+      "securitygroup": [],
+      "nic": [],
+      "affinitygroup": [],
+      "deleteprotection": false,
+      "tags": []
+    }
+  },
+  "reason": "Explicit guest HTTP port and SSH diagnostics, same host as test router"
+}

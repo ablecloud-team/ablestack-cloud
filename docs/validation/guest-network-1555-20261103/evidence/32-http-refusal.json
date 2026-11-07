@@ -1,0 +1,50 @@
+{
+  "cluster": 32,
+  "label": "32-http-refusal",
+  "synthetic": true,
+  "request_reached_server": false,
+  "injected": 1,
+  "entered": {
+    "form_item_displaytext": "qa-gn1555-32-config6",
+    "form_item_dns1": "8.8.8.8",
+    "form_item_dns2": "1.1.1.1",
+    "form_item_guestvmcidr": "10.251.32.0/24",
+    "form_item_ip6dns1": "2606:4700:4700::1111",
+    "form_item_ip6dns2": "2001:4860:4860::8844",
+    "form_item_name": "qa-gn1555-32-config6",
+    "form_item_networkdomain": "cs2cloud.internal",
+    "form_item_sourcenatipaddress": ""
+  },
+  "remaining": {
+    "form_item_displaytext": "qa-gn1555-32-config6",
+    "form_item_dns1": "8.8.8.8",
+    "form_item_dns2": "1.1.1.1",
+    "form_item_guestvmcidr": "10.251.32.0/24",
+    "form_item_ip6dns1": "2606:4700:4700::1111",
+    "form_item_ip6dns2": "2001:4860:4860::8844",
+    "form_item_name": "qa-gn1555-32-config6",
+    "form_item_networkdomain": "cs2cloud.internal",
+    "form_item_sourcenatipaddress": ""
+  },
+  "alerts": [
+    "QA HTTP request refusal (synthetic, request not sent to server)"
+  ],
+  "records": [
+    {
+      "cluster": 32,
+      "requestId": "35828.1882",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "eee1a639-797f-4686-b6f7-6327ea35c8dc",
+        "name": "qa-gn1555-32-config6",
+        "dns1": "8.8.8.8",
+        "dns2": "1.1.1.1",
+        "ip6dns1": "2606:4700:4700::1111",
+        "ip6dns2": "2001:4860:4860::8844"
+      },
+      "status": 500
+    }
+  ]
+}

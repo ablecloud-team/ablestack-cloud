@@ -1,0 +1,17 @@
+{
+  "head": "7a82a98a3bd62ad62854dc4b76918bea2dcc2f19",
+  "run": 41826370719,
+  "overallUnapproved": 3540,
+  "newPathEntries": 83,
+  "newPathUnknown": 0,
+  "sample": [
+    "build\tRat Report\t2026-11-04T12:09:42.7949904Z   AL    ui/src/utils/networkIpUsage.js",
+    "build\tRat Report\t2026-11-04T12:09:42.8077269Z   AL    ui/tests/unit/views/network/NetworkIpUsageUpdate.spec.js",
+    "build\tRat Report\t2026-11-04T12:09:42.9827128Z   AL    api/src/test/java/org/apache/cloudstack/api/command/admin/network/UpdateNetworkUsageCmdTest.java",
+    "build\tRat Report\t2026-11-04T12:09:43.4105625Z   B     docs/validation/guest-network-1564-20261104/screenshots/32-detail-768-dark-final.jpg",
+    "build\tRat Report\t2026-11-04T12:09:43.4105889Z   B     docs/validation/guest-network-1564-20261104/screenshots/31-dialog-off-390-dark-final.jpg",
+    "build\tRat Report\t2026-11-04T12:09:43.4106164Z   B     docs/validation/guest-network-1564-20261104/screenshots/31-shared-project-scope-final.jpg",
+    "build\tRat Report\t2026-11-04T12:09:43.4106437Z   B     docs/validation/guest-network-1564-20261104/screenshots/31-dialog-off-1280-light-final.jpg",
+    "build\tRat Report\t2026-11-04T12:09:43.4106696Z   B     docs/validation/guest-network-1564-20261104/screenshots/32-mobile-submit-false-final.jpg"
+  ]
+}

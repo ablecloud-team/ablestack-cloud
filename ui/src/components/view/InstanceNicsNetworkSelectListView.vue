@@ -58,9 +58,10 @@
       centered
       width="auto">
       <nic-network-select-form
+        v-if="selectedNicForNetworkSelection.id"
         :resource="selectedNicForNetworkSelection"
         :zoneid="zoneid"
-        :isOpen="!(!selectedNicForNetworkSelection.id)"
+        :owner="owner"
         @close-action="closeNicNetworkSelector()"
         @select="handleNicNetworkSelection" />
     </a-modal>
@@ -83,7 +84,8 @@ export default {
     zoneid: {
       type: String,
       required: true
-    }
+    },
+    owner: Object
   },
   data () {
     return {

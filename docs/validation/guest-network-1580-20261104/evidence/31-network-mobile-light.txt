@@ -1,0 +1,171 @@
+- generic: 페이지 스타일 설정
+- button "닫기":
+  - img "close":
+- heading "페이지 스타일 설정" [level=3]
+- radio [checked]
+- img "check":
+- radio
+- heading "테마 색상" [level=3]
+- radio
+- img "check"
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- separator
+- heading "네비게이션 설정" [level=3]
+- generic: 배경색
+- textbox: "#ffffff"
+- generic: 텍스트 색상
+- textbox: "#000000"
+- separator
+- alert:
+  - img "exclamation-circle":
+  - generic: "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요."
+- button "download 세팅값 다운로드(json)":
+  - img "download":
+  - generic: 세팅값 다운로드(json)
+- button "undo 기본값으로 재설정":
+  - img "undo":
+  - generic: 기본값으로 재설정
+- img "menu-unfold":
+- combobox
+- img "project":
+- text: 기본 보기
+- img "translation":
+- button "알림":
+  - img "bell":
+  - superscript:
+    - paragraph: "7"
+- generic: AC
+- generic: admin cloud
+- main:
+  - link "home":
+    - /url: "#/"
+    - img "home":
+  - text: /
+  - link "가상머신용 네트워크":
+    - /url: "#/guestnetwork"
+  - text: /
+  - generic: qa-gn1580-31-nosnat
+  - link "question-circle":
+    - /url: http://docs.ablecloud.io/latest/adminguide/networking_and_traffic.html#adding-an-additional-guest-network
+    - img "question-circle":
+  - button "reload 업데이트":
+    - img "reload":
+    - generic: 업데이트
+  - button "down 작업":
+    - img "down":
+    - generic: 작업
+  - img "edit":
+  - img "apartment":
+  - heading "qa-gn1580-31-nosnat" [level=4]
+  - generic: Isolated
+  - generic: vlan://3831
+  - separator
+  - generic: 상태
+  - generic: 구성 완료
+  - generic: 아이디
+  - button "아이디 복사":
+    - img "barcode":
+  - link "9cdf2e30-76e6-4580-aa39-8a287ec53f0b":
+    - /url: javascript:;
+  - generic: 설명
+  - generic: VLAN 3831 · 긴 NIC 브리지 이름 검증
+  - generic: 네트워크 오퍼링
+  - img "wifi":
+  - link "qa-gn1580-31-nosnat-vr":
+    - /url: "#/networkoffering/e6abcbef-0e56-4ee2-b280-a75584c56542"
+  - generic: Zone
+  - img "global":
+  - link "Zone":
+    - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+  - generic: 계정
+  - img "user":
+  - link "admin":
+    - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f"
+  - generic: 도메인
+  - img "block":
+  - link "ROOT":
+    - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+  - generic: 생성일
+  - img "calendar":
+  - text: 2026. 11. 4. 오후 3:42:54
+  - separator
+  - link "cloud-server 가상머신 보기":
+    - /url: "#/vm?networkid=9cdf2e30-76e6-4580-aa39-8a287ec53f0b"
+    - button "cloud-server 가상머신 보기":
+      - img "cloud-server":
+      - generic: 가상머신 보기
+  - separator
+  - strong: 태그
+  - button "reload 태그 새로고침":
+    - img "reload":
+    - generic: 태그 새로고침
+  - generic: 태그가 없습니다.
+  - button "plus 새 태그":
+    - img "plus":
+    - generic: 새 태그
+  - tablist:
+    - tab "상세" [selected]
+    - tab "송신 규칙"
+    - tab "Public IP 주소"
+    - tab "가상 라우터"
+    - tab "VNF 기기"
+    - tab "게스트 IP 주소 범위"
+    - tab "네트워크 권한"
+    - tab "이벤트"
+    - tab "코멘트"
+    - button:
+  - tabpanel "상세":
+    - list:
+      - strong: 이름
+      - generic: qa-gn1580-31-nosnat
+      - strong: 아이디
+      - generic: 9cdf2e30-76e6-4580-aa39-8a287ec53f0b
+      - strong: 설명
+      - generic: VLAN 3831 · 긴 NIC 브리지 이름 검증
+      - strong: 유형
+      - generic: Isolated
+      - strong: 트래픽 유형
+      - generic: Guest
+      - strong: VLAN/VNI
+      - generic: "3831"
+      - strong: 브로드 캐스트
+      - generic: vlan://3831
+      - strong: CIDR
+      - generic: 172.28.31.0/24
+      - strong: 넷마스크
+      - generic: 255.255.255.0
+      - strong: 게이트웨이
+      - generic: 172.28.31.1
+      - strong: 영구적
+      - generic: "false"
+      - strong: 재시작 필요
+      - generic: "false"
+      - strong: Redundant 라우터
+      - generic: "false"
+      - strong: 네트워크 도메인
+      - generic: cs2cloud.internal
+      - strong: 기본 송신 정책
+      - generic: 허용(추가된 송신 규칙과 일치하는 트래픽이 거부됨)
+      - strong: Zone
+      - generic: Zone
+      - strong: 계정
+      - generic: admin
+      - strong: 도메인
+      - generic: ROOT
+      - strong: DNS 1
+      - generic: 8.8.8.8
+      - strong: Public 인터페이스 MTU
+      - generic: "1500"
+      - strong: Private 인터페이스 MTU
+      - generic: "1500"
+      - strong: 공용 NIC의 MAC 주소 유지
+      - generic: "true"
+- alert:
+  - img "info-circle":
+  - generic: Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성

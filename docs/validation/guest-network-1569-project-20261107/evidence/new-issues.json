@@ -1,0 +1,23 @@
+[
+  {
+    "number": 1587,
+    "title": "[Europa][P2] 31번 관리자 프로젝트 전환 시 API 메타데이터 저장 용량 초과",
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1587",
+    "slug": "quota",
+    "databaseId": 6257015330
+  },
+  {
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1588",
+    "number": 1588,
+    "title": "[Europa][P2] 도메인 관리자의 프로젝트 API 탐색과 네트워크 작업 권한 불일치",
+    "slug": "domainadmin",
+    "databaseId": 6257017525
+  },
+  {
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1589",
+    "number": 1589,
+    "title": "[Europa][P2] 사용자 정의 프로젝트 역할의 명시적 조회 허용 API가 401로 거부됨",
+    "slug": "readonly",
+    "databaseId": 6257018409
+  }
+]

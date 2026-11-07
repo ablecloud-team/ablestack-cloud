@@ -1,0 +1,26 @@
+[
+  {
+    "cluster": 31,
+    "type": "NAT Isolated",
+    "url": "http://10.10.31.10:8080/client/#/guestnetwork/a037eecd-629e-446b-b0c4-f56674d99e0c?tab=details",
+    "rangeTabCount": 0
+  },
+  {
+    "cluster": 31,
+    "type": "L2",
+    "url": "http://10.10.31.10:8080/client/#/guestnetwork/d2fb4fd9-e933-4862-8527-5c2d92bf8c71?tab=details",
+    "rangeTabCount": 0
+  },
+  {
+    "cluster": 32,
+    "type": "NAT Isolated",
+    "url": "http://10.10.32.10:8080/client/#/guestnetwork/9a4c510d-021a-47c4-96dd-dc289655293e?tab=details",
+    "rangeTabCount": 0
+  },
+  {
+    "cluster": 32,
+    "type": "L2",
+    "url": "http://10.10.32.10:8080/client/#/guestnetwork/78aabc42-0648-49c9-9d39-4cd6b212ebe8?tab=details",
+    "rangeTabCount": 0
+  }
+]

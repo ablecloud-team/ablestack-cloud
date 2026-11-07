@@ -1,0 +1,60 @@
+{
+  "owner": {
+    "default": [
+      "account",
+      "all",
+      "domain",
+      "dual",
+      "related"
+    ],
+    "project": [
+      "all",
+      "domain",
+      "dual",
+      "project"
+    ],
+    "projectError": null
+  },
+  "peer": {
+    "default": [
+      "all",
+      "domain",
+      "dual"
+    ],
+    "project": [],
+    "projectError": 432
+  },
+  "child": {
+    "default": [
+      "all",
+      "domain",
+      "dual"
+    ],
+    "project": [],
+    "projectError": 432
+  },
+  "outsider": {
+    "default": [
+      "all",
+      "dual"
+    ],
+    "project": [],
+    "projectError": 432
+  },
+  "domainadmin": {
+    "default": [
+      "account",
+      "all",
+      "domain",
+      "dual",
+      "related"
+    ],
+    "project": [
+      "all",
+      "domain",
+      "dual",
+      "project"
+    ],
+    "projectError": null
+  }
+}

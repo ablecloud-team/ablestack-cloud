@@ -1,0 +1,31 @@
+{
+  "maxId": 30395,
+  "count": 30395,
+  "sha256": "a7d494b4adda5a29e327b64f0a339e14cb53f2b091fe6fd36ea4868ee6efeb49",
+  "fields": [
+    "id",
+    "zone_id",
+    "account_id",
+    "domain_id",
+    "description",
+    "usage_display",
+    "usage_type",
+    "raw_usage",
+    "vm_instance_id",
+    "vm_name",
+    "offering_id",
+    "template_id",
+    "usage_id",
+    "type",
+    "size",
+    "network_id",
+    "start_date",
+    "end_date",
+    "virtual_size",
+    "cpu_speed",
+    "cpu_cores",
+    "memory",
+    "is_hidden",
+    "state"
+  ]
+}

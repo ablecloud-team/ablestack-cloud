@@ -1,0 +1,26 @@
+[
+  {
+    "cluster": 31,
+    "key": "shared",
+    "offering_change_exposed": false,
+    "diagnostics_count": 0
+  },
+  {
+    "cluster": 31,
+    "key": "l2",
+    "offering_change_exposed": false,
+    "diagnostics_count": 0
+  },
+  {
+    "cluster": 32,
+    "key": "shared",
+    "offering_change_exposed": false,
+    "diagnostics_count": 0
+  },
+  {
+    "cluster": 32,
+    "key": "l2",
+    "offering_change_exposed": false,
+    "diagnostics_count": 0
+  }
+]

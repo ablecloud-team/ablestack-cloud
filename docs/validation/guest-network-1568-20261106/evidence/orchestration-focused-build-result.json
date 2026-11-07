@@ -1,0 +1,12 @@
+{
+  "exit": 0,
+  "command": [
+    "mvn",
+    "-pl",
+    "engine/orchestration",
+    "-DskipITs",
+    "-Dcheckstyle.skip=true",
+    "-Dtest=NetworkDeletionLifecycleTest,RouterVolumeCleanupTest,NetworkOrchestratorTest",
+    "install"
+  ]
+}

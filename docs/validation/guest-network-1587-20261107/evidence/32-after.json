@@ -1,0 +1,59 @@
+{
+  "projectId": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+  "networkCount": 17,
+  "priorNetworksPreserved": true,
+  "addedNetwork": {
+    "id": "1f1f7c2d-58df-466d-9b7b-090ee67d3dfc",
+    "name": "qa-gn1569-32-prj-1587-l2",
+    "displaytext": "UI1587 saved 32",
+    "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0",
+    "networkofferingid": "2fe3181f-595c-4881-a328-74af9d2b94e1",
+    "type": "L2"
+  },
+  "vm": {
+    "id": "da7f69ed-1948-4927-b377-55beb9c4620d",
+    "name": "qa-gn1569-32-prj-vm",
+    "state": "Running",
+    "hostname": "ablecube32-2",
+    "projectid": "0db180fc-4a19-4f9a-b387-00599ffa86c0"
+  },
+  "nics": [
+    {
+      "id": "50c37979-c7c8-4182-b1bb-d07c131e2e04",
+      "networkid": "e251eb02-f215-48f7-b956-0576233d97a2",
+      "networkname": "qa-gn1569-32-prj-base",
+      "isdefault": true,
+      "ipaddress": "10.180.32.20",
+      "macaddress": "1e:01:6e:00:02:e7"
+    },
+    {
+      "id": "ce7677b8-553c-4e77-a32f-dfc58658d211",
+      "networkid": "e95802c5-94a0-48a6-a810-16f0a4ae7bb3",
+      "networkname": "qa-gn1569-32-prj-l2",
+      "isdefault": false,
+      "ipaddress": null,
+      "macaddress": "02:01:01:a3:00:07"
+    },
+    {
+      "id": "da50f2de-03fb-4ac4-913e-7d61d1b00e25",
+      "networkid": "1f1f7c2d-58df-466d-9b7b-090ee67d3dfc",
+      "networkname": "qa-gn1569-32-prj-1587-l2",
+      "isdefault": false,
+      "ipaddress": null,
+      "macaddress": "02:01:01:b2:00:01"
+    }
+  ],
+  "apiCount": 1070,
+  "diagnostics": {
+    "domainadmin": {
+      "errorcode": 531,
+      "errortext": "The user [User {\"id\":177,\"username\":\"qa-gn1569-32-domainadmin\",\"uuid\":\"32c9f677-e042-4874-bcca-d2adca838c1e\"}.] does not belong to the project [Project {\"domainId\":64,\"id\":57,\"name\":\"qa-gn1569-32-project\",\"uuid\":\"0db180fc-4a19-4f9a-b387-00599ffa86c0\"}.].",
+      "count": null
+    },
+    "readonly": {
+      "errorcode": 401,
+      "errortext": "The given command 'listApis' either does not exist, is not available for user.",
+      "count": null
+    }
+  }
+}

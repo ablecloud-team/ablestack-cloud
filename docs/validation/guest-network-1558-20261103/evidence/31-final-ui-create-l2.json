@@ -1,0 +1,104 @@
+{
+  "cluster": 31,
+  "label": "31-final-ui-create-l2",
+  "records": [
+    {
+      "cluster": 31,
+      "requestId": "47580.1681",
+      "command": "createNetwork",
+      "method": "POST",
+      "params": {
+        "command": "createNetwork",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "name": "qa-gn1558-31-l2-new",
+        "displaytext": "새 생성 설명 · l2\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\"",
+        "networkofferingid": "79ec5c18-b71c-4f7a-9b5d-8694b16b8a54",
+        "vlan": "781",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "47580.1682",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      }
+    }
+  ],
+  "expected_description": "새 생성 설명 · l2\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\"",
+  "responses": [
+    {
+      "request": {
+        "cluster": 31,
+        "requestId": "47580.1681",
+        "command": "createNetwork",
+        "method": "POST",
+        "params": {
+          "command": "createNetwork",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "name": "qa-gn1558-31-l2-new",
+          "displaytext": "새 생성 설명 · l2\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\"",
+          "networkofferingid": "79ec5c18-b71c-4f7a-9b5d-8694b16b8a54",
+          "vlan": "781",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+        },
+        "status": 200
+      },
+      "result": {
+        "createnetworkresponse": {
+          "network": {
+            "id": "1bc4bd16-b21e-444a-a94d-87446d7a2b81",
+            "name": "qa-gn1558-31-l2-new",
+            "displaytext": "새 생성 설명 · l2\n두 번째 줄 <b>문자 그대로</b> & \"특수문자\"",
+            "broadcastdomaintype": "Vlan",
+            "traffictype": "Guest",
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "networkofferingid": "79ec5c18-b71c-4f7a-9b5d-8694b16b8a54",
+            "networkofferingname": "기본 L2 VLAN 네트워크오퍼링",
+            "networkofferingdisplaytext": "기본 L2 VLAN 네트워크오퍼링",
+            "networkofferingconservemode": true,
+            "networkofferingavailability": "Optional",
+            "issystem": false,
+            "state": "Setup",
+            "related": "1bc4bd16-b21e-444a-a94d-87446d7a2b81",
+            "broadcasturi": "vlan://781",
+            "dns1": "8.8.8.8",
+            "type": "L2",
+            "vlan": "781",
+            "acltype": "Account",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "service": [],
+            "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+            "restartrequired": false,
+            "specifyvlan": true,
+            "specifyipranges": false,
+            "canusefordeploy": true,
+            "ispersistent": false,
+            "tags": [],
+            "details": {},
+            "displaynetwork": true,
+            "strechedl2subnet": false,
+            "redundantrouter": false,
+            "supportsvmautoscaling": false,
+            "created": "2026-11-03T16:45:46+0900",
+            "receivedbytes": 0,
+            "sentbytes": 0,
+            "publicmtu": 1500,
+            "privatemtu": 1500,
+            "hasannotations": false
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "vpcCountBefore": 1,
+  "vpcCountAfter": 1,
+  "kubernetesRuleSetsBefore": 7,
+  "kubernetesRuleSetsAfter": 8,
+  "baselineRulesPreserved": true,
+  "addedRuleSets": [
+    {
+      "rules": [
+        {
+          "count": 2,
+          "sha256": "3eb4cc91ceca547d63e94c7e99ae3a507af0abc012731b0c35740f994954cff2"
+        },
+        {
+          "count": 3,
+          "sha256": "c9407255a0f6a201a6525a232432350078b81ed83318b3333084dce6725964ad"
+        }
+      ],
+      "created": "2026-11-06T15:22:49+0900"
+    }
+  ]
+}

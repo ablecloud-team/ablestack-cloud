@@ -1,0 +1,4310 @@
+[
+  {
+    "cluster": 31,
+    "case": "destination-changed-before-submit",
+    "status": "PASS",
+    "migratePosts": 0,
+    "requests": [
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 2559,
+        "params": {
+          "id": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 2568,
+        "params": {
+          "id": "79d92ef0-8257-4a08-9cc2-060819485c77",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 2569,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 2570,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 2571,
+        "params": {
+          "resourceid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 2596,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 2597,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 2598,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 2617,
+        "params": {
+          "networkid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "first-migration-A-to-B",
+    "requests": [
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 2808,
+        "params": {
+          "id": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 2813,
+        "params": {
+          "id": "79d92ef0-8257-4a08-9cc2-060819485c77",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 2814,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 2815,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 2816,
+        "params": {
+          "resourceid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 2841,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 2842,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 2843,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 2862,
+        "params": {
+          "networkid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 2883,
+        "params": {
+          "id": "76485569-6950-4874-9be8-c6e7521ee737",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 2890,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 2897,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 2898,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 2899,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkServiceProviders",
+        "method": "GET",
+        "sequence": 2918,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualRouterElements",
+        "method": "GET",
+        "sequence": 2925,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "migrateNetwork",
+        "method": "POST",
+        "sequence": 2932,
+        "params": {
+          "networkid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "networkofferingid": "76485569-6950-4874-9be8-c6e7521ee737",
+          "resume": "false"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 2939,
+        "params": {
+          "jobid": "7e091ada-fef7-4724-99f1-185e93434bce"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "first-migration-A-to-B",
+    "requests": [
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 2650,
+        "params": {
+          "id": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 2655,
+        "params": {
+          "id": "4fca99c2-14af-46a3-adcc-265655daa5cc",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 2656,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 2657,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 2658,
+        "params": {
+          "resourceid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 2683,
+        "params": {
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 2684,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 2685,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 2704,
+        "params": {
+          "networkid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 2725,
+        "params": {
+          "id": "24a28f8c-9c5e-445f-b120-d56e48943eca",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 2732,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 2739,
+        "params": {
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 2740,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 2741,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkServiceProviders",
+        "method": "GET",
+        "sequence": 2760,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualRouterElements",
+        "method": "GET",
+        "sequence": 2767,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "migrateNetwork",
+        "method": "POST",
+        "sequence": 2774,
+        "params": {
+          "networkid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "networkofferingid": "24a28f8c-9c5e-445f-b120-d56e48943eca",
+          "resume": "false"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 2781,
+        "params": {
+          "jobid": "dc89d28d-2516-4047-b328-c9d82f8d1346"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 3453,
+        "params": {
+          "listAll": "true",
+          "listall": "true",
+          "page": "1",
+          "pageSize": "200",
+          "pagesize": "200"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "normal-B-to-A-doubleclick",
+    "status": "one POST",
+    "requests": [
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 460,
+        "params": {
+          "id": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 465,
+        "params": {
+          "id": "76485569-6950-4874-9be8-c6e7521ee737",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 466,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 467,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 468,
+        "params": {
+          "resourceid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 493,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 494,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 495,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 514,
+        "params": {
+          "networkid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 535,
+        "params": {
+          "id": "79d92ef0-8257-4a08-9cc2-060819485c77",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 542,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 549,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 550,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 551,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkServiceProviders",
+        "method": "GET",
+        "sequence": 570,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualRouterElements",
+        "method": "GET",
+        "sequence": 577,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "migrateNetwork",
+        "method": "POST",
+        "sequence": 584,
+        "params": {
+          "networkid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "networkofferingid": "79d92ef0-8257-4a08-9cc2-060819485c77",
+          "resume": "false"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 591,
+        "params": {
+          "jobid": "4af356b2-b067-440c-ae14-63fdc105565d"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 600,
+        "params": {
+          "jobid": "4af356b2-b067-440c-ae14-63fdc105565d"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 605,
+        "params": {
+          "id": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 612,
+        "params": {
+          "id": "59ce2148-1a13-48be-a743-1d04777c4c59",
+          "listall": "true",
+          "displaynetwork": "false",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 619,
+        "params": {
+          "id": "79d92ef0-8257-4a08-9cc2-060819485c77",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 620,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 621,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 622,
+        "params": {
+          "resourceid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 647,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 648,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 649,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 668,
+        "params": {
+          "networkid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 669,
+        "params": {
+          "networkid": "59ce2148-1a13-48be-a743-1d04777c4c59",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 710,
+        "params": {
+          "id": "79d92ef0-8257-4a08-9cc2-060819485c77",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 717,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 724,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 725,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 726,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkServiceProviders",
+        "method": "GET",
+        "sequence": 745,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualRouterElements",
+        "method": "GET",
+        "sequence": 752,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 759,
+        "params": {
+          "listall": "true",
+          "id": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "page": "1",
+          "pagesize": "20"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "resume-same-network-and-offering-A",
+    "requests": [
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 396,
+        "params": {
+          "id": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 401,
+        "params": {
+          "id": "59ce2148-1a13-48be-a743-1d04777c4c59",
+          "listall": "true",
+          "displaynetwork": "false",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 408,
+        "params": {
+          "id": "79d92ef0-8257-4a08-9cc2-060819485c77",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 409,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 410,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 411,
+        "params": {
+          "resourceid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 436,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 437,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 438,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 457,
+        "params": {
+          "networkid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 458,
+        "params": {
+          "networkid": "59ce2148-1a13-48be-a743-1d04777c4c59",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 499,
+        "params": {
+          "id": "79d92ef0-8257-4a08-9cc2-060819485c77",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 506,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 513,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 514,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 515,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkServiceProviders",
+        "method": "GET",
+        "sequence": 534,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualRouterElements",
+        "method": "GET",
+        "sequence": 541,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "migrateNetwork",
+        "method": "POST",
+        "sequence": 548,
+        "params": {
+          "networkid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "networkofferingid": "79d92ef0-8257-4a08-9cc2-060819485c77",
+          "resume": "true"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 555,
+        "params": {
+          "jobid": "c68635ac-771e-4456-8a08-8d59b3a0ded8"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 564,
+        "params": {
+          "jobid": "c68635ac-771e-4456-8a08-8d59b3a0ded8"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 578,
+        "params": {
+          "jobid": "c68635ac-771e-4456-8a08-8d59b3a0ded8"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "missing-QA-router-host-tag-failure",
+    "requests": [
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 327,
+        "params": {
+          "id": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 332,
+        "params": {
+          "id": "24a28f8c-9c5e-445f-b120-d56e48943eca",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 333,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 334,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 335,
+        "params": {
+          "resourceid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 360,
+        "params": {
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 361,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 362,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 381,
+        "params": {
+          "networkid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 402,
+        "params": {
+          "id": "92bebce2-b516-4fb3-9be0-5dc90d11a284",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 409,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 416,
+        "params": {
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 417,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 418,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkServiceProviders",
+        "method": "GET",
+        "sequence": 437,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualRouterElements",
+        "method": "GET",
+        "sequence": 444,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "migrateNetwork",
+        "method": "POST",
+        "sequence": 451,
+        "params": {
+          "networkid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "networkofferingid": "92bebce2-b516-4fb3-9be0-5dc90d11a284",
+          "resume": "false"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 458,
+        "params": {
+          "jobid": "f6f1b034-0b4c-467d-95c7-a43175db5fdd"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 467,
+        "params": {
+          "jobid": "f6f1b034-0b4c-467d-95c7-a43175db5fdd"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 481,
+        "params": {
+          "jobid": "f6f1b034-0b4c-467d-95c7-a43175db5fdd"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 488,
+        "params": {
+          "jobid": "f6f1b034-0b4c-467d-95c7-a43175db5fdd"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 493,
+        "params": {
+          "id": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 500,
+        "params": {
+          "id": "4de0223c-5fe3-478e-bd08-c5da12ca96d0",
+          "listall": "true",
+          "displaynetwork": "false",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 507,
+        "params": {
+          "id": "92bebce2-b516-4fb3-9be0-5dc90d11a284",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 508,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 509,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 510,
+        "params": {
+          "resourceid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 535,
+        "params": {
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 536,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 537,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 556,
+        "params": {
+          "networkid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 557,
+        "params": {
+          "networkid": "4de0223c-5fe3-478e-bd08-c5da12ca96d0",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 598,
+        "params": {
+          "id": "92bebce2-b516-4fb3-9be0-5dc90d11a284",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 605,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 612,
+        "params": {
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 613,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 614,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkServiceProviders",
+        "method": "GET",
+        "sequence": 633,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualRouterElements",
+        "method": "GET",
+        "sequence": 640,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 647,
+        "params": {
+          "listall": "true",
+          "id": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "page": "1",
+          "pagesize": "20"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "RootAdmin-L2-action-excluded-readonly",
+    "status": "PASS",
+    "menus": [
+      "대시보드컴퓨트가상머신VM 스냅샷쿠버네티스오토스케일 VM 그룹가상머신 그룹SSH 키 쌍사용자 데이터 라이브러리CNI 구성Affinity 그룹스토리지볼륨스냅샷스냅샷 정책버킷공유 파일 시스템네트워크가상머신용 네트워크VPCVNF 기기Public IP 주소AS Numbers사이트간 사설네트워크(VPN)사이트 간 VPN 연결네트워크 ACLVPN 사용자VPN 고객 게이트웨이게스트 VLANIPv4 서브넷DNS 영역DNS 서버이미지템플릿ISO쿠버네티스 ISO키 관리KMS 키HSM 프로파일이벤트프로젝트역할계정도메인인프라스트럭쳐요약ZonePod클러스터호스트기본 스토리지2차 스토리지오브젝트 스토리지시스템 VM가상 라우터내부 LB관리 서버CPU 소켓DB/Usage 서버경보서비스 오퍼링컴퓨트 오퍼링시스템 오퍼링디스크 오퍼링네트워크 오퍼링VPC 오퍼링구성글로벌 설정LDAP 구성OAuth 구성하이퍼바이저 기능게스트 OS 카테고리들게스트 OS게스트 OS 매핑GPU 카드 유형확장도구코멘트사용량인스턴스 가져오기-내보내기데이터 볼륨 가져오기WebhooksAPI 문서",
+      "네트워크네트워크 업데이트삭제네트워크 삭제"
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "RootAdmin-L2-action-excluded-readonly",
+    "status": "PASS",
+    "menus": [
+      "대시보드컴퓨트가상머신VM 스냅샷쿠버네티스오토스케일 VM 그룹가상머신 그룹SSH 키 쌍사용자 데이터 라이브러리CNI 구성Affinity 그룹스토리지볼륨스냅샷스냅샷 정책버킷공유 파일 시스템네트워크가상머신용 네트워크VPCVNF 기기Public IP 주소AS Numbers사이트간 사설네트워크(VPN)사이트 간 VPN 연결네트워크 ACLVPN 사용자VPN 고객 게이트웨이게스트 VLANIPv4 서브넷DNS 영역DNS 서버이미지템플릿ISO쿠버네티스 ISO키 관리KMS 키HSM 프로파일이벤트프로젝트역할계정도메인인프라스트럭쳐요약ZonePod클러스터호스트기본 스토리지2차 스토리지오브젝트 스토리지시스템 VM가상 라우터내부 LB관리 서버CPU 소켓DB/Usage 서버경보경보 규칙서비스 오퍼링컴퓨트 오퍼링시스템 오퍼링디스크 오퍼링네트워크 오퍼링VPC 오퍼링구성글로벌 설정LDAP 구성OAuth 구성하이퍼바이저 기능게스트 OS 카테고리들게스트 OS게스트 OS 매핑GPU 카드 유형확장도구코멘트사용량인스턴스 가져오기-내보내기데이터 볼륨 가져오기WebhooksAPI 문서",
+      "네트워크네트워크 업데이트삭제네트워크 삭제"
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "final-normal-A-to-B-doubleclick",
+    "status": "PASS-one-POST",
+    "requests": [
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 344,
+        "params": {
+          "id": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 349,
+        "params": {
+          "id": "79d92ef0-8257-4a08-9cc2-060819485c77",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 350,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 351,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 352,
+        "params": {
+          "resourceid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "includecompleted": "true",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 377,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 378,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 379,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 398,
+        "params": {
+          "networkid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 419,
+        "params": {
+          "id": "76485569-6950-4874-9be8-c6e7521ee737",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 426,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 433,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 434,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 435,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkServiceProviders",
+        "method": "GET",
+        "sequence": 454,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualRouterElements",
+        "method": "GET",
+        "sequence": 461,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "migrateNetwork",
+        "method": "POST",
+        "sequence": 468,
+        "params": {
+          "networkid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "networkofferingid": "76485569-6950-4874-9be8-c6e7521ee737",
+          "resume": "false"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 475,
+        "params": {
+          "jobid": "3acf9b55-016a-4950-9aac-31e54a431868"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 484,
+        "params": {
+          "jobid": "3acf9b55-016a-4950-9aac-31e54a431868"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 498,
+        "params": {
+          "jobid": "3acf9b55-016a-4950-9aac-31e54a431868"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 505,
+        "params": {
+          "jobid": "3acf9b55-016a-4950-9aac-31e54a431868"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "final-missing-router-capacity-failure-checkpoint",
+    "requests": [
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 4350,
+        "params": {
+          "id": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 4355,
+        "params": {
+          "id": "76485569-6950-4874-9be8-c6e7521ee737",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 4356,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 4357,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 4358,
+        "params": {
+          "resourceid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "includecompleted": "true",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 4383,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 4384,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 4385,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 4404,
+        "params": {
+          "networkid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 4425,
+        "params": {
+          "id": "8d6db1d1-1b50-42f5-90f2-c9f633ed1fb5",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 4432,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 4439,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 4440,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 4441,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkServiceProviders",
+        "method": "GET",
+        "sequence": 4460,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualRouterElements",
+        "method": "GET",
+        "sequence": 4467,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "migrateNetwork",
+        "method": "POST",
+        "sequence": 4474,
+        "params": {
+          "networkid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "networkofferingid": "8d6db1d1-1b50-42f5-90f2-c9f633ed1fb5",
+          "resume": "false"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 4481,
+        "params": {
+          "jobid": "a5bc1854-8dc7-4c8d-add3-400700dad58b"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 4497,
+        "params": {
+          "jobid": "a5bc1854-8dc7-4c8d-add3-400700dad58b"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 4504,
+        "params": {
+          "jobid": "a5bc1854-8dc7-4c8d-add3-400700dad58b"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 4509,
+        "params": {
+          "id": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 4516,
+        "params": {
+          "id": "a0ecefcf-97ba-4c8d-97af-1ad77511d8a9",
+          "listall": "true",
+          "displaynetwork": "false",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 4523,
+        "params": {
+          "id": "8d6db1d1-1b50-42f5-90f2-c9f633ed1fb5",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 4524,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 4525,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 4526,
+        "params": {
+          "resourceid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "includecompleted": "true",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 4551,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 4552,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 4553,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 4572,
+        "params": {
+          "networkid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 4573,
+        "params": {
+          "networkid": "a0ecefcf-97ba-4c8d-97af-1ad77511d8a9",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 4614,
+        "params": {
+          "id": "8d6db1d1-1b50-42f5-90f2-c9f633ed1fb5",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 4621,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 4628,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 4629,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 4630,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkServiceProviders",
+        "method": "GET",
+        "sequence": 4649,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualRouterElements",
+        "method": "GET",
+        "sequence": 4656,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 4663,
+        "params": {
+          "listall": "true",
+          "id": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "page": "1",
+          "pagesize": "20"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "final-missing-router-capacity-failure-checkpoint",
+    "requests": [
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 413,
+        "params": {
+          "id": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 418,
+        "params": {
+          "id": "4de0223c-5fe3-478e-bd08-c5da12ca96d0",
+          "listall": "true",
+          "displaynetwork": "false",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 425,
+        "params": {
+          "id": "92bebce2-b516-4fb3-9be0-5dc90d11a284",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 426,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 427,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 428,
+        "params": {
+          "resourceid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "includecompleted": "true",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 453,
+        "params": {
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 454,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 455,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 474,
+        "params": {
+          "networkid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 475,
+        "params": {
+          "networkid": "4de0223c-5fe3-478e-bd08-c5da12ca96d0",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 516,
+        "params": {
+          "id": "92bebce2-b516-4fb3-9be0-5dc90d11a284",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 523,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 530,
+        "params": {
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 531,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 532,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkServiceProviders",
+        "method": "GET",
+        "sequence": 551,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualRouterElements",
+        "method": "GET",
+        "sequence": 558,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "migrateNetwork",
+        "method": "POST",
+        "sequence": 565,
+        "params": {
+          "networkid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "networkofferingid": "92bebce2-b516-4fb3-9be0-5dc90d11a284",
+          "resume": "true"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 572,
+        "params": {
+          "jobid": "27b5a4dd-b931-4a78-99aa-271d5314ce04"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 581,
+        "params": {
+          "jobid": "27b5a4dd-b931-4a78-99aa-271d5314ce04"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 595,
+        "params": {
+          "jobid": "27b5a4dd-b931-4a78-99aa-271d5314ce04"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 600,
+        "params": {
+          "id": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 607,
+        "params": {
+          "id": "4de0223c-5fe3-478e-bd08-c5da12ca96d0",
+          "listall": "true",
+          "displaynetwork": "false",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 614,
+        "params": {
+          "id": "92bebce2-b516-4fb3-9be0-5dc90d11a284",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 615,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 616,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 617,
+        "params": {
+          "resourceid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "includecompleted": "true",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 642,
+        "params": {
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 643,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 644,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 663,
+        "params": {
+          "networkid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 664,
+        "params": {
+          "networkid": "4de0223c-5fe3-478e-bd08-c5da12ca96d0",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 705,
+        "params": {
+          "id": "92bebce2-b516-4fb3-9be0-5dc90d11a284",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 712,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 719,
+        "params": {
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 720,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 721,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkServiceProviders",
+        "method": "GET",
+        "sequence": 740,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualRouterElements",
+        "method": "GET",
+        "sequence": 747,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 754,
+        "params": {
+          "listall": "true",
+          "id": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "page": "1",
+          "pagesize": "20"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "final-resume-same-network-and-offering",
+    "requests": [
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 5796,
+        "params": {
+          "id": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 5801,
+        "params": {
+          "id": "a0ecefcf-97ba-4c8d-97af-1ad77511d8a9",
+          "listall": "true",
+          "displaynetwork": "false",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 5808,
+        "params": {
+          "id": "8d6db1d1-1b50-42f5-90f2-c9f633ed1fb5",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 5809,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 5810,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 5811,
+        "params": {
+          "resourceid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "includecompleted": "true",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 5836,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 5837,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 5838,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 5857,
+        "params": {
+          "networkid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 5858,
+        "params": {
+          "networkid": "a0ecefcf-97ba-4c8d-97af-1ad77511d8a9",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 5899,
+        "params": {
+          "id": "8d6db1d1-1b50-42f5-90f2-c9f633ed1fb5",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 5906,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 5913,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 5914,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 5915,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkServiceProviders",
+        "method": "GET",
+        "sequence": 5934,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualRouterElements",
+        "method": "GET",
+        "sequence": 5941,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "migrateNetwork",
+        "method": "POST",
+        "sequence": 5948,
+        "params": {
+          "networkid": "bb2e125e-7e78-4fde-b2d9-a72eed972b60",
+          "networkofferingid": "8d6db1d1-1b50-42f5-90f2-c9f633ed1fb5",
+          "resume": "true"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 5955,
+        "params": {
+          "jobid": "80c4a233-cdef-4372-9cab-b2ca52a56cfb"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 5964,
+        "params": {
+          "jobid": "80c4a233-cdef-4372-9cab-b2ca52a56cfb"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 5978,
+        "params": {
+          "jobid": "80c4a233-cdef-4372-9cab-b2ca52a56cfb"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 5985,
+        "params": {
+          "jobid": "80c4a233-cdef-4372-9cab-b2ca52a56cfb"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 5999,
+        "params": {
+          "jobid": "80c4a233-cdef-4372-9cab-b2ca52a56cfb"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 6013,
+        "params": {
+          "jobid": "80c4a233-cdef-4372-9cab-b2ca52a56cfb"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "final-resume-same-network-and-offering",
+    "requests": [
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 1902,
+        "params": {
+          "id": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 1907,
+        "params": {
+          "id": "4de0223c-5fe3-478e-bd08-c5da12ca96d0",
+          "listall": "true",
+          "displaynetwork": "false",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 1914,
+        "params": {
+          "id": "92bebce2-b516-4fb3-9be0-5dc90d11a284",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 1915,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 1916,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 1917,
+        "params": {
+          "resourceid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "includecompleted": "true",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 1942,
+        "params": {
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 1943,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 1944,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 1963,
+        "params": {
+          "networkid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 1964,
+        "params": {
+          "networkid": "4de0223c-5fe3-478e-bd08-c5da12ca96d0",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 2005,
+        "params": {
+          "id": "92bebce2-b516-4fb3-9be0-5dc90d11a284",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 2012,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 2019,
+        "params": {
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 2020,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 2021,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkServiceProviders",
+        "method": "GET",
+        "sequence": 2040,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualRouterElements",
+        "method": "GET",
+        "sequence": 2047,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "migrateNetwork",
+        "method": "POST",
+        "sequence": 2054,
+        "params": {
+          "networkid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "networkofferingid": "92bebce2-b516-4fb3-9be0-5dc90d11a284",
+          "resume": "true"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 2061,
+        "params": {
+          "jobid": "ccf40863-a7cd-4d38-8dd8-127d5dde5b72"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 2070,
+        "params": {
+          "jobid": "ccf40863-a7cd-4d38-8dd8-127d5dde5b72"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 2084,
+        "params": {
+          "jobid": "ccf40863-a7cd-4d38-8dd8-127d5dde5b72"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 2091,
+        "params": {
+          "jobid": "ccf40863-a7cd-4d38-8dd8-127d5dde5b72"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "final-migration-VM-link-route-breadcrumb-NIC",
+    "status": "PASS",
+    "dialogClosed": true,
+    "url": "http://10.10.31.10:8080/client/#/vm/ffbc46a3-7278-4b61-8203-60fc0ab2ecf1?tab=nics"
+  },
+  {
+    "cluster": 32,
+    "case": "final-normal-A-to-B-doubleclick",
+    "status": "PASS-one-POST",
+    "requests": [
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 6095,
+        "params": {
+          "id": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 6102,
+        "params": {
+          "id": "92bebce2-b516-4fb3-9be0-5dc90d11a284",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 6103,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 6104,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 6105,
+        "params": {
+          "resourceid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "includecompleted": "true",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 6137,
+        "params": {
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 6138,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 6139,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 6158,
+        "params": {
+          "networkid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 6179,
+        "params": {
+          "id": "24a28f8c-9c5e-445f-b120-d56e48943eca",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 6186,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 6193,
+        "params": {
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 6194,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 6195,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkServiceProviders",
+        "method": "GET",
+        "sequence": 6214,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualRouterElements",
+        "method": "GET",
+        "sequence": 6221,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "migrateNetwork",
+        "method": "POST",
+        "sequence": 6228,
+        "params": {
+          "networkid": "0905622c-bab4-422b-a40b-7be29a3fc807",
+          "networkofferingid": "24a28f8c-9c5e-445f-b120-d56e48943eca",
+          "resume": "false"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 6235,
+        "params": {
+          "jobid": "d9a0484f-15d9-4dfc-ab15-7feb8a16b1d1"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 6275,
+        "params": {
+          "jobid": "d9a0484f-15d9-4dfc-ab15-7feb8a16b1d1"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 6282,
+        "params": {
+          "jobid": "d9a0484f-15d9-4dfc-ab15-7feb8a16b1d1"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 6289,
+        "params": {
+          "jobid": "d9a0484f-15d9-4dfc-ab15-7feb8a16b1d1"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 6303,
+        "params": {
+          "jobid": "d9a0484f-15d9-4dfc-ab15-7feb8a16b1d1"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 6310,
+        "params": {
+          "jobid": "d9a0484f-15d9-4dfc-ab15-7feb8a16b1d1"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "final-migration-VM-link-route-breadcrumb-NIC",
+    "status": "PASS",
+    "dialogClosed": true,
+    "url": "http://10.10.32.10:8080/client/#/vm/55821978-ab7f-4d28-bf5b-50d2fc390ff7?tab=nics"
+  },
+  {
+    "cluster": 31,
+    "case": "Root-migrates-User-owned-network-to-B",
+    "requests": [
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 6964,
+        "params": {
+          "id": "2490904e-181d-46fd-97c3-753b216f6982",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 6969,
+        "params": {
+          "id": "79d92ef0-8257-4a08-9cc2-060819485c77",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 6970,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 6971,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 6972,
+        "params": {
+          "resourceid": "2490904e-181d-46fd-97c3-753b216f6982",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "includecompleted": "true",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 6997,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 6998,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 6999,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 7018,
+        "params": {
+          "networkid": "2490904e-181d-46fd-97c3-753b216f6982",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 7039,
+        "params": {
+          "id": "76485569-6950-4874-9be8-c6e7521ee737",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 7046,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 7053,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 7054,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 7055,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkServiceProviders",
+        "method": "GET",
+        "sequence": 7074,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualRouterElements",
+        "method": "GET",
+        "sequence": 7081,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "migrateNetwork",
+        "method": "POST",
+        "sequence": 7088,
+        "params": {
+          "networkid": "2490904e-181d-46fd-97c3-753b216f6982",
+          "networkofferingid": "76485569-6950-4874-9be8-c6e7521ee737",
+          "resume": "false"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7095,
+        "params": {
+          "jobid": "f70cb086-f59e-479a-ab8b-77e454339506"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7104,
+        "params": {
+          "jobid": "f70cb086-f59e-479a-ab8b-77e454339506"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7125,
+        "params": {
+          "jobid": "f70cb086-f59e-479a-ab8b-77e454339506"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7132,
+        "params": {
+          "jobid": "f70cb086-f59e-479a-ab8b-77e454339506"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7146,
+        "params": {
+          "jobid": "f70cb086-f59e-479a-ab8b-77e454339506"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7153,
+        "params": {
+          "jobid": "f70cb086-f59e-479a-ab8b-77e454339506"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7160,
+        "params": {
+          "jobid": "f70cb086-f59e-479a-ab8b-77e454339506"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7174,
+        "params": {
+          "jobid": "f70cb086-f59e-479a-ab8b-77e454339506"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7181,
+        "params": {
+          "jobid": "f70cb086-f59e-479a-ab8b-77e454339506"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7195,
+        "params": {
+          "jobid": "f70cb086-f59e-479a-ab8b-77e454339506"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7202,
+        "params": {
+          "jobid": "f70cb086-f59e-479a-ab8b-77e454339506"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7216,
+        "params": {
+          "jobid": "f70cb086-f59e-479a-ab8b-77e454339506"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7223,
+        "params": {
+          "jobid": "f70cb086-f59e-479a-ab8b-77e454339506"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7230,
+        "params": {
+          "jobid": "f70cb086-f59e-479a-ab8b-77e454339506"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7244,
+        "params": {
+          "jobid": "f70cb086-f59e-479a-ab8b-77e454339506"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7251,
+        "params": {
+          "jobid": "f70cb086-f59e-479a-ab8b-77e454339506"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7265,
+        "params": {
+          "jobid": "f70cb086-f59e-479a-ab8b-77e454339506"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7272,
+        "params": {
+          "jobid": "f70cb086-f59e-479a-ab8b-77e454339506"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 7277,
+        "params": {
+          "id": "2490904e-181d-46fd-97c3-753b216f6982",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 7284,
+        "params": {
+          "id": "76485569-6950-4874-9be8-c6e7521ee737",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 7285,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 7286,
+        "params": {
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 7287,
+        "params": {
+          "resourceid": "2490904e-181d-46fd-97c3-753b216f6982",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "includecompleted": "true",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 7312,
+        "params": {
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 7313,
+        "params": {
+          "physicalnetworkid": "8b2af4a2-67b2-4ef4-ac05-38a78685a451",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 7314,
+        "params": {
+          "physicalnetworkid": "d2aea1af-bc43-41d9-b2f4-3892ad96f6d4",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 7333,
+        "params": {
+          "networkid": "2490904e-181d-46fd-97c3-753b216f6982",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 7354,
+        "params": {
+          "listall": "true",
+          "id": "2490904e-181d-46fd-97c3-753b216f6982",
+          "page": "1",
+          "pagesize": "20"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "case": "User-own-network-migration-action-hidden",
+    "status": "PASS",
+    "url": "http://10.10.31.10:8080/client/#/guestnetwork/2490904e-181d-46fd-97c3-753b216f6982"
+  },
+  {
+    "cluster": 32,
+    "case": "Root-migrates-User-owned-network-to-B",
+    "requests": [
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 7709,
+        "params": {
+          "id": "5df4bffd-4df1-465b-9823-a98078ee6991",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 7714,
+        "params": {
+          "id": "4fca99c2-14af-46a3-adcc-265655daa5cc",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 7715,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 7716,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 7717,
+        "params": {
+          "resourceid": "5df4bffd-4df1-465b-9823-a98078ee6991",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "includecompleted": "true",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 7742,
+        "params": {
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 7743,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 7744,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 7763,
+        "params": {
+          "networkid": "5df4bffd-4df1-465b-9823-a98078ee6991",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 7784,
+        "params": {
+          "id": "24a28f8c-9c5e-445f-b120-d56e48943eca",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 7791,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 7798,
+        "params": {
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 7799,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 7800,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkServiceProviders",
+        "method": "GET",
+        "sequence": 7819,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualRouterElements",
+        "method": "GET",
+        "sequence": 7826,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "migrateNetwork",
+        "method": "POST",
+        "sequence": 7833,
+        "params": {
+          "networkid": "5df4bffd-4df1-465b-9823-a98078ee6991",
+          "networkofferingid": "24a28f8c-9c5e-445f-b120-d56e48943eca",
+          "resume": "false"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7840,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7856,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7863,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7877,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7884,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7891,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7905,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7912,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7926,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7940,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 7966,
+        "params": {
+          "listAll": "true",
+          "listall": "true",
+          "page": "1",
+          "pageSize": "200",
+          "pagesize": "200"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 7973,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 8001,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 8008,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 8022,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 8029,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 8036,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 8050,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 8057,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 8071,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 8078,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 8085,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 8099,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "sequence": 8106,
+        "params": {
+          "jobid": "d04d3d40-b52f-45b2-96dd-11608df0f458"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 8111,
+        "params": {
+          "id": "5df4bffd-4df1-465b-9823-a98078ee6991",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 8118,
+        "params": {
+          "id": "24a28f8c-9c5e-445f-b120-d56e48943eca",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "sequence": 8119,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "state": "Enabled",
+          "guestiptype": "Isolated",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listPhysicalNetworks",
+        "method": "GET",
+        "sequence": 8120,
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listAsyncJobs",
+        "method": "GET",
+        "sequence": 8121,
+        "params": {
+          "resourceid": "5df4bffd-4df1-465b-9823-a98078ee6991",
+          "resourcetype": "Network",
+          "keyword": "MigrateNetworkCmd",
+          "includecompleted": "true",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 8146,
+        "params": {
+          "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 8147,
+        "params": {
+          "physicalnetworkid": "bc8eaadd-461e-4c48-9c3f-d3fd4ea61e83",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listTrafficTypes",
+        "method": "GET",
+        "sequence": 8148,
+        "params": {
+          "physicalnetworkid": "31dc212b-a0f0-4a45-b415-ddb79003ddf0",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "sequence": 8167,
+        "params": {
+          "networkid": "5df4bffd-4df1-465b-9823-a98078ee6991",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "500"
+        }
+      },
+      {
+        "command": "listNetworks",
+        "method": "GET",
+        "sequence": 8188,
+        "params": {
+          "listall": "true",
+          "id": "5df4bffd-4df1-465b-9823-a98078ee6991",
+          "page": "1",
+          "pagesize": "20"
+        }
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "case": "User-own-network-migration-action-hidden",
+    "status": "PASS",
+    "url": "http://10.10.32.10:8080/client/#/guestnetwork/5df4bffd-4df1-465b-9823-a98078ee6991"
+  },
+  {
+    "case": "keyboard-combobox-to-refresh-icon",
+    "status": "PASS",
+    "focusLabel": "대상 오퍼링 다시 조회"
+  }
+]

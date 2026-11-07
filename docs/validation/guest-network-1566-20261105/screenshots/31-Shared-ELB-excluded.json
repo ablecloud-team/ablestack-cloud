@@ -1,0 +1,99 @@
+{
+  "body": {
+    "bottom": 561,
+    "height": 232,
+    "left": 281,
+    "right": 999,
+    "top": 329,
+    "width": 718,
+    "x": 281,
+    "y": 329
+  },
+  "bodyClientHeight": 232,
+  "bodyClientWidth": 718,
+  "bodyScrollHeight": 232,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 718,
+  "colors": [
+    {
+      "background": "rgb(234, 244, 255)",
+      "color": "rgb(11, 59, 102)",
+      "text": "L2·Shared의 LB 예외 조합은 이번 지원 범위에 포함하지 않습니다. 서비스·제공자와 실제 적용 경로를 별도로 검증해야 합니다."
+    },
+    {
+      "background": "rgb(242, 244, 247)",
+      "color": "rgb(123, 132, 145)",
+      "text": "확인"
+    }
+  ],
+  "content": {
+    "bottom": 627,
+    "height": 354,
+    "left": 280,
+    "right": 1000,
+    "top": 273,
+    "width": 720,
+    "x": 280,
+    "y": 273
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1280,
+    "top": 0,
+    "width": 1280,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": {
+    "bottom": 626,
+    "height": 65,
+    "left": 281,
+    "right": 999,
+    "top": 561,
+    "width": 718,
+    "x": 281,
+    "y": 561
+  },
+  "header": {
+    "bottom": 329,
+    "height": 55,
+    "left": 281,
+    "right": 999,
+    "top": 274,
+    "width": 718,
+    "x": 281,
+    "y": 274
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 776,
+    "left": 256,
+    "right": 1270,
+    "top": 124,
+    "width": 1014,
+    "x": 256,
+    "y": 124
+  },
+  "primaryButton": {
+    "bottom": 610,
+    "height": 32,
+    "left": 913.234375,
+    "right": 971,
+    "top": 578,
+    "width": 57.765625,
+    "x": 913.234375,
+    "y": 578
+  },
+  "width": 1280,
+  "image_sha256": "56920da7311fed082ee4a485bdd67ac50d4eec4e75f1388c9109b4a418314daa"
+}

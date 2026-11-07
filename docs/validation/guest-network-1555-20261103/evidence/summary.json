@@ -1,0 +1,21 @@
+{
+  "issue": 1555,
+  "epic": 1554,
+  "pr": 1577,
+  "source_commit": "af4fdf26fce257fa6e2e7b5f33e205c2d7ce68f6",
+  "ui_save_cases": 30,
+  "save_job_success": 27,
+  "expected_job_rejection": 3,
+  "synthetic_http_refusal_cases": 1,
+  "real_updates_with_synthetic_final_read_failure": 2,
+  "same_job_rechecks_without_duplicate_post": 2,
+  "unit_suites": 2,
+  "unit_tests": 52,
+  "responsive_theme_conditions": 12,
+  "captures": 25,
+  "root_volumes_absent": 36,
+  "active_fixture_db_rows": 0,
+  "all_inventory_preservation_checks_pass": true,
+  "shared_external_dns_qualified": false,
+  "next_issue": 1559
+}

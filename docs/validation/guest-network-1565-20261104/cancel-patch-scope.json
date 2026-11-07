@@ -1,0 +1,12 @@
+{
+  "prior_source": "b7630a7c02e7b38c45c977ddb9db355c655aedad",
+  "template_sha256": "13de96e5b2e647ff132a3055675a7910706fca1de0543d425a808af75258b63e",
+  "template_unchanged": true,
+  "css_locale_files_changed": false,
+  "changes": [
+    "SearchView lookup script",
+    "lookup error regression tests"
+  ],
+  "final_source": "0599e57c9d286d54f423f3728c37091d2dfce459",
+  "note": "Scoped Vue CSS bundle identifiers can change when the SFC script changes; exact CSS artifact hashes are verified per deployment, not assumed equal."
+}

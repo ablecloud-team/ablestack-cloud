@@ -1,0 +1,38 @@
+[
+  {
+    "cluster": 31,
+    "mode": "dark",
+    "dark": true,
+    "action_observation_ms": 1731
+  },
+  {
+    "cluster": 32,
+    "mode": "light",
+    "dark": false,
+    "action_observation_ms": 1978
+  },
+  {
+    "cluster": 31,
+    "mode": "light",
+    "dark": false,
+    "action_observation_ms": 2037
+  },
+  {
+    "cluster": 32,
+    "mode": "dark",
+    "dark": true,
+    "action_observation_ms": 1852
+  },
+  {
+    "cluster": 31,
+    "mode": "dark",
+    "dark": true,
+    "action_observation_ms": 1731
+  },
+  {
+    "cluster": 32,
+    "mode": "light",
+    "dark": false,
+    "action_observation_ms": 1916
+  }
+]

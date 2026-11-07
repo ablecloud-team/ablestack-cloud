@@ -1,0 +1,30 @@
+[
+  {
+    "cluster": 31,
+    "dark": true,
+    "path": [
+      "network",
+      "router-tab",
+      "related-vm-list",
+      "VM",
+      "NIC",
+      "network",
+      "breadcrumb-list"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "dark": false,
+    "path": [
+      "network",
+      "router-tab",
+      "related-vm-list",
+      "VM",
+      "NIC",
+      "network",
+      "breadcrumb-list"
+    ],
+    "pass": true
+  }
+]

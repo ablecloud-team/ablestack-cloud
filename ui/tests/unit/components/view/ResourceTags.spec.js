@@ -149,3 +149,21 @@ test('VM tags use UserVm and its exact owner project; failed preflight never pos
   getAPI.mockRejectedValueOnce({ response: { status: 503 } }); wrapper.vm.inputKey = 'key'; wrapper.vm.inputValue = 'value'; await wrapper.vm.submitTag(); await flush()
   expect(postAPI).not.toHaveBeenCalled(); expect(wrapper.vm.operationState.status).toBe('failed')
 })
+
+test.each(['FirewallRule', 'PortForwardingRule', 'LoadBalancer'])('%s tags submit the rule UUID within the active IP scope', async resourceType => {
+  route.meta = { name: 'publicip', resourceType: 'PublicIpAddress' }
+  route.fullPath = '/publicip/' + otherId
+  route.params.id = otherId
+  store.getters.project = { id: 'selected-project' }
+  rows = [tag('rule', 'value', id, resourceType)]
+  render({ resourceType, parentIpId: otherId, resource: { ...resource, projectid: 'owner-project' } })
+  await flush()
+  expect(getAPI.mock.calls[0][1]).toMatchObject({ resourceid: id, resourcetype: resourceType, projectid: 'owner-project' })
+  wrapper.vm.inputKey = 'new'
+  wrapper.vm.inputValue = 'value'
+  await wrapper.vm.submitTag()
+  expect(postAPI.mock.calls[0][1]).toMatchObject({ resourceids: id, resourcetype: resourceType, projectid: 'owner-project' })
+  route.params.id = id
+  expect(wrapper.vm.visibleTags).toEqual([])
+  expect(wrapper.vm.canChange).toBe(false)
+})

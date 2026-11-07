@@ -1,0 +1,74 @@
+{
+  "sourceHead": "0599e57c9d286d54f423f3728c37091d2dfce459",
+  "styleMatrixSource": "b7630a7c02e7b38c45c977ddb9db355c655aedad",
+  "styleMatrixConditions": 12,
+  "surfacesPerCondition": 2,
+  "finalGuardRepresentativeConditions": 4,
+  "finalGuardSurfaces": 8,
+  "cancellationCases": [
+    {
+      "cluster": 31,
+      "command": "listZones",
+      "paused": 1,
+      "destination": "http://10.10.31.10:8080/client/#/networkoffering/2c643246-508a-4446-a730-ca9214cc3281?projectid=-1&tab=network.offering.used.networks",
+      "status": "PASS"
+    },
+    {
+      "cluster": 31,
+      "command": "listDomains",
+      "paused": 1,
+      "destination": "http://10.10.31.10:8080/client/#/networkoffering/2c643246-508a-4446-a730-ca9214cc3281?projectid=-1&tab=network.offering.used.networks",
+      "status": "PASS"
+    },
+    {
+      "cluster": 31,
+      "command": "listAccounts",
+      "paused": 1,
+      "destination": "http://10.10.31.10:8080/client/#/networkoffering/2c643246-508a-4446-a730-ca9214cc3281?projectid=-1&tab=network.offering.used.networks",
+      "status": "PASS"
+    },
+    {
+      "cluster": 32,
+      "command": "listZones",
+      "paused": 1,
+      "destination": "http://10.10.32.10:8080/client/#/networkoffering/324d6a00-b081-46db-9533-72a323c0d734?projectid=-1&tab=network.offering.used.networks",
+      "status": "PASS"
+    },
+    {
+      "cluster": 32,
+      "command": "listDomains",
+      "paused": 1,
+      "destination": "http://10.10.32.10:8080/client/#/networkoffering/324d6a00-b081-46db-9533-72a323c0d734?projectid=-1&tab=network.offering.used.networks",
+      "status": "PASS"
+    },
+    {
+      "cluster": 32,
+      "command": "listAccounts",
+      "paused": 1,
+      "destination": "http://10.10.32.10:8080/client/#/networkoffering/324d6a00-b081-46db-9533-72a323c0d734?projectid=-1&tab=network.offering.used.networks",
+      "status": "PASS"
+    }
+  ],
+  "retainedNetworksPerCluster": 8,
+  "retainedTotal": 16,
+  "viewportsRestored": true,
+  "themeRestored": "light",
+  "faultInjectionRestored": true,
+  "cacheRestored": true,
+  "reviewUrls": [
+    "http://10.10.31.10:8080/client/#/guestnetwork?projectid=-1&keyword=qa-gn1565-31&q=qa-gn1565-31&page=1&pagesize=20",
+    "http://10.10.32.10:8080/client/#/networkoffering/324d6a00-b081-46db-9533-72a323c0d734?projectid=-1&tab=network.offering.used.networks"
+  ],
+  "console": [
+    {
+      "cluster": 31,
+      "errorRecords": 0,
+      "criticalJavaScriptErrors": []
+    },
+    {
+      "cluster": 32,
+      "errorRecords": 0,
+      "criticalJavaScriptErrors": []
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "nosnat": {
+    "guest_ssh_exit": 0,
+    "same_host": true,
+    "router_guest_ip": "172.28.32.10",
+    "guest": {
+      "addresses": {
+        "exit": 0,
+        "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"::1\",\"prefixlen\":128,\"scope\":\"host\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"ifname\":\"ens3\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"fq_codel\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"1e:01:9e:00:01:ac\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"altnames\":[\"enp0s3\"],\"addr_info\":[{\"family\":\"inet\",\"local\":\"172.28.32.18\",\"prefixlen\":24,\"broadcast\":\"172.28.32.255\",\"scope\":\"global\",\"noprefixroute\":true,\"label\":\"ens3\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"fe80::1c01:9eff:fe00:1ac\",\"prefixlen\":64,\"scope\":\"link\",\"noprefixroute\":true,\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]\n",
+        "stderr": ""
+      },
+      "router_ping": {
+        "exit": 0,
+        "stdout": "PING 172.28.32.10 (172.28.32.10) 56(84) bytes of data.\n64 bytes from 172.28.32.10: icmp_seq=1 ttl=64 time=0.141 ms\n64 bytes from 172.28.32.10: icmp_seq=2 ttl=64 time=0.175 ms\n\n--- 172.28.32.10 ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss, time 1044ms\nrtt min/avg/max/mdev = 0.141/0.158/0.175/0.017 ms\n",
+        "stderr": ""
+      }
+    },
+    "ssh_error": "Warning: Permanently added '[169.254.128.195]:3922' (ED25519) to the list of known hosts.\nWarning: Permanently added '172.28.32.18' (ED25519) to the list of known hosts.\n"
+  },
+  "shared": {
+    "guest_ssh_exit": 255,
+    "same_host": true,
+    "router_guest_ip": "172.30.32.10",
+    "guest": null,
+    "ssh_error": "Warning: Permanently added '[169.254.43.19]:3922' (ED25519) to the list of known hosts.\nWarning: Permanently added '172.30.32.18' (ED25519) to the list of known hosts.\nqa-net@172.30.32.18: Permission denied (publickey,gssapi-keyex,gssapi-with-mic,password).\n"
+  }
+}

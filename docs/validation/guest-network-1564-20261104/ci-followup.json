@@ -1,0 +1,24 @@
+{
+  "head": "22eb2f24fed83f7cdd6acde5d739c04885bb30a0",
+  "run": 41830719206,
+  "newEvidenceEofFindings": 0,
+  "hooks": [
+    "Run pre-commit\tUNKNOWN STEP\t2026-11-04T12:38:49.9046061Z ^[[2m- hook id: identity^[[m",
+    "Run pre-commit\tUNKNOWN STEP\t2026-11-04T12:57:40.5480247Z ^[[2m- hook id: oxipng^[[m",
+    "Run pre-commit\tUNKNOWN STEP\t2026-11-04T12:57:45.1209910Z ^[[2m- hook id: insert-license^[[m",
+    "Run pre-commit\tUNKNOWN STEP\t2026-11-04T12:57:46.6681254Z ^[[2m- hook id: insert-license^[[m",
+    "Run pre-commit\tUNKNOWN STEP\t2026-11-04T12:57:48.2005977Z ^[[2m- hook id: insert-license^[[m",
+    "Run pre-commit\tUNKNOWN STEP\t2026-11-04T12:57:49.7338030Z ^[[2m- hook id: insert-license^[[m",
+    "Run pre-commit\tUNKNOWN STEP\t2026-11-04T12:57:51.3160588Z ^[[2m- hook id: insert-license^[[m",
+    "Run pre-commit\tUNKNOWN STEP\t2026-11-04T12:57:52.8682033Z ^[[2m- hook id: insert-license^[[m",
+    "Run pre-commit\tUNKNOWN STEP\t2026-11-04T12:58:00.4349201Z ^[[2m- hook id: check-shebang-scripts-are-executable^[[m",
+    "Run pre-commit\tUNKNOWN STEP\t2026-11-04T12:58:01.9475801Z ^[[2m- hook id: check-symlinks^[[m",
+    "Run pre-commit\tUNKNOWN STEP\t2026-11-04T12:58:35.5744087Z ^[[2m- hook id: end-of-file-fixer^[[m",
+    "Run pre-commit\tUNKNOWN STEP\t2026-11-04T12:58:39.6971523Z ^[[2m- hook id: fix-byte-order-marker^[[m",
+    "Run pre-commit\tUNKNOWN STEP\t2026-11-04T12:58:44.1628397Z ^[[2m- hook id: mixed-line-ending^[[m",
+    "Run pre-commit\tUNKNOWN STEP\t2026-11-04T12:58:47.0555130Z ^[[2m- hook id: trailing-whitespace^[[m",
+    "Run pre-commit\tUNKNOWN STEP\t2026-11-04T12:59:04.6492151Z ^[[2m- hook id: codespell^[[m",
+    "Run pre-commit\tUNKNOWN STEP\t2026-11-04T12:59:29.1649862Z ^[[2m- hook id: flake8^[[m",
+    "Run pre-commit\tUNKNOWN STEP\t2026-11-04T12:59:38.6028276Z ^[[2m- hook id: markdownlint^[[m"
+  ]
+}

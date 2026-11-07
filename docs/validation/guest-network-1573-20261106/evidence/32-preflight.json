@@ -1,0 +1,51 @@
+{
+  "ips": {
+    "rulesIp": {
+      "id": "3718e606-1ab1-48db-a660-7486d8dfc172",
+      "ipaddress": "10.10.32.165",
+      "state": "Allocated",
+      "issystem": false,
+      "issourcenat": false,
+      "hasrules": false,
+      "account": "qa-gn1573-32-owner",
+      "associatednetworkid": "c2609e60-027e-4611-96a2-854e8e02c601"
+    },
+    "natIp": {
+      "id": "5b6fd789-f97f-4d64-bbc4-1b465488a45b",
+      "ipaddress": "10.10.32.164",
+      "state": "Allocated",
+      "issystem": false,
+      "issourcenat": false,
+      "hasrules": false,
+      "account": "qa-gn1573-32-owner",
+      "associatednetworkid": "c2609e60-027e-4611-96a2-854e8e02c601"
+    },
+    "vpnIp": {
+      "id": "a224e269-d6eb-4b4a-8130-bf2f8927f1c9",
+      "ipaddress": "10.10.32.163",
+      "state": "Allocated",
+      "issystem": false,
+      "issourcenat": false,
+      "hasrules": false,
+      "account": "qa-gn1573-32-owner",
+      "associatednetworkid": "c2609e60-027e-4611-96a2-854e8e02c601"
+    },
+    "sourceIp": {
+      "id": "04de4618-4265-4bfc-9b4c-95bc88ac1c2c",
+      "ipaddress": "10.10.32.166",
+      "state": "Allocated",
+      "issystem": false,
+      "issourcenat": true,
+      "hasrules": false,
+      "account": "qa-gn1573-32-owner",
+      "associatednetworkid": "c2609e60-027e-4611-96a2-854e8e02c601"
+    }
+  },
+  "candidatePrimary": "10.179.32.106",
+  "candidateSecondary": "10.179.32.67",
+  "contextCounts": {
+    "listVPCs": 1,
+    "listRemoteAccessVpns": 0,
+    "listSslCerts": "unavailable"
+  }
+}

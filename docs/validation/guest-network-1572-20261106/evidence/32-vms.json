@@ -1,0 +1,58 @@
+{
+  "1": {
+    "name": "qa-gn1572-32-vm1",
+    "id": "f1852d0d-7c88-46ec-b86b-9e3aa4dcb0cf",
+    "hostid": "a7b3e91f-2248-436b-affb-e3b31b36ed62",
+    "hostname": "ablecube32-2",
+    "state": "Running",
+    "instancename": "i-230-406-VM",
+    "nic": [
+      {
+        "id": "2c91c79c-d6d0-41c5-9473-639949788a4b",
+        "networkid": "edcc66a7-ad24-4252-a96b-b202833845c4",
+        "networkname": "qa-gn1572-32-account",
+        "netmask": "255.255.255.224",
+        "gateway": "198.19.32.65",
+        "ipaddress": "198.19.32.82",
+        "isolationuri": "vlan://783",
+        "broadcasturi": "vlan://783",
+        "traffictype": "Guest",
+        "type": "Shared",
+        "isdefault": true,
+        "macaddress": "1e:01:ac:00:02:5f",
+        "secondaryip": [],
+        "extradhcpoption": [],
+        "deviceid": "0",
+        "enabled": true
+      }
+    ]
+  },
+  "2": {
+    "name": "qa-gn1572-32-vm2",
+    "id": "f28b97da-4a6c-4a1e-b3ce-9a966a4e86ef",
+    "hostid": "a7b3e91f-2248-436b-affb-e3b31b36ed62",
+    "hostname": "ablecube32-2",
+    "state": "Running",
+    "instancename": "i-230-408-VM",
+    "nic": [
+      {
+        "id": "40bc1ea9-6988-4c5a-8d33-58e4e8b09552",
+        "networkid": "edcc66a7-ad24-4252-a96b-b202833845c4",
+        "networkname": "qa-gn1572-32-account",
+        "netmask": "255.255.255.224",
+        "gateway": "198.19.32.65",
+        "ipaddress": "198.19.32.84",
+        "isolationuri": "vlan://783",
+        "broadcasturi": "vlan://783",
+        "traffictype": "Guest",
+        "type": "Shared",
+        "isdefault": true,
+        "macaddress": "1e:01:3e:00:02:61",
+        "secondaryip": [],
+        "extradhcpoption": [],
+        "deviceid": "0",
+        "enabled": true
+      }
+    ]
+  }
+}

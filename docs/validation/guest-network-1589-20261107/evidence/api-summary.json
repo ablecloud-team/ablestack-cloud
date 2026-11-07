@@ -1,0 +1,14 @@
+{
+  "31": {
+    "recorded": 70,
+    "allowed": 42,
+    "policyDenied": 28,
+    "environmentBlocked": 0
+  },
+  "32": {
+    "recorded": 74,
+    "allowed": 45,
+    "policyDenied": 28,
+    "environmentBlocked": 1
+  }
+}

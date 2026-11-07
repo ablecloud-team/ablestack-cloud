@@ -1,0 +1,6 @@
+{
+  "private_fixture_keys": true,
+  "remote_tmpfs_staging": true,
+  "router_known_hosts": true,
+  "durable_backups_preserved": true
+}

@@ -1,0 +1,89 @@
+{
+  "cluster": 31,
+  "label": "31-state-preflight-blocked",
+  "records": [
+    {
+      "cluster": 31,
+      "requestId": "44556.1705",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "22c51c5f-4654-46eb-a996-59d2040475d0",
+        "listall": "true",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "44556.1706",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "98e4b4b0-e163-4114-84b8-cc87a06e3a6e",
+        "listall": "true",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "44556.1707",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "46a69931-ebbf-4aee-9d3d-12d03315a949",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "44556.1708",
+      "command": "listRouters",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "networkid": "22c51c5f-4654-46eb-a996-59d2040475d0",
+        "command": "listRouters"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "44556.1709",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "46a69931-ebbf-4aee-9d3d-12d03315a949",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "44556.1710",
+      "command": "listRouters",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "networkid": "98e4b4b0-e163-4114-84b8-cc87a06e3a6e",
+        "command": "listRouters"
+      },
+      "status": 200
+    }
+  ],
+  "before": [
+    {
+      "id": "22c51c5f-4654-46eb-a996-59d2040475d0",
+      "status": "idle",
+      "text": "qa-gn1559-31-b\nIsolated · Implemented · admin\n22c51c5f-4654-46eb-a996-59d2040475d0\n대기"
+    },
+    {
+      "id": "98e4b4b0-e163-4114-84b8-cc87a06e3a6e",
+      "status": "idle",
+      "text": "qa-gn1559-31-a\nIsolated · Implemented · qa-gn1559-31-user\n98e4b4b0-e163-4114-84b8-cc87a06e3a6e\n대기"
+    }
+  ],
+  "dialog_snapshot": "- complementary:\n  - menu:\n    - menuitem \"dashboard 대시보드\":\n      - link \"dashboard 대시보드\":\n        - /url: \"#/dashboard\"\n        - img \"dashboard\":\n        - text: 대시보드\n    - img \"cloud\":\n    - text: 컴퓨트\n    - img \"hdd\":\n    - text: 스토리지\n    - img \"wifi\":\n    - text: 네트워크\n    - list:\n      - menuitem \"apartment 가상머신용 네트워크\":\n        - link \"apartment 가상머신용 네트워크\":\n          - /url: \"#/guestnetwork\"\n          - img \"apartment\":\n          - text: 가상머신용 네트워크\n      - menuitem \"deployment-unit VPC\":\n        - link \"deployment-unit VPC\":\n          - /url: \"#/vpc\"\n          - img \"deployment-unit\":\n          - text: VPC\n      - menuitem \"gateway VNF 기기\":\n        - link \"gateway VNF 기기\":\n          - /url: \"#/vnfapp\"\n          - img \"gateway\":\n          - text: VNF 기기\n      - menuitem \"environment Public IP 주소\":\n        - link \"environment Public IP 주소\":\n          - /url: \"#/publicip\"\n          - img \"environment\":\n          - text: Public IP 주소\n      - menuitem \"partition AS Numbers\":\n        - link \"partition AS Numbers\":\n          - /url: \"#/asnumbers\"\n          - img \"partition\":\n          - text: AS Numbers\n      - menuitem \"lock 사이트간 사설네트워크(VPN)\":\n        - link \"lock 사이트간 사설네트워크(VPN)\":\n          - /url: \"#/s2svpn\"\n          - img \"lock\":\n          - text: 사이트간 사설네트워크(VPN)\n      - menuitem \"sync 사이트 간 VPN 연결\":\n        - link \"sync 사이트 간 VPN 연결\":\n          - /url: \"#/s2svpnconn\"\n          - img \"sync\":\n          - text: 사이트 간 VPN 연결\n      - menuitem \"bars 네트워크 ACL\":\n        - link \"bars 네트워크 ACL\":\n          - /url: \"#/acllist\"\n          - img \"bars\":\n          - text: 네트워크 ACL\n      - menuitem \"user-switch VPN 사용자\":\n        - link \"user-switch VPN 사용자\":\n          - /url: \"#/vpnuser\"\n          - img \"user-switch\":\n          - text: VPN 사용자\n      - menuitem \"lock VPN 고객 게이트웨이\":\n        - link \"lock VPN 고객 게이트웨이\":\n          - /url: \"#/vpncustomergateway\"\n          - img \"lock\":\n          - text: VPN 고객 게이트웨이\n      - menuitem \"folder 게스트 VLAN\":\n        - link \"folder 게스트 VLAN\":\n          - /url: \"#/guestvlans\"\n          - img \"folder\":\n          - text: 게스트 VLAN\n      - menuitem \"pic-center IPv4 서브넷\":\n        - link \"pic-center IPv4 서브넷\":\n          - /url: \"#/ipv4subnets\"\n          - img \"pic-center\":\n          - text: IPv4 서브넷\n      - menuitem \"apartment DNS 영역\":\n        - link \"apartment DNS 영역\":\n          - /url: \"#/dnszone\"\n          - img \"apartment\":\n          - text: DNS 영역\n      - menuitem \"cloud-server DNS 서버\":\n        - link \"cloud-server DNS 서버\":\n          - /url: \"#/dnsserver\"\n          - img \"cloud-server\":\n          - text: DNS 서버\n    - img \"picture\":\n    - text: 이미지\n    - img \"lock\":\n    - text: 키 관리\n    - menuitem \"schedule 이벤트\":\n      - link \"schedule 이벤트\":\n        - /url: \"#/event\"\n        - img \"schedule\":\n        - text: 이벤트\n    - menuitem \"project 프로젝트\":\n      - link \"project 프로젝트\":\n        - /url: \"#/project\"\n        - img \"project\":\n        - text: 프로젝트\n    - menuitem \"idcard 역할\":\n      - link \"idcard 역할\":\n        - /url: \"#/role\"\n        - img \"idcard\":\n        - text: 역할\n    - menuitem \"team 계정\":\n      - link \"team 계정\":\n        - /url: \"#/account\"\n        - img \"team\":\n        - text: 계정\n    - menuitem \"block 도메인\":\n      - link \"block 도메인\":\n        - /url: \"#/domain\"\n        - img \"block\":\n        - text: 도메인\n    - img \"bank\":\n    - text: 인프라스트럭쳐\n    - img \"shopping\":\n    - text: 서비스 오퍼링\n    - img \"setting\":\n    - text: 구성\n    - menuitem \"appstore-add 확장\":\n      - link \"appstore-add 확장\":\n        - /url: \"#/extension\"\n        - img \"appstore-add\":\n        - text: 확장\n    - img \"tool\":\n    - text: 도구\n    - menuitem \"read API 문서\":\n      - link \"read API 문서\":\n        - /url: \"#/apidocs/\"\n        - img \"read\":\n        - text: API 문서\n- generic: 페이지 스타일 설정\n- button \"닫기\":\n  - img \"close\":\n- heading \"페이지 스타일 설정\" [level=3]\n- radio [checked]\n- img \"check\":\n- radio\n- heading \"테마 색상\" [level=3]\n- radio\n- img \"check\"\n- radio\n- radio\n- radio\n- radio\n- radio\n- radio\n- radio\n- separator\n- heading \"네비게이션 설정\" [level=3]\n- generic: 배경색\n- textbox: \"#ffffff\"\n- generic: 텍스트 색상\n- textbox: \"#000000\"\n- separator\n- alert:\n  - img \"exclamation-circle\":\n  - generic: \"설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.\"\n- button \"download 세팅값 다운로드(json)\":\n  - img \"download\":\n  - generic: 세팅값 다운로드(json)\n- button \"undo 기본값으로 재설정\":\n  - img \"undo\":\n  - generic: 기본값으로 재설정\n- img \"menu-fold\":\n- combobox\n- img \"project\":\n- text: 기본 보기\n- button \"생성 down\":\n  - generic: 생성\n  - img \"down\":\n- img \"translation\":\n- button \"알림\":\n  - img \"bell\":\n  - superscript:\n    - paragraph: \"5\"\n- generic: AC\n- generic: admin cloud\n- main:\n  - link \"home\":\n    - /url: \"#/\"\n    - img \"home\":\n  - text: /\n  - link \"가상머신용 네트워크\":\n    - /url: \"#/guestnetwork\"\n  - link \"question-circle\":\n    - /url: http://docs.ablecloud.io/latest/adminguide/networking_and_traffic.html#adding-an-additional-guest-network\n    - img \"question-circle\":\n  - button \"reload 업데이트\":\n    - img \"reload\":\n    - generic: 업데이트\n  - combobox\n  - generic: 모두\n  - switch \"프로젝트\":\n    - generic: 프로젝트\n  - button \"네트워크 추가\":\n    - img \"plus\":\n    - generic: 네트워크 추가\n  - button \"고급 검색\":\n    - img \"filter\":\n  - textbox \"검색\": qa-gn1559-31\n  - button \"close-circle\":\n  - button \"search\":\n    - img \"search\":\n  - table:\n    - rowgroup:\n      - row \"이름 caret-up caret-down 상태 caret-up caret-down 유형 caret-up caret-down VPC caret-up caret-down IPv4 CIDR caret-up caret-down IPv6 CIDR caret-up caret-down 브로드 캐스트 caret-up caret-down 도메인 caret-up caret-down 계정 caret-up caret-down Zone caret-up caret-down filter\":\n        - columnheader:\n          - checkbox\n        - columnheader \"이름 caret-up caret-down\":\n          - generic: 이름\n          - img \"caret-up\":\n          - img \"caret-down\":\n        - columnheader \"상태 caret-up caret-down\":\n          - generic: 상태\n          - img \"caret-up\":\n          - img \"caret-down\":\n        - columnheader \"유형 caret-up caret-down\":\n          - generic: 유형\n          - img \"caret-up\":\n          - img \"caret-down\":\n        - columnheader \"VPC caret-up caret-down\":\n          - generic: VPC\n          - img \"caret-up\":\n          - img \"caret-down\":\n        - columnheader \"IPv4 CIDR caret-up caret-down\":\n          - generic: IPv4 CIDR\n          - img \"caret-up\":\n          - img \"caret-down\":\n        - columnheader \"IPv6 CIDR caret-up caret-down\":\n          - generic: IPv6 CIDR\n          - img \"caret-up\":\n          - img \"caret-down\":\n        - columnheader \"브로드 캐스트 caret-up caret-down\":\n          - generic: 브로드 캐스트\n          - img \"caret-up\":\n          - img \"caret-down\":\n        - columnheader \"도메인 caret-up caret-down\":\n          - generic: 도메인\n          - img \"caret-up\":\n          - img \"caret-down\":\n        - columnheader \"계정 caret-up caret-down\":\n          - generic: 계정\n          - img \"caret-up\":\n          - img \"caret-down\":\n        - columnheader \"Zone caret-up caret-down\":\n          - generic: Zone\n          - img \"caret-up\":\n          - img \"caret-down\":\n        - columnheader \"filter\":\n          - button \"filter\":\n            - img \"filter\":\n    - rowgroup:\n      - row \"apartment qa-gn1559-31-empty 할당 됨 Isolated 10.246.31.0/24 ROOT admin Zone\":\n        - cell:\n          - checkbox\n        - cell \"apartment qa-gn1559-31-empty\":\n          - img \"apartment\":\n          - link \"qa-gn1559-31-empty\":\n            - /url: \"#/guestnetwork/db177c0e-6fca-4ec5-81c8-f9cc10cb7e62\"\n        - cell \"할당 됨\":\n          - generic: 할당 됨\n        - cell \"Isolated\"\n        - cell\n        - cell \"10.246.31.0/24\"\n        - cell\n        - cell\n        - cell \"ROOT\":\n          - link \"ROOT\":\n            - /url: \"#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details\"\n        - cell \"admin\":\n          - link \"admin\":\n            - /url: \"#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true\"\n        - cell \"Zone\":\n          - link \"Zone\":\n            - /url: \"#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c\"\n        - cell\n      - row \"apartment qa-gn1559-31-l2 구성 완료 L2 vlan://641 ROOT admin Zone\":\n        - cell:\n          - checkbox\n        - cell \"apartment qa-gn1559-31-l2\":\n          - img \"apartment\":\n          - link \"qa-gn1559-31-l2\":\n            - /url: \"#/guestnetwork/30439bcc-ad34-4352-89f1-59b9004c575f\"\n        - cell \"구성 완료\":\n          - generic: 구성 완료\n        - cell \"L2\"\n        - cell\n        - cell\n        - cell\n        - cell \"vlan://641\"\n        - cell \"ROOT\":\n          - link \"ROOT\":\n            - /url: \"#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details\"\n        - cell \"admin\":\n          - link \"admin\":\n            - /url: \"#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true\"\n        - cell \"Zone\":\n          - link \"Zone\":\n            - /url: \"#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c\"\n        - cell\n      - row \"apartment qa-gn1559-31-shared 구성 완료 Shared 10.247.31.0/24 vlan://631 ROOT Zone\":\n        - cell:\n          - checkbox\n        - cell \"apartment qa-gn1559-31-shared\":\n          - img \"apartment\":\n          - link \"qa-gn1559-31-shared\":\n            - /url: \"#/guestnetwork/c648aa81-e649-48d6-b296-7735be04a7ce\"\n        - cell \"구성 완료\":\n          - generic: 구성 완료\n        - cell \"Shared\"\n        - cell\n        - cell \"10.247.31.0/24\"\n        - cell\n        - cell \"vlan://631\"\n        - cell \"ROOT\":\n          - link \"ROOT\":\n            - /url: \"#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details\"\n        - cell\n        - cell \"Zone\":\n          - link \"Zone\":\n            - /url: \"#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c\"\n        - cell\n      - row \"apartment qa-gn1559-31-b Implemented Isolated 10.248.31.0/24 vlan://161 ROOT admin Zone\":\n        - cell:\n          - checkbox [checked]\n        - cell \"apartment qa-gn1559-31-b\":\n          - img \"apartment\":\n          - link \"qa-gn1559-31-b\":\n            - /url: \"#/guestnetwork/22c51c5f-4654-46eb-a996-59d2040475d0\"\n        - cell \"Implemented\":\n          - generic: Implemented\n        - cell \"Isolated\"\n        - cell\n        - cell \"10.248.31.0/24\"\n        - cell\n        - cell \"vlan://161\"\n        - cell \"ROOT\":\n          - link \"ROOT\":\n            - /url: \"#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details\"\n        - cell \"admin\":\n          - link \"admin\":\n            - /url: \"#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true\"\n        - cell \"Zone\":\n          - link \"Zone\":\n            - /url: \"#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c\"\n        - cell\n      - row \"apartment qa-gn1559-31-a Implemented Isolated 10.249.31.0/24 vlan://177 ROOT qa-gn1559-31-user Zone\":\n        - cell:\n          - checkbox [checked]\n        - cell \"apartment qa-gn1559-31-a\":\n          - img \"apartment\":\n          - link \"qa-gn1559-31-a\":\n            - /url: \"#/guestnetwork/98e4b4b0-e163-4114-84b8-cc87a06e3a6e\"\n        - cell \"Implemented\":\n          - generic: Implemented\n        - cell \"Isolated\"\n        - cell\n        - cell \"10.249.31.0/24\"\n        - cell\n        - cell \"vlan://177\"\n        - cell \"ROOT\":\n          - link \"ROOT\":\n            - /url: \"#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details\"\n        - cell \"qa-gn1559-31-user\":\n          - link \"qa-gn1559-31-user\":\n            - /url: \"#/account?name=qa-gn1559-31-user&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true\"\n        - cell \"Zone\":\n          - link \"Zone\":\n            - /url: \"#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c\"\n        - cell\n  - generic: 2개 선택\n  - list:\n    - listitem: 전체 5 개 항목 중 1-5 표시\n    - listitem \"이전 페이지\":\n      - button \"left\" [disabled]:\n        - img \"left\":\n    - listitem \"1\":\n      - generic: \"1\"\n    - listitem \"다음 페이지\":\n      - button \"right\" [disabled]:\n        - img \"right\":\n    - combobox\n    - generic: 20 / 쪽\n- alert:\n  - img \"info-circle\":\n  - generic: Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성\n- dialog \"네트워크 재시작\":\n  - document:\n    - button \"Close\":\n      - img \"close\":\n    - generic: 네트워크 재시작\n    - paragraph: 재시작 중 네트워크 통신이 끊길 수 있습니다. 선택한 모든 대상이 적합할 때 실행하며 네트워크별로 결과를 추적합니다.\n    - alert:\n      - img \"close-circle\":\n      - generic: 확인하거나 재시작할 수 없는 대상이 있습니다. 새 재시작 요청을 보내지 않았습니다. 항목별 사유를 확인하고 대상을 다시 조회하세요.\n    - generic \"네트워크 요소 재생성\"\n    - switch \"네트워크 요소 재생성\"\n    - generic \"라우터 이중화 전환\"\n    - switch \"라우터 이중화 전환\" [disabled]\n    - generic \"Live Patch\"\n    - switch \"Live Patch\"\n    - paragraph: 요소 재생성 또는 이중화 전환을 선택하면 Live Patch는 해제됩니다. 옵션은 모든 대상에 동일하게 적용되며 실행과 재시도 중 유지됩니다.\n    - status: 전체 2 · 완료 0\n    - button \"대상 다시 확인\":\n      - generic: 대상 다시 확인\n    - list:\n      - strong: qa-gn1559-31-b\n      - generic: Isolated · Implemented · admin\n      - text: 22c51c5f-4654-46eb-a996-59d2040475d0\n      - generic: 대기\n      - alert: 진행 중 작업이 없는 Implemented 또는 Setup 상태에서 재시작할 수 있습니다.\n      - strong: qa-gn1559-31-a\n      - generic: Isolated · Implemented · qa-gn1559-31-user\n      - text: 98e4b4b0-e163-4114-84b8-cc87a06e3a6e\n      - generic: 대기\n    - button \"닫기\":\n      - generic: 닫기\n    - button \"네트워크 재시작\" [disabled]:\n      - generic: 네트워크 재시작"
+}

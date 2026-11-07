@@ -1,0 +1,104 @@
+{
+  "body": {
+    "bottom": 862,
+    "height": 710,
+    "left": 25,
+    "right": 743,
+    "top": 152,
+    "width": 718,
+    "x": 25,
+    "y": 152
+  },
+  "bodyClientHeight": 710,
+  "bodyClientWidth": 708,
+  "bodyScrollHeight": 1464,
+  "bodyScrollTop": 754,
+  "bodyScrollWidth": 708,
+  "colors": [
+    {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgb(197, 204, 212)",
+      "text": "Isolated · Zone · admin"
+    },
+    {
+      "background": "rgba(82, 196, 26, 0.14)",
+      "color": "rgb(211, 244, 220)",
+      "text": "요구 서비스와 제공자 설정이 일치합니다."
+    },
+    {
+      "background": "rgb(9, 105, 218)",
+      "color": "rgb(255, 255, 255)",
+      "text": "확인"
+    }
+  ],
+  "content": {
+    "bottom": 928,
+    "height": 832,
+    "left": 24,
+    "right": 744,
+    "top": 96,
+    "width": 720,
+    "x": 24,
+    "y": 96
+  },
+  "dark": true,
+  "dialog": {
+    "bottom": 1024,
+    "height": 1024,
+    "left": 0,
+    "right": 768,
+    "top": 0,
+    "width": 768,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 758,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": {
+    "bottom": 927,
+    "height": 65,
+    "left": 25,
+    "right": 743,
+    "top": 862,
+    "width": 718,
+    "x": 25,
+    "y": 862
+  },
+  "header": {
+    "bottom": 152,
+    "height": 55,
+    "left": 25,
+    "right": 743,
+    "top": 97,
+    "width": 718,
+    "x": 25,
+    "y": 97
+  },
+  "height": 1024,
+  "main": {
+    "bottom": 1024,
+    "height": 900,
+    "left": 80,
+    "right": 758,
+    "top": 124,
+    "width": 678,
+    "x": 80,
+    "y": 124
+  },
+  "primaryButton": {
+    "bottom": 911,
+    "height": 32,
+    "left": 657.234375,
+    "right": 715,
+    "top": 879,
+    "width": 57.765625,
+    "x": 657.234375,
+    "y": 879
+  },
+  "width": 768,
+  "image_sha256": "39275092d226e5c56f7f87793a31ec9b24d8a9ebab483b787a2e7f74ad3f667c"
+}

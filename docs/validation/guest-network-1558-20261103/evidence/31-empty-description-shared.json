@@ -1,0 +1,273 @@
+{
+  "cluster": 31,
+  "label": "31-empty-description-shared",
+  "records": [
+    {
+      "cluster": 31,
+      "requestId": "45752.740",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+        "name": "qa-gn1558-31-shared-renamed",
+        "displaytext": ""
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.741",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "e6de4366-0df8-498a-9624-5a8f7e1397d8",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.744",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "e6de4366-0df8-498a-9624-5a8f7e1397d8",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.745",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.746",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+        "listall": "true",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.750",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "status": 200
+    }
+  ],
+  "expected": {
+    "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+    "name": "qa-gn1558-31-shared-renamed",
+    "displaytext": ""
+  },
+  "ui": [
+    {
+      "html_children": 0,
+      "text": "—"
+    },
+    {
+      "html_children": 0,
+      "text": "—"
+    }
+  ],
+  "responses": [
+    {
+      "request": {
+        "cluster": 31,
+        "requestId": "45752.740",
+        "command": "updateNetwork",
+        "method": "POST",
+        "params": {
+          "command": "updateNetwork",
+          "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+          "name": "qa-gn1558-31-shared-renamed",
+          "displaytext": ""
+        },
+        "status": 200
+      },
+      "result": {
+        "updatenetworkresponse": {
+          "jobid": "e6de4366-0df8-498a-9624-5a8f7e1397d8"
+        }
+      }
+    },
+    {
+      "request": {
+        "cluster": 31,
+        "requestId": "45752.741",
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobid": "e6de4366-0df8-498a-9624-5a8f7e1397d8",
+          "command": "queryAsyncJobResult"
+        },
+        "status": 200
+      },
+      "result": {
+        "queryasyncjobresultresponse": {
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domainpath": "ROOT",
+          "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+          "cmd": "org.apache.cloudstack.api.command.admin.network.UpdateNetworkCmdByAdmin",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobinstancetype": "Network",
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-11-03T16:52:22+0900",
+          "jobid": "e6de4366-0df8-498a-9624-5a8f7e1397d8",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "request": {
+        "cluster": 31,
+        "requestId": "45752.744",
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobid": "e6de4366-0df8-498a-9624-5a8f7e1397d8",
+          "command": "queryAsyncJobResult"
+        },
+        "status": 200
+      },
+      "result": {
+        "queryasyncjobresultresponse": {
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domainpath": "ROOT",
+          "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+          "cmd": "org.apache.cloudstack.api.command.admin.network.UpdateNetworkCmdByAdmin",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "network": {
+              "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+              "name": "qa-gn1558-31-shared-renamed",
+              "displaytext": "",
+              "broadcastdomaintype": "Vlan",
+              "traffictype": "Guest",
+              "gateway": "10.244.31.1",
+              "netmask": "255.255.255.0",
+              "cidr": "10.244.31.0/24",
+              "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "zonename": "Zone",
+              "networkofferingid": "af57b512-b8cd-49bb-b250-23c85585bd16",
+              "networkofferingname": "기본 공유 네트워크오퍼링",
+              "networkofferingdisplaytext": "기본 공유 네트워크오퍼링",
+              "networkofferingconservemode": true,
+              "networkofferingavailability": "Optional",
+              "issystem": false,
+              "state": "Setup",
+              "related": "eb1c873e-978a-4597-aaab-b6360118af44",
+              "broadcasturi": "vlan://731",
+              "dns1": "8.8.8.8",
+              "type": "Shared",
+              "vlan": "731",
+              "acltype": "Domain",
+              "subdomainaccess": true,
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT",
+              "service": [
+                {
+                  "name": "UserData",
+                  "provider": [
+                    {
+                      "name": "VirtualRouter"
+                    }
+                  ],
+                  "capability": []
+                },
+                {
+                  "name": "Dns",
+                  "provider": [
+                    {
+                      "name": "VirtualRouter"
+                    }
+                  ],
+                  "capability": [
+                    {
+                      "name": "AllowDnsSuffixModification",
+                      "value": "true",
+                      "canchooseservicecapability": false
+                    }
+                  ]
+                },
+                {
+                  "name": "Dhcp",
+                  "provider": [
+                    {
+                      "name": "VirtualRouter"
+                    }
+                  ],
+                  "capability": [
+                    {
+                      "name": "DhcpAccrossMultipleSubnets",
+                      "value": "true",
+                      "canchooseservicecapability": false
+                    }
+                  ]
+                }
+              ],
+              "networkdomain": "cs1cloud.internal",
+              "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+              "restartrequired": false,
+              "specifyvlan": true,
+              "specifyipranges": true,
+              "canusefordeploy": true,
+              "ispersistent": false,
+              "tags": [],
+              "details": {
+                "hideIpAddressUsage": "false"
+              },
+              "displaynetwork": true,
+              "strechedl2subnet": false,
+              "redundantrouter": false,
+              "supportsvmautoscaling": false,
+              "created": "2026-11-03T16:34:59+0900",
+              "receivedbytes": 0,
+              "sentbytes": 0,
+              "publicmtu": 1500,
+              "privatemtu": 1500,
+              "hasannotations": false
+            }
+          },
+          "jobinstancetype": "Network",
+          "created": "2026-11-03T16:52:22+0900",
+          "completed": "2026-11-03T16:52:22+0900",
+          "jobid": "e6de4366-0df8-498a-9624-5a8f7e1397d8",
+          "jobstatus": 1
+        }
+      }
+    }
+  ]
+}

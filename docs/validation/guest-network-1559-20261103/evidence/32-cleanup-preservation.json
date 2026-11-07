@@ -1,0 +1,65 @@
+{
+  "listNetworks": {
+    "before": 9,
+    "after": 9,
+    "missing": [],
+    "extra": [],
+    "changed": []
+  },
+  "listNetworkOfferings": {
+    "before": 15,
+    "after": 15,
+    "missing": [],
+    "extra": [],
+    "changed": []
+  },
+  "listVirtualMachines": {
+    "before": 55,
+    "after": 55,
+    "missing": [],
+    "extra": [],
+    "changed": []
+  },
+  "listRouters": {
+    "before": 3,
+    "after": 3,
+    "missing": [],
+    "extra": [],
+    "changed": []
+  },
+  "listPublicIpAddresses": {
+    "before": 8,
+    "after": 8,
+    "missing": [],
+    "extra": [],
+    "changed": []
+  },
+  "listVlanIpRanges": {
+    "before": 2,
+    "after": 2,
+    "missing": [],
+    "extra": [],
+    "changed": []
+  },
+  "listZones": {
+    "before": 1,
+    "after": 1,
+    "missing": [],
+    "extra": [],
+    "changed": []
+  },
+  "listSSHKeyPairs": {
+    "before": 1,
+    "after": 1,
+    "missing": [],
+    "extra": [],
+    "changed": []
+  },
+  "listAccounts": {
+    "before": 6,
+    "after": 6,
+    "missing": [],
+    "extra": [],
+    "changed": []
+  }
+}

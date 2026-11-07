@@ -1,0 +1,83 @@
+{
+  "records": [
+    {
+      "requestId": "49180.2975",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "670c6673-068d-4436-b57c-b09acce6b65f",
+        "command": "listNetworks"
+      },
+      "status": 200,
+      "result": {
+        "count": 1
+      }
+    },
+    {
+      "requestId": "49180.2976",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "670c6673-068d-4436-b57c-b09acce6b65f",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 2
+      }
+    },
+    {
+      "requestId": "49180.2977",
+      "command": "deleteVlanIpRange",
+      "method": "POST",
+      "params": {
+        "command": "deleteVlanIpRange",
+        "id": "3279bc34-0e30-4629-afb8-e90f989bab09"
+      },
+      "status": 200,
+      "result": {
+        "success": true
+      }
+    },
+    {
+      "requestId": "49180.2978",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "670c6673-068d-4436-b57c-b09acce6b65f",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 1
+      }
+    },
+    {
+      "requestId": "49180.2979",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "670c6673-068d-4436-b57c-b09acce6b65f",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "10",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 1
+      }
+    }
+  ],
+  "cursor": 4404,
+  "ui": "IP 주소 범위 추가\nIPv4\tIPv6\tVLAN/VNI\t작업\n\n \n\t\n \n\t\n \n\t\n \n\n\n172.26.31.10 – 172.26.31.20\n게이트웨이: 172.26.31.1 · 255.255.255.0\n\t\n—\n\t641\t\n전체 1 개 항목\n1\n10 / 쪽"
+}

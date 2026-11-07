@@ -1,0 +1,58 @@
+[
+  {
+    "cluster": 31,
+    "label": {
+      "bottom": 145,
+      "height": 19,
+      "left": 31,
+      "right": 238.640625,
+      "top": 126,
+      "width": 207.640625,
+      "x": 31,
+      "y": 126
+    },
+    "popup": {
+      "bottom": 156,
+      "height": 104,
+      "left": 0,
+      "right": 366,
+      "top": 52,
+      "width": 366,
+      "x": 0,
+      "y": 52
+    },
+    "text": "qa-gn1569-31-1588-child-project",
+    "viewport": {
+      "height": 844,
+      "width": 390
+    }
+  },
+  {
+    "cluster": 32,
+    "label": {
+      "bottom": 81,
+      "height": 19,
+      "left": 31,
+      "right": 238.640625,
+      "top": 62,
+      "width": 207.640625,
+      "x": 31,
+      "y": 62
+    },
+    "popup": {
+      "bottom": 127,
+      "height": 75,
+      "left": 0,
+      "right": 366,
+      "top": 52,
+      "width": 366,
+      "x": 0,
+      "y": 52
+    },
+    "text": "qa-gn1569-32-1588-child-project",
+    "viewport": {
+      "height": 844,
+      "width": 390
+    }
+  }
+]

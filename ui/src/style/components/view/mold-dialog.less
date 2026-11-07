@@ -139,7 +139,7 @@
   > .ant-form-item-label,
   > .ant-form-item-control { flex: 0 0 auto; width: 100%; min-width: 0; }
 }
-body .mold-dialog.network-rule-dialog .form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; margin: 0 0 20px; padding: 0; }
+body .mold-dialog.network-rule-dialog .form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin: 0 0 20px; padding: 0; }
 body .mold-dialog.network-rule-dialog .form__item { width: 100%; min-width: 0; margin: 0; }
 body .mold-dialog.network-rule-dialog .form__label { font-size: 14px; font-weight: 600; color: var(--ui-text-primary); margin-bottom: 8px; }
 body .mold-dialog.network-rule-dialog .form__item__input-container { width: 100%; }
@@ -151,7 +151,7 @@ body .mold-dialog.network-rule-dialog .form__item .ant-select { width: 100%; }
 body .mold-dialog.network-rule-dialog .form__item--full { grid-column: ~"1 / -1"; }
 @media (max-width: 576px) {
   .mold-form-grid, body .mold-dialog.network-rule-dialog .form { grid-template-columns: minmax(0, 1fr); gap: 0; }
-  body .mold-dialog.network-rule-dialog .form { gap: 16px; }
+  body .mold-dialog.network-rule-dialog .form { gap: 12px; }
   .mold-form-dialog { max-height: calc(100dvh - 160px); }
   .mold-dialog .ant-modal-body { padding: 16px; }
 }
@@ -210,7 +210,7 @@ body .detail-tab-toolbar > .ant-btn { margin: 0; }
 .network-rule-targets { display: flex; flex-direction: column; gap: 4px; }
 .network-rule-primary { margin-bottom: 4px; }
 .network-rule-secondary { color: var(--ui-text-secondary); font-size: 14px; }
-.network-rules-guidance { margin-bottom: 16px; }
+.network-rules-guidance { margin: 12px 0; }
 .network-rules-guidance + .list-view { margin-top: 0; }
 @media (max-width: 576px) {
   .detail-tab-toolbar-context { width: 100%; margin-left: 0; }

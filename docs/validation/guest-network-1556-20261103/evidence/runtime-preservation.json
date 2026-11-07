@@ -1,0 +1,36 @@
+[
+  {
+    "cluster": 31,
+    "running": true,
+    "nic_unchanged": true,
+    "network_fields_unchanged": true,
+    "initial_offering": "e79ea004-0d13-4055-bc23-ad039391c718",
+    "final_offering": "e79ea004-0d13-4055-bc23-ad039391c718",
+    "nic": [
+      {
+        "id": "4eb026ed-7762-4114-8300-4d77511a96b5",
+        "networkid": "4a6d4597-4577-4db4-b8c6-0f17221f0412",
+        "ipaddress": "10.252.31.199",
+        "macaddress": "02:1f:01:85:00:01",
+        "isdefault": true
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "running": true,
+    "nic_unchanged": true,
+    "network_fields_unchanged": true,
+    "initial_offering": "b4720373-1c4f-44c9-848e-ae563d0d9260",
+    "final_offering": "f842db3f-30d3-4573-b4c0-26d996cc9a31",
+    "nic": [
+      {
+        "id": "4ad73660-9c42-4403-9f22-17b641de9757",
+        "networkid": "b4d0d444-07e4-4010-a242-d247965ca8a3",
+        "ipaddress": "10.252.32.173",
+        "macaddress": "02:01:01:1b:00:01",
+        "isdefault": true
+      }
+    ]
+  }
+]

@@ -1,0 +1,122 @@
+{
+  "network": {
+    "annotation": {
+      "id": "94e8e622-7a52-4cc6-b97e-0bed564c0449",
+      "text": "qa1575-32-network <b>문자열</b> & 한글",
+      "adminVisibility": true,
+      "nonOwner": {
+        "code": 531,
+        "error": "User b06d74c9-1b7e-4891-9170-f9840d286f62 does not have permission to list annotations on the entity with uuid a8671ac8-edb2-403e-9950-1ce49af7597e of type NETWORK",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "removed": true
+    },
+    "event": {
+      "page1": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "27d1ace7-3b7a-4ef2-81b2-c7f8b1f349be",
+            "account": "qa-gn1575-32-owner",
+            "domainid": "e90c8b40-f85b-4043-82e5-86e245607e28",
+            "domainpath": "ROOT/qa-gn1575-32-main",
+            "type": "ANNOTATION.CREATE",
+            "resourceid": "a8671ac8-edb2-403e-9950-1ce49af7597e",
+            "resourcetype": "Network",
+            "state": "Completed"
+          }
+        ],
+        "count": 2,
+        "success": null
+      },
+      "page2": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "7b54c3f4-1b50-4e47-a7ad-de4fd750f414",
+            "account": "qa-gn1575-32-owner",
+            "domainid": "e90c8b40-f85b-4043-82e5-86e245607e28",
+            "domainpath": "ROOT/qa-gn1575-32-main",
+            "type": "ZONE.VLAN.ASSIGN",
+            "resourceid": "a8671ac8-edb2-403e-9950-1ce49af7597e",
+            "resourcetype": "Network",
+            "state": "Completed"
+          }
+        ],
+        "count": 2,
+        "success": null
+      },
+      "nonOwner": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    }
+  },
+  "ip": {
+    "annotation": {
+      "id": "d5b4e59d-31b3-4d62-a5ef-aa133561d97a",
+      "text": "qa1575-32-ip <b>문자열</b> & 한글",
+      "adminVisibility": true,
+      "nonOwner": {
+        "code": 531,
+        "error": "User b06d74c9-1b7e-4891-9170-f9840d286f62 does not have permission to list annotations on the entity with uuid 3718e606-1ab1-48db-a660-7486d8dfc172 of type PUBLIC_IP_ADDRESS",
+        "rows": [],
+        "count": null,
+        "success": null
+      },
+      "removed": true
+    },
+    "event": {
+      "page1": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "fe82496f-2941-4071-918e-659273452f33",
+            "account": "qa-gn1575-32-owner",
+            "domainid": "e90c8b40-f85b-4043-82e5-86e245607e28",
+            "domainpath": "ROOT/qa-gn1575-32-main",
+            "type": "ANNOTATION.CREATE",
+            "resourceid": "3718e606-1ab1-48db-a660-7486d8dfc172",
+            "resourcetype": "IpAddress",
+            "state": "Completed"
+          }
+        ],
+        "count": 5,
+        "success": null
+      },
+      "page2": {
+        "code": null,
+        "error": null,
+        "rows": [
+          {
+            "id": "0ed2fb06-7c70-4a27-ada9-0e13ba107271",
+            "account": "qa-gn1575-32-owner",
+            "domainid": "e90c8b40-f85b-4043-82e5-86e245607e28",
+            "domainpath": "ROOT/qa-gn1575-32-main",
+            "type": "NET.IPASSIGN",
+            "resourceid": "3718e606-1ab1-48db-a660-7486d8dfc172",
+            "resourcetype": "IpAddress",
+            "state": "Completed"
+          }
+        ],
+        "count": 5,
+        "success": null
+      },
+      "nonOwner": {
+        "code": 531,
+        "error": "Caller does not have permission to operate with provided resource.",
+        "rows": [],
+        "count": null,
+        "success": null
+      }
+    }
+  }
+}

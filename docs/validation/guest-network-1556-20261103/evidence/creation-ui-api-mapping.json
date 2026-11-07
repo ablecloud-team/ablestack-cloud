@@ -1,0 +1,166 @@
+[
+  {
+    "cluster": 31,
+    "type": "Isolated",
+    "creation_candidates": [
+      {
+        "id": "46a69931-ebbf-4aee-9d3d-12d03315a949",
+        "label": "기본 격리 네트워크오퍼링(with SourceNat)"
+      },
+      {
+        "id": "2517d037-9480-4ebb-85a5-ea42fc97932b",
+        "label": "Offering for Isolated networks with no Source Nat service"
+      },
+      {
+        "id": "64519dba-e1e4-44c5-bf13-06d1bd299cb0",
+        "label": "Network Offering used for CloudStack Kubernetes service"
+      },
+      {
+        "id": "902c848c-c061-427a-ba26-826ec050ddbf",
+        "label": "쿠버네티스 서비스에 대한 기본 네트워크 오퍼링"
+      },
+      {
+        "id": "86c2cf58-d854-4172-86c4-9edcf71043d0",
+        "label": "RT1230 CKS networking with GFS2-only virtual router"
+      },
+      {
+        "id": "806ffda0-8ec0-436e-8672-9caa76d1ee66",
+        "label": "AS01 GFS2 Sparse 라우터 전용 네트워크"
+      },
+      {
+        "id": "e79ea004-0d13-4055-bc23-ad039391c718",
+        "label": "qa-gn1556-31-current"
+      },
+      {
+        "id": "8b5e9df5-ba4b-494d-86a1-8365e03e0966",
+        "label": "qa-gn1556-31-target"
+      }
+    ],
+    "UI_labels": [
+      "기본 격리 네트워크오퍼링(with SourceNat)",
+      "Offering for Isolated networks with no Source Nat service",
+      "Network Offering used for CloudStack Kubernetes service",
+      "쿠버네티스 서비스에 대한 기본 네트워크 오퍼링",
+      "RT1230 CKS networking with GFS2-only virtual router",
+      "AS01 GFS2 Sparse 라우터 전용 네트워크",
+      "qa-gn1556-31-current",
+      "qa-gn1556-31-target"
+    ],
+    "UUID_label_mapping_match": true
+  },
+  {
+    "cluster": 31,
+    "type": "L2",
+    "creation_candidates": [
+      {
+        "id": "79ec5c18-b71c-4f7a-9b5d-8694b16b8a54",
+        "label": "기본 L2 VLAN 네트워크오퍼링"
+      },
+      {
+        "id": "bc740904-060d-4e13-a850-3609e588116a",
+        "label": "기본 L2 VLAN 네트워크오퍼링(with ConfigDrive)"
+      }
+    ],
+    "UI_labels": [
+      "기본 L2 VLAN 네트워크오퍼링",
+      "기본 L2 VLAN 네트워크오퍼링(with ConfigDrive)"
+    ],
+    "UUID_label_mapping_match": true
+  },
+  {
+    "cluster": 31,
+    "type": "Shared",
+    "creation_candidates": [
+      {
+        "id": "af57b512-b8cd-49bb-b250-23c85585bd16",
+        "label": "기본 공유 네트워크오퍼링"
+      },
+      {
+        "id": "617c3ea0-3c6a-4fa8-92b6-4bfce36355a1",
+        "label": "Offering for QuickCloud with no services"
+      }
+    ],
+    "UI_labels": [
+      "기본 공유 네트워크오퍼링",
+      "Offering for QuickCloud with no services"
+    ],
+    "UUID_label_mapping_match": true
+  },
+  {
+    "cluster": 32,
+    "type": "Isolated",
+    "creation_candidates": [
+      {
+        "id": "e8d9487d-f70b-451f-8a58-7d26e8bfdc79",
+        "label": "기본 격리 네트워크오퍼링(with SourceNat)"
+      },
+      {
+        "id": "6ab556b4-ca17-481b-98db-f5437d110c96",
+        "label": "쿠버네테스 서비스에 대한 기본 네트워크오퍼링"
+      },
+      {
+        "id": "f702f1af-8e1d-4ea8-bdb2-4f012e24cfda",
+        "label": "Offering for Isolated networks with no Source Nat service"
+      },
+      {
+        "id": "9ccfbf2c-605e-45f3-a7cf-770da99e1bd6",
+        "label": "Network Offering used for CloudStack Kubernetes service"
+      },
+      {
+        "id": "b4720373-1c4f-44c9-848e-ae563d0d9260",
+        "label": "qa-gn1556-32-current"
+      },
+      {
+        "id": "f842db3f-30d3-4573-b4c0-26d996cc9a31",
+        "label": "qa-gn1556-32-target"
+      }
+    ],
+    "UI_labels": [
+      "기본 격리 네트워크오퍼링(with SourceNat)",
+      "쿠버네테스 서비스에 대한 기본 네트워크오퍼링",
+      "Offering for Isolated networks with no Source Nat service",
+      "Network Offering used for CloudStack Kubernetes service",
+      "qa-gn1556-32-current",
+      "qa-gn1556-32-target"
+    ],
+    "UUID_label_mapping_match": true
+  },
+  {
+    "cluster": 32,
+    "type": "L2",
+    "creation_candidates": [
+      {
+        "id": "4a711c03-f9bd-4989-96fc-ea38ca9e79a1",
+        "label": "기본 L2 VLAN 네트워크오퍼링"
+      },
+      {
+        "id": "3366af24-de7b-48b5-ae81-7c380aaa72d1",
+        "label": "기본 L2 VLAN 네트워크오퍼링(with ConfigDrive)"
+      }
+    ],
+    "UI_labels": [
+      "기본 L2 VLAN 네트워크오퍼링",
+      "기본 L2 VLAN 네트워크오퍼링(with ConfigDrive)"
+    ],
+    "UUID_label_mapping_match": true
+  },
+  {
+    "cluster": 32,
+    "type": "Shared",
+    "creation_candidates": [
+      {
+        "id": "c0586d85-1ab3-41ba-8c6a-455ce47d6c3b",
+        "label": "기본 공유 네트워크오퍼링"
+      },
+      {
+        "id": "4ba6de06-60b4-4ab5-adf0-d7f312dd2614",
+        "label": "Offering for QuickCloud with no services"
+      }
+    ],
+    "UI_labels": [
+      "기본 공유 네트워크오퍼링",
+      "Offering for QuickCloud with no services"
+    ],
+    "UUID_label_mapping_match": true
+  }
+]

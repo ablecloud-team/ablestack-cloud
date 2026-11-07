@@ -1,0 +1,7 @@
+{
+  "status": 0,
+  "diag": [],
+  "match": [
+    "\t\tip saddr 192.0.2.0/24 ip daddr 10.178.31.25 tcp dport 49175 accept"
+  ]
+}

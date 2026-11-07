@@ -1,0 +1,60 @@
+{
+  "jar": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0.jar",
+  "backup": "/root/qa-gn1566-agent-backup-20261105-152741",
+  "beforeJarSha256": "fc24d8d11b69aa7b0be653274fd1635027adcf93a1471e24365954a89de5ce01",
+  "afterJarSha256": "f09b81f5be852509bcbf88fbb28bdada8a8e0b9325d91a5ac72a3b50822412b6",
+  "changedEntries": [
+    "com/cloud/network/HAProxyConfigurator.class"
+  ],
+  "classSha256": "1b43c720dc01eaae937cb23ba86140e0c37572d6535a94ad6c4e454813bc4585",
+  "preservedEntryCount": 901,
+  "oldPID": "2230954",
+  "newPID": "3707354",
+  "before": {
+    "runningDomainXml": {
+      "scvm": "77f0ce924f39fc8d534da096c10ef2fd4d832734044b0c47a39c34f6f116cec5",
+      "i-2-4-VM": "92f4ee9d79a7dea56b0426b4f181e817a460451b179e25d4eeb62e2d42a4cf5a",
+      "s-27-VM": "a588508efe89c60104cfa3382d60b8820e3dcb739f5b9fa37bea27855135cc57",
+      "i-2-28-VM": "952ccef13e065752208afbf41d26bde870a337438e76b7cc6af88318dc99851b",
+      "i-2-29-VM": "622498c9de24339ab5b815a150bf6e58b3a2bf8993822e7f2805b76414462049",
+      "i-2-63-VM": "53ffad0438556d8328503694f510cfa72929bd1c737c184d4258c9765e3cb6c0",
+      "i-6-68-VM": "9aefeb8b81a15bc1f1b3b38fe89a028c7dc4945c6bdb7143901fe8886e55ae13",
+      "r-70-VM": "f8c7d6c8a8bb49ca148b223485393c15d74c6e1406845a0f2fdd921c53965bf3",
+      "i-6-72-VM": "d853b2cc8d05bdfbc40b016bf27a4faef0dd14e97d7a79b257dae843f41e9572",
+      "r-69-VM": "2796b767cd4e05b854dea76cfa0faecead5a37e6e3e70b80f77209da2382bb4e",
+      "i-2-3-VM": "68bc3c2b44cacaa1a5faf632dcb748904bfe1a0af585fb52b880ee7b21bc8439",
+      "i-2-277-VM": "cee6f1544830888cb71fc87fa1e9a37c30abccebfac449fc1ae976c548c205bd",
+      "i-2-280-VM": "2c9bf0976fd6a68ef073e681cae1c66530df791ee687c7720591504d14efc995",
+      "r-364-VM": "33206d3c692b3f51cacb012691d4d68977f1da98fc31df7a055fe768e46f31fe",
+      "i-2-365-VM": "33cfd74867990074d187312d07af0ddb054c7be607009c6ed4f51ac1b765b3a7"
+    },
+    "protectedFiles": {
+      "/etc/libvirt/hooks/qemu": "8eb0b796c2d2608a9dc7f6c565cc6fc9d05460af97ddbade6faae10251854529",
+      "/usr/share/cloudstack-common/scripts/vm/network/vnet/modifyvlan.sh": "6ec5b77f25cd2bd9d4db1703cca5c7baddeef2768a02c54e6f854a8278733028"
+    }
+  },
+  "after": {
+    "runningDomainXml": {
+      "scvm": "77f0ce924f39fc8d534da096c10ef2fd4d832734044b0c47a39c34f6f116cec5",
+      "i-2-4-VM": "92f4ee9d79a7dea56b0426b4f181e817a460451b179e25d4eeb62e2d42a4cf5a",
+      "s-27-VM": "a588508efe89c60104cfa3382d60b8820e3dcb739f5b9fa37bea27855135cc57",
+      "i-2-28-VM": "952ccef13e065752208afbf41d26bde870a337438e76b7cc6af88318dc99851b",
+      "i-2-29-VM": "622498c9de24339ab5b815a150bf6e58b3a2bf8993822e7f2805b76414462049",
+      "i-2-63-VM": "53ffad0438556d8328503694f510cfa72929bd1c737c184d4258c9765e3cb6c0",
+      "i-6-68-VM": "9aefeb8b81a15bc1f1b3b38fe89a028c7dc4945c6bdb7143901fe8886e55ae13",
+      "r-70-VM": "f8c7d6c8a8bb49ca148b223485393c15d74c6e1406845a0f2fdd921c53965bf3",
+      "i-6-72-VM": "d853b2cc8d05bdfbc40b016bf27a4faef0dd14e97d7a79b257dae843f41e9572",
+      "r-69-VM": "2796b767cd4e05b854dea76cfa0faecead5a37e6e3e70b80f77209da2382bb4e",
+      "i-2-3-VM": "68bc3c2b44cacaa1a5faf632dcb748904bfe1a0af585fb52b880ee7b21bc8439",
+      "i-2-277-VM": "cee6f1544830888cb71fc87fa1e9a37c30abccebfac449fc1ae976c548c205bd",
+      "i-2-280-VM": "2c9bf0976fd6a68ef073e681cae1c66530df791ee687c7720591504d14efc995",
+      "r-364-VM": "33206d3c692b3f51cacb012691d4d68977f1da98fc31df7a055fe768e46f31fe",
+      "i-2-365-VM": "33cfd74867990074d187312d07af0ddb054c7be607009c6ed4f51ac1b765b3a7"
+    },
+    "protectedFiles": {
+      "/etc/libvirt/hooks/qemu": "8eb0b796c2d2608a9dc7f6c565cc6fc9d05460af97ddbade6faae10251854529",
+      "/usr/share/cloudstack-common/scripts/vm/network/vnet/modifyvlan.sh": "6ec5b77f25cd2bd9d4db1703cca5c7baddeef2768a02c54e6f854a8278733028"
+    }
+  },
+  "source": "df1120d6392fdef58f64817ec9debe7d2ffdae8e"
+}

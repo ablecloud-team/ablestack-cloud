@@ -1,0 +1,98 @@
+[
+  {
+    "id": "2f577738-55a0-4be8-809d-12e11f6be62b",
+    "result": {
+      "queryasyncjobresultresponse": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "success": true
+        },
+        "jobinstancetype": "Network",
+        "created": "2026-11-03T18:20:45+0900",
+        "completed": "2026-11-03T18:20:45+0900",
+        "jobid": "b0718818-8017-4601-8ef7-cfe7a8488284",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "id": "7c72d59c-c31c-42dd-9c4e-049d3a97fc2e",
+    "result": {
+      "queryasyncjobresultresponse": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "success": true
+        },
+        "jobinstancetype": "Network",
+        "created": "2026-11-03T18:20:48+0900",
+        "completed": "2026-11-03T18:20:48+0900",
+        "jobid": "a023cda5-42b9-431a-afc2-1084817e73d6",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "id": "3a71dbff-a767-49cb-8e81-87864c3b0c24",
+    "result": {
+      "queryasyncjobresultresponse": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "success": true
+        },
+        "jobinstancetype": "Network",
+        "created": "2026-11-03T18:20:50+0900",
+        "completed": "2026-11-03T18:20:50+0900",
+        "jobid": "c50484b8-5fee-4bca-b03d-1305ee241249",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "id": "deb7c278-df2f-4686-8d97-78800942110b",
+    "result": {
+      "queryasyncjobresultresponse": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "success": true
+        },
+        "jobinstancetype": "Network",
+        "created": "2026-11-03T18:20:52+0900",
+        "completed": "2026-11-03T18:20:53+0900",
+        "jobid": "e12b64bb-ea56-45bb-9379-b78b55c0d3a2",
+        "jobstatus": 1
+      }
+    }
+  }
+]

@@ -1,0 +1,20 @@
+{
+  "jarSha256": "f542159d7d186554387ba5290e4f4a2be1a52a44cece143fa50fe76cffbdc0cb",
+  "classSha256": {
+    "org/apache/cloudstack/api/command/user/job/ListAsyncJobsCmd.class": "fbc46e66628b1bec5e41d919064b337122b975016906f8fc3d75be080a8626c0",
+    "com/cloud/network/NetworkMigrationManagerImpl.class": "19e542880af9841a7b48f29df94e74bca7637593e3d7d266c097748b5192dd63",
+    "META-INF/db/views/cloud.async_job_view.sql": "7e07a0c58cc3f46d1e6bd0da5b7db3bf75da98a1b199ac782df3a6d0e92cfd49",
+    "com/cloud/api/query/QueryManagerImpl$1.class": "676fa17a250f90c0f8edb390cfbbf7a4f80956d755829c59e38dfdf6d2b36a2d",
+    "com/cloud/api/query/QueryManagerImpl.class": "0f9d410007d33afcd8963ff5b0734022a31e647b2f9dc56f6763b57b4fe87ea8"
+  },
+  "beforePID": "799178",
+  "afterPID": "804037",
+  "WEB-INF": true,
+  "protectedStaticUnchanged": true,
+  "http": 200,
+  "restartSeconds": 32.67,
+  "diskFree": 157719195648,
+  "cluster": 31,
+  "stage": "/dev/shm/gn1563-server-20261105-230141",
+  "backup": "/home/ablecloud/work/guest-network-1563-validation/management-initial-1563.jar"
+}

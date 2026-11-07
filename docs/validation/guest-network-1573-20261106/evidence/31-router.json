@@ -1,0 +1,12 @@
+{
+  "exit": 0,
+  "match": [
+    "iifname \"eth2\" ip daddr 10.10.31.143 tcp dport 49172 ct state new counter packets 0 bytes 0 ct mark set mark",
+    "iifname \"eth2\" ip daddr 10.10.31.143 tcp dport 49172 counter packets 0 bytes 0 dnat to 10.179.31.78:2222",
+    "iifname \"eth0\" ip daddr 10.10.31.143 tcp dport 49172 counter packets 0 bytes 0 dnat to 10.179.31.78:2222",
+    "iifname \"eth2\" ip daddr 10.10.31.143 tcp dport 49172 counter packets 0 bytes 0 meta mark set 0x66",
+    "ip daddr 10.10.31.143 tcp dport 49172 counter packets 0 bytes 0 dnat to 10.179.31.78:2222",
+    "ip daddr 10.10.31.143 tcp dport 49173 ct state new counter packets 0 bytes 0 accept",
+    "ip saddr 192.0.2.0/24 tcp dport 49171 counter packets 0 bytes 0 return"
+  ]
+}

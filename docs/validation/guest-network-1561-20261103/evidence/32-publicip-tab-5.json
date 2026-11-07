@@ -1,0 +1,219 @@
+{
+  "ui": {
+    "breadcrumb": {
+      "rect": {
+        "bottom": 161,
+        "height": 29,
+        "left": 281,
+        "right": 758,
+        "top": 132,
+        "width": 477,
+        "x": 281,
+        "y": 132
+      },
+      "text": "/Public IP 주소/10.10.32.103업데이트/"
+    },
+    "dark": false,
+    "height": 900,
+    "panels": [
+      {
+        "id": "rc-tabs-1-panel-events",
+        "label": "rc-tabs-1-tab-events"
+      }
+    ],
+    "position": "ant-tabs ant-tabs-left",
+    "scrollWidth": 1270,
+    "tabs": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-1-panel-details",
+        "id": "rc-tabs-1-tab-details",
+        "rect": {
+          "bottom": 253,
+          "height": 22,
+          "left": 590.328125,
+          "right": 616.09375,
+          "top": 231,
+          "width": 25.765625,
+          "x": 590.328125,
+          "y": 231
+        },
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-1-panel-firewall",
+        "id": "rc-tabs-1-tab-firewall",
+        "rect": {
+          "bottom": 307,
+          "height": 22,
+          "left": 590.328125,
+          "right": 628.96875,
+          "top": 285,
+          "width": 38.640625,
+          "x": 590.328125,
+          "y": 285
+        },
+        "selected": "false",
+        "text": "방화벽"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-1-panel-portforwarding",
+        "id": "rc-tabs-1-tab-portforwarding",
+        "rect": {
+          "bottom": 361,
+          "height": 22,
+          "left": 590.328125,
+          "right": 658.578125,
+          "top": 339,
+          "width": 68.25,
+          "x": 590.328125,
+          "y": 339
+        },
+        "selected": "false",
+        "text": "포트 포워딩"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-1-panel-loadbalancing",
+        "id": "rc-tabs-1-tab-loadbalancing",
+        "rect": {
+          "bottom": 415,
+          "height": 22,
+          "left": 590.328125,
+          "right": 645.6875,
+          "top": 393,
+          "width": 55.359375,
+          "x": 590.328125,
+          "y": 393
+        },
+        "selected": "false",
+        "text": "부하 분산"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(24, 144, 255)",
+        "controls": "rc-tabs-1-panel-vpn",
+        "id": "rc-tabs-1-tab-vpn",
+        "rect": {
+          "bottom": 469,
+          "height": 22,
+          "left": 590.328125,
+          "right": 694.03125,
+          "top": 447,
+          "width": 103.703125,
+          "x": 590.328125,
+          "y": 447
+        },
+        "selected": "false",
+        "text": "가상 사설망(VPN)"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-1-panel-events",
+        "id": "rc-tabs-1-tab-events",
+        "rect": {
+          "bottom": 523,
+          "height": 22,
+          "left": 590.328125,
+          "right": 628.96875,
+          "top": 501,
+          "width": 38.640625,
+          "x": 590.328125,
+          "y": 501
+        },
+        "selected": "true",
+        "text": "이벤트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-1-panel-comments",
+        "id": "rc-tabs-1-tab-comments",
+        "rect": {
+          "bottom": 577,
+          "height": 22,
+          "left": 590.328125,
+          "right": 628.96875,
+          "top": 555,
+          "width": 38.640625,
+          "x": 590.328125,
+          "y": 555
+        },
+        "selected": "false",
+        "text": "코멘트"
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/publicip/77def528-fb75-42e3-a90f-46a6e9c5b90b?tab=events",
+    "width": 1280
+  },
+  "records": [
+    {
+      "requestId": "43564.2827",
+      "command": "listEvents",
+      "method": "GET",
+      "params": {
+        "page": "1",
+        "pagesize": "10",
+        "listall": "true",
+        "command": "listEvents"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "43564.2828",
+      "command": "listTags",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "43564.2829",
+      "command": "listResourceIcon",
+      "method": "GET",
+      "params": {
+        "command": "listResourceIcon"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "43564.2830",
+      "command": "listResourceIcon",
+      "method": "GET",
+      "params": {
+        "command": "listResourceIcon"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "43564.2831",
+      "command": "listAccounts",
+      "method": "GET",
+      "params": {
+        "command": "listAccounts"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "43564.2832",
+      "command": "listResourceIcon",
+      "method": "GET",
+      "params": {
+        "command": "listResourceIcon"
+      },
+      "status": 200
+    }
+  ]
+}

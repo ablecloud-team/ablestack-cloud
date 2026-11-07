@@ -1,0 +1,17 @@
+{
+  "removedDeploymentTempPaths": [
+    "/dev/shm/gn1563-server-20261105-232758",
+    "/dev/shm/gn1563-20261105-232706",
+    "/dev/shm/gn1563-server-20261105-231218",
+    "/dev/shm/gn1563-server-20261105-230141",
+    "/dev/shm/gn1563-20261105-230103",
+    "/dev/shm/gn1563-20261105-223902",
+    "/dev/shm/gn1563-server-20261105-222744"
+  ],
+  "tmpfsFreeBefore": 3800514560,
+  "tmpfsFreeAfter": 4947566592,
+  "activeJarUnchanged": true,
+  "WEB-INF": true,
+  "http": 200,
+  "testNetworksAndVMsUntouched": true
+}

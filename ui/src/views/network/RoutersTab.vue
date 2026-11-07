@@ -16,33 +16,49 @@
 // under the License.
 
 <template>
-  <a-table
-    size="small"
-    style="overflow-y: auto"
-    :columns="columns"
-    :dataSource="routers"
-    :rowKey="item => item.id"
-    :pagination="false"
-    :loading="fetchLoading"
-  >
-    <template #bodyCell="{ column, text, record }">
-      <template v-if="column.key === 'name'">
-        <router-link :to="{ path: '/router/' + record.id }" >{{ text }}</router-link>
+  <div class="network-routers-tab">
+    <div class="network-routers-toolbar">
+      <a-button :loading="fetchLoading || listRefreshing > 0" @click="fetchData">
+        <template #icon><reload-outlined /></template>
+        {{ $t('label.refresh') }}
+      </a-button>
+    </div>
+    <a-alert
+      v-if="listRefreshFailed"
+      class="network-routers-alert"
+      type="warning"
+      show-icon
+      :message="$t(loaded ? 'message.list.refresh.stale' : 'message.request.failed')" />
+    <a-table
+      size="small"
+      :scroll="{ x: 850 }"
+      :columns="columns"
+      :dataSource="routers"
+      :rowKey="item => item.id"
+      :pagination="false"
+      :loading="fetchLoading"
+    >
+      <template #bodyCell="{ column, text, record }">
+        <template v-if="column.key === 'name'">
+          <router-link :to="{ path: '/router/' + record.id }" >{{ text }}</router-link>
+        </template>
+        <template v-if="column.key === 'status'">
+          <status class="status" :text="record.state" displayText />
+        </template>
+        <template v-if="column.key === 'requiresupgrade'">
+          {{ record.requiresupgrade ? $t('label.yes') : $t('label.no') }}
+        </template>
+        <template v-if="column.key === 'isredundantrouter'">
+          {{ record.isredundantrouter ? (record.redundantstate || '—') : $t('label.no') }}
+        </template>
+        <template v-if="column.key === 'hostname'">
+          <router-link v-if="record.hostid" :to="{ path: '/host/' + record.hostid }">{{ record.hostname || record.hostid }}</router-link>
+          <span v-else>—</span>
+        </template>
       </template>
-      <template v-if="column.key === 'status'">
-        <status class="status" :text="record.state" displayText />
-      </template>
-      <template v-if="column.key === 'requiresupgrade'">
-        {{ record.requiresupgrade ? $t('label.yes') : $t('label.no') }}
-      </template>
-      <template v-if="column.key === 'isredundantrouter'">
-        {{ record.isredundantrouter ? record.redundantstate : record.isredundantrouter }}
-      </template>
-      <template v-if="column.key === 'hostname'">
-        <router-link :to="{ path: '/host/' + record.hostid }" >{{ record.hostname || record.hostid }}</router-link>
-      </template>
-    </template>
-  </a-table>
+      <template v-if="listRefreshFailed && !loaded" #emptyText>—</template>
+    </a-table>
+  </div>
 </template>
 
 <script>
@@ -70,6 +86,7 @@ export default {
   data () {
     return {
       fetchLoading: false,
+      loaded: false,
       routers: [],
       columns: [
         {
@@ -83,7 +100,11 @@ export default {
           dataIndex: 'state'
         },
         {
-          title: this.$t('label.ip'),
+          title: this.$t('label.guestipaddress'),
+          dataIndex: 'guestipaddress'
+        },
+        {
+          title: this.$t('label.publicip'),
           dataIndex: 'publicip'
         },
         {
@@ -114,9 +135,14 @@ export default {
   watch: {
     resource: {
       deep: true,
-      handler (newItem) {
+      handler (newItem, previous) {
         if (!newItem || !newItem.id) {
           return
+        }
+        if (newItem.id !== previous?.id) {
+          this.routers = []
+          this.loaded = false
+          this.listRefreshFailed = false
         }
         this.fetchData()
       }
@@ -125,7 +151,7 @@ export default {
   methods: {
     fetchData () {
       const listRequest = this.listRequestToken('fetchData')
-      var params = {
+      const params = {
         listAll: true
       }
       if (this.$route.fullPath.startsWith('/vpc')) {
@@ -134,23 +160,18 @@ export default {
         params.networkid = this.resource.id
       }
       this.fetchLoading = !listRequest.loaded
-      return getAPI('listRouters', params).then(json => {
+      return getAPI('listRouters', params, { preserveOnFailure: true }).then(json => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
 
         this.routers = json.listroutersresponse.router || []
-      }).catch(error => {
+        this.loaded = true
+      }).catch(() => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
         listRequest.failed = true
         this.listRefreshFailed = true
-        if (listRequest.loaded) return
-
-        this.$notifyError(error)
       }).finally(() => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
 
-        this.fetchLoading = false
-      }).finally(() => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
         this.fetchLoading = false
       })
     }
@@ -158,6 +179,9 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+.network-routers-tab { min-width: 0; }
+.network-routers-toolbar, .network-routers-alert { margin-bottom: 16px; }
+
 .status {
   margin-top: -5px;
 

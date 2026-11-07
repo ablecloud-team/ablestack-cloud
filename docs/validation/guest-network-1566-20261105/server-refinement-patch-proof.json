@@ -1,0 +1,13 @@
+{
+  "changedEntries": [
+    "com/cloud/configuration/ConfigurationManagerImpl.class"
+  ],
+  "preservedEntries": 204656,
+  "classSha256": {
+    "com/cloud/configuration/ConfigurationManagerImpl.class": "7eff8fd861440d1b6a39aac4ee2c280f26afd87f236ad608a847e2282c348dec"
+  },
+  "oldJarSha256": "7431b7c72b0f7c062a7ded600b3946ab36447e11ad16ddda416f17d98b802ca0",
+  "newJarSha256": "248d2a84be0cc7eda8f58f9475720dd473727d3afbb318971ab96c358bf238dd",
+  "module": "cloud-server",
+  "sourceHead": "0986a14b6a7155b0804f99ee09c3a62f6b6ca472"
+}

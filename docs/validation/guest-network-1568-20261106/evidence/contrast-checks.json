@@ -1,0 +1,477 @@
+[
+  {
+    "label": "firewall-error-dark",
+    "rows": [
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          197,
+          204,
+          212
+        ],
+        "ratio": 9.176047597421212,
+        "text": ""
+      },
+      {
+        "background": [
+          64.94,
+          45.18,
+          51.48
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          255,
+          210,
+          210
+        ],
+        "ratio": 9.32779062665718,
+        "text": "Unable to execute API command listnetworks due to invalid value. Invalid parameter id value=21a6e954"
+      },
+      {
+        "background": [
+          39,
+          46,
+          54
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          197,
+          204,
+          212
+        ],
+        "ratio": 8.469986394935841,
+        "text": "취소"
+      },
+      {
+        "background": [
+          9,
+          105,
+          218
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          255,
+          255,
+          255
+        ],
+        "ratio": 5.192060987927794,
+        "text": "확인"
+      }
+    ]
+  },
+  {
+    "label": "firewall-dialog-light",
+    "rows": [
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          75,
+          85,
+          99
+        ],
+        "ratio": 7.557378129674007,
+        "text": ""
+      },
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          75,
+          85,
+          99
+        ],
+        "ratio": 7.557378129674007,
+        "text": "취소"
+      },
+      {
+        "background": [
+          9,
+          105,
+          218
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          255,
+          255,
+          255
+        ],
+        "ratio": 5.192060987927794,
+        "text": "확인"
+      }
+    ]
+  },
+  {
+    "label": "firewall-replacement-error-light-final",
+    "rows": [
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          75,
+          85,
+          99
+        ],
+        "ratio": 7.557378129674007,
+        "text": ""
+      },
+      {
+        "background": [
+          255,
+          241,
+          240
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          112,
+          27,
+          27
+        ],
+        "ratio": 10.256178250362137,
+        "text": "The range specified, 52369-52369, conflicts with rule FirewallRule {\"id\":839,\"networkId\":480,\"purpos"
+      },
+      {
+        "background": [
+          255,
+          241,
+          240
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          112,
+          27,
+          27
+        ],
+        "ratio": 10.256178250362137,
+        "text": "오류 코드: 537"
+      },
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          75,
+          85,
+          99
+        ],
+        "ratio": 7.557378129674007,
+        "text": "취소"
+      },
+      {
+        "background": [
+          9,
+          105,
+          218
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          255,
+          255,
+          255
+        ],
+        "ratio": 5.192060987927794,
+        "text": "확인"
+      }
+    ]
+  },
+  {
+    "label": "firewall-dialog-dark-final",
+    "rows": [
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          197,
+          204,
+          212
+        ],
+        "ratio": 9.176047597421212,
+        "text": ""
+      },
+      {
+        "background": [
+          39,
+          46,
+          54
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          197,
+          204,
+          212
+        ],
+        "ratio": 8.469986394935841,
+        "text": "취소"
+      },
+      {
+        "background": [
+          9,
+          105,
+          218
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          255,
+          255,
+          255
+        ],
+        "ratio": 5.192060987927794,
+        "text": "확인"
+      }
+    ]
+  },
+  {
+    "label": "delete-dark-mobile-final",
+    "rows": [
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          197,
+          204,
+          212
+        ],
+        "ratio": 9.176047597421212,
+        "text": ""
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          197,
+          204,
+          212
+        ],
+        "ratio": 9.176047597421212,
+        "text": "일반 삭제만 실행합니다. 연결 VM/NIC와 진행 중 작업을 다시 확인하고, 여러 네트워크는 한 건씩 완료를 확인합니다. 이 대화상자를 닫아도 접수된 작업은 서버에서 계속됩니다."
+      },
+      {
+        "background": [
+          39,
+          46,
+          54
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          197,
+          204,
+          212
+        ],
+        "ratio": 8.469986394935841,
+        "text": "업데이트"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          197,
+          204,
+          212
+        ],
+        "ratio": 9.176047597421212,
+        "text": "격리형 (Isolated) · 구현 완료 · qa-gn1568-31-user"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          197,
+          204,
+          212
+        ],
+        "ratio": 9.176047597421212,
+        "text": "3f0c5ed8-2c32-4098-a478-9f017a8845a8"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          240,
+          243,
+          246
+        ],
+        "ratio": 13.348661188320586,
+        "text": "연결 자원과 삭제 조건"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          197,
+          204,
+          212
+        ],
+        "ratio": 9.176047597421212,
+        "text": "현재 계정·프로젝트에서 조회할 수 있는 자원입니다. 표시가 비어 있어도 서버의 최종 삭제 검증은 유지됩니다. VM/NIC를 먼저 분리하거나 가상머신을 완전히 삭제한 뒤 다시 확인하"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          197,
+          204,
+          212
+        ],
+        "ratio": 9.176047597421212,
+        "text": "가상 라우터: r-891-VM (Running)"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          197,
+          204,
+          212
+        ],
+        "ratio": 9.176047597421212,
+        "text": "Public IP 주소: 10.10.31.110, 10.10.31.143"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          255,
+          210,
+          210
+        ],
+        "ratio": 10.902932389169369,
+        "text": "Cannot delete network 3f0c5ed8-2c32-4098-a478-9f017a8845a8: virtual machine b266bc55-2ab8-4826-b8cd-"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          197,
+          204,
+          212
+        ],
+        "ratio": 9.176047597421212,
+        "text": "오류 코드: 530"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          197,
+          204,
+          212
+        ],
+        "ratio": 9.176047597421212,
+        "text": "작업: 63c292d2-315b-4acb-b56d-63590f485a23"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          197,
+          204,
+          212
+        ],
+        "ratio": 9.176047597421212,
+        "text": "성공은 작업 완료와 네트워크 조회 결과를 대조해 표시합니다. 라우터 볼륨·스토리지의 물리 정리는 서버에서 별도로 진행될 수 있습니다. 잔여 자원은 관리자가 확인해야 하며 강제 삭제"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          177.65,
+          179.75,
+          182.2
+        ],
+        "ratio": 7.128935659391724,
+        "text": "연결 자원과 삭제 영향을 확인했으며 일반 삭제를 실행합니다."
+      },
+      {
+        "background": [
+          39,
+          46,
+          54
+        ],
+        "fontSize": "14px",
+        "foreground": [
+          197,
+          204,
+          212
+        ],
+        "ratio": 8.469986394935841,
+        "text": "닫기"
+      }
+    ]
+  }
+]

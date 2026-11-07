@@ -1,0 +1,266 @@
+{
+  "cluster": 31,
+  "label": "31-read-failure-shared-recovered",
+  "records": [
+    {
+      "cluster": 31,
+      "requestId": "45752.884",
+      "command": "updateNetwork",
+      "method": "POST",
+      "params": {
+        "command": "updateNetwork",
+        "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+        "name": "qa-gn1558-31-shared-renamed",
+        "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.885",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "d5fb3573-caad-486b-bb63-244ae4c2a87b",
+        "command": "queryAsyncJobResult"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.886",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.887",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+        "listall": "true",
+        "command": "listNetworks"
+      },
+      "status": 500
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.891",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+        "listall": "true",
+        "command": "listNetworks"
+      },
+      "status": 200
+    },
+    {
+      "cluster": 31,
+      "requestId": "45752.893",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "status": 200
+    }
+  ],
+  "expected": {
+    "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+    "name": "qa-gn1558-31-shared-renamed",
+    "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  },
+  "retained_input": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "display_during_failure": [
+    {
+      "html_children": 0,
+      "text": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    },
+    {
+      "html_children": 0,
+      "text": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    }
+  ],
+  "lookup_values": [
+    {
+      "params": {
+        "listall": "true",
+        "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    }
+  ],
+  "responses": [
+    {
+      "request": {
+        "cluster": 31,
+        "requestId": "45752.884",
+        "command": "updateNetwork",
+        "method": "POST",
+        "params": {
+          "command": "updateNetwork",
+          "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+          "name": "qa-gn1558-31-shared-renamed",
+          "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+        },
+        "status": 200
+      },
+      "result": {
+        "updatenetworkresponse": {
+          "jobid": "d5fb3573-caad-486b-bb63-244ae4c2a87b"
+        }
+      }
+    },
+    {
+      "request": {
+        "cluster": 31,
+        "requestId": "45752.885",
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "params": {
+          "jobid": "d5fb3573-caad-486b-bb63-244ae4c2a87b",
+          "command": "queryAsyncJobResult"
+        },
+        "status": 200
+      },
+      "result": {
+        "queryasyncjobresultresponse": {
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domainpath": "ROOT",
+          "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+          "cmd": "org.apache.cloudstack.api.command.admin.network.UpdateNetworkCmdByAdmin",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "network": {
+              "id": "eb1c873e-978a-4597-aaab-b6360118af44",
+              "name": "qa-gn1558-31-shared-renamed",
+              "displaytext": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+              "broadcastdomaintype": "Vlan",
+              "traffictype": "Guest",
+              "gateway": "10.244.31.1",
+              "netmask": "255.255.255.0",
+              "cidr": "10.244.31.0/24",
+              "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "zonename": "Zone",
+              "networkofferingid": "af57b512-b8cd-49bb-b250-23c85585bd16",
+              "networkofferingname": "기본 공유 네트워크오퍼링",
+              "networkofferingdisplaytext": "기본 공유 네트워크오퍼링",
+              "networkofferingconservemode": true,
+              "networkofferingavailability": "Optional",
+              "issystem": false,
+              "state": "Setup",
+              "related": "eb1c873e-978a-4597-aaab-b6360118af44",
+              "broadcasturi": "vlan://731",
+              "dns1": "8.8.8.8",
+              "type": "Shared",
+              "vlan": "731",
+              "acltype": "Domain",
+              "subdomainaccess": true,
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT",
+              "service": [
+                {
+                  "name": "UserData",
+                  "provider": [
+                    {
+                      "name": "VirtualRouter"
+                    }
+                  ],
+                  "capability": []
+                },
+                {
+                  "name": "Dns",
+                  "provider": [
+                    {
+                      "name": "VirtualRouter"
+                    }
+                  ],
+                  "capability": [
+                    {
+                      "name": "AllowDnsSuffixModification",
+                      "value": "true",
+                      "canchooseservicecapability": false
+                    }
+                  ]
+                },
+                {
+                  "name": "Dhcp",
+                  "provider": [
+                    {
+                      "name": "VirtualRouter"
+                    }
+                  ],
+                  "capability": [
+                    {
+                      "name": "DhcpAccrossMultipleSubnets",
+                      "value": "true",
+                      "canchooseservicecapability": false
+                    }
+                  ]
+                }
+              ],
+              "networkdomain": "cs1cloud.internal",
+              "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+              "restartrequired": false,
+              "specifyvlan": true,
+              "specifyipranges": true,
+              "canusefordeploy": true,
+              "ispersistent": false,
+              "tags": [],
+              "details": {
+                "hideIpAddressUsage": "false"
+              },
+              "displaynetwork": true,
+              "strechedl2subnet": false,
+              "redundantrouter": false,
+              "supportsvmautoscaling": false,
+              "created": "2026-11-03T16:34:59+0900",
+              "receivedbytes": 0,
+              "sentbytes": 0,
+              "publicmtu": 1500,
+              "privatemtu": 1500,
+              "hasannotations": false
+            }
+          },
+          "jobinstancetype": "Network",
+          "created": "2026-11-03T16:56:41+0900",
+          "completed": "2026-11-03T16:56:41+0900",
+          "jobid": "d5fb3573-caad-486b-bb63-244ae4c2a87b",
+          "jobstatus": 1
+        }
+      }
+    }
+  ],
+  "ui": [
+    {
+      "html_children": 0,
+      "text": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    },
+    {
+      "html_children": 0,
+      "text": "긴 한국어 설명: 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 가상머신용 네트워크 \n둘째 줄: <b>문자 그대로</b> & \"특수문자\" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    }
+  ]
+}

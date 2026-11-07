@@ -1,0 +1,132 @@
+{
+  "nosnat": {
+    "same_host": "ablecube31-3",
+    "router_guest_ping": "PING 172.28.31.18 (172.28.31.18): 56 data bytes\n64 bytes from 172.28.31.18: icmp_seq=0 ttl=64 time=0.348 ms\n64 bytes from 172.28.31.18: icmp_seq=1 ttl=64 time=0.377 ms\n64 bytes from 172.28.31.18: icmp_seq=2 ttl=64 time=0.426 ms\n--- 172.28.31.18 ping statistics ---\n3 packets transmitted, 3 packets received, 0% packet loss\nround-trip min/avg/max/stddev = 0.348/0.384/0.426/0.032 ms\n172.28.31.18 dev eth0 lladdr 1e:1f:a6:00:01:8e DELAY \n",
+    "guest_interfaces": {
+      "return": [
+        {
+          "name": "lo",
+          "ip-addresses": [
+            {
+              "ip-address-type": "ipv4",
+              "ip-address": "127.0.0.1",
+              "prefix": 8
+            },
+            {
+              "ip-address-type": "ipv6",
+              "ip-address": "::1",
+              "prefix": 128
+            }
+          ],
+          "statistics": {
+            "tx-packets": 22,
+            "tx-errs": 0,
+            "rx-bytes": 2068,
+            "rx-dropped": 0,
+            "rx-packets": 22,
+            "rx-errs": 0,
+            "tx-bytes": 2068,
+            "tx-dropped": 0
+          },
+          "hardware-address": "00:00:00:00:00:00"
+        },
+        {
+          "name": "ens3",
+          "ip-addresses": [
+            {
+              "ip-address-type": "ipv4",
+              "ip-address": "172.28.31.18",
+              "prefix": 24
+            },
+            {
+              "ip-address-type": "ipv6",
+              "ip-address": "fe80::1c1f:a6ff:fe00:18e",
+              "prefix": 64
+            }
+          ],
+          "statistics": {
+            "tx-packets": 213,
+            "tx-errs": 0,
+            "rx-bytes": 37349,
+            "rx-dropped": 17,
+            "rx-packets": 584,
+            "rx-errs": 0,
+            "tx-bytes": 20579,
+            "tx-dropped": 0
+          },
+          "hardware-address": "1e:1f:a6:00:01:8e"
+        }
+      ]
+    },
+    "cloud_nic": {
+      "ipaddress": "172.28.31.18",
+      "macaddress": "1e:1f:a6:00:01:8e",
+      "networkid": "9cdf2e30-76e6-4580-aa39-8a287ec53f0b"
+    }
+  },
+  "shared": {
+    "same_host": "ablecube31-2",
+    "router_guest_ping": "PING 172.30.31.18 (172.30.31.18): 56 data bytes\n64 bytes from 172.30.31.18: icmp_seq=0 ttl=64 time=0.325 ms\n64 bytes from 172.30.31.18: icmp_seq=1 ttl=64 time=0.286 ms\n64 bytes from 172.30.31.18: icmp_seq=2 ttl=64 time=0.309 ms\n--- 172.30.31.18 ping statistics ---\n3 packets transmitted, 3 packets received, 0% packet loss\nround-trip min/avg/max/stddev = 0.286/0.307/0.325/0.000 ms\n172.30.31.18 dev eth0 lladdr 1e:1f:6d:00:01:99 DELAY \n",
+    "guest_interfaces": {
+      "return": [
+        {
+          "name": "lo",
+          "ip-addresses": [
+            {
+              "ip-address-type": "ipv4",
+              "ip-address": "127.0.0.1",
+              "prefix": 8
+            },
+            {
+              "ip-address-type": "ipv6",
+              "ip-address": "::1",
+              "prefix": 128
+            }
+          ],
+          "statistics": {
+            "tx-packets": 28,
+            "tx-errs": 0,
+            "rx-bytes": 2632,
+            "rx-dropped": 0,
+            "rx-packets": 28,
+            "rx-errs": 0,
+            "tx-bytes": 2632,
+            "tx-dropped": 0
+          },
+          "hardware-address": "00:00:00:00:00:00"
+        },
+        {
+          "name": "ens3",
+          "ip-addresses": [
+            {
+              "ip-address-type": "ipv4",
+              "ip-address": "172.30.31.18",
+              "prefix": 24
+            },
+            {
+              "ip-address-type": "ipv6",
+              "ip-address": "fe80::1c1f:6dff:fe00:199",
+              "prefix": 64
+            }
+          ],
+          "statistics": {
+            "tx-packets": 244,
+            "tx-errs": 0,
+            "rx-bytes": 88347,
+            "rx-dropped": 53,
+            "rx-packets": 1576,
+            "rx-errs": 0,
+            "tx-bytes": 23377,
+            "tx-dropped": 0
+          },
+          "hardware-address": "1e:1f:6d:00:01:99"
+        }
+      ]
+    },
+    "cloud_nic": {
+      "ipaddress": "172.30.31.18",
+      "macaddress": "1e:1f:6d:00:01:99",
+      "networkid": "7ec8b9e2-e850-4aa6-afff-d1c39793664a"
+    }
+  }
+}

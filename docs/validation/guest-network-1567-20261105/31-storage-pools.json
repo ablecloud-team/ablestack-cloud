@@ -1,0 +1,38 @@
+{
+  "count": 1,
+  "storagepool": [
+    {
+      "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "zonename": "Zone",
+      "podid": "2a9760c6-795d-48fc-bca1-77037c541279",
+      "podname": "Pod",
+      "name": "Primary",
+      "ipaddress": "localhost",
+      "path": "/mnt/glue-gfs",
+      "created": "2026-09-17T14:00:59+0900",
+      "type": "SharedMountPoint",
+      "clusterid": "0d3d50e7-3cb5-4adf-8507-955bc81cc4a5",
+      "clustername": "Cluster",
+      "capacitybytes": 23998409687040,
+      "disksizetotal": 23998409687040,
+      "disksizeallocated": 13131621215408,
+      "disksizeused": 3935225319424,
+      "tags": "glue-gfs",
+      "istagarule": false,
+      "state": "Up",
+      "scope": "CLUSTER",
+      "overprovisionfactor": "1.0",
+      "hypervisor": "KVM",
+      "provider": "DefaultPrimary",
+      "storagecapabilities": {
+        "VOLUME_SNAPSHOT_QUIESCEVM": "false"
+      },
+      "managed": false,
+      "details": {
+        "pool.storage.capacity.disablethreshold": "0.85"
+      },
+      "hasannotations": false
+    }
+  ]
+}

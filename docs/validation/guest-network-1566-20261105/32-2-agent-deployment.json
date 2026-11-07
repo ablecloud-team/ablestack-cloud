@@ -1,0 +1,44 @@
+{
+  "jar": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0.jar",
+  "backup": "/root/qa-gn1566-agent-backup-20261105-152738",
+  "beforeJarSha256": "8233c2cdd3625737b088b0e36305ed0a714c7a3ff1af72e8fe09194408fc6a38",
+  "afterJarSha256": "3ad64e7bfd0703c45efaedb83fafa8cf0a31f0c7b426c01ff8ad95618e4b8bf1",
+  "changedEntries": [
+    "com/cloud/network/HAProxyConfigurator.class"
+  ],
+  "classSha256": "1b43c720dc01eaae937cb23ba86140e0c37572d6535a94ad6c4e454813bc4585",
+  "preservedEntryCount": 901,
+  "oldPID": "591832",
+  "newPID": "3952433",
+  "before": {
+    "runningDomainXml": {
+      "scvm": "1cbe4f00b917b2cc19d7d7decfe233192587df29a793c1e87dcb19152cdfe01e",
+      "v-1-VM": "c16afb95025e84822890a618f36b0aac625faf4769718fdbb7288acdbd318125",
+      "i-6-73-VM": "e2dc5943e33479e16e1e6c8523f8e8544e7385d16148bb1bd9c6112159294fe4",
+      "i-2-164-VM": "010f7fa0769ef453732b37d89bfcc678dcb56a7557402c9a8c0c6e870a380270",
+      "i-6-71-VM": "4e49d407845275f6183df3d2be32426e97e78ee9ca0657e6f8ea0f0c47c40bca",
+      "i-2-242-VM": "b0bd1a6ec83be1e2d45f9ef0ce5180956e0230dc8bd86dcdf117cf08e3f54e66",
+      "i-2-243-VM": "eecb25a5c13b23682be7ab159490b6d9340a65df77a51e17a3d9ad13494ea1d2"
+    },
+    "protectedFiles": {
+      "/etc/libvirt/hooks/qemu": "8eb0b796c2d2608a9dc7f6c565cc6fc9d05460af97ddbade6faae10251854529",
+      "/usr/share/cloudstack-common/scripts/vm/network/vnet/modifyvlan.sh": "6ec5b77f25cd2bd9d4db1703cca5c7baddeef2768a02c54e6f854a8278733028"
+    }
+  },
+  "after": {
+    "runningDomainXml": {
+      "scvm": "1cbe4f00b917b2cc19d7d7decfe233192587df29a793c1e87dcb19152cdfe01e",
+      "v-1-VM": "c16afb95025e84822890a618f36b0aac625faf4769718fdbb7288acdbd318125",
+      "i-6-73-VM": "e2dc5943e33479e16e1e6c8523f8e8544e7385d16148bb1bd9c6112159294fe4",
+      "i-2-164-VM": "010f7fa0769ef453732b37d89bfcc678dcb56a7557402c9a8c0c6e870a380270",
+      "i-6-71-VM": "4e49d407845275f6183df3d2be32426e97e78ee9ca0657e6f8ea0f0c47c40bca",
+      "i-2-242-VM": "b0bd1a6ec83be1e2d45f9ef0ce5180956e0230dc8bd86dcdf117cf08e3f54e66",
+      "i-2-243-VM": "eecb25a5c13b23682be7ab159490b6d9340a65df77a51e17a3d9ad13494ea1d2"
+    },
+    "protectedFiles": {
+      "/etc/libvirt/hooks/qemu": "8eb0b796c2d2608a9dc7f6c565cc6fc9d05460af97ddbade6faae10251854529",
+      "/usr/share/cloudstack-common/scripts/vm/network/vnet/modifyvlan.sh": "6ec5b77f25cd2bd9d4db1703cca5c7baddeef2768a02c54e6f854a8278733028"
+    }
+  },
+  "source": "df1120d6392fdef58f64817ec9debe7d2ffdae8e"
+}

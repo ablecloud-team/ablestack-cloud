@@ -1,0 +1,21 @@
+
+> cloudstack-ui@4.22.0 test:unit
+> vue-cli-service test:unit --runTestsByPath tests/unit/projectApiMetadata.spec.js tests/unit/optionalDiscovery.spec.js --runInBand --watch=false --forceExit --coverage=false
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+PASS tests/unit/optionalDiscovery.spec.js
+PASS tests/unit/projectApiMetadata.spec.js
+  ● Console
+
+    console.log src/store/modules/user.js:428
+      Login detected, revalidating API permissions
+
+
+Test Suites: 2 passed, 2 total
+Tests:       27 passed, 27 total
+Snapshots:   0 total
+Time:        7.557s
+Ran all test suites within paths "tests/unit/projectApiMetadata.spec.js", "tests/unit/optionalDiscovery.spec.js".
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?

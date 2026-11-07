@@ -1,0 +1,82 @@
+{
+  "Network": {
+    "created": {
+      "success": true
+    },
+    "row": {
+      "key": "qa1575-scope",
+      "value": "Network",
+      "resourcetype": "Network",
+      "resourceid": "34015e1d-ca40-4d05-a4de-ba26172009e1",
+      "account": "qa-gn1575-31-owner",
+      "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+      "domain": "qa-gn1575-31-main",
+      "domainpath": "ROOT/qa-gn1575-31-main"
+    },
+    "removed": true
+  },
+  "PublicIpAddress": {
+    "created": {
+      "success": true
+    },
+    "row": {
+      "key": "qa1575-scope",
+      "value": "PublicIpAddress",
+      "resourcetype": "PublicIpAddress",
+      "resourceid": "e6978afb-a4ee-4512-8fb5-a06fe6477a83",
+      "account": "qa-gn1575-31-owner",
+      "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+      "domain": "qa-gn1575-31-main",
+      "domainpath": "ROOT/qa-gn1575-31-main"
+    },
+    "removed": true
+  },
+  "FirewallRule": {
+    "created": {
+      "success": true
+    },
+    "row": {
+      "key": "qa1575-scope",
+      "value": "FirewallRule",
+      "resourcetype": "FirewallRule",
+      "resourceid": "945ee00c-6128-4226-b067-5243605e8ea1",
+      "account": "qa-gn1575-31-owner",
+      "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+      "domain": "qa-gn1575-31-main",
+      "domainpath": "ROOT/qa-gn1575-31-main"
+    },
+    "removed": true
+  },
+  "PortForwardingRule": {
+    "created": {
+      "success": true
+    },
+    "row": {
+      "key": "qa1575-scope",
+      "value": "PortForwardingRule",
+      "resourcetype": "PortForwardingRule",
+      "resourceid": "7cccd5ff-31da-44af-b00d-58ad7dae8961",
+      "account": "qa-gn1575-31-owner",
+      "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+      "domain": "qa-gn1575-31-main",
+      "domainpath": "ROOT/qa-gn1575-31-main"
+    },
+    "removed": true
+  },
+  "LoadBalancer": {
+    "created": {
+      "success": true
+    },
+    "row": {
+      "key": "qa1575-scope",
+      "value": "LoadBalancer",
+      "resourcetype": "LoadBalancer",
+      "resourceid": "5596469f-ba7c-49ca-9afa-b4395885491f",
+      "account": "qa-gn1575-31-owner",
+      "domainid": "f02a19f1-003d-4401-8272-65e0e16aee4e",
+      "domain": "qa-gn1575-31-main",
+      "domainpath": "ROOT/qa-gn1575-31-main"
+    },
+    "removed": true
+  }
+}

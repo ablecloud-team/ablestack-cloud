@@ -1,0 +1,84 @@
+{
+  "existing": {
+    "listNetworks": {
+      "before": 9,
+      "after_excluding_owned": 9,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listNetworkOfferings": {
+      "before": 15,
+      "after_excluding_owned": 15,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listVirtualMachines": {
+      "before": 55,
+      "after_excluding_owned": 55,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listRouters": {
+      "before": 3,
+      "after_excluding_owned": 3,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listPublicIpAddresses": {
+      "before": 8,
+      "after_excluding_owned": 8,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listVlanIpRanges": {
+      "before": 2,
+      "after_excluding_owned": 2,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listZones": {
+      "before": 1,
+      "after_excluding_owned": 1,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listSSHKeyPairs": {
+      "before": 1,
+      "after_excluding_owned": 1,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listAccounts": {
+      "before": 6,
+      "after_excluding_owned": 6,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    }
+  },
+  "account_deltas": {
+    "admin": {
+      "vmtotal": 2,
+      "volumetotal": 2
+    }
+  },
+  "providers_unchanged": true,
+  "physical_networks_unchanged": true,
+  "vpcs_unchanged": true,
+  "acl_lists_unchanged": true,
+  "db_counts": "network_resource_count\t3\nactual_counted_networks\t3\nowned_networks\t3\nremoved_test_active_vm_nics\t0\nremoved_test_placeholders\t1\n",
+  "retained_networks": {
+    "nosnat": "5449857d-5504-4c40-b749-fdccfb09b527",
+    "shared": "f4029961-1511-4147-a15a-c8315cd94183",
+    "l2": "cb9d2af7-4f01-4729-91d9-ad8771e5cf3d"
+  },
+  "user_review_pending": true
+}

@@ -21,7 +21,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.apache.cloudstack.acl.ControlledEntity;
-import org.apache.cloudstack.acl.ProjectRole;
 import org.apache.cloudstack.acl.ProjectRolePermission;
 import org.apache.cloudstack.acl.ProjectRoleService;
 import org.apache.cloudstack.acl.RolePermissionEntity;
@@ -309,16 +308,11 @@ public class DomainChecker extends AdapterBase implements SecurityChecker {
     }
 
     private boolean isPermitted(Project project, ProjectAccount projectUser, String apiCommandName) {
-        ProjectRole projectRole = null;
-        if(projectUser.getProjectRoleId() != null) {
-            projectRole = projectRoleService.findProjectRole(projectUser.getProjectRoleId(), project.getId());
-        }
-
-        if (projectRole == null) {
+        if (projectUser.getProjectRoleId() == null) {
             return true;
         }
 
-        for (ProjectRolePermission permission : projectRoleService.findAllProjectRolePermissions(project.getId(), projectRole.getId())) {
+        for (ProjectRolePermission permission : projectRoleService.findCurrentUserProjectRolePermissions(project.getId())) {
             if (permission.getRule().matches(apiCommandName)) {
                 if (RolePermissionEntity.Permission.ALLOW.equals(permission.getPermission())) {
                     return true;

@@ -1,0 +1,99 @@
+{
+  "body": {
+    "bottom": 716,
+    "height": 542,
+    "left": 161,
+    "right": 1119,
+    "top": 174,
+    "width": 958,
+    "x": 161,
+    "y": 174
+  },
+  "bodyClientHeight": 542,
+  "bodyClientWidth": 958,
+  "bodyScrollHeight": 542,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 958,
+  "colors": [
+    {
+      "background": "rgb(255, 241, 240)",
+      "color": "rgb(112, 27, 27)",
+      "text": "Isolated guest IP ranges must keep the network gateway and subnet"
+    },
+    {
+      "background": "rgb(9, 105, 218)",
+      "color": "rgb(255, 255, 255)",
+      "text": "확인"
+    }
+  ],
+  "content": {
+    "bottom": 782,
+    "height": 664,
+    "left": 160,
+    "right": 1120,
+    "top": 118,
+    "width": 960,
+    "x": 160,
+    "y": 118
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1280,
+    "top": 0,
+    "width": 1280,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": {
+    "bottom": 781,
+    "height": 65,
+    "left": 161,
+    "right": 1119,
+    "top": 716,
+    "width": 958,
+    "x": 161,
+    "y": 716
+  },
+  "header": {
+    "bottom": 174,
+    "height": 55,
+    "left": 161,
+    "right": 1119,
+    "top": 119,
+    "width": 958,
+    "x": 161,
+    "y": 119
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 749,
+    "left": 256,
+    "right": 1270,
+    "top": 151,
+    "width": 1014,
+    "x": 256,
+    "y": 151
+  },
+  "primaryButton": {
+    "bottom": 765,
+    "height": 32,
+    "left": 1033.234375,
+    "right": 1091,
+    "top": 733,
+    "width": 57.765625,
+    "x": 1033.234375,
+    "y": 733
+  },
+  "width": 1280,
+  "image_sha256": "0902c9e5ebed44adceb1f7f5fa434d2cd1584a61d7884e62ed37bead8462a0e8"
+}

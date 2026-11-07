@@ -1,0 +1,2828 @@
+[
+  {
+    "label": "31-style-shared-light-1440",
+    "transition": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 792
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 172,
+          "height": 29,
+          "left": 281,
+          "right": 838,
+          "top": 143,
+          "width": 557,
+          "x": 281,
+          "y": 143
+        },
+        "text": "/가상머신용 네트워크/qa-gn1561-31-shared업데이트/"
+      },
+      "dark": false,
+      "height": 1000,
+      "panels": [
+        {
+          "id": "rc-tabs-1-panel-public.ip.addresses",
+          "label": "rc-tabs-1-tab-public.ip.addresses"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 1430,
+      "tabs": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-details",
+          "id": "rc-tabs-1-tab-details",
+          "rect": {
+            "bottom": 264,
+            "height": 22,
+            "left": 637,
+            "right": 662.765625,
+            "top": 242,
+            "width": 25.765625,
+            "x": 637,
+            "y": 242
+          },
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-1-panel-public.ip.addresses",
+          "id": "rc-tabs-1-tab-public.ip.addresses",
+          "rect": {
+            "bottom": 318,
+            "height": 22,
+            "left": 637,
+            "right": 715.265625,
+            "top": 296,
+            "width": 78.265625,
+            "x": 637,
+            "y": 296
+          },
+          "selected": "true",
+          "text": "IP Addresses"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-virtual.routers",
+          "id": "rc-tabs-1-tab-virtual.routers",
+          "rect": {
+            "bottom": 372,
+            "height": 22,
+            "left": 637,
+            "right": 705.25,
+            "top": 350,
+            "width": 68.25,
+            "x": 637,
+            "y": 350
+          },
+          "selected": "false",
+          "text": "가상 라우터"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-vnf.appliances",
+          "id": "rc-tabs-1-tab-vnf.appliances",
+          "rect": {
+            "bottom": 426,
+            "height": 22,
+            "left": 637,
+            "right": 692.609375,
+            "top": 404,
+            "width": 55.609375,
+            "x": 637,
+            "y": 404
+          },
+          "selected": "false",
+          "text": "VNF 기기"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-guest.ip.range",
+          "id": "rc-tabs-1-tab-guest.ip.range",
+          "rect": {
+            "bottom": 480,
+            "height": 22,
+            "left": 637,
+            "right": 750.234375,
+            "top": 458,
+            "width": 113.234375,
+            "x": 637,
+            "y": 458
+          },
+          "selected": "false",
+          "text": "게스트 IP 주소 범위"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-events",
+          "id": "rc-tabs-1-tab-events",
+          "rect": {
+            "bottom": 534,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 512,
+            "width": 38.640625,
+            "x": 637,
+            "y": 512
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-comments",
+          "id": "rc-tabs-1-tab-comments",
+          "rect": {
+            "bottom": 588,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 566,
+            "width": 38.640625,
+            "x": 637,
+            "y": 566
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/3a71dbff-a767-49cb-8e81-87864c3b0c24?tab=public.ip.addresses",
+      "width": 1440
+    }
+  },
+  {
+    "label": "31-style-shared-light-768",
+    "transition": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 792
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 194,
+          "height": 51,
+          "left": 105,
+          "right": 414,
+          "top": 143,
+          "width": 309,
+          "x": 105,
+          "y": 143
+        },
+        "text": "/가상머신용 네트워크/qa-gn1561-31-shared업데이트/"
+      },
+      "dark": false,
+      "height": 1024,
+      "panels": [
+        {
+          "id": "rc-tabs-1-panel-public.ip.addresses",
+          "label": "rc-tabs-1-tab-public.ip.addresses"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 758,
+      "tabs": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-details",
+          "id": "rc-tabs-1-tab-details",
+          "rect": {
+            "bottom": 1164.5,
+            "height": 22,
+            "left": 125,
+            "right": 150.765625,
+            "top": 1142.5,
+            "width": 25.765625,
+            "x": 125,
+            "y": 1142.5
+          },
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-1-panel-public.ip.addresses",
+          "id": "rc-tabs-1-tab-public.ip.addresses",
+          "rect": {
+            "bottom": 1218.5,
+            "height": 22,
+            "left": 125,
+            "right": 203.265625,
+            "top": 1196.5,
+            "width": 78.265625,
+            "x": 125,
+            "y": 1196.5
+          },
+          "selected": "true",
+          "text": "IP Addresses"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-virtual.routers",
+          "id": "rc-tabs-1-tab-virtual.routers",
+          "rect": {
+            "bottom": 1272.5,
+            "height": 22,
+            "left": 125,
+            "right": 193.25,
+            "top": 1250.5,
+            "width": 68.25,
+            "x": 125,
+            "y": 1250.5
+          },
+          "selected": "false",
+          "text": "가상 라우터"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-vnf.appliances",
+          "id": "rc-tabs-1-tab-vnf.appliances",
+          "rect": {
+            "bottom": 1326.5,
+            "height": 22,
+            "left": 125,
+            "right": 180.609375,
+            "top": 1304.5,
+            "width": 55.609375,
+            "x": 125,
+            "y": 1304.5
+          },
+          "selected": "false",
+          "text": "VNF 기기"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-guest.ip.range",
+          "id": "rc-tabs-1-tab-guest.ip.range",
+          "rect": {
+            "bottom": 1380.5,
+            "height": 22,
+            "left": 125,
+            "right": 238.234375,
+            "top": 1358.5,
+            "width": 113.234375,
+            "x": 125,
+            "y": 1358.5
+          },
+          "selected": "false",
+          "text": "게스트 IP 주소 범위"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-events",
+          "id": "rc-tabs-1-tab-events",
+          "rect": {
+            "bottom": 1434.5,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1412.5,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1412.5
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-comments",
+          "id": "rc-tabs-1-tab-comments",
+          "rect": {
+            "bottom": 1488.5,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1466.5,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1466.5
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/3a71dbff-a767-49cb-8e81-87864c3b0c24?tab=public.ip.addresses",
+      "width": 768
+    }
+  },
+  {
+    "label": "31-style-shared-light-390",
+    "transition": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 792
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 230.1875,
+          "height": 51,
+          "left": 25,
+          "right": 357,
+          "top": 179.1875,
+          "width": 332,
+          "x": 25,
+          "y": 179.1875
+        },
+        "text": "/가상머신용 네트워크/qa-gn1561-31-shared업데이트/"
+      },
+      "dark": false,
+      "height": 844,
+      "panels": [
+        {
+          "id": "rc-tabs-1-panel-public.ip.addresses",
+          "label": "rc-tabs-1-tab-public.ip.addresses"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-top",
+      "scrollWidth": 380,
+      "tabs": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-details",
+          "id": "rc-tabs-1-tab-details",
+          "rect": {
+            "bottom": 1250.6875,
+            "height": 22,
+            "left": 37,
+            "right": 62.765625,
+            "top": 1228.6875,
+            "width": 25.765625,
+            "x": 37,
+            "y": 1228.6875
+          },
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-1-panel-public.ip.addresses",
+          "id": "rc-tabs-1-tab-public.ip.addresses",
+          "rect": {
+            "bottom": 1250.6875,
+            "height": 22,
+            "left": 94.765625,
+            "right": 173.03125,
+            "top": 1228.6875,
+            "width": 78.265625,
+            "x": 94.765625,
+            "y": 1228.6875
+          },
+          "selected": "true",
+          "text": "IP Addresses"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-virtual.routers",
+          "id": "rc-tabs-1-tab-virtual.routers",
+          "rect": {
+            "bottom": 1250.6875,
+            "height": 22,
+            "left": 205.03125,
+            "right": 273.28125,
+            "top": 1228.6875,
+            "width": 68.25,
+            "x": 205.03125,
+            "y": 1228.6875
+          },
+          "selected": "false",
+          "text": "가상 라우터"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-vnf.appliances",
+          "id": "rc-tabs-1-tab-vnf.appliances",
+          "rect": {
+            "bottom": 1250.6875,
+            "height": 22,
+            "left": 305.28125,
+            "right": 360.890625,
+            "top": 1228.6875,
+            "width": 55.609375,
+            "x": 305.28125,
+            "y": 1228.6875
+          },
+          "selected": "false",
+          "text": "VNF 기기"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-guest.ip.range",
+          "id": "rc-tabs-1-tab-guest.ip.range",
+          "rect": {
+            "bottom": 1250.6875,
+            "height": 22,
+            "left": 392.890625,
+            "right": 506.125,
+            "top": 1228.6875,
+            "width": 113.234375,
+            "x": 392.890625,
+            "y": 1228.6875
+          },
+          "selected": "false",
+          "text": "게스트 IP 주소 범위"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-events",
+          "id": "rc-tabs-1-tab-events",
+          "rect": {
+            "bottom": 1250.6875,
+            "height": 22,
+            "left": 538.125,
+            "right": 576.765625,
+            "top": 1228.6875,
+            "width": 38.640625,
+            "x": 538.125,
+            "y": 1228.6875
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-1-panel-comments",
+          "id": "rc-tabs-1-tab-comments",
+          "rect": {
+            "bottom": 1250.6875,
+            "height": 22,
+            "left": 608.765625,
+            "right": 647.40625,
+            "top": 1228.6875,
+            "width": 38.640625,
+            "x": 608.765625,
+            "y": 1228.6875
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/3a71dbff-a767-49cb-8e81-87864c3b0c24?tab=public.ip.addresses",
+      "width": 390
+    }
+  },
+  {
+    "label": "31-style-isolated-light-1440",
+    "transition": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 792
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 174.703125,
+          "height": 29,
+          "left": 281,
+          "right": 838,
+          "top": 145.703125,
+          "width": 557,
+          "x": 281,
+          "y": 145.703125
+        },
+        "text": "/가상머신용 네트워크/qa-gn1561-31-isolated업데이트/"
+      },
+      "dark": false,
+      "height": 1000,
+      "panels": [
+        {
+          "id": "rc-tabs-2-panel-public.ip.addresses",
+          "label": "rc-tabs-2-tab-public.ip.addresses"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 1430,
+      "tabs": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-details",
+          "id": "rc-tabs-2-tab-details",
+          "rect": {
+            "bottom": 266.703125,
+            "height": 22,
+            "left": 637,
+            "right": 662.765625,
+            "top": 244.703125,
+            "width": 25.765625,
+            "x": 637,
+            "y": 244.703125
+          },
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-egress.rules",
+          "id": "rc-tabs-2-tab-egress.rules",
+          "rect": {
+            "bottom": 320.703125,
+            "height": 22,
+            "left": 637,
+            "right": 692.359375,
+            "top": 298.703125,
+            "width": 55.359375,
+            "x": 637,
+            "y": 298.703125
+          },
+          "selected": "false",
+          "text": "송신 규칙"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-2-panel-public.ip.addresses",
+          "id": "rc-tabs-2-tab-public.ip.addresses",
+          "rect": {
+            "bottom": 374.703125,
+            "height": 22,
+            "left": 637,
+            "right": 719.25,
+            "top": 352.703125,
+            "width": 82.25,
+            "x": 637,
+            "y": 352.703125
+          },
+          "selected": "true",
+          "text": "Public IP 주소"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-virtual.routers",
+          "id": "rc-tabs-2-tab-virtual.routers",
+          "rect": {
+            "bottom": 428.703125,
+            "height": 22,
+            "left": 637,
+            "right": 705.25,
+            "top": 406.703125,
+            "width": 68.25,
+            "x": 637,
+            "y": 406.703125
+          },
+          "selected": "false",
+          "text": "가상 라우터"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-vnf.appliances",
+          "id": "rc-tabs-2-tab-vnf.appliances",
+          "rect": {
+            "bottom": 482.703125,
+            "height": 22,
+            "left": 637,
+            "right": 692.609375,
+            "top": 460.703125,
+            "width": 55.609375,
+            "x": 637,
+            "y": 460.703125
+          },
+          "selected": "false",
+          "text": "VNF 기기"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-network.permissions",
+          "id": "rc-tabs-2-tab-network.permissions",
+          "rect": {
+            "bottom": 536.703125,
+            "height": 22,
+            "left": 637,
+            "right": 718.125,
+            "top": 514.703125,
+            "width": 81.125,
+            "x": 637,
+            "y": 514.703125
+          },
+          "selected": "false",
+          "text": "네트워크 권한"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-events",
+          "id": "rc-tabs-2-tab-events",
+          "rect": {
+            "bottom": 590.703125,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 568.703125,
+            "width": 38.640625,
+            "x": 637,
+            "y": 568.703125
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-comments",
+          "id": "rc-tabs-2-tab-comments",
+          "rect": {
+            "bottom": 644.703125,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 622.703125,
+            "width": 38.640625,
+            "x": 637,
+            "y": 622.703125
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/2f577738-55a0-4be8-809d-12e11f6be62b?tab=public.ip.addresses",
+      "width": 1440
+    }
+  },
+  {
+    "label": "31-style-isolated-light-768",
+    "transition": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 792
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 194,
+          "height": 51,
+          "left": 105,
+          "right": 414,
+          "top": 143,
+          "width": 309,
+          "x": 105,
+          "y": 143
+        },
+        "text": "/가상머신용 네트워크/qa-gn1561-31-isolated업데이트/"
+      },
+      "dark": false,
+      "height": 1024,
+      "panels": [
+        {
+          "id": "rc-tabs-2-panel-public.ip.addresses",
+          "label": "rc-tabs-2-tab-public.ip.addresses"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 758,
+      "tabs": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-details",
+          "id": "rc-tabs-2-tab-details",
+          "rect": {
+            "bottom": 1233.5,
+            "height": 22,
+            "left": 125,
+            "right": 150.765625,
+            "top": 1211.5,
+            "width": 25.765625,
+            "x": 125,
+            "y": 1211.5
+          },
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-egress.rules",
+          "id": "rc-tabs-2-tab-egress.rules",
+          "rect": {
+            "bottom": 1287.5,
+            "height": 22,
+            "left": 125,
+            "right": 180.359375,
+            "top": 1265.5,
+            "width": 55.359375,
+            "x": 125,
+            "y": 1265.5
+          },
+          "selected": "false",
+          "text": "송신 규칙"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-2-panel-public.ip.addresses",
+          "id": "rc-tabs-2-tab-public.ip.addresses",
+          "rect": {
+            "bottom": 1341.5,
+            "height": 22,
+            "left": 125,
+            "right": 207.25,
+            "top": 1319.5,
+            "width": 82.25,
+            "x": 125,
+            "y": 1319.5
+          },
+          "selected": "true",
+          "text": "Public IP 주소"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-virtual.routers",
+          "id": "rc-tabs-2-tab-virtual.routers",
+          "rect": {
+            "bottom": 1395.5,
+            "height": 22,
+            "left": 125,
+            "right": 193.25,
+            "top": 1373.5,
+            "width": 68.25,
+            "x": 125,
+            "y": 1373.5
+          },
+          "selected": "false",
+          "text": "가상 라우터"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-vnf.appliances",
+          "id": "rc-tabs-2-tab-vnf.appliances",
+          "rect": {
+            "bottom": 1449.5,
+            "height": 22,
+            "left": 125,
+            "right": 180.609375,
+            "top": 1427.5,
+            "width": 55.609375,
+            "x": 125,
+            "y": 1427.5
+          },
+          "selected": "false",
+          "text": "VNF 기기"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-network.permissions",
+          "id": "rc-tabs-2-tab-network.permissions",
+          "rect": {
+            "bottom": 1503.5,
+            "height": 22,
+            "left": 125,
+            "right": 206.125,
+            "top": 1481.5,
+            "width": 81.125,
+            "x": 125,
+            "y": 1481.5
+          },
+          "selected": "false",
+          "text": "네트워크 권한"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-events",
+          "id": "rc-tabs-2-tab-events",
+          "rect": {
+            "bottom": 1557.5,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1535.5,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1535.5
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-comments",
+          "id": "rc-tabs-2-tab-comments",
+          "rect": {
+            "bottom": 1611.5,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1589.5,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1589.5
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/2f577738-55a0-4be8-809d-12e11f6be62b?tab=public.ip.addresses",
+      "width": 768
+    }
+  },
+  {
+    "label": "31-style-isolated-light-390",
+    "transition": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 792
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 220.390625,
+          "height": 51,
+          "left": 25,
+          "right": 357,
+          "top": 169.390625,
+          "width": 332,
+          "x": 25,
+          "y": 169.390625
+        },
+        "text": "/가상머신용 네트워크/qa-gn1561-31-isolated업데이트/"
+      },
+      "dark": false,
+      "height": 844,
+      "panels": [
+        {
+          "id": "rc-tabs-2-panel-public.ip.addresses",
+          "label": "rc-tabs-2-tab-public.ip.addresses"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-top",
+      "scrollWidth": 380,
+      "tabs": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-details",
+          "id": "rc-tabs-2-tab-details",
+          "rect": {
+            "bottom": 1309.890625,
+            "height": 22,
+            "left": 37,
+            "right": 62.765625,
+            "top": 1287.890625,
+            "width": 25.765625,
+            "x": 37,
+            "y": 1287.890625
+          },
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-egress.rules",
+          "id": "rc-tabs-2-tab-egress.rules",
+          "rect": {
+            "bottom": 1309.890625,
+            "height": 22,
+            "left": 94.765625,
+            "right": 150.125,
+            "top": 1287.890625,
+            "width": 55.359375,
+            "x": 94.765625,
+            "y": 1287.890625
+          },
+          "selected": "false",
+          "text": "송신 규칙"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-2-panel-public.ip.addresses",
+          "id": "rc-tabs-2-tab-public.ip.addresses",
+          "rect": {
+            "bottom": 1309.890625,
+            "height": 22,
+            "left": 182.125,
+            "right": 264.375,
+            "top": 1287.890625,
+            "width": 82.25,
+            "x": 182.125,
+            "y": 1287.890625
+          },
+          "selected": "true",
+          "text": "Public IP 주소"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-virtual.routers",
+          "id": "rc-tabs-2-tab-virtual.routers",
+          "rect": {
+            "bottom": 1309.890625,
+            "height": 22,
+            "left": 296.375,
+            "right": 364.625,
+            "top": 1287.890625,
+            "width": 68.25,
+            "x": 296.375,
+            "y": 1287.890625
+          },
+          "selected": "false",
+          "text": "가상 라우터"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-vnf.appliances",
+          "id": "rc-tabs-2-tab-vnf.appliances",
+          "rect": {
+            "bottom": 1309.890625,
+            "height": 22,
+            "left": 396.625,
+            "right": 452.234375,
+            "top": 1287.890625,
+            "width": 55.609375,
+            "x": 396.625,
+            "y": 1287.890625
+          },
+          "selected": "false",
+          "text": "VNF 기기"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-network.permissions",
+          "id": "rc-tabs-2-tab-network.permissions",
+          "rect": {
+            "bottom": 1309.890625,
+            "height": 22,
+            "left": 484.234375,
+            "right": 565.359375,
+            "top": 1287.890625,
+            "width": 81.125,
+            "x": 484.234375,
+            "y": 1287.890625
+          },
+          "selected": "false",
+          "text": "네트워크 권한"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-events",
+          "id": "rc-tabs-2-tab-events",
+          "rect": {
+            "bottom": 1309.890625,
+            "height": 22,
+            "left": 597.359375,
+            "right": 636,
+            "top": 1287.890625,
+            "width": 38.640625,
+            "x": 597.359375,
+            "y": 1287.890625
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-2-panel-comments",
+          "id": "rc-tabs-2-tab-comments",
+          "rect": {
+            "bottom": 1309.890625,
+            "height": 22,
+            "left": 668,
+            "right": 706.640625,
+            "top": 1287.890625,
+            "width": 38.640625,
+            "x": 668,
+            "y": 1287.890625
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/2f577738-55a0-4be8-809d-12e11f6be62b?tab=public.ip.addresses",
+      "width": 390
+    }
+  },
+  {
+    "label": "31-style-l2-light-1440",
+    "transition": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 792
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 175.8125,
+          "height": 29,
+          "left": 281,
+          "right": 838,
+          "top": 146.8125,
+          "width": 557,
+          "x": 281,
+          "y": 146.8125
+        },
+        "text": "/가상머신용 네트워크/qa-gn1561-31-l2업데이트/"
+      },
+      "dark": false,
+      "height": 1000,
+      "panels": [
+        {
+          "id": "rc-tabs-3-panel-comments",
+          "label": "rc-tabs-3-tab-comments"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 1430,
+      "tabs": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-3-panel-details",
+          "id": "rc-tabs-3-tab-details",
+          "rect": {
+            "bottom": 267.8125,
+            "height": 22,
+            "left": 637,
+            "right": 662.765625,
+            "top": 245.8125,
+            "width": 25.765625,
+            "x": 637,
+            "y": 245.8125
+          },
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-3-panel-vnf.appliances",
+          "id": "rc-tabs-3-tab-vnf.appliances",
+          "rect": {
+            "bottom": 321.8125,
+            "height": 22,
+            "left": 637,
+            "right": 692.609375,
+            "top": 299.8125,
+            "width": 55.609375,
+            "x": 637,
+            "y": 299.8125
+          },
+          "selected": "false",
+          "text": "VNF 기기"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-3-panel-network.permissions",
+          "id": "rc-tabs-3-tab-network.permissions",
+          "rect": {
+            "bottom": 375.8125,
+            "height": 22,
+            "left": 637,
+            "right": 718.125,
+            "top": 353.8125,
+            "width": 81.125,
+            "x": 637,
+            "y": 353.8125
+          },
+          "selected": "false",
+          "text": "네트워크 권한"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-3-panel-events",
+          "id": "rc-tabs-3-tab-events",
+          "rect": {
+            "bottom": 429.8125,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 407.8125,
+            "width": 38.640625,
+            "x": 637,
+            "y": 407.8125
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-3-panel-comments",
+          "id": "rc-tabs-3-tab-comments",
+          "rect": {
+            "bottom": 483.8125,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 461.8125,
+            "width": 38.640625,
+            "x": 637,
+            "y": 461.8125
+          },
+          "selected": "true",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/7c72d59c-c31c-42dd-9c4e-049d3a97fc2e?tab=comments",
+      "width": 1440
+    }
+  },
+  {
+    "label": "31-style-l2-light-768",
+    "transition": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 792
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 194,
+          "height": 51,
+          "left": 105,
+          "right": 414,
+          "top": 143,
+          "width": 309,
+          "x": 105,
+          "y": 143
+        },
+        "text": "/가상머신용 네트워크/qa-gn1561-31-l2업데이트/"
+      },
+      "dark": false,
+      "height": 1024,
+      "panels": [
+        {
+          "id": "rc-tabs-3-panel-comments",
+          "label": "rc-tabs-3-tab-comments"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 758,
+      "tabs": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-3-panel-details",
+          "id": "rc-tabs-3-tab-details",
+          "rect": {
+            "bottom": 1233.5,
+            "height": 22,
+            "left": 125,
+            "right": 150.765625,
+            "top": 1211.5,
+            "width": 25.765625,
+            "x": 125,
+            "y": 1211.5
+          },
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-3-panel-vnf.appliances",
+          "id": "rc-tabs-3-tab-vnf.appliances",
+          "rect": {
+            "bottom": 1287.5,
+            "height": 22,
+            "left": 125,
+            "right": 180.609375,
+            "top": 1265.5,
+            "width": 55.609375,
+            "x": 125,
+            "y": 1265.5
+          },
+          "selected": "false",
+          "text": "VNF 기기"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-3-panel-network.permissions",
+          "id": "rc-tabs-3-tab-network.permissions",
+          "rect": {
+            "bottom": 1341.5,
+            "height": 22,
+            "left": 125,
+            "right": 206.125,
+            "top": 1319.5,
+            "width": 81.125,
+            "x": 125,
+            "y": 1319.5
+          },
+          "selected": "false",
+          "text": "네트워크 권한"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-3-panel-events",
+          "id": "rc-tabs-3-tab-events",
+          "rect": {
+            "bottom": 1395.5,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1373.5,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1373.5
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-3-panel-comments",
+          "id": "rc-tabs-3-tab-comments",
+          "rect": {
+            "bottom": 1449.5,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1427.5,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1427.5
+          },
+          "selected": "true",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/7c72d59c-c31c-42dd-9c4e-049d3a97fc2e?tab=comments",
+      "width": 768
+    }
+  },
+  {
+    "label": "31-style-l2-light-390",
+    "transition": {
+      "mode": "light",
+      "dark": false,
+      "action_observation_ms": 792
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 227.578125,
+          "height": 51,
+          "left": 25,
+          "right": 357,
+          "top": 176.578125,
+          "width": 332,
+          "x": 25,
+          "y": 176.578125
+        },
+        "text": "/가상머신용 네트워크/qa-gn1561-31-l2업데이트/"
+      },
+      "dark": false,
+      "height": 844,
+      "panels": [
+        {
+          "id": "rc-tabs-3-panel-comments",
+          "label": "rc-tabs-3-tab-comments"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-top",
+      "scrollWidth": 380,
+      "tabs": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-3-panel-details",
+          "id": "rc-tabs-3-tab-details",
+          "rect": {
+            "bottom": 1317.078125,
+            "height": 22,
+            "left": -18.306320190429688,
+            "right": 7.459304809570312,
+            "top": 1295.078125,
+            "width": 25.765625,
+            "x": -18.306320190429688,
+            "y": 1295.078125
+          },
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-3-panel-vnf.appliances",
+          "id": "rc-tabs-3-tab-vnf.appliances",
+          "rect": {
+            "bottom": 1317.078125,
+            "height": 22,
+            "left": 39.45930480957031,
+            "right": 95.06867980957033,
+            "top": 1295.078125,
+            "width": 55.609375,
+            "x": 39.45930480957031,
+            "y": 1295.078125
+          },
+          "selected": "false",
+          "text": "VNF 기기"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-3-panel-network.permissions",
+          "id": "rc-tabs-3-tab-network.permissions",
+          "rect": {
+            "bottom": 1317.078125,
+            "height": 22,
+            "left": 127.06867980957033,
+            "right": 208.1936798095703,
+            "top": 1295.078125,
+            "width": 81.125,
+            "x": 127.06867980957033,
+            "y": 1295.078125
+          },
+          "selected": "false",
+          "text": "네트워크 권한"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "controls": "rc-tabs-3-panel-events",
+          "id": "rc-tabs-3-tab-events",
+          "rect": {
+            "bottom": 1317.078125,
+            "height": 22,
+            "left": 240.1936798095703,
+            "right": 278.83428955078125,
+            "top": 1295.078125,
+            "width": 38.64060974121094,
+            "x": 240.1936798095703,
+            "y": 1295.078125
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-3-panel-comments",
+          "id": "rc-tabs-3-tab-comments",
+          "rect": {
+            "bottom": 1317.078125,
+            "height": 22,
+            "left": 310.83428955078125,
+            "right": 349.47491455078125,
+            "top": 1295.078125,
+            "width": 38.640625,
+            "x": 310.83428955078125,
+            "y": 1295.078125
+          },
+          "selected": "true",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/7c72d59c-c31c-42dd-9c4e-049d3a97fc2e?tab=comments",
+      "width": 390
+    }
+  },
+  {
+    "label": "31-style-shared-dark-1440",
+    "transition": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1608
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 172,
+          "height": 29,
+          "left": 281,
+          "right": 838,
+          "top": 143,
+          "width": 557,
+          "x": 281,
+          "y": 143
+        },
+        "text": "/가상머신용 네트워크/qa-gn1561-31-shared업데이트/"
+      },
+      "dark": true,
+      "height": 1000,
+      "panels": [
+        {
+          "id": "rc-tabs-4-panel-public.ip.addresses",
+          "label": "rc-tabs-4-tab-public.ip.addresses"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 1430,
+      "tabs": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-4-panel-details",
+          "id": "rc-tabs-4-tab-details",
+          "rect": {
+            "bottom": 264,
+            "height": 22,
+            "left": 637,
+            "right": 662.765625,
+            "top": 242,
+            "width": 25.765625,
+            "x": 637,
+            "y": 242
+          },
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-4-panel-public.ip.addresses",
+          "id": "rc-tabs-4-tab-public.ip.addresses",
+          "rect": {
+            "bottom": 318,
+            "height": 22,
+            "left": 637,
+            "right": 715.265625,
+            "top": 296,
+            "width": 78.265625,
+            "x": 637,
+            "y": 296
+          },
+          "selected": "true",
+          "text": "IP Addresses"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-4-panel-virtual.routers",
+          "id": "rc-tabs-4-tab-virtual.routers",
+          "rect": {
+            "bottom": 372,
+            "height": 22,
+            "left": 637,
+            "right": 705.25,
+            "top": 350,
+            "width": 68.25,
+            "x": 637,
+            "y": 350
+          },
+          "selected": "false",
+          "text": "가상 라우터"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-4-panel-vnf.appliances",
+          "id": "rc-tabs-4-tab-vnf.appliances",
+          "rect": {
+            "bottom": 426,
+            "height": 22,
+            "left": 637,
+            "right": 692.609375,
+            "top": 404,
+            "width": 55.609375,
+            "x": 637,
+            "y": 404
+          },
+          "selected": "false",
+          "text": "VNF 기기"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-4-panel-guest.ip.range",
+          "id": "rc-tabs-4-tab-guest.ip.range",
+          "rect": {
+            "bottom": 480,
+            "height": 22,
+            "left": 637,
+            "right": 750.234375,
+            "top": 458,
+            "width": 113.234375,
+            "x": 637,
+            "y": 458
+          },
+          "selected": "false",
+          "text": "게스트 IP 주소 범위"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-4-panel-events",
+          "id": "rc-tabs-4-tab-events",
+          "rect": {
+            "bottom": 534,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 512,
+            "width": 38.640625,
+            "x": 637,
+            "y": 512
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-4-panel-comments",
+          "id": "rc-tabs-4-tab-comments",
+          "rect": {
+            "bottom": 588,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 566,
+            "width": 38.640625,
+            "x": 637,
+            "y": 566
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/3a71dbff-a767-49cb-8e81-87864c3b0c24?tab=public.ip.addresses",
+      "width": 1440
+    }
+  },
+  {
+    "label": "31-style-shared-dark-768",
+    "transition": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1608
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 194,
+          "height": 51,
+          "left": 105,
+          "right": 414,
+          "top": 143,
+          "width": 309,
+          "x": 105,
+          "y": 143
+        },
+        "text": "/가상머신용 네트워크/qa-gn1561-31-shared업데이트/"
+      },
+      "dark": true,
+      "height": 1024,
+      "panels": [
+        {
+          "id": "rc-tabs-4-panel-public.ip.addresses",
+          "label": "rc-tabs-4-tab-public.ip.addresses"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 758,
+      "tabs": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-4-panel-details",
+          "id": "rc-tabs-4-tab-details",
+          "rect": {
+            "bottom": 1164.5,
+            "height": 22,
+            "left": 125,
+            "right": 150.765625,
+            "top": 1142.5,
+            "width": 25.765625,
+            "x": 125,
+            "y": 1142.5
+          },
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-4-panel-public.ip.addresses",
+          "id": "rc-tabs-4-tab-public.ip.addresses",
+          "rect": {
+            "bottom": 1218.5,
+            "height": 22,
+            "left": 125,
+            "right": 203.265625,
+            "top": 1196.5,
+            "width": 78.265625,
+            "x": 125,
+            "y": 1196.5
+          },
+          "selected": "true",
+          "text": "IP Addresses"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-4-panel-virtual.routers",
+          "id": "rc-tabs-4-tab-virtual.routers",
+          "rect": {
+            "bottom": 1272.5,
+            "height": 22,
+            "left": 125,
+            "right": 193.25,
+            "top": 1250.5,
+            "width": 68.25,
+            "x": 125,
+            "y": 1250.5
+          },
+          "selected": "false",
+          "text": "가상 라우터"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-4-panel-vnf.appliances",
+          "id": "rc-tabs-4-tab-vnf.appliances",
+          "rect": {
+            "bottom": 1326.5,
+            "height": 22,
+            "left": 125,
+            "right": 180.609375,
+            "top": 1304.5,
+            "width": 55.609375,
+            "x": 125,
+            "y": 1304.5
+          },
+          "selected": "false",
+          "text": "VNF 기기"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-4-panel-guest.ip.range",
+          "id": "rc-tabs-4-tab-guest.ip.range",
+          "rect": {
+            "bottom": 1380.5,
+            "height": 22,
+            "left": 125,
+            "right": 238.234375,
+            "top": 1358.5,
+            "width": 113.234375,
+            "x": 125,
+            "y": 1358.5
+          },
+          "selected": "false",
+          "text": "게스트 IP 주소 범위"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-4-panel-events",
+          "id": "rc-tabs-4-tab-events",
+          "rect": {
+            "bottom": 1434.5,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1412.5,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1412.5
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-4-panel-comments",
+          "id": "rc-tabs-4-tab-comments",
+          "rect": {
+            "bottom": 1488.5,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1466.5,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1466.5
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/3a71dbff-a767-49cb-8e81-87864c3b0c24?tab=public.ip.addresses",
+      "width": 768
+    }
+  },
+  {
+    "label": "31-style-shared-dark-390",
+    "transition": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1608
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 227.546875,
+          "height": 51,
+          "left": 25,
+          "right": 357,
+          "top": 176.546875,
+          "width": 332,
+          "x": 25,
+          "y": 176.546875
+        },
+        "text": "/가상머신용 네트워크/qa-gn1561-31-shared업데이트/"
+      },
+      "dark": true,
+      "height": 844,
+      "panels": [
+        {
+          "id": "rc-tabs-4-panel-public.ip.addresses",
+          "label": "rc-tabs-4-tab-public.ip.addresses"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-top",
+      "scrollWidth": 380,
+      "tabs": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-4-panel-details",
+          "id": "rc-tabs-4-tab-details",
+          "rect": {
+            "bottom": 1248.046875,
+            "height": 22,
+            "left": 37,
+            "right": 62.765625,
+            "top": 1226.046875,
+            "width": 25.765625,
+            "x": 37,
+            "y": 1226.046875
+          },
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-4-panel-public.ip.addresses",
+          "id": "rc-tabs-4-tab-public.ip.addresses",
+          "rect": {
+            "bottom": 1248.046875,
+            "height": 22,
+            "left": 94.765625,
+            "right": 173.03125,
+            "top": 1226.046875,
+            "width": 78.265625,
+            "x": 94.765625,
+            "y": 1226.046875
+          },
+          "selected": "true",
+          "text": "IP Addresses"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-4-panel-virtual.routers",
+          "id": "rc-tabs-4-tab-virtual.routers",
+          "rect": {
+            "bottom": 1248.046875,
+            "height": 22,
+            "left": 205.03125,
+            "right": 273.28125,
+            "top": 1226.046875,
+            "width": 68.25,
+            "x": 205.03125,
+            "y": 1226.046875
+          },
+          "selected": "false",
+          "text": "가상 라우터"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-4-panel-vnf.appliances",
+          "id": "rc-tabs-4-tab-vnf.appliances",
+          "rect": {
+            "bottom": 1248.046875,
+            "height": 22,
+            "left": 305.28125,
+            "right": 360.890625,
+            "top": 1226.046875,
+            "width": 55.609375,
+            "x": 305.28125,
+            "y": 1226.046875
+          },
+          "selected": "false",
+          "text": "VNF 기기"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-4-panel-guest.ip.range",
+          "id": "rc-tabs-4-tab-guest.ip.range",
+          "rect": {
+            "bottom": 1248.046875,
+            "height": 22,
+            "left": 392.890625,
+            "right": 506.125,
+            "top": 1226.046875,
+            "width": 113.234375,
+            "x": 392.890625,
+            "y": 1226.046875
+          },
+          "selected": "false",
+          "text": "게스트 IP 주소 범위"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-4-panel-events",
+          "id": "rc-tabs-4-tab-events",
+          "rect": {
+            "bottom": 1248.046875,
+            "height": 22,
+            "left": 538.125,
+            "right": 576.765625,
+            "top": 1226.046875,
+            "width": 38.640625,
+            "x": 538.125,
+            "y": 1226.046875
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-4-panel-comments",
+          "id": "rc-tabs-4-tab-comments",
+          "rect": {
+            "bottom": 1248.046875,
+            "height": 22,
+            "left": 608.765625,
+            "right": 647.40625,
+            "top": 1226.046875,
+            "width": 38.640625,
+            "x": 608.765625,
+            "y": 1226.046875
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/3a71dbff-a767-49cb-8e81-87864c3b0c24?tab=public.ip.addresses",
+      "width": 390
+    }
+  },
+  {
+    "label": "31-style-isolated-dark-1440",
+    "transition": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1608
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 175.734375,
+          "height": 29,
+          "left": 281,
+          "right": 838,
+          "top": 146.734375,
+          "width": 557,
+          "x": 281,
+          "y": 146.734375
+        },
+        "text": "/가상머신용 네트워크/qa-gn1561-31-isolated업데이트/"
+      },
+      "dark": true,
+      "height": 1000,
+      "panels": [
+        {
+          "id": "rc-tabs-5-panel-public.ip.addresses",
+          "label": "rc-tabs-5-tab-public.ip.addresses"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 1430,
+      "tabs": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-details",
+          "id": "rc-tabs-5-tab-details",
+          "rect": {
+            "bottom": 267.734375,
+            "height": 22,
+            "left": 637,
+            "right": 662.765625,
+            "top": 245.734375,
+            "width": 25.765625,
+            "x": 637,
+            "y": 245.734375
+          },
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-egress.rules",
+          "id": "rc-tabs-5-tab-egress.rules",
+          "rect": {
+            "bottom": 321.734375,
+            "height": 22,
+            "left": 637,
+            "right": 692.359375,
+            "top": 299.734375,
+            "width": 55.359375,
+            "x": 637,
+            "y": 299.734375
+          },
+          "selected": "false",
+          "text": "송신 규칙"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-5-panel-public.ip.addresses",
+          "id": "rc-tabs-5-tab-public.ip.addresses",
+          "rect": {
+            "bottom": 375.734375,
+            "height": 22,
+            "left": 637,
+            "right": 719.25,
+            "top": 353.734375,
+            "width": 82.25,
+            "x": 637,
+            "y": 353.734375
+          },
+          "selected": "true",
+          "text": "Public IP 주소"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-virtual.routers",
+          "id": "rc-tabs-5-tab-virtual.routers",
+          "rect": {
+            "bottom": 429.734375,
+            "height": 22,
+            "left": 637,
+            "right": 705.25,
+            "top": 407.734375,
+            "width": 68.25,
+            "x": 637,
+            "y": 407.734375
+          },
+          "selected": "false",
+          "text": "가상 라우터"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-vnf.appliances",
+          "id": "rc-tabs-5-tab-vnf.appliances",
+          "rect": {
+            "bottom": 483.734375,
+            "height": 22,
+            "left": 637,
+            "right": 692.609375,
+            "top": 461.734375,
+            "width": 55.609375,
+            "x": 637,
+            "y": 461.734375
+          },
+          "selected": "false",
+          "text": "VNF 기기"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-network.permissions",
+          "id": "rc-tabs-5-tab-network.permissions",
+          "rect": {
+            "bottom": 537.734375,
+            "height": 22,
+            "left": 637,
+            "right": 718.125,
+            "top": 515.734375,
+            "width": 81.125,
+            "x": 637,
+            "y": 515.734375
+          },
+          "selected": "false",
+          "text": "네트워크 권한"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-events",
+          "id": "rc-tabs-5-tab-events",
+          "rect": {
+            "bottom": 591.734375,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 569.734375,
+            "width": 38.640625,
+            "x": 637,
+            "y": 569.734375
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-comments",
+          "id": "rc-tabs-5-tab-comments",
+          "rect": {
+            "bottom": 645.734375,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 623.734375,
+            "width": 38.640625,
+            "x": 637,
+            "y": 623.734375
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/2f577738-55a0-4be8-809d-12e11f6be62b?tab=public.ip.addresses",
+      "width": 1440
+    }
+  },
+  {
+    "label": "31-style-isolated-dark-768",
+    "transition": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1608
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 194,
+          "height": 51,
+          "left": 105,
+          "right": 414,
+          "top": 143,
+          "width": 309,
+          "x": 105,
+          "y": 143
+        },
+        "text": "/가상머신용 네트워크/qa-gn1561-31-isolated업데이트/"
+      },
+      "dark": true,
+      "height": 1024,
+      "panels": [
+        {
+          "id": "rc-tabs-5-panel-public.ip.addresses",
+          "label": "rc-tabs-5-tab-public.ip.addresses"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 758,
+      "tabs": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-details",
+          "id": "rc-tabs-5-tab-details",
+          "rect": {
+            "bottom": 1233.5,
+            "height": 22,
+            "left": 125,
+            "right": 150.765625,
+            "top": 1211.5,
+            "width": 25.765625,
+            "x": 125,
+            "y": 1211.5
+          },
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-egress.rules",
+          "id": "rc-tabs-5-tab-egress.rules",
+          "rect": {
+            "bottom": 1287.5,
+            "height": 22,
+            "left": 125,
+            "right": 180.359375,
+            "top": 1265.5,
+            "width": 55.359375,
+            "x": 125,
+            "y": 1265.5
+          },
+          "selected": "false",
+          "text": "송신 규칙"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-5-panel-public.ip.addresses",
+          "id": "rc-tabs-5-tab-public.ip.addresses",
+          "rect": {
+            "bottom": 1341.5,
+            "height": 22,
+            "left": 125,
+            "right": 207.25,
+            "top": 1319.5,
+            "width": 82.25,
+            "x": 125,
+            "y": 1319.5
+          },
+          "selected": "true",
+          "text": "Public IP 주소"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-virtual.routers",
+          "id": "rc-tabs-5-tab-virtual.routers",
+          "rect": {
+            "bottom": 1395.5,
+            "height": 22,
+            "left": 125,
+            "right": 193.25,
+            "top": 1373.5,
+            "width": 68.25,
+            "x": 125,
+            "y": 1373.5
+          },
+          "selected": "false",
+          "text": "가상 라우터"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-vnf.appliances",
+          "id": "rc-tabs-5-tab-vnf.appliances",
+          "rect": {
+            "bottom": 1449.5,
+            "height": 22,
+            "left": 125,
+            "right": 180.609375,
+            "top": 1427.5,
+            "width": 55.609375,
+            "x": 125,
+            "y": 1427.5
+          },
+          "selected": "false",
+          "text": "VNF 기기"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-network.permissions",
+          "id": "rc-tabs-5-tab-network.permissions",
+          "rect": {
+            "bottom": 1503.5,
+            "height": 22,
+            "left": 125,
+            "right": 206.125,
+            "top": 1481.5,
+            "width": 81.125,
+            "x": 125,
+            "y": 1481.5
+          },
+          "selected": "false",
+          "text": "네트워크 권한"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-events",
+          "id": "rc-tabs-5-tab-events",
+          "rect": {
+            "bottom": 1557.5,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1535.5,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1535.5
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-comments",
+          "id": "rc-tabs-5-tab-comments",
+          "rect": {
+            "bottom": 1611.5,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1589.5,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1589.5
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/2f577738-55a0-4be8-809d-12e11f6be62b?tab=public.ip.addresses",
+      "width": 768
+    }
+  },
+  {
+    "label": "31-style-isolated-dark-390",
+    "transition": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1608
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 227.578125,
+          "height": 51,
+          "left": 25,
+          "right": 357,
+          "top": 176.578125,
+          "width": 332,
+          "x": 25,
+          "y": 176.578125
+        },
+        "text": "/가상머신용 네트워크/qa-gn1561-31-isolated업데이트/"
+      },
+      "dark": true,
+      "height": 844,
+      "panels": [
+        {
+          "id": "rc-tabs-5-panel-public.ip.addresses",
+          "label": "rc-tabs-5-tab-public.ip.addresses"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-top",
+      "scrollWidth": 380,
+      "tabs": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-details",
+          "id": "rc-tabs-5-tab-details",
+          "rect": {
+            "bottom": 1317.078125,
+            "height": 22,
+            "left": 37,
+            "right": 62.765625,
+            "top": 1295.078125,
+            "width": 25.765625,
+            "x": 37,
+            "y": 1295.078125
+          },
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-egress.rules",
+          "id": "rc-tabs-5-tab-egress.rules",
+          "rect": {
+            "bottom": 1317.078125,
+            "height": 22,
+            "left": 94.765625,
+            "right": 150.125,
+            "top": 1295.078125,
+            "width": 55.359375,
+            "x": 94.765625,
+            "y": 1295.078125
+          },
+          "selected": "false",
+          "text": "송신 규칙"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-5-panel-public.ip.addresses",
+          "id": "rc-tabs-5-tab-public.ip.addresses",
+          "rect": {
+            "bottom": 1317.078125,
+            "height": 22,
+            "left": 182.125,
+            "right": 264.375,
+            "top": 1295.078125,
+            "width": 82.25,
+            "x": 182.125,
+            "y": 1295.078125
+          },
+          "selected": "true",
+          "text": "Public IP 주소"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-virtual.routers",
+          "id": "rc-tabs-5-tab-virtual.routers",
+          "rect": {
+            "bottom": 1317.078125,
+            "height": 22,
+            "left": 296.375,
+            "right": 364.625,
+            "top": 1295.078125,
+            "width": 68.25,
+            "x": 296.375,
+            "y": 1295.078125
+          },
+          "selected": "false",
+          "text": "가상 라우터"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-vnf.appliances",
+          "id": "rc-tabs-5-tab-vnf.appliances",
+          "rect": {
+            "bottom": 1317.078125,
+            "height": 22,
+            "left": 396.625,
+            "right": 452.234375,
+            "top": 1295.078125,
+            "width": 55.609375,
+            "x": 396.625,
+            "y": 1295.078125
+          },
+          "selected": "false",
+          "text": "VNF 기기"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-network.permissions",
+          "id": "rc-tabs-5-tab-network.permissions",
+          "rect": {
+            "bottom": 1317.078125,
+            "height": 22,
+            "left": 484.234375,
+            "right": 565.359375,
+            "top": 1295.078125,
+            "width": 81.125,
+            "x": 484.234375,
+            "y": 1295.078125
+          },
+          "selected": "false",
+          "text": "네트워크 권한"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-events",
+          "id": "rc-tabs-5-tab-events",
+          "rect": {
+            "bottom": 1317.078125,
+            "height": 22,
+            "left": 597.359375,
+            "right": 636,
+            "top": 1295.078125,
+            "width": 38.640625,
+            "x": 597.359375,
+            "y": 1295.078125
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-5-panel-comments",
+          "id": "rc-tabs-5-tab-comments",
+          "rect": {
+            "bottom": 1317.078125,
+            "height": 22,
+            "left": 668,
+            "right": 706.640625,
+            "top": 1295.078125,
+            "width": 38.640625,
+            "x": 668,
+            "y": 1295.078125
+          },
+          "selected": "false",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/2f577738-55a0-4be8-809d-12e11f6be62b?tab=public.ip.addresses",
+      "width": 390
+    }
+  },
+  {
+    "label": "31-style-l2-dark-1440",
+    "transition": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1608
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 173.875,
+          "height": 29,
+          "left": 281,
+          "right": 838,
+          "top": 144.875,
+          "width": 557,
+          "x": 281,
+          "y": 144.875
+        },
+        "text": "/가상머신용 네트워크/qa-gn1561-31-l2업데이트/"
+      },
+      "dark": true,
+      "height": 1000,
+      "panels": [
+        {
+          "id": "rc-tabs-6-panel-comments",
+          "label": "rc-tabs-6-tab-comments"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 1430,
+      "tabs": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-6-panel-details",
+          "id": "rc-tabs-6-tab-details",
+          "rect": {
+            "bottom": 265.875,
+            "height": 22,
+            "left": 637,
+            "right": 662.765625,
+            "top": 243.875,
+            "width": 25.765625,
+            "x": 637,
+            "y": 243.875
+          },
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-6-panel-vnf.appliances",
+          "id": "rc-tabs-6-tab-vnf.appliances",
+          "rect": {
+            "bottom": 319.875,
+            "height": 22,
+            "left": 637,
+            "right": 692.609375,
+            "top": 297.875,
+            "width": 55.609375,
+            "x": 637,
+            "y": 297.875
+          },
+          "selected": "false",
+          "text": "VNF 기기"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-6-panel-network.permissions",
+          "id": "rc-tabs-6-tab-network.permissions",
+          "rect": {
+            "bottom": 373.875,
+            "height": 22,
+            "left": 637,
+            "right": 718.125,
+            "top": 351.875,
+            "width": 81.125,
+            "x": 637,
+            "y": 351.875
+          },
+          "selected": "false",
+          "text": "네트워크 권한"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-6-panel-events",
+          "id": "rc-tabs-6-tab-events",
+          "rect": {
+            "bottom": 427.875,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 405.875,
+            "width": 38.640625,
+            "x": 637,
+            "y": 405.875
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-6-panel-comments",
+          "id": "rc-tabs-6-tab-comments",
+          "rect": {
+            "bottom": 481.875,
+            "height": 22,
+            "left": 637,
+            "right": 675.640625,
+            "top": 459.875,
+            "width": 38.640625,
+            "x": 637,
+            "y": 459.875
+          },
+          "selected": "true",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/7c72d59c-c31c-42dd-9c4e-049d3a97fc2e?tab=comments",
+      "width": 1440
+    }
+  },
+  {
+    "label": "31-style-l2-dark-768",
+    "transition": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1608
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 194,
+          "height": 51,
+          "left": 105,
+          "right": 414,
+          "top": 143,
+          "width": 309,
+          "x": 105,
+          "y": 143
+        },
+        "text": "/가상머신용 네트워크/qa-gn1561-31-l2업데이트/"
+      },
+      "dark": true,
+      "height": 1024,
+      "panels": [
+        {
+          "id": "rc-tabs-6-panel-comments",
+          "label": "rc-tabs-6-tab-comments"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-left",
+      "scrollWidth": 758,
+      "tabs": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-6-panel-details",
+          "id": "rc-tabs-6-tab-details",
+          "rect": {
+            "bottom": 1233.5,
+            "height": 22,
+            "left": 125,
+            "right": 150.765625,
+            "top": 1211.5,
+            "width": 25.765625,
+            "x": 125,
+            "y": 1211.5
+          },
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-6-panel-vnf.appliances",
+          "id": "rc-tabs-6-tab-vnf.appliances",
+          "rect": {
+            "bottom": 1287.5,
+            "height": 22,
+            "left": 125,
+            "right": 180.609375,
+            "top": 1265.5,
+            "width": 55.609375,
+            "x": 125,
+            "y": 1265.5
+          },
+          "selected": "false",
+          "text": "VNF 기기"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-6-panel-network.permissions",
+          "id": "rc-tabs-6-tab-network.permissions",
+          "rect": {
+            "bottom": 1341.5,
+            "height": 22,
+            "left": 125,
+            "right": 206.125,
+            "top": 1319.5,
+            "width": 81.125,
+            "x": 125,
+            "y": 1319.5
+          },
+          "selected": "false",
+          "text": "네트워크 권한"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-6-panel-events",
+          "id": "rc-tabs-6-tab-events",
+          "rect": {
+            "bottom": 1395.5,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1373.5,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1373.5
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-6-panel-comments",
+          "id": "rc-tabs-6-tab-comments",
+          "rect": {
+            "bottom": 1449.5,
+            "height": 22,
+            "left": 125,
+            "right": 163.640625,
+            "top": 1427.5,
+            "width": 38.640625,
+            "x": 125,
+            "y": 1427.5
+          },
+          "selected": "true",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/7c72d59c-c31c-42dd-9c4e-049d3a97fc2e?tab=comments",
+      "width": 768
+    }
+  },
+  {
+    "label": "31-style-l2-dark-390",
+    "transition": {
+      "mode": "dark",
+      "dark": true,
+      "action_observation_ms": 1608
+    },
+    "ui": {
+      "breadcrumb": {
+        "rect": {
+          "bottom": 222.046875,
+          "height": 51,
+          "left": 25,
+          "right": 357,
+          "top": 171.046875,
+          "width": 332,
+          "x": 25,
+          "y": 171.046875
+        },
+        "text": "/가상머신용 네트워크/qa-gn1561-31-l2업데이트/"
+      },
+      "dark": true,
+      "height": 844,
+      "panels": [
+        {
+          "id": "rc-tabs-6-panel-comments",
+          "label": "rc-tabs-6-tab-comments"
+        }
+      ],
+      "position": "ant-tabs ant-tabs-top",
+      "scrollWidth": 380,
+      "tabs": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-6-panel-details",
+          "id": "rc-tabs-6-tab-details",
+          "rect": {
+            "bottom": 1311.546875,
+            "height": 22,
+            "left": -3.772418975830078,
+            "right": 21.99320602416992,
+            "top": 1289.546875,
+            "width": 25.765625,
+            "x": -3.772418975830078,
+            "y": 1289.546875
+          },
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-6-panel-vnf.appliances",
+          "id": "rc-tabs-6-tab-vnf.appliances",
+          "rect": {
+            "bottom": 1311.546875,
+            "height": 22,
+            "left": 53.99320602416992,
+            "right": 109.6025848388672,
+            "top": 1289.546875,
+            "width": 55.609378814697266,
+            "x": 53.99320602416992,
+            "y": 1289.546875
+          },
+          "selected": "false",
+          "text": "VNF 기기"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-6-panel-network.permissions",
+          "id": "rc-tabs-6-tab-network.permissions",
+          "rect": {
+            "bottom": 1311.546875,
+            "height": 22,
+            "left": 141.6025848388672,
+            "right": 222.7275848388672,
+            "top": 1289.546875,
+            "width": 81.125,
+            "x": 141.6025848388672,
+            "y": 1289.546875
+          },
+          "selected": "false",
+          "text": "네트워크 권한"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "controls": "rc-tabs-6-panel-events",
+          "id": "rc-tabs-6-tab-events",
+          "rect": {
+            "bottom": 1311.546875,
+            "height": 22,
+            "left": 254.7275848388672,
+            "right": 293.3681945800781,
+            "top": 1289.546875,
+            "width": 38.64060974121094,
+            "x": 254.7275848388672,
+            "y": 1289.546875
+          },
+          "selected": "false",
+          "text": "이벤트"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(24, 144, 255)",
+          "controls": "rc-tabs-6-panel-comments",
+          "id": "rc-tabs-6-tab-comments",
+          "rect": {
+            "bottom": 1311.546875,
+            "height": 22,
+            "left": 325.3681945800781,
+            "right": 364.0088195800781,
+            "top": 1289.546875,
+            "width": 38.640625,
+            "x": 325.3681945800781,
+            "y": 1289.546875
+          },
+          "selected": "true",
+          "text": "코멘트"
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/guestnetwork/7c72d59c-c31c-42dd-9c4e-049d3a97fc2e?tab=comments",
+      "width": 390
+    }
+  }
+]

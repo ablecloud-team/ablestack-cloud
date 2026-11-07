@@ -1,0 +1,15 @@
+{
+  "vpcCount": 1,
+  "kubernetes": [
+    [
+      {
+        "count": 2,
+        "sha256": "57e2a2718b5ccd38f6bfb79a90ec02c30cb8bf08f3e515b8f6e5b84f35127d96"
+      },
+      {
+        "count": 4,
+        "sha256": "baff46140a2f79bdb4ff18b7554fa4c155acdce74608af1d013ae2ea48bc5759"
+      }
+    ]
+  ]
+}

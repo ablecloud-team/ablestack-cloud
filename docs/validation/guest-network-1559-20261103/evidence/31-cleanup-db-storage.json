@@ -1,0 +1,137 @@
+{
+  "cluster": 31,
+  "active_db_counts": {
+    "networks": 0,
+    "vms": 0,
+    "routers": 0,
+    "nics": 0,
+    "volumes": 0,
+    "accounts": 0
+  },
+  "hosts": [
+    {
+      "host": "10.10.31.1",
+      "domains": [
+        {
+          "name": "i-2-838-VM",
+          "absent": true
+        },
+        {
+          "name": "i-390-836-VM",
+          "absent": true
+        },
+        {
+          "name": "r-837-VM",
+          "absent": true
+        },
+        {
+          "name": "r-839-VM",
+          "absent": true
+        },
+        {
+          "name": "r-840-VM",
+          "absent": true
+        },
+        {
+          "name": "r-841-VM",
+          "absent": true
+        }
+      ],
+      "roots": [
+        {
+          "id": "20161157-d029-40ca-998d-35b4fe0e6ebe",
+          "path": "/mnt/glue-gfs/20161157-d029-40ca-998d-35b4fe0e6ebe",
+          "absent": true
+        },
+        {
+          "id": "e47e2e7e-4b8d-4233-a07c-b03ab19c7527",
+          "path": "/mnt/glue-gfs/e47e2e7e-4b8d-4233-a07c-b03ab19c7527",
+          "absent": true
+        },
+        {
+          "id": "3fd6a764-eca6-4265-862c-228ad1d00cbd",
+          "path": "/mnt/glue-gfs/3fd6a764-eca6-4265-862c-228ad1d00cbd",
+          "absent": true
+        },
+        {
+          "id": "0eee2295-86ee-4b59-b658-8c2fcbc5be27",
+          "path": "/mnt/glue-gfs/0eee2295-86ee-4b59-b658-8c2fcbc5be27",
+          "absent": true
+        },
+        {
+          "id": "b30120b5-1057-463e-b23e-dac0cfd0575c",
+          "path": "/mnt/glue-gfs/b30120b5-1057-463e-b23e-dac0cfd0575c",
+          "absent": true
+        },
+        {
+          "id": "396987a8-a2f2-49b5-a35c-899729cc0e80",
+          "path": "/mnt/glue-gfs/396987a8-a2f2-49b5-a35c-899729cc0e80",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "host": "10.10.31.2",
+      "domains": [
+        {
+          "name": "i-2-838-VM",
+          "absent": true
+        },
+        {
+          "name": "i-390-836-VM",
+          "absent": true
+        },
+        {
+          "name": "r-837-VM",
+          "absent": true
+        },
+        {
+          "name": "r-839-VM",
+          "absent": true
+        },
+        {
+          "name": "r-840-VM",
+          "absent": true
+        },
+        {
+          "name": "r-841-VM",
+          "absent": true
+        }
+      ],
+      "roots": []
+    },
+    {
+      "host": "10.10.31.3",
+      "domains": [
+        {
+          "name": "i-2-838-VM",
+          "absent": true
+        },
+        {
+          "name": "i-390-836-VM",
+          "absent": true
+        },
+        {
+          "name": "r-837-VM",
+          "absent": true
+        },
+        {
+          "name": "r-839-VM",
+          "absent": true
+        },
+        {
+          "name": "r-840-VM",
+          "absent": true
+        },
+        {
+          "name": "r-841-VM",
+          "absent": true
+        }
+      ],
+      "roots": []
+    }
+  ],
+  "root_volumes_checked": 6,
+  "domains_checked_per_host": 6,
+  "temporary_host_trust_files_removed": true
+}

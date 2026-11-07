@@ -1,0 +1,35 @@
+{
+  "source_commit": "970016ec1112d0a190737c6da68bb93d03b17c82",
+  "functional_source_commit": "026551b7ade9af76a214ced563f0901972d3e31c",
+  "local_checks": {
+    "jest_suites": 3,
+    "jest_passed": 70,
+    "jest_failed": 0,
+    "changed_lint": "PASS",
+    "full_ui_lint": "PASS",
+    "wsl_ext4_ui_build": "PASS",
+    "full_cloud_build_started": false
+  },
+  "ui": {
+    "panel_conditions": 36,
+    "new_dialog_conditions": 36,
+    "publicip_add_dialog_conditions": 12,
+    "read_failure_recovery_cases": 2,
+    "selected_toolbar_mobile_cases": 2,
+    "minimum_guidance_and_label_contrast": 10.31,
+    "native_jpeg_count": 50
+  },
+  "retained": {
+    "networks_per_cluster": 1,
+    "rules_per_cluster": 1,
+    "nic_per_cluster": 0,
+    "vm_router_creation_history_per_cluster": 0,
+    "delete_only_on_separate_user_instruction": true
+  },
+  "automatic_checks_source_head": {
+    "License Check": "FAIL - 3494 existing unknown licenses",
+    "Lint": "FAIL - existing repository pre-commit hooks",
+    "PR Merge Conflict Check": "PASS"
+  },
+  "protected_main_unchanged": true
+}

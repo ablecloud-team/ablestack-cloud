@@ -1,0 +1,238 @@
+{
+  "ui": {
+    "breadcrumb": {
+      "rect": {
+        "bottom": 172,
+        "height": 29,
+        "left": 281,
+        "right": 758,
+        "top": 143,
+        "width": 477,
+        "x": 281,
+        "y": 143
+      },
+      "text": "/가상머신용 네트워크/qa-gn1561-31-isolated업데이트/"
+    },
+    "dark": false,
+    "height": 900,
+    "panels": [
+      {
+        "id": "rc-tabs-2-panel-routing.firewall",
+        "label": "rc-tabs-2-tab-routing.firewall"
+      }
+    ],
+    "position": "ant-tabs ant-tabs-left",
+    "scrollWidth": 1270,
+    "tabs": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-2-panel-details",
+        "id": "rc-tabs-2-tab-details",
+        "rect": {
+          "bottom": 264,
+          "height": 22,
+          "left": 590.328125,
+          "right": 616.09375,
+          "top": 242,
+          "width": 25.765625,
+          "x": 590.328125,
+          "y": 242
+        },
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(24, 144, 255)",
+        "controls": "rc-tabs-2-panel-bgp.peers",
+        "id": "rc-tabs-2-tab-bgp.peers",
+        "rect": {
+          "bottom": 318,
+          "height": 22,
+          "left": 590.328125,
+          "right": 645.40625,
+          "top": 296,
+          "width": 55.078125,
+          "x": 590.328125,
+          "y": 296
+        },
+        "selected": "false",
+        "text": "BGP 피어"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-2-panel-routing.firewall",
+        "id": "rc-tabs-2-tab-routing.firewall",
+        "rect": {
+          "bottom": 372,
+          "height": 22,
+          "left": 590.328125,
+          "right": 701.109375,
+          "top": 350,
+          "width": 110.78125,
+          "x": 590.328125,
+          "y": 350
+        },
+        "selected": "true",
+        "text": "IPv4 라우팅 방화벽"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-2-panel-virtual.routers",
+        "id": "rc-tabs-2-tab-virtual.routers",
+        "rect": {
+          "bottom": 426,
+          "height": 22,
+          "left": 590.328125,
+          "right": 658.578125,
+          "top": 404,
+          "width": 68.25,
+          "x": 590.328125,
+          "y": 404
+        },
+        "selected": "false",
+        "text": "가상 라우터"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-2-panel-vnf.appliances",
+        "id": "rc-tabs-2-tab-vnf.appliances",
+        "rect": {
+          "bottom": 480,
+          "height": 22,
+          "left": 590.328125,
+          "right": 645.9375,
+          "top": 458,
+          "width": 55.609375,
+          "x": 590.328125,
+          "y": 458
+        },
+        "selected": "false",
+        "text": "VNF 기기"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-2-panel-network.permissions",
+        "id": "rc-tabs-2-tab-network.permissions",
+        "rect": {
+          "bottom": 534,
+          "height": 22,
+          "left": 590.328125,
+          "right": 671.453125,
+          "top": 512,
+          "width": 81.125,
+          "x": 590.328125,
+          "y": 512
+        },
+        "selected": "false",
+        "text": "네트워크 권한"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-2-panel-events",
+        "id": "rc-tabs-2-tab-events",
+        "rect": {
+          "bottom": 588,
+          "height": 22,
+          "left": 590.328125,
+          "right": 628.96875,
+          "top": 566,
+          "width": 38.640625,
+          "x": 590.328125,
+          "y": 566
+        },
+        "selected": "false",
+        "text": "이벤트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "controls": "rc-tabs-2-panel-comments",
+        "id": "rc-tabs-2-tab-comments",
+        "rect": {
+          "bottom": 642,
+          "height": 22,
+          "left": 590.328125,
+          "right": 628.96875,
+          "top": 620,
+          "width": 38.640625,
+          "x": 590.328125,
+          "y": 620
+        },
+        "selected": "false",
+        "text": "코멘트"
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/guestnetwork/2f577738-55a0-4be8-809d-12e11f6be62b?tab=routing.firewall&qa=Dynamic",
+    "width": 1280
+  },
+  "records": [
+    {
+      "requestId": "13616.4240",
+      "command": "readyForShutdown",
+      "method": "GET",
+      "params": {
+        "command": "readyForShutdown"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "13616.4243",
+      "command": "listTags",
+      "method": "GET",
+      "params": {
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "13616.4244",
+      "command": "listResourceIcon",
+      "method": "GET",
+      "params": {
+        "command": "listResourceIcon"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "13616.4245",
+      "command": "listResourceIcon",
+      "method": "GET",
+      "params": {
+        "command": "listResourceIcon"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "13616.4246",
+      "command": "listAccounts",
+      "method": "GET",
+      "params": {
+        "command": "listAccounts"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "13616.4247",
+      "command": "listRoutingFirewallRules",
+      "method": "GET",
+      "params": {
+        "listAll": "true",
+        "networkid": "2f577738-55a0-4be8-809d-12e11f6be62b",
+        "page": "1",
+        "pageSize": "10",
+        "command": "listRoutingFirewallRules"
+      },
+      "status": 200
+    }
+  ]
+}

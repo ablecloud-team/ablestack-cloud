@@ -1,0 +1,100 @@
+{
+  "network": {
+    "id": "1da0930c-3896-46f1-989c-af06da33c5d8",
+    "name": "qa-gn1561layout-32-isolated",
+    "type": "Isolated",
+    "state": "Allocated",
+    "account": "admin",
+    "cidr": "10.1.1.0/24",
+    "networkofferingid": "e8d9487d-f70b-451f-8a58-7d26e8bfdc79"
+  },
+  "retained_rules": [
+    {
+      "id": "7d274f80-fcdc-4d96-a894-a45356f27804",
+      "protocol": "tcp",
+      "startport": 18080,
+      "endport": 18080,
+      "networkid": "1da0930c-3896-46f1-989c-af06da33c5d8",
+      "state": "Active",
+      "cidrlist": "10.1.1.0/24",
+      "tags": [],
+      "fordisplay": true,
+      "destcidrlist": "198.51.100.0/24",
+      "traffictype": "Egress"
+    }
+  ],
+  "active_counts": {
+    "networks": 1,
+    "firewall_rules": 1,
+    "nics": 0,
+    "VM_or_router_history": 0
+  },
+  "existing_inventory": {
+    "listNetworks": {
+      "existing_before": 9,
+      "existing_after": 9,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listNetworkOfferings": {
+      "existing_before": 15,
+      "existing_after": 15,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listVirtualMachines": {
+      "existing_before": 55,
+      "existing_after": 55,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listRouters": {
+      "existing_before": 3,
+      "existing_after": 3,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listPublicIpAddresses": {
+      "existing_before": 8,
+      "existing_after": 8,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listVlanIpRanges": {
+      "existing_before": 2,
+      "existing_after": 2,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listZones": {
+      "existing_before": 1,
+      "existing_after": 1,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listSSHKeyPairs": {
+      "existing_before": 1,
+      "existing_after": 1,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    },
+    "listAccounts": {
+      "existing_before": 6,
+      "existing_after": 6,
+      "missing": [],
+      "extra": [],
+      "changed": []
+    }
+  },
+  "expected_admin_networktotal_delta": 1,
+  "user_review_pending": true,
+  "deletion_requires_separate_user_instruction": true
+}

@@ -1,0 +1,99 @@
+{
+  "body": {
+    "bottom": 482,
+    "height": 130,
+    "left": 13,
+    "right": 377,
+    "top": 352,
+    "width": 364,
+    "x": 13,
+    "y": 352
+  },
+  "bodyClientHeight": 130,
+  "bodyClientWidth": 364,
+  "bodyScrollHeight": 130,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 364,
+  "colors": [
+    {
+      "background": "rgb(255, 248, 230)",
+      "color": "rgb(92, 59, 0)",
+      "text": "현재 IP 주소 범위를 삭제하시겠습니까?"
+    },
+    {
+      "background": "rgb(180, 35, 24)",
+      "color": "rgb(255, 255, 255)",
+      "text": "예"
+    }
+  ],
+  "content": {
+    "bottom": 548,
+    "height": 252,
+    "left": 12,
+    "right": 378,
+    "top": 296,
+    "width": 366,
+    "x": 12,
+    "y": 296
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 844,
+    "height": 844,
+    "left": 0,
+    "right": 390,
+    "top": 0,
+    "width": 390,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 380,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": {
+    "bottom": 547,
+    "height": 65,
+    "left": 13,
+    "right": 377,
+    "top": 482,
+    "width": 364,
+    "x": 13,
+    "y": 482
+  },
+  "header": {
+    "bottom": 352,
+    "height": 55,
+    "left": 13,
+    "right": 377,
+    "top": 297,
+    "width": 364,
+    "x": 13,
+    "y": 297
+  },
+  "height": 844,
+  "main": {
+    "bottom": 844,
+    "height": 643,
+    "left": 0,
+    "right": 380,
+    "top": 201,
+    "width": 380,
+    "x": 0,
+    "y": 201
+  },
+  "primaryButton": {
+    "bottom": 531,
+    "height": 32,
+    "left": 316.109375,
+    "right": 361,
+    "top": 499,
+    "width": 44.890625,
+    "x": 316.109375,
+    "y": 499
+  },
+  "width": 390,
+  "image_sha256": "96969ca46c9c8305d860f4e32f05b4200ea82a894d9b3b6dd85b0adb35f15e75"
+}

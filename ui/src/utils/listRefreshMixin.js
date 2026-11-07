@@ -26,7 +26,9 @@ export function detailTabRouteKey (route) {
 
 function scope (vm, routeKey, scopeKey) {
   if (scopeKey) return JSON.stringify(scopeKey(vm))
-  return JSON.stringify([routeKey(vm), vm.$store?.getters.project?.id,
+  const networkSecurity = ['guestnetwork', 'publicip'].includes(vm.$route?.meta?.name)
+    ? [vm.$store?.getters.userInfo?.roletype, vm.$store?.getters.userInfo?.roleid, vm.$store?.getters.userInfo?.domainid, vm.$store?.state?.user?.token, Object.keys(vm.$store?.getters.apis || {}).sort()] : []
+  return JSON.stringify([routeKey(vm), ...networkSecurity, vm.$store?.getters.project?.id,
     vm.$store?.getters.userInfo?.id, vm.resource?.id, vm.record?.id, vm.record?.uid, vm.detailId, vm.activeTab, vm.currentTab, vm.sorter, vm.sortOrder, vm.planId, vm.zoneId,
     vm.page, vm.pageSize, vm.pagesize, vm.pagination?.current, vm.pagination?.pageSize, vm.filter, Array.isArray(vm.filters) ? null : vm.filters,
     vm.filterValue, vm.searchQuery, vm.keyword, vm.searchParams, vm.vm?.id, vm.startDate, vm.endDate, typeof vm.state === 'object' ? undefined : vm.state, vm.domainid, vm.projectid, vm.group, vm.subgroup, vm.poolId, vm.browserPath, vm.searchPrefix, vm.browserPageSize, vm.resourceType, vm.client ? vm.resource?.name : undefined, vm.network?.id],
@@ -34,7 +36,7 @@ function scope (vm, routeKey, scopeKey) {
 }
 
 // Explicit adapters only: never discover/invoke APIs from a table or API metadata.
-export function listRefreshMixin (methods, { interval = 10000, active = () => true, select = () => methods, reuseArgs = false, routeKey = vm => vm.$route?.fullPath, scopeKey = null } = {}) {
+export function listRefreshMixin (methods, { interval = 10000, active = () => true, select = () => methods, reuseArgs = false, routeKey = vm => ['guestnetwork', 'publicip'].includes(vm.$route?.meta?.name) ? detailTabRouteKey(vm.$route) : vm.$route?.fullPath, scopeKey = null } = {}) {
   return {
     data: () => ({ listRefreshing: 0, listRefreshFailed: false, listLastUpdated: null }),
     created () {

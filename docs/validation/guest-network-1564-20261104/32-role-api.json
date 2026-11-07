@@ -1,0 +1,32 @@
+[
+  {
+    "role": "domainadmin",
+    "settingParameterExposed": true,
+    "detailsReturned": null,
+    "networkid": "18e421b7-1c53-4744-9088-4e3a02a8da6b",
+    "attemptResult": {
+      "updatenetworkresponse": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Shared network Network {\"id\": 348, \"name\": \"qa-gn1564-32-shared-true\", \"uuid\": \"18e421b7-1c53-4744-9088-4e3a02a8da6b\", \"networkofferingid\": 8} with specifyvlan=true can only be operated by root admin"
+      }
+    },
+    "rootValueUnchanged": true
+  },
+  {
+    "role": "user-a",
+    "settingParameterExposed": true,
+    "detailsReturned": null,
+    "networkid": "18e421b7-1c53-4744-9088-4e3a02a8da6b",
+    "attemptResult": {
+      "updatenetworkresponse": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Shared network Network {\"id\": 348, \"name\": \"qa-gn1564-32-shared-true\", \"uuid\": \"18e421b7-1c53-4744-9088-4e3a02a8da6b\", \"networkofferingid\": 8} with specifyvlan=true can only be operated by root admin"
+      }
+    },
+    "rootValueUnchanged": true
+  }
+]

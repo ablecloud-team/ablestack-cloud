@@ -195,4 +195,19 @@ public class HAProxyConfiguratorTest {
         return sb.toString();
     }
 
+    @Test
+    public void httpKeepaliveConfigurationOmitsRemovedForcecloseAndPreservesConnectionLimit() {
+        LoadBalancerTO lb = new LoadBalancerTO("qa-http", "192.0.2.10", 8080, "tcp", "roundrobin", false, false, false, null);
+        lb.setLbProtocol("http");
+        for (boolean keepalive : new boolean[] {true, false}) {
+            LoadBalancerConfigCommand cmd = new LoadBalancerConfigCommand(new LoadBalancerTO[] {lb}, "192.0.2.10", "10.0.0.1", "169.254.1.1", null, null, "257", keepalive, 0L);
+            String config = genConfig(new HAProxyConfigurator(), cmd);
+            Assert.assertFalse(config.contains("forceclose"));
+            Assert.assertTrue(config.contains("\tmode http"));
+            Assert.assertTrue(config.contains("\tmaxconn 257"));
+            Assert.assertTrue(config.contains("\tmaxpipes 64"));
+            Assert.assertTrue(config.contains(keepalive ? "\tno option httpclose" : "\toption httpclose"));
+        }
+    }
+
 }

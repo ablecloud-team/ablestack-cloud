@@ -1,0 +1,47 @@
+{
+  "network_id": "1da0930c-3896-46f1-989c-af06da33c5d8",
+  "name": "qa-gn1561layout-32-isolated",
+  "rules_before": [
+    {
+      "id": "7d274f80-fcdc-4d96-a894-a45356f27804",
+      "protocol": "tcp",
+      "startport": 18080,
+      "endport": 18080,
+      "networkid": "1da0930c-3896-46f1-989c-af06da33c5d8",
+      "state": "Active",
+      "cidrlist": "10.1.1.0/24",
+      "tags": [],
+      "fordisplay": true,
+      "destcidrlist": "198.51.100.0/24",
+      "traffictype": "Egress"
+    }
+  ],
+  "request": {
+    "deletenetworkresponse": {
+      "jobid": "10d66447-03a1-45a4-80fe-804ea6084bde"
+    }
+  },
+  "result": {
+    "queryasyncjobresultresponse": {
+      "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domainpath": "ROOT",
+      "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+      "cmd": "org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "success": true
+      },
+      "jobinstancetype": "Network",
+      "created": "2026-11-03T23:20:16+0900",
+      "completed": "2026-11-03T23:20:17+0900",
+      "jobid": "10d66447-03a1-45a4-80fe-804ea6084bde",
+      "jobstatus": 1
+    }
+  },
+  "db": "1da0930c-3896-46f1-989c-af06da33c5d8\tqa-gn1561layout-32-isolated\tDestroy\t2026-11-03 14:20:17\n0\n0\n",
+  "api_network_absent": true
+}

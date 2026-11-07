@@ -1,0 +1,14 @@
+[
+  {
+    "router": "r-837-VM",
+    "signature_mtime_unchanged": true,
+    "livepatch_log_before": false,
+    "livepatch_log_after_old_ui": false
+  },
+  {
+    "router": "r-839-VM",
+    "signature_mtime_unchanged": true,
+    "livepatch_log_before": false,
+    "livepatch_log_after_old_ui": false
+  }
+]

@@ -1,0 +1,33 @@
+{
+  "records": [
+    {
+      "requestId": "40480.11175",
+      "command": "rebootVirtualMachine",
+      "method": "POST",
+      "params": {
+        "command": "rebootVirtualMachine",
+        "id": "5aa5afbd-7846-4663-82ae-3fb101e3bc04"
+      },
+      "http": 200,
+      "result": {
+        "jobid": "6ac6bddb-0ca9-4005-8128-df9d24e75604"
+      }
+    },
+    {
+      "requestId": "40480.11176",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "6ac6bddb-0ca9-4005-8128-df9d24e75604",
+        "command": "queryAsyncJobResult"
+      },
+      "http": 200,
+      "result": {
+        "jobid": "6ac6bddb-0ca9-4005-8128-df9d24e75604",
+        "jobstatus": 0,
+        "jobresultcode": 0
+      }
+    }
+  ],
+  "cursor": 21463
+}

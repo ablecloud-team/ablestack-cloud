@@ -1,0 +1,5 @@
+{
+  "exit": 0,
+  "command": "mvn -pl server -Dtest=ProjectDomainQueryTest,QueryManagerGuestNetworkTest -Drat.skip=true -Dcheckstyle.skip=true package",
+  "globalCheckstyleBaselineViolations": 62
+}

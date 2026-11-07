@@ -1,0 +1,99 @@
+{
+  "body": {
+    "bottom": 819.5,
+    "height": 737,
+    "left": 315,
+    "right": 955,
+    "top": 82.5,
+    "width": 640,
+    "x": 315,
+    "y": 82.5
+  },
+  "bodyClientHeight": 737,
+  "bodyClientWidth": 640,
+  "bodyScrollHeight": 737,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 640,
+  "colors": [
+    {
+      "background": "rgb(255, 248, 230)",
+      "color": "rgb(92, 59, 0)",
+      "text": "3(개) 선택.  현재 네트워크로 제공하는 모든 서비스가 중단됩니다. 이 네트워크를 재시작하시겠습니까?"
+    },
+    {
+      "background": "rgb(24, 144, 255)",
+      "color": "rgb(255, 255, 255)",
+      "text": "확인"
+    }
+  ],
+  "content": {
+    "bottom": 872.5,
+    "height": 845,
+    "left": 315,
+    "right": 955,
+    "top": 27.5,
+    "width": 640,
+    "x": 315,
+    "y": 27.5
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1270,
+    "top": 0,
+    "width": 1270,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "BUTTON"
+  },
+  "footer": {
+    "bottom": 872.5,
+    "height": 53,
+    "left": 315,
+    "right": 955,
+    "top": 819.5,
+    "width": 640,
+    "x": 315,
+    "y": 819.5
+  },
+  "header": {
+    "bottom": 82.5,
+    "height": 55,
+    "left": 315,
+    "right": 955,
+    "top": 27.5,
+    "width": 640,
+    "x": 315,
+    "y": 27.5
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 776,
+    "left": 256,
+    "right": 1270,
+    "top": 124,
+    "width": 1014,
+    "x": 256,
+    "y": 124
+  },
+  "primaryButton": {
+    "bottom": 862.5,
+    "height": 32,
+    "left": 881.234375,
+    "right": 939,
+    "top": 830.5,
+    "width": 57.765625,
+    "x": 881.234375,
+    "y": 830.5
+  },
+  "width": 1280,
+  "image_sha256": "bef33d4c40253c4f017d788c2f6549d6fd90e8fcb98516c3af1f96b5f3e7eda4"
+}

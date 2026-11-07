@@ -1,0 +1,62 @@
+{
+  "management": {
+    "jarSha256": "248d2a84be0cc7eda8f58f9475720dd473727d3afbb318971ab96c358bf238dd",
+    "classSha256": {
+      "org/apache/cloudstack/api/response/NetworkOfferingResponse.class": "c05722e3c1d1c6748f0d32c6b4f9e9cee1ebe2cb57d35c07380dff23ff199207",
+      "com/cloud/api/query/dao/NetworkOfferingJoinDaoImpl.class": "665155dbaa7190b2647325c11e79648e0ede22971388126a5cae1572ac11fe1d",
+      "com/cloud/configuration/ConfigurationManagerImpl.class": "7eff8fd861440d1b6a39aac4ee2c280f26afd87f236ad608a847e2282c348dec",
+      "com/cloud/network/HAProxyConfigurator.class": "1b43c720dc01eaae937cb23ba86140e0c37572d6535a94ad6c4e454813bc4585"
+    },
+    "WEB-INF": true,
+    "service": "active",
+    "PID": "759061",
+    "http": 200,
+    "ftctlMarkersInCurrentManifestFiles": {
+      "blockingLoadingState": [
+        "js/chunk-1cbed1df.59243339.js"
+      ],
+      "fetchSyncProgress": [
+        "js/chunk-1cbed1df.59243339.js"
+      ],
+      "extractJobId": [
+        "js/chunk-1cbed1df.59243339.js"
+      ]
+    },
+    "currentJsFilesVerified": 320
+  },
+  "agents": [
+    {
+      "host": "10.10.31.1",
+      "classSha256": "1b43c720dc01eaae937cb23ba86140e0c37572d6535a94ad6c4e454813bc4585",
+      "service": "active"
+    },
+    {
+      "host": "10.10.31.2",
+      "classSha256": "1b43c720dc01eaae937cb23ba86140e0c37572d6535a94ad6c4e454813bc4585",
+      "service": "active"
+    },
+    {
+      "host": "10.10.31.3",
+      "classSha256": "1b43c720dc01eaae937cb23ba86140e0c37572d6535a94ad6c4e454813bc4585",
+      "service": "active"
+    }
+  ],
+  "cloudHosts": [
+    {
+      "id": "159baf9a-89ad-4a94-91dc-e7395a670bf4",
+      "name": "ablecube31-1",
+      "state": "Up"
+    },
+    {
+      "id": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+      "name": "ablecube31-2",
+      "state": "Up"
+    },
+    {
+      "id": "384871b9-7c75-4717-a673-e96a76abeb71",
+      "name": "ablecube31-3",
+      "state": "Up"
+    }
+  ],
+  "status": "PASS"
+}

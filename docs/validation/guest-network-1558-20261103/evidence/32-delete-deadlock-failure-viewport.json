@@ -1,0 +1,79 @@
+{
+  "body": {
+    "bottom": 1275,
+    "height": 1200,
+    "left": 310,
+    "right": 950,
+    "top": 75,
+    "width": 640,
+    "x": 310,
+    "y": 75
+  },
+  "bodyClientHeight": 1200,
+  "bodyClientWidth": 640,
+  "bodyScrollHeight": 1200,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 640,
+  "colors": [],
+  "content": {
+    "bottom": 1328,
+    "height": 1308,
+    "left": 310,
+    "right": 950,
+    "top": 20,
+    "width": 640,
+    "x": 310,
+    "y": 20
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1270,
+    "top": 0,
+    "width": 1270,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": {
+    "bottom": 1328,
+    "height": 53,
+    "left": 310,
+    "right": 950,
+    "top": 1275,
+    "width": 640,
+    "x": 310,
+    "y": 1275
+  },
+  "header": {
+    "bottom": 75,
+    "height": 55,
+    "left": 310,
+    "right": 950,
+    "top": 20,
+    "width": 640,
+    "x": 310,
+    "y": 20
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 749,
+    "left": 256,
+    "right": 1270,
+    "top": 151,
+    "width": 1014,
+    "x": 256,
+    "y": 151
+  },
+  "primaryButton": null,
+  "width": 1280,
+  "image_sha256": "9442edc89fb90279e268aaabbddbea37c4a5136fc5a2f4cb21e19019b36f52e5"
+}

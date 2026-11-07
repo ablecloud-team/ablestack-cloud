@@ -1,0 +1,216 @@
+{
+  "checks": [
+    {
+      "pif": "eth0",
+      "vlan": 1,
+      "bridge": "breth0-1",
+      "vlan_device": "eth0.1",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "eth0",
+      "vlan": 631,
+      "bridge": "breth0-631",
+      "vlan_device": "eth0.631",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "eth0",
+      "vlan": 1000,
+      "bridge": "breth0-1000",
+      "vlan_device": "eth0.1000",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "eth0",
+      "kernel_vlan_lookup_via_deployed_agent": "PASS"
+    },
+    {
+      "pif": "eth0",
+      "vlan": 3832,
+      "bridge": "breth0-3832",
+      "vlan_device": "eth0.3832",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "eth0",
+      "vlan": 4094,
+      "bridge": "breth0-4094",
+      "vlan_device": "eth0.4094",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "ens1f0np0",
+      "vlan": 1,
+      "bridge": "brens1f0np0-1",
+      "vlan_device": "ens1f0np0.1",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "ens1f0np0",
+      "vlan": 631,
+      "bridge": "brens1f0np0-631",
+      "vlan_device": "ens1f0np0.631",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "ens1f0np0",
+      "vlan": 1000,
+      "bridge": "brlhfblgjc-1000",
+      "vlan_device": "ens1f0np0.1000",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "ens1f0np0",
+      "kernel_vlan_lookup_via_deployed_agent": "PASS"
+    },
+    {
+      "pif": "ens1f0np0",
+      "vlan": 3832,
+      "bridge": "brlhfblgjc-3832",
+      "vlan_device": "ens1f0np0.3832",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "ens1f0np0",
+      "vlan": 4094,
+      "bridge": "brlhfblgjc-4094",
+      "vlan_device": "ens1f0np0.4094",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "bond0",
+      "vlan": 1,
+      "bridge": "brbond0-1",
+      "vlan_device": "bond0.1",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "bond0",
+      "vlan": 631,
+      "bridge": "brbond0-631",
+      "vlan_device": "bond0.631",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "bond0",
+      "vlan": 1000,
+      "bridge": "brbond0-1000",
+      "vlan_device": "bond0.1000",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "bond0",
+      "kernel_vlan_lookup_via_deployed_agent": "PASS"
+    },
+    {
+      "pif": "bond0",
+      "vlan": 3832,
+      "bridge": "brbond0-3832",
+      "vlan_device": "bond0.3832",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "bond0",
+      "vlan": 4094,
+      "bridge": "brbond0-4094",
+      "vlan_device": "bond0.4094",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "bond12345678901",
+      "vlan": 1,
+      "bridge": "brntghu6mm-1",
+      "vlan_device": "vlanb195bcfa7d0",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "bond12345678901",
+      "vlan": 631,
+      "bridge": "brntghu6mm-631",
+      "vlan_device": "vlan3c006afed3d",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "bond12345678901",
+      "vlan": 1000,
+      "bridge": "brntghu6mm-1000",
+      "vlan_device": "vlan4ae8f0ff534",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "bond12345678901",
+      "kernel_vlan_lookup_via_deployed_agent": "PASS"
+    },
+    {
+      "pif": "bond12345678901",
+      "vlan": 3832,
+      "bridge": "brntghu6mm-3832",
+      "vlan_device": "vlan94547f028b2",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "bond12345678901",
+      "vlan": 4094,
+      "bridge": "brntghu6mm-4094",
+      "vlan_device": "vlanf3684712745",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "ens123456789012",
+      "vlan": 1,
+      "bridge": "brbvf7cqt7-1",
+      "vlan_device": "vlan67f4f816992",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "ens123456789012",
+      "vlan": 631,
+      "bridge": "brbvf7cqt7-631",
+      "vlan_device": "vlan23b2aab9b64",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "ens123456789012",
+      "vlan": 1000,
+      "bridge": "brbvf7cqt7-1000",
+      "vlan_device": "vlan69c678735f8",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "ens123456789012",
+      "kernel_vlan_lookup_via_deployed_agent": "PASS"
+    },
+    {
+      "pif": "ens123456789012",
+      "vlan": 3832,
+      "bridge": "brbvf7cqt7-3832",
+      "vlan_device": "vland01ddbd26f1",
+      "lifecycle": "PASS"
+    },
+    {
+      "pif": "ens123456789012",
+      "vlan": 4094,
+      "bridge": "brbvf7cqt7-4094",
+      "vlan_device": "vlanfbb38705b15",
+      "lifecycle": "PASS"
+    },
+    {
+      "legacy_unmarked_reuse_and_delete": "PASS"
+    },
+    {
+      "bridge_collision_refused": "PASS"
+    },
+    {
+      "child_name_and_vid_collision_refused": "PASS"
+    },
+    {
+      "concurrent_creation": "PASS"
+    },
+    {
+      "vlan_boundaries": "PASS"
+    }
+  ],
+  "count": 35,
+  "result": "PASS"
+}

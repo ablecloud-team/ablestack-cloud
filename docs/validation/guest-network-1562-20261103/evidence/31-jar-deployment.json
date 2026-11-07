@@ -1,0 +1,11 @@
+{
+  "source_commit": "60ac6deebda",
+  "target": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+  "before_sha256": "878054400f56c243449021f5bbe32be45522a2cbe2aaa7a3371652b0fe4bb525",
+  "after_sha256": "df0f900602bc90d5e11a7dd327ea16d5f917d8507001b85ed7464708dd5e5f10",
+  "patched_class_count": 18,
+  "other_entries_unchanged": 204639,
+  "backup": "/var/lib/ablestack/qa-backups/gn1562-jar-20261103-233427/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+  "old_pid": "218272",
+  "new_pid": "497588"
+}

@@ -1,0 +1,99 @@
+{
+  "body": {
+    "bottom": 688,
+    "height": 486,
+    "left": 161,
+    "right": 1119,
+    "top": 202,
+    "width": 958,
+    "x": 161,
+    "y": 202
+  },
+  "bodyClientHeight": 486,
+  "bodyClientWidth": 958,
+  "bodyScrollHeight": 486,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 958,
+  "colors": [
+    {
+      "background": "rgb(255, 241, 240)",
+      "color": "rgb(112, 27, 27)",
+      "text": "확인하거나 재시작할 수 없는 대상이 있습니다. 새 재시작 요청을 보내지 않았습니다. 항목별 사유를 확인하고 대상을 다시 조회하세요."
+    },
+    {
+      "background": "rgb(242, 244, 247)",
+      "color": "rgb(123, 132, 145)",
+      "text": "네트워크 재시작"
+    }
+  ],
+  "content": {
+    "bottom": 754,
+    "height": 608,
+    "left": 160,
+    "right": 1120,
+    "top": 146,
+    "width": 960,
+    "x": 160,
+    "y": 146
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1280,
+    "top": 0,
+    "width": 1280,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "DIV"
+  },
+  "footer": {
+    "bottom": 753,
+    "height": 65,
+    "left": 161,
+    "right": 1119,
+    "top": 688,
+    "width": 958,
+    "x": 161,
+    "y": 688
+  },
+  "header": {
+    "bottom": 202,
+    "height": 55,
+    "left": 161,
+    "right": 1119,
+    "top": 147,
+    "width": 958,
+    "x": 161,
+    "y": 147
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 776,
+    "left": 256,
+    "right": 1270,
+    "top": 124,
+    "width": 1014,
+    "x": 256,
+    "y": 124
+  },
+  "primaryButton": {
+    "bottom": 737,
+    "height": 32,
+    "left": 965,
+    "right": 1091,
+    "top": 705,
+    "width": 126,
+    "x": 965,
+    "y": 705
+  },
+  "width": 1280,
+  "image_sha256": "d36112e0459abfd469e175faa36b187fc006aca4e04c50de727ec9319ff99b37"
+}

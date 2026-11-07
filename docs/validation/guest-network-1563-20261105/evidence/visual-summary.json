@@ -1,0 +1,181 @@
+{
+  "source": "15e73de0834b61b29b79c376fecf1e744f783b78",
+  "matrixConditions": 24,
+  "matrixScreenshots": 48,
+  "publishedScreenshots": 68,
+  "decodedJPEGDimensionsAndShaVerified": true,
+  "dialogHorizontalOverflow": 0,
+  "fixedFooterInsideViewport": true,
+  "inspectedHelpHeadingCheckboxFont": "14px",
+  "inspectedTextContrastMinimum": 7.13,
+  "matrix": [
+    {
+      "cluster": 31,
+      "state": "ready",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS"
+    },
+    {
+      "cluster": 31,
+      "state": "ready",
+      "theme": "light",
+      "width": 768,
+      "status": "PASS"
+    },
+    {
+      "cluster": 31,
+      "state": "ready",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS"
+    },
+    {
+      "cluster": 31,
+      "state": "ready",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS"
+    },
+    {
+      "cluster": 31,
+      "state": "ready",
+      "theme": "dark",
+      "width": 768,
+      "status": "PASS"
+    },
+    {
+      "cluster": 31,
+      "state": "ready",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS"
+    },
+    {
+      "cluster": 31,
+      "state": "checkpoint",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS"
+    },
+    {
+      "cluster": 31,
+      "state": "checkpoint",
+      "theme": "light",
+      "width": 768,
+      "status": "PASS"
+    },
+    {
+      "cluster": 31,
+      "state": "checkpoint",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS"
+    },
+    {
+      "cluster": 31,
+      "state": "checkpoint",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS"
+    },
+    {
+      "cluster": 31,
+      "state": "checkpoint",
+      "theme": "dark",
+      "width": 768,
+      "status": "PASS"
+    },
+    {
+      "cluster": 31,
+      "state": "checkpoint",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS"
+    },
+    {
+      "cluster": 32,
+      "state": "ready",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS"
+    },
+    {
+      "cluster": 32,
+      "state": "ready",
+      "theme": "light",
+      "width": 768,
+      "status": "PASS"
+    },
+    {
+      "cluster": 32,
+      "state": "ready",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS"
+    },
+    {
+      "cluster": 32,
+      "state": "ready",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS"
+    },
+    {
+      "cluster": 32,
+      "state": "ready",
+      "theme": "dark",
+      "width": 768,
+      "status": "PASS"
+    },
+    {
+      "cluster": 32,
+      "state": "ready",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS"
+    },
+    {
+      "cluster": 32,
+      "state": "checkpoint",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS"
+    },
+    {
+      "cluster": 32,
+      "state": "checkpoint",
+      "theme": "light",
+      "width": 768,
+      "status": "PASS"
+    },
+    {
+      "cluster": 32,
+      "state": "checkpoint",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS"
+    },
+    {
+      "cluster": 32,
+      "state": "checkpoint",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS"
+    },
+    {
+      "cluster": 32,
+      "state": "checkpoint",
+      "theme": "dark",
+      "width": 768,
+      "status": "PASS"
+    },
+    {
+      "cluster": 32,
+      "state": "checkpoint",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS"
+    }
+  ]
+}

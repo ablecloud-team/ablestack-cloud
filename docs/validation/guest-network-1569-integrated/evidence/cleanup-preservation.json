@@ -1,0 +1,316 @@
+{
+  "31": {
+    "cleanup-residual": {
+      "ips": 0,
+      "vms": 0,
+      "nics": 0,
+      "vlans": 0,
+      "domains": 0,
+      "routers": 0,
+      "accounts": 0,
+      "networks": 0,
+      "offerings": 0
+    },
+    "preservation": {
+      "networks": {
+        "before": 28,
+        "after": 28,
+        "missing": 0,
+        "changed": 0
+      },
+      "userVms": {
+        "before": 121,
+        "after": 121,
+        "missing": 0,
+        "changed": 0
+      },
+      "offerings": {
+        "before": 30,
+        "after": 30,
+        "missing": 0,
+        "changed": 0
+      }
+    },
+    "operational-before": {
+      "vpcCount": 1,
+      "kubernetes": [
+        [
+          {
+            "count": 2,
+            "sha256": "0603f8d296eba18aee4891986d4236d30c6887b6c6ad11f8071a36cd97943ad7"
+          },
+          {
+            "count": 3,
+            "sha256": "9c58eaef1fa89ee8e5d4925b89b127795d4bdb9f3bb535b5dd0b3312b9a879b6"
+          }
+        ],
+        [
+          {
+            "count": 2,
+            "sha256": "3eb4cc91ceca547d63e94c7e99ae3a507af0abc012731b0c35740f994954cff2"
+          },
+          {
+            "count": 3,
+            "sha256": "c9407255a0f6a201a6525a232432350078b81ed83318b3333084dce6725964ad"
+          }
+        ],
+        [
+          {
+            "count": 2,
+            "sha256": "466aa86bdc4ca7aa1d491c4236e2359ab3ed281b252ff929f79930f0b5d19dac"
+          },
+          {
+            "count": 2,
+            "sha256": "1ad3908644acec6b313dc59d3418733a6ed84429c874fae775eb06a305a0b937"
+          }
+        ],
+        [
+          {
+            "count": 2,
+            "sha256": "4f0840244f9b6352e91f1b89785f1df4a802c1c64aeeefb6947552de46acd1f3"
+          },
+          {
+            "count": 3,
+            "sha256": "9641c6db2c4be76d51630cf2bc27bc7408bcc5416f86d04571d3cf2b7232032a"
+          }
+        ],
+        [
+          {
+            "count": 2,
+            "sha256": "6b7dd7e2ff606083bfb0cc5591e0953de5ca898f64e5a64c8afd4d262c0f9c85"
+          },
+          {
+            "count": 3,
+            "sha256": "153523ebfaa98a4a849b87c70e337d92f86eeb3b4aa8efd40a5a1e5713a60da3"
+          }
+        ],
+        [
+          {
+            "count": 2,
+            "sha256": "9a17ed0998f258b20f6d521d8d81601bcb17db0eb860c6c51c61dabdc650b5f0"
+          },
+          {
+            "count": 3,
+            "sha256": "f679e2dcc780854b236076a67b5d2bdaffa4dad6ed74405bc1b567569177ec98"
+          }
+        ],
+        [
+          {
+            "count": 2,
+            "sha256": "e86cd6f2bc907fa71f5d946c81ebc4137981fb8a7569209560db24244ef28e98"
+          },
+          {
+            "count": 3,
+            "sha256": "c723db23903b7d05fb1815eeec88d0f20ec03fb9cf29f971e6949604fba351b5"
+          }
+        ],
+        [
+          {
+            "count": 2,
+            "sha256": "f94f2a34a7da9aca53fecbdfeac1c7fd4198ce85ca784880da17aba6b7f8fb22"
+          },
+          {
+            "count": 3,
+            "sha256": "81265b7d5a0b972c4b964c9be2e06057dafc431a0c1d75f4f91a3e63271636f9"
+          }
+        ]
+      ]
+    },
+    "operational-after": {
+      "vpcCount": 1,
+      "kubernetes": [
+        [
+          {
+            "count": 2,
+            "sha256": "0603f8d296eba18aee4891986d4236d30c6887b6c6ad11f8071a36cd97943ad7"
+          },
+          {
+            "count": 3,
+            "sha256": "9c58eaef1fa89ee8e5d4925b89b127795d4bdb9f3bb535b5dd0b3312b9a879b6"
+          }
+        ],
+        [
+          {
+            "count": 2,
+            "sha256": "3eb4cc91ceca547d63e94c7e99ae3a507af0abc012731b0c35740f994954cff2"
+          },
+          {
+            "count": 3,
+            "sha256": "c9407255a0f6a201a6525a232432350078b81ed83318b3333084dce6725964ad"
+          }
+        ],
+        [
+          {
+            "count": 2,
+            "sha256": "466aa86bdc4ca7aa1d491c4236e2359ab3ed281b252ff929f79930f0b5d19dac"
+          },
+          {
+            "count": 2,
+            "sha256": "1ad3908644acec6b313dc59d3418733a6ed84429c874fae775eb06a305a0b937"
+          }
+        ],
+        [
+          {
+            "count": 2,
+            "sha256": "4f0840244f9b6352e91f1b89785f1df4a802c1c64aeeefb6947552de46acd1f3"
+          },
+          {
+            "count": 3,
+            "sha256": "9641c6db2c4be76d51630cf2bc27bc7408bcc5416f86d04571d3cf2b7232032a"
+          }
+        ],
+        [
+          {
+            "count": 2,
+            "sha256": "6b7dd7e2ff606083bfb0cc5591e0953de5ca898f64e5a64c8afd4d262c0f9c85"
+          },
+          {
+            "count": 3,
+            "sha256": "153523ebfaa98a4a849b87c70e337d92f86eeb3b4aa8efd40a5a1e5713a60da3"
+          }
+        ],
+        [
+          {
+            "count": 2,
+            "sha256": "9a17ed0998f258b20f6d521d8d81601bcb17db0eb860c6c51c61dabdc650b5f0"
+          },
+          {
+            "count": 3,
+            "sha256": "f679e2dcc780854b236076a67b5d2bdaffa4dad6ed74405bc1b567569177ec98"
+          }
+        ],
+        [
+          {
+            "count": 2,
+            "sha256": "e86cd6f2bc907fa71f5d946c81ebc4137981fb8a7569209560db24244ef28e98"
+          },
+          {
+            "count": 3,
+            "sha256": "c723db23903b7d05fb1815eeec88d0f20ec03fb9cf29f971e6949604fba351b5"
+          }
+        ],
+        [
+          {
+            "count": 2,
+            "sha256": "f94f2a34a7da9aca53fecbdfeac1c7fd4198ce85ca784880da17aba6b7f8fb22"
+          },
+          {
+            "count": 3,
+            "sha256": "81265b7d5a0b972c4b964c9be2e06057dafc431a0c1d75f4f91a3e63271636f9"
+          }
+        ]
+      ]
+    },
+    "cleanupActions": [
+      "destroyVirtualMachine",
+      "destroyVirtualMachine",
+      "deleteNetwork",
+      "deleteNetwork",
+      "deleteNetwork",
+      "deleteNetwork",
+      "deleteNetwork",
+      "deleteNetwork",
+      "deleteNetwork",
+      "deleteNetwork",
+      "deleteNetwork",
+      "deleteProject",
+      "deleteNetworkOffering",
+      "deleteNetworkOffering",
+      "deleteNetworkOffering",
+      "deleteAccount",
+      "deleteAccount",
+      "deleteAccount",
+      "deleteAccount",
+      "deleteAccount",
+      "deleteDomain",
+      "deleteDomain",
+      "deleteDomain"
+    ]
+  },
+  "32": {
+    "cleanup-residual": {
+      "ips": 0,
+      "vms": 0,
+      "nics": 0,
+      "vlans": 0,
+      "domains": 0,
+      "routers": 0,
+      "accounts": 0,
+      "networks": 0,
+      "offerings": 0
+    },
+    "preservation": {
+      "networks": {
+        "before": 11,
+        "after": 11,
+        "missing": 0,
+        "changed": 0
+      },
+      "userVms": {
+        "before": 58,
+        "after": 58,
+        "missing": 0,
+        "changed": 0
+      },
+      "offerings": {
+        "before": 21,
+        "after": 21,
+        "missing": 0,
+        "changed": 0
+      }
+    },
+    "operational-before": {
+      "vpcCount": 1,
+      "kubernetes": [
+        [
+          {
+            "count": 2,
+            "sha256": "57e2a2718b5ccd38f6bfb79a90ec02c30cb8bf08f3e515b8f6e5b84f35127d96"
+          },
+          {
+            "count": 4,
+            "sha256": "baff46140a2f79bdb4ff18b7554fa4c155acdce74608af1d013ae2ea48bc5759"
+          }
+        ]
+      ]
+    },
+    "operational-after": {
+      "vpcCount": 1,
+      "kubernetes": [
+        [
+          {
+            "count": 2,
+            "sha256": "57e2a2718b5ccd38f6bfb79a90ec02c30cb8bf08f3e515b8f6e5b84f35127d96"
+          },
+          {
+            "count": 4,
+            "sha256": "baff46140a2f79bdb4ff18b7554fa4c155acdce74608af1d013ae2ea48bc5759"
+          }
+        ]
+      ]
+    },
+    "cleanupActions": [
+      "destroyVirtualMachine",
+      "destroyVirtualMachine",
+      "deleteNetwork",
+      "deleteNetwork",
+      "deleteNetwork",
+      "deleteNetwork",
+      "deleteNetwork",
+      "deleteNetwork",
+      "deleteNetwork",
+      "deleteProject",
+      "deleteNetworkOffering",
+      "deleteNetworkOffering",
+      "deleteNetworkOffering",
+      "deleteAccount",
+      "deleteAccount",
+      "deleteAccount",
+      "deleteAccount",
+      "deleteAccount",
+      "deleteDomain",
+      "deleteDomain",
+      "deleteDomain"
+    ]
+  }
+}

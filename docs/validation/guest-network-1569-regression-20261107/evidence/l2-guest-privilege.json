@@ -1,0 +1,28 @@
+{
+  "31": {
+    "hostid": "384871b9-7c75-4717-a673-e96a76abeb71",
+    "routerHostid": "384871b9-7c75-4717-a673-e96a76abeb71",
+    "networkid": "0bb7a305-e2c0-4fd6-af30-5f8aec0b720d",
+    "vms": [],
+    "blocked": true,
+    "reason": "Existing SSH test user has no passwordless sudo; QGA guest-exec is disabled. No NIC or guest network changes performed.",
+    "probe": {
+      "exit": 0,
+      "out": "uid=1000(qa-net) gid=1000(qa-net) groups=1000(qa-net) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023\n[{\"dst\":\"default\",\"gateway\":\"10.178.31.1\",\"dev\":\"ens3\",\"protocol\":\"dhcp\",\"prefsrc\":\"10.178.31.25\",\"metric\":100,\"flags\":[]}]\n[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"::1\",\"prefixlen\":128,\"scope\":\"host\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"ifname\":\"ens3\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"fq_codel\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"1e:1f:9e:00:02:cb\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"altnames\":[\"enp0s3\"],\"addr_info\":[{\"family\":\"inet\",\"local\":\"10.178.31.25\",\"prefixlen\":27,\"broadcast\":\"10.178.31.31\",\"scope\":\"global\",\"noprefixroute\":true,\"label\":\"ens3\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"fe80::1c1f:9eff:fe00:2cb\",\"prefixlen\":64,\"scope\":\"link\",\"noprefixroute\":true,\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]\n",
+      "error": "sudo: a password is required\n"
+    }
+  },
+  "32": {
+    "hostid": "a7b3e91f-2248-436b-affb-e3b31b36ed62",
+    "routerHostid": "a7b3e91f-2248-436b-affb-e3b31b36ed62",
+    "networkid": "d5ebfabd-d845-4411-9266-d6d16efe7587",
+    "vms": [],
+    "blocked": true,
+    "reason": "Existing SSH test user has no passwordless sudo; QGA guest-exec is disabled. No NIC or guest network changes performed.",
+    "probe": {
+      "exit": 0,
+      "out": "uid=1000(qa-net) gid=1000(qa-net) groups=1000(qa-net) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023\n[{\"dst\":\"default\",\"gateway\":\"10.178.32.1\",\"dev\":\"ens3\",\"protocol\":\"dhcp\",\"prefsrc\":\"10.178.32.20\",\"metric\":100,\"flags\":[]}]\n[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"::1\",\"prefixlen\":128,\"scope\":\"host\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"ifname\":\"ens3\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"fq_codel\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"1e:01:8a:00:02:c4\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"altnames\":[\"enp0s3\"],\"addr_info\":[{\"family\":\"inet\",\"local\":\"10.178.32.20\",\"prefixlen\":27,\"broadcast\":\"10.178.32.31\",\"scope\":\"global\",\"noprefixroute\":true,\"label\":\"ens3\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"fe80::1c01:8aff:fe00:2c4\",\"prefixlen\":64,\"scope\":\"link\",\"noprefixroute\":true,\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]\n",
+      "error": "sudo: a password is required\n"
+    }
+  }
+}

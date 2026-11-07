@@ -1,0 +1,212 @@
+{
+  "projectId": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+  "resourceType": 6,
+  "oldMax": 20,
+  "newMax": 30,
+  "before": {
+    "count": 17,
+    "resourcelimit": [
+      {
+        "account": "PrjAcct-qa-gn1569-31-project-105",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "domain": "qa-gn1569-31-domain",
+        "domainpath": "ROOT/qa-gn1569-31-domain",
+        "resourcetype": "0",
+        "resourcetypename": "user_vm",
+        "max": 20,
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "project": "qa-gn1569-31-project"
+      },
+      {
+        "account": "PrjAcct-qa-gn1569-31-project-105",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "domain": "qa-gn1569-31-domain",
+        "domainpath": "ROOT/qa-gn1569-31-domain",
+        "resourcetype": "1",
+        "resourcetypename": "public_ip",
+        "max": 20,
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "project": "qa-gn1569-31-project"
+      },
+      {
+        "account": "PrjAcct-qa-gn1569-31-project-105",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "domain": "qa-gn1569-31-domain",
+        "domainpath": "ROOT/qa-gn1569-31-domain",
+        "resourcetype": "2",
+        "resourcetypename": "volume",
+        "max": 20,
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "project": "qa-gn1569-31-project"
+      },
+      {
+        "account": "PrjAcct-qa-gn1569-31-project-105",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "domain": "qa-gn1569-31-domain",
+        "domainpath": "ROOT/qa-gn1569-31-domain",
+        "resourcetype": "3",
+        "resourcetypename": "snapshot",
+        "max": 20,
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "project": "qa-gn1569-31-project"
+      },
+      {
+        "account": "PrjAcct-qa-gn1569-31-project-105",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "domain": "qa-gn1569-31-domain",
+        "domainpath": "ROOT/qa-gn1569-31-domain",
+        "resourcetype": "4",
+        "resourcetypename": "template",
+        "max": 20,
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "project": "qa-gn1569-31-project"
+      },
+      {
+        "account": "PrjAcct-qa-gn1569-31-project-105",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "domain": "qa-gn1569-31-domain",
+        "domainpath": "ROOT/qa-gn1569-31-domain",
+        "resourcetype": "5",
+        "resourcetypename": "project",
+        "max": -1,
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "project": "qa-gn1569-31-project"
+      },
+      {
+        "account": "PrjAcct-qa-gn1569-31-project-105",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "domain": "qa-gn1569-31-domain",
+        "domainpath": "ROOT/qa-gn1569-31-domain",
+        "resourcetype": "6",
+        "resourcetypename": "network",
+        "max": 20,
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "project": "qa-gn1569-31-project"
+      },
+      {
+        "account": "PrjAcct-qa-gn1569-31-project-105",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "domain": "qa-gn1569-31-domain",
+        "domainpath": "ROOT/qa-gn1569-31-domain",
+        "resourcetype": "7",
+        "resourcetypename": "vpc",
+        "max": 20,
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "project": "qa-gn1569-31-project"
+      },
+      {
+        "account": "PrjAcct-qa-gn1569-31-project-105",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "domain": "qa-gn1569-31-domain",
+        "domainpath": "ROOT/qa-gn1569-31-domain",
+        "resourcetype": "8",
+        "resourcetypename": "cpu",
+        "max": 40,
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "project": "qa-gn1569-31-project"
+      },
+      {
+        "account": "PrjAcct-qa-gn1569-31-project-105",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "domain": "qa-gn1569-31-domain",
+        "domainpath": "ROOT/qa-gn1569-31-domain",
+        "resourcetype": "9",
+        "resourcetypename": "memory",
+        "max": 40960,
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "project": "qa-gn1569-31-project"
+      },
+      {
+        "account": "PrjAcct-qa-gn1569-31-project-105",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "domain": "qa-gn1569-31-domain",
+        "domainpath": "ROOT/qa-gn1569-31-domain",
+        "resourcetype": "10",
+        "resourcetypename": "primary_storage",
+        "max": 200,
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "project": "qa-gn1569-31-project"
+      },
+      {
+        "account": "PrjAcct-qa-gn1569-31-project-105",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "domain": "qa-gn1569-31-domain",
+        "domainpath": "ROOT/qa-gn1569-31-domain",
+        "resourcetype": "11",
+        "resourcetypename": "secondary_storage",
+        "max": 400,
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "project": "qa-gn1569-31-project"
+      },
+      {
+        "account": "PrjAcct-qa-gn1569-31-project-105",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "domain": "qa-gn1569-31-domain",
+        "domainpath": "ROOT/qa-gn1569-31-domain",
+        "resourcetype": "12",
+        "resourcetypename": "backup",
+        "max": 20,
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "project": "qa-gn1569-31-project"
+      },
+      {
+        "account": "PrjAcct-qa-gn1569-31-project-105",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "domain": "qa-gn1569-31-domain",
+        "domainpath": "ROOT/qa-gn1569-31-domain",
+        "resourcetype": "13",
+        "resourcetypename": "backup_storage",
+        "max": 400,
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "project": "qa-gn1569-31-project"
+      },
+      {
+        "account": "PrjAcct-qa-gn1569-31-project-105",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "domain": "qa-gn1569-31-domain",
+        "domainpath": "ROOT/qa-gn1569-31-domain",
+        "resourcetype": "14",
+        "resourcetypename": "bucket",
+        "max": 20,
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "project": "qa-gn1569-31-project"
+      },
+      {
+        "account": "PrjAcct-qa-gn1569-31-project-105",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "domain": "qa-gn1569-31-domain",
+        "domainpath": "ROOT/qa-gn1569-31-domain",
+        "resourcetype": "15",
+        "resourcetypename": "object_storage",
+        "max": 400,
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "project": "qa-gn1569-31-project"
+      },
+      {
+        "account": "PrjAcct-qa-gn1569-31-project-105",
+        "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+        "domain": "qa-gn1569-31-domain",
+        "domainpath": "ROOT/qa-gn1569-31-domain",
+        "resourcetype": "16",
+        "resourcetypename": "gpu",
+        "max": 20,
+        "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+        "project": "qa-gn1569-31-project"
+      }
+    ]
+  },
+  "after": {
+    "resourcelimit": {
+      "account": "PrjAcct-qa-gn1569-31-project-105",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+      "domain": "qa-gn1569-31-domain",
+      "domainpath": "ROOT/qa-gn1569-31-domain",
+      "resourcetype": "6",
+      "resourcetypename": "network",
+      "max": 30,
+      "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+      "project": "qa-gn1569-31-project"
+    }
+  },
+  "restoreAfterFixtureCleanup": true
+}

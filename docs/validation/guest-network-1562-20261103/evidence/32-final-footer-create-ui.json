@@ -1,0 +1,272 @@
+{
+  "records": [
+    {
+      "requestId": "40480.3497",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "guestiptype": "Isolated",
+        "state": "Enabled",
+        "forvpc": "false",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3498",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "e8d9487d-f70b-451f-8a58-7d26e8bfdc79",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3499",
+      "command": "listPhysicalNetworks",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listPhysicalNetworks"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3500",
+      "command": "listTrafficTypes",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listTrafficTypes"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3501",
+      "command": "listNetworkServiceProviders",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listNetworkServiceProviders"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3502",
+      "command": "listVirtualRouterElements",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVirtualRouterElements"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3504",
+      "command": "listPhysicalNetworks",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "command": "listPhysicalNetworks"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3505",
+      "command": "listTrafficTypes",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "command": "listTrafficTypes"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3506",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "state": "Enabled",
+        "guestiptype": "Shared",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3507",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "c0586d85-1ab3-41ba-8c6a-455ce47d6c3b",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3508",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "c0586d85-1ab3-41ba-8c6a-455ce47d6c3b",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3509",
+      "command": "listPhysicalNetworks",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listPhysicalNetworks"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3510",
+      "command": "listTrafficTypes",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listTrafficTypes"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3511",
+      "command": "listNetworkServiceProviders",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listNetworkServiceProviders"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3512",
+      "command": "listVirtualRouterElements",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVirtualRouterElements"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3513",
+      "command": "listNetworkOfferings",
+      "method": "GET",
+      "params": {
+        "id": "c0586d85-1ab3-41ba-8c6a-455ce47d6c3b",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listNetworkOfferings"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3514",
+      "command": "listPhysicalNetworks",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listPhysicalNetworks"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3515",
+      "command": "listTrafficTypes",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listTrafficTypes"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3516",
+      "command": "listNetworkServiceProviders",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listNetworkServiceProviders"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3517",
+      "command": "listVirtualRouterElements",
+      "method": "GET",
+      "params": {
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVirtualRouterElements"
+      },
+      "status": 200
+    },
+    {
+      "requestId": "40480.3518",
+      "command": "createNetwork",
+      "method": "POST",
+      "params": {
+        "command": "createNetwork",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "name": "qa-gn1562-32-submit-footer",
+        "networkofferingid": "c0586d85-1ab3-41ba-8c6a-455ce47d6c3b",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "vlan": "693",
+        "gateway": "172.29.32.1",
+        "netmask": "255.255.255.0",
+        "startip": "172.29.32.10",
+        "endip": "172.29.32.20"
+      },
+      "status": 200,
+      "result": {
+        "networkid": "0f2c8641-b99c-4af2-a741-6b28ca6dc5ed"
+      }
+    },
+    {
+      "requestId": "40480.3519",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "page": "1",
+        "pagesize": "20",
+        "command": "listNetworks"
+      },
+      "status": 200
+    }
+  ],
+  "cursor": 3266
+}

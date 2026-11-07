@@ -1,0 +1,124 @@
+{
+  "router": {
+    "id": "9e787f5e-7a33-48c4-a6a9-d50886987584",
+    "hostname": "ablecube31-2",
+    "hostid": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+    "guestnetworkid": "c00cbfae-a846-4071-af4d-eaa24f4d5a5b"
+  },
+  "qga_before": {
+    "a": {
+      "name": "qa-gn1562-31-vm-a",
+      "qga": {
+        "return": [
+          {
+            "name": "lo",
+            "ip-addresses": [
+              {
+                "ip-address-type": "ipv4",
+                "ip-address": "127.0.0.1",
+                "prefix": 8
+              },
+              {
+                "ip-address-type": "ipv6",
+                "ip-address": "::1",
+                "prefix": 128
+              }
+            ],
+            "statistics": {
+              "tx-packets": 0,
+              "tx-errs": 0,
+              "rx-bytes": 0,
+              "rx-dropped": 0,
+              "rx-packets": 0,
+              "rx-errs": 0,
+              "tx-bytes": 0,
+              "tx-dropped": 0
+            },
+            "hardware-address": "00:00:00:00:00:00"
+          },
+          {
+            "name": "ens3",
+            "ip-addresses": [
+              {
+                "ip-address-type": "ipv6",
+                "ip-address": "fe80::1c1f:f1ff:fe00:113",
+                "prefix": 64
+              }
+            ],
+            "statistics": {
+              "tx-packets": 56,
+              "tx-errs": 0,
+              "rx-bytes": 1995,
+              "rx-dropped": 5,
+              "rx-packets": 15,
+              "rx-errs": 0,
+              "tx-bytes": 9546,
+              "tx-dropped": 0
+            },
+            "hardware-address": "1e:1f:f1:00:01:13"
+          }
+        ]
+      }
+    },
+    "b": {
+      "name": "qa-gn1562-31-vm-b",
+      "qga": {
+        "return": [
+          {
+            "name": "lo",
+            "ip-addresses": [
+              {
+                "ip-address-type": "ipv4",
+                "ip-address": "127.0.0.1",
+                "prefix": 8
+              },
+              {
+                "ip-address-type": "ipv6",
+                "ip-address": "::1",
+                "prefix": 128
+              }
+            ],
+            "statistics": {
+              "tx-packets": 12,
+              "tx-errs": 0,
+              "rx-bytes": 1128,
+              "rx-dropped": 0,
+              "rx-packets": 12,
+              "rx-errs": 0,
+              "tx-bytes": 1128,
+              "tx-dropped": 0
+            },
+            "hardware-address": "00:00:00:00:00:00"
+          },
+          {
+            "name": "ens3",
+            "ip-addresses": [
+              {
+                "ip-address-type": "ipv4",
+                "ip-address": "172.26.31.19",
+                "prefix": 24
+              },
+              {
+                "ip-address-type": "ipv6",
+                "ip-address": "fe80::1c1f:adff:fe00:114",
+                "prefix": 64
+              }
+            ],
+            "statistics": {
+              "tx-packets": 146,
+              "tx-errs": 0,
+              "rx-bytes": 15877,
+              "rx-dropped": 5,
+              "rx-packets": 203,
+              "rx-errs": 0,
+              "tx-bytes": 12298,
+              "tx-dropped": 0
+            },
+            "hardware-address": "1e:1f:ad:00:01:14"
+          }
+        ]
+      }
+    }
+  },
+  "operations": []
+}

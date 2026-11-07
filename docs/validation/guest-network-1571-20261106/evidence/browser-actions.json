@@ -1,0 +1,287 @@
+[
+  {
+    "cluster": 31,
+    "action": "create-ui",
+    "variant": "configdrive",
+    "route": "guestnetwork/a5fee678-3cbc-4143-9f52-aaa5a2e1b30c"
+  },
+  {
+    "cluster": 32,
+    "action": "create-ui",
+    "variant": "configdrive",
+    "route": "guestnetwork/ff71bb9c-3113-4edb-9c89-44a855ac451a"
+  },
+  {
+    "cluster": 31,
+    "action": "create-ui",
+    "variant": "plain",
+    "route": "guestnetwork/86576f1d-a931-4f17-a18a-ff81d2e6ad16"
+  },
+  {
+    "cluster": 32,
+    "action": "create-ui",
+    "variant": "plain",
+    "route": "guestnetwork/838c260d-dfca-4589-8568-7db4dd292229"
+  },
+  {
+    "cluster": 31,
+    "action": "pvlan-same-id-blocked",
+    "createPosts": 0
+  },
+  {
+    "cluster": 31,
+    "action": "create-ui",
+    "variant": "community",
+    "route": "guestnetwork/610dc86e-32ed-41ed-afb4-4616c37dbf80"
+  },
+  {
+    "cluster": 31,
+    "action": "create-ui",
+    "variant": "isolated",
+    "route": "guestnetwork/84c767b3-5667-40b1-90a6-6aa85010edd8"
+  },
+  {
+    "cluster": 31,
+    "action": "create-ui",
+    "variant": "promiscuous",
+    "route": "guestnetwork/7e3f0c2a-b656-4294-8398-ac3d7a7c274f"
+  },
+  {
+    "cluster": 31,
+    "action": "pvlan-write-params",
+    "requests": [
+      {
+        "command": "createNetwork",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "name": "qa-gn1571-31-isolated",
+        "networkofferingid": "7bab0fc9-6457-4ff4-9463-2e9d1b08eb94",
+        "account": "qa-gn1571-31-owner",
+        "domainid": "435edf05-fd84-4cd8-9a1f-f65c8e995bb7",
+        "isolatedpvlantype": "isolated",
+        "isolatedpvlan": "777",
+        "vlan": "776"
+      },
+      {
+        "command": "createNetwork",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "name": "qa-gn1571-31-promiscuous",
+        "networkofferingid": "7bab0fc9-6457-4ff4-9463-2e9d1b08eb94",
+        "account": "qa-gn1571-31-owner",
+        "domainid": "435edf05-fd84-4cd8-9a1f-f65c8e995bb7",
+        "isolatedpvlantype": "promiscuous",
+        "vlan": "778"
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "action": "missing-pvlan-secondary-blocked",
+    "posts": 0
+  },
+  {
+    "cluster": 32,
+    "action": "create-ui",
+    "variant": "community",
+    "route": "guestnetwork/5ca442a3-e49e-42f9-87a1-56016435718b"
+  },
+  {
+    "cluster": 32,
+    "action": "create-ui",
+    "variant": "isolated",
+    "route": "guestnetwork/db79bbb9-f0a7-4f6e-a21d-440e4ca8f4f1"
+  },
+  {
+    "cluster": 32,
+    "action": "create-ui",
+    "variant": "promiscuous",
+    "route": "guestnetwork/b8cc2a58-5f15-4b1e-8f2e-310f9dbda568"
+  },
+  {
+    "cluster": 32,
+    "action": "pvlan-write-params",
+    "requests": [
+      {
+        "command": "createNetwork",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "name": "qa-gn1571-32-isolated",
+        "networkofferingid": "c74c3367-ae32-4b64-80c0-f02fd117b7ec",
+        "account": "qa-gn1571-32-owner",
+        "domainid": "8cc7242b-1bf9-4a26-990e-8a357daf6fff",
+        "isolatedpvlantype": "isolated",
+        "isolatedpvlan": "777",
+        "vlan": "776"
+      },
+      {
+        "command": "createNetwork",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "name": "qa-gn1571-32-promiscuous",
+        "networkofferingid": "c74c3367-ae32-4b64-80c0-f02fd117b7ec",
+        "account": "qa-gn1571-32-owner",
+        "domainid": "8cc7242b-1bf9-4a26-990e-8a357daf6fff",
+        "isolatedpvlantype": "promiscuous",
+        "vlan": "778"
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "action": "vlan-out-of-range-blocked",
+    "posts": 0
+  },
+  {
+    "cluster": 32,
+    "action": "duplicate-server-rejected",
+    "requests": [
+      {
+        "command": "createNetwork",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "name": "qa-gn1571-32-delete",
+        "networkofferingid": "c74c3367-ae32-4b64-80c0-f02fd117b7ec",
+        "account": "qa-gn1571-32-owner",
+        "domainid": "8cc7242b-1bf9-4a26-990e-8a357daf6fff",
+        "vlan": "772"
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "action": "create-ui",
+    "variant": "delete",
+    "route": "guestnetwork/3d343a79-b8ed-4c81-82f8-8a4baeb069ca"
+  },
+  {
+    "cluster": 31,
+    "action": "nic-add-ui",
+    "vm": "71b13a06-9e2e-446d-b13a-c526cc816d78",
+    "network": "guestnetwork/86576f1d-a931-4f17-a18a-ff81d2e6ad16"
+  },
+  {
+    "cluster": 31,
+    "action": "nic-add-ui",
+    "vm": "2d0d7c19-77c9-4b72-9e2f-772b4c302dc5",
+    "network": "guestnetwork/86576f1d-a931-4f17-a18a-ff81d2e6ad16"
+  },
+  {
+    "cluster": 32,
+    "action": "nic-add-ui",
+    "vm": "c400bb38-8b48-4ddb-be8a-540567fbfc67",
+    "network": "guestnetwork/838c260d-dfca-4589-8568-7db4dd292229"
+  },
+  {
+    "cluster": 32,
+    "action": "nic-add-ui",
+    "vm": "4b892475-6676-465d-a6eb-3d50d32ebffb",
+    "network": "guestnetwork/838c260d-dfca-4589-8568-7db4dd292229"
+  },
+  {
+    "cluster": 31,
+    "action": "nic-remove-ui",
+    "vm": "2d0d7c19-77c9-4b72-9e2f-772b4c302dc5",
+    "network": "guestnetwork/86576f1d-a931-4f17-a18a-ff81d2e6ad16"
+  },
+  {
+    "cluster": 31,
+    "action": "nic-add-ui",
+    "vm": "2d0d7c19-77c9-4b72-9e2f-772b4c302dc5",
+    "network": "guestnetwork/a5fee678-3cbc-4143-9f52-aaa5a2e1b30c"
+  },
+  {
+    "cluster": 32,
+    "action": "nic-remove-ui",
+    "vm": "4b892475-6676-465d-a6eb-3d50d32ebffb",
+    "network": "guestnetwork/838c260d-dfca-4589-8568-7db4dd292229"
+  },
+  {
+    "cluster": 32,
+    "action": "nic-add-ui",
+    "vm": "4b892475-6676-465d-a6eb-3d50d32ebffb",
+    "network": "guestnetwork/ff71bb9c-3113-4edb-9c89-44a855ac451a"
+  },
+  {
+    "cluster": 32,
+    "action": "delete-empty-ui",
+    "network": "guestnetwork/3d343a79-b8ed-4c81-82f8-8a4baeb069ca"
+  },
+  {
+    "cluster": 31,
+    "action": "l3-tab-fallback",
+    "route": "/guestnetwork/86576f1d-a931-4f17-a18a-ff81d2e6ad16?tab=details"
+  },
+  {
+    "cluster": 31,
+    "action": "l2-update-ui",
+    "displaytext": "#1571 L2 설명 수정 확인"
+  },
+  {
+    "cluster": 32,
+    "action": "theme-and-navigation",
+    "light": true,
+    "dark": true
+  },
+  {
+    "cluster": 31,
+    "action": "related-vm-list",
+    "route": "/vm?networkid=a5fee678-3cbc-4143-9f52-aaa5a2e1b30c"
+  },
+  {
+    "cluster": 32,
+    "action": "used-l2-delete-blocked",
+    "network": "guestnetwork/838c260d-dfca-4589-8568-7db4dd292229"
+  },
+  {
+    "cluster": 31,
+    "action": "retained-vm-secondary-nic",
+    "vm": "0730b55d-b48f-4006-ba07-defaa30d5117",
+    "network": "guestnetwork/86576f1d-a931-4f17-a18a-ff81d2e6ad16"
+  },
+  {
+    "cluster": 32,
+    "action": "retained-vm-secondary-nic",
+    "vm": "a3f6dc52-5f46-476a-aa70-253683154f52",
+    "network": "guestnetwork/838c260d-dfca-4589-8568-7db4dd292229"
+  },
+  {
+    "cluster": 31,
+    "action": "l2-update-verified"
+  },
+  {
+    "cluster": 32,
+    "action": "mobile-breadcrumb-return",
+    "route": "/guestnetwork",
+    "dark": true
+  },
+  {
+    "cluster": 31,
+    "action": "l2-tab-visited",
+    "tab": "vnf.appliances"
+  },
+  {
+    "cluster": 31,
+    "action": "l2-tab-visited",
+    "tab": "network.permissions"
+  },
+  {
+    "cluster": 31,
+    "action": "l2-tab-visited",
+    "tab": "events"
+  },
+  {
+    "cluster": 31,
+    "action": "l2-tab-visited",
+    "tab": "comments"
+  },
+  {
+    "cluster": 32,
+    "action": "l3-tab-fallback",
+    "route": "/guestnetwork/db79bbb9-f0a7-4f6e-a21d-440e4ca8f4f1?tab=details"
+  },
+  {
+    "cluster": 32,
+    "action": "owner-vlan-fields-hidden",
+    "vlan": false,
+    "bypass": false
+  },
+  {
+    "cluster": "31 L2 list search after cleanup: five retained networks visible"
+  }
+]

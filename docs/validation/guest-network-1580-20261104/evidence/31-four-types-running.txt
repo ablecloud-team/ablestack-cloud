@@ -1,0 +1,392 @@
+- complementary:
+  - menu:
+    - menuitem "dashboard 대시보드":
+      - link "dashboard 대시보드":
+        - /url: "#/dashboard"
+        - img "dashboard":
+        - text: 대시보드
+    - img "cloud":
+    - text: 컴퓨트
+    - list:
+      - menuitem "cloud-server 가상머신":
+        - link "cloud-server 가상머신":
+          - /url: "#/vm"
+          - img "cloud-server":
+          - text: 가상머신
+      - menuitem "camera VM 스냅샷":
+        - link "camera VM 스냅샷":
+          - /url: "#/vmsnapshot"
+          - img "camera":
+          - text: VM 스냅샷
+      - menuitem "쿠버네티스":
+        - link "쿠버네티스":
+          - /url: "#/kubernetes"
+          - text: 쿠버네티스
+      - menuitem "fullscreen 오토스케일 VM 그룹":
+        - link "fullscreen 오토스케일 VM 그룹":
+          - /url: "#/autoscalevmgroup"
+          - img "fullscreen":
+          - text: 오토스케일 VM 그룹
+      - menuitem "gold 가상머신 그룹":
+        - link "gold 가상머신 그룹":
+          - /url: "#/vmgroup"
+          - img "gold":
+          - text: 가상머신 그룹
+      - menuitem "key SSH 키 쌍":
+        - link "key SSH 키 쌍":
+          - /url: "#/ssh"
+          - img "key":
+          - text: SSH 키 쌍
+      - menuitem "solution 사용자 데이터 라이브러리":
+        - link "solution 사용자 데이터 라이브러리":
+          - /url: "#/userdata"
+          - img "solution":
+          - text: 사용자 데이터 라이브러리
+      - menuitem "solution CNI 구성":
+        - link "solution CNI 구성":
+          - /url: "#/cniconfiguration"
+          - img "solution":
+          - text: CNI 구성
+      - menuitem "swap Affinity 그룹":
+        - link "swap Affinity 그룹":
+          - /url: "#/affinitygroup"
+          - img "swap":
+          - text: Affinity 그룹
+    - img "hdd":
+    - text: 스토리지
+    - img "wifi":
+    - text: 네트워크
+    - img "picture":
+    - text: 이미지
+    - img "lock":
+    - text: 키 관리
+    - menuitem "schedule 이벤트":
+      - link "schedule 이벤트":
+        - /url: "#/event"
+        - img "schedule":
+        - text: 이벤트
+    - menuitem "project 프로젝트":
+      - link "project 프로젝트":
+        - /url: "#/project"
+        - img "project":
+        - text: 프로젝트
+    - menuitem "idcard 역할":
+      - link "idcard 역할":
+        - /url: "#/role"
+        - img "idcard":
+        - text: 역할
+    - menuitem "team 계정":
+      - link "team 계정":
+        - /url: "#/account"
+        - img "team":
+        - text: 계정
+    - menuitem "block 도메인":
+      - link "block 도메인":
+        - /url: "#/domain"
+        - img "block":
+        - text: 도메인
+    - img "bank":
+    - text: 인프라스트럭쳐
+    - img "shopping":
+    - text: 서비스 오퍼링
+    - img "setting":
+    - text: 구성
+    - menuitem "appstore-add 확장":
+      - link "appstore-add 확장":
+        - /url: "#/extension"
+        - img "appstore-add":
+        - text: 확장
+    - img "tool":
+    - text: 도구
+    - menuitem "read API 문서":
+      - link "read API 문서":
+        - /url: "#/apidocs/"
+        - img "read":
+        - text: API 문서
+- generic: 페이지 스타일 설정
+- button "닫기":
+  - img "close":
+- heading "페이지 스타일 설정" [level=3]
+- radio [checked]
+- img "check":
+- radio
+- heading "테마 색상" [level=3]
+- radio
+- img "check"
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- separator
+- heading "네비게이션 설정" [level=3]
+- generic: 배경색
+- textbox: "#ffffff"
+- generic: 텍스트 색상
+- textbox: "#000000"
+- separator
+- alert:
+  - img "exclamation-circle":
+  - generic: "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요."
+- button "download 세팅값 다운로드(json)":
+  - img "download":
+  - generic: 세팅값 다운로드(json)
+- button "undo 기본값으로 재설정":
+  - img "undo":
+  - generic: 기본값으로 재설정
+- img "menu-fold":
+- combobox
+- img "project":
+- text: 기본 보기
+- button "생성 down":
+  - generic: 생성
+  - img "down":
+- img "translation":
+- button "알림":
+  - img "bell":
+  - superscript:
+    - paragraph: "4"
+- generic: AC
+- generic: admin cloud
+- main:
+  - link "home":
+    - /url: "#/"
+    - img "home":
+  - text: /
+  - link "가상머신":
+    - /url: "#/vm"
+  - link "question-circle":
+    - /url: http://docs.ablecloud.io/latest/adminguide/virtual_machines.html
+    - img "question-circle":
+  - button "reload 업데이트":
+    - img "reload":
+    - generic: 업데이트
+  - combobox
+  - generic: 모두
+  - switch "메트릭":
+    - generic: 메트릭
+  - switch "프로젝트":
+    - generic: 프로젝트
+  - button "가상머신 추가":
+    - img "plus":
+    - generic: 가상머신 추가
+  - button "고급 검색":
+    - img "filter":
+  - textbox "검색" [active]: qa-gn1580-31
+  - button "close-circle":
+  - button "search":
+    - img "search":
+  - table:
+    - rowgroup:
+      - row "VM 표시 명 caret-up caret-down 내부 이름 caret-up caret-down 상태 caret-up caret-down 할당 자원 caret-up caret-down 에이전트 버전 caret-up caret-down IP 주소 caret-up caret-down 템플릿 형식 caret-up caret-down 백업 오퍼링 이름 caret-up caret-down CPU 아키텍처 caret-up caret-down 호스트 caret-up caret-down 계정 caret-up caret-down Zone caret-up caret-down filter":
+        - columnheader:
+          - checkbox
+        - columnheader "VM 표시 명 caret-up caret-down":
+          - generic: VM 표시 명
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "내부 이름 caret-up caret-down":
+          - generic: 내부 이름
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "상태 caret-up caret-down":
+          - generic: 상태
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "할당 자원 caret-up caret-down":
+          - generic: 할당 자원
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "에이전트 버전 caret-up caret-down":
+          - generic: 에이전트 버전
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "IP 주소 caret-up caret-down":
+          - generic: IP 주소
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "템플릿 형식 caret-up caret-down":
+          - generic: 템플릿 형식
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "백업 오퍼링 이름 caret-up caret-down":
+          - generic: 백업 오퍼링 이름
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "CPU 아키텍처 caret-up caret-down":
+          - generic: CPU 아키텍처
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "호스트 caret-up caret-down":
+          - generic: 호스트
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "계정 caret-up caret-down":
+          - generic: 계정
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "Zone caret-up caret-down":
+          - generic: Zone
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "filter":
+          - button "filter":
+            - img "filter":
+    - rowgroup:
+      - row "qa-gn1580-31-nosnat-review i-2-857-VM 실행 중 2 CPU 2048 MB 9.0.0 172.28.31.18 +3 더보기 USER x86_64 ablecube31-2 admin Zone":
+        - cell:
+          - checkbox
+        - cell "qa-gn1580-31-nosnat-review":
+          - link "qa-gn1580-31-nosnat-review":
+            - /url: "#/vm/906308f5-3f2f-4ebf-9990-ed3d7bc2d672"
+        - cell "i-2-857-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "2 CPU 2048 MB":
+          - text: 2 CPU
+          - text: 2048 MB
+        - cell "9.0.0":
+          - generic: 9.0.0
+        - cell "172.28.31.18 +3 더보기":
+          - link "172.28.31.18":
+            - /url: javascript:;
+          - button "+3 더보기":
+            - generic: "+3"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-2":
+          - link "ablecube31-2":
+            - /url: "#/host/3fb147f3-aea4-4f65-b8c6-e7192ea26138"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "qa-gn1580-31-nat-review i-2-858-VM 실행 중 2 CPU 2048 MB 9.0.0 172.29.31.242 +3 더보기 USER x86_64 ablecube31-1 admin Zone":
+        - cell:
+          - checkbox
+        - cell "qa-gn1580-31-nat-review":
+          - link "qa-gn1580-31-nat-review":
+            - /url: "#/vm/ac30fd6b-f405-461e-b024-bbe69276ded2"
+        - cell "i-2-858-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "2 CPU 2048 MB":
+          - text: 2 CPU
+          - text: 2048 MB
+        - cell "9.0.0":
+          - generic: 9.0.0
+        - cell "172.29.31.242 +3 더보기":
+          - link "172.29.31.242":
+            - /url: javascript:;
+          - button "+3 더보기":
+            - generic: "+3"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-1":
+          - link "ablecube31-1":
+            - /url: "#/host/159baf9a-89ad-4a94-91dc-e7395a670bf4"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "qa-gn1580-31-l2-review i-2-860-VM 실행 중 2 CPU 2048 MB 9.0.0 - +3 더보기 USER x86_64 ablecube31-2 admin Zone":
+        - cell:
+          - checkbox
+        - cell "qa-gn1580-31-l2-review":
+          - link "qa-gn1580-31-l2-review":
+            - /url: "#/vm/a99c96d4-ada0-428d-8d71-020c16669857"
+        - cell "i-2-860-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "2 CPU 2048 MB":
+          - text: 2 CPU
+          - text: 2048 MB
+        - cell "9.0.0":
+          - generic: 9.0.0
+        - cell "- +3 더보기":
+          - generic: "-"
+          - button "+3 더보기":
+            - generic: "+3"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-2":
+          - link "ablecube31-2":
+            - /url: "#/host/3fb147f3-aea4-4f65-b8c6-e7192ea26138"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "qa-gn1580-31-shared-review i-2-861-VM 실행 중 2 CPU 2048 MB 172.30.31.18 USER x86_64 ablecube31-2 admin Zone":
+        - cell:
+          - checkbox
+        - cell "qa-gn1580-31-shared-review":
+          - link "qa-gn1580-31-shared-review":
+            - /url: "#/vm/62536b9d-6858-4ba4-97f5-3c59f043e382"
+        - cell "i-2-861-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "2 CPU 2048 MB":
+          - text: 2 CPU
+          - text: 2048 MB
+        - cell
+        - cell "172.30.31.18":
+          - link "172.30.31.18":
+            - /url: javascript:;
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-2":
+          - link "ablecube31-2":
+            - /url: "#/host/3fb147f3-aea4-4f65-b8c6-e7192ea26138"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+  - list:
+    - listitem: 전체 4 개 항목 중 1-4 표시
+    - listitem "이전 페이지":
+      - button "left" [disabled]:
+        - img "left":
+    - listitem "1":
+      - generic: "1"
+    - listitem "다음 페이지":
+      - button "right" [disabled]:
+        - img "right":
+    - combobox
+    - generic: 20 / 쪽
+- alert:
+  - img "info-circle":
+  - generic: Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성

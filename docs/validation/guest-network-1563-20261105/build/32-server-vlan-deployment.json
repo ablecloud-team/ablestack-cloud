@@ -1,0 +1,16 @@
+{
+  "jarSha256": "4159fc0d5dc3c32c023a0d2d801f2a8635164dcc575f733e25fa4b889c13f2a9",
+  "classSha256": {
+    "com/cloud/network/NetworkMigrationManagerImpl.class": "7e4bf244b664ede480385fac48502e08081b7d32e34a591466ff2ffbfc885571"
+  },
+  "beforePID": "952422",
+  "afterPID": "954781",
+  "WEB-INF": true,
+  "protectedStaticUnchanged": true,
+  "http": 200,
+  "restartSeconds": 43.35,
+  "diskFree": 519417856,
+  "cluster": 32,
+  "stage": "/dev/shm/gn1563-server-20261105-231218",
+  "backup": "/home/ablecloud/work/guest-network-1563-validation/management-job-recovery-1563.jar"
+}

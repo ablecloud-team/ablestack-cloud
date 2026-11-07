@@ -316,7 +316,7 @@ public class BridgeVifDriver extends VifDriverBase {
     }
 
     private String generateVnetBrName(String pifName, String vnetId) {
-        return "br" + pifName + "-" + vnetId;
+        return VlanBridgeName.forVlan(pifName, vnetId);
     }
 
     private String generateVxnetBrName(String pifName, String vnetId) {
@@ -356,7 +356,8 @@ public class BridgeVifDriver extends VifDriverBase {
 
             final String result = command.execute();
             if (result != null) {
-                throw new InternalErrorException("Failed to create vnet " + vnetId + ": " + result);
+                throw new InternalErrorException("Failed to create vnet " + vnetId + " on pif " + pif
+                        + " (bridge=" + brName + ", length=" + brName.length() + "): " + result);
             }
         }
     }
@@ -403,6 +404,9 @@ public class BridgeVifDriver extends VifDriverBase {
                 scriptPath = _modifyVxlanPath;
             } else {
                 scriptPath = _modifyVlanPath;
+                // Compact names contain a parent hash. Resolve the actual parent through the VLAN member.
+                String actualPif = getPif(brName);
+                pName = StringUtils.isBlank(actualPif) ? "undefined" : actualPif;
             }
 
             final Script command = new Script(scriptPath, _timeout, logger);

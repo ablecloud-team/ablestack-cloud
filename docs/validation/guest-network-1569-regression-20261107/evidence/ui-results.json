@@ -1,0 +1,711 @@
+[
+  {
+    "cluster": 31,
+    "role": "owner",
+    "kind": "nat",
+    "action": "UI update and egress create; invalid CIDR 431 retained input then retry succeeded"
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "kind": "shared",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 owner shared saved"
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "kind": "shared",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "kind": "l2",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 owner l2 saved"
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "kind": "nat",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 owner nat saved"
+  },
+  {
+    "cluster": 31,
+    "role": "owner",
+    "kind": "l2",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "member",
+    "kind": "nat",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 member nat saved"
+  },
+  {
+    "cluster": 31,
+    "role": "member",
+    "kind": "nat",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "member",
+    "kind": "l2",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 member l2 saved"
+  },
+  {
+    "cluster": 31,
+    "role": "member",
+    "kind": "l2",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "member",
+    "kind": "shared",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 member shared saved"
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "kind": "nat",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "kind": "l2",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 owner l2 saved"
+  },
+  {
+    "cluster": 31,
+    "role": "member",
+    "kind": "shared",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "kind": "l2",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "kind": "shared",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 owner shared saved"
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "kind": "nat",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 domainadmin nat saved"
+  },
+  {
+    "cluster": 32,
+    "role": "owner",
+    "kind": "shared",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "member",
+    "kind": "nat",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 member nat saved"
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "kind": "nat",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "kind": "l2",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 domainadmin l2 saved"
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "kind": "l2",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "kind": "shared",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 domainadmin shared saved"
+  },
+  {
+    "cluster": 32,
+    "role": "member",
+    "kind": "nat",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "member",
+    "kind": "l2",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 member l2 saved"
+  },
+  {
+    "cluster": 31,
+    "role": "domainadmin",
+    "kind": "shared",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "member",
+    "kind": "l2",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "member",
+    "kind": "shared",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 member shared saved"
+  },
+  {
+    "cluster": 32,
+    "role": "member",
+    "kind": "shared",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "kind": "nat",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 domainadmin nat saved"
+  },
+  {
+    "cluster": 31,
+    "role": "root",
+    "kind": "nat",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "root",
+    "kind": "l2",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 root l2 saved"
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "kind": "nat",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "kind": "l2",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 domainadmin l2 saved"
+  },
+  {
+    "cluster": 31,
+    "role": "root",
+    "kind": "l2",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "root",
+    "kind": "shared",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 root shared saved"
+  },
+  {
+    "cluster": 31,
+    "role": "root",
+    "kind": "shared",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "kind": "l2",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "kind": "shared",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 domainadmin shared saved"
+  },
+  {
+    "cluster": 32,
+    "role": "domainadmin",
+    "kind": "shared",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "root",
+    "kind": "nat",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 root nat saved"
+  },
+  {
+    "cluster": 32,
+    "role": "root",
+    "kind": "nat",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "root",
+    "kind": "l2",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 root l2 saved"
+  },
+  {
+    "cluster": 31,
+    "role": "member",
+    "case": "revoked NIC stays; table hides link but VM summary still has link",
+    "tableLinkCount": 0,
+    "summaryLinkCount": 1,
+    "pass": false,
+    "issue": 1592,
+    "expectedSummaryLinkCount": 0
+  },
+  {
+    "cluster": 32,
+    "role": "root",
+    "kind": "l2",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "root",
+    "kind": "shared",
+    "action": "UI update submitted",
+    "expectedDescription": "UI1569 root shared saved"
+  },
+  {
+    "cluster": 32,
+    "role": "root",
+    "kind": "shared",
+    "action": "UI update visibly persisted",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "kind": "nat",
+    "action": "restricted detail update visibility",
+    "updateVisible": false,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "kind": "l2",
+    "action": "restricted detail update visibility",
+    "updateVisible": false,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "kind": "shared",
+    "action": "restricted detail update visibility",
+    "updateVisible": false,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "member",
+    "case": "revoked NIC stays; table hides link but VM summary still has link",
+    "tableLinkCount": 0,
+    "summaryLinkCount": 1,
+    "pass": false,
+    "issue": 1592,
+    "expectedSummaryLinkCount": 0
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "case": "network create hidden",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "user-only",
+    "kind": "nat",
+    "action": "restricted detail update visibility",
+    "updateVisible": false,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "user-only",
+    "kind": "l2",
+    "action": "restricted detail update visibility",
+    "updateVisible": false,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "user-only",
+    "kind": "shared",
+    "action": "restricted detail update visibility",
+    "updateVisible": false,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "kind": "nat",
+    "action": "restricted detail update visibility",
+    "updateVisible": false,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "kind": "l2",
+    "action": "restricted detail update visibility",
+    "updateVisible": false,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "kind": "shared",
+    "action": "restricted detail update visibility",
+    "updateVisible": false,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "user-only",
+    "case": "project to default restores base create capability",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "user-only",
+    "case": "default to project hides create again",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "user-only",
+    "kind": "nat",
+    "action": "restricted detail update visibility",
+    "updateVisible": false,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "user-only",
+    "kind": "l2",
+    "action": "restricted detail update visibility",
+    "updateVisible": false,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "user-only",
+    "kind": "shared",
+    "action": "restricted detail update visibility",
+    "updateVisible": false,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "peer",
+    "case": "main QA project absent from selector",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "outsider",
+    "case": "main QA project absent from selector",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "peer",
+    "case": "main QA project absent from selector",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "outsider",
+    "case": "main QA project absent from selector",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "390 project popup within viewport",
+    "popup": {
+      "right": 366,
+      "width": 366,
+      "x": 0,
+      "y": 52
+    },
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "390 project popup within viewport",
+    "popup": {
+      "right": 366,
+      "width": 366,
+      "x": 0,
+      "y": 52
+    },
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "390 default view excludes project network",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "390 default view excludes project network",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "comment renders literal HTML and Korean tag",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "comment renders literal HTML and Korean tag",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "event keyword zero state",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "event keyword zero state",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "manual IP conditional VPN tab absent",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "manual IP conditional VPN tab absent",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "UI LB edit null protocol fails",
+    "pass": false,
+    "issue": 1590,
+    "errorVisible": true,
+    "url": "http://10.10.31.10:8080/client/#/publicip/f9eda3b4-2655-453b-837a-28e46eb9c3f5?tab=loadbalancing"
+  },
+  {
+    "cluster": 32,
+    "case": "UI LB edit null protocol fails",
+    "pass": false,
+    "issue": 1590,
+    "errorVisible": true,
+    "url": "http://10.10.32.10:8080/client/#/publicip/d670d49c-497f-46fe-940a-45c83202a1d7?tab=loadbalancing"
+  },
+  {
+    "cluster": 31,
+    "case": "explicit TCP LB stickiness reflects API policy",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "stickiness mobile footer reachable",
+    "button": {
+      "bottom": 816,
+      "x": 227.46875,
+      "y": 784
+    },
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "explicit TCP LB stickiness reflects API policy",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "stickiness mobile footer reachable",
+    "button": {
+      "bottom": 816,
+      "x": 227.46875,
+      "y": 784
+    },
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "kind": "nat",
+    "case": "verified open action menu excludes update",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "kind": "l2",
+    "case": "verified open action menu excludes update",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "kind": "shared",
+    "case": "verified open action menu excludes update",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "readonly",
+    "case": "NIC add/remove controls protected",
+    "controls": [],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "kind": "nat",
+    "case": "verified open action menu excludes update",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "kind": "l2",
+    "case": "verified open action menu excludes update",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "kind": "shared",
+    "case": "verified open action menu excludes update",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "readonly",
+    "case": "NIC add/remove controls protected",
+    "controls": [],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "user-only",
+    "kind": "nat",
+    "case": "verified open action menu excludes update",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "user-only",
+    "kind": "l2",
+    "case": "verified open action menu excludes update",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "user-only",
+    "kind": "shared",
+    "case": "verified open action menu excludes update",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "role": "user-only",
+    "case": "NIC add/remove controls protected",
+    "controls": [],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "user-only",
+    "kind": "nat",
+    "case": "verified open action menu excludes update",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "user-only",
+    "kind": "l2",
+    "case": "verified open action menu excludes update",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "user-only",
+    "kind": "shared",
+    "case": "verified open action menu excludes update",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "role": "user-only",
+    "case": "NIC add/remove controls protected",
+    "controls": [],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "admin PVLAN primary/secondary and type match API",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "admin PVLAN primary/secondary and type match API",
+    "pass": true
+  }
+]

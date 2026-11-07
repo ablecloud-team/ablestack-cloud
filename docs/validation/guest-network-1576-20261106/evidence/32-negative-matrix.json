@@ -1,0 +1,22 @@
+{
+  "l2-source-nat": {
+    "code": null,
+    "message": null,
+    "accepted": true
+  },
+  "shared-persistent": {
+    "code": 431,
+    "message": "isPersistent should be false if network offering's type is Shared",
+    "accepted": false
+  },
+  "routed-source-nat": {
+    "code": 431,
+    "message": "SourceNat/StaticNat/Lb/PortForwarding/Vpn service are not supported in ROUTED mode",
+    "accepted": false
+  },
+  "unknown-provider": {
+    "code": 431,
+    "message": "Invalid service provider: QA1576Nonexistent",
+    "accepted": false
+  }
+}

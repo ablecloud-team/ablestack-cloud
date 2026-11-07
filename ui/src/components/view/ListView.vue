@@ -123,6 +123,10 @@
             <router-link :to="cniDetailLink($route, record)">{{ text }}</router-link>
             <router-link v-if="record.hasannotations" :to="cniDetailLink($route, record, 'comments')"><message-filled style="padding-left: 10px" size="small" /></router-link>
           </span>
+          <span v-else-if="$route.meta?.name === 'guestnetwork' && record.id">
+            <router-link :to="networkDetailLocation($route, record)">{{ text }}</router-link>
+            <router-link v-if="record.hasannotations" :to="networkDetailLocation($route, record, 'comments')"><message-filled style="padding-left: 10px" size="small" /></router-link>
+          </span>
           <span v-else-if="resourcePath && record.id" class="embedded-resource-name"><router-link :to="{ path: resourcePath === '/vm' ? createPathBasedOnVmType(record.vmtype, record.id) : resourcePath + '/' + record.id }">{{ text }}</router-link></span>
           <span v-else-if="record.hasannotations">
             <span v-if="record.id">
@@ -258,6 +262,9 @@
         <span
           v-if="$route.name === 'vmsnapshot'"
         >{{ $t(text === 'DiskAndMemory' ? 'label.vmsnapshot.disk.memory' : text === 'Disk' ? 'label.vmsnapshot.disk' : text) }}</span>
+        <span
+          v-else-if="$route.meta?.name === 'guestnetwork'"
+        >{{ $t(networkTypeLabel(text)) }}</span>
         <span
           v-else-if="['USER.LOGIN', 'USER.LOGOUT', 'ROUTER.HEALTH.CHECKS', 'FIREWALL.CLOSE', 'ALERT.SERVICE.DOMAINROUTER'].includes(text)"
         >{{ translateEventType(text) }}</span>
@@ -418,8 +425,11 @@
         <span v-else>{{ text || '—' }}</span>
       </template>
       <template v-if="column.key === 'virtualmachinename'">
-        <router-link v-if="record.virtualmachineid" :to="{ path: getVmRouteUsingType(record) + record.virtualmachineid }">{{ text }}</router-link>
-        <span v-else>{{ text }}</span>
+        <network-ip-vm-link v-if="$route.meta.name === 'publicip'" :record="record" />
+        <template v-else>
+          <router-link v-if="record.virtualmachineid" :to="{ path: getVmRouteUsingType(record) + record.virtualmachineid }">{{ text }}</router-link>
+          <span v-else>{{ text }}</span>
+        </template>
       </template>
       <template v-if="column.key === 'volumename'">
         <router-link
@@ -1200,6 +1210,8 @@
 </template>
 
 <script>
+import { networkTypeLabel } from '@/utils/networkLifecycle'
+import { networkDetailLocation } from '@/utils/guestNetworkSearch'
 import { policyInterval, policySchedule, policyScheduling } from '@/utils/snapshotPolicyPresentation'
 import { policyVolumePath } from '@/utils/snapshotPolicyDetail'
 import AutoScaleListCell from '@/views/compute/AutoScaleListCell'
@@ -1225,6 +1237,7 @@ import TooltipButton from '@/components/widgets/TooltipButton'
 import { createPathBasedOnVmType } from '@/utils/plugins'
 import { validateLinks } from '@/utils/links'
 import { volumeVmPath } from '@/utils/storageUi'
+import NetworkIpVmLink from '@/components/widgets/NetworkIpVmLink'
 import cronstrue from 'cronstrue/i18n'
 import moment from 'moment-timezone'
 import { timeZoneName } from '@/utils/timezone'
@@ -1233,6 +1246,7 @@ import { FileTextOutlined } from '@ant-design/icons-vue'
 export default {
   name: 'ListView',
   components: {
+    NetworkIpVmLink,
     LinkedDiskOffering,
     AffinityGroupPolicy,
     AutoScaleListCell,
@@ -1441,6 +1455,7 @@ export default {
     }
   },
   methods: {
+    networkTypeLabel,
     policyVolumePath,
     policyInterval,
     policySchedule,
@@ -1450,6 +1465,7 @@ export default {
     snapshotListInterval,
     volumeVmPath,
     cniDetailLink,
+    networkDetailLocation,
     sshKeyPairLink,
     canLinkProject (record) {
       if (!record.projectid) return false

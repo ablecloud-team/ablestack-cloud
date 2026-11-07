@@ -1,0 +1,3 @@
+{
+  "db": "0\n4\t1\t1057,1058,1059,1061\n1057\t842\tDeallocating\t2026-11-03 15:00:51\t5f72306a-be75-41c9-954d-a452092fa3fd\t172.28.31.18\tStart\tDhcp\tqa-gn1562-31-nosnat\t2026-11-03 15:01:05\ti-2-842-VM\tExpunging\t2026-11-03 15:00:51\n1058\tNULL\tReserved\tNULL\tNULL\t172.28.31.10\tPlaceHolder\tNULL\tqa-gn1562-31-nosnat\t2026-11-03 15:01:05\tNULL\tNULL\tNULL\n1059\t843\tDeallocating\t2026-11-03 15:01:05\t15705505-4c04-4304-8a71-1bdb39521af6\t172.28.31.10\tStart\tDhcp\tqa-gn1562-31-nosnat\t2026-11-03 15:01:05\tr-843-VM\tDestroyed\t2026-11-03 15:01:05\n1061\t844\tDeallocating\t2026-11-03 15:01:01\tb9f8eeea-4c06-4ab2-8955-ede19ea49442\t172.28.31.19\tStart\tDhcp\tqa-gn1562-31-nosnat\t2026-11-03 15:01:05\ti-2-844-VM\tExpunging\t2026-11-03 15:01:01\n"
+}

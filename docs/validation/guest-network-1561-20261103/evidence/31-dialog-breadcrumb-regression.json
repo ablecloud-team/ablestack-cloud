@@ -1,0 +1,247 @@
+[
+  {
+    "cluster": 31,
+    "mode": "light",
+    "url": "http://10.10.31.10:8080/client/#/guestnetwork",
+    "dialog_open_close": true,
+    "update_posts": 0,
+    "records": [
+      {
+        "requestId": "13616.5247",
+        "command": "listTags",
+        "method": "GET",
+        "params": {
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listTags"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5248",
+        "command": "listNetworks",
+        "method": "GET",
+        "params": {
+          "listall": "true",
+          "id": "2f577738-55a0-4be8-809d-12e11f6be62b",
+          "page": "1",
+          "pagesize": "20",
+          "command": "listNetworks"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5249",
+        "command": "listResourceIcon",
+        "method": "GET",
+        "params": {
+          "command": "listResourceIcon"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5250",
+        "command": "listResourceIcon",
+        "method": "GET",
+        "params": {
+          "command": "listResourceIcon"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5251",
+        "command": "listAccounts",
+        "method": "GET",
+        "params": {
+          "command": "listAccounts"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5252",
+        "command": "listResourceIcon",
+        "method": "GET",
+        "params": {
+          "command": "listResourceIcon"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5254",
+        "command": "listTags",
+        "method": "GET",
+        "params": {
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listTags"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5255",
+        "command": "listResourceIcon",
+        "method": "GET",
+        "params": {
+          "command": "listResourceIcon"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5256",
+        "command": "listResourceIcon",
+        "method": "GET",
+        "params": {
+          "command": "listResourceIcon"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5257",
+        "command": "listAccounts",
+        "method": "GET",
+        "params": {
+          "command": "listAccounts"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5261",
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {
+          "id": "46a69931-ebbf-4aee-9d3d-12d03315a949",
+          "command": "listNetworkOfferings"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5262",
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {
+          "networkid": "2f577738-55a0-4be8-809d-12e11f6be62b",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500",
+          "command": "listNetworkOfferings"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5263",
+        "command": "listZones",
+        "method": "GET",
+        "params": {
+          "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "command": "listZones"
+        },
+        "status": 200
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "mode": "dark",
+    "url": "http://10.10.31.10:8080/client/#/guestnetwork",
+    "dialog_open_close": true,
+    "update_posts": 0,
+    "records": [
+      {
+        "requestId": "13616.5272",
+        "command": "listNetworks",
+        "method": "GET",
+        "params": {
+          "listall": "true",
+          "id": "2f577738-55a0-4be8-809d-12e11f6be62b",
+          "page": "1",
+          "pagesize": "20",
+          "command": "listNetworks"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5273",
+        "command": "listTags",
+        "method": "GET",
+        "params": {
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listTags"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5274",
+        "command": "listResourceIcon",
+        "method": "GET",
+        "params": {
+          "command": "listResourceIcon"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5275",
+        "command": "listResourceIcon",
+        "method": "GET",
+        "params": {
+          "command": "listResourceIcon"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5276",
+        "command": "listAccounts",
+        "method": "GET",
+        "params": {
+          "command": "listAccounts"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5277",
+        "command": "readyForShutdown",
+        "method": "GET",
+        "params": {
+          "command": "readyForShutdown"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5280",
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {
+          "id": "46a69931-ebbf-4aee-9d3d-12d03315a949",
+          "command": "listNetworkOfferings"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5281",
+        "command": "listNetworkOfferings",
+        "method": "GET",
+        "params": {
+          "networkid": "2f577738-55a0-4be8-809d-12e11f6be62b",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "page": "1",
+          "pagesize": "500",
+          "command": "listNetworkOfferings"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "13616.5282",
+        "command": "listZones",
+        "method": "GET",
+        "params": {
+          "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "command": "listZones"
+        },
+        "status": 200
+      }
+    ]
+  }
+]

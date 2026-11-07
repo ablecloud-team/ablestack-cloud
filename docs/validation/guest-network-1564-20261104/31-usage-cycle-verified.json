@@ -1,0 +1,146 @@
+{
+  "observedAtUtc": "2026-11-04T15:17:31.276810+00:00",
+  "ip": {
+    "id": 429,
+    "ip": "10.46.31.18",
+    "uuid": "a8ae1ba1-69ae-470f-bef6-97ece64667b6",
+    "state": "Allocated",
+    "accountId": 2,
+    "networkId": null
+  },
+  "jobs": [
+    {
+      "id": 55,
+      "end": null,
+      "type": 0,
+      "start": null,
+      "success": null,
+      "endMillis": 0,
+      "heartbeat": "2026-11-04 15:17:10.000000",
+      "scheduled": 0
+    },
+    {
+      "id": 54,
+      "end": "2026-11-04 14:59:59.000000",
+      "type": 0,
+      "start": "2026-11-03 15:00:00.000000",
+      "success": 1,
+      "endMillis": 1793804399999,
+      "heartbeat": "2026-11-04 15:14:10.000000",
+      "scheduled": 0
+    },
+    {
+      "id": 52,
+      "end": "2026-11-03 14:59:59.000000",
+      "type": 0,
+      "start": "2026-11-02 15:00:00.000000",
+      "success": 1,
+      "endMillis": 1793717999999,
+      "heartbeat": "2026-11-03 15:14:17.000000",
+      "scheduled": 0
+    },
+    {
+      "id": 51,
+      "end": "2026-11-02 14:59:59.000000",
+      "type": 0,
+      "start": "2026-11-01 15:00:00.000000",
+      "success": 1,
+      "endMillis": 1793631599999,
+      "heartbeat": "2026-11-02 15:14:17.000000",
+      "scheduled": 0
+    },
+    {
+      "id": 50,
+      "end": "2026-11-01 14:59:59.000000",
+      "type": 0,
+      "start": "2026-10-31 15:00:00.000000",
+      "success": 1,
+      "endMillis": 1793545199999,
+      "heartbeat": "2026-11-01 15:14:17.000000",
+      "scheduled": 0
+    }
+  ],
+  "helper": [
+    {
+      "id": 129,
+      "ipId": 429,
+      "hidden": 0,
+      "assigned": "2026-11-04 10:54:31.000000",
+      "released": "2026-11-04 11:01:54.000000",
+      "accountId": 2
+    },
+    {
+      "id": 130,
+      "ipId": 429,
+      "hidden": 1,
+      "assigned": "2026-11-04 11:02:01.000000",
+      "released": "2026-11-04 11:14:36.000000",
+      "accountId": 2
+    },
+    {
+      "id": 131,
+      "ipId": 429,
+      "hidden": 0,
+      "assigned": "2026-11-04 11:15:37.000000",
+      "released": null,
+      "accountId": 2
+    }
+  ],
+  "usage": [
+    {
+      "id": 31060,
+      "end": "2026-11-04 14:59:59.000000",
+      "ipId": 429,
+      "type": 3,
+      "hours": 3.8627779483795166,
+      "start": "2026-11-03 15:00:00.000000",
+      "hidden": 0,
+      "accountId": 2
+    },
+    {
+      "id": 31064,
+      "end": "2026-11-04 14:59:59.000000",
+      "ipId": 429,
+      "type": 3,
+      "hours": 0.20972248911857605,
+      "start": "2026-11-03 15:00:00.000000",
+      "hidden": 1,
+      "accountId": 2
+    }
+  ],
+  "cycleReady": true,
+  "exportQuery": {
+    "type": 3,
+    "usageid": "a8ae1ba1-69ae-470f-bef6-97ece64667b6",
+    "startdate": "2026-11-04T00:00:00+09:00",
+    "enddate": "2026-11-04T23:59:59+09:00",
+    "page": 1,
+    "pagesize": 500
+  },
+  "exported": {
+    "count": 1,
+    "usagerecord": [
+      {
+        "account": "admin",
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "description": "IPAddress: 10.46.31.18",
+        "usage": "3.862778 Hrs",
+        "usagetype": 3,
+        "rawusage": "3.862778",
+        "usageid": "a8ae1ba1-69ae-470f-bef6-97ece64667b6",
+        "startdate": "2026-11-04T00:00:00+0900",
+        "enddate": "2026-11-04T23:59:59+0900",
+        "issourcenat": false,
+        "issystem": false,
+        "tags": []
+      }
+    ]
+  },
+  "expectedIncludedHours": 3.8627780555555558,
+  "expectedExcludedHours": 0.2097225,
+  "status": "PASS"
+}

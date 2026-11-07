@@ -1,0 +1,166 @@
+[
+  {
+    "actor": "Admin",
+    "offering": "private-a",
+    "count": 2,
+    "names": [
+      "qa-gn1565-32-admin-a",
+      "qa-gn1565-32-user-a"
+    ],
+    "ids": [
+      "eaec7ac9-19b4-4f1b-88e7-f360c884bd60",
+      "a5a04339-1e59-476a-820a-7625d2128b70"
+    ]
+  },
+  {
+    "actor": "Admin",
+    "offering": "private-b",
+    "count": 1,
+    "names": [
+      "qa-gn1565-32-user-b"
+    ],
+    "ids": [
+      "b7aa8f81-330c-4770-9f52-ebb896df60e3"
+    ]
+  },
+  {
+    "actor": "Admin",
+    "offering": "used",
+    "count": 21,
+    "names": [
+      "qa-gn1565-32-l2-21",
+      "qa-gn1565-32-l2-20",
+      "qa-gn1565-32-l2-19",
+      "qa-gn1565-32-l2-18",
+      "qa-gn1565-32-l2-17",
+      "qa-gn1565-32-l2-16",
+      "qa-gn1565-32-l2-15",
+      "qa-gn1565-32-l2-14",
+      "qa-gn1565-32-l2-13",
+      "qa-gn1565-32-l2-12",
+      "qa-gn1565-32-l2-11",
+      "qa-gn1565-32-l2-10",
+      "qa-gn1565-32-l2-09",
+      "qa-gn1565-32-l2-08",
+      "qa-gn1565-32-l2-07",
+      "qa-gn1565-32-l2-06",
+      "qa-gn1565-32-l2-05",
+      "qa-gn1565-32-l2-04",
+      "qa-gn1565-32-l2-03",
+      "qa-gn1565-32-l2-02"
+    ],
+    "ids": [
+      "71eb6d36-df36-4500-a254-62de94a662d2",
+      "f80f802d-209c-4cb4-b2ca-dec7ec8df3a6",
+      "65b00b8b-535d-43a0-9f2a-57f9df71eda0",
+      "23eb193e-a007-4d89-97da-d6d1bb5ab26d",
+      "e81f8e77-a0c8-428e-9519-14f7a02d5c2d",
+      "6cbcc10f-e748-4ca7-9b98-1ef580dac079",
+      "0d000b6e-39d0-4e2b-8d31-2ad4324dbdc7",
+      "105b0eb4-ba23-4c19-9a91-9d441b1ba795",
+      "8111460c-2de4-4128-a7b4-4ec3a519ab5a",
+      "349eb64e-23d6-4c66-9eb4-82d7ab4c818e",
+      "acb488cd-1008-4492-ad12-43364eab4397",
+      "98bab78f-edca-4d2b-bf8c-58ef686139ba",
+      "5b457e43-6fcb-4b71-9259-925e15290291",
+      "ad941f01-ec2f-49e2-b7c4-f549e6e613e8",
+      "dc080e21-32ad-4431-8b20-d8caf5e8a4b2",
+      "db12b737-9127-40b2-9b39-905246103761",
+      "159b695d-52e3-449a-8c91-3b8682b4ca6c",
+      "50840f01-f275-4264-b61e-1a71a0994067",
+      "167c65be-ed5c-4e1f-8205-1475936c857d",
+      "91010835-c77b-4d3f-a9f5-7bd38451bbbf"
+    ]
+  },
+  {
+    "actor": "Admin",
+    "offering": "unused",
+    "count": 0,
+    "names": [],
+    "ids": []
+  },
+  {
+    "actor": "DomainAdmin",
+    "offering": "private-a",
+    "count": 2,
+    "names": [
+      "qa-gn1565-32-admin-a",
+      "qa-gn1565-32-user-a"
+    ],
+    "ids": [
+      "eaec7ac9-19b4-4f1b-88e7-f360c884bd60",
+      "a5a04339-1e59-476a-820a-7625d2128b70"
+    ]
+  },
+  {
+    "actor": "DomainAdmin",
+    "offering": "private-b",
+    "count": 0,
+    "names": [],
+    "ids": []
+  },
+  {
+    "actor": "DomainAdmin",
+    "offering": "used",
+    "count": 0,
+    "names": [],
+    "ids": []
+  },
+  {
+    "actor": "DomainAdmin",
+    "offering": "unused",
+    "count": 0,
+    "names": [],
+    "ids": []
+  },
+  {
+    "actor": "User",
+    "offering": "private-a",
+    "count": 1,
+    "names": [
+      "qa-gn1565-32-user-a"
+    ],
+    "ids": [
+      "a5a04339-1e59-476a-820a-7625d2128b70"
+    ]
+  },
+  {
+    "actor": "User",
+    "offering": "private-b",
+    "count": 0,
+    "names": [],
+    "ids": []
+  },
+  {
+    "actor": "User",
+    "offering": "used",
+    "count": 0,
+    "names": [],
+    "ids": []
+  },
+  {
+    "actor": "User",
+    "offering": "unused",
+    "count": 0,
+    "names": [],
+    "ids": []
+  },
+  {
+    "case": "combined-scope",
+    "params": {
+      "projectid": "-1",
+      "networkofferingid": "324d6a00-b081-46db-9533-72a323c0d734"
+    },
+    "count": 22
+  },
+  {
+    "case": "combined-scope",
+    "params": {
+      "account": "qa-gn1565-32-user-a",
+      "domainid": "0b46d8b1-218b-46a3-becb-1b4032e0eb69",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "forvpc": "false"
+    },
+    "count": 1
+  }
+]

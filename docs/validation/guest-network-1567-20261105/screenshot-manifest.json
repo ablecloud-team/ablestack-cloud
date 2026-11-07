@@ -1,0 +1,450 @@
+[
+  {
+    "file": "screenshots/31-bulk-delete-policy-light-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 101969,
+    "sha256": "9f569750f8552bbd712cccb5321e5f7f99dbe09e2a47225a3ea1c97e375525a4"
+  },
+  {
+    "file": "screenshots/31-delete-dark-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 101933,
+    "sha256": "731afbcf932cc3cb601383d906e3a21558ff6885b490696f90fbf3ef20c7f2eb"
+  },
+  {
+    "file": "screenshots/31-delete-dark-390.jpg",
+    "width": 390,
+    "height": 844,
+    "bytes": 51598,
+    "sha256": "d34fe86e4ff99b104275e796dcf45c2c2af989b136dc18d3e0f690e26ba6a895"
+  },
+  {
+    "file": "screenshots/31-delete-dark-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "bytes": 73618,
+    "sha256": "928323e9c5a40d58338cf32fc884a1503c4ad5013cab66e82b43da71da184e88"
+  },
+  {
+    "file": "screenshots/31-delete-light-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 98882,
+    "sha256": "5e0c7fd7906c44d008da19054acde162a2ec0bd9173c3fb249be41a3dce9bc8d"
+  },
+  {
+    "file": "screenshots/31-delete-light-390.jpg",
+    "width": 390,
+    "height": 844,
+    "bytes": 51056,
+    "sha256": "346a595c431a4955a621b2c43a39f35e496649a077c1ac57ee120b2fc10af505"
+  },
+  {
+    "file": "screenshots/31-delete-light-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "bytes": 71933,
+    "sha256": "98a0892a9ad8abc617b8dedeb45c081d7432c0026ff4e6318c3ab1e836e5a5bc"
+  },
+  {
+    "file": "screenshots/31-domainadmin-update-dark-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 129209,
+    "sha256": "bd9b8f1210cd09a1b812c71307ca974079d54d82e19479ad7a7a5a027007abaa"
+  },
+  {
+    "file": "screenshots/31-empty-delete-isolated-dark-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 101439,
+    "sha256": "a18d24344071e8bd829f62788ff9d52e579047be17c6915bdcefbc151e2b3f19"
+  },
+  {
+    "file": "screenshots/31-forced-toggle-before.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 111709,
+    "sha256": "50797cabe389e46b6fe50869d11dbfa1a2d7c40b27d10685a61a5236ced2a501"
+  },
+  {
+    "file": "screenshots/31-in-use-delete-refused.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 122123,
+    "sha256": "868aa7c782870761dbf5e1e5ea06758f324746c172d615ab03424f871e36d2ac"
+  },
+  {
+    "file": "screenshots/31-retained-network-list.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 104660,
+    "sha256": "afdd648751b66a2a4c2abd2ed71bb3a21bfb3d325cb03d90a4cef432fc77cd87"
+  },
+  {
+    "file": "screenshots/31-review-network-detail.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 112726,
+    "sha256": "c674b7f8b4d88b1f048d5b1bd2681115e5008a45ee832851b0810ca5f7346382"
+  },
+  {
+    "file": "screenshots/31-review-update-shared-light-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 124776,
+    "sha256": "72870afcad8df22ee85bdc934802593b69772855300099a6bacfa5cf7ae802e0"
+  },
+  {
+    "file": "screenshots/31-update-isolated-dark-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 126899,
+    "sha256": "c1f0143f273621c2714c1c83d21900abf56bc9b237fb749e2673fbbc77e66c71"
+  },
+  {
+    "file": "screenshots/31-update-isolated-dark-390.jpg",
+    "width": 390,
+    "height": 844,
+    "bytes": 53822,
+    "sha256": "f7833f313dc422e1887c4b11f97f5040ef9534fe0481b3e3f44fd4390d73301a"
+  },
+  {
+    "file": "screenshots/31-update-isolated-dark-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "bytes": 93616,
+    "sha256": "39275092d226e5c56f7f87793a31ec9b24d8a9ebab483b787a2e7f74ad3f667c"
+  },
+  {
+    "file": "screenshots/31-update-isolated-light-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 120445,
+    "sha256": "eee485e32925195be92733045d8315c3b935210167bb25474c9169af78af4f58"
+  },
+  {
+    "file": "screenshots/31-update-isolated-light-390.jpg",
+    "width": 390,
+    "height": 844,
+    "bytes": 50931,
+    "sha256": "876bdfcefd750c7bd95cc994d0a4a0269137fc1a33cfa6f022c53cf960acb254"
+  },
+  {
+    "file": "screenshots/31-update-isolated-light-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "bytes": 90402,
+    "sha256": "ca94dca07bc3c75b2600706ae8ed414872a566b26b509e35470b6fca734cd87e"
+  },
+  {
+    "file": "screenshots/31-update-l2-dark-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 117516,
+    "sha256": "2d6122925957bb0e0c4de65cf8789722df406c243b18fd0059ac95bbc0193b68"
+  },
+  {
+    "file": "screenshots/31-update-l2-dark-390.jpg",
+    "width": 390,
+    "height": 844,
+    "bytes": 55939,
+    "sha256": "1f5a58e95f56db4f3f87e6113e1e39d8f5df6c1225fce30e5918b19c6f1afcc8"
+  },
+  {
+    "file": "screenshots/31-update-l2-dark-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "bytes": 92216,
+    "sha256": "cd9bd7ede0adb592fd4d754be32fdbfaeaa04c3b720db07cfd05b06228da795f"
+  },
+  {
+    "file": "screenshots/31-update-l2-light-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 114159,
+    "sha256": "e6f90b151d0d05fbb650c31878bb82abf3169fc72ba7a3ef30cc9695282026ba"
+  },
+  {
+    "file": "screenshots/31-update-l2-light-390.jpg",
+    "width": 390,
+    "height": 844,
+    "bytes": 53046,
+    "sha256": "b6cbc6deb272a058782bada0ddad9e5e76b266fb743571fc81618e6999fce4ae"
+  },
+  {
+    "file": "screenshots/31-update-l2-light-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "bytes": 87746,
+    "sha256": "faaa7be575d54aa71328049aa455844f48f5fdd8a6c2d4f7589e4d6eedc19ef2"
+  },
+  {
+    "file": "screenshots/31-update-shared-dark-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 128606,
+    "sha256": "3ffb9ca31a48cec9c144f238001f9153e1dc9e84bf1806527d1c4a785b4c1e64"
+  },
+  {
+    "file": "screenshots/31-update-shared-dark-390.jpg",
+    "width": 390,
+    "height": 844,
+    "bytes": 54485,
+    "sha256": "ef254d5544ce15c02f9ce15e847aacbf9c42a58aedbab1524be63986b376312a"
+  },
+  {
+    "file": "screenshots/31-update-shared-dark-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "bytes": 94519,
+    "sha256": "3858d4570a15a640625f7992884e2606166f917665d6bf214e239d779e66ea61"
+  },
+  {
+    "file": "screenshots/31-update-shared-light-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 125090,
+    "sha256": "36b4c61878d09e2c5bcf98baba054373e499033b99e7ede8123e9ad2d45cc19a"
+  },
+  {
+    "file": "screenshots/31-update-shared-light-390.jpg",
+    "width": 390,
+    "height": 844,
+    "bytes": 51262,
+    "sha256": "a21d8a91771b09c6f20604296b0be331e4375f8696c69c39c77c377e472b5d27"
+  },
+  {
+    "file": "screenshots/31-update-shared-light-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "bytes": 90977,
+    "sha256": "98bf2abf3d1d930846787a427b1c32358e445b64cb1c7bf74847a236fbaf7a24"
+  },
+  {
+    "file": "screenshots/31-user-update-dark-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 129284,
+    "sha256": "9c80b611076e027d633631cb6049be2807e1dd9cfee75f17371ce89108a96a46"
+  },
+  {
+    "file": "screenshots/31-vm-nic-standard.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 94384,
+    "sha256": "16861357371b96ba84f0ba494b89fa1125ed158b5d417a4966d8bc8478df5112"
+  },
+  {
+    "file": "screenshots/32-bulk-delete-policy-light-390.jpg",
+    "width": 390,
+    "height": 844,
+    "bytes": 35222,
+    "sha256": "b2fa2b6d26b4f2be83c2361bc7940b9e2a60ac9abf62e8a11a3288426710237a"
+  },
+  {
+    "file": "screenshots/32-delete-dark-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 103165,
+    "sha256": "61b8e40290429095b78bc4ae1a689aa547083f6aa6c9855152fd8042f068d36f"
+  },
+  {
+    "file": "screenshots/32-delete-dark-390.jpg",
+    "width": 390,
+    "height": 844,
+    "bytes": 52875,
+    "sha256": "6968aadd9061d8c2eee6a09d66c3274dc196c1630eb07d99805e6a23d7931fcf"
+  },
+  {
+    "file": "screenshots/32-delete-dark-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "bytes": 74525,
+    "sha256": "0dd096dbf51c51b515f4786a444ad1e8369695d0c43f014c3ae20c5706562756"
+  },
+  {
+    "file": "screenshots/32-delete-light-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 101969,
+    "sha256": "2a50fe911e729ea70e2dcdd5a7012068d650d0a34b623d34a19846c09fe9126a"
+  },
+  {
+    "file": "screenshots/32-delete-light-390.jpg",
+    "width": 390,
+    "height": 844,
+    "bytes": 52615,
+    "sha256": "40b190603cc7f4e0e18df9e2229735612ca34af561b3425437e8ac11a37a9439"
+  },
+  {
+    "file": "screenshots/32-delete-light-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "bytes": 73177,
+    "sha256": "04e9eab8e571b471407b95f3351ab2d057bc9f7bca871aeb7c9401c3249c475e"
+  },
+  {
+    "file": "screenshots/32-domainadmin-update-dark-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 129191,
+    "sha256": "396efc9cc633f68181f32c51be91bdff14b6c1eb4cd30581d3e2fe327d9db4c0"
+  },
+  {
+    "file": "screenshots/32-retained-network-list.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 108529,
+    "sha256": "9ddf7c04bc8f46c54e3ca7ef39ad70e58ae7e5825df02b29f92d636bf2a3d797"
+  },
+  {
+    "file": "screenshots/32-review-network-detail.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 117448,
+    "sha256": "987689c82734e480d8c868bd254fbd59b7ef5ee6cafd156293664631053c82d9"
+  },
+  {
+    "file": "screenshots/32-review-update-isolated-dark-390.jpg",
+    "width": 390,
+    "height": 844,
+    "bytes": 54077,
+    "sha256": "8e84adaec513194a89608ec8f0cd65e108335a1c16b625fe7b90ea653f224d1e"
+  },
+  {
+    "file": "screenshots/32-update-isolated-dark-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 125367,
+    "sha256": "82e38097c36061506866ec94b260d0dff66d59a90aa7a19f1468615739ffbd77"
+  },
+  {
+    "file": "screenshots/32-update-isolated-dark-390.jpg",
+    "width": 390,
+    "height": 844,
+    "bytes": 54048,
+    "sha256": "9c17b91d96a029ee49a290c6e8fe32e7cf3706e9368fb3e1326b13660a8d821e"
+  },
+  {
+    "file": "screenshots/32-update-isolated-dark-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "bytes": 92513,
+    "sha256": "44883b8ad76e6c8a1227260a6684198f5faa5dfb6eaf5e524bffde3477dc63c4"
+  },
+  {
+    "file": "screenshots/32-update-isolated-light-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 122352,
+    "sha256": "fa1cca8bfdbf0be14a84f01e3e0b8839bd822b5ba6211a137fd9c5fcbf7c32a5"
+  },
+  {
+    "file": "screenshots/32-update-isolated-light-390.jpg",
+    "width": 390,
+    "height": 844,
+    "bytes": 51238,
+    "sha256": "45aa7f96418ccbd435194b8628eba5c0b10ed48338c9c7c19c72138ad28ff97c"
+  },
+  {
+    "file": "screenshots/32-update-isolated-light-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "bytes": 90157,
+    "sha256": "14b5493008c0a7bfe31f159d160d5263c78fc57c3ac713d7df9aba7cae2c9404"
+  },
+  {
+    "file": "screenshots/32-update-l2-dark-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 116492,
+    "sha256": "25718037d4cb4a6434e985c23c1d6c3bcca2d9c5e1027c3b4d3de0d22436df5c"
+  },
+  {
+    "file": "screenshots/32-update-l2-dark-390.jpg",
+    "width": 390,
+    "height": 844,
+    "bytes": 56177,
+    "sha256": "71db0860b0d4171c5ed06ab096b5704e7a96d293350d193273984e39749fc431"
+  },
+  {
+    "file": "screenshots/32-update-l2-dark-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "bytes": 91436,
+    "sha256": "2eaa4fea82fc39618401a74625109800b39baa8f160f660ee69c8b38a5c00a00"
+  },
+  {
+    "file": "screenshots/32-update-l2-light-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 113884,
+    "sha256": "e15a6ef3fd9c38e2bfe267fade59b766cedabd55a8213b82de2cee49498dc7f6"
+  },
+  {
+    "file": "screenshots/32-update-l2-light-390.jpg",
+    "width": 390,
+    "height": 844,
+    "bytes": 53360,
+    "sha256": "554e39d0066aa81d07677627b43db99969cd4a08e82784a1d3961858a4da80c1"
+  },
+  {
+    "file": "screenshots/32-update-l2-light-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "bytes": 87462,
+    "sha256": "1c21893519609a4435cf41fcda36e6897fdf200c8449a71706e26489777ae742"
+  },
+  {
+    "file": "screenshots/32-update-shared-dark-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 127633,
+    "sha256": "bfe67f2eda67de1d7a6a51cada0eeb777cbfef957030a97975ad14c577614822"
+  },
+  {
+    "file": "screenshots/32-update-shared-dark-390.jpg",
+    "width": 390,
+    "height": 844,
+    "bytes": 54671,
+    "sha256": "5653108137f71ee4d1462d7118b8df17ccc8cdad478adc7ae50a04e0deb6b000"
+  },
+  {
+    "file": "screenshots/32-update-shared-dark-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "bytes": 93304,
+    "sha256": "a727d221475c88020bde098493fac085bfbeb4052fe01af76c049af59f6b4766"
+  },
+  {
+    "file": "screenshots/32-update-shared-light-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 125025,
+    "sha256": "45336636cea9c55da1c30bb2454593c7905d1174a8390abace316321ddcdac74"
+  },
+  {
+    "file": "screenshots/32-update-shared-light-390.jpg",
+    "width": 390,
+    "height": 844,
+    "bytes": 51569,
+    "sha256": "983781a49ca346757b1a797b7ef351e9d2b06d28e320cf8a12bd251d7a59809a"
+  },
+  {
+    "file": "screenshots/32-update-shared-light-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "bytes": 90785,
+    "sha256": "cf8c7a123da609fe5d602128785d380570206e23d769b6f3a110966656adf271"
+  },
+  {
+    "file": "screenshots/32-user-update-dark-1280.jpg",
+    "width": 1280,
+    "height": 900,
+    "bytes": 129331,
+    "sha256": "32a455e86e3a91f4f79f16fc770f269319b3b9a1cdfedad64d7c5d035580349b"
+  }
+]

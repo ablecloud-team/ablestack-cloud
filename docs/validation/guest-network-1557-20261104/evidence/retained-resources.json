@@ -1,0 +1,428 @@
+{
+  "31": {
+    "prefix": "qa-gn1557-31",
+    "networks": [
+      {
+        "id": "903d1def-9929-4755-82ec-69296b6847fd",
+        "name": "qa-gn1557-31-shared",
+        "type": "Shared",
+        "state": "Setup",
+        "cidr": "172.27.31.0/24",
+        "gateway": "172.27.31.1",
+        "ip6cidr": "fd31:1557::/64",
+        "ip6gateway": "fd31:1557::1",
+        "broadcasturi": "vlan://651",
+        "networkofferingid": "af57b512-b8cd-49bb-b250-23c85585bd16"
+      },
+      {
+        "id": "670c6673-068d-4436-b57c-b09acce6b65f",
+        "name": "qa-gn1557-31-nosnat",
+        "type": "Isolated",
+        "state": "Setup",
+        "cidr": "172.26.31.0/24",
+        "gateway": "172.26.31.1",
+        "ip6cidr": null,
+        "ip6gateway": null,
+        "broadcasturi": "vlan://641",
+        "networkofferingid": "1f90ed2f-cece-430c-83f5-e6e1506f4801"
+      }
+    ],
+    "vms": [
+      {
+        "id": "1c3d4aa5-05da-4c7e-bda6-ae40038da042",
+        "name": "qa-gn1557-31-nosnat-review",
+        "state": "Running",
+        "hostname": "ablecube31-2",
+        "nic": [
+          {
+            "id": "263dc845-433d-4ea1-b0fb-c9c89afd27ab",
+            "networkid": "670c6673-068d-4436-b57c-b09acce6b65f",
+            "networkname": "qa-gn1557-31-nosnat",
+            "netmask": "255.255.255.0",
+            "gateway": "172.26.31.1",
+            "ipaddress": "172.26.31.18",
+            "isolationuri": "vlan://641",
+            "broadcasturi": "vlan://641",
+            "traffictype": "Guest",
+            "type": "Isolated",
+            "isdefault": true,
+            "macaddress": "1e:1f:90:00:01:29",
+            "secondaryip": [],
+            "extradhcpoption": [],
+            "deviceid": "0",
+            "enabled": true
+          }
+        ]
+      },
+      {
+        "id": "87afcb72-9360-43a4-9b7e-662e66251490",
+        "name": "qa-gn1557-31-shared-review",
+        "state": "Running",
+        "hostname": "ablecube31-2",
+        "nic": [
+          {
+            "id": "2363ad1c-1657-4dc0-89bf-1f0deb534126",
+            "networkid": "903d1def-9929-4755-82ec-69296b6847fd",
+            "networkname": "qa-gn1557-31-shared",
+            "netmask": "255.255.255.0",
+            "gateway": "172.27.31.1",
+            "ipaddress": "172.27.31.18",
+            "isolationuri": "vlan://651",
+            "broadcasturi": "vlan://651",
+            "traffictype": "Guest",
+            "type": "Shared",
+            "isdefault": true,
+            "macaddress": "1e:1f:d2:00:01:34",
+            "ip6gateway": "fd31:1557::1",
+            "ip6cidr": "fd31:1557::/64",
+            "ip6address": "fd31:1557::1c1f:d2ff:fe00:134",
+            "secondaryip": [],
+            "extradhcpoption": [],
+            "deviceid": "0",
+            "enabled": true
+          }
+        ]
+      }
+    ],
+    "ranges": [
+      {
+        "id": "ac7f0fae-90ab-4c0f-bdeb-ad3d17adc27e",
+        "forvirtualnetwork": false,
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "vlan": "641",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "gateway": "172.26.31.1",
+        "netmask": "255.255.255.0",
+        "cidr": "172.26.31.0/24",
+        "startip": "172.26.31.10",
+        "endip": "172.26.31.20",
+        "networkid": "670c6673-068d-4436-b57c-b09acce6b65f",
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "forsystemvms": false
+      },
+      {
+        "id": "c930cb2d-e43e-43b5-80cf-0643b5a2093e",
+        "forvirtualnetwork": false,
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "vlan": "651",
+        "account": "system",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "gateway": "172.27.31.1",
+        "netmask": "255.255.255.0",
+        "cidr": "172.27.31.0/24",
+        "startip": "172.27.31.10",
+        "endip": "172.27.31.20",
+        "networkid": "903d1def-9929-4755-82ec-69296b6847fd",
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "startipv6": "fd31:1557::10",
+        "endipv6": "fd31:1557::20",
+        "ip6gateway": "fd31:1557::1",
+        "ip6cidr": "fd31:1557::/64",
+        "forsystemvms": false
+      },
+      {
+        "id": "88dec8ae-1998-403d-80db-aa5a22605e1d",
+        "forvirtualnetwork": false,
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "vlan": "651",
+        "account": "system",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "gateway": "172.27.31.1",
+        "netmask": "255.255.255.0",
+        "cidr": "172.27.31.0/24",
+        "networkid": "903d1def-9929-4755-82ec-69296b6847fd",
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "startipv6": "fd31:1557::30",
+        "endipv6": "fd31:1557::35",
+        "ip6gateway": "fd31:1557::1",
+        "ip6cidr": "fd31:1557::/64",
+        "forsystemvms": false
+      },
+      {
+        "id": "5058389e-f417-484a-b1ba-0761c6a92807",
+        "forvirtualnetwork": false,
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "vlan": "641",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "gateway": "172.26.31.1",
+        "netmask": "255.255.255.0",
+        "cidr": "172.26.31.0/24",
+        "startip": "172.26.31.80",
+        "endip": "172.26.31.84",
+        "networkid": "670c6673-068d-4436-b57c-b09acce6b65f",
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "forsystemvms": false
+      },
+      {
+        "id": "57ad0a26-4107-4481-9386-7a5fc2f159e8",
+        "forvirtualnetwork": false,
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "vlan": "651",
+        "account": "system",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "gateway": "172.27.31.1",
+        "netmask": "255.255.255.0",
+        "cidr": "172.27.31.0/24",
+        "startip": "172.27.31.80",
+        "endip": "172.27.31.84",
+        "networkid": "903d1def-9929-4755-82ec-69296b6847fd",
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "forsystemvms": false
+      },
+      {
+        "id": "985a0aa7-75d4-4d18-8aa5-881a9c809ef1",
+        "forvirtualnetwork": false,
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "vlan": "651",
+        "account": "system",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "networkid": "903d1def-9929-4755-82ec-69296b6847fd",
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "startipv6": "fd31:1557::80",
+        "endipv6": "fd31:1557::84",
+        "ip6gateway": "fd31:1557::1",
+        "ip6cidr": "fd31:1557::/64",
+        "forsystemvms": false
+      }
+    ],
+    "offering_ids": {
+      "nosnat-vr": "1f90ed2f-cece-430c-83f5-e6e1506f4801"
+    },
+    "routers": [
+      {
+        "id": "1e3c0e5b-36a5-45e3-be94-0fa39b225aed",
+        "name": "r-850-VM",
+        "state": "Running",
+        "guestnetworkid": "670c6673-068d-4436-b57c-b09acce6b65f",
+        "hostname": "ablecube31-2",
+        "guestipaddress": "172.26.31.10"
+      },
+      {
+        "id": "78ab4835-3b3e-4d4e-b0bd-b66d328aa8ab",
+        "name": "r-854-VM",
+        "state": "Running",
+        "guestnetworkid": "903d1def-9929-4755-82ec-69296b6847fd",
+        "hostname": "ablecube31-2",
+        "guestipaddress": "172.27.31.10"
+      }
+    ],
+    "user_review_pending": true
+  },
+  "32": {
+    "prefix": "qa-gn1557-32",
+    "networks": [
+      {
+        "id": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "name": "qa-gn1557-32-shared",
+        "type": "Shared",
+        "state": "Setup",
+        "cidr": "172.27.32.0/24",
+        "gateway": "172.27.32.1",
+        "ip6cidr": "fd32:1557::/64",
+        "ip6gateway": "fd32:1557::1",
+        "broadcasturi": "vlan://652",
+        "networkofferingid": "c0586d85-1ab3-41ba-8c6a-455ce47d6c3b"
+      },
+      {
+        "id": "1b6001c7-f30f-4b5b-8843-8b8e68b2720e",
+        "name": "qa-gn1557-32-nosnat",
+        "type": "Isolated",
+        "state": "Setup",
+        "cidr": "172.26.32.0/24",
+        "gateway": "172.26.32.1",
+        "ip6cidr": null,
+        "ip6gateway": null,
+        "broadcasturi": "vlan://642",
+        "networkofferingid": "443433f5-773d-401c-820b-074d319b2c0b"
+      }
+    ],
+    "vms": [
+      {
+        "id": "be3fbc4b-255e-48b1-bce2-366fc417bb06",
+        "name": "qa-gn1557-32-nosnat-review",
+        "state": "Running",
+        "hostname": "ablecube32-1",
+        "nic": [
+          {
+            "id": "5723a031-6b6f-486a-b69e-ca1073e3d83e",
+            "networkid": "1b6001c7-f30f-4b5b-8843-8b8e68b2720e",
+            "networkname": "qa-gn1557-32-nosnat",
+            "netmask": "255.255.255.0",
+            "gateway": "172.26.32.1",
+            "ipaddress": "172.26.32.18",
+            "isolationuri": "vlan://642",
+            "broadcasturi": "vlan://642",
+            "traffictype": "Guest",
+            "type": "Isolated",
+            "isdefault": true,
+            "macaddress": "1e:01:9e:00:01:4d",
+            "secondaryip": [],
+            "extradhcpoption": [],
+            "deviceid": "0",
+            "enabled": true
+          }
+        ]
+      },
+      {
+        "id": "5984da27-5640-41f0-a378-abdbdfd6d0dd",
+        "name": "qa-gn1557-32-shared-review",
+        "state": "Running",
+        "hostname": "ablecube32-1",
+        "nic": [
+          {
+            "id": "af3811a9-5ac8-4636-9381-e354808f8262",
+            "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+            "networkname": "qa-gn1557-32-shared",
+            "netmask": "255.255.255.0",
+            "gateway": "172.27.32.1",
+            "ipaddress": "172.27.32.18",
+            "isolationuri": "vlan://652",
+            "broadcasturi": "vlan://652",
+            "traffictype": "Guest",
+            "type": "Shared",
+            "isdefault": true,
+            "macaddress": "1e:01:10:00:01:58",
+            "ip6gateway": "fd32:1557::1",
+            "ip6cidr": "fd32:1557::/64",
+            "ip6address": "fd32:1557::1c01:10ff:fe00:158",
+            "secondaryip": [],
+            "extradhcpoption": [],
+            "deviceid": "0",
+            "enabled": true
+          }
+        ]
+      }
+    ],
+    "ranges": [
+      {
+        "id": "27d5878d-633e-4d8c-977a-f2d485aad207",
+        "forvirtualnetwork": false,
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "vlan": "642",
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "gateway": "172.26.32.1",
+        "netmask": "255.255.255.0",
+        "cidr": "172.26.32.0/24",
+        "startip": "172.26.32.10",
+        "endip": "172.26.32.20",
+        "networkid": "1b6001c7-f30f-4b5b-8843-8b8e68b2720e",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "forsystemvms": false
+      },
+      {
+        "id": "b687a731-aae9-4bc0-a4d6-5db54f697102",
+        "forvirtualnetwork": false,
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "vlan": "652",
+        "account": "system",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "gateway": "172.27.32.1",
+        "netmask": "255.255.255.0",
+        "cidr": "172.27.32.0/24",
+        "startip": "172.27.32.10",
+        "endip": "172.27.32.20",
+        "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "startipv6": "fd32:1557::10",
+        "endipv6": "fd32:1557::20",
+        "ip6gateway": "fd32:1557::1",
+        "ip6cidr": "fd32:1557::/64",
+        "forsystemvms": false
+      },
+      {
+        "id": "3d43cbf8-6868-4750-ad9e-e2737bef868a",
+        "forvirtualnetwork": false,
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "vlan": "642",
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "gateway": "172.26.32.1",
+        "netmask": "255.255.255.0",
+        "cidr": "172.26.32.0/24",
+        "startip": "172.26.32.80",
+        "endip": "172.26.32.84",
+        "networkid": "1b6001c7-f30f-4b5b-8843-8b8e68b2720e",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "forsystemvms": false
+      },
+      {
+        "id": "dbeed0c7-ef74-4430-b394-d63c56fb0e60",
+        "forvirtualnetwork": false,
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "vlan": "652",
+        "account": "system",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "gateway": "172.27.32.1",
+        "netmask": "255.255.255.0",
+        "cidr": "172.27.32.0/24",
+        "startip": "172.27.32.80",
+        "endip": "172.27.32.84",
+        "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "forsystemvms": false
+      },
+      {
+        "id": "4639aaa2-031a-4092-a924-57824cd8482f",
+        "forvirtualnetwork": false,
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "vlan": "652",
+        "account": "system",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "startipv6": "fd32:1557::80",
+        "endipv6": "fd32:1557::84",
+        "ip6gateway": "fd32:1557::1",
+        "ip6cidr": "fd32:1557::/64",
+        "forsystemvms": false
+      }
+    ],
+    "offering_ids": {
+      "nosnat-vr": "443433f5-773d-401c-820b-074d319b2c0b"
+    },
+    "routers": [
+      {
+        "id": "c51829d0-8edd-4f36-8dfa-dc01107ee3e1",
+        "name": "r-342-VM",
+        "state": "Running",
+        "guestnetworkid": "1b6001c7-f30f-4b5b-8843-8b8e68b2720e",
+        "hostname": "ablecube32-1",
+        "guestipaddress": "172.26.32.10"
+      },
+      {
+        "id": "060d2ce3-c7e2-4240-9bfb-64d3693466f8",
+        "name": "r-344-VM",
+        "state": "Running",
+        "guestnetworkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "hostname": "ablecube32-1",
+        "guestipaddress": "172.27.32.10"
+      }
+    ],
+    "user_review_pending": true
+  }
+}

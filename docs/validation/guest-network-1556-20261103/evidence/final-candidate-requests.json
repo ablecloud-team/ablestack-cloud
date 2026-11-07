@@ -1,0 +1,138 @@
+[
+  {
+    "cluster": 31,
+    "requestId": "29664.3629",
+    "command": "listNetworkOfferings",
+    "method": "GET",
+    "params": {
+      "networkid": "4a6d4597-4577-4db4-b8c6-0f17221f0412",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "state": "Enabled",
+      "guestiptype": "Isolated",
+      "forvpc": "false",
+      "page": "1",
+      "pagesize": "500",
+      "command": "listNetworkOfferings"
+    },
+    "status": 200
+  },
+  {
+    "cluster": 31,
+    "requestId": "29664.3634",
+    "command": "listNetworkOfferings",
+    "method": "GET",
+    "params": {
+      "networkid": "4a6d4597-4577-4db4-b8c6-0f17221f0412",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "state": "Enabled",
+      "guestiptype": "Isolated",
+      "forvpc": "false",
+      "page": "1",
+      "pagesize": "500",
+      "command": "listNetworkOfferings"
+    },
+    "status": 200
+  },
+  {
+    "cluster": 31,
+    "requestId": "29664.3638",
+    "command": "listNetworkOfferings",
+    "method": "GET",
+    "params": {
+      "networkid": "4a6d4597-4577-4db4-b8c6-0f17221f0412",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "state": "Enabled",
+      "guestiptype": "Isolated",
+      "forvpc": "false",
+      "page": "1",
+      "pagesize": "500",
+      "command": "listNetworkOfferings"
+    },
+    "status": 200
+  },
+  {
+    "cluster": 31,
+    "requestId": "29664.2793",
+    "command": "listNetworkOfferings",
+    "method": "GET",
+    "params": {
+      "networkid": "1a3d2a69-b66a-4afa-9fb2-c40a87a754db",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "state": "Enabled",
+      "guestiptype": "Isolated",
+      "forvpc": "true",
+      "page": "1",
+      "pagesize": "500",
+      "command": "listNetworkOfferings"
+    },
+    "status": 200
+  },
+  {
+    "cluster": 32,
+    "requestId": "44504.3513",
+    "command": "listNetworkOfferings",
+    "method": "GET",
+    "params": {
+      "networkid": "b4d0d444-07e4-4010-a242-d247965ca8a3",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "state": "Enabled",
+      "guestiptype": "Isolated",
+      "forvpc": "false",
+      "page": "1",
+      "pagesize": "500",
+      "command": "listNetworkOfferings"
+    },
+    "status": 200
+  },
+  {
+    "cluster": 32,
+    "requestId": "44504.3518",
+    "command": "listNetworkOfferings",
+    "method": "GET",
+    "params": {
+      "networkid": "b4d0d444-07e4-4010-a242-d247965ca8a3",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "state": "Enabled",
+      "guestiptype": "Isolated",
+      "forvpc": "false",
+      "page": "1",
+      "pagesize": "500",
+      "command": "listNetworkOfferings"
+    },
+    "status": 200
+  },
+  {
+    "cluster": 32,
+    "requestId": "44504.3522",
+    "command": "listNetworkOfferings",
+    "method": "GET",
+    "params": {
+      "networkid": "b4d0d444-07e4-4010-a242-d247965ca8a3",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "state": "Enabled",
+      "guestiptype": "Isolated",
+      "forvpc": "false",
+      "page": "1",
+      "pagesize": "500",
+      "command": "listNetworkOfferings"
+    },
+    "status": 200
+  },
+  {
+    "cluster": 32,
+    "requestId": "44504.2685",
+    "command": "listNetworkOfferings",
+    "method": "GET",
+    "params": {
+      "networkid": "07f53267-063b-4975-ac47-5a5c10d57fb4",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "state": "Enabled",
+      "guestiptype": "Isolated",
+      "forvpc": "true",
+      "page": "1",
+      "pagesize": "500",
+      "command": "listNetworkOfferings"
+    },
+    "status": 200
+  }
+]

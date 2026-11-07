@@ -1,0 +1,18 @@
+[
+  {
+    "cluster": 31,
+    "jobid": "73a41614-c972-4ecf-a83c-396aee71561a",
+    "jobstatus": 1,
+    "role": "User",
+    "mixed_Shared_execution_disabled": true,
+    "mixed_dialog_text": "\"네트워크 재시작\":\n  - document:\n    - button \"Close\":\n      - img \"close\":\n    - generic: 네트워크 재시작\n    - paragraph: 재시작 중 네트워크 통신이 끊길 수 있습니다. 선택한 모든 대상이 적합할 때 실행하며 네트워크별로 결과를 추적합니다.\n    - generic \"네트워크 요소 재생성\"\n    - switch \"네트워크 요소 재생성\"\n    - generic \"라우터 이중화 전환\"\n    - switch \"라우터 이중화 전환\" [disabled]\n    - generic \"Live Patch\"\n    - switch \"Live Patch\"\n    - paragraph: 요소 재생성 또는 이중화 전환을 선택하면 Live Patch는 해제됩니다. 옵션은 모든 대상에 동일하게 적용되며 실행과 재시도 중 유지됩니다.\n    - status: 전체 2 · 완료 0\n    - button \"대상 다시 확인\":\n      - generic: 대상 다시 확인\n    - list:\n      - strong: qa-gn1559-31-shared\n      - generic: Shared · Setup ·\n      - text: c648aa81-e649-48d6-b296-7735be04a7ce\n      - generic: 대기\n      - alert: 이 네트워크를 운영할 권한이 없습니다.\n      - strong: qa-gn1559-31-a\n      - generic: Isolated · Implemented · qa-gn1559-31-user\n      - text: 98e4b4b0-e163-4114-84b8-cc87a06e3a6e\n      - generic: 대기\n    - button \"닫기\" [active]:\n      - generic: 닫기\n    - button \"네트워크 재시작\" [disabled]:\n      - generic: 네트워크 재시작"
+  },
+  {
+    "cluster": 32,
+    "jobid": "077eeff2-2fd0-4ecb-a3c8-e35a2f70af4c",
+    "jobstatus": 1,
+    "role": "User",
+    "mixed_Shared_execution_disabled": true,
+    "mixed_dialog_text": "\"네트워크 재시작\":\n  - document:\n    - button \"Close\":\n      - img \"close\":\n    - generic: 네트워크 재시작\n    - paragraph: 재시작 중 네트워크 통신이 끊길 수 있습니다. 선택한 모든 대상이 적합할 때 실행하며 네트워크별로 결과를 추적합니다.\n    - generic \"네트워크 요소 재생성\"\n    - switch \"네트워크 요소 재생성\"\n    - generic \"라우터 이중화 전환\"\n    - switch \"라우터 이중화 전환\" [disabled]\n    - generic \"Live Patch\"\n    - switch \"Live Patch\"\n    - paragraph: 요소 재생성 또는 이중화 전환을 선택하면 Live Patch는 해제됩니다. 옵션은 모든 대상에 동일하게 적용되며 실행과 재시도 중 유지됩니다.\n    - status: 전체 2 · 완료 0\n    - button \"대상 다시 확인\":\n      - generic: 대상 다시 확인\n    - list:\n      - strong: qa-gn1559-32-shared\n      - generic: Shared · Setup ·\n      - text: 18396f3e-b560-45de-ba65-c04b05b535be\n      - generic: 대기\n      - alert: 이 네트워크를 운영할 권한이 없습니다.\n      - strong: qa-gn1559-32-a\n      - generic: Isolated · Implemented · qa-gn1559-32-user\n      - text: 8cfea604-007c-42c4-b5a9-5ceee79fe440\n      - generic: 대기\n    - button \"닫기\" [active]:\n      - generic: 닫기\n    - button \"네트워크 재시작\" [disabled]:\n      - generic: 네트워크 재시작"
+  }
+]

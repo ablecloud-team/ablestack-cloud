@@ -1,0 +1,76 @@
+{
+  "body": {
+    "bottom": 726.125,
+    "height": 497.25,
+    "left": 186,
+    "right": 1084,
+    "top": 228.875,
+    "width": 898,
+    "x": 186,
+    "y": 228.875
+  },
+  "bodyClientHeight": 497,
+  "bodyClientWidth": 898,
+  "bodyScrollHeight": 497,
+  "bodyScrollTop": 0,
+  "bodyScrollWidth": 898,
+  "colors": [
+    {
+      "background": "rgb(234, 244, 255)",
+      "color": "rgb(11, 59, 102)",
+      "text": "다른 호스트에게 가상머신을 마이그레이션하시겠습니까?"
+    }
+  ],
+  "content": {
+    "bottom": 726.125,
+    "height": 552.25,
+    "left": 186,
+    "right": 1084,
+    "top": 173.875,
+    "width": 898,
+    "x": 186,
+    "y": 173.875
+  },
+  "dark": false,
+  "dialog": {
+    "bottom": 900,
+    "height": 900,
+    "left": 0,
+    "right": 1270,
+    "top": 0,
+    "width": 1270,
+    "x": 0,
+    "y": 0
+  },
+  "documentWidth": 1270,
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "tag": "INPUT"
+  },
+  "footer": null,
+  "header": {
+    "bottom": 228.875,
+    "height": 55,
+    "left": 186,
+    "right": 1084,
+    "top": 173.875,
+    "width": 898,
+    "x": 186,
+    "y": 173.875
+  },
+  "height": 900,
+  "main": {
+    "bottom": 900,
+    "height": 776,
+    "left": 256,
+    "right": 1270,
+    "top": 124,
+    "width": 1014,
+    "x": 256,
+    "y": 124
+  },
+  "primaryButton": null,
+  "width": 1280,
+  "image_sha256": "e547365e80b8a02b6dd612fd33078a7d72873b3406930ca2513b592f282a5248"
+}

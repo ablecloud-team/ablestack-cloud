@@ -1,0 +1,48 @@
+{
+  "31": {
+    "jarSha256": "990d6adf0b6b4e3fcef85527414aad465be3f9642dbed02f908e6e0568def860",
+    "classes": {
+      "org/apache/cloudstack/acl/ProjectRoleService.class": "5b08b251d6e30e1eed9e5a0497c76ff56a6ba2f6021f56b659663f75d6dafba1",
+      "org/apache/cloudstack/acl/ProjectRoleManagerImpl.class": "a7022039eacf6edcc02baa90e91ee6a59058cb3c790c7b5f549c541ead421492",
+      "com/cloud/acl/DomainChecker.class": "12aadacc95f37c7103af9f94f01a7636d42d6765ddd7ef72709dba6004f4cc2b",
+      "org/apache/cloudstack/acl/ProjectRoleBasedApiAccessChecker.class": "7fe8fb718a5aa7aa8f067c200c0117831fc67e253e8ec4328fce44b76d068e59"
+    },
+    "unchangedEntries": 204653,
+    "service": "active",
+    "http": 200,
+    "webInfPresent": true,
+    "staticFiles": 661,
+    "staticUnchanged": true,
+    "markers": {
+      "blockingLoadingState": true,
+      "fetchSyncProgress": true,
+      "extractJobId": true,
+      "min(420px, calc(100vw - 24px))": true
+    },
+    "linkageErrors": [],
+    "logWindow": "last 15000 lines"
+  },
+  "32": {
+    "jarSha256": "990d6adf0b6b4e3fcef85527414aad465be3f9642dbed02f908e6e0568def860",
+    "classes": {
+      "org/apache/cloudstack/acl/ProjectRoleService.class": "5b08b251d6e30e1eed9e5a0497c76ff56a6ba2f6021f56b659663f75d6dafba1",
+      "org/apache/cloudstack/acl/ProjectRoleManagerImpl.class": "a7022039eacf6edcc02baa90e91ee6a59058cb3c790c7b5f549c541ead421492",
+      "com/cloud/acl/DomainChecker.class": "12aadacc95f37c7103af9f94f01a7636d42d6765ddd7ef72709dba6004f4cc2b",
+      "org/apache/cloudstack/acl/ProjectRoleBasedApiAccessChecker.class": "7fe8fb718a5aa7aa8f067c200c0117831fc67e253e8ec4328fce44b76d068e59"
+    },
+    "unchangedEntries": 204653,
+    "service": "active",
+    "http": 200,
+    "webInfPresent": true,
+    "staticFiles": 661,
+    "staticUnchanged": true,
+    "markers": {
+      "blockingLoadingState": true,
+      "fetchSyncProgress": true,
+      "extractJobId": true,
+      "min(420px, calc(100vw - 24px))": true
+    },
+    "linkageErrors": [],
+    "logWindow": "last 15000 lines"
+  }
+}

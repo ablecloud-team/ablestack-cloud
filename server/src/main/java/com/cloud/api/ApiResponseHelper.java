@@ -1300,7 +1300,8 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
 
     private void showVmInfoForSharedNetworks(boolean forVirtualNetworks, IpAddress ipAddr, IPAddressResponse ipResponse) {
         if (!forVirtualNetworks) {
-            NicVO nic = ApiDBUtils.findByIp4AddressAndNetworkId(ipAddr.getAddress().toString(), ipAddr.getNetworkId());
+            // Router IP reservations also have placeholder NICs without an instance. Only a bound NIC is a VM target.
+            NicVO nic = ApiDBUtils.findNonPlaceHolderByIp4AddressAndNetworkId(ipAddr.getAddress().toString(), ipAddr.getNetworkId());
 
             if (nic == null) {  // find in nic_secondary_ips, user vm only
                 NicSecondaryIpVO secondaryIp =
@@ -1310,6 +1311,7 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
                     if (vm != null) {
                         ipResponse.setVirtualMachineId(vm.getUuid());
                         ipResponse.setVirtualMachineName(vm.getHostName());
+                        ipResponse.setVirtualMachineType(vm.getType().toString());
                         if (vm.getDisplayName() != null) {
                             ipResponse.setVirtualMachineDisplayName(vm.getDisplayName());
                         } else {
@@ -1322,6 +1324,7 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
                 if (vm != null) {
                     ipResponse.setVirtualMachineId(vm.getUuid());
                     ipResponse.setVirtualMachineName(vm.getHostName());
+                    ipResponse.setVirtualMachineType(vm.getType().toString());
                     if (vm.getDisplayName() != null) {
                         ipResponse.setVirtualMachineDisplayName(vm.getDisplayName());
                     } else {

@@ -63,6 +63,7 @@
           </template>
           <a-radio-group
             v-model:value="form.guestiptype"
+            disabled
             buttonStyle="solid"
             @change="selected => { handleGuestTypeChange(selected.target.value) }">
             <a-radio-button value="isolated">
@@ -186,6 +187,11 @@
         <a-form-item name="userdatal2" ref="userdatal2" :label="$t('label.user.data')" v-if="guestType === 'l2'">
           <a-switch v-model:checked="form.userdatal2" />
         </a-form-item>
+        <a-form-item :label="$t('label.offering.clone.customize')">
+          <a-switch v-model:checked="customize" :disabled="!servicesReady" :aria-label="$t('label.offering.clone.customize')" />
+          <p class="offering-scope-hint">{{ $t('message.offering.clone.inherit') }}</p>
+        </a-form-item>
+        <template v-if="customize">
         <a-form-item name="networkrate" ref="networkrate">
           <template #label>
             <tooltip-label :title="$t('label.networkrate')" :tooltip="apiParams.networkrate.description"/>
@@ -321,6 +327,7 @@
             </a-list>
           </div>
         </a-form-item>
+        <NetworkOfferingLbFields :model-value="form" :offering="{ guestiptype: guestType, service: Object.entries(selectedServiceProviderMap).map(([name, provider]) => ({ name, provider: [{ name: provider }] })) }" @update:model-value="values => Object.assign(form, values)" />
         <a-form-item name="lbtype" ref="lbtype" :label="$t('label.lbtype')" v-if="forVpc && lbServiceChecked">
           <a-radio-group
             v-model:value="form.lbtype"
@@ -507,7 +514,7 @@
           </template>
           <a-switch v-model:checked="form.specifyipranges"/>
         </a-form-item>
-        <a-form-item name="ispublic" ref="ispublic" :label="$t('label.ispublic')" v-show="isAdmin()">
+        <a-form-item name="ispublic" ref="ispublic" :label="$t('label.ispublic')" v-if="isAdmin() && !resource.domainid">
           <a-switch v-model:checked="form.ispublic" @change="val => { isPublic = val }" />
         </a-form-item>
         <a-form-item name="domainid" ref="domainid" v-if="!isPublic">
@@ -562,10 +569,11 @@
           </template>
           <a-switch v-model:checked="form.enable"/>
         </a-form-item>
-        <div :span="24" class="action-button">
+        </template>
+        <MoldDialogActions :span="24" :busy="loading">
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
           <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-        </div>
+        </MoldDialogActions>
       </a-form>
     </a-spin>
   </div>
@@ -575,19 +583,23 @@
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import { isAdmin } from '@/role'
-import { mixinForm } from '@/utils/mixin'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import CheckBoxSelectPair from '@/components/CheckBoxSelectPair'
 import { BlockOutlined, GlobalOutlined } from '@ant-design/icons-vue'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
+import NetworkOfferingLbFields from './NetworkOfferingLbFields'
+import { offeringLbSupport, lbSettingsParams } from '@/utils/networkOfferingLb'
 import { buildServiceCapabilityParams } from '@/composables/useServiceCapabilityParams'
+import { offeringFields, offeringServiceProviders, cloneOfferingServiceParams } from '@/utils/networkOfferingForm'
 
 export default {
   name: 'CloneNetworkOffering',
-  mixins: [mixinForm],
   components: {
     ResourceIcon,
     TooltipLabel,
+    MoldDialogActions,
+    NetworkOfferingLbFields,
     CheckBoxSelectPair,
     BlockOutlined,
     GlobalOutlined
@@ -644,6 +656,7 @@ export default {
       supportedServices: [],
       supportedServiceLoading: false,
       servicesReady: false,
+      customize: false,
       selectedServiceProviderMap: {},
       serviceProviderMap: {},
       serviceOfferings: [],
@@ -685,7 +698,7 @@ export default {
         name: this.$t('label.all.zone')
       }
     ]
-    this.isPublic = isAdmin()
+    this.isPublic = isAdmin() && !this.resource.domainid
     this.initForm()
     await this.checkRequiredNetworkOfferingExists()
     this.fetchSupportedServices()
@@ -698,6 +711,8 @@ export default {
     initForm () {
       this.formRef = ref()
       this.form = reactive({
+        name: this.resource.name + ' - Clone',
+        displaytext: this.resource.displaytext || this.resource.name,
         guestiptype: this.guestType,
         internetprotocol: 'ipv4',
         forvpc: false,
@@ -834,13 +849,21 @@ export default {
       }
       this.updateSupportedServices()
     },
+    readSourceCapabilities (resource) {
+      const caps = Object.fromEntries((resource.service || []).flatMap(service => (service.capability || []).map(cap => [cap.name.toLowerCase(), cap.value])))
+      const flags = { redundantroutercapability: 'redundantrouter', vmautoscalingcapability: 'vmautoscaling', elasticlb: 'elasticlb', inlinemode: 'inlinemode', elasticip: 'elasticip', associatepublicip: 'associatepublicip' }
+      for (const [field, key] of Object.entries(flags)) {
+        if (key in caps) this.form[field] = String(caps[key]) === 'true'
+      }
+      if (caps.supportedsourcenattypes) this.form.sourcenattype = caps.supportedsourcenattypes
+      if (caps.supportedlbisolation) this.form.isolation = caps.supportedlbisolation
+      this.form.supportsstrechedl2subnet = resource.supportsstrechedl2subnet
+      this.form.supportspublicaccess = resource.supportspublicaccess
+    },
     populateFormFromResource () {
       if (!this.resource) return
 
       const r = this.resource
-      this.form.name = r.name + ' - Clone'
-      this.form.displaytext = r.displaytext || r.name
-
       if (r.guestiptype) {
         this.guestType = r.guestiptype.toLowerCase()
         this.form.guestiptype = r.guestiptype.toLowerCase()
@@ -927,6 +950,8 @@ export default {
           this.form.availability = r.availability
         }
       }
+      this.form.maxconnections = r.maxconnections
+      this.form.keepaliveenabled = typeof r.keepaliveenabled === 'boolean' ? r.keepaliveenabled : undefined
       if (r.tags) this.form.tags = r.tags
       if (r.conservemode !== undefined) this.form.conservemode = r.conservemode
       if (r.ispersistent !== undefined) this.form.ispersistent = r.ispersistent
@@ -935,7 +960,11 @@ export default {
       if (r.egressdefaultpolicy !== undefined) {
         this.form.egressdefaultpolicy = r.egressdefaultpolicy ? 'allow' : 'deny'
       }
-      if (r.networkrate) this.form.networkrate = r.networkrate
+      if (r.networkrate != null) this.form.networkrate = r.networkrate
+      if (r.routingmode) this.form.routingmode = r.routingmode.toLowerCase()
+      this.form.specifyasnumber = r.specifyasnumber
+      this.form.enable = r.state === 'Enabled'
+      this.readSourceCapabilities(r)
       if (r.serviceofferingid) this.form.serviceofferingid = r.serviceofferingid
 
       if (r.details) {
@@ -993,19 +1022,14 @@ export default {
         this.staticNatServiceChecked = !!this.selectedServiceProviderMap.StaticNat
         this.staticNatServiceProvider = this.selectedServiceProviderMap.StaticNat || ''
         this.connectivityServiceChecked = !!this.selectedServiceProviderMap.Connectivity
-
-        this.$nextTick(() => {
-          this.servicesReady = true
-          this.$nextTick(() => {
-            this.checkVirtualRouterForServices()
-          })
-        })
       }
       if (this.provider === 'NSX') {
         this.form.nsxsupportlb = Boolean(this.serviceProviderMap.Lb)
         this.form.nsxsupportsinternallb = Boolean(r.nsxsupportsinternallb)
         this.handleNsxLbService(this.form.nsxsupportlb)
       }
+      this.servicesReady = true
+      this.checkVirtualRouterForServices()
     },
     updateSupportedServices () {
       const supportedServices = this.supportedServices || []
@@ -1019,7 +1043,7 @@ export default {
             const providers = svc.provider.map(provider => {
               if (this.forVpc) {
                 const enabledProviders = ['VpcVirtualRouter', 'Netscaler', 'BigSwitchBcf', 'ConfigDrive']
-                if (self.lbType === 'internalLb') {
+                if (this.lbType === 'internalLb') {
                   enabledProviders.push('InternalLbVm')
                 }
                 provider.enabled = enabledProviders.includes(provider.name)
@@ -1175,8 +1199,10 @@ export default {
       params.details = 'min'
       this.domainLoading = true
       getAPI('listDomains', params).then(json => {
-        const listDomains = json.listdomainsresponse.domain
+        const listDomains = json.listdomainsresponse.domain || []
         this.domains = this.domains.concat(listDomains)
+        const sourceIds = String(this.resource.domainid || '').split(',')
+        this.form.domainid = this.domains.map((domain, index) => sourceIds.includes(domain.id) ? index : -1).filter(index => index >= 0)
       }).finally(() => {
         this.domainLoading = false
       })
@@ -1189,6 +1215,8 @@ export default {
         const listZones = json.listzonesresponse.zone
         if (listZones) {
           this.zones = this.zones.concat(listZones)
+          const sourceIds = String(this.resource.zoneid || '').split(',')
+          this.form.zoneid = this.zones.map((zone, index) => sourceIds.includes(zone.id) ? index : -1).filter(index => index >= 0)
         }
       }).finally(() => {
         this.zoneLoading = false
@@ -1227,16 +1255,8 @@ export default {
       })
     },
     handleSupportedServiceChange (service, checked, provider) {
-      if (checked) {
-        const correctProvider = this.serviceProviderMap[service]
-        if (correctProvider && provider !== correctProvider) {
-          this.selectedServiceProviderMap[service] = correctProvider
-        } else {
-          this.selectedServiceProviderMap[service] = provider
-        }
-      } else {
-        delete this.selectedServiceProviderMap[service]
-      }
+      if (checked && provider) this.selectedServiceProviderMap[service] = provider
+      else delete this.selectedServiceProviderMap[service]
 
       if (service === 'SourceNat') {
         this.sourceNatServiceChecked = checked
@@ -1258,154 +1278,37 @@ export default {
 
       this.checkVirtualRouterForServices()
     },
-    handleSubmit (e) {
-      if (e) {
-        e.preventDefault()
+    async handleSubmit (e) {
+      if (e?.preventDefault) e.preventDefault()
+      if (this.loading || (this.customize && !this.servicesReady)) return
+      this.loading = true
+      try {
+        await this.formRef.value.validate()
+        const values = toRaw(this.form)
+        const params = { sourceofferingid: this.resource.id, name: values.name, displaytext: values.displaytext }
+        if (this.customize) {
+          const providers = offeringServiceProviders(values, this.selectedServiceProviderMap, this.supportedServices)
+          Object.assign(params, offeringFields(values, providers))
+          buildServiceCapabilityParams(params, values, providers, this.registeredServicePackages)
+          params.traffictype = 'GUEST'
+          if (!values.ispublic && values.domainid?.length) params.domainid = values.domainid.map(i => this.domains[i]?.id).filter(Boolean).join(',')
+          if (values.zoneid?.length) params.zoneid = values.zoneid.map(i => this.zones[i]?.id).filter(Boolean).join(',')
+          const lbOffering = { guestiptype: values.guestiptype, service: Object.entries(providers).map(([name, provider]) => ({ name, provider: [{ name: provider }] })) }
+          if (!offeringLbSupport(lbOffering)) {
+            try { Object.assign(params, lbSettingsParams(values)) } catch (error) { this.$message.error(this.$t('message.offering.lb.range')); return }
+          }
+          cloneOfferingServiceParams(this.resource, providers, params)
+        }
+        await postAPI('cloneNetworkOffering', params)
+        this.$message.success(values.name)
+        this.$emit('refresh-data')
+        this.closeAction()
+      } catch (error) {
+        if (error?.errorFields?.length) this.formRef.value.scrollToField(error.errorFields[0].name)
+        else this.$notifyError(error)
+      } finally {
+        this.loading = false
       }
-      if (this.loading) return
-
-      this.formRef.value.validate().then(() => {
-        const formRaw = toRaw(this.form)
-        const values = this.handleRemoveFields(formRaw)
-
-        const params = {
-          sourceofferingid: this.resource.id,
-          name: values.name
-        }
-
-        if (values.displaytext) {
-          params.displaytext = values.displaytext
-        }
-
-        const forNsx = values.provider === 'NSX'
-        if (forNsx) {
-          params.provider = 'NSX'
-          params.nsxsupportlb = values.nsxsupportlb
-          if ('nsxsupportsinternallb' in values) {
-            params.nsxsupportsinternallb = values.nsxsupportsinternallb
-          }
-        }
-        const forNetris = values.provider === 'Netris'
-        if (forNetris) {
-          params.provider = 'Netris'
-        }
-
-        if (values.guestiptype) {
-          params.guestiptype = values.guestiptype
-        }
-
-        // Use composable for service capability params
-        if (this.selectedServiceProviderMap != null) {
-          buildServiceCapabilityParams(params, values, this.selectedServiceProviderMap, this.registeredServicePackages)
-        } else {
-          if (!('supportedservices' in params)) {
-            params.supportedservices = ''
-          }
-        }
-
-        if (values.guestiptype === 'l2' && values.userdatal2 === true) {
-          params.supportedservices = 'UserData'
-        }
-
-        if (values.availability) {
-          params.availability = values.availability
-        }
-        if (values.tags) {
-          params.tags = values.tags
-        }
-        if (values.specifyvlan !== undefined) {
-          params.specifyvlan = values.specifyvlan
-        }
-        if (values.conservemode !== undefined) {
-          params.conservemode = values.conservemode
-        }
-        if (values.ispersistent !== undefined) {
-          params.ispersistent = values.ispersistent
-        }
-        if (values.specifyipranges !== undefined) {
-          params.specifyipranges = values.specifyipranges
-        }
-        if (values.egressdefaultpolicy !== undefined) {
-          params.egressdefaultpolicy = values.egressdefaultpolicy
-        }
-        if (values.networkrate) {
-          params.networkrate = values.networkrate
-        }
-        if (values.serviceofferingid) {
-          params.serviceofferingid = values.serviceofferingid
-        }
-        if (values.enable !== undefined) {
-          params.enable = values.enable
-        }
-
-        if (values.ispublic !== true) {
-          const domainIndexes = values.domainid
-          let domainId = null
-          if (domainIndexes && domainIndexes.length > 0) {
-            const domainIds = []
-            for (let i = 0; i < domainIndexes.length; i++) {
-              domainIds.push(this.domains[domainIndexes[i]].id)
-            }
-            domainId = domainIds.join(',')
-          }
-          if (domainId) {
-            params.domainid = domainId
-          }
-        }
-        if (values.networkmode) {
-          params.networkmode = values.networkmode
-        }
-
-        const zoneIndexes = values.zoneid
-        let zoneId = null
-        if (zoneIndexes && zoneIndexes.length > 0) {
-          const zoneIds = []
-          for (let j = 0; j < zoneIndexes.length; j++) {
-            zoneIds.push(this.zones[zoneIndexes[j]].id)
-          }
-          zoneId = zoneIds.join(',')
-        }
-        if (zoneId) {
-          params.zoneid = zoneId
-        }
-
-        params.traffictype = this.resource.traffictype || 'GUEST'
-
-        let detailsIndex = 0
-        if (values.promiscuousmode && values.promiscuousmode !== '') {
-          params['details[' + detailsIndex + '].key'] = 'promiscuousmode'
-          params['details[' + detailsIndex + '].value'] = values.promiscuousmode
-          detailsIndex++
-        }
-        if (values.macaddresschanges && values.macaddresschanges !== '') {
-          params['details[' + detailsIndex + '].key'] = 'macaddresschanges'
-          params['details[' + detailsIndex + '].value'] = values.macaddresschanges
-          detailsIndex++
-        }
-        if (values.forgedtransmits && values.forgedtransmits !== '') {
-          params['details[' + detailsIndex + '].key'] = 'forgedtransmits'
-          params['details[' + detailsIndex + '].value'] = values.forgedtransmits
-          detailsIndex++
-        }
-        if (values.maclearning && values.maclearning !== '') {
-          params['details[' + detailsIndex + '].key'] = 'maclearning'
-          params['details[' + detailsIndex + '].value'] = values.maclearning
-          detailsIndex++
-        }
-
-        this.loading = true
-        postAPI('cloneNetworkOffering', params).then(json => {
-          this.$message.success(`${this.$t('message.success.clone.network.offering')} ${values.name}`)
-          this.$emit('refresh-data')
-          this.closeAction()
-        }).catch(error => {
-          this.$notifyError(error)
-        }).finally(() => {
-          this.loading = false
-        })
-      }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
-      })
     },
     closeAction () {
       this.$emit('close-action')
@@ -1415,14 +1318,9 @@ export default {
 </script>
 
 <style scoped lang="less">
-  .form-layout {
-    width: 80vw;
-
-    @media (min-width: 700px) {
-      width: 550px;
-    }
-  }
-
+  .form-layout { width: 100%; min-width: 0; }
+  .offering-scope-hint { color: var(--ui-text-secondary); margin: 8px 0 0; overflow-wrap: anywhere; }
+  @media (max-width: 600px) { .form-layout :deep(.ant-col) { flex: 0 0 100%; max-width: 100%; } }
   .supported-services-container {
     height: 250px;
     overflow-y: scroll;

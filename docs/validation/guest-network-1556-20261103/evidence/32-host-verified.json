@@ -1,0 +1,15 @@
+{
+  "domain": "i-2-307-VM",
+  "host": "10.10.32.1",
+  "domblklist": " Type    Device   Target   Source\n------------------------------------------------------------------------------\n block   disk     sda      /dev/rbd/rbd/e6caa909-0811-47db-961c-98e48136dce7\n file    cdrom    hdc      -\n file    cdrom    hdd      -\n\n",
+  "router": {
+    "id": "88c8e639-cddf-4117-a90b-a2bc96157020",
+    "name": "r-309-VM",
+    "hostname": "ablecube32-2",
+    "linklocalip": "169.254.63.76",
+    "guestipaddress": "10.252.32.1",
+    "guestnetworkid": "b4d0d444-07e4-4010-a242-d247965ca8a3"
+  },
+  "router_to_guest_ping": "PING 10.252.32.173 (10.252.32.173): 56 data bytes\n64 bytes from 10.252.32.173: icmp_seq=0 ttl=64 time=0.445 ms\n64 bytes from 10.252.32.173: icmp_seq=1 ttl=64 time=0.283 ms\n--- 10.252.32.173 ping statistics ---\n2 packets transmitted, 2 packets received, 0% packet loss\nround-trip min/avg/max/stddev = 0.283/0.364/0.445/0.081 ms\n",
+  "temporary_known_hosts": "/tmp/qa-gn1556-router-32-knownhosts"
+}

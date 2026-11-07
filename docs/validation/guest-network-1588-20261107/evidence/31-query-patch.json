@@ -1,0 +1,9 @@
+{
+  "target": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+  "entry": "com/cloud/api/query/QueryManagerImpl.class",
+  "oldJarSha256": "6563bbe5eff57d8fdf18ffa2996007b1f5f8a947faf3e863c71cef79ea5f56d2",
+  "newJarSha256": "785c9c48617f4bc7a93f39fd18774ca366213d925917c0947615300d126edcb4",
+  "classSha256": "2af15a59badb92354583cba81e9cfb8ccd92c9a04c8e617bd7ccb30576884320",
+  "unchangedEntries": 204656,
+  "sourceCommit": "89715f3dd1e23f77614625ad07a24d4348bc68e9"
+}

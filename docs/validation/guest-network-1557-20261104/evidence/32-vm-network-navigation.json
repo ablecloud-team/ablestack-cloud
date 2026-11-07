@@ -1,0 +1,4 @@
+{
+  "url": "http://10.10.32.10:8080/client/#/vm/be3fbc4b-255e-48b1-bce2-366fc417bb06?tab=nics",
+  "text": "생성 및 연결\n기존 네트워크 연결\n업데이트\n네트워크\t장치 ID\tIP / MAC 주소\t상태\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nqa-gn1557-32-nosnat\nIsolated기본\t0\t172.26.32.18\n1e:01:9e:00:01:4d\t활성화\t\n연결 해제"
+}

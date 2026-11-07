@@ -1,0 +1,74 @@
+{
+  "records": [
+    {
+      "requestId": "40480.7685",
+      "command": "listNetworks",
+      "method": "GET",
+      "params": {
+        "id": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "command": "listNetworks"
+      },
+      "status": 200,
+      "result": {
+        "count": 1
+      }
+    },
+    {
+      "requestId": "40480.7687",
+      "command": "listVlanIpRanges",
+      "method": "GET",
+      "params": {
+        "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "forvirtualnetwork": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listVlanIpRanges"
+      },
+      "status": 200,
+      "result": {
+        "count": 1
+      }
+    },
+    {
+      "requestId": "40480.7688",
+      "command": "createVlanIpRange",
+      "method": "POST",
+      "params": {
+        "command": "createVlanIpRange",
+        "networkid": "89d6e044-1d4e-4598-9474-4aea0ae3d9b6",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "forvirtualnetwork": "false",
+        "startip": "172.27.32.15",
+        "endip": "172.27.32.25",
+        "gateway": "172.27.32.1",
+        "netmask": "255.255.255.0"
+      },
+      "status": 431,
+      "result": {
+        "errorcode": 431,
+        "errortext": "The IP range already has IPs that overlap with the new range. Please specify a different start IP/end IP."
+      }
+    }
+  ],
+  "cursor": 10660,
+  "dialog": "IP 주소 범위 추가\nThe IP range already has IPs that overlap with the new range. Please specify a different start IP/end IP.\n인터넷 프로토콜\nIPv4\nIPv6\nIPv4 + IPv6\nIPv4\n\n종료 IP를 비우면 시작 IP 한 개를 사용합니다.\n\nIPv4 시작 IP\nIPv4 종료 IP\n게이트웨이\n넷마스크\n취소\n확인",
+  "values": [
+    {
+      "name": "IPv4 시작 IP",
+      "value": "172.27.32.15"
+    },
+    {
+      "name": "IPv4 종료 IP",
+      "value": "172.27.32.25"
+    },
+    {
+      "name": "게이트웨이",
+      "value": "172.27.32.1"
+    },
+    {
+      "name": "넷마스크",
+      "value": "255.255.255.0"
+    }
+  ]
+}

@@ -1279,14 +1279,16 @@ public class NetworkModelImpl extends ManagerBase implements NetworkModel, Confi
             return null;
         }
 
-        String startIP = vlans.get(0).getIpRange().split("-")[0];
+        String startIP = null;
 
         for (VlanVO vlan : vlans) {
+            if (StringUtils.isBlank(vlan.getIpRange())) {
+                continue;
+            }
             String startIP1 = vlan.getIpRange().split("-")[0];
-            long startIPLong = NetUtils.ip2Long(startIP);
             long startIPLong1 = NetUtils.ip2Long(startIP1);
 
-            if (startIPLong1 < startIPLong) {
+            if (startIP == null || startIPLong1 < NetUtils.ip2Long(startIP)) {
                 startIP = startIP1;
             }
         }

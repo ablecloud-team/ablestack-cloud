@@ -1,0 +1,26 @@
+{
+  "jarSha256": "a4891b6062b9652dc8d9f6f052ea1b998cc1f9c9e478b4d4a9bbb6e2f730af34",
+  "classSha256": {
+    "com/cloud/network/NetworkServiceImpl$6.class": "5b6bfb125954e9d6cd1c22a20edcdc0477b330be882fd8a674bdd7494f9d06af",
+    "com/cloud/network/NetworkServiceImpl$12.class": "36d7549a8778adf6cf3a0d6a4943e267e3f1e5b7d6d3f1f75285020ac30833eb",
+    "com/cloud/network/NetworkServiceImpl$13.class": "221d85a220731d1c465a5b8ecf1273e113db82e4776749820b19c1c205530280",
+    "com/cloud/network/NetworkServiceImpl$7.class": "8a730c594e9b098acd5ead012892b6cae9c1e8414fabf5780c08c67bc5e553cd",
+    "com/cloud/network/NetworkServiceImpl$8.class": "7153b92fe0750f646e88bb94353972f5308da19fe07775adc6678cdac7517ad7",
+    "com/cloud/network/NetworkServiceImpl$11.class": "8c5820e352a77e43e653639ff3fb8b0e9152f338d015fcef6e4701b73ccde659",
+    "com/cloud/network/NetworkServiceImpl$9.class": "7f85fe001b13e2c12154b4a3b0366d4595b4b64a29e0ab75f2fb7ea27903d082",
+    "com/cloud/network/NetworkServiceImpl$NetworkCopy.class": "024c1a3e46257998278eb45642b0329d2c9a3a48686aa8b2b2a57451a32244ca",
+    "com/cloud/network/NetworkServiceImpl$10.class": "41839588a1402523073dc3a75aca418c06db8e183c26d1bd93b0e42a746d4c6f",
+    "com/cloud/network/NetworkServiceImpl.class": "203738417286cded005049c153306188b44fd5de28ab7356695bbd9208a1cc56",
+    "org/apache/cloudstack/api/command/admin/network/MigrateNetworkCmd.class": "687721e1d473a9a51e352211bb3c9d2f5c6ae84f2a93db476ddee1e41349ad9c"
+  },
+  "beforePID": "759061",
+  "afterPID": "799178",
+  "WEB-INF": true,
+  "protectedStaticUnchanged": true,
+  "http": 200,
+  "restartSeconds": 32.67,
+  "diskFree": 157795065856,
+  "cluster": 31,
+  "stage": "/dev/shm/gn1563-server-20261105-222744",
+  "backup": "/home/ablecloud/work/guest-network-1563-validation/server-backups/31-management-before.jar"
+}

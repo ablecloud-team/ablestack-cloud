@@ -1,0 +1,15 @@
+{
+  "id": "5c313a66-57f5-4f4e-87c2-9a77f661f7c0",
+  "protocol": "tcp",
+  "startport": 80,
+  "endport": 80,
+  "ipaddressid": "25328461-bb0a-4b4e-8852-258ad4227d7f",
+  "networkid": "4b9726af-b1cc-4d22-89da-b700e57d14e4",
+  "ipaddress": "10.10.31.142",
+  "state": "Active",
+  "cidrlist": "10.10.0.0/16",
+  "tags": [],
+  "fordisplay": true,
+  "destcidrlist": "",
+  "traffictype": "Ingress"
+}

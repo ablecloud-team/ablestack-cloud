@@ -1,0 +1,24 @@
+[
+  {
+    "role": "owner",
+    "command": "addNicToVirtualMachine",
+    "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+    "targetNetworkId": "9103d235-6ff9-42b7-ad1f-0225d21f507a",
+    "targetProjectId": null,
+    "accepted": false,
+    "errorCode": 530,
+    "errorText": "Unable to use network with id= 9103d235-6ff9-42b7-ad1f-0225d21f507a, permission denied",
+    "unexpectedNicPresent": false
+  },
+  {
+    "role": "member",
+    "command": "addNicToVirtualMachine",
+    "projectid": "4dff5213-ca2c-4ee7-8b2b-16c6a0baa6fe",
+    "targetNetworkId": "9103d235-6ff9-42b7-ad1f-0225d21f507a",
+    "targetProjectId": null,
+    "accepted": false,
+    "errorCode": 530,
+    "errorText": "Unable to use network with id= 9103d235-6ff9-42b7-ad1f-0225d21f507a, permission denied",
+    "unexpectedNicPresent": false
+  }
+]

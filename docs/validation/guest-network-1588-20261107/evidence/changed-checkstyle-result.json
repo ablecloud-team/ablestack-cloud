@@ -1,0 +1,7 @@
+{
+  "exit": 0,
+  "sourceFiles": 4,
+  "rules": "cloud-style.xml from org.apache.cloudstack:checkstyle:4.23.0.0",
+  "checkstyle": "8.18",
+  "plugin": "3.6.0"
+}

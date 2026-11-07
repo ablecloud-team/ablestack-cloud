@@ -1,0 +1,31 @@
+{
+  "checks": [
+    {
+      "resource": "network",
+      "preserved": 9,
+      "changed": [],
+      "fields": [
+        "id",
+        "name",
+        "type",
+        "networkofferingid",
+        "physicalnetworkid",
+        "account",
+        "domainid",
+        "projectid"
+      ]
+    },
+    {
+      "resource": "virtualmachine",
+      "preserved": 55,
+      "changed": [],
+      "fields": [
+        "id",
+        "name",
+        "account",
+        "domainid"
+      ]
+    }
+  ],
+  "status": "PASS"
+}

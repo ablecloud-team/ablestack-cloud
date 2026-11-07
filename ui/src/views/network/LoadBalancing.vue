@@ -17,19 +17,29 @@
 
 <template>
   <div>
-    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <network-rules-toolbar :can-add="'createLoadBalancerRule' in $store.getters.apis && !contextLoading" :loading="loading || contextLoading || listRefreshing > 0" @add="openCreateDialog" @refresh="refreshRules"><slot name="toolbar-context" /></network-rules-toolbar>
+    <network-rules-toolbar :can-add="'createLoadBalancerRule' in $store.getters.apis && !contextLoading" :loading="loading || contextLoading || listRefreshing > 0" @add="openCreateDialog" @refresh="refreshRules">
+      <a-button
+        v-if="(('deleteLoadBalancerRule' in $store.getters.apis) && this.selectedItems.length > 0)"
+        type="primary"
+        danger
+        @click="bulkActionConfirmation()">
+        <template #icon><delete-outlined /></template>
+        {{ $t('label.action.bulk.delete.load.balancer.rules') }}
+      </a-button>
+      <slot name="toolbar-context" />
+    </network-rules-toolbar>
+    <a-alert v-if="listRefreshFailed" class="network-rules-guidance" type="warning" show-icon :message="$t('message.list.refresh.stale')" />
     <slot name="guidance" />
-    <a-modal
-centered
-class="mold-dialog network-rule-dialog"
+    <MoldDialog
+class="network-rule-dialog"
+size="lg"
 :visible="createModalVisible"
 :title="$t('label.network.rule.add')"
-:width="920"
-:footer="null"
-:mask-closable="false"
-@cancel="createModalVisible = false">
-      <div class="mold-form-dialog"><div class="mold-form-content"><NetworkRuleContext :resource="resource" /><a-alert v-if="creationFailed" type="error" show-icon class="mold-dialog-summary" :message="$t('message.network.lb.create.failed')" /><a-alert v-if="assignmentFailed" class="mold-dialog-summary" type="error" show-icon :message="$t('message.network.lb.retry')" />
+
+:closable="!loading"
+:keyboard="!loading"
+@cancel="!loading && closeModal()">
+      <div class="mold-form-dialog"><div class="mold-form-content"><NetworkRuleContext :resource="resource" /><a-alert v-if="creationFailed" type="error" show-icon class="mold-dialog-summary" :message="$t(creationUncertain ? 'message.public.ip.lb.uncertain' : 'message.network.lb.create.failed')" /><a-alert v-if="assignmentFailed" class="mold-dialog-summary" type="error" show-icon :message="$t('message.network.lb.retry')" />
     <div @keyup.ctrl.enter="handleAddNewRule">
       <div class="form">
         <div class="form__item form__item--full" ref="newRuleName">
@@ -212,19 +222,10 @@ class="mold-dialog network-rule-dialog"
             <span>{{ props.value }} / {{ $t('label.page') }}</span>
           </template>
         </a-pagination>
-</div></div></div><div class="action-button"><a-button :disabled="loading" @click="closeModal">{{ $t('label.cancel') }}</a-button><a-button v-if="newRule.autoscale !== 'yes'" type="primary" :loading="loading" :disabled="contextLoading || creationFailed || addVmModalLoading || addVmModalNicLoading || (targetMode === 'select' && !Object.keys(selectedBackends).length) || Object.values(selectedBackends).some(selection => !selection.ips.length)" @click="handleAddNewRule">{{ $t('label.network.rule.add') }}</a-button></div></div>
-    </a-modal>
-
-    <a-divider />
-    <a-button
-      v-if="(('deleteLoadBalancerRule' in $store.getters.apis) && this.selectedItems.length > 0)"
-      type="primary"
-      danger
-      style="width: 100%; margin-bottom: 15px"
-      @click="bulkActionConfirmation()">
-      <template #icon><delete-outlined /></template>
-      {{ $t('label.action.bulk.delete.load.balancer.rules') }}
-    </a-button>
+</div></div></div></div>
+      <template #footer><a-button :disabled="loading" @click="closeModal">{{ $t('label.cancel') }}</a-button><a-button v-if="newRule.autoscale !== 'yes'" type="primary" :loading="loading" :disabled="contextLoading || creationFailed || addVmModalLoading || addVmModalNicLoading || (targetMode === 'select' && !Object.keys(selectedBackends).length) || Object.values(selectedBackends).some(selection => !selection.ips.length)" @click="handleAddNewRule">{{ $t('label.network.rule.add') }}</a-button>
+      </template>
+    </MoldDialog>
     <a-table
       size="small"
       class="list-view"
@@ -267,7 +268,7 @@ class="mold-dialog network-rule-dialog"
                 <a-menu-item v-if="columns.some(column => column.key === 'healthmonitor')" @click="openHealthMonitorModal(record.id)">{{ $t('label.action.health.monitor') }}</a-menu-item>
               </a-menu></template>
             </a-dropdown>
-            <tooltip-button :tooltip="$t('label.edit.tags')" :disabled="isProtectedRule(record) || !('createTags' in $store.getters.apis)" icon="tag-outlined" @onClick="() => openTagsModal(record.id)" />
+            <tooltip-button :tooltip="$t('label.edit.tags')" :disabled="isProtectedRule(record) || !('createTags' in $store.getters.apis)" icon="tag-outlined" @onClick="() => openTagsModal(record)" />
             <a-popconfirm
               :title="$t('label.delete') + '?'"
               @confirm="handleDeleteRule(record)"
@@ -329,59 +330,12 @@ class="mold-dialog network-rule-dialog"
       </template>
     </a-pagination>
 
-    <a-modal
-centered
-class="mold-dialog network-rule-dialog tags-modal"
-      v-if="tagsModalVisible"
-      :title="$t('label.edit.tags')"
-      :visible="tagsModalVisible"
-      :footer="null"
-      :closable="true"
-      :afterClose="closeModal"
-      :maskClosable="false"
-
-      @cancel="tagsModalVisible = false">
-      <span v-show="tagsModalLoading" class="modal-loading">
-        <loading-outlined />
-      </span>
-
-      <a-form
-        :ref="formRef"
-        :model="form"
-        :rules="rules"
-        class="add-tags"
-        @finish="handleAddTag"
-        v-ctrl-enter="handleAddTag"
-       >
-        <div class="add-tags__input">
-          <p class="add-tags__label">{{ $t('label.key') }}</p>
-          <a-form-item ref="key" name="key">
-            <a-input
-              v-focus="true"
-              v-model:value="form.key" />
-          </a-form-item>
-        </div>
-        <div class="add-tags__input">
-          <p class="add-tags__label">{{ $t('label.value') }}</p>
-          <a-form-item ref="value" name="value">
-            <a-input v-model:value="form.value" />
-          </a-form-item>
-        </div>
-        <a-button :disabled="!('createTags' in $store.getters.apis)" type="primary" ref="submit" @click="handleAddTag">{{ $t('label.add') }}</a-button>
-      </a-form>
-
-      <a-divider />
-
-      <div v-show="!tagsModalLoading" class="tags-container">
-        <div class="tags" v-for="(tag, index) in tags" :key="index">
-          <a-tag :key="index" :closable="'deleteTags' in $store.getters.apis" @close="() => handleDeleteTag(tag)">
-            {{ tag.key }} = {{ tag.value }}
-          </a-tag>
-        </div>
-      </div>
-
-      <a-button class="add-tags-done" @click="tagsModalVisible = false" type="primary">{{ $t('label.done') }}</a-button>
-    </a-modal>
+    <RuleTagsDialog
+      v-if="tagRule && tagRule.parentId === resource.id"
+      :resource="resource"
+      :rule="tagRule"
+      resource-type="LoadBalancer"
+      @cancel="tagRule = null" />
 
     <a-modal
 centered
@@ -505,16 +459,15 @@ class="mold-dialog network-rule-dialog"
       </a-form>
     </a-modal>
 
-    <a-modal
-centered
-class="mold-dialog network-rule-dialog"
+    <MoldDialog
+class="network-rule-dialog"
+size="md"
       :title="$t('label.edit.rule')"
       :visible="editRuleModalVisible"
-      :afterClose="closeModal"
-      :maskClosable="false"
+
       :closable="true"
-      :footer="null"
-      @cancel="editRuleModalVisible = false">
+
+      @cancel="closeModal">
       <span v-show="editRuleModalLoading" class="modal-loading">
         <loading-outlined />
       </span>
@@ -574,24 +527,22 @@ class="mold-dialog network-rule-dialog"
           <p class="edit-rule__label">{{ $t('label.backend.ssl') }}</p>
           <a-switch v-model:checked="editRuleDetails.backendssl" />
         </div>
-        <div :span="24" class="action-button">
-          <a-button @click="() => editRuleModalVisible = false">{{ $t('label.cancel') }}</a-button>
-          <a-button type="primary" @click="handleSubmitEditForm">{{ $t('label.ok') }}</a-button>
-        </div>
       </div>
-    </a-modal>
+      <template #footer>
+          <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
+          <a-button type="primary" @click="handleSubmitEditForm">{{ $t('label.ok') }}</a-button>
+      </template>
+    </MoldDialog>
 
-    <a-modal
-centered
-class="mold-dialog network-rule-dialog"
+    <MoldDialog
+class="network-rule-dialog"
+size="lg"
       :title="$t('label.add.vms')"
-      :maskClosable="false"
+
       :closable="true"
       v-if="addVmModalVisible"
       :visible="addVmModalVisible"
 
-      :width="920"
-      :footer="null"
       @cancel="closeModal"
     >
       <a-alert class="mold-dialog-summary" type="info" show-icon :message="$t('message.network.lb.targets')" />
@@ -693,7 +644,8 @@ class="mold-dialog network-rule-dialog"
           <a-button :disabled="loading || contextLoading || creationFailed || addVmModalLoading || addVmModalNicLoading || Object.values(selectedBackends).some(selection => !selection.ips.length)" type="primary" ref="submit" @click="handleAddNewRule">{{ $t('label.ok') }}</a-button>
         </div>
       </div>
-    </a-modal>
+          <template #footer><span /></template>
+    </MoldDialog>
 
     <a-modal
 centered
@@ -920,10 +872,14 @@ class="mold-dialog network-rule-dialog"
 <script>
 import { validPortRange, loadBalancerIsProtected, selectedBackendMap } from '@/utils/networkRuleForm'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import MoldDialog from '@/components/view/MoldDialog'
+import { networkError } from '@/utils/networkLifecycle'
+import { networkMutationMixin } from '@/utils/networkMutation'
 
 import { ref, reactive, toRaw, nextTick } from 'vue'
 import NetworkRuleContext from '@/components/view/NetworkRuleContext'
 import NetworkRulesToolbar from '@/components/view/NetworkRulesToolbar'
+import RuleTagsDialog from '@/components/view/RuleTagsDialog.vue'
 import { getAPI, postAPI } from '@/api'
 import { mixinForm } from '@/utils/mixin'
 import Status from '@/components/widgets/Status'
@@ -934,8 +890,10 @@ import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
   name: 'LoadBalancing',
-  mixins: [listRefreshMixin(['fetchLBRules']), mixinForm],
+  mixins: [listRefreshMixin(['fetchLBRules']), mixinForm, networkMutationMixin],
   components: {
+    MoldDialog,
+    RuleTagsDialog,
     NetworkRuleContext,
     NetworkRulesToolbar,
     Status,
@@ -962,6 +920,7 @@ export default {
       nicRequest: 0,
       creationJob: null,
       creationFailed: false,
+      creationUncertain: false,
       selectedRowKeys: [],
       showGroupActionModal: false,
       selectedItems: [],
@@ -974,9 +933,7 @@ export default {
       },
       loading: true,
       lbRules: [],
-      tagsModalVisible: false,
-      tagsModalLoading: false,
-      tags: [],
+      tagRule: null,
       selectedRule: null,
       selectedTier: null,
       stickinessModalVisible: false,
@@ -1199,6 +1156,7 @@ export default {
     this.fetchData()
   },
   watch: {
+    'resource.id' () { this.tagRule = null },
     resource: {
       deep: true,
       handler (newItem) {
@@ -1406,7 +1364,7 @@ export default {
         certid: certId,
         forced: true
       }).then(response => {
-        this.$pollJob({
+        this.pollScopedNetworkJob({
           jobId: response.assigncerttoloadbalancerresponse.jobid,
           successMessage: this.$t('message.success.assign.sslcert'),
           successMethod: () => {
@@ -1434,7 +1392,7 @@ export default {
       getAPI('removeCertFromLoadBalancer', {
         lbruleid: this.selectedRule.id
       }).then(response => {
-        this.$pollJob({
+        this.pollScopedNetworkJob({
           jobId: response.removecertfromloadbalancerresponse.jobid,
           successMessage: this.$t('message.success.remove.sslcert'),
           successMethod: () => {
@@ -1503,103 +1461,9 @@ export default {
       if (val === 'all') return this.$t('label.all')
       return val.toUpperCase()
     },
-    openTagsModal (id) {
-      this.initForm()
-      this.rules = {
-        key: [{ required: true, message: this.$t('message.specify.tag.key') }],
-        value: [{ required: true, message: this.$t('message.specify.tag.value') }]
-      }
-      this.tagsModalLoading = true
-      this.tagsModalVisible = true
-      this.tags = []
-      this.selectedRule = id
-      getAPI('listTags', {
-        resourceId: id,
-        resourceType: 'LoadBalancer',
-        listAll: true
-      }).then(response => {
-        this.tags = response.listtagsresponse.tag
-        this.tagsModalLoading = false
-      }).catch(error => {
-        this.$notifyError(error)
-        this.closeModal()
-      })
-    },
-    handleAddTag (e) {
-      if (this.tagsModalLoading) return
-      this.tagsModalLoading = true
-
-      e.preventDefault()
-      this.formRef.value.validate().then(() => {
-        const formRaw = toRaw(this.form)
-        const values = this.handleRemoveFields(formRaw)
-
-        postAPI('createTags', {
-          'tags[0].key': values.key,
-          'tags[0].value': values.value,
-          resourceIds: this.selectedRule,
-          resourceType: 'LoadBalancer'
-        }).then(response => {
-          this.$pollJob({
-            jobId: response.createtagsresponse.jobid,
-            successMessage: this.$t('message.success.add.tag'),
-            successMethod: () => {
-              this.parentToggleLoading()
-              this.openTagsModal(this.selectedRule)
-            },
-            errorMessage: this.$t('message.add.tag.failed'),
-            errorMethod: () => {
-              this.parentToggleLoading()
-              this.closeModal()
-            },
-            loadingMessage: this.$t('message.add.tag.processing'),
-            catchMessage: this.$t('error.fetching.async.job.result'),
-            catchMethod: () => {
-              this.parentFetchData()
-              this.parentToggleLoading()
-              this.closeModal()
-            }
-          })
-        }).catch(error => {
-          this.$notifyError(error)
-        })
-      }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
-      }).finally(() => {
-        this.tagsModalLoading = false
-      })
-    },
-    handleDeleteTag (tag) {
-      this.tagsModalLoading = true
-      postAPI('deleteTags', {
-        'tags[0].key': tag.key,
-        'tags[0].value': tag.value,
-        resourceIds: tag.resourceid,
-        resourceType: 'LoadBalancer'
-      }).then(response => {
-        this.$pollJob({
-          jobId: response.deletetagsresponse.jobid,
-          successMessage: this.$t('message.success.delete.tag'),
-          successMethod: () => {
-            this.parentToggleLoading()
-            this.openTagsModal(this.selectedRule)
-          },
-          errorMessage: this.$t('message.delete.tag.failed'),
-          errorMethod: () => {
-            this.parentToggleLoading()
-            this.closeModal()
-          },
-          loadingMessage: this.$t('message.delete.tag.processing'),
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.parentFetchData()
-            this.parentToggleLoading()
-            this.closeModal()
-          }
-        })
-      }).catch(error => {
-        this.$notifyError(error)
-      })
+    openTagsModal (rule) {
+      if (!rule.id || !this.resource.id || !('listTags' in this.$store.getters.apis)) return
+      this.tagRule = { id: rule.id, parentId: this.resource.id, canEdit: !this.isProtectedRule(rule) }
     },
     openStickinessModal (id) {
       this.initForm()
@@ -1638,7 +1502,7 @@ export default {
         name: values.name,
         methodname: values.methodname
       }).then(response => {
-        this.$pollJob({
+        this.pollScopedNetworkJob({
           jobId: response.createLBStickinessPolicy.jobid,
           successMessage: this.$t('message.success.config.sticky.policy'),
           successMethod: () => {
@@ -1670,7 +1534,7 @@ export default {
     handleDeleteStickinessPolicy () {
       this.stickinessModalLoading = true
       postAPI('deleteLBStickinessPolicy', { id: this.selectedStickinessPolicy.id }).then(response => {
-        this.$pollJob({
+        this.pollScopedNetworkJob({
           jobId: response.deleteLBstickinessrruleresponse.jobid,
           successMessage: this.$t('message.success.remove.sticky.policy'),
           successMethod: () => {
@@ -1759,7 +1623,7 @@ export default {
         'vmidipmap[0].vmid': instance.loadbalancerruleinstance.id,
         'vmidipmap[0].vmip': ip
       }).then(response => {
-        this.$pollJob({
+        this.pollScopedNetworkJob({
           jobId: response.removefromloadbalancerruleresponse.jobid,
           successMessage: this.$t('message.success.remove.instance.rule'),
           successMethod: () => {
@@ -1808,7 +1672,7 @@ export default {
         })
       }
       postAPI('updateLoadBalancerRule', payload).then(response => {
-        this.$pollJob({
+        this.pollScopedNetworkJob({
           jobId: response.updateloadbalancerruleresponse.jobid,
           successMessage: this.$t('message.success.edit.rule'),
           successMethod: () => {
@@ -1891,7 +1755,7 @@ export default {
       }).then(response => {
         const jobId = response.deleteloadbalancerruleresponse.jobid
         eventBus.emit('update-job-details', { jobId, resourceId: null })
-        this.$pollJob({
+        this.pollScopedNetworkJob({
           title: this.$t('label.action.delete.load.balancer'),
           description: rule.id,
           jobId: jobId,
@@ -2059,6 +1923,7 @@ export default {
       this.fetchNetworks()
     },
     handleAssignToLBRule (data) {
+      const operationScope = this.networkMutationScope
       const vmIDIpMap = selectedBackendMap(this.selectedBackends, this.vpcConserveMode, this.selectedTier)
       const selectedVmCount = Object.keys(vmIDIpMap).length
       if (selectedVmCount === 0) {
@@ -2072,7 +1937,8 @@ export default {
         id: data,
         ...vmIDIpMap
       }).then(response => {
-        this.$pollJob({
+        if (this.networkMutationDisposed || this.networkMutationScope !== operationScope) return
+        this.pollScopedNetworkJob({
           jobId: response.assigntoloadbalancerruleresponse.jobid,
           successMessage: this.$t('message.success.assign.vm'),
           successMethod: () => {
@@ -2101,9 +1967,10 @@ export default {
             this.loading = false
           }
         })
-      }).catch(error => { this.$notifyError(error); this.assignmentFailed = true; this.loading = false })
+      }).catch(error => { if (this.networkMutationDisposed || this.networkMutationScope !== operationScope) return; this.$notifyError(error); this.assignmentFailed = true; this.loading = false })
     },
     handleAddNewRule () {
+      const operationScope = this.networkMutationScope
       if (this.loading || this.contextLoading || this.addVmModalNicLoading || this.creationFailed || (this.createModalVisible && this.targetMode === 'select' && !Object.keys(this.selectedBackends).length) || Object.values(this.selectedBackends).some(selection => !selection.ips.length)) return
       this.loading = true
 
@@ -2129,32 +1996,51 @@ export default {
         publicport: this.newRule.publicport,
         cidrlist: this.newRule.cidrlist,
         backendssl: this.newRule.protocol === 'ssl' && this.newRule.backendssl
-      }).then(response => {
-        this.selectedRule = { id: response.createloadbalancerruleresponse.id }
+      }, { preserveOnFailure: true }).then(response => {
+        if (this.networkMutationDisposed || this.networkMutationScope !== operationScope) return
+        const rule = response.createloadbalancerruleresponse
+        if (!rule?.id) {
+          this.creationFailed = true
+          this.creationUncertain = true
+          this.loading = false
+          this.fetchData()
+          return
+        }
+        this.selectedRule = { id: rule.id }
         this.creationJob = response.createloadbalancerruleresponse.jobid
         this.associatednetworkid = networkId
         if (this.creationJob) this.finishRuleCreation()
         else this.handleAssignToLBRule(this.selectedRule.id)
       }).catch(error => {
-        this.$notifyError(error)
+        if (this.networkMutationDisposed || this.networkMutationScope !== operationScope) return
+        this.creationUncertain = !networkError(error).definitive
+        this.creationFailed = this.creationUncertain
+        if (this.creationUncertain) this.fetchData()
+        else this.$notifyError(error)
         this.loading = false
       })
 
       // assigntoloadbalancerruleresponse.jobid
     },
     async finishRuleCreation () {
+      const operationScope = this.networkMutationScope
       try {
-        const result = await this.$pollJob({ jobId: this.creationJob, title: this.$t('label.network.rule.add'), catchMessage: this.$t('error.fetching.async.job.result') })
+        const result = await this.pollScopedNetworkJob({ jobId: this.creationJob, title: this.$t('label.network.rule.add'), catchMessage: this.$t('error.fetching.async.job.result') })
+        if (this.networkMutationDisposed || this.networkMutationScope !== operationScope) return
         if (result.jobstatus === 1) { this.creationJob = null; this.handleAssignToLBRule(this.selectedRule.id) } else { this.loading = false; this.creationFailed = result.jobstatus === 2; this.fetchData() }
-      } catch (error) { this.$notifyError(error); this.loading = false }
+      } catch (error) {
+        if (this.networkMutationDisposed || this.networkMutationScope !== operationScope) return
+        this.$notifyError(error); this.loading = false
+      }
     },
     closeModal () {
       this.selectedRule = null
       this.assignmentFailed = false
       this.creationJob = null
       this.creationFailed = false
+      this.creationUncertain = false
       this.createModalVisible = false
-      this.tagsModalVisible = false
+      this.tagRule = null
       this.stickinessModalVisible = false
       this.stickinessModalLoading = false
       this.selectedStickinessPolicy = null
@@ -2251,7 +2137,7 @@ export default {
         this.healthMonitorLoading = true
         postAPI('updateTungstenFabricLBHealthMonitor', this.healthMonitorParams).then(json => {
           const jobId = json?.updatetungstenfabriclbhealthmonitorresponse?.jobid
-          this.$pollJob({
+          this.pollScopedNetworkJob({
             jobId: jobId,
             successMessage: this.$t('message.success.config.health.monitor'),
             successMethod: () => {
@@ -2433,45 +2319,6 @@ export default {
 
   .rule-action {
     margin-bottom: 10px;
-  }
-
-  .tags-modal {
-
-    .ant-divider {
-      margin-top: 0;
-    }
-
-  }
-
-  .tags {
-    margin-bottom: 10px;
-  }
-
-  .add-tags {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    &__input {
-      margin-right: 10px;
-    }
-
-    &__label {
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-
-  }
-
-  .tags-container {
-    display: flex;
-    flex-wrap: wrap;
-    margin-bottom: 10px;
-  }
-
-  .add-tags-done {
-    display: block;
-    margin-left: auto;
   }
 
   .modal-loading {

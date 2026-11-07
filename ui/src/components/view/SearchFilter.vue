@@ -31,7 +31,7 @@
           @close="() => $emit('removeFilter', filter)"
         >
           <a-tooltip
-            :title="retrieveFieldLabel(filter.key) + ': ' + filter.value + (['affinitygroupid', 'volumeid'].includes(filter.key) && filter.rawValue !== filter.value ? ' (' + filter.rawValue + ')' : '')"
+            :title="retrieveFieldLabel(filter.key) + ': ' + filter.value + (['affinitygroupid', 'volumeid', 'networkofferingid', 'physicalnetworkid'].includes(filter.key) && filter.rawValue !== filter.value ? ' (' + filter.rawValue + ')' : '')"
             placement="bottom"
           >
             {{ retrieveFieldLabel(filter.key) }} : {{ getTrimmedText(filter.value, 20) }}
@@ -59,6 +59,7 @@
 import { getAPI } from '@/api'
 import { affinityPolicy } from '@/utils/affinityGroupPresentation'
 import { snapshotSearchLabel, snapshotSearchValue, snapshotPickerScope } from '@/utils/storageSnapshotSearch'
+import { networkPickerApi, networkPickerParams } from '@/utils/guestNetworkSearch'
 
 export default {
   name: 'SearchFilter',
@@ -186,7 +187,7 @@ export default {
     }
   },
   computed: {
-    lookupScope () { return JSON.stringify([this.$store?.getters?.userInfo?.id, this.$store?.state?.user?.token, this.$store?.getters?.project?.id, this.$route.query?.projectid, this.$route.path, this.apiName]) }
+    lookupScope () { return JSON.stringify([this.$store?.getters?.userInfo?.id, this.$store?.getters?.userInfo?.roletype, this.$store?.getters?.userInfo?.roleid, Object.keys(this.$store?.getters?.apis || {}).sort(), this.$store?.state?.user?.token, this.$store?.getters?.project?.id, this.$route.query?.projectid, this.$route.path, this.apiName]) }
   },
   beforeUnmount () { this.filterVersion++ },
   watch: {
@@ -215,6 +216,9 @@ export default {
       return (text.length <= length) ? text : (text.substring(0, length - 3) + '...')
     },
     retrieveFieldLabel (fieldName) {
+      if (fieldName === 'forvpc') return this.$t('label.network.search.forvpc')
+      if (fieldName === 'networkofferingid') return this.$t('label.network.offering')
+      if (fieldName === 'physicalnetworkid') return this.$t('label.physical.network')
       if (this.apiName === 'listSnapshotPolicies' && fieldName === 'fordisplay') return this.$t('label.snapshot.policy.scheduling')
       if (this.apiName === 'listSnapshots') return this.$t(snapshotSearchLabel(fieldName))
       if (fieldName === 'affinitygroupid') return this.$t('label.affinitygroup')
@@ -245,6 +249,7 @@ export default {
       }
     },
     getStaticFieldValue (key, value) {
+      if (this.apiName === 'listNetworks' && key === 'forvpc') return this.$t(String(value) === 'true' ? 'label.yes' : 'label.no')
       if (this.apiName === 'listSnapshotPolicies' && key === 'fordisplay') return this.$t(value === 'true' ? 'label.snapshot.policy.schedule.enabled' : 'label.snapshot.policy.schedule.paused')
       if (this.apiName === 'listSnapshots') {
         const label = snapshotSearchValue(key, value)
@@ -296,6 +301,12 @@ export default {
     },
     async getDynamicFieldValue (key, value) {
       let formattedValue = ''
+      if (this.apiName === 'listNetworks' && ['networkofferingid', 'physicalnetworkid'].includes(key)) {
+        const { api, field } = networkPickerApi(key)
+        if (!this.$store.state?.user?.token || !this.$store.getters.apis?.[api]) return value
+        const json = await getAPI(api, { ...networkPickerParams(key, this.$route.query), id: value, page: 1, pagesize: 20 }, { preserveOnFailure: true, timeout: 20000 })
+        return json?.[api.toLowerCase() + 'response']?.[field]?.find(r => r.id === value)?.name || value
+      }
 
       if (this.apiName === 'listSnapshots' && key === 'account') return value
       if (['listSnapshots', 'listSnapshotPolicies'].includes(this.apiName) && key === 'volumeid') {
