@@ -26,3 +26,7 @@ export function validTemplateChecksum (value) {
   if (Object.keys(lengths).some(key => key.toLowerCase() === algorithm.toLowerCase() && key !== algorithm)) return false
   return !lengths[algorithm] || match[2].length === lengths[algorithm]
 }
+
+export function templateOptionMatches (input, option) {
+  return [option?.label, option?.value].some(value => typeof value === 'string' && value.toLowerCase().includes(String(input).toLowerCase()))
+}

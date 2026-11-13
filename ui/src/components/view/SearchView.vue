@@ -1916,6 +1916,10 @@ export default {
           }
         }
         this.$emit('search', this.paramsFilter)
+      }).catch(error => {
+        if (error.errorFields?.length) {
+          if (this.formRef.value.scrollToField) this.formRef.value.scrollToField(error.errorFields[0].name)
+        } else throw error
       })
     },
     changeFilter (filter) {

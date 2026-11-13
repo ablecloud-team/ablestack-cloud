@@ -382,12 +382,10 @@
           <a-select
             showSearch
             optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }"
+            :filterOption="templateOptionMatches"
             v-model:value="form.templatetype"
             :placeholder="apiParams.templatetype.description">
-            <a-select-option v-for="opt in templateTypes.opts" :key="opt.id">
+            <a-select-option v-for="opt in templateTypes.opts" :key="opt.id" :label="opt.name || opt.description">
               {{ opt.name || opt.description }}
             </a-select-option>
           </a-select>
@@ -401,12 +399,10 @@
           <a-select
             showSearch
             optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }"
+            :filterOption="templateOptionMatches"
             v-model:value="form.arch"
             :placeholder="apiParams.arch.description">
-            <a-select-option v-for="opt in architectureTypes.opts" :key="opt.id">
+            <a-select-option v-for="opt in architectureTypes.opts" :key="opt.id" :label="opt.name || opt.description">
               {{ opt.name || opt.description }}
             </a-select-option>
           </a-select>
@@ -417,8 +413,7 @@
           </template>
           <a-input
             v-model:value="form.templatetag"
-            :placeholder="apiParams.templatetag.description"
-            v-focus="currentForm !== 'Create'"/>
+            :placeholder="apiParams.templatetag.description" />
         </a-form-item>
         <a-row :gutter="12" v-if="canLinkUserData">
           <a-col :md="24" :lg="12">
@@ -536,7 +531,7 @@ import TooltipLabel from '@/components/widgets/TooltipLabel'
 import DetailsInput from '@/components/widgets/DetailsInput'
 import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
-import { validTemplateChecksum } from '@/utils/templateForm'
+import { validTemplateChecksum, templateOptionMatches } from '@/utils/templateForm'
 
 export default {
   name: 'RegisterOrUploadTemplate',
@@ -630,6 +625,7 @@ export default {
     }
   },
   methods: {
+    templateOptionMatches,
     supportsParam (name) { return !!this.apiParams[name] },
     initForm () {
       this.formRef = ref()

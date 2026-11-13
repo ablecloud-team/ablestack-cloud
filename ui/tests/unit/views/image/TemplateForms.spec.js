@@ -18,7 +18,7 @@
 import { shallowMount } from '@vue/test-utils'
 import Template from '@/views/image/UpdateTemplate.vue'
 import Register from '@/views/image/RegisterOrUploadTemplate.vue'
-import { validTemplateChecksum } from '@/utils/templateForm'
+import { validTemplateChecksum, templateOptionMatches } from '@/utils/templateForm'
 import { getAPI, postAPI } from '@/api'
 import { axios } from '@/utils/request'
 import { probeSsvmCert } from '@/utils/ssvmProbe'
@@ -94,3 +94,6 @@ test.each([['plus-outlined', 'Create', 'registerTemplate'], ['cloud-upload-outli
   })
   expect(wrapper.vm.currentForm).toBe(mode); expect(wrapper.vm.apiParams).toBe(metadata); expect(wrapper.vm.$getApiParams).toHaveBeenCalledWith(api); wrapper.unmount()
 })
+
+test.each([['x86_64', { label: 'Intel/AMD 64 bits (x86_64)' }], ['aarch64', { label: 'ARM 64 bits (aarch64)' }], ['s390x', { label: 'IBM Z 64 bits (s390x)' }], ['user', { label: 'USER' }], ['x86_64', { value: 'x86_64' }]])('option search %s uses current Vue option properties', (input, option) => expect(templateOptionMatches(input, option)).toBe(true))
+test('option search safely rejects missing properties without crashing the selector', () => { expect(templateOptionMatches('x86_64', undefined)).toBe(false); expect(templateOptionMatches('x86_64', { children: [] })).toBe(false) })

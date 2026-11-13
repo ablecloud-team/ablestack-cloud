@@ -38,3 +38,7 @@ test('late lookup cannot populate another owner or rebuilt form', async () => {
   const pending = c.fetchDynamicFieldData(['zoneid']); c.volumeOwnerContext = 'owner-b'; release({ type: 'zoneid', data: [{ id, name: 'old owner zone' }] }); await pending; await flushPromises(); expect(c.fields[0].opts).toEqual([])
   c.fetchZones = async () => ({ type: 'zoneid', data: [{ id, name: 'current' }] }); await c.fetchDynamicFieldData(['zoneid']); await flushPromises(); expect(c.fields[0].opts).toEqual([{ id, name: 'current' }])
 })
+
+test('Ctrl+Enter validation failure is handled and retains the editable draft', async () => {
+  const c = context(); c.form.userdataid = 'invalid'; c.formRef = { value: { validate: jest.fn().mockRejectedValue({ errorFields: [{ name: ['userdataid'] }] }), scrollToField: jest.fn() } }; c.$emit = jest.fn(); c.handleSubmit(); await flushPromises(); expect(c.form.userdataid).toBe('invalid'); expect(c.formRef.value.scrollToField).toHaveBeenCalledWith(['userdataid']); expect(c.$emit).not.toHaveBeenCalled()
+})
