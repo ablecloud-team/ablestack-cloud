@@ -18,6 +18,7 @@
 import { shallowRef, defineAsyncComponent } from 'vue'
 import store from '@/store'
 import { templateAvailability } from '@/utils/templateAvailability'
+import { isStorageServiceTemplate, canReadTemplateRuntimeCatalog } from '@/utils/templateDetails'
 import { isZoneCreated } from '@/utils/zone'
 import kubernetesIcon from '@/assets/icons/kubernetes.svg?inline'
 
@@ -56,10 +57,10 @@ export default {
       },
       details: () => {
         var fields = ['name', 'id', 'displaytext', 'checksum', 'hypervisor', 'arch', 'format', 'externalprovisioner', 'ostypename', 'size', 'physicalsize', 'isready', 'passwordenabled',
-          'crossZones', 'templatetype', 'directdownload', 'deployasis', 'ispublic', 'isfeatured', 'isextractable', 'isdynamicallyscalable', 'crosszones', 'type',
+          'sshkeyenabled', 'requireshvm', 'templatetype', 'directdownload', 'deployasis', 'ispublic', 'isfeatured', 'isextractable', 'isdynamicallyscalable', 'crosszones',
           'account', 'domain', 'created', 'userdatadetails', 'userdatapolicy', 'forcks', 'url']
         if (['Admin'].includes(store.getters.userInfo.roletype)) {
-          fields.push('templatetag', 'templatetype', 'kvdoenable')
+          fields.push('templatetag', 'kvdoenable')
         }
         return fields
       },
@@ -79,7 +80,7 @@ export default {
       tabs: [{
         name: 'details',
         component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailsTab.vue')))
-      }, { name: 'runtime.catalog', component: shallowRef(defineAsyncComponent(() => import('@/views/tools/RuntimeBundleCatalogSummary.vue'))), show: () => store.getters.userInfo.roletype === 'Admin' },
+      }, { name: 'runtime.catalog', component: shallowRef(defineAsyncComponent(() => import('@/views/tools/RuntimeBundleCatalogSummary.vue'))), show: record => canReadTemplateRuntimeCatalog(store.getters) && isStorageServiceTemplate(record) },
       {
         name: 'zones',
         component: shallowRef(defineAsyncComponent(() => import('@/views/image/TemplateZones.vue')))

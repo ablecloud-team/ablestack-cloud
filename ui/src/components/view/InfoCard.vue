@@ -18,6 +18,7 @@
   <a-spin :spinning="loading">
     <a-card
       class="spin-content"
+      :class="{ 'template-info-card': $route.meta.name === 'template' }"
       :bordered="bordered"
       :title="title"
       @contextmenu="handleContextMenu">
@@ -239,6 +240,9 @@
           <div class="resource-detail-item__details">
             <status class="status" :text="resource.mirroringagentstatus" displayText/>
           </div>
+        </div>
+        <div class="resource-detail-item" v-if="$route.meta.name === 'template' && templateRuntimeToolVisible">
+          <router-link to="/runtimebundle">{{ $t('label.runtime.catalog') }}</router-link>
         </div>
         <div class="resource-detail-item" v-if="resource.id">
           <div class="resource-detail-item__label">{{ $t('label.id') }}</div>
@@ -1155,6 +1159,7 @@
 </template>
 
 <script>
+import { isStorageServiceTemplate, canReadTemplateRuntimeCatalog } from '@/utils/templateDetails'
 import { networkTypeLabel } from '@/utils/networkLifecycle'
 import { vmNetworkAccessMixin } from '@/utils/vmNetworkAccess'
 import { offeringNetworkQuery } from '@/utils/guestNetworkSearch'
@@ -1314,6 +1319,7 @@ export default {
   },
   beforeUnmount () { this.iconActive = false },
   computed: {
+    templateRuntimeToolVisible () { return canReadTemplateRuntimeCatalog(this.$store.getters) && !isStorageServiceTemplate(this.resource) },
     executionOsName () { return creationVmOsName(this.resource, this.$t) },
     kubernetesNodeTemplates () {
       if (this.$route.meta.name !== 'kubernetes') return []
@@ -1666,6 +1672,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.template-info-card .card-content { min-width: 0; }
+.template-info-card .resource-details__name > div:last-child { min-width: 0; }
+.template-info-card .resource-detail-item__details { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+.template-info-card .resource-detail-item__details a { white-space: normal; overflow-wrap: anywhere; }
 .vm-network-access-error {
   margin-top: 8px;
   overflow-wrap: anywhere;
