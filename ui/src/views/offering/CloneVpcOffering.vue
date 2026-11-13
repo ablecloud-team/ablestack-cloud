@@ -756,7 +756,7 @@ export default {
         }
 
         this.loading = true
-        postAPI('cloneVPCOffering', params).then(json => {
+        postAPI('cloneVPCOffering', params, { preserveOnFailure: true }).then(json => {
           this.$message.success(`${this.$t('message.success.clone.vpc.offering')} ${values.name}`)
           this.$emit('refresh-data')
           this.closeAction()

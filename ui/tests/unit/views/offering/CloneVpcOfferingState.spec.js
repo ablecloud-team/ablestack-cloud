@@ -113,6 +113,7 @@ test('HTTP failure retry retains false and source values without repopulating th
   wrapper.vm.form.name = 'Retry clone'; wrapper.vm.form.enable = false
   postAPI.mockRejectedValueOnce(new Error('HTTP failure'))
   const first = await submit(wrapper)
+  expect(postAPI.mock.calls[0][2]).toEqual({ preserveOnFailure: true })
   expect(wrapper.vm.loading).toBe(false)
   expect(wrapper.emitted('close-action')).toBeUndefined()
   const second = await submit(wrapper)
