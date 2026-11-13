@@ -11576,5 +11576,6 @@
   "label.vnf.secret.replace": "Replace value",
   "label.vnf.secret.unchanged": "Keep existing value",
   "label.vnf.secret.new": "Enter a new secret value",
-  "message.vnf.nic.move.boundary": "Cannot move past the end or across the required/optional NIC boundary."
+  "message.vnf.nic.move.boundary": "Cannot move past the end or across the required/optional NIC boundary.",
+  "label.edit.setting": "Edit setting"
 }
