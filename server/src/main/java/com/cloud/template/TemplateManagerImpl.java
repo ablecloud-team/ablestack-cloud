@@ -616,16 +616,8 @@ public class TemplateManagerImpl extends ManagerBase implements TemplateManager,
 
         if (storageId != null) {
             StoragePoolVO pool = _poolDao.findById(storageId);
-            if (pool != null) {
-                if (pool.getStatus() == StoragePoolStatus.Up && pool.getDataCenterId() == zoneId) {
-                    prepareTemplateInOneStoragePool(vmTemplate, pool);
-                } else {
-                    logger.warn("Skip loading Template {} into primary storage {} as " +
-                            "either the pool zone {} is different from the requested zone {} or " +
-                            "the pool is currently not available.",
-                            vmTemplate::toString, pool::toString, () -> _dcDao.findById(pool.getDataCenterId()), () -> _dcDao.findById(zoneId));
-                }
-            }
+            TemplatePreparationValidation.validate(pool, zoneId, vmTemplate.getHypervisorType());
+            prepareTemplateInOneStoragePool(vmTemplate, pool);
         } else {
             prepareTemplateInAllStoragePools(vmTemplate, zoneId);
         }

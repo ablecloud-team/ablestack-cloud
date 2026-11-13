@@ -207,6 +207,10 @@ public class TemplateJoinDaoImpl extends GenericDaoBaseWithTagInformation<Templa
         return templateStatus.getStatus();
     }
 
+    static List<Long> cachedPrimaryPoolIds(List<VMTemplateStoragePoolVO> references) {
+        return references.stream().map(VMTemplateStoragePoolVO::getPoolId).distinct().collect(Collectors.toList());
+    }
+
     @Override
     public TemplateResponse newTemplateResponse(EnumSet<ApiConstants.DomainDetails> detailsView, ResponseView view, TemplateJoinVO template) {
         List<ImageStoreVO> storesInZone = dataStoreDao.listStoresByZoneId(template.getDataCenterId());
@@ -237,7 +241,7 @@ public class TemplateJoinDaoImpl extends GenericDaoBaseWithTagInformation<Templa
         List<Long> poolIds = poolsInZone.stream().map(StoragePoolVO::getId).collect(Collectors.toList());
         List<VMTemplateStoragePoolVO> templatesInPool = templatePoolDao.listByTemplateId(template.getId(), poolIds);
 
-        dataStoreIdList = templatesInStore.stream().map(TemplateDataStoreVO::getDataStoreId).collect(Collectors.toList());
+        dataStoreIdList = cachedPrimaryPoolIds(templatesInPool);
         Map<Long, StoragePoolVO> storagePoolMap = primaryDataStoreDao.listByIds(dataStoreIdList).stream().collect(Collectors.toMap(StoragePoolVO::getId, store -> store));
 
         for (VMTemplateStoragePoolVO templateInPool : templatesInPool) {

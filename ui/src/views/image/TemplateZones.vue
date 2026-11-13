@@ -19,7 +19,7 @@
   <div>
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <a-button
-      v-if="(('deleteTemplate' in $store.getters.apis) && this.selectedRowKeys.length > 0)"
+      v-if="(('deleteTemplate' in $store.getters.apis) && isActionsOnTemplatePermitted && !operationActive && this.selectedRowKeys.length > 0)"
       type="primary"
       danger
       style="width: 100%; margin-bottom: 15px"
@@ -60,23 +60,26 @@
           <span style="margin-right: 5px" v-if="'deployVirtualMachine' in $store.getters.apis">
             <tooltip-button
               :disabled="!record.isready"
-              :title="$t('label.vm.add')"
+              :tooltip="$t('label.vm.add')"
               icon="rocket-outlined"
               @onClick="onAddInstance(record)"/>
           </span>
           <span v-if="isActionsOnTemplatePermitted">
             <span style="margin-right: 5px">
               <tooltip-button
-                :disabled="!('copyTemplate' in $store.getters.apis && record.isready)"
-                :title="$t('label.action.copy.template')"
+                :disabled="operationActive || !('copyTemplate' in $store.getters.apis && record.isready)"
+                :tooltip="$t('label.action.copy.template')"
                 icon="copy-outlined"
                 :loading="copyLoading"
                 @onClick="showCopyTemplate(record)" />
             </span>
+            <span v-if="canPrepare" style="margin-right:5px">
+              <tooltip-button :disabled="operationActive || record.isready !== true" :tooltip="$t('label.template.zone.prepare')" icon="download-outlined" @onClick="$refs.zoneOps.open('prepare',[record])" />
+            </span>
             <span style="margin-right: 5px">
               <tooltip-button
-                :disabled="!('deleteTemplate' in $store.getters.apis)"
-                :title="$t('label.action.delete.template')"
+                :disabled="operationActive || !('deleteTemplate' in $store.getters.apis)"
+                :tooltip="$t('label.action.delete.template')"
                 type="primary"
                 :danger="true"
                 icon="delete-outlined"
@@ -122,15 +125,15 @@
       <template #action="{ record }">
         <tooltip-button
           style="margin-right: 5px"
-          :disabled="!('copyTemplate' in $store.getters.apis && record.isready)"
-          :title="$t('label.action.copy.template')"
+          :disabled="operationActive || !('copyTemplate' in $store.getters.apis && record.isready)"
+          :tooltip="$t('label.action.copy.template')"
           icon="copy-outlined"
           :loading="copyLoading"
           @onClick="showCopyTemplate(record)" />
         <tooltip-button
           style="margin-right: 5px"
-          :disabled="!('deleteTemplate' in $store.getters.apis)"
-          :title="$t('label.action.delete.template')"
+          :disabled="operationActive || !('deleteTemplate' in $store.getters.apis)"
+          :tooltip="$t('label.action.delete.template')"
           type="primary"
           :danger="true"
           icon="delete-outlined"
@@ -153,108 +156,15 @@
       </template>
     </a-pagination>
 
-    <a-modal
-      v-if="'copyTemplate' in $store.getters.apis"
-      style="top: 20px;"
-      :title="$t('label.action.copy.template')"
-      :visible="showCopyActionForm"
-      :closable="true"
-      :maskClosable="false"
-      :footer="null"
-      :confirmLoading="copyLoading"
-      @cancel="onCloseModal"
-      centered>
-      <a-spin :spinning="copyLoading" v-ctrl-enter="handleCopyTemplateSubmit">
-        <a-form
-          :ref="formRef"
-          :model="form"
-          :rules="rules"
-          layout="vertical"
-          @finish="handleCopyTemplateSubmit">
-          <a-form-item ref="zoneid" name="zoneid" :label="$t('label.zoneid')">
-            <a-select
-              id="zone-selection"
-              mode="multiple"
-              :placeholder="$t('label.select.zones')"
-              v-model:value="form.zoneid"
-              showSearch
-              optionFilterProp="label"
-              :filterOption="(input, option) => {
-                return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }"
-              :loading="zoneLoading"
-              v-focus="true">
-              <a-select-option v-for="zone in copyZones" :key="zone.id" :label="zone.name">
-                <div>
-                  <span v-if="zone.icon && zone.icon.base64image">
-                    <resource-icon :image="zone.icon.base64image" size="2x" style="margin-right: 5px"/>
-                  </span>
-                  <global-outlined v-else style="margin-right: 5px" />
-                  {{ zone.name }}
-                </div>
-              </a-select-option>
-            </a-select>
-          </a-form-item>
-
-          <div :span="24" class="action-button">
-            <a-button @click="onCloseModal">{{ $t('label.cancel') }}</a-button>
-            <a-button type="primary" ref="submit" @click="handleCopyTemplateSubmit">{{ $t('label.ok') }}</a-button>
-          </div>
-        </a-form>
-      </a-spin>
-    </a-modal>
-
-    <a-modal
-      :title="selectedItems.length > 0 && showTable ? $t(message.title) : $t('label.action.delete.template')"
-      :visible="showDeleteTemplate"
-      :closable="true"
-      :maskClosable="false"
-      :footer="null"
-      :width="showTable ? modalWidth : '30vw'"
-      @ok="selectedItems.length > 0 ? deleteTemplates() : deleteTemplate(currentRecord)"
-      @cancel="onCloseModal"
-      :ok-button-props="getOkProps()"
-      :cancel-button-props="getCancelProps()"
-      :confirmLoading="deleteLoading"
-      centered>
-      <div v-ctrl-enter="deleteTemplate">
-        <div v-if="selectedRowKeys.length > 0">
-          <a-alert type="error">
-            <template #message>
-              <exclamation-circle-outlined style="color: red; fontSize: 30px; display: inline-flex" />
-              <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>&nbsp`" />
-              <span v-html="$t(message.confirmMessage)" />
-            </template>
-          </a-alert>
-        </div>
-        <a-alert v-else :message="$t('message.action.delete.template')" type="warning" />
-        <br />
-        <a-table
-          v-if="selectedRowKeys.length > 0 && showTable"
-          size="middle"
-          :columns="selectedColumns"
-          :dataSource="selectedItems"
-          :rowKey="record => record.zoneid || record.name"
-          :pagination="true"
-          style="overflow-y: auto">
-        </a-table>
-        <a-spin :spinning="deleteLoading">
-          <a-form-item ref="forcedDelete" name="forcedDelete" :label="$t('label.isforced')" style="margin-bottom: 0;">
-            <a-switch v-model:checked="forcedDelete" v-focus="true"></a-switch>
-          </a-form-item>
-          <div :span="24" class="action-button">
-            <a-button @click="onCloseModal">{{ $t('label.cancel') }}</a-button>
-            <a-button type="primary" ref="submit" @click="selectedItems.length > 0 ? deleteTemplates() : deleteTemplate(currentRecord)">{{ $t('label.ok') }}</a-button>
-          </div>
-        </a-spin>
-      </div>
-    </a-modal>
-    <bulk-action-progress
-      :showGroupActionModal="showGroupActionModal"
-      :selectedItems="selectedItems"
-      :selectedColumns="selectedColumns"
-      :message="message"
-      @handle-cancel="handleCancel" />
+    <template-zone-operations
+ref="zoneOps"
+:resource="resource"
+:context="templateScope"
+:permitted="isActionsOnTemplatePermitted"
+@retained="operationRetained"
+@refresh="fetchData"
+@refresh-parent="$emit('refresh-parent')"
+@closed="resetSelection" />
   </div>
 </template>
 
@@ -263,14 +173,13 @@ import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import TemplateAvailability from '@/components/widgets/TemplateAvailability'
 import { templateObservationContext } from '@/utils/templateAvailability'
 
-import { ref, reactive, toRaw } from 'vue'
-import { getAPI, postAPI } from '@/api'
+import { ref, reactive } from 'vue'
+import { getAPI } from '@/api'
 import OsLogo from '@/components/widgets/OsLogo'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipButton from '@/components/widgets/TooltipButton'
-import BulkActionProgress from '@/components/view/BulkActionProgress'
+import TemplateZoneOperations from '@/views/image/TemplateZoneOperations'
 import Status from '@/components/widgets/Status'
-import eventBus from '@/config/eventBus'
 
 export default {
   mixins: [listRefreshMixin(['fetchData'], { scopeKey: vm => [vm.templateScope, vm.page, vm.pageSize] })],
@@ -280,7 +189,7 @@ export default {
     TooltipButton,
     OsLogo,
     ResourceIcon,
-    BulkActionProgress,
+    TemplateZoneOperations,
     Status
   },
   props: {
@@ -295,6 +204,7 @@ export default {
   },
   data () {
     return {
+      operationActive: false,
       columns: [],
       dataSource: [],
       page: 1,
@@ -354,7 +264,7 @@ export default {
         key: 'actions',
         title: '',
         dataIndex: 'actions',
-        width: 130
+        width: 180
       }
     ]
     this.imageStoreInnerColumns = [
@@ -407,6 +317,7 @@ export default {
     }
   },
   computed: {
+    canPrepare () { return this.$store.getters.userInfo.roletype === 'Admin' && ['prepareTemplate', 'listStoragePools'].every(k => k in this.$store.getters.apis) && !!this.$getApiParams('prepareTemplate')?.storageid && this.resource.hypervisor === 'KVM' && this.resource.format === 'QCOW2' && this.resource.directdownload !== true },
     templateScope () { return templateObservationContext(this.$route, this.resource, this.$store.getters, this.$store.state?.user?.token) },
     isActionsOnTemplatePermitted () {
       return (['Admin'].includes(this.$store.getters.userInfo.roletype) ||
@@ -416,7 +327,7 @@ export default {
         this.resource.templatetype !== 'SYSTEM'
     }
   },
-  emits: ['update-zones', 'availability-observed'],
+  emits: ['update-zones', 'availability-observed', 'selection-change', 'operation-retained', 'refresh-parent'],
   methods: {
     initForm () {
       this.formRef = ref()
@@ -494,116 +405,8 @@ export default {
     onSelectChange (selectedRowKeys, selectedRows) {
       this.setSelection(selectedRowKeys)
     },
-    bulkActionConfirmation () {
-      this.showConfirmationAction = true
-      this.selectedColumns = this.columns.filter(column => {
-        return !this.filterColumns.includes(column.title)
-      })
-      this.selectedItems = this.selectedItems.map(v => ({ ...v, status: 'InProgress' }))
-      this.onShowDeleteModal(this.selectedItems[0])
-    },
-    handleCancel () {
-      eventBus.emit('update-bulk-job-status', { items: this.selectedItems, action: false })
-      this.showGroupActionModal = false
-      this.selectedItems = []
-      this.selectedColumns = []
-      this.selectedRowKeys = []
-      this.showTable = false
-      this.fetchData()
-      if (this.dataSource.length === 0) {
-        this.$router.push({ path: '/template' })
-      }
-    },
-    getOkProps () {
-      if (this.selectedRowKeys.length > 0) {
-        return { props: { type: 'default' } }
-      } else {
-        return { props: { type: 'primary' } }
-      }
-    },
-    getCancelProps () {
-      if (this.selectedRowKeys.length > 0) {
-        return { props: { type: 'primary' } }
-      } else {
-        return { props: { type: 'default' } }
-      }
-    },
-    deleteTemplates (e) {
-      this.showConfirmationAction = false
-      this.selectedColumns.splice(0, 0, {
-        key: 'status',
-        dataIndex: 'status',
-        title: this.$t('label.operation.status'),
-        filters: [
-          { text: 'In Progress', value: 'InProgress' },
-          { text: 'Success', value: 'success' },
-          { text: 'Failed', value: 'failed' }
-        ]
-      })
-      if (this.selectedRowKeys.length > 0 && this.showTable) {
-        this.showGroupActionModal = true
-      }
-      for (const template of this.selectedItems) {
-        this.deleteTemplate(template)
-      }
-    },
-    deleteTemplate (template) {
-      if (!template.id) {
-        template = this.currentRecord
-      }
-      const params = {
-        id: template.id,
-        forced: this.forcedDelete,
-        zoneid: template.zoneid
-      }
-      this.deleteLoading = true
-      postAPI('deleteTemplate', params).then(json => {
-        const jobId = json.deletetemplateresponse.jobid
-        eventBus.emit('update-job-details', { jobId, resourceId: null })
-        const singleZone = (this.dataSource.length === 1)
-        this.$pollJob({
-          jobId,
-          title: this.$t('label.action.delete.template'),
-          description: this.resource.name,
-          successMethod: result => {
-            if (singleZone) {
-              const isResourcePage = (this.$route.params && this.$route.params.id)
-              const isSameResource = isResourcePage && this.$route.params.id === result.jobinstanceid
-              if (isResourcePage && isSameResource && this.selectedItems.length === 0 && !this.showGroupActionModal) {
-                this.$router.push({ path: '/template' })
-              }
-            } else {
-              if (this.selectedItems.length === 0) {
-                this.fetchData()
-              }
-            }
-            if (this.selectedItems.length > 0) {
-              eventBus.emit('update-resource-state', { selectedItems: this.selectedItems, resource: template.zoneid, state: 'success' })
-            }
-          },
-          errorMethod: () => {
-            if (this.selectedItems.length === 0) {
-              this.fetchData()
-            }
-            if (this.selectedItems.length > 0) {
-              eventBus.emit('update-resource-state', { selectedItems: this.selectedItems, resource: template.zoneid, state: 'failed' })
-            }
-          },
-          showLoading: !(this.selectedItems.length > 0 && this.showGroupActionModal),
-          loadingMessage: `${this.$t('label.deleting.template')} ${this.resource.name} ${this.$t('label.in.progress')}`,
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          bulkAction: this.selectedItems.length > 0 && this.showGroupActionModal
-        })
-        this.onCloseModal()
-        if (this.selectedItems.length === 0) {
-          this.fetchData()
-        }
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.deleteLoading = false
-      })
-    },
+    operationRetained (value) { this.operationActive = value.active; this.$emit('operation-retained', value) },
+    bulkActionConfirmation () { this.$refs.zoneOps.open('delete', this.selectedItems) },
     fetchZoneData () {
       this.zones = []
       this.zoneLoading = true
@@ -646,70 +449,8 @@ export default {
         this.osCategoryId = json?.listostypesresponse?.ostype?.[0]?.oscategoryid || null
       })
     },
-    showCopyTemplate (record) {
-      this.currentRecord = record
-      this.form.zoneid = []
-      this.fetchZoneData()
-      this.showCopyActionForm = true
-    },
-    onShowDeleteModal (record) {
-      this.forcedDelete = false
-      this.currentRecord = record
-      this.showDeleteTemplate = true
-      if (this.showConfirmationAction) {
-        this.showTable = true
-      } else {
-        this.selectedItems = []
-      }
-    },
-    onCloseModal () {
-      this.currentRecord = {}
-      this.showCopyActionForm = false
-      this.showDeleteTemplate = false
-      this.showConfirmationAction = false
-      this.showTable = false
-      this.selectedRowKeys = []
-    },
-    handleCopyTemplateSubmit (e) {
-      e.preventDefault()
-      if (this.copyLoading) return
-      this.formRef.value.validate().then(() => {
-        const values = toRaw(this.form)
-        const params = {
-          id: this.currentRecord.id,
-          sourcezoneid: this.currentRecord.zoneid,
-          destzoneids: values.zoneid.join()
-        }
-        this.copyLoading = true
-        postAPI('copyTemplate', params).then(json => {
-          const jobId = json.copytemplateresponse.jobid
-          eventBus.emit('update-job-details', { jobId, resourceId: null })
-          this.$pollJob({
-            jobId,
-            title: this.$t('label.action.copy.template'),
-            description: this.resource.name,
-            successMethod: result => {
-              this.fetchData()
-            },
-            errorMethod: () => this.fetchData(),
-            loadingMessage: `${this.$t('label.action.copy.template')} ${this.resource.name} ${this.$t('label.in.progress')}`,
-            catchMessage: this.$t('error.fetching.async.job.result')
-          })
-        }).catch(error => {
-          this.$notification.error({
-            message: this.$t('message.request.failed'),
-            description: (error.response && error.response.headers && error.response.headers['x-description']) || error.message
-          })
-        }).finally(() => {
-          this.copyLoading = false
-          this.$emit('refresh-data')
-          this.onCloseModal()
-          this.fetchData()
-        })
-      }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
-      })
-    },
+    showCopyTemplate (record) { this.$refs.zoneOps.open('copy', [record]) },
+    onShowDeleteModal (record) { this.$refs.zoneOps.open('delete', [record]) },
     onAddInstance (record) {
       const query = { templateid: this.resource.id, zoneid: record.zoneid }
       if (this.resource.arch) {

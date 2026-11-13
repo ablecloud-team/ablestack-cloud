@@ -888,8 +888,9 @@
           :tabs="$route.meta.tabs"
           :actions="(isSshKeyPairDetail && !sshKeyPairDetailActionReady) || ($route.meta?.name === 'vmgroup' && !vmGroupQueryReady) ? [] : actions"
           @exec-action="handleDataViewAction"
+          @template-operation-retained="retainTemplateOperation"
           @backup-controls-change="Object.assign(resource, $event)"
-          @refresh="['buckets', 'objectstore'].includes($route.meta.name) && fetchData({ irefresh: true })"
+          @refresh="['template','buckets', 'objectstore'].includes($route.meta.name) && fetchData({ irefresh: true })"
           @change-resource="resource = $event" />
       </div>
       <div
@@ -956,6 +957,7 @@
 </template>
 
 <script>
+import { templateObservationContext } from '@/utils/templateAvailability'
 import { templateListQuery, templateSearchQuery, templateSearchError, templateRequestParams, templateOwner, templateListLocation, templateFilterMismatch } from '@/utils/templateSearch'
 import { guestNetworkRoute, networkSearchQuery, readNetworkPage, networkListLocation } from '@/utils/guestNetworkSearch'
 import { networkTabRoute, networkTabRouteKey } from '@/utils/networkTabs'
@@ -1083,6 +1085,7 @@ export default {
       showAction: false,
       dataView: false,
       templateDetailError: '',
+      templateOperationContext: '',
       templateFilterError: '',
       projectView: false,
       hasProjectId: false,
@@ -1758,8 +1761,13 @@ export default {
       this.actions = []; this.listSchemaScope = null
       this.$emit('change-resource', this.resource)
     },
+    retainTemplateOperation (value) {
+      if (this.$route.meta?.name === 'template' && value.context === templateObservationContext(this.$route, this.resource, this.$store.getters, this.$store.state?.user?.token)) this.templateOperationContext = value.active ? value.context : ''
+    },
     fetchData (params = {}) {
       const templateDetail = this.$route.meta?.name === 'template' && !!this.$route.params?.id
+      const templateOperationHeld = () => templateDetail && this.templateOperationContext && this.templateOperationContext === templateObservationContext(this.$route, this.resource, this.$store.getters, this.$store.state?.user?.token)
+      if (templateOperationHeld()) return Promise.resolve()
       this.templateDetailError = ''
       this.templateFilterError = ''
       if (this.$route.meta?.name === 'template' && !templateDetail) {
@@ -2269,6 +2277,7 @@ export default {
       if (guestNetworkRoute(this.$route)) { delete params.sortkey; delete params.sortorder }
       const response = policyDetail ? Promise.resolve().then(() => readPolicyDetail(getAPI, this.$route, this.$store.getters.project, () => version === this.listRequestVersion && scope === this.listScope())) : snapshotDetail ? Promise.resolve().then(() => readSnapshotDetail(getAPI, snapshotDetailParams(this.$route, this.$store.getters.project), this.$store.getters, () => version === this.listRequestVersion && scope === this.listScope())) : vmGroups || sshDetail || templateQuery || cniQuery || this.isObjectStorageUi || storageUiRoute(this.$route) || snapshotListRoute(this.$route) || snapshotPolicyListRoute(this.$route) ? getAPI(requestApi, params, { preserveOnFailure: true, timeout: 20000 }) : callAPI(requestApi, params)
       const request = response.then(async json => {
+        if (templateOperationHeld()) return
         if (version !== this.listRequestVersion || scope !== this.listScope()) return
         if (templateQuery && !this.dataView && templateFilterMismatch(json?.listtemplatesresponse?.template || [], params)) {
           this.templateFilterError = 'message.template.search.ignored'
@@ -2400,6 +2409,7 @@ export default {
           }
         }
       }).catch(error => {
+        if (templateOperationHeld()) return
         if (version !== this.listRequestVersion || scope !== this.listScope()) return
         if (templateDetail) {
           const code = Number(error?.response?.status)

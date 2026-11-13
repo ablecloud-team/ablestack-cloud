@@ -11542,5 +11542,22 @@
   "label.sshkeyenabled": "SSH key injection support",
   "message.template.search.ignored": "The server returned images that do not match the selected filters. Results are hidden; update the server or reset the filters.",
   "message.template.upload.check": "Check the registered image state first. If the image failed, remove it before starting a new upload.",
-  "label.template.check.accepted": "Check registered image"
+  "label.template.check.accepted": "Check registered image",
+  "label.template.zone.delete": "Delete Template Zones",
+  "label.template.zone.copy": "Copy Template to Zones",
+  "label.template.zone.prepare": "Preload Template",
+  "label.template.zone.retry.failed": "Retry failed items",
+  "label.template.zone.observe": "Check status again",
+  "label.template.zone.state.pending": "Not submitted",
+  "label.template.zone.state.requesting": "Submitting",
+  "label.template.zone.state.running": "In progress",
+  "label.template.zone.state.observing": "Accepted · observing Primary storage",
+  "label.template.zone.state.success": "Operation succeeded",
+  "label.template.zone.state.failed": "Operation failed",
+  "label.template.zone.state.unknown": "Status needs checking",
+  "message.template.zone.delete": "Delete this template from the selected Zones. Resource readiness and operation results are shown separately.",
+  "message.template.zone.force": "Force deletion may bypass protection checks for templates in use. Select it only after checking the impact.",
+  "message.template.zone.copy.empty": "No other Zone is available for copying. The source Zone cannot be selected.",
+  "message.template.zone.prepare": "Request preloading on one selected Primary store. Completion requires its DOWNLOADED observation; an observation timeout is not a failure.",
+  "message.template.zone.pool.empty": "No eligible KVM NFS or SharedMountPoint pool is Up in this Zone."
 }

@@ -64,7 +64,7 @@ public class PrepareTemplateCmd extends BaseCmd {
             entityType = StoragePoolResponse.class,
             required = false,
             description = "Storage pool ID of the primary storage pool to which the Template should be prepared. If it is not provided the Template" +
-                    " is prepared on all the available primary storage pools.")
+                    " is prepared on all the available primary storage pools. Explicit pools must be Up, in the requested Zone, unmanaged and support file-based template caching.")
     private Long storageId;
 
     /////////////////////////////////////////////////////

@@ -440,6 +440,7 @@ public class TemplateManagerImplTest {
         when(mockPrimaryDataStore.getId()).thenReturn(2l);
         when(mockPool.getId()).thenReturn(2l);
         when(mockPool.getStatus()).thenReturn(StoragePoolStatus.Up);
+        when(mockPool.getPoolType()).thenReturn(com.cloud.storage.Storage.StoragePoolType.NetworkFilesystem);
         when(mockPool.getDataCenterId()).thenReturn(1l);
         when(mockTemplate.getId()).thenReturn(202l);
         when(mockTemplateStore.getDownloadState()).thenReturn(VMTemplateStorageResourceAssoc.Status.DOWNLOADED);
@@ -459,7 +460,7 @@ public class TemplateManagerImplTest {
         assertTrue("Test template is scheduled for seeding to on pool", ((CustomThreadPoolExecutor)preloadExecutor).getCount() == 1);
     }
 
-    @Test
+    @Test(expected = com.cloud.exception.InvalidParameterValueException.class)
     public void testTemplateScheduledForDownloadInDisabledPool() {
         VMTemplateVO mockTemplate = mock(VMTemplateVO.class);
         StoragePoolVO mockPool = mock(StoragePoolVO.class);

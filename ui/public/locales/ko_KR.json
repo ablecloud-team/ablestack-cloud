@@ -11550,5 +11550,22 @@
   "label.sshkeyenabled": "SSH 키 주입 지원",
   "message.template.search.ignored": "서버 응답이 선택한 검색 조건과 일치하지 않아 결과를 표시하지 않습니다. 서버를 업데이트하거나 검색 조건을 초기화하세요.",
   "message.template.upload.check": "등록된 이미지 상태를 먼저 확인하세요. 실패한 이미지는 정리한 뒤 새로 업로드할 수 있습니다.",
-  "label.template.check.accepted": "등록된 이미지 상태 확인"
+  "label.template.check.accepted": "등록된 이미지 상태 확인",
+  "label.template.zone.delete": "템플릿 Zone 삭제",
+  "label.template.zone.copy": "템플릿 Zone 복사",
+  "label.template.zone.prepare": "템플릿 사전 준비",
+  "label.template.zone.retry.failed": "실패 항목 재시도",
+  "label.template.zone.observe": "상태 다시 확인",
+  "label.template.zone.state.pending": "제출 전",
+  "label.template.zone.state.requesting": "요청 중",
+  "label.template.zone.state.running": "진행 중",
+  "label.template.zone.state.observing": "접수됨 · Primary 상태 확인 중",
+  "label.template.zone.state.success": "작업 성공",
+  "label.template.zone.state.failed": "작업 실패",
+  "label.template.zone.state.unknown": "상태 확인 필요",
+  "message.template.zone.delete": "표시된 템플릿을 선택한 Zone에서 삭제합니다. 원본 준비 상태와 작업 결과를 각각 표시합니다.",
+  "message.template.zone.force": "강제 삭제는 사용 중인 템플릿의 보호 검사를 건너뛸 수 있습니다. 영향 범위를 확인한 경우에만 선택하세요.",
+  "message.template.zone.copy.empty": "복사할 다른 Zone이 없습니다. 현재 Zone에는 다시 복사하지 않습니다.",
+  "message.template.zone.prepare": "선택한 Primary 스토리지 한 곳에만 준비를 요청합니다. 접수 후 해당 저장소의 DOWNLOADED 상태를 확인하며, 관측 시간 초과는 실패로 판정하지 않습니다.",
+  "message.template.zone.pool.empty": "동일 Zone에서 사용 가능한 KVM NFS 또는 SharedMountPoint 스토리지가 없습니다."
 }

@@ -53,7 +53,7 @@
             :loading="loading"
             :tab="tabs[0].name"
             @refresh="['buckets', 'objectstore'].includes($route.meta.name) && $emit('refresh')"
-            v-on="$route.meta?.name === 'template' && tabs[0].name === 'zones' ? { 'availability-observed': acceptTemplateObservation } : {}"
+            v-on="$route.meta?.name === 'template' && tabs[0].name === 'zones' ? { 'availability-observed': acceptTemplateObservation, 'operation-retained': value => $emit('template-operation-retained',value), 'refresh-parent': () => $emit('refresh') } : {}"
             @wide-layout-change="onWideLayoutChange" />
         </keep-alive>
         <a-tabs
@@ -78,7 +78,7 @@
                   :tab="activeTab"
                   @change-resource="$emit('change-resource', $event)"
                   @refresh="['buckets', 'objectstore'].includes($route.meta.name) && $emit('refresh')"
-                  v-on="$route.meta?.name === 'template' && tab.name === 'zones' ? { 'availability-observed': acceptTemplateObservation } : {}"
+                  v-on="$route.meta?.name === 'template' && tab.name === 'zones' ? { 'availability-observed': acceptTemplateObservation, 'operation-retained': value => $emit('template-operation-retained',value), 'refresh-parent': () => $emit('refresh') } : {}"
             @wide-layout-change="onWideLayoutChange" />
               </keep-alive>
             </a-tab-pane>
