@@ -999,7 +999,9 @@ public class ApiServer extends ManagerBase implements HttpRequestHandler, ApiSer
             return;
         }
         auditTrailSb.append(" " + HttpServletResponse.SC_OK + " ");
-        if (command.equals("createSSHKeyPair") || command.equalsIgnoreCase("getBucketCredentials") || command.equalsIgnoreCase("rotateBucketCredentials") || java.util.Set.of("getbucketobjectmetadata", "checkobjectstoragepool", "getbucketdeletionimpact", "listbucketobjectversions", "managebucketobjectversion", "purgebucket", "getbucketpurgestatus").contains(command.toLowerCase(java.util.Locale.ROOT))) {
+        // VNF detail maps may contain credentials in both JSON and XML responses.
+        boolean vnfDetails = result.contains("\"vnfdetails\"") || result.contains("<vnfdetails");
+        if (vnfDetails || command.equals("createSSHKeyPair") || command.equalsIgnoreCase("getBucketCredentials") || command.equalsIgnoreCase("rotateBucketCredentials") || java.util.Set.of("getbucketobjectmetadata", "checkobjectstoragepool", "getbucketdeletionimpact", "listbucketobjectversions", "managebucketobjectversion", "purgebucket", "getbucketpurgestatus").contains(command.toLowerCase(java.util.Locale.ROOT))) {
             auditTrailSb.append("This result was not logged because it contains sensitive data.");
         } else {
             auditTrailSb.append(result);
