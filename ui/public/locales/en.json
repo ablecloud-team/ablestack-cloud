@@ -11506,5 +11506,10 @@
   "message.tags.review.storage.failed": "The end-of-tracking receipt could not be saved. The result remains unknown. Check browser storage and try again.",
   "message.annotation.length.hint": "Enter up to {0} characters. Some emoji count as two or more characters.",
   "label.annotation.length.count": "{0} characters entered / maximum {1}",
-  "message.annotation.length.exceeded": "{0} characters over the limit. Your draft is preserved; shorten it to {1} characters to submit."
+  "message.annotation.length.exceeded": "{0} characters over the limit. Your draft is preserved; shorten it to {1} characters to submit.",
+  "label.clone.vpc.inherit": "Keep source value",
+  "message.clone.vpc.offering.inheritance": "The initial values follow the source offering. Unchanged services and values that are not shown are inherited. Select enabled or disabled to override a capability; keep source value preserves its existing setting.",
+  "message.clone.vpc.conserve": "Read only: this source setting is explicitly preserved in the clone.",
+  "message.clone.vpc.scope.inherit": "The clone API keeps a restricted source scope when it is omitted. Select a restricted scope; clearing it does not make the clone public.",
+  "message.clone.vpc.capabilities.explicit": "When overriding capabilities, explicitly enable or disable every applicable capability instead of mixing overrides with Keep source value."
 }
