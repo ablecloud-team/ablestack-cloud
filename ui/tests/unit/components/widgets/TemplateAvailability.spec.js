@@ -33,3 +33,7 @@ test('detail reason navigation emits only an inspection event', async () => {
   expect(wrapper.find('button').exists()).toBe(false); expect(wrapper.text()).not.toContain('Connection refused')
   wrapper.unmount()
 })
+
+test('single-line list status keeps complete cause and scope on hover without extra rows', () => {
+  const wrapper = mount({ compact: true, singleLine: true }); expect(wrapper.text()).toContain('label.template.availability.failed'); expect(wrapper.text()).not.toContain('Connection refused'); expect(wrapper.attributes('title')).toContain('Connection refused'); expect(wrapper.attributes('title')).toContain('Zone A'); wrapper.unmount()
+})

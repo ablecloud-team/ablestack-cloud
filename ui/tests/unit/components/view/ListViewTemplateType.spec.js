@@ -21,8 +21,8 @@ import ListView from '@/components/view/ListView'
 import { getAPI } from '@/api'
 jest.mock('@/api', () => ({ getAPI: jest.fn().mockResolvedValue({}) }))
 const id = '11111111-1111-4111-8111-111111111111'
-function cell (path, type, key = 'templatetype') {
-  const record = { id, name: 'Image', templatetype: type, account: 'admin', domainid: id, zoneid: id, zonename: 'Zone' }
+function cell (path, type, key = 'templatetype', name = 'Image') {
+  const record = { id, name, templatetype: type, account: 'admin', domainid: id, zoneid: id, zonename: 'Zone' }
   const push = jest.fn()
   const wrapper = shallowMount(ListView, {
     props: { columns: [{ key, dataIndex: key }], items: [record] },
@@ -31,6 +31,7 @@ function cell (path, type, key = 'templatetype') {
       mocks: { $route: { name: path.slice(1), path, meta: { name: path.slice(1) } }, $router: { push, resolve: () => ({ matched: [{}] }) }, $store: { getters: { apis: {}, userInfo: { roletype: 'Admin' } } }, $t: k => k, $showIcon: () => false },
       stubs: {
         'a-table': { render () { return h('div', this.$slots.bodyCell({ column: { key }, text: record[key], record })) } },
+        'a-tooltip': { props: ['title'], render () { return h('span', { 'data-tooltip': this.title }, this.$slots.default()) } },
         'a-tag': { render () { return h('span', this.$slots.default()) } },
         'router-link': { props: ['to'], render () { return h('a', { href: this.to.path }, this.$slots.default()) } }
       }
@@ -51,4 +52,14 @@ test.each([['name', '/template/' + id], ['account', '/account'], ['zonename', '/
   const { wrapper } = cell('/template', 'USER', key)
   expect(wrapper.find('a').attributes('href')).toContain(href)
   wrapper.unmount()
+})
+
+test('template names remain complete link text and full hover content', () => {
+  const name = 'qa-t34-primary-information-'.repeat(7)
+  const { wrapper } = cell('/template', 'USER', 'name', name)
+  expect(wrapper.find('.template-name-link').text()).toBe(name); expect(wrapper.find('[data-tooltip]').attributes('data-tooltip')).toBe(name); expect(wrapper.find('a').attributes('href')).toContain(id); wrapper.unmount()
+})
+test('template table reserves primary name space and leaves other resources unchanged', () => {
+  const ctx = { $route: { meta: { name: 'template' } }, resourcePath: '', columns: [{ key: 'name' }, { key: 'state', width: 140 }, { key: 'ostypename', width: 180 }], isOrderUpdatable: () => true }
+  expect(ListView.computed.templateTableScroll.call(ctx)).toEqual({ x: 720 }); ctx.$route.meta.name = 'vm'; expect(ListView.computed.templateTableScroll.call(ctx)).toBeNull()
 })

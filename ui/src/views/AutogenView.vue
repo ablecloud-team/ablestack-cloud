@@ -2117,11 +2117,23 @@ export default {
         this.chosenColumns.splice(this.chosenColumns.length - 1, 1)
 
         if (this.$route.meta?.name === 'template') {
-          const widths = { name: 240, state: 240, format: 100, arch: 110, hypervisor: 110, size: 110, templatetype: 130, order: 140 }
+          const widths = { state: 140, format: 96, ostypename: 180, arch: 104, hypervisor: 104, size: 112, account: 120, project: 136, templatetype: 120, order: 168 }
           this.columns.forEach(column => {
             if (widths[column.key]) column.width = widths[column.key]
             if (column.key === 'format') column.title = this.$t('label.template.image.format')
             if (column.key === 'templatetype') column.title = this.$t('label.template.type')
+            if (column.key === 'name') delete column.width
+            column.ellipsis = column.key === 'order' ? false : { showTitle: false }
+            const previousCell = column.customCell
+            column.customCell = record => {
+              const attributes = typeof previousCell === 'function' ? previousCell(record) : {}
+              if (['name', 'state', 'order'].includes(column.key)) return attributes
+              let value = column.key === 'project' ? (record.projectname || record.project?.name || record.project) : record[column.key]
+              if (column.key === 'size' && value != null && this.$bytesToHumanReadableSize) value = this.$bytesToHumanReadableSize(value)
+              return { ...attributes, title: value == null ? undefined : String(value) }
+            }
+            const previousHeader = column.customHeaderCell
+            column.customHeaderCell = (...args) => ({ ...(typeof previousHeader === 'function' ? previousHeader(...args) : {}), title: typeof column.title === 'string' ? column.title : undefined })
           })
         }
         this.listSchemaScope = schemaScope
@@ -3936,6 +3948,6 @@ export default {
 
 <style scoped lang="less">
 .template-list-page :deep(.ant-table-thead th) { white-space: nowrap; }
-.template-list-page :deep(.ant-table-cell) { overflow-wrap: anywhere; }
+.template-list-page :deep(.ant-table-cell) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .template-list-page :deep(.ant-breadcrumb) { overflow-wrap: anywhere; }
 </style>
