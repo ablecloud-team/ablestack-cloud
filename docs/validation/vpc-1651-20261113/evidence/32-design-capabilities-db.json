@@ -1,0 +1,98 @@
+[
+  {
+    "case": "inherit",
+    "sourceId": "a77c3f64-5bb4-4b69-9811-5cc09a231c43",
+    "resultId": "d2e351ab-feff-4ee2-b2d9-34eeb3857c09",
+    "expected": {
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    "actual": {
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    "match": true
+  },
+  {
+    "case": "explicit-both",
+    "sourceId": "a77c3f64-5bb4-4b69-9811-5cc09a231c43",
+    "resultId": "22c65362-73de-4415-9c61-049e84d56b96",
+    "expected": {
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    "actual": {
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    "match": true
+  },
+  {
+    "case": "public-only",
+    "sourceId": "a77c3f64-5bb4-4b69-9811-5cc09a231c43",
+    "resultId": "54eb1e65-52eb-40e0-a30e-c9336d1d8fed",
+    "expected": {
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    "actual": {
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    "match": true
+  },
+  {
+    "case": "internal-only",
+    "sourceId": "a77c3f64-5bb4-4b69-9811-5cc09a231c43",
+    "resultId": "0ac0de89-b41b-4624-8916-e0719025084a",
+    "expected": {
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    "actual": {
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    "match": true
+  },
+  {
+    "case": "redundant-inherit",
+    "sourceId": "0f0ab89c-f3e9-4578-add9-3cb2530c70b6",
+    "resultId": "f294f11b-9c15-4892-a8f9-3da51ffaca6a",
+    "expected": {
+      "redundantRouter": true,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    "actual": {
+      "redundantRouter": true,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    "match": true
+  },
+  {
+    "case": "redundant-explicit",
+    "sourceId": "0f0ab89c-f3e9-4578-add9-3cb2530c70b6",
+    "resultId": "1095a13a-8a14-493c-9709-e98138eb64f9",
+    "expected": {
+      "redundantRouter": true,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    "actual": {
+      "redundantRouter": true,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    "match": true
+  }
+]

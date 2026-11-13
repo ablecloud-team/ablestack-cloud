@@ -1,0 +1,44 @@
+[
+  {
+    "id": "1095a13a-8a14-493c-9709-e98138eb64f9",
+    "name": "qa-vpc1651-20261113-32-api-redundant-explicit",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "f294f11b-9c15-4892-a8f9-3da51ffaca6a",
+    "name": "qa-vpc1651-20261113-32-api-redundant-inherit",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "0ac0de89-b41b-4624-8916-e0719025084a",
+    "name": "qa-vpc1651-20261113-32-api-internal-only",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "54eb1e65-52eb-40e0-a30e-c9336d1d8fed",
+    "name": "qa-vpc1651-20261113-32-api-public-only",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "22c65362-73de-4415-9c61-049e84d56b96",
+    "name": "qa-vpc1651-20261113-32-api-explicit-both",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "d2e351ab-feff-4ee2-b2d9-34eeb3857c09",
+    "name": "qa-vpc1651-20261113-32-api-inherit",
+    "result": {
+      "success": true
+    }
+  }
+]

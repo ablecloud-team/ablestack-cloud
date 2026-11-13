@@ -1,0 +1,92 @@
+[
+  {
+    "command": "cloneVPCOffering",
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "ab932ed7-e75a-4c7f-ad35-f69e94e94467",
+      "name": "qa-vpc1651-20261113-31-ui-single",
+      "displaytext": "Default VPC offering",
+      "internetprotocol": "ipv4"
+    }
+  },
+  {
+    "command": "cloneVPCOffering",
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "c92622b0-692f-4d0e-a948-6db0f6ec6159",
+      "name": "qa-vpc1651-20261113-31-ui-redundant",
+      "displaytext": "Redundant VPC offering",
+      "internetprotocol": "ipv4",
+      "serviceCapabilityList[0].service": "SourceNat",
+      "serviceCapabilityList[0].capabilitytype": "RedundantRouter",
+      "serviceCapabilityList[0].capabilityvalue": "true"
+    }
+  },
+  {
+    "command": "cloneVPCOffering",
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+      "name": "qa-vpc1651-20261113-31-ui-final-both",
+      "displaytext": "Default VPC offering",
+      "internetprotocol": "ipv4"
+    }
+  },
+  {
+    "command": "cloneVPCOffering",
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "ab932ed7-e75a-4c7f-ad35-f69e94e94467",
+      "name": "qa-vpc1651-20261113-31-ui-final",
+      "displaytext": "Default VPC offering",
+      "internetprotocol": "ipv4",
+      "supportedservices": "Dns,NetworkACL,PortForwarding,Dhcp,UserData,Vpn,StaticNat,Lb,SourceNat",
+      "serviceProviderList[0].service": "Dns",
+      "serviceProviderList[0].provider": "VpcVirtualRouter",
+      "serviceProviderList[1].service": "NetworkACL",
+      "serviceProviderList[1].provider": "VpcVirtualRouter",
+      "serviceProviderList[2].service": "PortForwarding",
+      "serviceProviderList[2].provider": "VpcVirtualRouter",
+      "serviceProviderList[3].service": "Dhcp",
+      "serviceProviderList[3].provider": "VpcVirtualRouter",
+      "serviceProviderList[4].service": "UserData",
+      "serviceProviderList[4].provider": "VpcVirtualRouter",
+      "serviceProviderList[5].service": "Vpn",
+      "serviceProviderList[5].provider": "VpcVirtualRouter",
+      "serviceProviderList[6].service": "StaticNat",
+      "serviceProviderList[6].provider": "VpcVirtualRouter",
+      "serviceProviderList[7].service": "Lb",
+      "serviceProviderList[7].provider": "VpcVirtualRouter",
+      "serviceProviderList[8].service": "Lb",
+      "serviceProviderList[8].provider": "InternalLbVm",
+      "serviceProviderList[9].service": "SourceNat",
+      "serviceProviderList[9].provider": "VpcVirtualRouter"
+    }
+  },
+  {
+    "command": "createNetwork",
+    "method": "POST",
+    "params": {
+      "command": "createNetwork",
+      "response": "json",
+      "vpcid": "608047a1-4cd9-4afd-a3f5-cd15b88f35a0",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "networkofferingid": "a0969b04-b072-4a83-b1ad-c88fdc596660",
+      "name": "qa-vpc1651-20261113-31-tier-internal",
+      "displaytext": "qa-vpc1651-20261113-31-tier-internal",
+      "gateway": "10.231.1.1",
+      "netmask": "255.255.255.0",
+      "aclid": "8cc93567-b253-11f1-a895-0024814c313f"
+    }
+  }
+]

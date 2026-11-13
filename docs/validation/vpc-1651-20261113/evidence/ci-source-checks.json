@@ -1,0 +1,14 @@
+{
+  "source": "4865041676154736c3b17c69231f0380289fc8a6",
+  "licenseRun": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/43392831368",
+  "unknownLicenseCount": 4079,
+  "changedSourceApproval": [
+    "  AL    ui/src/utils/vpcOfferingProviders.js",
+    "  AL    ui/src/config/section/offering.js",
+    "  AL    ui/src/views/offering/CloneVpcOffering.vue",
+    "  AL    ui/tests/unit/views/offering/CloneVpcOffering.spec.js"
+  ],
+  "lintRun": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/43392831192",
+  "lintChangedSourceDiagnostics": [],
+  "scope": "Full-repository hooks failed on existing files; changed UI paths occur only in identity listing, not hook diagnostics. No unrelated repairs."
+}
