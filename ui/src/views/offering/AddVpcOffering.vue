@@ -266,7 +266,7 @@
         </a-form-item>
       </a-form>
       </fieldset>
-      <MoldDialogActions :busy="loading || offeringBusy">
+      <MoldDialogActions :busy="loading || offeringBusy" @keyup.ctrl.enter="handleSubmit">
         <a-button @click="closeAction">{{ this.$t('label.cancel') }}</a-button>
         <a-button :loading="loading || offeringBusy" :disabled="offeringBlocked" ref="submit" type="primary" @click="handleSubmit">{{ this.$t('label.ok') }}</a-button>
       </MoldDialogActions>

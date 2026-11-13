@@ -3,13 +3,14 @@
 // Licensed under the Apache License, Version 2.0 (the "License");
 // http://www.apache.org/licenses/LICENSE-2.0 . Distributed AS IS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND.
-import { shallowMount, flushPromises } from '@vue/test-utils'
-import { h, reactive } from 'vue'
+import { mount, shallowMount, flushPromises } from '@vue/test-utils'
+import { h, reactive, ref } from 'vue'
 import { createStore } from 'vuex'
 import Add from '@/views/offering/AddVpcOffering'
 import Clone from '@/views/offering/CloneVpcOffering'
 import { getAPI, postAPI } from '@/api'
 import { clearVpcOfferingOperations } from '@/utils/vpcOfferingOperationMixin'
+import directives from '@/utils/directives'
 import '../../utils/cryptoRandom'
 
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
@@ -19,9 +20,9 @@ const form = { methods: { validate: () => Promise.resolve(), scrollToField: jest
 const list = { props: ['dataSource'], render () { return h('ul', this.dataSource.map(item => h('li', this.$slots.renderItem({ item })))) } }
 const source = { id: 'source', name: 'Source', state: 'Enabled', conservemode: true, internetprotocol: 'IPv4', service: [{ name: 'SourceNat', provider: [{ name: 'VpcVirtualRouter' }] }] }
 const deferred = () => { let done; const promise = new Promise(resolve => { done = resolve }); return { promise, resolve: done } }
-let wrappers, resolveJob, store, route, receipt, command, target
+let wrappers, footers, resolveJob, store, route, receipt, command, target
 beforeEach(() => {
-  clearVpcOfferingOperations(); jest.clearAllMocks(); wrappers = []
+  clearVpcOfferingOperations(); jest.clearAllMocks(); wrappers = []; footers = []
   store = createStore({ state: { user: { token: 'token' }, identity: { id: 'user', domainid: 'domain' }, project: { id: 'project' } }, getters: { userInfo: state => state.identity, project: state => state.project } })
   route = reactive({ fullPath: '/vpcoffering/source' })
   const pending = deferred(); resolveJob = pending.resolve
@@ -31,12 +32,15 @@ beforeEach(() => {
   })
   postAPI.mockImplementation(async (api, params) => { command = api; target = params.name; receipt = params.customjobid; return { [api.toLowerCase() + 'response']: { id: '1', jobid: receipt } } })
 })
-afterEach(() => { wrappers.forEach(wrapper => wrapper.unmount()); clearVpcOfferingOperations() })
+afterEach(() => { wrappers.forEach(wrapper => wrapper.unmount()); footers.forEach(footer => footer.remove()); clearVpcOfferingOperations() })
 
-async function open (component) {
-  const wrapper = shallowMount(component, {
+async function open (component, { keyboard = false, footer = null } = {}) {
+  const wrapper = (keyboard ? mount : shallowMount)(component, {
+    ...(keyboard ? { attachTo: document.body } : {}),
     props: component === Clone ? { resource: source } : {},
     global: {
+      plugins: keyboard ? [directives] : [],
+      provide: footer ? { moldDialogFooterTarget: ref(footer) } : {},
       mocks: { $store: store, $route: route, $t: key => key, $getApiParams: () => new Proxy({}, { get: () => ({ description: 'description' }) }), $message: { success: jest.fn() }, $notifyError: jest.fn() },
       stubs: { AForm: form, AFormItem: pass, ASpin: pass, AList: list, AListItem: pass, ARow: pass, ACol: pass }
     }
@@ -130,4 +134,22 @@ test('reopening Add restores service selections and false input alongside the ou
   expect(pair.props('defaultSelectValue')).toBe('VpcVirtualRouter')
   reopened.vm.handleSubmit(); await flushPromises()
   expect(postAPI).toHaveBeenCalledTimes(1)
+})
+
+test.each([Add, Clone].flatMap(component => [true, false].map(teleported => [component, teleported])))('$name Ctrl+Enter submits exactly once with teleported footer=%s', async (component, teleported) => {
+  const footer = teleported ? document.createElement('div') : null
+  if (footer) { document.body.appendChild(footer); footers.push(footer) }
+  const wrapper = await open(component, { keyboard: true, footer })
+  const input = wrapper.get('[name="name"] input')
+  input.element.focus()
+  await input.trigger('keydown', { ctrlKey: true, keyCode: 13, key: 'Enter' })
+  const button = wrapper.vm.$refs.submit.$el
+  expect(document.activeElement).toBe(button)
+  button.dispatchEvent(new KeyboardEvent('keyup', { ctrlKey: true, keyCode: 13, key: 'Enter', bubbles: true }))
+  button.dispatchEvent(new KeyboardEvent('keyup', { ctrlKey: true, keyCode: 13, key: 'Enter', bubbles: true }))
+  await flushPromises()
+  expect(postAPI).toHaveBeenCalledTimes(1)
+  expect(wrapper.emitted('close-action')).toBeUndefined()
+  finish(); await flushPromises()
+  expect(wrapper.emitted('close-action')).toHaveLength(1)
 })
