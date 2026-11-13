@@ -1,0 +1,40 @@
+{
+  "head": "8f631d4095104abb9b2d3bb367da32517e47fd27",
+  "licenseRun": 43388099674,
+  "lintRun": 43388099981,
+  "unapproved": 4077,
+  "touchedFilesApproved": {
+    "ui/src/components/view/DetailsTab.vue": [
+      "  AL    ui/src/components/view/DetailsTab.vue"
+    ],
+    "ui/src/components/view/InfoCard.vue": [
+      "  AL    ui/src/components/view/InfoCard.vue"
+    ],
+    "ui/src/components/view/ResourceView.vue": [
+      "  AL    ui/src/components/view/ResourceView.vue"
+    ],
+    "ui/src/components/widgets/TemplateDetailValue.vue": [
+      "  AL    ui/src/components/widgets/TemplateDetailValue.vue"
+    ],
+    "ui/src/config/section/image.js": [
+      "  AL    ui/src/config/section/image.js"
+    ],
+    "ui/src/utils/templateDetails.js": [
+      "  AL    ui/src/utils/templateDetails.js"
+    ],
+    "ui/src/views/tools/RuntimeBundleCatalogSummary.vue": [
+      "  AL    ui/src/views/tools/RuntimeBundleCatalogSummary.vue"
+    ],
+    "ui/tests/unit/views/image/TemplateDetails.spec.js": [
+      "  AL    ui/tests/unit/views/image/TemplateDetails.spec.js"
+    ],
+    "ui/tests/unit/views/storage/RuntimeCatalog.spec.js": [
+      "  AL    ui/tests/unit/views/storage/RuntimeCatalog.spec.js"
+    ]
+  },
+  "lintTouchedFileFindings": [],
+  "legacyHeadersRepaired": [
+    "ui/src/views/tools/RuntimeBundleCatalogSummary.vue",
+    "ui/tests/unit/views/storage/RuntimeCatalog.spec.js"
+  ]
+}
