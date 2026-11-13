@@ -1,0 +1,42 @@
+{
+  "codeCommit": "460b33770cb071d869f61c2aac0d81773890ebc3",
+  "cluster": 13,
+  "cases": {
+    "templateTypeBadgeNoNavigation": true,
+    "invalidUuidNoApi": true,
+    "missingUuidLocalRecovery": true,
+    "normalTemplateName": true,
+    "accountFilterLink": true,
+    "vmNameAndBreadcrumb": true,
+    "keywordSearch": true,
+    "page2": true,
+    "nameSort": true,
+    "sameFailedUuidBeforeAfter": true,
+    "failureCauseVisibleListSummaryZone": true,
+    "zoneInspectButton": true,
+    "localUploadReady": true,
+    "urlRegistrationInformationalAccepted": true,
+    "urlInitiallyQueued": true,
+    "urlFinalCause": "No route to host",
+    "scopedReadFailureAndRetry": true,
+    "delayedNavigationActiveResourceCorrect": true
+  },
+  "cleanup": {
+    "initialTemplateCount": 45,
+    "created": 3,
+    "remainingTestPrefixCount": 0,
+    "finalTemplateCount": 45,
+    "forcedDelete": false,
+    "capturedDeleteJobSuccessIds": [
+      "113a7b18-5863-49f5-8bad-9b3e68cff550",
+      "98f39a29-deb0-4815-951d-642ef84a541e"
+    ],
+    "firstDeleteEvidence": "success toast and count 48->47; request capture was re-enabled before other two deletes"
+  },
+  "limits": [
+    "Actual in-progress remote download was not observed because the slow helper port was unreachable from SSVM. Progress, unknown, partial/mixed Zone states and session/role stale responses are covered by unit tests.",
+    "The QCOW2 fixture has no guest OS; no VM boot claim.",
+    "Global offline simulation triggered existing auth recovery; final read retry used only listTemplates XHR failure injection. All CDP overrides were cleared."
+  ],
+  "browserOverridesRestored": true
+}

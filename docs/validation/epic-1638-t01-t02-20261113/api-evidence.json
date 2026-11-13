@@ -1,0 +1,1342 @@
+[
+  {
+    "command": "registerTemplate",
+    "params": {
+      "name": "qa-p1-failed-20261113"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "437b838b-5543-48e5-8367-899ef4c802da",
+          "name": "qa-p1-failed-20261113",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": false,
+          "status": "Processing",
+          "downloaddetails": [
+            {
+              "downloadState": "NOT_DOWNLOADED",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "0",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "showunique": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 46,
+      "templates": [
+        {
+          "id": "ad371aa1-504d-41ef-8de8-bc99eef9594c",
+          "name": "Rocky9",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": true,
+          "status": "Download Complete",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOADED",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "100",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            },
+            {
+              "downloadState": "DOWNLOADED",
+              "datastore": "Primary Storage",
+              "datastoreRole": "Primary",
+              "downloadPercent": "100",
+              "datastoreId": "90b0c4e3-7078-4372-8da0-9625bc0e806a"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "showunique": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 46,
+      "templates": [
+        {
+          "id": "ad371aa1-504d-41ef-8de8-bc99eef9594c",
+          "name": "Rocky9",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": true,
+          "status": "Download Complete",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOADED",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "100",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            },
+            {
+              "downloadState": "DOWNLOADED",
+              "datastore": "Primary Storage",
+              "datastoreRole": "Primary",
+              "downloadPercent": "100",
+              "datastoreId": "90b0c4e3-7078-4372-8da0-9625bc0e806a"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "showunique": "true",
+      "keyword": "qa-p1-",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "437b838b-5543-48e5-8367-899ef4c802da",
+          "name": "qa-p1-failed-20261113",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": false,
+          "status": "HTTP Server returned 404 (expected 200 OK)",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOAD_ERROR",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "0",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "id": "437b838b-5543-48e5-8367-899ef4c802da",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "437b838b-5543-48e5-8367-899ef4c802da",
+          "name": "qa-p1-failed-20261113",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": false,
+          "status": "HTTP Server returned 404 (expected 200 OK)",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOAD_ERROR",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "0",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "listOsTypes",
+    "params": {
+      "id": "473557e5-bd56-11f1-b573-002481560363"
+    },
+    "http": 200
+  },
+  {
+    "command": "listResourceIcon",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listResourceIcon",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listTags",
+    "params": {
+      "page": "1",
+      "pagesize": "100"
+    },
+    "http": 200
+  },
+  {
+    "command": "listAccounts",
+    "params": {
+      "name": "admin"
+    },
+    "http": 200
+  },
+  {
+    "command": "listResourceIcon",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listOsTypes",
+    "params": {
+      "id": "473557e5-bd56-11f1-b573-002481560363"
+    },
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "437b838b-5543-48e5-8367-899ef4c802da",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "437b838b-5543-48e5-8367-899ef4c802da",
+          "name": "qa-p1-failed-20261113",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": false,
+          "status": "HTTP Server returned 404 (expected 200 OK)",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOAD_ERROR",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "0",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "listZones",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "getWallAlertAvailability",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listWallAlertRules",
+    "params": {
+      "page": "1",
+      "pagesize": "200"
+    },
+    "http": 200
+  },
+  {
+    "command": "listWallAlertSilences",
+    "params": {
+      "page": "1",
+      "pagesize": "1000"
+    },
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "437b838b-5543-48e5-8367-899ef4c802da",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "437b838b-5543-48e5-8367-899ef4c802da",
+          "name": "qa-p1-failed-20261113",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": false,
+          "status": "HTTP Server returned 404 (expected 200 OK)",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOAD_ERROR",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "0",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "437b838b-5543-48e5-8367-899ef4c802da",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "437b838b-5543-48e5-8367-899ef4c802da",
+          "name": "qa-p1-failed-20261113",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": false,
+          "status": "HTTP Server returned 404 (expected 200 OK)",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOAD_ERROR",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "0",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "listHostsMetrics",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "id": "437b838b-5543-48e5-8367-899ef4c802da",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "437b838b-5543-48e5-8367-899ef4c802da",
+          "name": "qa-p1-failed-20261113",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": false,
+          "status": "HTTP Server returned 404 (expected 200 OK)",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOAD_ERROR",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "0",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "437b838b-5543-48e5-8367-899ef4c802da",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "437b838b-5543-48e5-8367-899ef4c802da",
+          "name": "qa-p1-failed-20261113",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": false,
+          "status": "HTTP Server returned 404 (expected 200 OK)",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOAD_ERROR",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "0",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "437b838b-5543-48e5-8367-899ef4c802da",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "437b838b-5543-48e5-8367-899ef4c802da",
+          "name": "qa-p1-failed-20261113",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": false,
+          "status": "HTTP Server returned 404 (expected 200 OK)",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOAD_ERROR",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "0",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "id": "113a7b18-5863-49f5-8bad-9b3e68cff550",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "113a7b18-5863-49f5-8bad-9b3e68cff550",
+          "name": "qa-p1-local-ready-20261113",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": true,
+          "status": "Download Complete",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOADED",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "100",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "113a7b18-5863-49f5-8bad-9b3e68cff550",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "113a7b18-5863-49f5-8bad-9b3e68cff550",
+          "name": "qa-p1-local-ready-20261113",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": true,
+          "status": "Download Complete",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOADED",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "100",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "registerTemplate",
+    "params": {
+      "name": "qa-p1-slow-20261113"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "98f39a29-deb0-4815-951d-642ef84a541e",
+          "name": "qa-p1-slow-20261113",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": false,
+          "status": "Processing",
+          "downloaddetails": [
+            {
+              "downloadState": "NOT_DOWNLOADED",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "0",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "showunique": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": [
+        {
+          "id": "ad371aa1-504d-41ef-8de8-bc99eef9594c",
+          "name": "Rocky9",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": true,
+          "status": "Download Complete",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOADED",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "100",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            },
+            {
+              "downloadState": "DOWNLOADED",
+              "datastore": "Primary Storage",
+              "datastoreRole": "Primary",
+              "downloadPercent": "100",
+              "datastoreId": "90b0c4e3-7078-4372-8da0-9625bc0e806a"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "showunique": "true",
+      "keyword": "qa-p1-",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 3,
+      "templates": [
+        {
+          "id": "437b838b-5543-48e5-8367-899ef4c802da",
+          "name": "qa-p1-failed-20261113",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": false,
+          "status": "HTTP Server returned 404 (expected 200 OK)",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOAD_ERROR",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "0",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            }
+          ]
+        },
+        {
+          "id": "113a7b18-5863-49f5-8bad-9b3e68cff550",
+          "name": "qa-p1-local-ready-20261113",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": true,
+          "status": "Download Complete",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOADED",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "100",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            }
+          ]
+        },
+        {
+          "id": "98f39a29-deb0-4815-951d-642ef84a541e",
+          "name": "qa-p1-slow-20261113",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": false,
+          "status": "Processing",
+          "downloaddetails": [
+            {
+              "downloadState": "NOT_DOWNLOADED",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "0",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listHostsMetrics",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "getWallAlertAvailability",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listWallAlertRules",
+    "params": {
+      "page": "1",
+      "pagesize": "200"
+    },
+    "http": 200
+  },
+  {
+    "command": "listWallAlertSilences",
+    "params": {
+      "page": "1",
+      "pagesize": "1000"
+    },
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "deleteTemplate",
+    "params": {
+      "id": "113a7b18-5863-49f5-8bad-9b3e68cff550",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "2b9eee9a-2cc3-4605-b160-dcbab724bf33",
+      "templates": [],
+      "error": ""
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "2b9eee9a-2cc3-4605-b160-dcbab724bf33"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "2b9eee9a-2cc3-4605-b160-dcbab724bf33",
+      "jobstatus": 0,
+      "jobinstanceid": "113a7b18-5863-49f5-8bad-9b3e68cff550"
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "113a7b18-5863-49f5-8bad-9b3e68cff550",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "113a7b18-5863-49f5-8bad-9b3e68cff550",
+          "name": "qa-p1-local-ready-20261113",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": false,
+          "status": "Download Complete",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOADED",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "100",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "2b9eee9a-2cc3-4605-b160-dcbab724bf33"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "2b9eee9a-2cc3-4605-b160-dcbab724bf33",
+      "jobstatus": 1,
+      "success": true,
+      "jobinstanceid": "113a7b18-5863-49f5-8bad-9b3e68cff550"
+    }
+  },
+  {
+    "command": "listTags",
+    "params": {
+      "page": "1",
+      "pagesize": "100"
+    },
+    "http": 200
+  },
+  {
+    "command": "listOsTypes",
+    "params": {
+      "id": "473557e5-bd56-11f1-b573-002481560363"
+    },
+    "http": 200
+  },
+  {
+    "command": "listResourceIcon",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listZones",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listResourceIcon",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "113a7b18-5863-49f5-8bad-9b3e68cff550",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "templates": [],
+      "error": ""
+    }
+  },
+  {
+    "command": "listAccounts",
+    "params": {
+      "name": "admin"
+    },
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "showunique": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 46,
+      "templates": [
+        {
+          "id": "ad371aa1-504d-41ef-8de8-bc99eef9594c",
+          "name": "Rocky9",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": true,
+          "status": "Download Complete",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOADED",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "100",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            },
+            {
+              "downloadState": "DOWNLOADED",
+              "datastore": "Primary Storage",
+              "datastoreRole": "Primary",
+              "downloadPercent": "100",
+              "datastoreId": "90b0c4e3-7078-4372-8da0-9625bc0e806a"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "id": "98f39a29-deb0-4815-951d-642ef84a541e",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "98f39a29-deb0-4815-951d-642ef84a541e",
+          "name": "qa-p1-slow-20261113",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": false,
+          "status": "No route to host",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOAD_ERROR",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "0",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "listTags",
+    "params": {
+      "page": "1",
+      "pagesize": "100"
+    },
+    "http": 200
+  },
+  {
+    "command": "listResourceIcon",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listOsTypes",
+    "params": {
+      "id": "473557e5-bd56-11f1-b573-002481560363"
+    },
+    "http": 200
+  },
+  {
+    "command": "listResourceIcon",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listOsTypes",
+    "params": {
+      "id": "473557e5-bd56-11f1-b573-002481560363"
+    },
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "98f39a29-deb0-4815-951d-642ef84a541e",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "98f39a29-deb0-4815-951d-642ef84a541e",
+          "name": "qa-p1-slow-20261113",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": false,
+          "status": "No route to host",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOAD_ERROR",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "0",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "listAccounts",
+    "params": {
+      "name": "admin"
+    },
+    "http": 200
+  },
+  {
+    "command": "listZones",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listResourceIcon",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "deleteTemplate",
+    "params": {
+      "id": "98f39a29-deb0-4815-951d-642ef84a541e",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "db918225-c918-415e-8151-a488c4d9f037",
+      "templates": [],
+      "error": ""
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "98f39a29-deb0-4815-951d-642ef84a541e",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "templates": [],
+      "error": ""
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "db918225-c918-415e-8151-a488c4d9f037"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "db918225-c918-415e-8151-a488c4d9f037",
+      "jobstatus": 1,
+      "success": true,
+      "jobinstanceid": "98f39a29-deb0-4815-951d-642ef84a541e"
+    }
+  },
+  {
+    "command": "listTags",
+    "params": {
+      "page": "1",
+      "pagesize": "100"
+    },
+    "http": 200
+  },
+  {
+    "command": "listResourceIcon",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listOsTypes",
+    "params": {
+      "id": "473557e5-bd56-11f1-b573-002481560363"
+    },
+    "http": 200
+  },
+  {
+    "command": "listResourceIcon",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "98f39a29-deb0-4815-951d-642ef84a541e",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "templates": [],
+      "error": ""
+    }
+  },
+  {
+    "command": "listZones",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listAccounts",
+    "params": {
+      "name": "admin"
+    },
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "showunique": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": [
+        {
+          "id": "ad371aa1-504d-41ef-8de8-bc99eef9594c",
+          "name": "Rocky9",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": true,
+          "status": "Download Complete",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOADED",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "100",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            },
+            {
+              "downloadState": "DOWNLOADED",
+              "datastore": "Primary Storage",
+              "datastoreRole": "Primary",
+              "downloadPercent": "100",
+              "datastoreId": "90b0c4e3-7078-4372-8da0-9625bc0e806a"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "showunique": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": [
+        {
+          "id": "ad371aa1-504d-41ef-8de8-bc99eef9594c",
+          "name": "Rocky9",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "isready": true,
+          "status": "Download Complete",
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOADED",
+              "datastore": "Secondary Storage",
+              "datastoreRole": "Image",
+              "downloadPercent": "100",
+              "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+            },
+            {
+              "downloadState": "DOWNLOADED",
+              "datastore": "Primary Storage",
+              "datastoreRole": "Primary",
+              "downloadPercent": "100",
+              "datastoreId": "90b0c4e3-7078-4372-8da0-9625bc0e806a"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "showunique": "true",
+      "keyword": "qa-p1-",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "templates": [],
+      "error": ""
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listHostsMetrics",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "getWallAlertAvailability",
+    "params": {},
+    "http": 200
+  },
+  {
+    "command": "listWallAlertRules",
+    "params": {
+      "page": "1",
+      "pagesize": "200"
+    },
+    "http": 200
+  },
+  {
+    "command": "listWallAlertSilences",
+    "params": {
+      "page": "1",
+      "pagesize": "1000"
+    },
+    "http": 200
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {},
+    "http": 200
+  }
+]

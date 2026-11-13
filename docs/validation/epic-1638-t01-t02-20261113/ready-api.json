@@ -1,0 +1,17 @@
+[
+  {
+    "id": "113a7b18-5863-49f5-8bad-9b3e68cff550",
+    "name": "qa-p1-local-ready-20261113",
+    "isready": true,
+    "status": "Download Complete",
+    "downloaddetails": [
+      {
+        "downloadState": "DOWNLOADED",
+        "datastore": "Secondary Storage",
+        "datastoreRole": "Image",
+        "downloadPercent": "100",
+        "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+      }
+    ]
+  }
+]

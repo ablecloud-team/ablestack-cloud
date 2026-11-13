@@ -1,20 +1,27 @@
 <!--
-Licensed to the Apache Software Foundation (ASF) under one or more
-contributor license agreements. See the NOTICE file distributed with this work
-for additional information regarding copyright ownership. The ASF licenses this
-file to you under the Apache License, Version 2.0 (the "License"); you may not use
-this file except in compliance with the License. You may obtain a copy at
-http://www.apache.org/licenses/LICENSE-2.0 . Unless required by applicable law or
-agreed to in writing, software distributed under the License is distributed on
-an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND. See the License
-for the specific language governing permissions and limitations.
--->
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+ -->
 
 # 템플릿 Epic #1638 개발 준비
 
 [상위 Epic #1638](https://github.com/ablecloud-team/ablestack-cloud/issues/1638) · 2026-11-13 KST
 
-이 패키지는 8개 하위 이슈, 의존 관계, 현재 운영 UI 스타일의 목업, 구현 설계와 수용 검증 계획이다. **제품 기능 구현·13번 배포를 수행한 PR이 아니다.**
+이 패키지는 8개 하위 이슈, 의존 관계, 현재 운영 UI 스타일의 목업, 구현 설계와 수용 검증 계획이다. 초기 준비 이후 T01 #1639 / T02 #1640 구현과 13번 UI 배포를 완료했다. [기능별 검증·배포 보고서](../../validation/epic-1638-t01-t02-20261113/README.ko.md)를 참조한다. T03–T08은 후속 작업이다.
 
 ## 개발 순서
 
