@@ -175,3 +175,10 @@ test('moving cannot silently exchange required flags across the required/optiona
   await c.moveVnfNicDown(original); await c.moveVnfNicUp(optional)
   expect(postAPI).not.toHaveBeenCalled(); expect(c.vnfNics).toEqual([original, optional])
 })
+
+test('cancelling an invalid NIC draft does not leave a resource-level error', async () => {
+  const c = context(); c.vnfNics = [original, optional, { ...optional, deviceid: 2, name: 'Third' }]
+  c.onShowEditVnfNic(c.vnfNics[2]); c.nicDraft.required = true; await c.submitVnfNic()
+  expect(c.nicError).toBe('message.vnf.nic.required.order'); expect(c.saveError).toBe(''); expect(postAPI).not.toHaveBeenCalled()
+  c.closeVnfNicModal(); c.afterVnfNicClose(); expect(c.nicError).toBe(''); expect(c.saveError).toBe('')
+})

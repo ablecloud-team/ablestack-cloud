@@ -208,7 +208,7 @@ export default {
       return this.updateVnfTemplateNics(rows.sort((a, b) => a.deviceid - b.deviceid))
     },
     updateVnfTemplateNics (nics = this.vnfNics) {
-      const error = vnfNicError(nics); this.nicError = error ? this.$t(error) : ''; this.saveError = this.nicError
+      const error = vnfNicError(nics); this.nicError = error ? this.$t(error) : ''; this.saveError = this.editorOpen ? '' : this.nicError
       if (error) return
       return this.updateVnfTemplate(false, true, nics)
     },
