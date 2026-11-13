@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { shallowMount, flushPromises } from '@vue/test-utils'
+import { h } from 'vue'
 import Ops from '@/views/image/TemplateZoneOperations'
 import Zones from '@/views/image/TemplateZones'
 import Autogen from '@/views/AutogenView'
@@ -80,4 +82,11 @@ test('a retained template operation gates parent reads until dismissal', async (
 test('prepare UI requires Admin API schema and avoids implicit all-pool behavior', () => {
   const c = { $store: { getters: { userInfo: { roletype: 'Admin' }, apis: { prepareTemplate: {}, listStoragePools: {} } } }, $getApiParams: () => ({ storageid: {} }), resource }
   expect(Zones.computed.canPrepare.call(c)).toBe(true); c.$getApiParams = () => ({}); expect(Zones.computed.canPrepare.call(c)).toBe(false); c.$getApiParams = () => ({ storageid: {} }); c.$store.getters.userInfo.roletype = 'User'; expect(Zones.computed.canPrepare.call(c)).toBe(false)
+})
+
+test('empty copy target reason is rendered through the registered alert component', async () => {
+  getAPI.mockResolvedValue({ listzonesresponse: { zone: [{ id: 'zone', name: 'Zone' }] } })
+  const w = shallowMount(Ops, { props: { resource, context: 'scope', permitted: true }, global: { mocks: { $t: k => k, $toLocaleDate: x => x, $store: { getters: { apis: { copyTemplate: {} }, userInfo: { roletype: 'Admin' } } } }, stubs: { 'mold-dialog': { render () { return h('div', this.$slots.default()) } }, 'a-alert': { props: ['message'], template: '<p>{{ message }}</p>' }, 'mold-dialog-actions': { template: '<div><slot /></div>' } } } })
+  await w.vm.open('copy', [row]); await flushPromises()
+  expect(w.text()).toContain('message.template.zone.copy.empty'); expect(w.vm.canSubmit).toBe(false); w.unmount()
 })

@@ -24,7 +24,7 @@
       <a-alert v-if="error" type="error" show-icon :message="error" />
       <template v-if="phase === 'confirm' && kind === 'copy'">
         <p>{{ rows[0]?.zonename }}</p>
-        <a-empty v-if="!optionsLoading && !error && !destinations.length" :description="$t('message.template.zone.copy.empty')" />
+        <a-alert v-if="!optionsLoading && !error && !destinations.length" type="info" show-icon :message="$t('message.template.zone.copy.empty')" />
         <a-form-item :label="$t('label.select.zones')">
           <a-select v-model:value="selectedZones" mode="multiple" :loading="optionsLoading" :disabled="!destinations.length" option-filter-prop="label" show-search :options="destinations.map(z => ({value:z.id,label:z.name}))" />
         </a-form-item>
