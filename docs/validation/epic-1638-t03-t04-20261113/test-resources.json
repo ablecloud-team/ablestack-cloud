@@ -1,0 +1,56 @@
+{
+  "initialTemplates": 45,
+  "initialUserdata": 0,
+  "userdata": {
+    "id": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+    "name": "qa-t34-userdata-20261113",
+    "deletedThroughUi": true
+  },
+  "templates": [
+    {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "name": "qa-t34-url-20261113",
+      "deletedThroughZoneUi": true
+    },
+    {
+      "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+      "name": "qa-t34-local-20261113",
+      "observedUploadError": "createtmplt.sh usage / HTTP 500",
+      "deletedThroughZoneUi": true
+    },
+    {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "name": "qa-t34-local-ready-20261113",
+      "deletedThroughZoneUi": true
+    },
+    {
+      "id": "5c18e4d7-c86a-4ed2-9574-1862908cafa0",
+      "name": "qa-t34-421-checksum-mismatch-20261113",
+      "runtime": "4.21",
+      "expectedFailure": "Checksum does not match the uploaded file.",
+      "deletedThroughZoneUi": true
+    },
+    {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "name": "qa-t34-423-sha256-ready-20261113",
+      "runtime": "4.23",
+      "deletedThroughZoneUi": true
+    },
+    {
+      "id": "d4eb0e46-a372-466d-8c6d-134d77e6139d",
+      "name": "qa-t34-423-checksum-mismatch-20261113",
+      "runtime": "4.23",
+      "expectedFailure": "Checksum does not match the uploaded file.",
+      "deletedThroughZoneUi": true
+    }
+  ],
+  "operationalSystemTemplate": {
+    "id": "1feac62d-67e0-499b-94f1-eb36651ad6f8",
+    "name": "Europa-SystemVM-4.23-T34-20261113",
+    "retain": true
+  },
+  "finalQaTemplateCount": 0,
+  "finalUserdataCount": 0,
+  "finalTemplateCount": 46,
+  "retainedOperationalTemplateCount": 1
+}

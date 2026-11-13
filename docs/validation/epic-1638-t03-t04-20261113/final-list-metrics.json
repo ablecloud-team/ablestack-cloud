@@ -1,0 +1,69 @@
+{
+  "bodyWidth": 1910,
+  "headers": [
+    {
+      "text": "이름",
+      "width": 567
+    },
+    {
+      "text": "상태",
+      "width": 140
+    },
+    {
+      "text": "OS 유형",
+      "width": 180
+    },
+    {
+      "text": "CPU 아키텍처",
+      "width": 104
+    },
+    {
+      "text": "하이퍼바이저",
+      "width": 104
+    },
+    {
+      "text": "크기",
+      "width": 112
+    },
+    {
+      "text": "계정",
+      "width": 120
+    },
+    {
+      "text": "템플릿 유형",
+      "width": 120
+    },
+    {
+      "text": "순서",
+      "width": 168
+    },
+    {
+      "text": "",
+      "width": 5
+    }
+  ],
+  "persistentSearchExplanationPresent": false,
+  "rowHeights": [
+    48.5,
+    48.5,
+    48.5,
+    48.5,
+    48.5,
+    48.5,
+    48.5,
+    48.5,
+    48.5,
+    48.5,
+    48.5,
+    48.5,
+    48.5,
+    48.5,
+    48.5,
+    48.5,
+    48.5,
+    48.5,
+    48.5,
+    48.5
+  ],
+  "viewport": 1920
+}

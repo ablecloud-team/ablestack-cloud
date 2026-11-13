@@ -1,0 +1,35 @@
+[
+  {
+    "backup": "/var/tmp/epic1638-t34-systemvm423-backup-elulp50c",
+    "agentZipSha256": "fba45526bd0b4b2b0cd691a5accd9adae60f5b1de0a66e4606c0ce653ffa0aca",
+    "changedEntries": [
+      "cloud-secondary-storage-4.23.0.0.jar"
+    ],
+    "otherEntriesIdentical": true,
+    "hostAgentRestarted": false,
+    "scriptsUnchanged": true,
+    "host": "10.10.13.1"
+  },
+  {
+    "backup": "/var/tmp/epic1638-t34-systemvm423-backup-m5xjkvue",
+    "agentZipSha256": "fba45526bd0b4b2b0cd691a5accd9adae60f5b1de0a66e4606c0ce653ffa0aca",
+    "changedEntries": [
+      "cloud-secondary-storage-4.23.0.0.jar"
+    ],
+    "otherEntriesIdentical": true,
+    "hostAgentRestarted": false,
+    "scriptsUnchanged": true,
+    "host": "10.10.13.2"
+  },
+  {
+    "backup": "/var/tmp/epic1638-t34-systemvm423-backup-z7n6ps13",
+    "agentZipSha256": "fba45526bd0b4b2b0cd691a5accd9adae60f5b1de0a66e4606c0ce653ffa0aca",
+    "changedEntries": [
+      "cloud-secondary-storage-4.23.0.0.jar"
+    ],
+    "otherEntriesIdentical": true,
+    "hostAgentRestarted": false,
+    "scriptsUnchanged": true,
+    "host": "10.10.13.3"
+  }
+]

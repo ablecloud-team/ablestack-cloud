@@ -1,0 +1,15 @@
+{
+  "osRelease": "Cloudstack Release 4.23.0.0 Thu Nov 12 01:51:10 PM UTC 2026",
+  "jar": "/usr/local/cloud/systemvm/cloud-secondary-storage-4.23.0.0.jar",
+  "jarSha256": "a7c075a5936b2d7bf6a9e6453fc25d247ac0a7b33cdd91046469ca1e28ff27a3",
+  "classes": {
+    "org/apache/cloudstack/storage/resource/NfsSecondaryStorageResource.class": "41ec41be13ac555484b5a03dc61bc97543bea83ea49d14816af818450b4291ef",
+    "org/apache/cloudstack/storage/resource/PostUploadChecksum.class": "453f3805b781b1a95f5a366cb376542d4cf43ea7776e1127b1ece9f2da85fd69"
+  },
+  "cloudActive": "active",
+  "name": "s-244-VM",
+  "id": "3e69aa81-9951-403c-9145-4149e0b0cb85",
+  "host": "10.10.13.1",
+  "linklocal": "169.254.2.108",
+  "publicIp": "10.10.13.4"
+}

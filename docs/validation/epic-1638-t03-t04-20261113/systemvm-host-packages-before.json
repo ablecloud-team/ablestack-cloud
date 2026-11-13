@@ -1,0 +1,119 @@
+[
+  {
+    "host": "10.10.13.1",
+    "root": "/usr/share/cloudstack-common/vms",
+    "exists": true,
+    "files": [
+      {
+        "name": "agent.zip",
+        "resolved": "/usr/share/cloudstack-common/vms/agent.zip",
+        "size": 95749474,
+        "sha256": "9768fc6c584d5e8f8c12d925891ef938fe9db9320c27f7b420e4401c132b0fe7"
+      },
+      {
+        "name": "cloud-scripts.tgz",
+        "resolved": "/usr/share/cloudstack-common/vms/cloud-scripts.tgz",
+        "size": 219978,
+        "sha256": "7a972ba18a07eb51493fec15ffa31102ff923391190903a4c44144a531ac92a5"
+      },
+      {
+        "name": "patch-sysvms.sh",
+        "resolved": "/usr/share/cloudstack-common/vms/patch-sysvms.sh",
+        "size": 6104,
+        "sha256": "2111498c775bd65be885e1d679f3418b02dac7f2178ea556bab7f2d86afd11d3"
+      }
+    ],
+    "agentJars": [
+      "cloud-agent-4.23.0.0.jar"
+    ],
+    "secondaryJars": [
+      "cloud-secondary-storage-4.23.0.0.jar"
+    ],
+    "nfsClassSha256": "c0c513f9783e3dcdcb2dbdadf3bc40566068016fc6114dd161eb41a8afd8eaed",
+    "nfsClassMajor": 55,
+    "checksumHelperPresent": false,
+    "scriptHashes": {
+      "opt/cloud/bin/setup/bootstrap.sh": "3abd00c45cf62d73c18d67711fd3a47d47ef8cef04c6bee72a2b0098efba991b",
+      "opt/cloud/bin/setup/secstorage.sh": "9ce940382a6351d622bbe2d97759b419b2edee9914a6488a96bef6737eb9609b",
+      "opt/cloud/bin/get_template_version.sh": "3c1389d52b4fad73071ee731409a893c982a2a64b4220d66e2f782c9954afef1"
+    }
+  },
+  {
+    "host": "10.10.13.2",
+    "root": "/usr/share/cloudstack-common/vms",
+    "exists": true,
+    "files": [
+      {
+        "name": "agent.zip",
+        "resolved": "/usr/share/cloudstack-common/vms/agent.zip",
+        "size": 95749474,
+        "sha256": "9768fc6c584d5e8f8c12d925891ef938fe9db9320c27f7b420e4401c132b0fe7"
+      },
+      {
+        "name": "cloud-scripts.tgz",
+        "resolved": "/usr/share/cloudstack-common/vms/cloud-scripts.tgz",
+        "size": 219978,
+        "sha256": "7a972ba18a07eb51493fec15ffa31102ff923391190903a4c44144a531ac92a5"
+      },
+      {
+        "name": "patch-sysvms.sh",
+        "resolved": "/usr/share/cloudstack-common/vms/patch-sysvms.sh",
+        "size": 6104,
+        "sha256": "2111498c775bd65be885e1d679f3418b02dac7f2178ea556bab7f2d86afd11d3"
+      }
+    ],
+    "agentJars": [
+      "cloud-agent-4.23.0.0.jar"
+    ],
+    "secondaryJars": [
+      "cloud-secondary-storage-4.23.0.0.jar"
+    ],
+    "nfsClassSha256": "c0c513f9783e3dcdcb2dbdadf3bc40566068016fc6114dd161eb41a8afd8eaed",
+    "nfsClassMajor": 55,
+    "checksumHelperPresent": false,
+    "scriptHashes": {
+      "opt/cloud/bin/setup/bootstrap.sh": "3abd00c45cf62d73c18d67711fd3a47d47ef8cef04c6bee72a2b0098efba991b",
+      "opt/cloud/bin/setup/secstorage.sh": "9ce940382a6351d622bbe2d97759b419b2edee9914a6488a96bef6737eb9609b",
+      "opt/cloud/bin/get_template_version.sh": "3c1389d52b4fad73071ee731409a893c982a2a64b4220d66e2f782c9954afef1"
+    }
+  },
+  {
+    "host": "10.10.13.3",
+    "root": "/usr/share/cloudstack-common/vms",
+    "exists": true,
+    "files": [
+      {
+        "name": "agent.zip",
+        "resolved": "/usr/share/cloudstack-common/vms/agent.zip",
+        "size": 95749474,
+        "sha256": "9768fc6c584d5e8f8c12d925891ef938fe9db9320c27f7b420e4401c132b0fe7"
+      },
+      {
+        "name": "cloud-scripts.tgz",
+        "resolved": "/usr/share/cloudstack-common/vms/cloud-scripts.tgz",
+        "size": 219978,
+        "sha256": "7a972ba18a07eb51493fec15ffa31102ff923391190903a4c44144a531ac92a5"
+      },
+      {
+        "name": "patch-sysvms.sh",
+        "resolved": "/usr/share/cloudstack-common/vms/patch-sysvms.sh",
+        "size": 6104,
+        "sha256": "2111498c775bd65be885e1d679f3418b02dac7f2178ea556bab7f2d86afd11d3"
+      }
+    ],
+    "agentJars": [
+      "cloud-agent-4.23.0.0.jar"
+    ],
+    "secondaryJars": [
+      "cloud-secondary-storage-4.23.0.0.jar"
+    ],
+    "nfsClassSha256": "c0c513f9783e3dcdcb2dbdadf3bc40566068016fc6114dd161eb41a8afd8eaed",
+    "nfsClassMajor": 55,
+    "checksumHelperPresent": false,
+    "scriptHashes": {
+      "opt/cloud/bin/setup/bootstrap.sh": "3abd00c45cf62d73c18d67711fd3a47d47ef8cef04c6bee72a2b0098efba991b",
+      "opt/cloud/bin/setup/secstorage.sh": "9ce940382a6351d622bbe2d97759b419b2edee9914a6488a96bef6737eb9609b",
+      "opt/cloud/bin/get_template_version.sh": "3c1389d52b4fad73071ee731409a893c982a2a64b4220d66e2f782c9954afef1"
+    }
+  }
+]

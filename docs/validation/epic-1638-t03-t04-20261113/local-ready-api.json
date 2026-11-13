@@ -1,0 +1,30 @@
+[
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  }
+]

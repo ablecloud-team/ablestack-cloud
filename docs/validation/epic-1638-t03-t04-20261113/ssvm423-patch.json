@@ -1,0 +1,22 @@
+{
+  "originalJarSha256": "1ba939678ba01ae21c45334d1de37b14d3f35575f54bbaff564c50aa1a0abc36",
+  "patchedJarSha256": "a7c075a5936b2d7bf6a9e6453fc25d247ac0a7b33cdd91046469ca1e28ff27a3",
+  "patchedClassSha256": "41ec41be13ac555484b5a03dc61bc97543bea83ea49d14816af818450b4291ef",
+  "helperClassSha256": "453f3805b781b1a95f5a366cb376542d4cf43ea7776e1127b1ece9f2da85fd69",
+  "changedExistingEntries": [
+    "org/apache/cloudstack/storage/resource/NfsSecondaryStorageResource.class"
+  ],
+  "addedEntries": [
+    "org/apache/cloudstack/storage/resource/PostUploadChecksum.class"
+  ],
+  "changedMethods": [
+    "  public postUpload(Ljava/lang/String;Ljava/lang/String;J)Ljava/lang/String;"
+  ],
+  "allOtherMethodsAndInnerClassesIdentical": true,
+  "allOtherJarEntriesIdentical": true,
+  "baselineExact": true,
+  "sourceRef": "6830ec76d0a15feb4b5fec1b04515242ff325a46",
+  "compileJdk": "17 --release 11",
+  "tests": 6,
+  "testsPassed": true
+}

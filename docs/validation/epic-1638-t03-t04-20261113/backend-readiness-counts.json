@@ -1,0 +1,8 @@
+{
+  "total": 45,
+  "ready": 43,
+  "notReady": 2,
+  "notReadyPageSize1Page2Rows": 1,
+  "paginationAppliedBeforeResponse": true,
+  "backendValidatedThroughUi": true
+}

@@ -1,0 +1,43 @@
+{
+  "canonicalBase": "0edd20dcc9218312b3da533582f03e11535c5eb8",
+  "canonicalImplementationHead": "981f90d36c9817c690281246077b791ef84bdff1",
+  "runtimeUiBaseline": "460b33770cb071d869f61c2aac0d81773890ebc3",
+  "implementationPatchBase": "840f0039cd38f8e02ea2f6f50b6acce07153c964",
+  "buildDirectory": "/root/work/.build-epic1638-t03-t04-20261113/ui",
+  "method": "archived deployed UI baseline plus only T03/T04 implementation delta",
+  "changedInputs": [
+    "ui/public/locales/en.json",
+    "ui/public/locales/ko_KR.json",
+    "ui/src/components/view/ListView.vue",
+    "ui/src/components/view/SearchFilter.vue",
+    "ui/src/components/view/SearchView.vue",
+    "ui/src/components/widgets/Breadcrumb.vue",
+    "ui/src/components/widgets/TemplateAvailability.vue",
+    "ui/src/config/section/image.js",
+    "ui/src/utils/templateForm.js",
+    "ui/src/utils/templateSearch.js",
+    "ui/src/views/AutogenView.vue",
+    "ui/src/views/image/RegisterOrUploadTemplate.vue",
+    "ui/src/views/image/UpdateTemplate.vue",
+    "ui/tests/unit/components/view/ListViewTemplateType.spec.js",
+    "ui/tests/unit/components/view/TemplateSearchForm.spec.js",
+    "ui/tests/unit/components/widgets/TemplateAvailability.spec.js",
+    "ui/tests/unit/utils/templateFormMessages.spec.js",
+    "ui/tests/unit/utils/templateSearch.spec.js",
+    "ui/tests/unit/views/AutogenTemplateRead.spec.js",
+    "ui/tests/unit/views/image/TemplateForms.spec.js"
+  ],
+  "excludedUpstreamUiPaths": [
+    "ui/src/components/view/ResourceTags.vue",
+    "ui/src/components/view/AnnotationsTab.vue",
+    "ui/src/utils/resourceTags.js"
+  ],
+  "changedNonLocaleFilesMatchCanonical": true,
+  "excludedPathsMatchRuntimeBaseline": true,
+  "patchSha256": "72da8414fade1afca893c4ac6c81c1b0dea78d32a0d9e966a48ba37c6de761d6",
+  "javascriptBuildHead": "c0f2be7dddfaf575239bf63ae3acc18c8d965e0e",
+  "staticLocalesIncludedInBuildInput": true,
+  "staticLocalesUpdatedAfterJavaScriptBuild": true,
+  "staticLocaleOnlyFollowup": true,
+  "javascriptPatchSha256": "f6b2e72090f34f16c758cf6c5bfbaf60afbbc44f264d044432927a564bd36ccc"
+}

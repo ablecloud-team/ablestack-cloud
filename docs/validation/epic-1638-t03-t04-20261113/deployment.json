@@ -1,0 +1,18 @@
+{
+  "codeHead": "c0f2be7dddfaf575239bf63ae3acc18c8d965e0e",
+  "root": "/usr/share/cloudstack-management/webapp",
+  "backup": "/var/tmp/epic1638-t34-ui-backup-rti3a9ht",
+  "files": 10,
+  "added": 6,
+  "overwritten": [
+    "index.html",
+    "color.less",
+    "locales/ko_KR.json",
+    "locales/en.json"
+  ],
+  "indexSha256": "cfdf94a85c440bc80c21fb3573d8a127d425edda946497e6f9461defd1da9920",
+  "protectedPreserved": true,
+  "moldPidPreserved": true,
+  "oldHashedAssetsRetained": true,
+  "deploymentType": "UI static delta only"
+}

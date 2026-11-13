@@ -1,0 +1,10 @@
+{
+  "path": "/usr/share/cloudstack-management/webapp/systemvm-4.23-20261113/systemvmtemplate-4.23-t34.qcow2.bz2",
+  "sha256": "bbe9182cb97643dae6cd4466d8463bf775cc8f25e03cbff44c0ecee6effae708",
+  "size": 672119604,
+  "source": "/root/work/ablestack-cloud/tools/appliance/dist/systemvmtemplate-4.23.0.0.13-8ad2d1e-x86_64-kvm-202611122223.qcow2.bz2",
+  "md5": "04e986a6e4c9bc67c7cdf5bcafd09c58",
+  "seconds": 15.9,
+  "url": "http://10.10.13.10:8080/client/systemvm-4.23-20261113/systemvmtemplate-4.23-t34.qcow2.bz2",
+  "osInputsUnchangedSinceImageBuild": true
+}
