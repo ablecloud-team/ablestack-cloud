@@ -1,0 +1,72 @@
+{
+  "cluster": 31,
+  "case": "normal",
+  "phase": "after",
+  "network": "7b9b2206-35b7-4d20-83a1-4ff815935bba",
+  "hostAddress": "10.10.31.2",
+  "rows": [
+    {
+      "path": "cac8ef1c-080a-474d-b642-75bf9b1f8904",
+      "hostId": null,
+      "vmState": "Destroyed",
+      "instance": "r-1054-VM",
+      "poolPath": "/mnt/glue-gfs",
+      "poolType": "SharedMountPoint",
+      "poolUuid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+      "routerId": 1054,
+      "volumeId": 1502,
+      "vmRemoved": "2026-11-13 04:15:13.000000",
+      "routerUuid": "c19e63c6-2bca-42f9-908c-be38882573d4",
+      "volumeUuid": "cac8ef1c-080a-474d-b642-75bf9b1f8904",
+      "poolAddress": "localhost",
+      "volumeState": "Expunged",
+      "volumeRemoved": "2026-11-13 04:15:13.000000"
+    },
+    {
+      "vmId": 1054,
+      "nicId": 1640,
+      "state": "Destroy",
+      "nicUuid": "01fa82e3-c97c-48c5-b089-de1d90fd5205",
+      "removed": "2026-11-13 04:15:13.000000",
+      "nicState": "Deallocating",
+      "nicRemoved": "2026-11-13 04:15:13.000000",
+      "networkUuid": "7b9b2206-35b7-4d20-83a1-4ff815935bba"
+    }
+  ],
+  "runtime": {
+    "host": {
+      "exit": 0,
+      "out": "ablecube31-2\n",
+      "error": ""
+    },
+    "domain": {
+      "exit": 1,
+      "out": "\n",
+      "error": "error: failed to get domain 'r-1054-VM'\n"
+    },
+    "diskXml": {
+      "exit": 1,
+      "out": "\n",
+      "error": "error: failed to get domain 'r-1054-VM'\n"
+    },
+    "poolXml": {
+      "exit": 0,
+      "out": "<pool type='dir'>\n  <name>1842fb9f-02e0-4da9-b082-422c5a184de0</name>\n  <uuid>1842fb9f-02e0-4da9-b082-422c5a184de0</uuid>\n  <capacity unit='bytes'>23998409687040</capacity>\n  <allocation unit='bytes'>4075057037312</allocation>\n  <available unit='bytes'>19923352649728</available>\n  <source>\n  </source>\n  <target>\n    <path>/mnt/glue-gfs</path>\n    <permissions>\n      <mode>0755</mode>\n      <owner>0</owner>\n      <group>0</group>\n      <label>system_u:object_r:unlabeled_t:s0</label>\n    </permissions>\n  </target>\n</pool>\n\n",
+      "error": ""
+    },
+    "libvirtVolumeInfo": {
+      "exit": 1,
+      "out": "Name:           cac8ef1c-080a-474d-b642-75bf9b1f8904\n\n",
+      "error": "error: Storage volume not found: no storage vol with matching path '/mnt/glue-gfs/cac8ef1c-080a-474d-b642-75bf9b1f8904'\n"
+    },
+    "libvirtVolumeXml": {
+      "exit": 1,
+      "out": "\n",
+      "error": "error: Storage volume not found: no storage vol with matching path '/mnt/glue-gfs/cac8ef1c-080a-474d-b642-75bf9b1f8904'\n"
+    },
+    "physicalFile": {
+      "exists": false,
+      "path": "/mnt/glue-gfs/cac8ef1c-080a-474d-b642-75bf9b1f8904"
+    }
+  }
+}

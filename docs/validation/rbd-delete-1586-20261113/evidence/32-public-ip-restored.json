@@ -1,0 +1,23 @@
+{
+  "before": [
+    {
+      "count": 36,
+      "state": "Allocated"
+    },
+    {
+      "count": 1061,
+      "state": "Free"
+    }
+  ],
+  "after": [
+    {
+      "count": 36,
+      "state": "Allocated"
+    },
+    {
+      "count": 1061,
+      "state": "Free"
+    }
+  ],
+  "same": true
+}

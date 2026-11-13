@@ -1,0 +1,21 @@
+{
+  "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+  "account": "admin",
+  "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+  "domainpath": "ROOT",
+  "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+  "cmd": "org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd",
+  "jobprocstatus": 0,
+  "jobresultcode": 530,
+  "jobresulttype": "object",
+  "jobresult": {
+    "errorcode": 530,
+    "errortext": "Network c1ad9108-087f-48ce-beae-946557a3ed23 was not deleted. Check router shutdown, IP/range release and router volume cleanup, refresh its dependencies, then retry only this network. No automatic forced deletion was performed."
+  },
+  "jobinstancetype": "Network",
+  "jobinstanceid": "c1ad9108-087f-48ce-beae-946557a3ed23",
+  "created": "2026-11-13T13:17:18+0900",
+  "completed": "2026-11-13T13:17:23+0900",
+  "jobid": "6183bfaa-c9f6-4e95-8434-1371f993898d",
+  "jobstatus": 2
+}

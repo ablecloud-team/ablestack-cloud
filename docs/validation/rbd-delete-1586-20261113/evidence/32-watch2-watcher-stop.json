@@ -1,0 +1,15 @@
+{
+  "process": {
+    "pid": 738198,
+    "child": 738240,
+    "header": "rbd_header.d34709b0535fa3",
+    "image": "024c4c9f-aef2-43ba-b6f5-702041278276"
+  },
+  "result": {
+    "exit": 0,
+    "gracefulUnwatch": true
+  },
+  "status": {
+    "watchers": []
+  }
+}

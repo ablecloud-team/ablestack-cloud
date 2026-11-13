@@ -1,0 +1,26 @@
+{
+  "source": "dc231e2a84d1ba35d7ca45063408ad6253a2accb",
+  "oldSha": "f7cb63d387fb267fb6289c1c096a1b7f76cfe221fcf324192f56d31459bcd2e6",
+  "newSha": "8e803d78e0d78299326f4112c0495423cb462440d9275d11653b7110a0c1aef5",
+  "classes": {
+    "com/cloud/hypervisor/kvm/storage/RbdDeletionProbe$State.class": "123543bc8b2f6a9955c005eb87992944cca46d158da83edcbf6c4b6c2e99f7d6",
+    "com/cloud/hypervisor/kvm/storage/RbdDeletionProbe.class": "601d5ae8ceb301be78000ba5f26db05d8088f2f2c5703256a24b5134de223672",
+    "com/cloud/hypervisor/kvm/storage/RbdDeletionProbe$Result.class": "f0cdffa87897db2ab34ae28e8c7ddd31f73dcb67d646dce9b597b4fb8ec7c753",
+    "com/cloud/hypervisor/kvm/storage/LibvirtStorageAdaptor.class": "445c5d6de4dd9f49aaae872497f46e6d498ec1528c77ff9f6e9450844dc51207",
+    "com/cloud/hypervisor/kvm/storage/KVMStorageProcessor.class": "f6990d8fd27e4ce09c88045945263264df11461948d00e3a2e6aebd04f28e3a6"
+  },
+  "unmodifiedEntriesPreserved": 555,
+  "stage": "/var/tmp/qa-i1586-dc231e2a84d1",
+  "agentBefore": {
+    "active": "active",
+    "pid": "446294"
+  },
+  "agentAfter": {
+    "active": "active",
+    "pid": "3366647"
+  },
+  "protectedRuntimeUnchanged": true,
+  "cluster": 31,
+  "host": "10.10.31.2",
+  "durableBackup": "/home/ablecloud/work/issue-1586-impl-20261113/backups/10.10.31.2/original-kvm.jar"
+}

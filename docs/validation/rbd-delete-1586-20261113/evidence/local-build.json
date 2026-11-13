@@ -1,0 +1,80 @@
+{
+  "source": "dc231e2a84d1ba35d7ca45063408ad6253a2accb",
+  "base": "0edd20dcc9218312b3da533582f03e11535c5eb8",
+  "ext4": "/home/ablecloud/work/dhslove/cloud-issue-1586",
+  "focusedCheckstyle": {
+    "exit": 0,
+    "files": 5
+  },
+  "unit": {
+    "exit": 0,
+    "seconds": 41.7,
+    "suites": [
+      {
+        "name": "com.cloud.hypervisor.kvm.storage.RbdDeletionContractTest",
+        "tests": 18,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cloud.hypervisor.kvm.storage.LibvirtStorageAdaptorTest",
+        "tests": 23,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cloud.hypervisor.kvm.storage.KVMStorageProcessorTest",
+        "tests": 48,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cloud.hypervisor.kvm.storage.RbdSnapshotDeletionTest",
+        "tests": 4,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cloud.hypervisor.kvm.storage.KVMStorageProcessorRbdRetryTest",
+        "tests": 10,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cloud.hypervisor.kvm.storage.RbdDeletionProbeTest",
+        "tests": 18,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "command": [
+    "mvn",
+    "-B",
+    "-ntp",
+    "-pl",
+    "plugins/hypervisors/kvm",
+    "-Dcheckstyle.skip=true",
+    "-Dtest=RbdDeletionProbeTest,RbdDeletionContractTest,LibvirtStorageAdaptorTest,RbdSnapshotDeletionTest,KVMStorageProcessorRbdRetryTest,KVMStorageProcessorTest",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "test"
+  ],
+  "fullCloudBuild": false,
+  "githubActions": false,
+  "package": {
+    "exit": 0,
+    "seconds": 9.6
+  },
+  "artifact": {
+    "path": "/home/ablecloud/work/dhslove/cloud-issue-1586/plugins/hypervisors/kvm/target/cloud-plugin-hypervisor-kvm-4.23.0.0.jar",
+    "bytes": 1926064,
+    "sha256": "704685b05f39fa31fdc34631e832d1d9dcdbdff549d0806fbd74409425e96234"
+  },
+  "sourceClean": true
+}
