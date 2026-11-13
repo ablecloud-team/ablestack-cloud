@@ -57,7 +57,7 @@ export default {
       },
       details: () => {
         var fields = ['name', 'id', 'displaytext', 'checksum', 'hypervisor', 'arch', 'format', 'externalprovisioner', 'ostypename', 'size', 'physicalsize', 'isready', 'passwordenabled',
-          'sshkeyenabled', 'requireshvm', 'templatetype', 'directdownload', 'deployasis', 'ispublic', 'isfeatured', 'isextractable', 'isdynamicallyscalable', 'crosszones',
+          'sshkeyenabled', 'requireshvm', 'templatetype', 'directdownload', 'deployasis', 'ispublic', 'isfeatured', 'isextractable', 'isdynamicallyscalable', 'crossZones',
           'account', 'domain', 'created', 'userdatadetails', 'userdatapolicy', 'forcks', 'url']
         if (['Admin'].includes(store.getters.userInfo.roletype)) {
           fields.push('templatetag', 'kvdoenable')

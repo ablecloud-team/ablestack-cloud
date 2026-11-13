@@ -41,7 +41,7 @@ test.each(['Admin', 'DomainAdmin', 'User'])('detail fields have a single type an
   const fields = config.details()
   expect(fields.filter(x => x === 'templatetype')).toHaveLength(1)
   expect(new Set(fields).size).toBe(fields.length)
-  expect(fields).toEqual(expect.arrayContaining(['format', 'sshkeyenabled', 'requireshvm', 'created', 'crosszones']))
+  expect(fields).toEqual(expect.arrayContaining(['format', 'sshkeyenabled', 'requireshvm', 'created', 'crossZones']))
 })
 test.each(['USER', 'VNF', 'SYSTEM', undefined])('runtime tab does not infer Storage Service purpose from %s, names or tags', type => {
   const resource = { templatetype: type, name: 'SharedFS-runtime', templatetag: 'SHAREDFS', profileid: 'known-looking-profile' }
@@ -67,6 +67,10 @@ test.each(['id', 'checksum', 'url'])('full %s text and exact copy payload surviv
   expect(w.findComponent({ name: 'TooltipButton' }).props('copyResource')).toBe(value)
   expect(w.findComponent({ name: 'TooltipButton' }).attributes('aria-label')).toBe('복사 ' + field)
   w.unmount()
+})
+test('the API crossZones field keeps false visible and localized', () => {
+  const w = shallowMount(Value, { props: { field: 'crossZones', value: false, label: '크로스 존' }, global: { mocks: { $t: t } } })
+  expect(w.text()).toBe('아니오'); w.unmount()
 })
 test('boolean-looking names are not relabeled and dates keep the locale renderer', () => {
   expect(presentedTemplateValue('name')).toBe(false); expect(presentedTemplateValue('created')).toBe(false)

@@ -17,7 +17,7 @@
 
 export const templateBooleanFields = new Set([
   'isready', 'passwordenabled', 'sshkeyenabled', 'requireshvm', 'directdownload', 'deployasis',
-  'ispublic', 'isfeatured', 'isextractable', 'isdynamicallyscalable', 'crosszones', 'forcks', 'kvdoenable'
+  'ispublic', 'isfeatured', 'isextractable', 'isdynamicallyscalable', 'crossZones', 'crosszones', 'forcks', 'kvdoenable'
 ])
 export function presentedTemplateValue (field) {
   return ['id', 'checksum', 'url'].includes(field) || templateBooleanFields.has(field)
