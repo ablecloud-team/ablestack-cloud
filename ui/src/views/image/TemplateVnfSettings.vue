@@ -27,8 +27,8 @@
       <template #actions="{record}">
         <div v-if="canWrite" class="shift-btns">
           <tooltip-button :tooltip="$t('label.vnf.nic.edit')" icon="edit-outlined" :disabled="updateBusy || editorOpen" @onClick="onShowEditVnfNic(record, $event)" />
-          <tooltip-button :tooltip="$t('label.move.up.row')" icon="caret-up-outlined" :disabled="updateBusy || editorOpen || !canMove(record, -1)" @onClick="moveVnfNicUp(record)" />
-          <tooltip-button :tooltip="$t('label.move.down.row')" icon="caret-down-outlined" :disabled="updateBusy || editorOpen || !canMove(record, 1)" @onClick="moveVnfNicDown(record)" />
+          <tooltip-button :tooltip="$t(canMove(record, -1) ? 'label.move.up.row' : 'message.vnf.nic.move.boundary')" icon="caret-up-outlined" :disabled="updateBusy || editorOpen || !canMove(record, -1)" @onClick="moveVnfNicUp(record)" />
+          <tooltip-button :tooltip="$t(canMove(record, 1) ? 'label.move.down.row' : 'message.vnf.nic.move.boundary')" icon="caret-down-outlined" :disabled="updateBusy || editorOpen || !canMove(record, 1)" @onClick="moveVnfNicDown(record)" />
           <a-popconfirm :title="$t('message.vnf.nic.delete.confirm', { name: record.name, id: record.deviceid })" :disabled="updateBusy || editorOpen" :ok-text="$t('label.yes')" :cancel-text="$t('label.no')" @confirm="deleteVnfNic(record)">
             <tooltip-button :tooltip="$t('label.vnf.nic.delete')" icon="delete-outlined" :danger="true" :disabled="updateBusy || editorOpen" />
           </a-popconfirm>
@@ -194,14 +194,17 @@ export default {
       if (this.updateBusy || this.editorOpen) return
       return this.updateVnfTemplateNics(this.vnfNics.filter(n => n.deviceid !== record.deviceid).map((n, deviceid) => ({ ...n, deviceid })))
     },
-    canMove (record, direction) { return this.vnfNics.some(n => Number(n.deviceid) === Number(record.deviceid) + direction) },
+    canMove (record, direction) {
+      const other = this.vnfNics.find(n => Number(n.deviceid) === Number(record.deviceid) + direction)
+      return !!(other && !!other.required === !!record.required)
+    },
     moveVnfNicUp (record) { return this.moveVnfNic(record, -1) },
     moveVnfNicDown (record) { return this.moveVnfNic(record, 1) },
     moveVnfNic (record, direction) {
       if (this.updateBusy || this.editorOpen || !this.canMove(record, direction)) return
       const rows = cloneNics(this.vnfNics); const current = rows.find(n => n.deviceid === record.deviceid); const other = rows.find(n => n.deviceid === record.deviceid + direction)
       if (!current || !other) return
-      const required = current.required; current.deviceid += direction; other.deviceid -= direction; current.required = other.required; other.required = required
+      current.deviceid += direction; other.deviceid -= direction
       return this.updateVnfTemplateNics(rows.sort((a, b) => a.deviceid - b.deviceid))
     },
     updateVnfTemplateNics (nics = this.vnfNics) {

@@ -168,3 +168,10 @@ test('late detail option discovery and write response cannot leak across owner o
   const c = detailContext(); let done; getAPI.mockImplementationOnce(() => new Promise(resolve => { done = resolve })); const pending = c.loadOptions(); c.resource.account = 'other'; Settings.watch.nicScope.call(c); done({ listdetailoptionsresponse: { detailoptions: { details: { version: [] } } } }); await pending; expect(c.showEditDetail).toBe(false)
   c.optionsReady = true; c.showEditVnfDetail('version'); c.detailDraft.value = '2'; let saved; postAPI.mockImplementationOnce(() => new Promise(resolve => { saved = resolve })); const write = c.saveVnfDetail(); c.$store.getters.apis = {}; Settings.watch.nicScope.call(c); saved(detailReply(c, { version: '2' })); await write; expect(c.vnfDetails[0].value).toBe('1.0'); expect(c.detailDraft.value).toBe('')
 })
+
+test('moving cannot silently exchange required flags across the required/optional boundary', async () => {
+  const c = context(); c.vnfNics = [{ ...original }, { ...optional }]
+  expect(c.canMove(original, 1)).toBe(false); expect(c.canMove(optional, -1)).toBe(false)
+  await c.moveVnfNicDown(original); await c.moveVnfNicUp(optional)
+  expect(postAPI).not.toHaveBeenCalled(); expect(c.vnfNics).toEqual([original, optional])
+})
