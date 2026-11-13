@@ -68,3 +68,10 @@ export function templateListLocation (route, getters) {
     return { path: '/template', query: templateListQuery(query) }
   } catch (_) { return { path: '/template' } }
 }
+
+export function templateFilterMismatch (rows, params) {
+  return rows.some(row => ['isready', 'forcks', 'hypervisor', 'userdataid'].some(key => {
+    if (params[key] === undefined) return false
+    return row[key] === undefined || String(row[key]).toLowerCase() !== String(params[key]).toLowerCase()
+  }))
+}

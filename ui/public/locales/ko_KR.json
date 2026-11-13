@@ -11550,5 +11550,6 @@
   "message.template.sort.page": "열 정렬은 현재 페이지에만 적용됩니다.",
   "message.template.search.unsupported": "현재 서버가 선택한 템플릿 검색 조건 일부를 지원하지 않습니다. 검색 조건을 초기화하세요.",
   "message.template.search.invalid": "검색 조건의 UUID 또는 true/false 값을 확인하세요.",
-  "label.sshkeyenabled": "SSH 키 주입 지원"
+  "label.sshkeyenabled": "SSH 키 주입 지원",
+  "message.template.search.ignored": "서버 응답이 선택한 검색 조건과 일치하지 않아 결과를 표시하지 않습니다. 서버를 업데이트하거나 검색 조건을 초기화하세요."
 }

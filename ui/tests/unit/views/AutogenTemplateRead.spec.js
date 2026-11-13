@@ -82,7 +82,7 @@ function listRoute (query = {}) {
   ctx.$getApiParams = () => ({ isready: {}, hypervisor: {}, forcks: {}, userdataid: {}, name: {} })
 }
 test('template combined list filters reach actual read while detail return state does not', async () => {
-  listRoute({ isready: 'false', hypervisor: 'KVM', forcks: 'true', userdataid: id, page: '2', pagesize: '50' }); await ctx.fetchData()
+  listRoute({ isready: 'false', hypervisor: 'KVM', forcks: 'true', userdataid: id, page: '2', pagesize: '50' }); getAPI.mockResolvedValueOnce(reply([{ id, isready: false, hypervisor: 'KVM', forcks: true, userdataid: id }])); await ctx.fetchData()
   expect(getAPI).toHaveBeenCalledWith('listTemplates', expect.objectContaining({ isready: 'false', hypervisor: 'KVM', forcks: 'true', userdataid: id, page: '2', pagesize: '50' }), expect.any(Object))
   route(id); ctx.$route.query = { templatereturn: '{"isready":"false"}', templateowner: 'owner' }; getAPI.mockClear(); await ctx.fetchData(); expect(getAPI.mock.calls[0][1]).toEqual({ id, templatefilter: 'all' })
 })
@@ -95,4 +95,8 @@ test('template search/size change reset page; unrelated resources keep existing 
 })
 test('owner change clears selection and query and invalidates outstanding reads', () => {
   listRoute({ userdataid: id }); ctx.selectedRowKeys = [id]; ctx.items = [{ id }]; const before = ctx.listRequestVersion; Autogen.watch.templateSecurityContext.call(ctx); expect(ctx.listRequestVersion).toBeGreaterThan(before); expect(ctx.selectedRowKeys).toEqual([]); expect(ctx.items).toEqual([]); expect(ctx.$router.replace).toHaveBeenCalledWith({ query: { page: '1', pagesize: '20' } })
+})
+
+test('server ignoring a filter never presents broad results as matching', async () => {
+  listRoute({ isready: 'false' }); getAPI.mockResolvedValue(reply([{ id, isready: true }])); await ctx.fetchData(); expect(ctx.templateFilterError).toBe('message.template.search.ignored'); expect(ctx.items).toEqual([]); expect(ctx.itemCount).toBe(0)
 })

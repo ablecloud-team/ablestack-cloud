@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { templateListQuery, templateSearchQuery, templateSearchError, templateRequestParams, templateDetailLocation, templateListLocation } from '@/utils/templateSearch'
+import { templateListQuery, templateSearchQuery, templateSearchError, templateRequestParams, templateDetailLocation, templateListLocation, templateFilterMismatch } from '@/utils/templateSearch'
 const id = '11111111-1111-4111-8111-111111111111'
 const getters = { userInfo: { id: 'user', roletype: 'Admin', roleid: id }, project: {}, listAllProjects: false }
 test('canonical query preserves false, combined filters, tags and page size but drops unrelated route data', () => {
@@ -47,4 +47,11 @@ test('detail comments and breadcrumb retain only validated list context for same
 })
 test.each(['https://evil.example', '[1]', 'null', '{bad'])('malformed return cannot navigate elsewhere: %s', templatereturn => {
   const location = templateDetailLocation({ query: {} }, { id }, getters); location.query.templatereturn = templatereturn; expect(templateListLocation(location, getters)).toEqual({ path: '/template' })
+})
+
+test('response contract guards catch ignored booleans and linked UUID filters', () => {
+  expect(templateFilterMismatch([{ isready: true }], { isready: 'false' })).toBe(true)
+  expect(templateFilterMismatch([{ isready: false, forcks: false, hypervisor: 'KVM', userdataid: id }], { isready: 'false', forcks: 'false', hypervisor: 'KVM', userdataid: id })).toBe(false)
+  expect(templateFilterMismatch([{ userdataid: 'other' }], { userdataid: id })).toBe(true)
+  expect(templateFilterMismatch([{}], { forcks: 'false' })).toBe(true)
 })

@@ -11542,5 +11542,6 @@
   "message.template.sort.page": "Column sorting applies to the current page.",
   "message.template.search.unsupported": "This server does not support one or more selected template filters. Reset the filters to continue.",
   "message.template.search.invalid": "Check the template filter UUID or true/false value.",
-  "label.sshkeyenabled": "SSH key injection support"
+  "label.sshkeyenabled": "SSH key injection support",
+  "message.template.search.ignored": "The server returned images that do not match the selected filters. Results are hidden; update the server or reset the filters."
 }
