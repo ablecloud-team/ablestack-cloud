@@ -8,6 +8,8 @@ import { h } from 'vue'
 import Clone from '@/views/offering/CloneVpcOffering'
 import { vpcServiceProviderMap, vpcProviderChoices, sameVpcProviders, buildVpcCloneProviderParams } from '@/utils/vpcOfferingProviders'
 import { getAPI, postAPI } from '@/api'
+import { clearVpcOfferingOperations } from '@/utils/vpcOfferingOperationMixin'
+import '../../utils/cryptoRandom'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 jest.mock('@/role', () => ({ isAdmin: () => true }))
 
@@ -18,11 +20,12 @@ const list = { props: ['dataSource'], render () { return h('ul', this.dataSource
 const passthrough = { render () { return h('div', this.$slots.default?.()) } }
 let wrappers
 beforeEach(() => {
+  clearVpcOfferingOperations()
   wrappers = []; jest.clearAllMocks()
   getAPI.mockImplementation(command => Promise.resolve({ [command.toLowerCase() + 'response']: command === 'listServiceOfferings' ? { serviceoffering: [] } : {} }))
   postAPI.mockResolvedValue({ clonevpcofferingresponse: { jobid: 'job' } })
 })
-afterEach(() => wrappers.forEach(wrapper => wrapper.unmount()))
+afterEach(() => { wrappers.forEach(wrapper => wrapper.unmount()); clearVpcOfferingOperations() })
 async function open (source = resource, realForm = false) {
   const wrapper = (realForm ? mount : shallowMount)(Clone, {
     props: { resource: JSON.parse(JSON.stringify(source)) },

@@ -8,6 +8,8 @@ import { h } from 'vue'
 import Clone from '@/views/offering/CloneVpcOffering'
 import { cloneBoolean, vpcCloneDefaults, buildVpcCloneCapabilityParams, mixedVpcCloneCapabilities } from '@/utils/vpcOfferingClone'
 import { getAPI, postAPI } from '@/api'
+import { clearVpcOfferingOperations } from '@/utils/vpcOfferingOperationMixin'
+import '../../utils/cryptoRandom'
 
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 jest.mock('@/role', () => ({ isAdmin: () => true }))
@@ -28,11 +30,12 @@ const reply = command => ({
 })
 
 beforeEach(() => {
+  clearVpcOfferingOperations()
   wrappers = []; jest.clearAllMocks()
   getAPI.mockImplementation(command => Promise.resolve(reply(command)))
   postAPI.mockResolvedValue({ clonevpcofferingresponse: { jobid: 'job' } })
 })
-afterEach(() => wrappers.forEach(wrapper => wrapper.unmount()))
+afterEach(() => { wrappers.forEach(wrapper => wrapper.unmount()); clearVpcOfferingOperations() })
 
 async function open (resource = source, real = false) {
   const wrapper = (real ? mount : shallowMount)(Clone, {
@@ -111,13 +114,14 @@ test('source changes reset all previous edits and ignore an earlier service resp
 test('HTTP failure retry retains false and source values without repopulating the form', async () => {
   const wrapper = await open()
   wrapper.vm.form.name = 'Retry clone'; wrapper.vm.form.enable = false
-  postAPI.mockRejectedValueOnce(new Error('HTTP failure'))
+  postAPI.mockRejectedValueOnce({ response: { status: 431, data: { errorresponse: { errorcode: 431, errortext: 'HTTP rejection' } } } })
   const first = await submit(wrapper)
-  expect(postAPI.mock.calls[0][2]).toEqual({ preserveOnFailure: true })
+  expect(postAPI.mock.calls[0][2]).toEqual(expect.objectContaining({ preserveOnFailure: true }))
   expect(wrapper.vm.loading).toBe(false)
   expect(wrapper.emitted('close-action')).toBeUndefined()
   const second = await submit(wrapper)
-  expect(second).toEqual(first)
+  expect(second).toEqual({ ...first, customjobid: expect.any(String) })
+  expect(second.customjobid).not.toBe(first.customjobid)
   expect(second.enable).toBe(false)
   expect(postAPI).toHaveBeenCalledTimes(2)
 })

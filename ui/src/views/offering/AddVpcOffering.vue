@@ -16,8 +16,10 @@
 // under the License.
 
 <template>
-  <div class="form-layout" @keyup.ctrl.enter="handleSubmit">
+  <div class="form-layout" v-ctrl-enter="handleSubmit">
+    <VpcOfferingOperationStatus :operation="offeringOperation" @recheck="recheckOfferingOperation" @confirm="finishOfferingOperation" />
     <a-spin :spinning="loading">
+      <fieldset class="offering-fields" :disabled="offeringBlocked || loading" :inert="offeringBlocked || loading || undefined">
       <a-form
         :ref="formRef"
         :model="form"
@@ -150,10 +152,12 @@
               <template #renderItem="{ item }">
                 <a-list-item>
                   <CheckBoxSelectPair
+                    :key="offeringDraftVersion + '-' + item.name"
                     :resourceKey="item.name"
                     :checkBoxLabel="item.description"
                     :forExternalNetProvider="form.provider === 'NSX' || form.provider === 'Netris'"
-                    :defaultCheckBoxValue="form.provider === 'NSX' || form.provider === 'Netris'"
+                    :defaultCheckBoxValue="!!selectedServiceProviderMap[item.name] || form.provider === 'NSX' || form.provider === 'Netris'"
+                    :defaultSelectValue="selectedServiceProviderMap[item.name] || null"
                     :selectOptions="item.provider || []"
                     @handle-checkselectpair-change="handleSupportedServiceChange"/>
                 </a-list-item>
@@ -261,31 +265,37 @@
           <a-switch v-model:checked="form.enable" />
         </a-form-item>
       </a-form>
-      <div :span="24" class="action-button">
+      </fieldset>
+      <MoldDialogActions :busy="loading || offeringBusy">
         <a-button @click="closeAction">{{ this.$t('label.cancel') }}</a-button>
-        <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ this.$t('label.ok') }}</a-button>
-      </div>
+        <a-button :loading="loading || offeringBusy" :disabled="offeringBlocked" ref="submit" type="primary" @click="handleSubmit">{{ this.$t('label.ok') }}</a-button>
+      </MoldDialogActions>
     </a-spin>
   </div>
 </template>
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { getAPI, postAPI } from '@/api'
+import { getAPI } from '@/api'
 import { isAdmin } from '@/role'
 import { mixinForm } from '@/utils/mixin'
 import CheckBoxSelectPair from '@/components/CheckBoxSelectPair'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
+import VpcOfferingOperationStatus from './VpcOfferingOperationStatus'
+import { vpcOfferingOperationMixin } from '@/utils/vpcOfferingOperationMixin'
 import { buildVpcServiceCapabilityParams } from '@/composables/useServiceCapabilityParams'
 
 export default {
   name: 'AddVpcOffering',
-  mixins: [mixinForm],
+  mixins: [mixinForm, vpcOfferingOperationMixin],
   components: {
     CheckBoxSelectPair,
     ResourceIcon,
-    TooltipLabel
+    TooltipLabel,
+    MoldDialogActions,
+    VpcOfferingOperationStatus
   },
   data () {
     return {
@@ -673,9 +683,13 @@ export default {
       })
     },
     handleSubmit (e) {
-      e.preventDefault()
-      if (this.loading) return
+      if (typeof e?.preventDefault === 'function') e.preventDefault()
+      if (this.loading || this.offeringBlocked) return
+      this.loading = true
+      const context = this.offeringContext
+      const version = this.offeringContextVersion
       this.formRef.value.validate().then(() => {
+        if (this.offeringDisposed || context !== this.offeringContext || version !== this.offeringContextVersion) return
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
         var params = {}
@@ -742,15 +756,12 @@ export default {
         if (values.enable) {
           params.enable = values.enable
         }
-        postAPI('createVPCOffering', params).then(json => {
-          this.$message.success(`${this.$t('message.create.vpc.offering')}: ` + values.name)
-          this.$emit('refresh-data')
-          this.closeAction()
-        }).catch(error => {
-          this.$notifyError(error)
-        }).finally(() => {
+        return this.submitOfferingOperation('createVPCOffering', params)
+      }).catch(error => {
+        if (!this.offeringDisposed && context === this.offeringContext && version === this.offeringContextVersion) {
           this.loading = false
-        })
+          if (error.errorFields?.length) this.formRef.value.scrollToField(error.errorFields[0].name)
+        }
       })
     },
     closeAction () {
@@ -762,12 +773,11 @@ export default {
 
 <style scoped lang="scss">
   .form-layout {
-    width: 80vw;
-
-    @media (min-width: 800px) {
-      width: 500px;
-    }
+    width: 100%;
+    min-width: 0;
   }
+
+  .offering-fields { border: 0; padding: 0; margin: 0; min-width: 0; }
 
   .supported-services-container {
     height: 250px;

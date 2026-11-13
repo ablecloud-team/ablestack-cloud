@@ -17,7 +17,9 @@
 
 <template>
   <div class="form-layout" v-ctrl-enter="handleSubmit">
+    <VpcOfferingOperationStatus :operation="offeringOperation" @recheck="recheckOfferingOperation" @confirm="finishOfferingOperation" />
     <a-spin :spinning="loading">
+      <fieldset class="offering-fields" :disabled="offeringBlocked || loading" :inert="offeringBlocked || loading || undefined">
       <a-alert
         v-if="resource"
         type="info"
@@ -298,9 +300,10 @@
           <a-switch v-model:checked="form.enable" />
         </a-form-item>
       </a-form>
-      <MoldDialogActions :busy="loading">
+      </fieldset>
+      <MoldDialogActions :busy="loading || offeringBusy">
         <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-        <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+        <a-button :loading="loading || offeringBusy" :disabled="offeringBlocked" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
       </MoldDialogActions>
     </a-spin>
   </div>
@@ -308,23 +311,26 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { getAPI, postAPI } from '@/api'
+import { getAPI } from '@/api'
 import { isAdmin } from '@/role'
 import { mixinForm } from '@/utils/mixin'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
+import VpcOfferingOperationStatus from './VpcOfferingOperationStatus'
+import { vpcOfferingOperationMixin } from '@/utils/vpcOfferingOperationMixin'
 import { BlockOutlined, GlobalOutlined } from '@ant-design/icons-vue'
 import { cloneBoolean, cloneScopeIds, vpcCloneDefaults, buildVpcCloneCapabilityParams, mixedVpcCloneCapabilities } from '@/utils/vpcOfferingClone'
 import { providerNames, vpcServiceProviderMap, vpcProviderChoices, buildVpcCloneProviderParams } from '@/utils/vpcOfferingProviders'
 
 export default {
   name: 'CloneVpcOffering',
-  mixins: [mixinForm],
+  mixins: [mixinForm, vpcOfferingOperationMixin],
   components: {
     ResourceIcon,
     TooltipLabel,
     MoldDialogActions,
+    VpcOfferingOperationStatus,
     BlockOutlined,
     GlobalOutlined
   },
@@ -703,11 +709,13 @@ export default {
       })
     },
     handleSubmit (e) {
-      if (e) {
-        e.preventDefault()
-      }
-      if (this.loading) return
+      if (typeof e?.preventDefault === 'function') e.preventDefault()
+      if (this.loading || this.offeringBlocked) return
+      this.loading = true
+      const context = this.offeringContext
+      const version = this.offeringContextVersion
       this.formRef.value.validate().then(() => {
+        if (this.offeringDisposed || context !== this.offeringContext || version !== this.offeringContextVersion) return
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
         const params = {
@@ -755,18 +763,12 @@ export default {
           params.enable = values.enable
         }
 
-        this.loading = true
-        postAPI('cloneVPCOffering', params, { preserveOnFailure: true }).then(json => {
-          this.$message.success(`${this.$t('message.success.clone.vpc.offering')} ${values.name}`)
-          this.$emit('refresh-data')
-          this.closeAction()
-        }).catch(error => {
-          this.$notifyError(error)
-        }).finally(() => {
-          this.loading = false
-        })
+        return this.submitOfferingOperation('cloneVPCOffering', params)
       }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
+        if (!this.offeringDisposed && context === this.offeringContext && version === this.offeringContextVersion) {
+          this.loading = false
+          if (error.errorFields?.length) this.formRef.value.scrollToField(error.errorFields[0].name)
+        }
       })
     },
     closeAction () {
@@ -783,6 +785,7 @@ export default {
   }
 
   .clone-inheritance { margin-bottom: 16px; }
+  .offering-fields { border: 0; padding: 0; margin: 0; min-width: 0; }
   .inheritance-hint { display: block; margin-top: 4px; color: inherit; opacity: 0.8; }
 
   .supported-services-container {
