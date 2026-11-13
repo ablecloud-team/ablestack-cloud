@@ -64,7 +64,13 @@ export function templateAvailability (record = {}, observation = null) {
   const zones = new Map()
   rows.forEach(row => {
     const value = rowAvailability(row); const key = row.zoneid.toLowerCase(); const previous = zones.get(key)
-    if (!previous || value.availability === 'ready' || previous.availability !== 'ready') zones.set(key, value)
+    if (!previous) { zones.set(key, value); return }
+    const pair = [previous, value]
+    const ready = pair.some(item => item.availability === 'ready')
+    const mergedKey = ready
+      ? (pair.some(item => ['failed', 'readyWarning'].includes(item.key)) ? 'readyWarning' : 'ready')
+      : ['failed', 'progress', 'queued', 'verifying', 'unknown'].find(key => pair.some(item => item.key === key))
+    zones.set(key, presentation(mergedKey, ready ? 'ready' : (mergedKey === 'unknown' ? 'unknown' : 'unready'), pair.flatMap(item => item.reasons)))
   })
   const values = [...zones.values()]
   const readyCount = values.filter(value => value.availability === 'ready').length

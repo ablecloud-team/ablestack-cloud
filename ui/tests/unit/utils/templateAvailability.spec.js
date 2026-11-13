@@ -76,3 +76,12 @@ test('observation context follows owner/session/role while ignoring presentation
   expect(templateObservationContext(route, record, { ...getters, project: { id: zoneB } }, 'one')).not.toBe(first)
   expect(templateObservationContext(route, record, { ...getters, userInfo: { id: 'user', roletype: 'User' } }, 'one')).not.toBe(first)
 })
+
+test.each([false, true])('duplicate datastore rows keep readiness and failure regardless of response order: %s', reverse => {
+  const ready = row('DOWNLOADED', true)
+  const failed = row('DOWNLOAD_ERROR', false, { status: 'Connection refused' })
+  const rows = reverse ? [failed, ready] : [ready, failed]
+  const result = templateAvailability(ready, { templateid: id, rows, count: 2, coverage: 'complete' })
+  expect(result).toMatchObject({ key: 'readyWarning', availability: 'ready', readyCount: 1, zoneCount: 1, complete: false })
+  expect(result.reasons).toContain('Connection refused')
+})
