@@ -81,12 +81,11 @@ test('API failure keeps draft and permits corrected retry', async () => {
 test.each(['', 'a'.repeat(32), '{MD5}' + 'b'.repeat(32), '{SHA-256}' + 'c'.repeat(64), '{SHA-512}' + 'D'.repeat(128)])('checksum accepts documented wire format %s', value => expect(validTemplateChecksum(value)).toBe(true))
 test.each(['bad', '{SHA-256}' + 'a'.repeat(32), '{sha-256}' + 'a'.repeat(64), '{SHA-512}' + 'z'.repeat(128), ' a'.repeat(32), '{SHA-256}'])('checksum rejects malformed digest %s', value => expect(validTemplateChecksum(value)).toBe(false))
 
-test('file transfer failure reuses accepted upload parameters instead of creating another template', async () => {
+test('ambiguous transfer failure never reuses a one-time URL or creates a duplicate', async () => {
   const c = context(Register, { currentForm: 'Upload' }); c.uploadParams = { id: 'accepted', postURL: 'https://ssvm.example/upload', signature: 'test', expires: 'test', metadata: 'test' }; c.acceptedTemplateId = 'accepted'; c.fileList = []; c.finishRegistration = jest.fn().mockResolvedValue()
-  axios.post.mockRejectedValueOnce(new Error('transfer reset')); await c.handleUpload(); expect(c.uploadFailed).toBe(true); expect(c.uploading).toBe(false); expect(c.finishRegistration).not.toHaveBeenCalled()
-  axios.post.mockResolvedValueOnce({}); await c.retryUpload(); expect(axios.post).toHaveBeenCalledTimes(2); expect(getAPI).not.toHaveBeenCalled(); expect(c.finishRegistration).toHaveBeenCalledTimes(1); expect(c.acceptedTemplateId).toBe('accepted')
+  axios.post.mockRejectedValueOnce(new Error('transfer reset')); await c.handleUpload(); expect(c.uploadFailed).toBe(true); expect(c.uploading).toBe(false); await c.retryUpload(); expect(axios.post).toHaveBeenCalledTimes(1); expect(getAPI).not.toHaveBeenCalled(); expect(c.finishRegistration).not.toHaveBeenCalled()
+  c.$route = { query: { page: '2' } }; c.$store = { getters: {} }; c.$router = { push: jest.fn() }; c.viewAcceptedTemplate(); expect(c.$router.push).toHaveBeenCalledWith(expect.objectContaining({ path: '/template/accepted' })); expect(c.$emit).toHaveBeenCalledWith('close-action')
 })
-
 test.each([['plus-outlined', 'Create', 'registerTemplate'], ['cloud-upload-outlined', 'Upload', 'getUploadParamsForTemplate']])('self-managed %s renders with currentAction prop', (icon, mode, api) => {
   const wrapper = shallowMount({ ...Register, methods: { ...Register.methods, fetchData () {} } }, {
     props: { resource: {}, currentAction: { icon } },

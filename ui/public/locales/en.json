@@ -11531,7 +11531,6 @@
   "message.template.checksum.help": "Optional: MD5 (32 hexadecimal digits), {'{SHA-256}'} followed by 64 digits, or {'{SHA-512}'} followed by 128 digits. Other {'{algorithm}'} prefixes depend on server support.",
   "message.template.checksum.placeholder": "MD5 or {'{SHA-256}'}hexadecimal digest",
   "message.template.checksum.invalid": "Enter a hexadecimal checksum with the correct length and exact algorithm prefix, such as {'{SHA-256}'}.",
-  "message.template.upload.retry": "The image record already exists. Retry file transfer without registering another image.",
   "label.template.name.exact": "Name (exact match)",
   "label.template.image.format": "Image format",
   "label.template.type": "Template type",
@@ -11543,5 +11542,7 @@
   "message.template.search.unsupported": "This server does not support one or more selected template filters. Reset the filters to continue.",
   "message.template.search.invalid": "Check the template filter UUID or true/false value.",
   "label.sshkeyenabled": "SSH key injection support",
-  "message.template.search.ignored": "The server returned images that do not match the selected filters. Results are hidden; update the server or reset the filters."
+  "message.template.search.ignored": "The server returned images that do not match the selected filters. Results are hidden; update the server or reset the filters.",
+  "message.template.upload.check": "Check the registered image state first. If the image failed, remove it before starting a new upload.",
+  "label.template.check.accepted": "Check registered image"
 }

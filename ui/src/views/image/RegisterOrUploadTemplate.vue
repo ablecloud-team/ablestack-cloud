@@ -27,8 +27,8 @@
       </MoldDialogActions>
     </div>
     <div v-else-if="uploadFailed">
-      <a-alert type="warning" show-icon :message="$t('message.template.upload.retry')" :description="acceptedTemplateId" />
-      <MoldDialogActions :busy="blocksNavigation"><a-button @click="closeAction">{{ $t('label.close') }}</a-button><a-button type="primary" :loading="loading" @click="retryUpload">{{ $t('label.retry.upload') }}</a-button></MoldDialogActions>
+      <a-alert type="warning" show-icon :message="$t('message.template.upload.check')" :description="acceptedTemplateId" />
+      <MoldDialogActions :busy="blocksNavigation"><a-button @click="closeAction">{{ $t('label.close') }}</a-button><a-button type="primary" @click="viewAcceptedTemplate">{{ $t('label.template.check.accepted') }}</a-button></MoldDialogActions>
     </div>
     <span v-else-if="uploading">
       <loading-outlined />
@@ -531,6 +531,7 @@ import TooltipLabel from '@/components/widgets/TooltipLabel'
 import DetailsInput from '@/components/widgets/DetailsInput'
 import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
+import { templateDetailLocation } from '@/utils/templateSearch'
 import { validTemplateChecksum, templateOptionMatches } from '@/utils/templateForm'
 
 export default {
@@ -685,8 +686,14 @@ export default {
       this.form.file = file
       return false
     },
+    viewAcceptedTemplate () {
+      if (this.blocksNavigation || !this.acceptedTemplateId) return
+      this.$emit('refresh-data')
+      this.$emit('close-action')
+      this.$router.push(templateDetailLocation(this.$route, { id: this.acceptedTemplateId }, this.$store.getters))
+    },
     async retryUpload () {
-      if (this.blocksNavigation) return
+      if (this.blocksNavigation || this.uploadFailed) return
       this.loading = true
       const reachable = await probeSsvmCert(this.ssvmOrigin)
       this.loading = false
