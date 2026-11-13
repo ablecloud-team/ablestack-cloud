@@ -1,0 +1,14 @@
+{
+  "com/cloud/template/TemplateManagerImpl.class": {
+    "exact": true,
+    "symbolicMatch": true
+  },
+  "com/cloud/api/query/dao/TemplateJoinDaoImpl.class": {
+    "exact": true,
+    "symbolicMatch": true
+  },
+  "org/apache/cloudstack/api/command/admin/template/PrepareTemplateCmd.class": {
+    "exact": true,
+    "symbolicMatch": true
+  }
+}

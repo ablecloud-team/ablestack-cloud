@@ -1,0 +1,44 @@
+[
+  {
+    "command": "copyTemplate",
+    "zone": "00000000-0000-4000-8000-000000000061",
+    "attempt": 1,
+    "jobid": "ffffffff-0000-4000-8000-000000000001",
+    "intercepted": true
+  },
+  {
+    "command": "copyTemplate",
+    "zone": "00000000-0000-4000-8000-000000000062",
+    "attempt": 1,
+    "jobid": "ffffffff-0000-4000-8000-000000000002",
+    "intercepted": true
+  },
+  {
+    "command": "copyTemplate",
+    "zone": "00000000-0000-4000-8000-000000000062",
+    "attempt": 2,
+    "jobid": "ffffffff-0000-4000-8000-000000000003",
+    "intercepted": true
+  },
+  {
+    "command": "deleteTemplate",
+    "zone": "00000000-0000-4000-8000-000000000061",
+    "attempt": 1,
+    "jobid": "ffffffff-0000-4000-8000-000000000004",
+    "intercepted": true
+  },
+  {
+    "command": "deleteTemplate",
+    "zone": "00000000-0000-4000-8000-000000000062",
+    "attempt": 1,
+    "jobid": "ffffffff-0000-4000-8000-000000000005",
+    "intercepted": true
+  },
+  {
+    "command": "deleteTemplate",
+    "zone": "00000000-0000-4000-8000-000000000062",
+    "attempt": 2,
+    "jobid": "ffffffff-0000-4000-8000-000000000006",
+    "intercepted": true
+  }
+]

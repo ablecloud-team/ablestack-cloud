@@ -1,0 +1,31 @@
+{
+  "implementationHead": "241d79387dae71dea09ccd3547ad25ec6726364e",
+  "backendImplementationHead": "1c402b3b2eddadc518e622334abb1c317427d122",
+  "uiTests": {
+    "suites": 25,
+    "tests": 379,
+    "passed": true
+  },
+  "runtimeBuildInputTests": {
+    "suites": 4,
+    "tests": 46,
+    "passed": true
+  },
+  "backendContractTests": {
+    "tests": 10,
+    "passed": true,
+    "scope": [
+      "TemplatePreparationValidationTest",
+      "TemplatePrimaryCacheEvidenceTest"
+    ],
+    "compiler": "javac 17 --release 11 -g -proc:none against deployed runtime dependencies",
+    "fullMavenReactorClaimed": false
+  },
+  "scopedEslintPassed": true,
+  "productionBuildPassed": true,
+  "productionBuildSeconds": 843.0,
+  "actualCrossZonePositiveTransferTested": false,
+  "injectedPartialFailureRetryTested": true,
+  "databaseSchemaChanged": false,
+  "credentialPersistence": false
+}

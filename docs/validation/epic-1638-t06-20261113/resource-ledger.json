@@ -1,0 +1,18 @@
+{
+  "initialTemplates": 46,
+  "templates": [
+    {
+      "id": "04c6cfa7-930f-4429-849d-be40b4d984b4",
+      "name": "qa-t06-prepare-bulk-20261113",
+      "deletedThroughZoneUi": true
+    },
+    {
+      "id": "58263e35-b804-40eb-bcc7-3f97fd930d7b",
+      "name": "qa-t06-single-delete-20261113",
+      "deletedThroughZoneUi": true
+    }
+  ],
+  "finalTemplates": 46,
+  "remainingQaTemplates": 0,
+  "uiCleanupConfirmed": true
+}
