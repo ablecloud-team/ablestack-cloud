@@ -21,6 +21,8 @@
       <slot name="info-card">
         <info-card
           :resource="resource"
+          :template-observation="templateZoneObservation"
+          @show-template-zones="onTabChange('zones')"
           :loading="loading && !(quietRefresh && resource.id && resource.id === $route.params?.id)"
           :actions="actions"
           @backup-controls-change="$emit('backup-controls-change', $event)"
@@ -51,6 +53,7 @@
             :loading="loading"
             :tab="tabs[0].name"
             @refresh="['buckets', 'objectstore'].includes($route.meta.name) && $emit('refresh')"
+            v-on="$route.meta?.name === 'template' && tabs[0].name === 'zones' ? { 'availability-observed': acceptTemplateObservation } : {}"
             @wide-layout-change="onWideLayoutChange" />
         </keep-alive>
         <a-tabs
@@ -75,7 +78,8 @@
                   :tab="activeTab"
                   @change-resource="$emit('change-resource', $event)"
                   @refresh="['buckets', 'objectstore'].includes($route.meta.name) && $emit('refresh')"
-                  @wide-layout-change="onWideLayoutChange" />
+                  v-on="$route.meta?.name === 'template' && tab.name === 'zones' ? { 'availability-observed': acceptTemplateObservation } : {}"
+            @wide-layout-change="onWideLayoutChange" />
               </keep-alive>
             </a-tab-pane>
           </template>
@@ -96,6 +100,7 @@ import StorageSnapshotSummary from '@/views/storage/StorageSnapshotSummary'
 import GuestNetworkDescription from '@/components/view/GuestNetworkDescription'
 import ResourceLayout from '@/layouts/ResourceLayout'
 import { getAPI } from '@/api'
+import { templateObservationContext } from '@/utils/templateAvailability'
 import { mixinDevice } from '@/utils/mixin.js'
 
 export default {
@@ -147,6 +152,7 @@ export default {
   data () {
     return {
       activeTab: '',
+      templateZoneObservation: null,
       conditionalTabNotice: '',
       networkService: null,
       projectAccount: null,
@@ -154,6 +160,7 @@ export default {
     }
   },
   computed: {
+    templateContext () { return templateObservationContext(this.$route, this.resource, this.$store.getters, this.$store.state?.user?.token) },
     isNetworkTabs () { return networkTabRoute(this.$route) },
     networkTabsReady () { return !!this.resource.id && (!this.$route.params?.id || this.$route.params.id === this.resource.id) && !this.loading && (this.managedNetworkContext || !this.resource.associatednetworkid || this.networkService !== null) },
     renderedTabs () {
@@ -167,6 +174,7 @@ export default {
     }
   },
   watch: {
+    templateContext () { this.templateZoneObservation = null },
     renderedTabs () { if (this.isNetworkTabs) this.setActiveTab() },
     networkTabScope () { if (this.isNetworkTabs) this.setActiveTab() },
     resource: {
@@ -197,6 +205,9 @@ export default {
     window.removeEventListener('popstate', this.setActiveTab)
   },
   methods: {
+    acceptTemplateObservation (observation) {
+      if (this.$route.meta?.name === 'template' && observation?.context === this.templateContext && observation.templateid === this.resource.id) this.templateZoneObservation = observation
+    },
     fetchData () {
       const resourceId = this.resource.id
       const networkId = this.resource.associatednetworkid

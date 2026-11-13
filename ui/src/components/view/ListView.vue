@@ -530,7 +530,8 @@
       </template>
       <template v-if="column.key === 'state'">
         <span class="list-state-with-flatten">
-          <status v-if="$route.path.startsWith('/host')" :text="getHostState(record)" displayText />
+          <template-availability v-if="$route.meta?.name === 'template'" :record="record" compact />
+          <status v-else-if="$route.path.startsWith('/host')" :text="getHostState(record)" displayText />
           <status v-else :text="text ? text : ''" :displayLabel="column.stateLabel ? column.stateLabel(record) : ''" displayText />
           <clone-flatten-control :record="record" @refresh="$emit('refresh')" />
         </span>
@@ -1237,6 +1238,7 @@ import { getAPI, postAPI } from '@/api'
 import BackupProgress from '@/components/view/BackupProgress'
 import OsLogo from '@/components/widgets/OsLogo'
 import Status from '@/components/widgets/Status'
+import TemplateAvailability from '@/components/widgets/TemplateAvailability'
 import CloneFlattenControl from '@/components/widgets/CloneFlattenControl'
 import { getFastClonePhase, getFastClonePhaseLabel, getFastClonePhaseColor } from '@/utils/fastClone'
 import ResourceContextMenu from '@/components/view/ResourceContextMenu'
@@ -1264,6 +1266,7 @@ import SharedFSBootRecoverySummary from '@/views/storage/SharedFSBootRecoverySum
 export default {
   name: 'ListView',
   components: {
+    TemplateAvailability,
     InternalLbRules,
     VpnPsk,
     NetworkIpVmLink,

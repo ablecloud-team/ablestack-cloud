@@ -37,7 +37,7 @@
       :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
       :rowKey="record => record.zoneid"
       :expandRowByClick="true"
-      :rowExpandable="(record) => record.downloaddetails.length > 0">
+      :rowExpandable="(record) => downloadDetails(record).length > 0">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'zonename'">
           <span v-if="record.zoneicon && record.zoneicon.base64image">
@@ -45,6 +45,9 @@
           </span>
           <global-outlined v-else style="margin-right: 5px" />
           <span> {{ record.zonename }} </span>
+        </template>
+        <template v-if="column.dataIndex === 'status'">
+          <template-availability :record="record" compact :show-scope="false" />
         </template>
         <template v-if="column.key === 'isready'">
           <span v-if="record.isready">{{ $t('label.yes') }}</span>
@@ -86,8 +89,8 @@
         <a-table
           style="margin: 0;"
           :columns="storagePoolInnerColumns"
-          :data-source="record.downloaddetails.filter((row) => row.datastoreRole === 'Primary')"
-          v-if="record.downloaddetails.filter((row) => row.datastoreRole === 'Primary').length > 0"
+          :data-source="downloadDetails(record).filter((row) => row.datastoreRole === 'Primary')"
+          v-if="downloadDetails(record).filter((row) => row.datastoreRole === 'Primary').length > 0"
           :pagination="false"
           :bordered="true"
           :rowKey="record => record.datastoreId">
@@ -102,8 +105,8 @@
         <a-table
           style="margin: 0;"
           :columns="imageStoreInnerColumns"
-          :data-source="record.downloaddetails.filter((row) => row.datastoreRole !== 'Primary')"
-          v-if="record.downloaddetails.filter((row) => row.datastoreRole !== 'Primary').length > 0"
+          :data-source="downloadDetails(record).filter((row) => row.datastoreRole !== 'Primary')"
+          v-if="downloadDetails(record).filter((row) => row.datastoreRole !== 'Primary').length > 0"
           :pagination="false"
           :bordered="true"
           :rowKey="record => record.datastoreId">
@@ -257,6 +260,8 @@
 
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import TemplateAvailability from '@/components/widgets/TemplateAvailability'
+import { templateObservationContext } from '@/utils/templateAvailability'
 
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
@@ -268,9 +273,10 @@ import Status from '@/components/widgets/Status'
 import eventBus from '@/config/eventBus'
 
 export default {
-  mixins: [listRefreshMixin(['fetchData'])],
+  mixins: [listRefreshMixin(['fetchData'], { scopeKey: vm => [vm.templateScope, vm.page, vm.pageSize] })],
   name: 'TemplateZones',
   components: {
+    TemplateAvailability,
     TooltipButton,
     OsLogo,
     ResourceIcon,
@@ -295,6 +301,7 @@ export default {
       pageSize: 10,
       itemCount: 0,
       fetchLoading: false,
+      fetchLoadingRequest: null,
       showCopyActionForm: false,
       currentRecord: {},
       zones: [],
@@ -392,6 +399,7 @@ export default {
     this.fetchData()
   },
   watch: {
+    templateScope () { this.dataSource = []; this.itemCount = 0; this.fetchData() },
     loading (newData, oldData) {
       if (!newData && !this.showGroupActionModal) {
         this.fetchData()
@@ -399,6 +407,7 @@ export default {
     }
   },
   computed: {
+    templateScope () { return templateObservationContext(this.$route, this.resource, this.$store.getters, this.$store.state?.user?.token) },
     isActionsOnTemplatePermitted () {
       return (['Admin'].includes(this.$store.getters.userInfo.roletype) ||
         (this.resource.domainid === this.$store.getters.userInfo.domainid && this.resource.account === this.$store.getters.userInfo.account) ||
@@ -407,7 +416,7 @@ export default {
         this.resource.templatetype !== 'SYSTEM'
     }
   },
-  emits: ['update-zones'],
+  emits: ['update-zones', 'availability-observed'],
   methods: {
     initForm () {
       this.formRef = ref()
@@ -416,7 +425,10 @@ export default {
         zoneid: [{ type: 'array', required: true, message: this.$t('message.error.select') }]
       })
     },
+    downloadDetails (record) { return Array.isArray(record.downloaddetails) ? record.downloaddetails : [] },
     fetchData () {
+      if (!this.resource.id) { this.dataSource = []; this.itemCount = 0; this.fetchLoading = false; this.fetchLoadingRequest = null; return Promise.resolve() }
+      const context = this.templateScope
       const listRequest = this.listRequestToken('fetchData')
       const params = {}
       params.id = this.resource.id
@@ -425,26 +437,29 @@ export default {
       params.page = this.page
       params.pagesize = this.pageSize
 
+      this.fetchLoadingRequest = listRequest
       this.fetchLoading = !listRequest.loaded
       if (!listRequest.loaded) {
         this.fetchZoneData()
         this.fetchOsCategoryId()
       }
-      return getAPI('listTemplates', params).then(json => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
+      return getAPI('listTemplates', params, { preserveOnFailure: true, timeout: 20000 }).then(json => {
+        if (!this.isListRequestCurrent('fetchData', listRequest) || context !== this.templateScope) return
         this.dataSource = []
         this.itemCount = 0
         this.dataSource = json.listtemplatesresponse.template || []
         this.itemCount = json.listtemplatesresponse.count || 0
+        this.$emit('availability-observed', { templateid: this.resource.id, context, rows: this.dataSource, count: this.itemCount, coverage: this.itemCount === this.dataSource.length ? 'complete' : 'partial' })
       }).catch(error => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
+        if (!this.isListRequestCurrent('fetchData', listRequest) || context !== this.templateScope) return
         listRequest.failed = true
         this.listRefreshFailed = true
         if (listRequest.loaded) return
 
         this.$notifyError(error)
       }).finally(() => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
+        if (this.fetchLoadingRequest === listRequest) { this.fetchLoading = false; this.fetchLoadingRequest = null }
+        if (!this.isListRequestCurrent('fetchData', listRequest) || context !== this.templateScope) return
 
         this.fetchLoading = false
         this.updateImageZones()

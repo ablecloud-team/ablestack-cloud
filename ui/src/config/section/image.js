@@ -17,6 +17,7 @@
 
 import { shallowRef, defineAsyncComponent } from 'vue'
 import store from '@/store'
+import { templateAvailability } from '@/utils/templateAvailability'
 import { isZoneCreated } from '@/utils/zone'
 import kubernetesIcon from '@/assets/icons/kubernetes.svg?inline'
 
@@ -38,12 +39,7 @@ export default {
       columns: () => {
         var fields = ['name',
           {
-            state: (record) => {
-              if (record.isready) {
-                return 'Ready'
-              }
-              return 'Not Ready'
-            }
+            state: record => templateAvailability(record).state
           }, 'ostypename', 'arch', 'hypervisor']
         if (['Admin', 'DomainAdmin'].includes(store.getters.userInfo.roletype)) {
           fields.push('size')

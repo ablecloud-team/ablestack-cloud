@@ -63,3 +63,16 @@ test('late valid response cannot replace an invalid destination', async () => {
   done(reply([{ id, name: 'late' }])); await old
   expect(ctx.resource).toEqual({}); expect(ctx.templateDetailError).toBe('message.template.detail.invalid')
 })
+
+test.each(['target', 'project', 'role', 'session'])('late template read cannot cross %s context', async change => {
+  let done; getAPI.mockImplementationOnce(() => new Promise(resolve => { done = resolve }))
+  const old = ctx.fetchData()
+  if (change === 'target') route(other)
+  if (change === 'project') store.getters.project = { id: other }
+  if (change === 'role') store.getters.userInfo.roletype = 'User'
+  if (change === 'session') store.state.user.token = 'new-session'
+  const currentId = change === 'target' ? other : id
+  getAPI.mockResolvedValue(reply([{ id: currentId, name: 'current' }]))
+  await ctx.fetchData(); done(reply([{ id, name: 'stale' }])); await old
+  expect(ctx.resource.id).toBe(currentId); expect(ctx.resource.name).toBe('current')
+})

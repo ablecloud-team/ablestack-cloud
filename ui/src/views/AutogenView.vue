@@ -1626,10 +1626,13 @@ export default {
         routeKey = JSON.stringify([this.$route.path, Object.entries(this.$route.query || {}).filter(([key]) => !['tab', 'browserPath'].includes(key)).sort(([a], [b]) => a.localeCompare(b))])
       } else if ((storageUiRoute(this.$route) || snapshotDetailRoute(this.$route) || policyDetailRoute(this.$route)) && this.$route.params?.id) {
         routeKey = storageDetailRouteKey(this.$route)
+      } else if (this.$route.meta?.name === 'template' && this.$route.params?.id) {
+        const query = { ...this.$route.query }; delete query.tab
+        routeKey = JSON.stringify([this.$route.path, query])
       } else if (this.$route.meta?.name === 'cniconfiguration' && this.$route.params?.id) {
         routeKey = cniHistoryRouteKey(this.$route)
       }
-      return JSON.stringify([routeKey, ...(guestNetworkRoute(this.$route) ? [this.guestNetworkAuth] : []), ...((snapshotListRoute(this.$route) || snapshotDetailRoute(this.$route) || policyDetailRoute(this.$route) || snapshotPolicyListRoute(this.$route) || this.isObjectStorageUi) ? [this.$store.getters.userInfo?.roletype, this.$store.state?.user?.token, this.$store.getters.userInfo?.roleid, ...(snapshotDetailRoute(this.$route) ? [snapshotDetailPermissions(this.$store.getters)] : []), ...(policyDetailRoute(this.$route) ? [this.$store.getters.userInfo?.roleid, policyDetailPermissions(this.$store.getters)] : [])] : []), this.$store.getters.project?.id,
+      return JSON.stringify([routeKey, ...(this.$route.meta?.name === 'template' ? [this.$store.getters.userInfo?.roletype, this.$store.getters.userInfo?.roleid, this.$store.state?.user?.token, Object.keys(this.$store.getters.apis || {}).sort()] : []), ...(guestNetworkRoute(this.$route) ? [this.guestNetworkAuth] : []), ...((snapshotListRoute(this.$route) || snapshotDetailRoute(this.$route) || policyDetailRoute(this.$route) || snapshotPolicyListRoute(this.$route) || this.isObjectStorageUi) ? [this.$store.getters.userInfo?.roletype, this.$store.state?.user?.token, this.$store.getters.userInfo?.roleid, ...(snapshotDetailRoute(this.$route) ? [snapshotDetailPermissions(this.$store.getters)] : []), ...(policyDetailRoute(this.$route) ? [this.$store.getters.userInfo?.roleid, policyDetailPermissions(this.$store.getters)] : [])] : []), this.$store.getters.project?.id,
         this.$store.getters.userInfo?.id, this.$store.getters.metrics, this.$store.getters.listAllProjects])
     },
     getStyle () {
@@ -1840,7 +1843,7 @@ export default {
           : null
         this.routeName = matchedRoute?.meta?.name || this.$route?.meta?.name || this.$route?.name || ''
       }
-      const securityScope = JSON.stringify([...(guestNetworkRoute(this.$route) ? [this.guestNetworkAuth] : []), this.$store.getters.userInfo?.id, this.$store.getters.project?.id, this.$route.params.id, ...((snapshotListRoute(this.$route) || snapshotDetailRoute(this.$route) || policyDetailRoute(this.$route) || snapshotPolicyListRoute(this.$route) || this.isObjectStorageUi) ? [this.$store.getters.userInfo?.roletype, this.$store.state?.user?.token, this.$store.getters.userInfo?.roleid, ...(snapshotDetailRoute(this.$route) ? [snapshotDetailPermissions(this.$store.getters)] : []), ...(policyDetailRoute(this.$route) ? [this.$store.getters.userInfo?.roleid, policyDetailPermissions(this.$store.getters)] : [])] : [])])
+      const securityScope = JSON.stringify([...(this.$route.meta?.name === 'template' ? [this.$store.getters.userInfo?.roletype, this.$store.getters.userInfo?.roleid, this.$store.state?.user?.token, Object.keys(this.$store.getters.apis || {}).sort()] : []), ...(guestNetworkRoute(this.$route) ? [this.guestNetworkAuth] : []), this.$store.getters.userInfo?.id, this.$store.getters.project?.id, this.$route.params.id, ...((snapshotListRoute(this.$route) || snapshotDetailRoute(this.$route) || policyDetailRoute(this.$route) || snapshotPolicyListRoute(this.$route) || this.isObjectStorageUi) ? [this.$store.getters.userInfo?.roletype, this.$store.state?.user?.token, this.$store.getters.userInfo?.roleid, ...(snapshotDetailRoute(this.$route) ? [snapshotDetailPermissions(this.$store.getters)] : []), ...(policyDetailRoute(this.$route) ? [this.$store.getters.userInfo?.roleid, policyDetailPermissions(this.$store.getters)] : [])] : [])])
       if (this.listSecurityScope !== securityScope) {
         this.items = []
         this.resource = {}

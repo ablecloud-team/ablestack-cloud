@@ -11510,5 +11510,19 @@
   "message.template.detail.invalid": "This template address is invalid. Select a template from the list.",
   "message.template.detail.unavailable": "The template was removed or is not accessible.",
   "message.template.detail.read.failed": "Unable to read this template. Refresh to try again.",
-  "message.template.detail.back": "Back to templates"
+  "message.template.detail.back": "Back to templates",
+  "label.template.availability.ready": "Ready",
+  "label.template.availability.readyWarning": "Ready · storage errors",
+  "label.template.availability.partial": "Available in some observed Zones",
+  "label.template.availability.failed": "Download/upload failed",
+  "label.template.availability.progress": "Transferring/preparing image",
+  "label.template.availability.queued": "Image transfer queued",
+  "label.template.availability.verifying": "Transferred · readiness unconfirmed",
+  "label.template.availability.unknown": "Status needs confirmation",
+  "label.template.availability.zones": "Available Zones: {ready}/{total}",
+  "label.template.availability.zone": "Observed Zone: {zone}",
+  "label.template.availability.observed": "Based on observed information",
+  "label.template.availability.inspect": "Inspect Zone status",
+  "message.template.registration.accepted": "Registration accepted. Check the list or Zone status for image readiness.",
+  "message.template.upload.transferred": "File transfer completed. Check the list or Zone status for image verification and readiness."
 }

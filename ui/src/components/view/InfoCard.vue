@@ -126,11 +126,12 @@
 
             <a-divider/>
 
-            <div class="resource-detail-item" v-if="(resource.state || resource.status) && !['zone', 'keypair'].includes($route.meta.name)">
+            <div class="resource-detail-item" v-if="(resource.state || resource.status || ($route.meta.name === 'template' && resource.id)) && !['zone', 'keypair'].includes($route.meta.name)">
           <div class="resource-detail-item__label">{{ $t('label.status') }}</div>
           <div class="resource-detail-item__details">
+            <template-availability v-if="$route.meta.name === 'template'" :record="resource" :observation="templateObservation" inspectable @show-zones="$emit('show-template-zones')" />
             <backup-progress
-              v-if="$route.meta.name === 'backup'"
+              v-else-if="$route.meta.name === 'backup'"
               :record="resource"
               :statusText="resource.status"
               @capabilities-change="resource.capabilities !== $event && $emit('backup-controls-change', { capabilities: $event })"
@@ -1175,6 +1176,7 @@ import { validateLinksAsync } from '@/utils/links'
 import Console from '@/components/widgets/Console'
 import OsLogo from '@/components/widgets/OsLogo'
 import Status from '@/components/widgets/Status'
+import TemplateAvailability from '@/components/widgets/TemplateAvailability'
 import BackupProgress from '@/components/view/BackupProgress'
 import CloneFlattenControl from '@/components/widgets/CloneFlattenControl'
 import { getFastClonePhaseLabel, getFastClonePhaseDescription, isFastCloneFlattenStatusVisible } from '@/utils/fastClone'
@@ -1193,6 +1195,7 @@ export default {
   name: 'InfoCard',
   mixins: [vmNetworkAccessMixin()],
   components: {
+    TemplateAvailability,
     NetworkIpVmLink,
     SharedFSCapacitySummary,
     SharedFSBootRecoverySummary,
@@ -1215,6 +1218,7 @@ export default {
     ResourceTags
   },
   props: {
+    templateObservation: { type: Object, default: null },
     resource: {
       type: Object,
       required: true

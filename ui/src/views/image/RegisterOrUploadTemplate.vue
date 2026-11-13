@@ -708,9 +708,9 @@ export default {
           },
           timeout: 86400000
         }).then((json) => {
-        this.$notification.success({
+        this.$notification.info({
           message: this.$t('message.success.upload'),
-          description: this.$t('message.success.upload.template.description')
+          description: this.$t('message.template.upload.transferred')
         })
         this.$emit('refresh-data')
         this.closeAction()
@@ -1211,9 +1211,9 @@ export default {
             if (this.userdataid !== null) {
               this.linkUserdataToTemplate(this.userdataid, json.registertemplateresponse.template[0].id, this.userdatapolicy)
             }
-            this.$notification.success({
+            this.$notification.info({
               message: this.$t('label.register.template'),
-              description: `${this.$t('message.success.register.template')} ${params.name}`
+              description: `${this.$t('message.template.registration.accepted')} ${params.name}`
             })
             this.$emit('refresh-data')
             this.closeAction()
