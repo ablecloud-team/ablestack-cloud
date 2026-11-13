@@ -1,0 +1,554 @@
+[
+  {
+    "case": "create-success",
+    "command": "createVPCOffering",
+    "params": {
+      "name": "qa-vpc1653-20261114-31-api-create",
+      "displaytext": "qa-vpc1653-20261114-31-api-create",
+      "enable": "false",
+      "conservemode": "true",
+      "networkmode": "NATTED",
+      "internetprotocol": "ipv4",
+      "supportedservices": "Dns,NetworkACL,PortForwarding,Dhcp,UserData,Vpn,StaticNat,Lb,SourceNat",
+      "serviceProviderList[0].service": "Dns",
+      "serviceProviderList[0].provider": "VpcVirtualRouter",
+      "serviceProviderList[1].service": "NetworkACL",
+      "serviceProviderList[1].provider": "VpcVirtualRouter",
+      "serviceProviderList[2].service": "PortForwarding",
+      "serviceProviderList[2].provider": "VpcVirtualRouter",
+      "serviceProviderList[3].service": "Dhcp",
+      "serviceProviderList[3].provider": "VpcVirtualRouter",
+      "serviceProviderList[4].service": "UserData",
+      "serviceProviderList[4].provider": "VpcVirtualRouter",
+      "serviceProviderList[5].service": "Vpn",
+      "serviceProviderList[5].provider": "VpcVirtualRouter",
+      "serviceProviderList[6].service": "StaticNat",
+      "serviceProviderList[6].provider": "VpcVirtualRouter",
+      "serviceProviderList[7].service": "Lb",
+      "serviceProviderList[7].provider": "VpcVirtualRouter",
+      "serviceProviderList[8].service": "SourceNat",
+      "serviceProviderList[8].provider": "VpcVirtualRouter"
+    },
+    "receipt": {
+      "id": "b688c311-45a1-4cf8-8a9a-94dac5c360b4",
+      "jobid": "557b977f-fefb-4846-a777-1f3228990833"
+    },
+    "polls": [
+      {
+        "seconds": 0.043,
+        "result": {
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domainpath": "ROOT",
+          "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+          "cmd": "org.apache.cloudstack.api.command.admin.vpc.CreateVPCOfferingCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "vpcoffering": {
+              "id": "b688c311-45a1-4cf8-8a9a-94dac5c360b4",
+              "name": "qa-vpc1653-20261114-31-api-create",
+              "displaytext": "qa-vpc1653-20261114-31-api-create",
+              "created": "2026-11-14T00:54:22+0900",
+              "isdefault": false,
+              "state": "Disabled",
+              "service": [
+                {
+                  "name": "Dns",
+                  "provider": [
+                    {
+                      "name": "VpcVirtualRouter"
+                    }
+                  ]
+                },
+                {
+                  "name": "NetworkACL",
+                  "provider": [
+                    {
+                      "name": "VpcVirtualRouter"
+                    }
+                  ]
+                },
+                {
+                  "name": "PortForwarding",
+                  "provider": [
+                    {
+                      "name": "VpcVirtualRouter"
+                    }
+                  ]
+                },
+                {
+                  "name": "Dhcp",
+                  "provider": [
+                    {
+                      "name": "VpcVirtualRouter"
+                    }
+                  ]
+                },
+                {
+                  "name": "UserData",
+                  "provider": [
+                    {
+                      "name": "VpcVirtualRouter"
+                    }
+                  ]
+                },
+                {
+                  "name": "Vpn",
+                  "provider": [
+                    {
+                      "name": "VpcVirtualRouter"
+                    }
+                  ]
+                },
+                {
+                  "name": "StaticNat",
+                  "provider": [
+                    {
+                      "name": "VpcVirtualRouter"
+                    }
+                  ]
+                },
+                {
+                  "name": "Lb",
+                  "provider": [
+                    {
+                      "name": "VpcVirtualRouter"
+                    }
+                  ]
+                },
+                {
+                  "name": "SourceNat",
+                  "provider": [
+                    {
+                      "name": "VpcVirtualRouter"
+                    }
+                  ]
+                }
+              ],
+              "distributedvpcrouter": false,
+              "supportsregionLevelvpc": false,
+              "fornsx": false,
+              "networkmode": "NATTED",
+              "internetprotocol": "IPv4",
+              "specifyasnumber": false,
+              "conservemode": true
+            }
+          },
+          "jobinstancetype": "None",
+          "created": "2026-11-14T00:54:22+0900",
+          "completed": "2026-11-14T00:54:22+0900",
+          "jobid": "557b977f-fefb-4846-a777-1f3228990833",
+          "jobstatus": 1
+        }
+      }
+    ],
+    "offeringsByName": [
+      {
+        "id": "b688c311-45a1-4cf8-8a9a-94dac5c360b4",
+        "name": "qa-vpc1653-20261114-31-api-create",
+        "displaytext": "qa-vpc1653-20261114-31-api-create",
+        "created": "2026-11-14T00:54:22+0900",
+        "isdefault": false,
+        "state": "Disabled",
+        "service": [
+          {
+            "name": "Dns",
+            "provider": [
+              {
+                "name": "VpcVirtualRouter"
+              }
+            ]
+          },
+          {
+            "name": "NetworkACL",
+            "provider": [
+              {
+                "name": "VpcVirtualRouter"
+              }
+            ]
+          },
+          {
+            "name": "PortForwarding",
+            "provider": [
+              {
+                "name": "VpcVirtualRouter"
+              }
+            ]
+          },
+          {
+            "name": "Dhcp",
+            "provider": [
+              {
+                "name": "VpcVirtualRouter"
+              }
+            ]
+          },
+          {
+            "name": "UserData",
+            "provider": [
+              {
+                "name": "VpcVirtualRouter"
+              }
+            ]
+          },
+          {
+            "name": "Vpn",
+            "provider": [
+              {
+                "name": "VpcVirtualRouter"
+              }
+            ]
+          },
+          {
+            "name": "StaticNat",
+            "provider": [
+              {
+                "name": "VpcVirtualRouter"
+              }
+            ]
+          },
+          {
+            "name": "Lb",
+            "provider": [
+              {
+                "name": "VpcVirtualRouter"
+              }
+            ]
+          },
+          {
+            "name": "SourceNat",
+            "provider": [
+              {
+                "name": "VpcVirtualRouter"
+              }
+            ]
+          }
+        ],
+        "distributedvpcrouter": false,
+        "supportsregionLevelvpc": false,
+        "fornsx": false,
+        "networkmode": "NATTED",
+        "internetprotocol": "IPv4",
+        "specifyasnumber": false,
+        "conservemode": true
+      }
+    ]
+  },
+  {
+    "case": "clone-success",
+    "command": "cloneVPCOffering",
+    "params": {
+      "sourceofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+      "name": "qa-vpc1653-20261114-31-api-clone",
+      "enable": "false"
+    },
+    "receipt": {
+      "id": "1",
+      "jobid": "e4c7ebfa-cf96-44de-a376-331208a07535"
+    },
+    "polls": [
+      {
+        "seconds": 0.02,
+        "result": {
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domainpath": "ROOT",
+          "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+          "cmd": "org.apache.cloudstack.api.command.admin.vpc.CloneVPCOfferingCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobinstancetype": "None",
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-11-14T00:54:22+0900",
+          "jobid": "e4c7ebfa-cf96-44de-a376-331208a07535",
+          "jobstatus": 0
+        }
+      },
+      {
+        "seconds": 1.032,
+        "result": {
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domainpath": "ROOT",
+          "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+          "cmd": "org.apache.cloudstack.api.command.admin.vpc.CloneVPCOfferingCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "vpcoffering": {
+              "id": "9371c6cc-f2ac-48e4-9b3a-3dfd2e3b4949",
+              "name": "qa-vpc1653-20261114-31-api-clone",
+              "displaytext": "qa-vpc1653-20261114-31-api-clone",
+              "created": "2026-11-14T00:54:22+0900",
+              "isdefault": false,
+              "state": "Disabled",
+              "service": [
+                {
+                  "name": "Dns",
+                  "provider": [
+                    {
+                      "name": "VpcVirtualRouter"
+                    }
+                  ]
+                },
+                {
+                  "name": "NetworkACL",
+                  "provider": [
+                    {
+                      "name": "VpcVirtualRouter"
+                    }
+                  ]
+                },
+                {
+                  "name": "PortForwarding",
+                  "provider": [
+                    {
+                      "name": "VpcVirtualRouter"
+                    }
+                  ]
+                },
+                {
+                  "name": "Dhcp",
+                  "provider": [
+                    {
+                      "name": "VpcVirtualRouter"
+                    }
+                  ]
+                },
+                {
+                  "name": "UserData",
+                  "provider": [
+                    {
+                      "name": "VpcVirtualRouter"
+                    }
+                  ]
+                },
+                {
+                  "name": "Vpn",
+                  "provider": [
+                    {
+                      "name": "VpcVirtualRouter"
+                    }
+                  ]
+                },
+                {
+                  "name": "StaticNat",
+                  "provider": [
+                    {
+                      "name": "VpcVirtualRouter"
+                    }
+                  ]
+                },
+                {
+                  "name": "Lb",
+                  "provider": [
+                    {
+                      "name": "VpcVirtualRouter"
+                    },
+                    {
+                      "name": "InternalLbVm"
+                    }
+                  ]
+                },
+                {
+                  "name": "SourceNat",
+                  "provider": [
+                    {
+                      "name": "VpcVirtualRouter"
+                    }
+                  ]
+                }
+              ],
+              "distributedvpcrouter": false,
+              "supportsregionLevelvpc": false,
+              "fornsx": false,
+              "internetprotocol": "IPv4",
+              "specifyasnumber": false,
+              "conservemode": false
+            }
+          },
+          "jobinstancetype": "None",
+          "created": "2026-11-14T00:54:22+0900",
+          "completed": "2026-11-14T00:54:22+0900",
+          "jobid": "e4c7ebfa-cf96-44de-a376-331208a07535",
+          "jobstatus": 1
+        }
+      }
+    ],
+    "offeringsByName": [
+      {
+        "id": "9371c6cc-f2ac-48e4-9b3a-3dfd2e3b4949",
+        "name": "qa-vpc1653-20261114-31-api-clone",
+        "displaytext": "qa-vpc1653-20261114-31-api-clone",
+        "created": "2026-11-14T00:54:22+0900",
+        "isdefault": false,
+        "state": "Disabled",
+        "service": [
+          {
+            "name": "Dns",
+            "provider": [
+              {
+                "name": "VpcVirtualRouter"
+              }
+            ]
+          },
+          {
+            "name": "NetworkACL",
+            "provider": [
+              {
+                "name": "VpcVirtualRouter"
+              }
+            ]
+          },
+          {
+            "name": "PortForwarding",
+            "provider": [
+              {
+                "name": "VpcVirtualRouter"
+              }
+            ]
+          },
+          {
+            "name": "Dhcp",
+            "provider": [
+              {
+                "name": "VpcVirtualRouter"
+              }
+            ]
+          },
+          {
+            "name": "UserData",
+            "provider": [
+              {
+                "name": "VpcVirtualRouter"
+              }
+            ]
+          },
+          {
+            "name": "Vpn",
+            "provider": [
+              {
+                "name": "VpcVirtualRouter"
+              }
+            ]
+          },
+          {
+            "name": "StaticNat",
+            "provider": [
+              {
+                "name": "VpcVirtualRouter"
+              }
+            ]
+          },
+          {
+            "name": "Lb",
+            "provider": [
+              {
+                "name": "VpcVirtualRouter"
+              },
+              {
+                "name": "InternalLbVm"
+              }
+            ]
+          },
+          {
+            "name": "SourceNat",
+            "provider": [
+              {
+                "name": "VpcVirtualRouter"
+              }
+            ]
+          }
+        ],
+        "distributedvpcrouter": false,
+        "supportsregionLevelvpc": false,
+        "fornsx": false,
+        "internetprotocol": "IPv4",
+        "specifyasnumber": false,
+        "conservemode": false
+      }
+    ]
+  },
+  {
+    "case": "clone-redundant-job-failure",
+    "command": "cloneVPCOffering",
+    "params": {
+      "sourceofferingid": "c92622b0-692f-4d0e-a948-6db0f6ec6159",
+      "name": "qa-vpc1653-20261114-31-api-async-failure",
+      "enable": "false"
+    },
+    "receipt": {
+      "id": "3",
+      "jobid": "3ba9cb4a-7cf0-4826-8f3e-4f222524980a"
+    },
+    "polls": [
+      {
+        "seconds": 0.022,
+        "result": {
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domainpath": "ROOT",
+          "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+          "cmd": "org.apache.cloudstack.api.command.admin.vpc.CloneVPCOfferingCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobinstancetype": "None",
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-11-14T00:54:23+0900",
+          "jobid": "3ba9cb4a-7cf0-4826-8f3e-4f222524980a",
+          "jobstatus": 0
+        }
+      },
+      {
+        "seconds": 1.032,
+        "result": {
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domainpath": "ROOT",
+          "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+          "cmd": "org.apache.cloudstack.api.command.admin.vpc.CloneVPCOfferingCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 530,
+          "jobresulttype": "object",
+          "jobresult": {
+            "errorcode": 530,
+            "errortext": "class java.lang.String cannot be cast to class java.util.HashMap (java.lang.String and java.util.HashMap are in module java.base of loader 'bootstrap')"
+          },
+          "jobinstancetype": "None",
+          "created": "2026-11-14T00:54:23+0900",
+          "completed": "2026-11-14T00:54:23+0900",
+          "jobid": "3ba9cb4a-7cf0-4826-8f3e-4f222524980a",
+          "jobstatus": 2
+        }
+      }
+    ],
+    "offeringsByName": []
+  },
+  {
+    "case": "http-rejection",
+    "command": "cloneVPCOffering",
+    "params": {
+      "sourceofferingid": "00000000-0000-0000-0000-000000000000",
+      "name": "qa-vpc1653-20261114-31-api-http-rejection",
+      "enable": "false"
+    },
+    "receipt": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 9999,
+      "errortext": "Unable to execute API command clonevpcoffering due to invalid value. Invalid parameter sourceofferingid value=00000000-0000-0000-0000-000000000000 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class."
+    },
+    "polls": [],
+    "offeringsByName": []
+  }
+]

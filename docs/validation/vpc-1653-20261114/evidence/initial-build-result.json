@@ -1,0 +1,49 @@
+{
+  "source": "f698b0191965af5e030a328fdc7a5dffe3f86491",
+  "exit": 0,
+  "seconds": 768.1,
+  "node": "v20.20.2",
+  "npm": "10.8.2",
+  "nodeOptions": "--openssl-legacy-provider --max-old-space-size=8192",
+  "sourceUiClean": true,
+  "fullCloudBuild": false,
+  "changedFiles": {
+    "ui/public/locales/en.json": "801e8adf9099aab36cdda5c3433d3bc2b04cce6d32c701ffdc4886faeeb0ad1e",
+    "ui/public/locales/ko_KR.json": "18f0892a8ab90636c4efa984b3ab9a11f6a169ac56729bdfce0abb974eb76f4b",
+    "ui/src/config/section/offering.js": "229d63c84fb072f9df1cba8d101cf1c8e321a568bfd99580f4af0a022b6b1146",
+    "ui/src/utils/vpcOfferingOperationMixin.js": "309cda4af9bceaa201fec81397ddd5ce58b72a8de83c84c8d031941acf28c91b",
+    "ui/src/utils/vpcOfferingOperations.js": "10c455abe4d229c56b082bacd73c88ad80f7c82429033f082f18d53cd716f01f",
+    "ui/src/views/offering/AddVpcOffering.vue": "b98821742202b05f92b3f7641a2f9eca2e6dbc2bb2ccb05c280c60285cda260e",
+    "ui/src/views/offering/CloneVpcOffering.vue": "c48a632a173657abc10987da1100461625ba3f5eddabad72a3cc68a00618ba5c",
+    "ui/src/views/offering/VpcOfferingOperationStatus.vue": "0520aab6a76621fc29445fb2cf253d2e9093163e5e7f63a5031bea66b3631485",
+    "ui/tests/unit/utils/vpcOfferingOperations.spec.js": "110a2f85cdd153f6d6205319ca730f8a2f3d35c73aa55e9939444542ff98821a",
+    "ui/tests/unit/views/offering/CloneVpcOffering.spec.js": "40f02175700c1b6725cadd9108a6457a1b1063cbf78d86367228cb5c6aca35b2",
+    "ui/tests/unit/views/offering/CloneVpcOfferingState.spec.js": "5aafcf522cdd7f9c3959f8c2f6c43280962453360c4d086710cd7ca61db9a149",
+    "ui/tests/unit/views/offering/VpcOfferingAsync.spec.js": "bdef88815ca320a5eb9fa8cfcfb60997aa92ed7569ef1f8b507d243db8cbb492"
+  },
+  "lockfileSha256": "23379939285231d360907e8d7242206efd5359654b9903614788040680133ffc",
+  "indexSha256": "71bf06c1031772bf7b0869de947a35d386571c2a2d256ccefd6eff4e71f0e64a",
+  "appBundles": [
+    "js/app.9af5df9e.js"
+  ],
+  "markers": {
+    "vpc.offering.operation.v1:": [
+      "js/chunk-280a6694.67332f79.js"
+    ],
+    "message.vpc.offering.operation.no.resubmit": [
+      "js/chunk-280a6694.67332f79.js"
+    ],
+    "message.success.clone.vpc.offering": [
+      "js/chunk-280a6694.67332f79.js"
+    ],
+    "blockingLoadingState": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ],
+    "fetchSyncProgress": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ],
+    "extractJobId": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ]
+  }
+}

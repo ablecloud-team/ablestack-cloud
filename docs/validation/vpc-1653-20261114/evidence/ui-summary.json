@@ -1,0 +1,14 @@
+{
+  "cases": {
+    "31": 9,
+    "32": 9
+  },
+  "attempts": {
+    "31": 12,
+    "32": 12
+  },
+  "styleCombinations": 24,
+  "lowerAccessChecks": 8,
+  "mobilePopupChecks": 2,
+  "sourceCommit": "5b25092d8cec7a10d1e7ddf3c6c1f8890d750640"
+}

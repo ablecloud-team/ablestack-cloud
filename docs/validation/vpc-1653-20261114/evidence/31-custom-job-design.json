@@ -1,0 +1,274 @@
+[
+  {
+    "case": "create",
+    "params": {
+      "name": "qa-vpc1653-20261114-31-api-custom-create",
+      "displaytext": "qa-vpc1653-20261114-31-api-custom-create",
+      "enable": "false",
+      "conservemode": "true",
+      "networkmode": "NATTED",
+      "internetprotocol": "ipv4",
+      "supportedservices": "Dns,NetworkACL,PortForwarding,Dhcp,UserData,Vpn,StaticNat,Lb,SourceNat",
+      "serviceProviderList[0].service": "Dns",
+      "serviceProviderList[0].provider": "VpcVirtualRouter",
+      "serviceProviderList[1].service": "NetworkACL",
+      "serviceProviderList[1].provider": "VpcVirtualRouter",
+      "serviceProviderList[2].service": "PortForwarding",
+      "serviceProviderList[2].provider": "VpcVirtualRouter",
+      "serviceProviderList[3].service": "Dhcp",
+      "serviceProviderList[3].provider": "VpcVirtualRouter",
+      "serviceProviderList[4].service": "UserData",
+      "serviceProviderList[4].provider": "VpcVirtualRouter",
+      "serviceProviderList[5].service": "Vpn",
+      "serviceProviderList[5].provider": "VpcVirtualRouter",
+      "serviceProviderList[6].service": "StaticNat",
+      "serviceProviderList[6].provider": "VpcVirtualRouter",
+      "serviceProviderList[7].service": "Lb",
+      "serviceProviderList[7].provider": "VpcVirtualRouter",
+      "serviceProviderList[8].service": "SourceNat",
+      "serviceProviderList[8].provider": "VpcVirtualRouter",
+      "customjobid": "330fd626-a05d-45fa-9ed8-9ed477293630"
+    },
+    "receipt": {
+      "id": "b532baeb-5257-435a-bb49-7994fd5c7093",
+      "jobid": "330fd626-a05d-45fa-9ed8-9ed477293630"
+    },
+    "job": {
+      "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domainpath": "ROOT",
+      "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+      "cmd": "org.apache.cloudstack.api.command.admin.vpc.CreateVPCOfferingCmd",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "vpcoffering": {
+          "id": "b532baeb-5257-435a-bb49-7994fd5c7093",
+          "name": "qa-vpc1653-20261114-31-api-custom-create",
+          "displaytext": "qa-vpc1653-20261114-31-api-custom-create",
+          "created": "2026-11-14T00:57:55+0900",
+          "isdefault": false,
+          "state": "Disabled",
+          "service": [
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "NetworkACL",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "PortForwarding",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Vpn",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "StaticNat",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Lb",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "SourceNat",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            }
+          ],
+          "distributedvpcrouter": false,
+          "supportsregionLevelvpc": false,
+          "fornsx": false,
+          "networkmode": "NATTED",
+          "internetprotocol": "IPv4",
+          "specifyasnumber": false,
+          "conservemode": true
+        }
+      },
+      "jobinstancetype": "None",
+      "created": "2026-11-14T00:57:55+0900",
+      "completed": "2026-11-14T00:57:55+0900",
+      "jobid": "330fd626-a05d-45fa-9ed8-9ed477293630",
+      "jobstatus": 1
+    },
+    "customIdMatches": true,
+    "cleanup": {
+      "success": true
+    }
+  },
+  {
+    "case": "clone",
+    "params": {
+      "sourceofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+      "enable": "false",
+      "name": "qa-vpc1653-20261114-31-api-custom-clone",
+      "customjobid": "ddb02101-5c84-42be-853b-eec3fc6ef6ce"
+    },
+    "receipt": {
+      "id": "1",
+      "jobid": "ddb02101-5c84-42be-853b-eec3fc6ef6ce"
+    },
+    "job": {
+      "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domainpath": "ROOT",
+      "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+      "cmd": "org.apache.cloudstack.api.command.admin.vpc.CloneVPCOfferingCmd",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "vpcoffering": {
+          "id": "17d75327-96a6-4d18-9f33-ad507b7a47a9",
+          "name": "qa-vpc1653-20261114-31-api-custom-clone",
+          "displaytext": "qa-vpc1653-20261114-31-api-custom-clone",
+          "created": "2026-11-14T00:57:57+0900",
+          "isdefault": false,
+          "state": "Disabled",
+          "service": [
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "NetworkACL",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "PortForwarding",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Vpn",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "StaticNat",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Lb",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                },
+                {
+                  "name": "InternalLbVm"
+                }
+              ]
+            },
+            {
+              "name": "SourceNat",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            }
+          ],
+          "distributedvpcrouter": false,
+          "supportsregionLevelvpc": false,
+          "fornsx": false,
+          "internetprotocol": "IPv4",
+          "specifyasnumber": false,
+          "conservemode": false
+        }
+      },
+      "jobinstancetype": "None",
+      "created": "2026-11-14T00:57:57+0900",
+      "completed": "2026-11-14T00:57:57+0900",
+      "jobid": "ddb02101-5c84-42be-853b-eec3fc6ef6ce",
+      "jobstatus": 1
+    },
+    "customIdMatches": true,
+    "cleanup": {
+      "success": true
+    }
+  }
+]

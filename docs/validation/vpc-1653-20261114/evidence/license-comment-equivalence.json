@@ -1,0 +1,8 @@
+{
+  "runtimeSource": "5b25092d8cec7a10d1e7ddf3c6c1f8890d750640",
+  "file": "ui/src/views/offering/VpcOfferingOperationStatus.vue",
+  "change": "Apache license header only",
+  "vueCompilerSfcTemplateScriptStyleEqual": true,
+  "changedFileLintExit": 0,
+  "deploy": "Existing final 5b25092 static artifact retained; no executable SFC change"
+}

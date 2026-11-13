@@ -1,0 +1,20 @@
+[
+  {
+    "cluster": 31,
+    "bodyClass": "",
+    "header": "기본 보기\n생성\nAC\nadmin cloud",
+    "viewport": {
+      "height": 897,
+      "width": 1680
+    }
+  },
+  {
+    "cluster": 32,
+    "bodyClass": "",
+    "header": "qa-gn1569-32-shared-reg\n생성\nAC\nadmin cloud",
+    "viewport": {
+      "height": 841,
+      "width": 1680
+    }
+  }
+]

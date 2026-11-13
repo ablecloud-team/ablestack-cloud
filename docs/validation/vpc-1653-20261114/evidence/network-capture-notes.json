@@ -1,0 +1,7 @@
+{
+  "gaps": {
+    "31": 4,
+    "32": 4
+  },
+  "note": "The cursor spanning the build interval and document reloads reported expired segments. Mutation events were retained/recovered, UI assertions and independent server job/unique-offering checks are used together. No claim of an uninterrupted complete network trace."
+}

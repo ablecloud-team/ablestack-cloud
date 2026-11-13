@@ -1,0 +1,26 @@
+[
+  {
+    "cluster": 31,
+    "bottom": 635,
+    "height": 104,
+    "right": 321,
+    "text": "inherit\ntrue\n원본 유지\n활성화\n비활성화",
+    "width": 292,
+    "x": 29,
+    "y": 531,
+    "pass": true,
+    "sourceCommit": "5b25092d8cec7a10d1e7ddf3c6c1f8890d750640"
+  },
+  {
+    "cluster": 32,
+    "bottom": 635,
+    "height": 104,
+    "right": 321,
+    "text": "inherit\ntrue\n원본 유지\n활성화\n비활성화",
+    "width": 292,
+    "x": 29,
+    "y": 531,
+    "pass": true,
+    "sourceCommit": "5b25092d8cec7a10d1e7ddf3c6c1f8890d750640"
+  }
+]
