@@ -11537,8 +11537,6 @@
   "message.template.search.name": "Use the full name for an exact match. Use the keyword box for a partial search.",
   "message.template.search.isready": "Not ready includes queued, transferring and failed images; it is not an error-only filter.",
   "message.template.search.userdataid": "Enter the UUID of the linked user data, not its name. Clear to search all.",
-  "message.template.search.keyword": "The search box performs a partial keyword search. Advanced Name uses an exact match.",
-  "message.template.sort.page": "Column sorting applies to the current page.",
   "message.template.search.unsupported": "This server does not support one or more selected template filters. Reset the filters to continue.",
   "message.template.search.invalid": "Check the template filter UUID or true/false value.",
   "label.sshkeyenabled": "SSH key injection support",

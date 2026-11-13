@@ -625,6 +625,8 @@ export default {
       if (this.apiName === 'listCniConfiguration') return this.fetchCniOwnerOptions(arrayField, searchKeyword)
       const templateLookup = this.apiName === 'listTemplates' ? this.volumeOwnerContext : null
       const templateFields = this.fields
+      const templateLookupPath = this.$route.path
+      const templateLookupStale = () => templateLookup && (this.apiName !== 'listTemplates' || templateLookup !== this.volumeOwnerContext || templateLookupPath !== this.$route.path || templateFields !== this.fields)
       const guestLookup = this.isGuestNetworkSearch
       const promises = []
       let typeIndex = -1
@@ -802,7 +804,7 @@ export default {
       }
 
       Promise.all(promises).then(response => {
-        if (templateLookup && (templateLookup !== this.volumeOwnerContext || templateFields !== this.fields)) return
+        if (templateLookupStale()) return
         if (typeIndex > -1) {
           const types = response.filter(item => item.type === 'type')
           if (types && types.length > 0) {
@@ -954,6 +956,7 @@ export default {
           }
         }
       }).finally(() => {
+        if (templateLookupStale()) return
         if (typeIndex > -1) {
           this.fields[typeIndex].loading = false
         }
@@ -1023,7 +1026,7 @@ export default {
         if (kmsKeyIndex > -1) {
           this.fields[kmsKeyIndex].loading = false
         }
-        if (!this.isGuestNetworkSearch && Array.isArray(arrayField) && !arrayField.includes('volumeid')) {
+        if (this.apiName !== 'listTemplates' && !this.isGuestNetworkSearch && Array.isArray(arrayField) && !arrayField.includes('volumeid')) {
           this.fillFormFieldValues()
         }
       })

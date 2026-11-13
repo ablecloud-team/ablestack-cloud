@@ -42,3 +42,8 @@ test('late lookup cannot populate another owner or rebuilt form', async () => {
 test('Ctrl+Enter validation failure is handled and retains the editable draft', async () => {
   const c = context(); c.form.userdataid = 'invalid'; c.formRef = { value: { validate: jest.fn().mockRejectedValue({ errorFields: [{ name: ['userdataid'] }] }), scrollToField: jest.fn() } }; c.$emit = jest.fn(); c.handleSubmit(); await flushPromises(); expect(c.form.userdataid).toBe('invalid'); expect(c.formRef.value.scrollToField).toHaveBeenCalledWith(['userdataid']); expect(c.$emit).not.toHaveBeenCalled()
 })
+
+test('same-owner late choices preserve a newly typed template search draft', async () => {
+  const c = context(); c.fields = [{ name: 'name', type: 'input', opts: [] }, { name: 'zoneid', type: 'list', opts: [] }]; c.$route.query.name = 'old query'; let release; c.fetchZones = () => new Promise(resolve => { release = resolve })
+  const pending = c.fetchDynamicFieldData(['zoneid']); c.form.name = 'new draft'; release({ type: 'zoneid', data: [{ id, name: 'Zone' }] }); await pending; await flushPromises(); expect(c.form.name).toBe('new draft'); expect(c.fields[1].opts).toEqual([{ id, name: 'Zone' }])
+})

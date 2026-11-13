@@ -11545,8 +11545,6 @@
   "message.template.search.name": "이름 전체를 입력하면 정확히 일치하는 항목을 조회합니다. 부분 검색은 키워드 검색을 사용하세요.",
   "message.template.search.isready": "준비되지 않음에는 대기·전송 중·실패가 포함됩니다. 실패 전용 검색이 아닙니다.",
   "message.template.search.userdataid": "연결된 사용자 데이터의 이름 대신 UUID를 입력하세요. 비우면 전체를 검색합니다.",
-  "message.template.search.keyword": "검색창은 키워드 부분 검색입니다. 고급 검색의 이름은 정확히 일치하는 항목을 찾습니다.",
-  "message.template.sort.page": "열 정렬은 현재 페이지에만 적용됩니다.",
   "message.template.search.unsupported": "현재 서버가 선택한 템플릿 검색 조건 일부를 지원하지 않습니다. 검색 조건을 초기화하세요.",
   "message.template.search.invalid": "검색 조건의 UUID 또는 true/false 값을 확인하세요.",
   "label.sshkeyenabled": "SSH 키 주입 지원",

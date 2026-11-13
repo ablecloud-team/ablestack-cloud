@@ -854,7 +854,6 @@
       <a-alert v-if="(isStorageUi || isSnapshotReadView) && listRefreshError" class="storage-query-error" type="error" show-icon :message="$t(listLoadedScope ? 'message.list.refresh.stale' : 'error.fetching.data')">
         <template #description><p v-if="isSnapshotReadView && snapshotListError">{{ snapshotListError.startsWith('message.') ? $t(snapshotListError) : snapshotListError }}</p><a-button size="small" :disabled="listRequestPending" @click="fetchData({ irefresh: true })">{{ $t('label.retry') }}</a-button></template>
       </a-alert>
-      <p v-if="isTemplateList" class="template-list-help">{{ $t('message.template.search.keyword') }} {{ $t('message.template.sort.page') }}</p>
       <a-alert v-if="isTemplateList && templateFilterError" type="error" show-icon :message="$t(templateFilterError)">
         <template #action><a-button @click="$router.replace({ path: '/template' })">{{ $t('label.reset') }}</a-button></template>
       </a-alert>
@@ -3936,7 +3935,6 @@ export default {
 </style>
 
 <style scoped lang="less">
-.template-list-help { color: var(--text-color-secondary); margin: 8px 0 12px; }
 .template-list-page :deep(.ant-table-thead th) { white-space: nowrap; }
 .template-list-page :deep(.ant-table-cell) { overflow-wrap: anywhere; }
 .template-list-page :deep(.ant-breadcrumb) { overflow-wrap: anywhere; }
