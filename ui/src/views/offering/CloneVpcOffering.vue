@@ -157,7 +157,7 @@
             </a-radio-button>
           </a-radio-group>
         </a-form-item>
-        <a-form-item>
+        <a-form-item name="serviceproviders" ref="serviceproviders">
           <template #label>
             <tooltip-label :title="$t('label.supportedservices')" :tooltip="apiParams.supportedservices ? apiParams.supportedservices.description : ''"/>
           </template>
@@ -166,15 +166,29 @@
             <a-list v-else itemLayout="horizontal" :dataSource="supportedServices">
               <template #renderItem="{ item }">
                 <a-list-item>
-                  <CheckBoxSelectPair
-                    :key="`${item.name}-${item.selectedProvider || 'none'}`"
-                    :resourceKey="item.name"
-                    :checkBoxLabel="item.description"
-                    :forExternalNetProvider="form.provider === 'NSX' || form.provider === 'Netris'"
-                    :defaultCheckBoxValue="item.defaultChecked"
-                    :defaultSelectValue="item.selectedProvider"
-                    :selectOptions="item.provider"
-                    @handle-checkselectpair-change="handleSupportedServiceChange"/>
+                  <a-row class="vpc-service-provider" :gutter="12">
+                    <a-col :xs="24" :sm="9">
+                      <a-checkbox
+                        :checked="!!selectedServiceProviderMap[item.name]"
+                        :disabled="form.provider === 'NSX' || form.provider === 'Netris'"
+                        @change="event => handleSupportedServiceChange(item.name, event.target.checked, item.selectedProviders)">
+                        {{ item.description }}
+                      </a-checkbox>
+                    </a-col>
+                    <a-col :xs="24" :sm="15">
+                      <a-select
+                        v-if="selectedServiceProviderMap[item.name]"
+                        :aria-label="item.description + ' ' + $t('label.provider')"
+                        :mode="item.name === 'Lb' || item.selectedProviders.length > 1 ? 'multiple' : undefined"
+                        :value="item.name === 'Lb' || item.selectedProviders.length > 1 ? item.selectedProviders : item.selectedProviders[0]"
+                        :disabled="item.preserveOnly || form.provider === 'NSX' || form.provider === 'Netris'"
+                        @change="value => handleSupportedServiceChange(item.name, true, value)">
+                        <a-select-option v-for="provider in item.provider" :key="provider.name" :value="provider.name">
+                          {{ provider.name }}
+                        </a-select-option>
+                      </a-select>
+                    </a-col>
+                  </a-row>
                 </a-list-item>
               </template>
             </a-list>
@@ -269,10 +283,10 @@
           <a-switch v-model:checked="form.enable" />
         </a-form-item>
       </a-form>
-      <div :span="24" class="action-button">
+      <MoldDialogActions :busy="loading">
         <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
         <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-      </div>
+      </MoldDialogActions>
     </a-spin>
   </div>
 </template>
@@ -282,19 +296,20 @@ import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import { isAdmin } from '@/role'
 import { mixinForm } from '@/utils/mixin'
-import CheckBoxSelectPair from '@/components/CheckBoxSelectPair'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { BlockOutlined, GlobalOutlined } from '@ant-design/icons-vue'
 import { buildVpcServiceCapabilityParams } from '@/composables/useServiceCapabilityParams'
+import { providerNames, vpcServiceProviderMap, vpcProviderChoices, buildVpcCloneProviderParams } from '@/utils/vpcOfferingProviders'
 
 export default {
   name: 'CloneVpcOffering',
   mixins: [mixinForm],
   components: {
-    CheckBoxSelectPair,
     ResourceIcon,
     TooltipLabel,
+    MoldDialogActions,
     BlockOutlined,
     GlobalOutlined
   },
@@ -388,6 +403,13 @@ export default {
       })
       this.rules = reactive({
         name: [{ required: true, message: this.$t('message.error.name') }],
+        serviceproviders: [{
+          validator: async () => {
+            if (!Object.keys(this.selectedServiceProviderMap).length || Object.values(this.selectedServiceProviderMap).some(providers => !providers.length)) {
+              return Promise.reject(this.$t('message.error.select'))
+            }
+          }
+        }],
         domainid: [{ type: 'array', required: true, message: this.$t('message.error.select') }],
         zoneid: [{
           type: 'array',
@@ -576,40 +598,9 @@ export default {
       }
 
       if (r.service && Array.isArray(r.service)) {
-        const sourceServiceMap = {}
-        r.service.forEach(svc => {
-          if (svc.provider && svc.provider.length > 0) {
-            const providerName = svc.provider[0].name
-            sourceServiceMap[svc.name] = providerName
-          }
-        })
-
-        this.serviceProviderMap = sourceServiceMap
-
-        const updatedServices = this.supportedServices.map(svc => {
-          const serviceCopy = { ...svc, provider: [...svc.provider] }
-
-          if (sourceServiceMap[serviceCopy.name]) {
-            const providerName = sourceServiceMap[serviceCopy.name]
-            const providerIndex = serviceCopy.provider.findIndex(p => p.name === providerName)
-
-            if (providerIndex > 0) {
-              const targetProvider = serviceCopy.provider[providerIndex]
-              serviceCopy.provider.splice(providerIndex, 1)
-              serviceCopy.provider.unshift(targetProvider)
-            }
-
-            serviceCopy.defaultChecked = true
-            serviceCopy.selectedProvider = providerName
-            this.selectedServiceProviderMap[serviceCopy.name] = providerName
-          } else {
-            serviceCopy.defaultChecked = false
-            serviceCopy.selectedProvider = null
-          }
-          return serviceCopy
-        })
-
-        this.supportedServices = updatedServices
+        this.serviceProviderMap = vpcServiceProviderMap(r.service)
+        this.selectedServiceProviderMap = vpcServiceProviderMap(r.service)
+        this.supportedServices = vpcProviderChoices(this.supportedServices, r.service)
 
         this.connectivityServiceChecked = Boolean(this.selectedServiceProviderMap.Connectivity)
         this.sourceNatServiceChecked = Boolean(this.selectedServiceProviderMap.SourceNat)
@@ -681,13 +672,14 @@ export default {
       }
     },
     handleSupportedServiceChange (service, checked, provider) {
+      const item = this.supportedServices.find(item => item.name === service)
+      const providers = providerNames(provider)
+      if (checked && !providers.length && !this.selectedServiceProviderMap[service] && item?.provider.length) {
+        providers.push(item.provider[0].name)
+      }
       if (checked) {
-        const correctProvider = this.serviceProviderMap[service]
-        if (correctProvider && provider !== correctProvider) {
-          this.selectedServiceProviderMap[service] = correctProvider
-        } else {
-          this.selectedServiceProviderMap[service] = provider
-        }
+        if (item) item.selectedProviders = [...providers]
+        this.selectedServiceProviderMap[service] = [...providers]
       } else {
         delete this.selectedServiceProviderMap[service]
       }
@@ -703,7 +695,7 @@ export default {
     },
     checkVpcVirtualRouterForServices () {
       this.isVpcVirtualRouterForAtLeastOneService = false
-      const providers = Object.values(this.selectedServiceProviderMap)
+      const providers = Object.values(this.selectedServiceProviderMap).flat()
       for (const provider of providers) {
         if (provider === 'VpcVirtualRouter') {
           this.isVpcVirtualRouterForAtLeastOneService = true
@@ -800,19 +792,8 @@ export default {
           params.routingmode = values.routingmode
         }
 
-        if (this.selectedServiceProviderMap != null) {
-          const supportedServices = Object.keys(this.selectedServiceProviderMap)
-          if (!forNsx && !forNetris) {
-            params.supportedservices = supportedServices.join(',')
-          }
-          for (const k in supportedServices) {
-            params['serviceProviderList[' + k + '].service'] = supportedServices[k]
-            params['serviceProviderList[' + k + '].provider'] = this.selectedServiceProviderMap[supportedServices[k]]
-          }
-          buildVpcServiceCapabilityParams(params, values, this.selectedServiceProviderMap, this.isVpcVirtualRouterForAtLeastOneService)
-        } else {
-          params.supportedservices = ''
-        }
+        buildVpcCloneProviderParams(params, this.selectedServiceProviderMap, this.serviceProviderMap, forNsx || forNetris)
+        buildVpcServiceCapabilityParams(params, values, this.selectedServiceProviderMap, this.isVpcVirtualRouterForAtLeastOneService)
 
         if (values.enable !== undefined) {
           params.enable = values.enable
@@ -841,15 +822,19 @@ export default {
 
 <style scoped lang="scss">
   .form-layout {
-    width: 80vw;
-
-    @media (min-width: 800px) {
-      width: 500px;
-    }
+    width: 100%;
+    min-width: 0;
   }
 
   .supported-services-container {
     height: 250px;
     overflow: auto;
+  }
+
+  .vpc-service-provider {
+    width: 100%;
+    align-items: center;
+
+    .ant-select { width: 100%; }
   }
 </style>
