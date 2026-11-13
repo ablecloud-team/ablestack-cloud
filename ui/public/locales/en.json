@@ -11531,5 +11531,15 @@
   "message.template.checksum.help": "Optional: MD5 (32 hexadecimal digits), {SHA-256} followed by 64 digits, or {SHA-512} followed by 128 digits. Other {algorithm} prefixes depend on server support.",
   "message.template.checksum.placeholder": "MD5 or {SHA-256}hexadecimal digest",
   "message.template.checksum.invalid": "Enter a hexadecimal checksum with the correct length and exact algorithm prefix, such as {SHA-256}.",
-  "message.template.upload.retry": "The image record already exists. Retry file transfer without registering another image."
+  "message.template.upload.retry": "The image record already exists. Retry file transfer without registering another image.",
+  "label.template.name.exact": "Name (exact match)",
+  "label.template.image.format": "Image format",
+  "label.template.type": "Template type",
+  "message.template.search.name": "Use the full name for an exact match. Use the keyword box for a partial search.",
+  "message.template.search.isready": "Not ready includes queued, transferring and failed images; it is not an error-only filter.",
+  "message.template.search.userdataid": "Enter the UUID of the linked user data, not its name. Clear to search all.",
+  "message.template.search.keyword": "The search box performs a partial keyword search. Advanced Name uses an exact match.",
+  "message.template.sort.page": "Column sorting applies to the current page.",
+  "message.template.search.unsupported": "This server does not support one or more selected template filters. Reset the filters to continue.",
+  "message.template.search.invalid": "Check the template filter UUID or true/false value."
 }

@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div :class="{ 'autoscale-screen': $route.meta?.name === 'autoscalevmgroup', 'userdata-library': $route.meta?.name === 'userdata', 'affinity-library': $route.meta?.name === 'affinitygroup', 'snapshot-list-page': isSnapshotList, 'object-storage-ui': isObjectStorageUi, 'bucket-list-page': isBucketList, 'vm-list-page': isVmList, 'volume-list-page': isVolumeList, 'themed-list-toolbar': isVmList || isVolumeList || isGuestNetworkList || ($route.name === 'sharedfs' && !dataView), 'guest-network-page': isGuestNetworkUi, 'runtime-catalog-screen': $route.meta?.name === 'runtimebundle' }">
+  <div :class="{ 'autoscale-screen': $route.meta?.name === 'autoscalevmgroup', 'userdata-library': $route.meta?.name === 'userdata', 'affinity-library': $route.meta?.name === 'affinitygroup', 'snapshot-list-page': isSnapshotList, 'object-storage-ui': isObjectStorageUi, 'bucket-list-page': isBucketList, 'vm-list-page': isVmList, 'volume-list-page': isVolumeList, 'template-list-page': isTemplateList, 'themed-list-toolbar': isTemplateList || isVmList || isVolumeList || isGuestNetworkList || ($route.name === 'sharedfs' && !dataView), 'guest-network-page': isGuestNetworkUi, 'runtime-catalog-screen': $route.meta?.name === 'runtimebundle' }">
     <div class="content-breadcrumb">
       <a-card class="breadcrumb-card" style="z-index: 10">
         <a-row>
@@ -854,10 +854,14 @@
       <a-alert v-if="(isStorageUi || isSnapshotReadView) && listRefreshError" class="storage-query-error" type="error" show-icon :message="$t(listLoadedScope ? 'message.list.refresh.stale' : 'error.fetching.data')">
         <template #description><p v-if="isSnapshotReadView && snapshotListError">{{ snapshotListError.startsWith('message.') ? $t(snapshotListError) : snapshotListError }}</p><a-button size="small" :disabled="listRequestPending" @click="fetchData({ irefresh: true })">{{ $t('label.retry') }}</a-button></template>
       </a-alert>
+      <p v-if="isTemplateList" class="template-list-help">{{ $t('message.template.search.keyword') }} {{ $t('message.template.sort.page') }}</p>
+      <a-alert v-if="isTemplateList && templateFilterError" type="error" show-icon :message="$t(templateFilterError)">
+        <template #action><a-button @click="$router.replace({ path: '/template' })">{{ $t('label.reset') }}</a-button></template>
+      </a-alert>
       <div v-if="dataView">
         <a-alert v-if="templateDetailError" type="error" show-icon :message="$t(templateDetailError)">
           <template #description>
-            <router-link to="/template">{{ $t('message.template.detail.back') }}</router-link>
+            <router-link :to="templateListLocation($route, $store.getters)">{{ $t('message.template.detail.back') }}</router-link>
             <a-button v-if="templateDetailError === 'message.template.detail.read.failed'" size="small" :disabled="listRequestPending" @click="fetchData({ irefresh: true })">{{ $t('label.refresh') }}</a-button>
           </template>
         </a-alert>
@@ -953,6 +957,7 @@
 </template>
 
 <script>
+import { templateListQuery, templateSearchQuery, templateSearchError, templateRequestParams, templateOwner, templateListLocation } from '@/utils/templateSearch'
 import { guestNetworkRoute, networkSearchQuery, readNetworkPage, networkListLocation } from '@/utils/guestNetworkSearch'
 import { networkTabRoute, networkTabRouteKey } from '@/utils/networkTabs'
 import BucketStoreFilter from '@/components/view/BucketStoreFilter'
@@ -1079,6 +1084,7 @@ export default {
       showAction: false,
       dataView: false,
       templateDetailError: '',
+      templateFilterError: '',
       projectView: false,
       hasProjectId: false,
       selectedFilter: '',
@@ -1271,6 +1277,17 @@ export default {
     next()
   },
   watch: {
+    templateSecurityContext () {
+      if (this.$route.meta?.name !== 'template') return
+      this.listRequestVersion++; this.listRequestPending = false; this.loading = false; this.listLoadedScope = null; this.items = []; this.resource = {}; this.itemCount = 0
+      this.resetSelection()
+      if (this.showAction) this.closeAction()
+      if (!this.$route.params?.id) {
+        const query = templateListQuery({}, this.pageSize)
+        if (JSON.stringify(query) !== JSON.stringify(this.$route.query)) return this.$router.replace({ query })
+      }
+      if ('listTemplates' in this.$store.getters.apis) this.fetchData()
+    },
     snapshotOperationCompletions (next, before = []) {
       const previous = new Map(before.map(entry => [entry.id, entry.status]))
       if (next.some(entry => previous.has(entry.id) && previous.get(entry.id) !== entry.status && ['complete', 'failed'].includes(entry.status) && snapshotOperationAffectsRoute(entry, this.$route))) this.fetchData({ irefresh: true })
@@ -1354,6 +1371,8 @@ export default {
     }
   },
   computed: {
+    isTemplateList () { return this.$route.meta?.name === 'template' && !this.$route.params?.id },
+    templateSecurityContext () { return JSON.stringify([templateOwner(this.$store.getters), this.$store.state?.user?.token, Object.keys(this.$store.getters.apis || {}).sort()]) },
     guestNetworkAuth () { return JSON.stringify([this.$store.getters.userInfo?.id, this.$store.getters.userInfo?.roletype, this.$store.getters.userInfo?.roleid, this.$store.getters.userInfo?.domainid, this.$store.state?.user?.token, this.$store.getters.project?.id, this.$store.getters.listAllProjects, Object.keys(this.$store.getters.apis || {}).sort()]) },
     sharedFSContentLoading () {
       if (!['sharedfs', 'runtimebundle'].includes(this.$route.meta?.name) || this.listLoadedScope !== this.listScope()) return this.loading
@@ -1531,6 +1550,7 @@ export default {
     }
   },
   methods: {
+    templateListLocation,
     storageDialogSize,
     snapshotSourceVolumeRoute,
     documentationUrl,
@@ -1742,6 +1762,14 @@ export default {
     fetchData (params = {}) {
       const templateDetail = this.$route.meta?.name === 'template' && !!this.$route.params?.id
       this.templateDetailError = ''
+      this.templateFilterError = ''
+      if (this.$route.meta?.name === 'template' && !templateDetail) {
+        const query = templateListQuery(this.$route.query, this.pageSize)
+        this.dataView = false
+        if (JSON.stringify(query) !== JSON.stringify(this.$route.query)) return this.$router.replace({ query })
+        this.templateFilterError = templateSearchError(query, this.$getApiParams('listTemplates'))
+        if (this.templateFilterError) { this.listRequestVersion++; this.items = []; this.resource = {}; this.itemCount = 0; this.listLoadedScope = null; this.listRequestPending = false; this.loading = false; this.resetSelection(); return Promise.resolve() }
+      }
       if (templateDetail && !this.$isValidUuid(this.$route.params.id)) {
         this.listRequestVersion++; this.listRequestPending = false; this.listRefreshQueued = false
         this.dataView = true; this.loading = false
@@ -2089,6 +2117,14 @@ export default {
         })
         this.chosenColumns.splice(this.chosenColumns.length - 1, 1)
 
+        if (this.$route.meta?.name === 'template') {
+          const widths = { name: 240, state: 240, format: 100, arch: 110, hypervisor: 110, size: 110, templatetype: 130, order: 140 }
+          this.columns.forEach(column => {
+            if (widths[column.key]) column.width = widths[column.key]
+            if (column.key === 'format') column.title = this.$t('label.template.image.format')
+            if (column.key === 'templatetype') column.title = this.$t('label.template.type')
+          })
+        }
         this.listSchemaScope = schemaScope
         this.listCustomRender = customRender
       }
@@ -2215,6 +2251,7 @@ export default {
         params = sshKeyPairVmParams(params, this.$route.query)
       }
       const templateQuery = this.$route.meta?.name === 'template'
+      if (templateQuery) params = templateRequestParams(params, this.dataView)
       const cniQuery = ['cniconfiguration', 'affinitygroup', 'guestnetwork'].includes(this.$route.meta?.name)
       const snapshotDetail = snapshotDetailRoute(this.$route)
       const policyDetail = policyDetailRoute(this.$route)
@@ -3553,6 +3590,13 @@ export default {
       this.$router.push({ query })
     },
     onSearch (opts) {
+      if (this.$route.meta?.name === 'template' && !this.$route.params?.id) {
+        const query = templateSearchQuery(this.$route.query, opts || {}, this.pageSize)
+        this.searchParams = {}
+        if (JSON.stringify(query) === JSON.stringify(this.$route.query)) this.fetchData(query)
+        else this.$router.push({ query })
+        return
+      }
       if (guestNetworkRoute(this.$route) && !this.$route.params?.id) {
         const query = networkSearchQuery(this.$route.query, opts, this.pageSize)
         this.searchParams = {}
@@ -3627,7 +3671,7 @@ export default {
     },
     changePage (page, pageSize) {
       const query = Object.assign({}, this.$route.query)
-      query.page = (['cniconfiguration', 'guestnetwork'].includes(this.$route.meta?.name) || this.$route.name === 'snapshot' || snapshotPolicyListRoute(this.$route)) && Number(pageSize) !== this.pageSize ? 1 : page
+      query.page = (['template', 'cniconfiguration', 'guestnetwork'].includes(this.$route.meta?.name) || this.$route.name === 'snapshot' || snapshotPolicyListRoute(this.$route)) && Number(pageSize) !== this.pageSize ? 1 : page
       query.pagesize = pageSize
       this.$router.push({ query })
     },
@@ -3651,7 +3695,7 @@ export default {
     },
     changePageSize (currentPage, pageSize) {
       const query = Object.assign({}, this.$route.query)
-      query.page = (['cniconfiguration', 'guestnetwork'].includes(this.$route.meta?.name) || this.$route.name === 'snapshot' || snapshotPolicyListRoute(this.$route)) ? 1 : currentPage
+      query.page = (['template', 'cniconfiguration', 'guestnetwork'].includes(this.$route.meta?.name) || this.$route.name === 'snapshot' || snapshotPolicyListRoute(this.$route)) ? 1 : currentPage
       query.pagesize = pageSize
       this.$router.push({ query })
     },
@@ -3884,4 +3928,11 @@ export default {
   .bucket-list-page .autogen-toolbar-actions > span:last-child { display: block !important; flex: 1 1 180px; width: auto !important; min-width: 0; }
 }
 
+</style>
+
+<style scoped lang="less">
+.template-list-help { color: var(--text-color-secondary); margin: 8px 0 12px; }
+.template-list-page :deep(.ant-table-thead th) { white-space: nowrap; }
+.template-list-page :deep(.ant-table-cell) { overflow-wrap: anywhere; }
+.template-list-page :deep(.ant-breadcrumb) { overflow-wrap: anywhere; }
 </style>

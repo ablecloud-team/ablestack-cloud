@@ -45,7 +45,7 @@
             <template #content v-if="visibleFilter">
               <a-form
                 style="min-width: 170px"
-                :class="{ 'storage-standard-search-form': ['listVolumes', 'listServiceOfferings', 'listDiskOfferings'].includes(apiName) || isGuestNetworkSearch, 'guest-network-search-form': isGuestNetworkSearch }"
+                :class="{ 'storage-standard-search-form': ['listTemplates', 'listVolumes', 'listServiceOfferings', 'listDiskOfferings'].includes(apiName) || isGuestNetworkSearch, 'guest-network-search-form': isGuestNetworkSearch }"
                 :ref="formRef"
                 :model="form"
                 :rules="rules"
@@ -57,7 +57,8 @@
                   :ref="field.name"
                   :name="field.name"
                   :key="index"
-                  :label="retrieveFieldLabel(field.name)">
+                  :label="retrieveFieldLabel(field.name)"
+                  :extra="apiName === 'listTemplates' && ['name', 'isready', 'userdataid'].includes(field.name) ? $t('message.template.search.' + field.name) : undefined">
                   <VolumeSearchSelect
                     v-if="field.name === 'volumeid'"
                     :key="volumeLookupReset"
@@ -177,7 +178,7 @@
               class="filter-button"
               size="small"
               :aria-label="$t('label.advanced.search')"
-                  @click="() => { if (!['listCniConfiguration', 'listAffinityGroups'].includes(apiName)) searchQuery = null }">
+                  @click="() => { if (!['listTemplates', 'listCniConfiguration', 'listAffinityGroups'].includes(apiName)) searchQuery = null }">
               <filter-two-tone v-if="isFiltered" />
               <filter-outlined v-else />
             </a-button>
@@ -257,6 +258,7 @@ export default {
   watch: {
     volumeOwnerContext () {
       this.visibleFilter = false
+      if (this.apiName === 'listTemplates') { this.form = reactive({}); this.fields = [] }
       this.form.volumeid = undefined
       this.volumeLookupReset++
     },
@@ -363,6 +365,7 @@ export default {
       this.initFormFieldData()
     },
     retrieveFieldLabel (fieldName) {
+      if (this.apiName === 'listTemplates' && fieldName === 'name') return this.$t('label.template.name.exact')
       if (this.isGuestNetworkSearch && fieldName === 'keyword') return this.$t('label.name')
       if (fieldName === 'networkofferingid') return this.$t('label.network.offering')
       if (fieldName === 'physicalnetworkid') return this.$t('label.physical.network')
@@ -391,6 +394,7 @@ export default {
       this.fields = []
       this.searchFilters.forEach(item => {
         let type = 'input'
+        if (this.apiName === 'listTemplates' && item !== 'tags' && !this.$getApiParams('listTemplates')?.[item]) return
 
         if (item === 'domainid' && !('listDomains' in this.$store.getters.apis)) {
           return true
@@ -448,6 +452,7 @@ export default {
           if (!('listProjects' in this.$store.getters.apis)) return
           type = 'list'
         }
+        if (this.apiName === 'listTemplates' && ['isready', 'forcks'].includes(item)) type = 'list'
         this.fields.push({
           type: type,
           name: item,
@@ -459,6 +464,9 @@ export default {
       return arrayField
     },
     fetchStaticFieldData (arrayField) {
+      if (this.apiName === 'listTemplates') {
+        this.fields.filter(field => ['isready', 'forcks'].includes(field.name)).forEach(field => { field.opts = [{ id: 'true', name: 'label.yes' }, { id: 'false', name: 'label.no' }] })
+      }
       if (this.isGuestNetworkSearch && arrayField.includes('forvpc')) this.fields.find(f => f.name === 'forvpc').opts = [{ id: 'true', name: 'label.yes' }, { id: 'false', name: 'label.no' }]
       if (this.$route.name === 'vmsnapshot') {
         const type = this.fields.find(field => field.name === 'type')
@@ -615,6 +623,8 @@ export default {
     async fetchDynamicFieldData (arrayField, searchKeyword) {
       if (this.apiName === 'listAffinityGroups') return this.fetchAffinityFilters(arrayField)
       if (this.apiName === 'listCniConfiguration') return this.fetchCniOwnerOptions(arrayField, searchKeyword)
+      const templateLookup = this.apiName === 'listTemplates' ? this.volumeOwnerContext : null
+      const templateFields = this.fields
       const guestLookup = this.isGuestNetworkSearch
       const promises = []
       let typeIndex = -1
@@ -792,6 +802,7 @@ export default {
       }
 
       Promise.all(promises).then(response => {
+        if (templateLookup && (templateLookup !== this.volumeOwnerContext || templateFields !== this.fields)) return
         if (typeIndex > -1) {
           const types = response.filter(item => item.type === 'type')
           if (types && types.length > 0) {
@@ -1058,7 +1069,8 @@ export default {
     },
     initFormFieldData () {
       const arrayField = this.initFields()
-      if (this.isGuestNetworkSearch || ['listCniConfiguration', 'listAffinityGroups'].includes(this.apiName) || arrayField.includes('volumeid')) this.fillFormFieldValues()
+      if (this.apiName === 'listTemplates') this.rules.userdataid = [{ validator: async (rule, value) => { if (value && !this.$isValidUuid(value)) throw new Error(this.$t('message.template.search.userdataid')) } }]
+      if (this.isGuestNetworkSearch || ['listTemplates', 'listCniConfiguration', 'listAffinityGroups'].includes(this.apiName) || arrayField.includes('volumeid')) this.fillFormFieldValues()
 
       this.fetchStaticFieldData(arrayField)
 
@@ -1910,7 +1922,7 @@ export default {
       this.$emit('change-filter', filter)
     },
     updateIsFiltered () {
-      const params = this.isGuestNetworkSearch || ['listCniConfiguration', 'listAffinityGroups'].includes(this.apiName) ? this.$route.query : this.searchParams
+      const params = this.isGuestNetworkSearch || ['listTemplates', 'listCniConfiguration', 'listAffinityGroups'].includes(this.apiName) ? this.$route.query : this.searchParams
       this.isFiltered = this.searchFilters.some(item => {
         if (params[item]) {
           return true

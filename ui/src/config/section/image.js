@@ -40,7 +40,7 @@ export default {
         var fields = ['name',
           {
             state: record => templateAvailability(record).state
-          }, 'ostypename', 'arch', 'hypervisor']
+          }, 'format', 'ostypename', 'arch', 'hypervisor']
         if (['Admin', 'DomainAdmin'].includes(store.getters.userInfo.roletype)) {
           fields.push('size')
           fields.push('account')
@@ -64,7 +64,7 @@ export default {
         return fields
       },
       searchFilters: () => {
-        var filters = ['name', 'zoneid', 'tags', 'arch', 'oscategoryid', 'templatetype', 'extensionid']
+        var filters = ['name', 'zoneid', 'tags', 'arch', 'oscategoryid', 'templatetype', 'extensionid', 'isready', 'hypervisor', 'forcks', 'userdataid']
         if (['Admin', 'DomainAdmin'].includes(store.getters.userInfo.roletype)) {
           filters.push('storageid')
           filters.push('imagestoreid')

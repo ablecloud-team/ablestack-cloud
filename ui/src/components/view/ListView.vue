@@ -23,7 +23,7 @@
       :locale="emptyText ? { emptyText } : undefined"
       :columns="isOrderUpdatable() ? columns : columns.filter(x => x.dataIndex !== 'order')"
       :dataSource="items"
-      :scroll="tableScroll || ($route.name === 'snapshot' ? { x: 1400 } : ['autoscalevmgroup', 'affinitygroup'].includes($route.name) ? { x: 980 } : undefined)"
+      :scroll="tableScroll || (['snapshot', 'template'].includes($route.name) ? { x: 1400 } : ['autoscalevmgroup', 'affinitygroup'].includes($route.name) ? { x: 980 } : undefined)"
       :rowKey="listRowKey"
       :pagination="false"
       :rowSelection="explicitlyAllowRowSelection || enableGroupAction() || $route.name === 'event' ? {selectedRowKeys: selectedRowKeys, onChange: onSelectChange, getCheckboxProps: record => ({ disabled: selectionDisabled(record) }), columnWidth: 30} : null"
@@ -118,7 +118,11 @@
               size="xl"
             />
           </span>
-          <span v-if="isSshKeyPairList">
+          <span v-if="$route.meta?.name === 'template' && !resourcePath && record.id">
+            <router-link :to="templateDetailLocation($route, record, $store.getters)">{{ text }}</router-link>
+            <router-link v-if="record.hasannotations" :to="templateDetailLocation($route, record, $store.getters, 'comments')"><message-filled style="padding-left: 10px" size="small" /></router-link>
+          </span>
+          <span v-else-if="isSshKeyPairList">
             <router-link :to="sshKeyPairLink(record)">{{ text }}</router-link>
             <router-link v-if="record.hasannotations" :to="sshKeyPairLink(record, 'comments')"><message-filled style="padding-left: 10px" size="small" /></router-link>
           </span>
@@ -1225,6 +1229,7 @@
 
 <script>
 import { networkTypeLabel } from '@/utils/networkLifecycle'
+import { templateDetailLocation } from '@/utils/templateSearch'
 import { networkDetailLocation } from '@/utils/guestNetworkSearch'
 import { policyInterval, policySchedule, policyScheduling } from '@/utils/snapshotPolicyPresentation'
 import { policyVolumePath } from '@/utils/snapshotPolicyDetail'
@@ -1486,6 +1491,7 @@ export default {
     }
   },
   methods: {
+    templateDetailLocation,
     networkTypeLabel,
     policyVolumePath,
     policyInterval,

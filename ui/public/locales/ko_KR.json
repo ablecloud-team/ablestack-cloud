@@ -11539,5 +11539,15 @@
   "message.template.checksum.help": "선택 사항: MD5 32자리 16진수, {SHA-256} 뒤 64자리 또는 {SHA-512} 뒤 128자리. 다른 {알고리즘} 접두어는 서버 지원 여부를 확인합니다.",
   "message.template.checksum.placeholder": "MD5 또는 {SHA-256}16진수 해시",
   "message.template.checksum.invalid": "정확한 알고리즘 접두어(예: {SHA-256})와 길이에 맞는 16진수 체크섬을 입력하세요.",
-  "message.template.upload.retry": "이미지 개체는 이미 등록됐습니다. 새 개체를 만들지 않고 파일 전송을 다시 시도합니다."
+  "message.template.upload.retry": "이미지 개체는 이미 등록됐습니다. 새 개체를 만들지 않고 파일 전송을 다시 시도합니다.",
+  "label.template.name.exact": "이름 (정확히 일치)",
+  "label.template.image.format": "이미지 형식",
+  "label.template.type": "템플릿 유형",
+  "message.template.search.name": "이름 전체를 입력하면 정확히 일치하는 항목을 조회합니다. 부분 검색은 키워드 검색을 사용하세요.",
+  "message.template.search.isready": "준비되지 않음에는 대기·전송 중·실패가 포함됩니다. 실패 전용 검색이 아닙니다.",
+  "message.template.search.userdataid": "연결된 사용자 데이터의 이름 대신 UUID를 입력하세요. 비우면 전체를 검색합니다.",
+  "message.template.search.keyword": "검색창은 키워드 부분 검색입니다. 고급 검색의 이름은 정확히 일치하는 항목을 찾습니다.",
+  "message.template.sort.page": "열 정렬은 현재 페이지에만 적용됩니다.",
+  "message.template.search.unsupported": "현재 서버가 선택한 템플릿 검색 조건 일부를 지원하지 않습니다. 검색 조건을 초기화하세요.",
+  "message.template.search.invalid": "검색 조건의 UUID 또는 true/false 값을 확인하세요."
 }

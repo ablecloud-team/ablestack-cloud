@@ -19,8 +19,10 @@ import Template from '@/views/image/UpdateTemplate.vue'
 import Register from '@/views/image/RegisterOrUploadTemplate.vue'
 import { validTemplateChecksum } from '@/utils/templateForm'
 import { getAPI, postAPI } from '@/api'
+import { axios } from '@/utils/request'
 import { probeSsvmCert } from '@/utils/ssvmProbe'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
+jest.mock('@/utils/request', () => ({ axios: { post: jest.fn() } }))
 jest.mock('@/utils/ssvmProbe', () => ({ probeSsvmCert: jest.fn() }))
 const metadata = Object.fromEntries(['arch', 'checksum', 'sshkeyenabled', 'requireshvm', 'forcks', 'ispublic'].map(key => [key, { description: key }]))
 const context = (C, extra = {}) => {
@@ -77,3 +79,9 @@ test('API failure keeps draft and permits corrected retry', async () => {
 })
 test.each(['', 'a'.repeat(32), '{MD5}' + 'b'.repeat(32), '{SHA-256}' + 'c'.repeat(64), '{SHA-512}' + 'D'.repeat(128)])('checksum accepts documented wire format %s', value => expect(validTemplateChecksum(value)).toBe(true))
 test.each(['bad', '{SHA-256}' + 'a'.repeat(32), '{sha-256}' + 'a'.repeat(64), '{SHA-512}' + 'z'.repeat(128), ' a'.repeat(32), '{SHA-256}'])('checksum rejects malformed digest %s', value => expect(validTemplateChecksum(value)).toBe(false))
+
+test('file transfer failure reuses accepted upload parameters instead of creating another template', async () => {
+  const c = context(Register, { currentForm: 'Upload' }); c.uploadParams = { id: 'accepted', postURL: 'https://ssvm.example/upload', signature: 'test', expires: 'test', metadata: 'test' }; c.acceptedTemplateId = 'accepted'; c.fileList = []; c.finishRegistration = jest.fn().mockResolvedValue()
+  axios.post.mockRejectedValueOnce(new Error('transfer reset')); await c.handleUpload(); expect(c.uploadFailed).toBe(true); expect(c.uploading).toBe(false); expect(c.finishRegistration).not.toHaveBeenCalled()
+  axios.post.mockResolvedValueOnce({}); await c.retryUpload(); expect(axios.post).toHaveBeenCalledTimes(2); expect(getAPI).not.toHaveBeenCalled(); expect(c.finishRegistration).toHaveBeenCalledTimes(1); expect(c.acceptedTemplateId).toBe('accepted')
+})

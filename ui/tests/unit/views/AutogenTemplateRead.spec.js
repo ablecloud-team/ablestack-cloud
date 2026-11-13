@@ -76,3 +76,23 @@ test.each(['target', 'project', 'role', 'session'])('late template read cannot c
   await ctx.fetchData(); done(reply([{ id, name: 'stale' }])); await old
   expect(ctx.resource.id).toBe(currentId); expect(ctx.resource.name).toBe('current')
 })
+
+function listRoute (query = {}) {
+  Object.assign(ctx.$route, { path: '/template', fullPath: '/template?' + new URLSearchParams(query), params: {}, query: { ...query, page: query.page || '1', pagesize: query.pagesize || '20' } })
+  ctx.$getApiParams = () => ({ isready: {}, hypervisor: {}, forcks: {}, userdataid: {}, name: {} })
+}
+test('template combined list filters reach actual read while detail return state does not', async () => {
+  listRoute({ isready: 'false', hypervisor: 'KVM', forcks: 'true', userdataid: id, page: '2', pagesize: '50' }); await ctx.fetchData()
+  expect(getAPI).toHaveBeenCalledWith('listTemplates', expect.objectContaining({ isready: 'false', hypervisor: 'KVM', forcks: 'true', userdataid: id, page: '2', pagesize: '50' }), expect.any(Object))
+  route(id); ctx.$route.query = { templatereturn: '{"isready":"false"}', templateowner: 'owner' }; getAPI.mockClear(); await ctx.fetchData(); expect(getAPI.mock.calls[0][1]).toEqual({ id, templatefilter: 'all' })
+})
+test('unsupported list filter gets local explanation without a misleading broad read', async () => {
+  listRoute({ forcks: 'false' }); ctx.$getApiParams = () => ({}); await ctx.fetchData(); expect(getAPI).not.toHaveBeenCalled(); expect(ctx.templateFilterError).toBe('message.template.search.unsupported')
+})
+test('template search/size change reset page; unrelated resources keep existing behavior', () => {
+  listRoute({ name: 'old', page: '3', pagesize: '50' }); ctx.pageSize = 50; ctx.onSearch({ isready: false }); expect(ctx.$router.push).toHaveBeenLastCalledWith({ query: expect.objectContaining({ isready: 'false', page: '1', pagesize: '50' }) })
+  ctx.changePage(3, 100); expect(ctx.$router.push).toHaveBeenLastCalledWith({ query: expect.objectContaining({ page: 1, pagesize: 100 }) })
+})
+test('owner change clears selection and query and invalidates outstanding reads', () => {
+  listRoute({ userdataid: id }); ctx.selectedRowKeys = [id]; ctx.items = [{ id }]; const before = ctx.listRequestVersion; Autogen.watch.templateSecurityContext.call(ctx); expect(ctx.listRequestVersion).toBeGreaterThan(before); expect(ctx.selectedRowKeys).toEqual([]); expect(ctx.items).toEqual([]); expect(ctx.$router.replace).toHaveBeenCalledWith({ query: { page: '1', pagesize: '20' } })
+})
