@@ -11567,5 +11567,21 @@
   "message.template.zone.force": "강제 삭제는 사용 중인 템플릿의 보호 검사를 건너뛸 수 있습니다. 영향 범위를 확인한 경우에만 선택하세요.",
   "message.template.zone.copy.empty": "복사할 다른 Zone이 없습니다. 현재 Zone에는 다시 복사하지 않습니다.",
   "message.template.zone.prepare": "선택한 Primary 스토리지 한 곳에만 준비를 요청합니다. 접수 후 해당 저장소의 DOWNLOADED 상태를 확인하며, 관측 시간 초과는 실패로 판정하지 않습니다.",
-  "message.template.zone.pool.empty": "동일 Zone에서 사용 가능한 KVM NFS 또는 SharedMountPoint 스토리지가 없습니다."
+  "message.template.zone.pool.empty": "동일 Zone에서 사용 가능한 KVM NFS 또는 SharedMountPoint 스토리지가 없습니다.",
+  "message.vnf.detail.key.invalid": "지원하는 VNF 속성을 선택하세요.",
+  "message.vnf.detail.value.required": "값을 입력하세요.",
+  "message.vnf.detail.port.invalid": "포트는 1부터 65535까지의 정수로 입력하세요.",
+  "message.vnf.detail.method.invalid": "지원하는 접근 방법을 선택하세요.",
+  "message.vnf.detail.duplicate": "이미 있는 속성입니다. 기존 속성을 편집하세요.",
+  "message.vnf.detail.options.failed": "지원 속성을 불러오지 못했습니다. 다시 조회하면 편집할 수 있습니다.",
+  "message.vnf.nic.ids.invalid": "장치 ID는 0부터 연속하는 중복 없는 정수여야 합니다.",
+  "message.vnf.nic.ids.hint": "장치 ID는 0부터 연속해야 합니다.",
+  "message.vnf.nic.name.required": "NIC 이름을 입력하세요.",
+  "message.vnf.nic.required.order": "필수 NIC는 선택 NIC보다 앞에 있어야 합니다.",
+  "message.vnf.nic.delete.confirm": "NIC {id} ({name})을 삭제하시겠습니까? 뒤의 장치 ID는 순서에 맞게 조정됩니다.",
+  "message.vnf.save.failed": "저장 완료를 확인하지 못했습니다. 기존 설정과 입력을 유지했습니다. 현재 설정을 확인한 후 다시 시도하세요.",
+  "label.vnf.secret.action": "비밀 값 변경",
+  "label.vnf.secret.replace": "새 값으로 변경",
+  "label.vnf.secret.unchanged": "기존 값 유지",
+  "label.vnf.secret.new": "새 비밀 값을 입력하세요."
 }

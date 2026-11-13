@@ -11559,5 +11559,21 @@
   "message.template.zone.force": "Force deletion may bypass protection checks for templates in use. Select it only after checking the impact.",
   "message.template.zone.copy.empty": "No other Zone is available for copying. The source Zone cannot be selected.",
   "message.template.zone.prepare": "Request preloading on one selected Primary store. Completion requires its DOWNLOADED observation; an observation timeout is not a failure.",
-  "message.template.zone.pool.empty": "No eligible KVM NFS or SharedMountPoint pool is Up in this Zone."
+  "message.template.zone.pool.empty": "No eligible KVM NFS or SharedMountPoint pool is Up in this Zone.",
+  "message.vnf.detail.key.invalid": "Select a supported VNF setting.",
+  "message.vnf.detail.value.required": "Enter a value.",
+  "message.vnf.detail.port.invalid": "Enter a port from 1 to 65535.",
+  "message.vnf.detail.method.invalid": "Select a supported access method.",
+  "message.vnf.detail.duplicate": "This setting already exists. Edit the existing setting.",
+  "message.vnf.detail.options.failed": "Could not load supported settings. Retry to enable editing.",
+  "message.vnf.nic.ids.invalid": "Device IDs must be unique consecutive integers starting at 0.",
+  "message.vnf.nic.ids.hint": "Device IDs start at 0 and must be consecutive.",
+  "message.vnf.nic.name.required": "Enter a NIC name.",
+  "message.vnf.nic.required.order": "Required NICs must precede optional NICs.",
+  "message.vnf.nic.delete.confirm": "Delete NIC {id} ({name})? Later device IDs will be adjusted.",
+  "message.vnf.save.failed": "Could not confirm the save. Your draft and current settings are retained. Check the current settings before retrying.",
+  "label.vnf.secret.action": "Secret value change",
+  "label.vnf.secret.replace": "Replace value",
+  "label.vnf.secret.unchanged": "Keep existing value",
+  "label.vnf.secret.new": "Enter a new secret value"
 }

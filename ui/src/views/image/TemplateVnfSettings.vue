@@ -16,700 +16,268 @@
 // under the License.
 
 <template>
-  <div>
-    <a-divider/>
-
-    <div class="title">
-      <div class="form__label">
-        <tooltip-label :title="$t('label.vnf.nics')" :tooltip="apiParams.vnfnics.description"/>
-      </div>
-    </div>
-    <div>
-      <a-button
-        type="dashed"
-        style="width: 100%"
-        :disabled="updateBusy || !('updateVnfTemplate' in $store.getters.apis && isAdminOrOwner())"
-        @click="onShowAddVnfNic">
-        <template #icon><plus-outlined /></template>
-        {{ $t('label.vnf.nic.add') }}
-      </a-button>
-    </div>
-
-    <a-table
-      size="small"
-      style="overflow-y: auto"
-      :loading="loading"
-      :columns="columns"
-      :dataSource="vnfNics"
-      :pagination="false"
-      :rowKey="record => record.deviceid">
-      <template #deviceid="{record}">
-        <span> {{ record.deviceid }} </span>
-      </template>
-      <template #name="{record}">
-        <span> {{ record.name }} </span>
-      </template>
-      <template #required="{ record }">
-        <span v-if="record.required">{{ $t('label.yes') }}</span>
-        <span v-else>{{ $t('label.no') }}</span>
-      </template>
-      <template #management="{ record }">
-        <span v-if="record.management">{{ $t('label.yes') }}</span>
-        <span v-else>{{ $t('label.no') }}</span>
-      </template>
-      <template #description="{record}">
-        <span> {{ record.description }} </span>
-      </template>
-      <template #actions="{ record }">
-        <div class="shift-btns" v-if="'updateVnfTemplate' in $store.getters.apis && isAdminOrOwner()">
-          <a-tooltip placement="top">
-            <template #title>{{ $t('label.vnf.nic.edit') }}</template>
-            <a-button shape="round" :disabled="updateBusy" @click="onShowEditVnfNic(record, $event)" class="shift-btn">
-              <EditOutlined class="shift-btn" />
-            </a-button>
-          </a-tooltip>
-          <a-tooltip placement="top">
-            <template #title>{{ $t('label.move.up.row') }}</template>
-            <a-button shape="round" :disabled="updateBusy" @click="moveVnfNicUp(record)" class="shift-btn">
-              <CaretUpOutlined class="shift-btn" />
-            </a-button>
-          </a-tooltip>
-          <a-tooltip placement="top">
-            <template #title>{{ $t('label.move.down.row') }}</template>
-            <a-button shape="round" :disabled="updateBusy" @click="moveVnfNicDown(record)" class="shift-btn">
-              <CaretDownOutlined class="shift-btn" />
-            </a-button>
-          </a-tooltip>
-          <a-popconfirm
-            :disabled="updateBusy"
-            :title="$t('label.vnf.nic.delete') + '?'"
-            @confirm="deleteVnfNic(record)"
-            :okText="$t('label.yes')"
-            :cancelText="$t('label.no')"
-          >
-            <template #title>{{ $t('label.vnf.nic.delete') }}</template>
-            <a-button shape="round" :disabled="updateBusy" class="shift-btn" :danger="true" type="primary">
-              <DeleteOutlined class="shift-btn" />
-            </a-button>
+  <div class="vnf-settings">
+    <a-alert v-if="saveError" type="error" show-icon role="alert" :message="saveError" />
+    <a-divider />
+    <div class="title"><tooltip-label :title="$t('label.vnf.nics')" :tooltip="apiParams.vnfnics?.description" /></div>
+    <a-button type="dashed" class="vnf-add" :disabled="updateBusy || !canWrite" @click="onShowAddVnfNic"><template #icon><plus-outlined /></template>{{ $t('label.vnf.nic.add') }}</a-button>
+    <a-table size="small" :loading="loading" :columns="columns" :data-source="vnfNics" :pagination="false" :row-key="record => record.deviceid" :scroll="{ x: 600 }">
+      <template #required="{record}">{{ $t(record.required ? 'label.yes' : 'label.no') }}</template>
+      <template #management="{record}">{{ $t(record.management ? 'label.yes' : 'label.no') }}</template>
+      <template #actions="{record}">
+        <div v-if="canWrite" class="shift-btns">
+          <tooltip-button :tooltip="$t('label.vnf.nic.edit')" icon="edit-outlined" :disabled="updateBusy || editorOpen" @onClick="onShowEditVnfNic(record, $event)" />
+          <tooltip-button :tooltip="$t('label.move.up.row')" icon="caret-up-outlined" :disabled="updateBusy || editorOpen || !canMove(record, -1)" @onClick="moveVnfNicUp(record)" />
+          <tooltip-button :tooltip="$t('label.move.down.row')" icon="caret-down-outlined" :disabled="updateBusy || editorOpen || !canMove(record, 1)" @onClick="moveVnfNicDown(record)" />
+          <a-popconfirm :title="$t('message.vnf.nic.delete.confirm', { name: record.name, id: record.deviceid })" :disabled="updateBusy || editorOpen" :ok-text="$t('label.yes')" :cancel-text="$t('label.no')" @confirm="deleteVnfNic(record)">
+            <tooltip-button :tooltip="$t('label.vnf.nic.delete')" icon="delete-outlined" :danger="true" :disabled="updateBusy || editorOpen" />
           </a-popconfirm>
         </div>
       </template>
     </a-table>
-
     <MoldDialog
-      class="vnf-template-nic-dialog"
-      size="md"
-      focus-guard
-      :visible="showAddVnfNic || showEditVnfNic"
-      :title="$t(showEditVnfNic ? 'label.vnf.nic.edit' : 'label.vnf.nic.add')"
-      :closable="!updateBusy"
-      :keyboard="!updateBusy"
-      :focus-trigger-after-close="false"
-      :destroy-on-close="true"
-      :after-close="afterVnfNicClose"
-      @cancel="closeVnfNicModal">
-      <dl class="vnf-nic-context">
-        <dt>{{ $t('label.template') }}</dt><dd>{{ resource.name }}</dd>
-        <dt>{{ $t(resource.projectid ? 'label.project' : 'label.account') }}</dt><dd>{{ resource.project || resource.account }}</dd>
-        <dt>{{ $t('label.domain') }}</dt><dd>{{ resource.domain }}</dd>
-      </dl>
-      <a-form layout="vertical" class="vnf-nic-fields" @keydown.ctrl.enter.stop.prevent="submitVnfNic">
-        <a-form-item :label="$t('label.deviceid')" :html-for="'vnf-nic-deviceid'" required :extra="$t('label.vnf.nic.deviceid')">
-          <a-input id="vnf-nic-deviceid" v-model:value="nicDraft.deviceid" type="number" min="0" step="1" :disabled="showEditVnfNic || updateBusy" v-focus="true" />
-        </a-form-item>
-        <a-form-item :label="$t('label.name')" :html-for="'vnf-nic-name'" required :extra="$t('label.vnf.nic.name')">
-          <a-input id="vnf-nic-name" v-model:value="nicDraft.name" :disabled="updateBusy" v-focus="showEditVnfNic" />
-        </a-form-item>
-        <a-form-item :label="$t('label.required')" :html-for="'vnf-nic-required'" :extra="$t('label.vnf.nic.required')">
-          <a-switch id="vnf-nic-required" :aria-label="$t('label.required')" v-model:checked="nicDraft.required" :disabled="updateBusy" />
-        </a-form-item>
-        <a-form-item :label="$t('label.vnf.nic.management')" :html-for="'vnf-nic-management'" :extra="$t('label.vnf.nic.management.description')">
-          <a-switch id="vnf-nic-management" :aria-label="$t('label.vnf.nic.management')" v-model:checked="nicDraft.management" :disabled="updateBusy" />
-        </a-form-item>
-        <a-form-item :label="$t('label.description')" :html-for="'vnf-nic-description'">
-          <a-textarea id="vnf-nic-description" v-model:value="nicDraft.description" :rows="2" :disabled="updateBusy" />
-        </a-form-item>
+class="vnf-template-nic-dialog"
+size="md"
+focus-guard
+:visible="showAddVnfNic || showEditVnfNic"
+:title="$t(showEditVnfNic ? 'label.vnf.nic.edit' : 'label.vnf.nic.add')"
+:closable="!updateBusy"
+:keyboard="!updateBusy"
+:focus-trigger-after-close="false"
+destroy-on-close
+:after-close="afterVnfNicClose"
+@cancel="closeVnfNicModal">
+      <dl class="vnf-context"><dt>{{ $t('label.template') }}</dt><dd>{{ resource.name }}<br>{{ resource.id }}</dd><dt>{{ $t(resource.projectid ? 'label.project' : 'label.account') }}</dt><dd>{{ resource.project || resource.account }}</dd></dl>
+      <a-form layout="vertical" @keydown.ctrl.enter.stop.prevent="submitVnfNic">
+        <a-form-item :label="$t('label.deviceid')" html-for="vnf-nic-deviceid" required :extra="$t('message.vnf.nic.ids.hint')"><a-input id="vnf-nic-deviceid" v-model:value="nicDraft.deviceid" type="number" min="0" step="1" :disabled="showEditVnfNic || updateBusy" v-focus="true" /></a-form-item>
+        <a-form-item :label="$t('label.name')" html-for="vnf-nic-name" required><a-input id="vnf-nic-name" v-model:value="nicDraft.name" :disabled="updateBusy" v-focus="showEditVnfNic" /></a-form-item>
+        <a-form-item :label="$t('label.required')" html-for="vnf-nic-required"><a-switch id="vnf-nic-required" :aria-label="$t('label.required')" v-model:checked="nicDraft.required" :disabled="updateBusy" /></a-form-item>
+        <a-form-item :label="$t('label.vnf.nic.management')" html-for="vnf-nic-management"><a-switch id="vnf-nic-management" :aria-label="$t('label.vnf.nic.management')" v-model:checked="nicDraft.management" :disabled="updateBusy" /></a-form-item>
+        <a-form-item :label="$t('label.description')" html-for="vnf-nic-description"><a-textarea id="vnf-nic-description" v-model:value="nicDraft.description" :rows="2" :disabled="updateBusy" /></a-form-item>
         <a-alert v-if="nicError" type="error" show-icon role="alert" :message="nicError" />
+        <MoldDialogActions :busy="updateBusy"><a-button @click="closeVnfNicModal">{{ $t('label.cancel') }}</a-button><a-button type="primary" :loading="updateBusy" :disabled="!canWrite" @click="submitVnfNic">{{ $t('label.ok') }}</a-button></MoldDialogActions>
       </a-form>
-      <template #footer>
-        <a-button :disabled="updateBusy" @click="closeVnfNicModal">{{ $t('label.cancel') }}</a-button>
-        <a-button type="primary" :loading="updateBusy" :disabled="updateBusy" @click="submitVnfNic">{{ $t('label.ok') }}</a-button>
-      </template>
     </MoldDialog>
-
-    <a-divider/>
-    <div class="title">
-      <div class="form__label">
-        <tooltip-label :title="$t('label.vnf.details')" :tooltip="apiParams.vnfdetails.description"/>
-      </div>
-    </div>
-    <div v-show="!showAddVnfDetail">
-      <a-button
-        type="dashed"
-        style="width: 100%"
-        :disabled="updateBusy || !('updateVnfTemplate' in $store.getters.apis && isAdminOrOwner())"
-        @click="onShowAddVnfDetail">
-        <template #icon><plus-outlined /></template>
-        {{ $t('label.vnf.detail.add') }}
-      </a-button>
-    </div>
-
-    <div v-show="showAddVnfDetail">
-      <a-input-group
-        type="text"
-        compact>
-        <a-auto-complete
-          class="detail-input"
-          ref="keyElm"
-          :filterOption="filterOption"
-          v-model:value="newKey"
-          :options="detailKeys"
-          :placeholder="$t('label.name')" />
-        <a-input
-          class="tag-disabled-input"
-          style=" width: 30px; border-left: 0; pointer-events: none; text-align: center"
-          placeholder="="
-          disabled />
-        <a-select
-          v-if="newKey === 'access_methods'"
-          class="detail-input"
-          v-model:value="newValues"
-          mode="multiple"
-          :placeholder="$t('label.value')"
-          :filterOption="filterOption">
-          <a-select-option v-for="opt in detailValues" :key="opt.value" :label="opt.value">
-              <span>
-                {{ opt.value }}
-              </span>
-          </a-select-option>
-        </a-select>
-        <a-input
-          v-else
-          class="detail-input"
-          :filterOption="filterOption"
-          v-model:value="newValue"
-          :options="detailValues"
-          :placeholder="$t('label.value')" />
-        <tooltip-button :tooltip="$t('label.add.setting')" :shape="null" icon="check-outlined" @onClick="addVnfDetail" buttonClass="detail-button" />
-        <tooltip-button :tooltip="$t('label.cancel')" :shape="null" icon="close-outlined" @onClick="closeVnfDetail" buttonClass="detail-button" />
-      </a-input-group>
-      <p v-if="error" style="color: red"> {{ $t(error) }} </p>
-    </div>
-
+    <a-divider />
+    <div class="title"><tooltip-label :title="$t('label.vnf.details')" :tooltip="apiParams.vnfdetails?.description" /></div>
+    <a-alert v-if="optionsError" type="warning" show-icon :message="$t('message.vnf.detail.options.failed')" ><template #action><a-button size="small" :loading="optionsLoading" @click="loadOptions">{{ $t('label.retry') }}</a-button></template></a-alert>
+    <a-button type="dashed" class="vnf-add" :disabled="updateBusy || !canWrite || !optionsReady" @click="onShowAddVnfDetail"><template #icon><plus-outlined /></template>{{ $t('label.vnf.detail.add') }}</a-button>
     <a-list size="large">
-      <a-list-item :key="index" v-for="(item, index) in vnfDetails">
-        <a-list-item-meta>
-          <template #title>
-            {{ item.name }}
-          </template>
-          <template #description>
-            <div v-if="item.edit" style="display: flex">
-              <a-select
-                v-if="item.name === 'access_methods'"
-                class="detail-input"
-                v-model:value="item.values"
-                mode="multiple"
-                :placeholder="$t('label.value')"
-                :filterOption="filterOption">
-                <a-select-option v-for="opt in getEditDetailOptions(vnfDetailOptions[item.name])" :key="opt.value" :label="opt.value">
-                  <span>
-                    {{ opt.value }}
-                  </span>
-                </a-select-option>
-              </a-select>
-              <a-auto-complete
-                v-else
-                style="width: 100%"
-                v-model:value="item.displayvalue"
-                :options="getEditDetailOptions(vnfDetailOptions[item.name])"
-                @change="val => handleInputChange(val, index)"
-                @pressEnter="e => updateVnfDetail(index)" />
-              <tooltip-button
-                buttonClass="edit-button"
-                :tooltip="$t('label.cancel')"
-                @onClick="hideEditVnfDetail(index)"
-                v-if="item.edit"
-                iconType="close-circle-two-tone"
-                iconTwoToneColor="#f5222d" />
-              <tooltip-button
-                buttonClass="edit-button"
-                :tooltip="$t('label.ok')"
-                @onClick="updateVnfDetail(index)"
-                v-if="item.edit"
-                iconType="check-circle-two-tone"
-                iconTwoToneColor="#52c41a" />
-            </div>
-            <span v-else style="word-break: break-all">{{ item.displayvalue }}</span>
-          </template>
-        </a-list-item-meta>
-        <template #actions>
-          <div
-            v-if="'updateVnfTemplate' in $store.getters.apis && isAdminOrOwner()">
-            <tooltip-button
-              :tooltip="$t('label.edit')"
-              icon="edit-outlined"
-              @onClick="showEditVnfDetail(index)" />
-          </div>
-          <div
-            v-if="'updateVnfTemplate' in $store.getters.apis && isAdminOrOwner()">
-            <a-popconfirm
-              :title="`${$t('label.delete.setting')}?`"
-              @confirm="deleteVnfDetail(index)"
-              :okText="$t('label.yes')"
-              :cancelText="$t('label.no')"
-              placement="left"
-            >
-              <tooltip-button :tooltip="$t('label.delete')" type="primary" :danger="true" icon="delete-outlined" />
-            </a-popconfirm>
-          </div>
-        </template>
+      <a-list-item v-for="item in vnfDetails" :key="item.name">
+        <a-list-item-meta :title="item.name"><template #description><span class="vnf-value">{{ getDisplayValue(item.name, item.value) }}</span></template></a-list-item-meta>
+        <template #actions><div v-if="canWrite" class="shift-btns">
+          <tooltip-button :tooltip="$t('label.edit')" icon="edit-outlined" :disabled="updateBusy || editorOpen || !optionsReady" @onClick="showEditVnfDetail(item.name, $event)" />
+          <a-popconfirm :title="$t('label.delete.setting') + ': ' + item.name + '?'" :disabled="updateBusy || editorOpen" :ok-text="$t('label.yes')" :cancel-text="$t('label.no')" @confirm="deleteVnfDetail(item.name)"><tooltip-button :tooltip="$t('label.delete')" icon="delete-outlined" :danger="true" :disabled="updateBusy || editorOpen" /></a-popconfirm>
+        </div></template>
       </a-list-item>
     </a-list>
+    <MoldDialog
+class="vnf-template-detail-dialog"
+size="md"
+focus-guard
+:visible="showAddVnfDetail || showEditDetail"
+:title="$t(showEditDetail ? 'label.edit.setting' : 'label.vnf.detail.add')"
+:closable="!updateBusy"
+:keyboard="!updateBusy"
+:focus-trigger-after-close="false"
+destroy-on-close
+:after-close="afterDetailClose"
+@cancel="closeVnfDetail">
+      <dl class="vnf-context"><dt>{{ $t('label.template') }}</dt><dd>{{ resource.name }}<br>{{ resource.id }}</dd></dl>
+      <a-form layout="vertical" @keydown.ctrl.enter.stop.prevent="saveVnfDetail">
+        <a-form-item :label="$t('label.name')" html-for="vnf-detail-key" required><a-select id="vnf-detail-key" v-model:value="detailDraft.key" :options="detailKeys" show-search :disabled="showEditDetail || updateBusy" @change="onDetailKeyChange" /></a-form-item>
+        <a-form-item v-if="detailSecret && showEditDetail" :label="$t('label.vnf.secret.action')"><a-switch :aria-label="$t('label.vnf.secret.replace')" v-model:checked="detailDraft.replaceSecret" :disabled="updateBusy" /> {{ $t(detailDraft.replaceSecret ? 'label.vnf.secret.replace' : 'label.vnf.secret.unchanged') }}</a-form-item>
+        <a-form-item :label="$t('label.value')" html-for="vnf-detail-value" :required="!detailSecret || !showEditDetail || detailDraft.replaceSecret">
+          <a-select v-if="detailDraft.key === 'access_methods'" id="vnf-detail-value" v-model:value="detailDraft.values" :options="detailMethodOptions" mode="multiple" :disabled="updateBusy" />
+          <a-input v-else-if="detailSecret" id="vnf-detail-value" type="password" autocomplete="new-password" v-model:value="detailDraft.value" :disabled="updateBusy || (showEditDetail && !detailDraft.replaceSecret)" :placeholder="$t('label.vnf.secret.new')" />
+          <a-input v-else id="vnf-detail-value" v-model:value="detailDraft.value" :disabled="updateBusy" />
+        </a-form-item>
+        <a-alert v-if="detailError" type="error" show-icon role="alert" :message="detailError" />
+        <MoldDialogActions :busy="updateBusy"><a-button @click="closeVnfDetail">{{ $t('label.cancel') }}</a-button><a-button type="primary" :loading="updateBusy" :disabled="!canWrite || !optionsReady" @click="saveVnfDetail">{{ $t('label.ok') }}</a-button></MoldDialogActions>
+      </a-form>
+    </MoldDialog>
   </div>
 </template>
 
 <script>
-import { ref, reactive } from 'vue'
 import { getAPI, postAPI } from '@/api'
-import Status from '@/components/widgets/Status'
 import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
-
+import { VNF_DETAIL_KEYS, isVnfSecret, normalizeVnfKey, vnfWriteAllowed, vnfDetailError, vnfNicError } from '@/utils/templateVnfSettings'
+const cloneNics = rows => (rows || []).map(n => ({ ...n }))
 export default {
   name: 'TemplateVnfSettings',
-  components: {
-    MoldDialog,
-    TooltipButton,
-    TooltipLabel,
-    Status
-  },
-  props: {
-    resource: {
-      type: Object,
-      required: true
-    },
-    loading: {
-      type: Boolean,
-      default: false
-    }
-  },
+  components: { MoldDialog, MoldDialogActions, TooltipButton, TooltipLabel },
+  props: { resource: { type: Object, required: true }, loading: { type: Boolean, default: false } },
   data () {
-    return {
-      updateBusy: false,
-      updateSequence: 0,
-      nicError: '',
-      resourceType: 'VnfTemplate',
-      vnfDetailOptions: {},
-      columns: [],
-      vnfNics: [],
-      previousVnfNics: [],
-      showAddVnfNic: false,
-      showEditVnfNic: false,
-      nicDraft: { deviceid: null, name: '', required: true, management: false, description: '' },
-      vnfDetails: [],
-      previousVnfDetails: [],
-      showAddVnfDetail: false,
-      newKey: '',
-      newValue: '',
-      newValues: [],
-      error: false
-    }
+    return { updateBusy: false, updateSequence: 0, optionsSequence: 0, optionsLoading: false, optionsReady: false, optionsError: false, vnfDetailOptions: {}, columns: [], vnfNics: [], vnfDetails: [], previousVnfNics: [], previousVnfDetails: [], showAddVnfNic: false, showEditVnfNic: false, nicDraft: {}, nicError: '', saveError: '', showAddVnfDetail: false, showEditDetail: false, detailDraft: { key: '', value: '', values: [], replaceSecret: false }, detailError: '' }
   },
-  beforeCreate () {
-    this.apiParams = this.$getApiParams('updateVnfTemplate')
-  },
+  beforeCreate () { this.apiParams = this.$getApiParams('updateVnfTemplate') || {} },
   computed: {
+    canWrite () { return vnfWriteAllowed(this.resource, this.$store.getters.userInfo, this.$store.getters.project, this.$store.getters.apis) },
+    editorOpen () { return this.showAddVnfNic || this.showEditVnfNic || this.showAddVnfDetail || this.showEditDetail },
+    detailSecret () { return isVnfSecret(this.detailDraft.key) },
+    detailKeys () { return Object.keys(this.vnfDetailOptions).sort().filter(k => !this.vnfDetails.some(d => normalizeVnfKey(d.name) === k) || (this.showEditDetail && this.detailDraft.key === k)).map(value => ({ value })) },
+    detailMethodOptions () { return (this.vnfDetailOptions.access_methods || []).map(value => ({ value })) },
     nicScope () {
-      const { project, userInfo } = this.$store.getters
-      return JSON.stringify([this.resource.id, project?.id, userInfo?.id, userInfo?.roleid,
-        this.$store.state?.user?.token, this.$route?.fullPath])
-    },
-    detailKeys () {
-      return Object.keys(this.vnfDetailOptions).map(key => {
-        return { value: key }
-      })
-    },
-    detailValues () {
-      if (!this.newKey) {
-        return []
-      }
-      if (!Array.isArray(this.vnfDetailOptions[this.newKey])) {
-        if (this.vnfDetailOptions[this.newKey]) {
-          return { value: this.vnfDetailOptions[this.newKey] }
-        } else {
-          return ''
-        }
-      }
-      return this.vnfDetailOptions[this.newKey].map(value => {
-        return { value: value }
-      })
+      const { userInfo: u = {}, project: p = {}, apis = {} } = this.$store.getters
+      const r = this.resource
+      return JSON.stringify([r.id, r.templatetype, r.account, r.domainid, r.domainpath, r.projectid, p.id, u.id, u.roletype, u.roleid, u.account, u.domainid, u.domainpath, this.$store.state?.user?.token, this.$route?.fullPath, Object.keys(apis).filter(k => ['updateVnfTemplate', 'listDetailOptions'].includes(k)).sort()])
     }
   },
   created () {
-    this.columns = [
-      {
-        title: this.$t('label.deviceid'),
-        dataIndex: 'deviceid',
-        slots: { customRender: 'deviceid' }
-      },
-      {
-        title: this.$t('label.name'),
-        dataIndex: 'name'
-      },
-      {
-        title: this.$t('label.required'),
-        dataIndex: 'required',
-        slots: { customRender: 'required' }
-      },
-      {
-        title: this.$t('label.vnf.nic.management'),
-        dataIndex: 'management',
-        slots: { customRender: 'management' }
-      },
-      {
-        title: this.$t('label.description'),
-        dataIndex: 'description',
-        slots: { customRender: 'description' }
-      },
-      {
-        title: this.$t('label.action'),
-        slots: { customRender: 'actions' }
-      }
-    ]
-    this.columns.push({
-      title: '',
-      dataIndex: 'action',
-      width: 100,
-      slots: { customRender: 'action' }
-    })
-
-    const userInfo = this.$store.getters.userInfo
-    if (!['Admin'].includes(userInfo.roletype) &&
-      (userInfo.account !== this.resource.account || userInfo.domain !== this.resource.domain)) {
-      this.columns = this.columns.filter(col => { return col.dataIndex !== 'status' })
-    }
-    this.initForm()
-    this.fetchData()
+    this.columns = ['deviceid', 'name', 'required', 'management', 'description', 'actions'].map(key => ({ key, dataIndex: key, title: this.$t({ deviceid: 'label.deviceid', name: 'label.name', required: 'label.required', management: 'label.vnf.nic.management', description: 'label.description', actions: 'label.action' }[key]), ...(['required', 'management', 'actions'].includes(key) ? { slots: { customRender: key } } : {}), ...(key === 'actions' ? { width: 165 } : {}) }))
+    this.initForm(); this.loadOptions()
   },
-  beforeUnmount () {
-    this.updateSequence++
-    this.nicTrigger = null
-  },
+  beforeUnmount () { this.invalidate() },
+  deactivated () { this.invalidate() },
+  activated () { this.initForm(); this.loadOptions() },
   watch: {
-    nicScope () {
-      this.updateSequence++
-      this.updateBusy = false
-      this.showAddVnfNic = this.showEditVnfNic = false
-      this.nicTrigger = null
-      this.resetNicDraft()
-      this.initForm()
-      this.fetchData()
-    },
-    loading (newData, oldData) {
-      if (!newData && !this.showGroupActionModal) {
-        this.fetchData()
-      }
-    }
+    nicScope () { this.invalidate(); this.initForm(); this.loadOptions() },
+    loading (value) { if (!value && !this.updateBusy && !this.editorOpen) this.initForm() },
+    canWrite (value) { if (!value) this.invalidate() }
   },
   methods: {
+    isAdminOrOwner () { return this.canWrite },
     initForm () {
-      this.formRef = ref()
-      this.form = reactive({})
-      this.rules = reactive({
-        zoneid: [{ type: 'array', required: true, message: this.$t('message.error.select') }]
-      })
-      this.previousVnfNics = this.resource.vnfnics?.slice() || []
-      this.previousVnfDetails = []
-      if (this.resource.vnfdetails) {
-        this.previousVnfDetails = Object.keys(this.resource.vnfdetails).map(k => {
-          return {
-            name: k,
-            value: this.resource.vnfdetails[k],
-            displayvalue: this.getDisplayValue(k, this.resource.vnfdetails[k]),
-            values: k === 'access_methods' ? this.resource.vnfdetails[k].split(',') : null,
-            edit: false
-          }
-        })
-      }
-      getAPI('listDetailOptions', { resourcetype: this.resourceType }).then(json => {
-        this.vnfDetailOptionsInApi = json.listdetailoptionsresponse.detailoptions.details
-        this.vnfDetailOptions = {}
-        Object.keys(this.vnfDetailOptionsInApi).sort().forEach(k => {
-          this.vnfDetailOptions[k] = this.vnfDetailOptionsInApi[k]
-        })
-      })
+      if (this.updateBusy || this.editorOpen) return
+      this.vnfNics = cloneNics(this.resource.vnfnics).sort((a, b) => a.deviceid - b.deviceid)
+      this.vnfDetails = Object.entries(this.resource.vnfdetails || {}).map(([name, value]) => ({ name: normalizeVnfKey(name), value }))
+      this.previousVnfNics = cloneNics(this.vnfNics); this.previousVnfDetails = this.vnfDetails.map(d => ({ ...d }))
     },
-    fetchData () {
-      this.vnfNics = this.previousVnfNics.slice() || []
-      this.vnfDetails = this.previousVnfDetails.slice() || []
+    fetchData () { this.vnfNics = cloneNics(this.previousVnfNics); this.vnfDetails = this.previousVnfDetails.map(d => ({ ...d })) },
+    invalidate () {
+      this.updateSequence++; this.optionsSequence++; this.updateBusy = false; this.optionsLoading = false; this.optionsReady = false
+      this.showAddVnfNic = this.showEditVnfNic = this.showAddVnfDetail = this.showEditDetail = false
+      this.nicTrigger = this.detailTrigger = null; this.resetNicDraft(); this.resetDetailDraft(); this.saveError = ''
     },
-    isAdminOrOwner () {
-      return ['Admin'].includes(this.$store.getters.userInfo.roletype) ||
-        (this.resource.domainid === this.$store.getters.userInfo.domainid && this.resource.account === this.$store.getters.userInfo.account) ||
-        this.resource.project && this.resource.projectid === this.$store.getters.project.id
+    async loadOptions () {
+      const scope = this.nicScope; const sequence = ++this.optionsSequence; this.optionsReady = false; this.optionsError = false; this.optionsLoading = true
+      try {
+        if (!('listDetailOptions' in this.$store.getters.apis)) throw new Error('unavailable')
+        const json = await getAPI('listDetailOptions', { resourcetype: 'VnfTemplate' }, { preserveOnFailure: true, timeout: 15000 })
+        if (scope !== this.nicScope || sequence !== this.optionsSequence) return
+        const options = json.listdetailoptionsresponse?.detailoptions?.details
+        if (!options || typeof options !== 'object' || Array.isArray(options)) throw new Error('invalid options')
+        this.vnfDetailOptions = Object.fromEntries(Object.entries(options).map(([k, v]) => [normalizeVnfKey(k), v]).filter(([k, v]) => VNF_DETAIL_KEYS.includes(k) && Array.isArray(v)))
+        if (!Object.keys(this.vnfDetailOptions).length) throw new Error('empty options')
+        this.optionsReady = true
+      } catch (e) { if (scope === this.nicScope && sequence === this.optionsSequence) { this.vnfDetailOptions = {}; this.optionsError = true } } finally { if (scope === this.nicScope && sequence === this.optionsSequence) this.optionsLoading = false }
     },
-    resetNicDraft () {
-      this.nicDraft = { deviceid: null, name: '', required: true, management: false, description: '' }
-      this.nicError = ''
-    },
+    resetNicDraft () { this.nicDraft = { deviceid: null, name: '', required: true, management: false, description: '' }; this.nicError = '' },
     onShowAddVnfNic (event) {
-      if (this.updateBusy || this.showAddVnfNic || this.showEditVnfNic) return
-      this.resetNicDraft()
-      this.nicTrigger = event?.currentTarget
-      this.showAddVnfNic = true
+      if (!this.canWrite || this.updateBusy || this.editorOpen) return
+      this.resetNicDraft(); this.nicDraft.deviceid = this.vnfNics.length; this.nicDraft.required = this.vnfNics.every(n => n.required); this.nicTrigger = event?.currentTarget || document.activeElement; this.showAddVnfNic = true
     },
-    submitVnfNic () {
-      return this.showEditVnfNic ? this.editVnfNic() : this.addVnfNic()
-    },
-    filterOption (input, option) {
-      return (
-        option.value.toUpperCase().indexOf(input.toUpperCase()) >= 0
-      )
+    onShowEditVnfNic (record, event) {
+      if (!this.canWrite || this.updateBusy || this.editorOpen) return
+      this.nicDraft = { ...record }; this.nicError = ''; this.nicTrigger = event?.currentTarget || document.activeElement; this.showEditVnfNic = true
     },
     validNicDraft () {
       const id = Number(this.nicDraft.deviceid)
-      const valid = this.nicDraft.deviceid !== null && String(this.nicDraft.deviceid).trim() !== '' &&
-        Number.isInteger(id) && id >= 0 && this.nicDraft.name?.trim() &&
-        (this.showEditVnfNic || !this.vnfNics.some(n => Number(n.deviceid) === id))
-      this.nicError = valid ? '' : this.$t('message.please.enter.valid.value')
-      return valid
+      const error = this.nicDraft.deviceid === null || String(this.nicDraft.deviceid).trim() === '' || !Number.isInteger(id) || id < 0 || (!this.showEditVnfNic && this.vnfNics.some(n => Number(n.deviceid) === id)) ? 'message.vnf.nic.ids.invalid' : !this.nicDraft.name?.trim() ? 'message.vnf.nic.name.required' : ''
+      this.nicError = error ? this.$t(error) : ''; return !error
     },
+    submitVnfNic () { return this.showEditVnfNic ? this.editVnfNic() : this.addVnfNic() },
     addVnfNic () {
       if (!this.showAddVnfNic || this.updateBusy || !this.validNicDraft()) return
       return this.updateVnfTemplateNics([...this.vnfNics, { ...this.nicDraft, deviceid: Number(this.nicDraft.deviceid), name: this.nicDraft.name.trim() }])
     },
-    deleteVnfNic (record) {
-      if (this.updateBusy) return
-      return this.updateVnfTemplateNics(this.vnfNics.filter(n => n.deviceid !== record.deviceid))
-    },
-    onShowEditVnfNic (record, event) {
-      if (this.updateBusy || this.showAddVnfNic || this.showEditVnfNic) return
-      this.nicError = ''
-      this.nicDraft = { ...record }
-      this.nicTrigger = event?.currentTarget
-      this.showEditVnfNic = true
-    },
-    getEditDetailOptions (values) {
-      if (!values) {
-        return
-      }
-      var data = values.map(value => { return { value: value } })
-      return data
-    },
     editVnfNic () {
       if (!this.showEditVnfNic || this.updateBusy || !this.validNicDraft()) return
       const draft = { ...this.nicDraft, name: this.nicDraft.name.trim() }
-      return this.updateVnfTemplateNics(this.vnfNics.map(n => n.deviceid === draft.deviceid ? draft : { ...n }))
+      return this.updateVnfTemplateNics(this.vnfNics.map(n => Number(n.deviceid) === Number(draft.deviceid) ? draft : { ...n }))
     },
+    deleteVnfNic (record) {
+      if (this.updateBusy || this.editorOpen) return
+      return this.updateVnfTemplateNics(this.vnfNics.filter(n => n.deviceid !== record.deviceid).map((n, deviceid) => ({ ...n, deviceid })))
+    },
+    canMove (record, direction) { return this.vnfNics.some(n => Number(n.deviceid) === Number(record.deviceid) + direction) },
     moveVnfNicUp (record) { return this.moveVnfNic(record, -1) },
     moveVnfNicDown (record) { return this.moveVnfNic(record, 1) },
     moveVnfNic (record, direction) {
-      if (this.updateBusy) return
-      const rows = this.vnfNics.map(n => ({ ...n }))
-      const current = rows.find(n => n.deviceid === record.deviceid)
-      const other = rows.find(n => n.deviceid === record.deviceid + direction)
-      if (!current || !other) {
-        this.$notification.error({ message: this.$t('message.request.failed'), description: this.$t(direction < 0 ? 'message.vnf.nic.move.up.fail' : 'message.vnf.nic.move.down.fail') })
-        return
-      }
-      const required = current.required
-      current.deviceid += direction
-      other.deviceid -= direction
-      current.required = other.required
-      other.required = required
-      return this.updateVnfTemplateNics(rows)
-    },
-    updateVnfTemplateDetails () {
-      this.updateVnfTemplate(true, false)
+      if (this.updateBusy || this.editorOpen || !this.canMove(record, direction)) return
+      const rows = cloneNics(this.vnfNics); const current = rows.find(n => n.deviceid === record.deviceid); const other = rows.find(n => n.deviceid === record.deviceid + direction)
+      if (!current || !other) return
+      const required = current.required; current.deviceid += direction; other.deviceid -= direction; current.required = other.required; other.required = required
+      return this.updateVnfTemplateNics(rows.sort((a, b) => a.deviceid - b.deviceid))
     },
     updateVnfTemplateNics (nics = this.vnfNics) {
+      const error = vnfNicError(nics); this.nicError = error ? this.$t(error) : ''; this.saveError = this.nicError
+      if (error) return
       return this.updateVnfTemplate(false, true, nics)
     },
-    updateVnfTemplate (areDetailsChanged, areNicsChanged, nics = this.vnfNics) {
-      if (this.updateBusy) return
-      const scope = this.nicScope
-      const sequence = ++this.updateSequence
-      const current = () => this.nicScope === scope && sequence === this.updateSequence
-      const apiName = 'updateVnfTemplate'
-      if (!(apiName in this.$store.getters.apis) || !this.isAdminOrOwner()) {
-        this.$notification.error({
-          message: this.$t('error.execute.api.failed') + ' ' + apiName,
-          description: this.$t('message.user.not.permitted.api')
-        })
-        return
-      }
-
+    resetDetailDraft () { this.detailDraft = { key: '', value: '', values: [], replaceSecret: false }; this.detailError = '' },
+    onShowAddVnfDetail (event) {
+      if (!this.canWrite || this.updateBusy || this.editorOpen || !this.optionsReady) return
+      this.resetDetailDraft(); this.detailTrigger = event?.currentTarget || document.activeElement; this.showAddVnfDetail = true
+    },
+    onDetailKeyChange () { this.detailDraft.value = ''; this.detailDraft.values = []; this.detailDraft.replaceSecret = false; this.detailError = '' },
+    showEditVnfDetail (key, event) {
+      if (!this.canWrite || this.updateBusy || this.editorOpen || !this.optionsReady) return
+      const item = typeof key === 'number' ? this.vnfDetails[key] : this.vnfDetails.find(d => d.name === key)
+      if (!item) return
+      this.resetDetailDraft(); this.detailDraft.key = item.name; this.detailDraft.value = isVnfSecret(item.name) ? '' : item.value; this.detailDraft.values = item.name === 'access_methods' ? item.value.split(',') : []; this.detailTrigger = event?.currentTarget || document.activeElement; this.showEditDetail = true
+    },
+    saveVnfDetail () {
+      if (!this.canWrite || this.updateBusy || !this.optionsReady || !(this.showAddVnfDetail || this.showEditDetail)) return
+      const key = normalizeVnfKey(this.detailDraft.key); const existing = this.vnfDetails.find(d => d.name === key)
+      if (this.showEditDetail && isVnfSecret(key) && !this.detailDraft.replaceSecret) { this.closeVnfDetail(); return }
+      const value = key === 'access_methods' ? this.detailDraft.values.map(v => v.toLowerCase()).join(',') : this.detailDraft.value
+      const error = !this.showEditDetail && existing ? 'message.vnf.detail.duplicate' : vnfDetailError(key, value, this.vnfDetailOptions)
+      this.detailError = error ? this.$t(error) : ''; if (error) return
+      const details = this.vnfDetails.filter(d => d.name !== key).map(d => ({ ...d })); details.push({ name: key, value })
+      return this.updateVnfTemplate(true, false, this.vnfNics, details)
+    },
+    addVnfDetail () { return this.saveVnfDetail() },
+    updateVnfDetail () { return this.saveVnfDetail() },
+    deleteVnfDetail (key) {
+      if (this.updateBusy || this.editorOpen) return
+      const item = typeof key === 'number' ? this.vnfDetails[key] : this.vnfDetails.find(d => d.name === key)
+      if (item) return this.updateVnfTemplate(true, false, this.vnfNics, this.vnfDetails.filter(d => d !== item).map(d => ({ ...d })))
+    },
+    async updateVnfTemplate (detailsChanged, nicsChanged, nics = this.vnfNics, details = this.vnfDetails) {
+      if (this.updateBusy || !this.canWrite) return false
+      const scope = this.nicScope; const sequence = ++this.updateSequence; const current = () => scope === this.nicScope && sequence === this.updateSequence
       const params = { id: this.resource.id }
-      if (areDetailsChanged) {
-        if (this.vnfDetails.length === 0) {
-          params.cleanupvnfdetails = true
-        } else {
-          this.vnfDetails.forEach(function (item, index) {
-            params['vnfdetails[0].' + item.name] = item.value
-          })
-        }
+      if (detailsChanged) {
+        if (!details.length) params.cleanupvnfdetails = true
+        // The server replaces the entire map; retain unchanged secret values only in memory.
+        for (const d of details) params['vnfdetails[0].' + d.name] = d.value
       }
-
-      if (areNicsChanged) {
-        let i = 0
-        if (nics.length === 0) {
-          params.cleanupvnfnics = true
-        }
-        for (var index = 0; index < nics.length; index++) {
-          var nic = nics[index]
-          params['vnfnics[' + i + '].deviceid'] = nic.deviceid
-          params['vnfnics[' + i + '].name'] = nic.name
-          params['vnfnics[' + i + '].required'] = nic.required
-          params['vnfnics[' + i + '].management'] = nic.management
-          params['vnfnics[' + i + '].description'] = nic.description
-          i++
-        }
+      if (nicsChanged) {
+        if (!nics.length) params.cleanupvnfnics = true
+        nics.forEach((nic, i) => ['deviceid', 'name', 'required', 'management', 'description'].forEach(key => { params['vnfnics[' + i + '].' + key] = nic[key] }))
       }
-
-      this.updateBusy = true
-      return postAPI(apiName, params).then(json => {
-        if (!current()) return
-
-        this.vnfNics = json.updatetemplateresponse.template.vnfnics || []
-        const details = json.updatetemplateresponse.template.vnfdetails || []
-        this.vnfDetails = Object.keys(details).map(k => {
-          return {
-            name: k,
-            value: details[k],
-            displayvalue: this.getDisplayValue(k, details[k]),
-            values: k === 'access_methods' ? details[k].split(',') : null,
-            edit: false
-          }
-        })
-        this.previousVnfNics = this.vnfNics.slice()
-        this.previousVnfDetails = this.vnfDetails.slice()
-        this.closeVnfDetail()
-        this.closeVnfNicModal(true)
-        return true
-      }).catch(error => {
-        if (!current()) return
-        this.nicError = this.$t('message.request.failed')
-        this.$notifyError(error)
-        this.fetchData()
+      this.updateBusy = true; this.saveError = ''; this.nicError = ''; this.detailError = ''
+      try {
+        const json = await postAPI('updateVnfTemplate', params, { preserveOnFailure: true, timeout: 30000 })
+        if (!current()) return false
+        const template = json.updatetemplateresponse?.template
+        if (!template || (template.id && template.id !== this.resource.id)) throw new Error('invalid response')
+        this.vnfNics = cloneNics(template.vnfnics).sort((a, b) => a.deviceid - b.deviceid)
+        this.vnfDetails = Object.entries(template.vnfdetails || {}).map(([name, value]) => ({ name: normalizeVnfKey(name), value }))
+        this.previousVnfNics = cloneNics(this.vnfNics); this.previousVnfDetails = this.vnfDetails.map(d => ({ ...d }))
+        this.closeVnfDetail(true); this.closeVnfNicModal(true); this.$emit('refresh'); return true
+      } catch (e) {
+        if (current()) { const message = this.$t('message.vnf.save.failed'); this.saveError = message; if (detailsChanged) this.detailError = message; if (nicsChanged) this.nicError = message }
         return false
-      }).finally(() => {
-        if (current()) this.updateBusy = false
-      })
+      } finally { if (current()) this.updateBusy = false }
     },
-    getDisplayValue (name, value) {
-      return name.includes('password') ? '********' : value
-    },
-    showEditVnfDetail (index) {
-      this.vnfDetails[index].edit = true
-      this.vnfDetails[index].originalValue = this.vnfDetails[index].value
-    },
-    hideEditVnfDetail (index) {
-      this.vnfDetails[index].edit = false
-      this.vnfDetails[index].value = this.vnfDetails[index].originalValue
-    },
-    handleInputChange (val, index) {
-      this.vnfDetails[index].value = val
-    },
-    updateVnfDetail (index) {
-      if (Array.isArray(this.vnfDetails[index].values) && this.vnfDetails[index].values.length > 0) {
-        this.vnfDetails[index].value = this.vnfDetails[index].values.join(',')
-      } else {
-        this.vnfDetails[index].value = this.vnfDetails[index].displayvalue
-      }
-      this.vnfDetails[index].displayvalue = this.getDisplayValue(this.vnfDetails[index].name, this.vnfDetails[index].value)
-      this.updateVnfTemplateDetails()
-    },
-    onShowAddVnfDetail () {
-      this.showAddVnfDetail = true
-      setTimeout(() => {
-        this.$refs.keyElm.focus()
-      })
-    },
-    addVnfDetail () {
-      if (this.newKey === '' || (this.newValue === '' && this.newValues.length === 0)) {
-        this.error = this.$t('message.error.provide.setting')
-        return
-      }
-      this.error = false
-      this.newValueString = ''
-      if (this.newValues.length > 0) {
-        this.newValueString = this.newValues.join(',')
-      } else {
-        this.newValueString = this.newValue
-      }
-      this.vnfDetails.push({ name: this.newKey, value: this.newValueString })
-      this.updateVnfTemplateDetails()
-    },
-    deleteVnfDetail (index) {
-      this.vnfDetails.splice(index, 1)
-      this.updateVnfTemplateDetails()
-    },
-    closeVnfDetail () {
-      this.newKey = ''
-      this.newValue = ''
-      this.newValues = []
-      this.error = false
-      this.showAddVnfDetail = false
-    },
-    closeVnfNicModal (completed = false) {
-      if (this.updateBusy && completed !== true) return
-      this.showAddVnfNic = false
-      this.showEditVnfNic = false
-    },
-    afterVnfNicClose () {
-      if (this.showAddVnfNic || this.showEditVnfNic) return
-      this.resetNicDraft()
-      if (this.nicTrigger?.isConnected) this.nicTrigger.focus({ preventScroll: true })
-      this.nicTrigger = null
-    }
+    getDisplayValue (key, value) { return isVnfSecret(key) ? '********' : value },
+    closeVnfDetail (completed = false) { if (this.updateBusy && completed !== true) return; this.showAddVnfDetail = this.showEditDetail = false; this.resetDetailDraft() },
+    afterDetailClose () { if (this.showAddVnfDetail || this.showEditDetail) return; this.resetDetailDraft(); if (this.detailTrigger?.isConnected) this.detailTrigger.focus({ preventScroll: true }); this.detailTrigger = null },
+    closeVnfNicModal (completed = false) { if (this.updateBusy && completed !== true) return; this.showAddVnfNic = this.showEditVnfNic = false },
+    afterVnfNicClose () { if (this.showAddVnfNic || this.showEditVnfNic) return; this.resetNicDraft(); if (this.nicTrigger?.isConnected) this.nicTrigger.focus({ preventScroll: true }); this.nicTrigger = null }
   }
 }
 </script>
-
 <style lang="less" scoped>
-.row-element {
-  margin-top: 15px;
-  margin-bottom: 15px;
-}
-
-.detail-input {
-  width: calc(calc(100% / 2) - 45px);
-}
-
-.detail-button {
-  width: 30px;
-}
-
-.shift-btns {
-  display: flex;
-}
-
-.shift-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  font-size: 12px;
-
-  &:not(:last-child) {
-    margin-right: 5px;
-  }
-
-  &--rotated {
-    font-size: 10px;
-    transform: rotate(90deg);
-  }
-}
-
-.vnf-nic-context {
-  display: grid;
-  grid-template-columns: minmax(90px, auto) minmax(0, 1fr);
-  gap: 8px 16px;
-  margin: 0 0 24px;
-  dt { font-weight: 600; }
-  dd { margin: 0; overflow-wrap: anywhere; }
-}
-.vnf-nic-fields :deep(.ant-form-item) { margin-bottom: 16px; }
+.vnf-add { width: 100%; margin-bottom: 12px; }
+.vnf-context { display: grid; grid-template-columns: minmax(80px, auto) minmax(0, 1fr); gap: 8px 16px; dt { font-weight: 600; } dd { margin: 0; overflow-wrap: anywhere; } }
+.shift-btns { display: flex; gap: 4px; }
+.vnf-value { overflow-wrap: anywhere; }
+.vnf-settings :deep(.ant-form-item) { margin-bottom: 16px; }
 </style>
