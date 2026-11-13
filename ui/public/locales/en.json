@@ -11506,5 +11506,9 @@
   "message.tags.review.storage.failed": "The end-of-tracking receipt could not be saved. The result remains unknown. Check browser storage and try again.",
   "message.annotation.length.hint": "Enter up to {0} characters. Some emoji count as two or more characters.",
   "label.annotation.length.count": "{0} characters entered / maximum {1}",
-  "message.annotation.length.exceeded": "{0} characters over the limit. Your draft is preserved; shorten it to {1} characters to submit."
+  "message.annotation.length.exceeded": "{0} characters over the limit. Your draft is preserved; shorten it to {1} characters to submit.",
+  "message.template.detail.invalid": "This template address is invalid. Select a template from the list.",
+  "message.template.detail.unavailable": "The template was removed or is not accessible.",
+  "message.template.detail.read.failed": "Unable to read this template. Refresh to try again.",
+  "message.template.detail.back": "Back to templates"
 }

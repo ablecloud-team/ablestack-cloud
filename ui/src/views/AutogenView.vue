@@ -855,7 +855,13 @@
         <template #description><p v-if="isSnapshotReadView && snapshotListError">{{ snapshotListError.startsWith('message.') ? $t(snapshotListError) : snapshotListError }}</p><a-button size="small" :disabled="listRequestPending" @click="fetchData({ irefresh: true })">{{ $t('label.retry') }}</a-button></template>
       </a-alert>
       <div v-if="dataView">
-        <a-spin v-if="isSshKeyPairDetail && !sshKeyPairDetailVisible" :spinning="loading">
+        <a-alert v-if="templateDetailError" type="error" show-icon :message="$t(templateDetailError)">
+          <template #description>
+            <router-link to="/template">{{ $t('message.template.detail.back') }}</router-link>
+            <a-button v-if="templateDetailError === 'message.template.detail.read.failed'" size="small" :disabled="listRequestPending" @click="fetchData({ irefresh: true })">{{ $t('label.refresh') }}</a-button>
+          </template>
+        </a-alert>
+        <a-spin v-else-if="isSshKeyPairDetail && !sshKeyPairDetailVisible" :spinning="loading">
           <a-alert show-icon :type="loading ? 'info' : 'error'" :message="$t('message.ssh.keypair.detail.' + sshKeyPairDetailStatus)">
             <template #action>
               <a-button :disabled="loading" @click="fetchData({ irefresh: true })">{{ $t('label.refresh') }}</a-button>
@@ -868,7 +874,7 @@
           v-if="$route.path.startsWith('/publicip')"
         ></slot>
         <resource-view
-          v-else-if="(!(isSnapshotDetail || isPolicyDetail) || resource.id || loading) && (!isSshKeyPairDetail || sshKeyPairDetailVisible) && ($route.meta?.name !== 'vmgroup' || resource.id || loading)"
+          v-else-if="!templateDetailError && (!(isSnapshotDetail || isPolicyDetail) || resource.id || loading) && (!isSshKeyPairDetail || sshKeyPairDetailVisible) && ($route.meta?.name !== 'vmgroup' || resource.id || loading)"
           :key="isSshKeyPairDetail || isSnapshotDetail || isPolicyDetail ? listScope() : $route.path"
           :readPending="listRequestPending"
           :readFailed="['vpc', 'ilb'].includes($route.meta?.name) && listRefreshError"
@@ -1072,6 +1078,7 @@ export default {
       actionFocusReturn: null,
       showAction: false,
       dataView: false,
+      templateDetailError: '',
       projectView: false,
       hasProjectId: false,
       selectedFilter: '',
@@ -1723,7 +1730,21 @@ export default {
         this.$router.replace({ query })
       })
     },
+    rejectTemplateDetail (message) {
+      this.templateDetailError = message
+      this.items = []; this.resource = {}; this.itemCount = 0; this.listLoadedScope = null
+      this.actions = []; this.listSchemaScope = null
+      this.$emit('change-resource', this.resource)
+    },
     fetchData (params = {}) {
+      const templateDetail = this.$route.meta?.name === 'template' && !!this.$route.params?.id
+      this.templateDetailError = ''
+      if (templateDetail && !this.$isValidUuid(this.$route.params.id)) {
+        this.listRequestVersion++; this.listRequestPending = false; this.listRefreshQueued = false
+        this.dataView = true; this.loading = false
+        this.rejectTemplateDetail('message.template.detail.invalid')
+        return Promise.resolve()
+      }
       const policyRoute = snapshotPolicyListRoute(this.$route) || policyDetailRoute(this.$route)
       // Apply the destination view before URL/permission guards can return early.
       if (policyRoute) this.dataView = !!this.$route.params?.id
@@ -2190,11 +2211,12 @@ export default {
       if (['listVirtualMachines', 'listVirtualMachinesMetrics'].includes(requestApi)) {
         params = sshKeyPairVmParams(params, this.$route.query)
       }
+      const templateQuery = this.$route.meta?.name === 'template'
       const cniQuery = ['cniconfiguration', 'affinitygroup', 'guestnetwork'].includes(this.$route.meta?.name)
       const snapshotDetail = snapshotDetailRoute(this.$route)
       const policyDetail = policyDetailRoute(this.$route)
       if (guestNetworkRoute(this.$route)) { delete params.sortkey; delete params.sortorder }
-      const response = policyDetail ? Promise.resolve().then(() => readPolicyDetail(getAPI, this.$route, this.$store.getters.project, () => version === this.listRequestVersion && scope === this.listScope())) : snapshotDetail ? Promise.resolve().then(() => readSnapshotDetail(getAPI, snapshotDetailParams(this.$route, this.$store.getters.project), this.$store.getters, () => version === this.listRequestVersion && scope === this.listScope())) : vmGroups || sshDetail || cniQuery || this.isObjectStorageUi || storageUiRoute(this.$route) || snapshotListRoute(this.$route) || snapshotPolicyListRoute(this.$route) ? getAPI(requestApi, params, { preserveOnFailure: true, timeout: 20000 }) : callAPI(requestApi, params)
+      const response = policyDetail ? Promise.resolve().then(() => readPolicyDetail(getAPI, this.$route, this.$store.getters.project, () => version === this.listRequestVersion && scope === this.listScope())) : snapshotDetail ? Promise.resolve().then(() => readSnapshotDetail(getAPI, snapshotDetailParams(this.$route, this.$store.getters.project), this.$store.getters, () => version === this.listRequestVersion && scope === this.listScope())) : vmGroups || sshDetail || templateQuery || cniQuery || this.isObjectStorageUi || storageUiRoute(this.$route) || snapshotListRoute(this.$route) || snapshotPolicyListRoute(this.$route) ? getAPI(requestApi, params, { preserveOnFailure: true, timeout: 20000 }) : callAPI(requestApi, params)
       const request = response.then(async json => {
         if (version !== this.listRequestVersion || scope !== this.listScope()) return
         const networkPage = guestNetworkRoute(this.$route) && !this.dataView ? readNetworkPage(json, 'listNetworks', 'network', params) : null
@@ -2260,6 +2282,10 @@ export default {
           if (version !== this.listRequestVersion || scope !== this.listScope()) return
         }
         if (policyDetail) responseItems = responseItems.map(record => ({ ...record, name: (record.volumename || record.volumeid) + ' · ' + this.$t(['label.hourly', 'label.daily', 'label.weekly', 'label.monthly'][Number(record.intervaltype)] || 'label.snapshot.list.unknown') }))
+        if (templateDetail && (!Array.isArray(responseItems) || !responseItems.length || responseItems.some(row => row.id?.toLowerCase() !== params.id?.toLowerCase()))) {
+          this.rejectTemplateDetail('message.template.detail.unavailable')
+          return
+        }
         this.items = responseItems
         if (!this.items || this.items.length === 0) {
           this.items = []
@@ -2319,6 +2345,12 @@ export default {
         }
       }).catch(error => {
         if (version !== this.listRequestVersion || scope !== this.listScope()) return
+        if (templateDetail) {
+          const code = Number(error?.response?.status)
+          this.rejectTemplateDetail([403, 404, 431, 432, 531].includes(code) ? 'message.template.detail.unavailable' : 'message.template.detail.read.failed')
+          if (isAutoScheduled) throw error
+          return
+        }
         if (sshDetail) { this.rejectSshKeyPairDetail(sshKeyPairDetailFailure(error)); return }
         if (cniQuery || this.isObjectStorageUi || storageUiRoute(this.$route) || snapshotListRoute(this.$route) || snapshotDetail || policyDetail || snapshotPolicyListRoute(this.$route)) {
           if (snapshotListRoute(this.$route) || snapshotDetail || policyDetail) this.snapshotListError = Object.values(error?.response?.data || {}).find(value => value?.errortext)?.errortext || (error.message?.startsWith('message.') ? error.message : 'message.snapshot.list.read.failed')

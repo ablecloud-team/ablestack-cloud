@@ -236,7 +236,7 @@
         </span>
       </template>
       <template v-if="column.key === 'templatetype'">
-        <router-link :to="{ path: $route.path + '/' + record.templatetype }">{{ text }}</router-link>
+        <a-tag>{{ text || record.templatetype }}</a-tag>
       </template>
       <template v-if="$route.path.startsWith('/dnsserver') && !['name', 'provider', 'state', 'ispublic'].includes(column.key)">
         <span>{{ text }}</span>
