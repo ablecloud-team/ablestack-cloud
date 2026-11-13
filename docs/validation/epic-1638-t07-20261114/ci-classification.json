@@ -1,0 +1,62 @@
+{
+  "head": "7096f6fc95e223732d1bcabced9a741e76630990",
+  "changedPathsCompared": 11,
+  "licenseRun": "43461499818",
+  "licenseConclusion": "failure",
+  "licenseStatus": "completed",
+  "licenseSummary": [
+    "[INFO] Rat check: Summary over all files. Unapproved: 4077, unknown: 4077, generated: 0, approved: 15439 licenses."
+  ],
+  "touchedLicenseFiles": {
+    "api/src/main/java/org/apache/cloudstack/api/command/admin/template/UpdateVnfTemplateCmdByAdmin.java": [
+      "  AL    api/src/main/java/org/apache/cloudstack/api/command/admin/template/UpdateVnfTemplateCmdByAdmin.java"
+    ],
+    "api/src/main/java/org/apache/cloudstack/api/command/user/template/UpdateVnfTemplateCmd.java": [
+      "  AL    api/src/main/java/org/apache/cloudstack/api/command/user/template/UpdateVnfTemplateCmd.java"
+    ],
+    "api/src/test/java/org/apache/cloudstack/api/command/user/template/UpdateVnfTemplateSensitivityTest.java": [
+      "  AL    api/src/test/java/org/apache/cloudstack/api/command/user/template/UpdateVnfTemplateSensitivityTest.java"
+    ],
+    "server/src/main/java/com/cloud/api/ApiServer.java": [
+      "  AL    server/src/main/java/com/cloud/api/ApiServer.java"
+    ],
+    "server/src/test/java/com/cloud/api/VnfTemplateAuditSecurityTest.java": [
+      "  AL    server/src/test/java/com/cloud/api/VnfTemplateAuditSecurityTest.java"
+    ],
+    "ui/src/components/view/ResourceView.vue": [
+      "  AL    ui/src/components/view/ResourceView.vue"
+    ],
+    "ui/src/utils/templateVnfSettings.js": [
+      "  AL    ui/src/utils/templateVnfSettings.js"
+    ],
+    "ui/src/views/image/TemplateVnfSettings.vue": [
+      "  AL    ui/src/views/image/TemplateVnfSettings.vue"
+    ],
+    "ui/tests/unit/views/image/TemplateVnfSettings.spec.js": [
+      "  AL    ui/tests/unit/views/image/TemplateVnfSettings.spec.js"
+    ]
+  },
+  "lintRun": "43461499709",
+  "lintConclusion": "failure",
+  "lintStatus": "completed",
+  "lintIdentityInventoryExcluded": true,
+  "lintFailedHooks": [
+    "run oxipng...............................................................Failed",
+    "add license for all Markdown files.......................................Failed",
+    "add license for all properties files.....................................Failed",
+    "add license for all Shell files..........................................Failed",
+    "add license for all SQL files............................................Failed",
+    "add license for all Vue files............................................Failed",
+    "add license for all YAML files...........................................Failed",
+    "check that scripts with shebangs are executable..........................Failed",
+    "check for broken symlinks................................................Failed",
+    "fix end of files.........................................................Failed",
+    "fix utf-8 byte order marker..............................................Failed",
+    "mixed line ending........................................................Failed",
+    "trim trailing whitespace.................................................Failed",
+    "run codespell............................................................Failed",
+    "flake8...................................................................Failed",
+    "run markdownlint.........................................................Failed"
+  ],
+  "lintTouchedFindings": {}
+}

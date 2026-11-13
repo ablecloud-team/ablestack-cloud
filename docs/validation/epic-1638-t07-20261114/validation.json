@@ -1,0 +1,126 @@
+{
+  "frontendHead": "7096f6fc95e223732d1bcabced9a741e76630990",
+  "backendHead": "3de46e65491a7b4b24486b896e65afd2d52d0bae",
+  "uiTests": {
+    "suites": 25,
+    "tests": 408,
+    "passed": true
+  },
+  "runtimeInputTests": {
+    "suites": 3,
+    "tests": 100,
+    "passed": true
+  },
+  "backendContracts": {
+    "tests": 6,
+    "passed": true,
+    "scope": [
+      "UpdateVnfTemplateSensitivityTest (2)",
+      "VnfTemplateAuditSecurityTest (4, extracted real audit method)"
+    ],
+    "compiler": "javac 17 --release 11 -g -proc:none against deployed runtime dependencies",
+    "fullMavenReactorClaimed": false
+  },
+  "scopedEslintPassed": true,
+  "productionBuildPassed": true,
+  "productionBuildSeconds": 676.4,
+  "previousSuccessfulBuildSeconds": 692.2,
+  "realLogin": "Admin",
+  "roleUiFixturesAreServerAclAcceptance": false,
+  "actualVmOrNicDevicesCreated": false,
+  "databaseSchemaChanged": false,
+  "testReceipts": {
+    "tests-final.log": [
+      "PASS tests/unit/views/storage/RuntimeCatalog.spec.js",
+      "PASS tests/unit/components/BulkActionProgress.spec.js",
+      "PASS tests/unit/utils/templateAvailability.spec.js",
+      "PASS tests/unit/views/compute/ImageUserDataDialog.spec.js",
+      "PASS tests/unit/components/widgets/TemplateAvailability.spec.js",
+      "PASS tests/unit/utils/templateSearch.spec.js",
+      "",
+      "Test Suites: 25 passed, 25 total",
+      "Tests:       408 passed, 408 total",
+      "Snapshots:   0 total",
+      "Time:        21.462s",
+      "Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?"
+    ],
+    "runtime-input-tests-final.log": [
+      "Browserslist: caniuse-lite is outdated. Please run:",
+      "  npx update-browserslist-db@latest",
+      "  Why you should do it regularly: https://github.com/browserslist/update-db#readme",
+      "PASS tests/unit/components/view/ResourceView.spec.js",
+      "PASS tests/unit/views/image/TemplateVnfSettings.spec.js",
+      "PASS tests/unit/views/image/TemplateZoneOperations.spec.js",
+      "",
+      "Test Suites: 3 passed, 3 total",
+      "Tests:       100 passed, 100 total",
+      "Snapshots:   0 total",
+      "Time:        14.285s",
+      "Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?"
+    ],
+    "backend-tests-final.log": [
+      "JUnit version 4.13.2",
+      ".....WARNING: sun.reflect.Reflection.getCallerClass is not supported. This will impact performance.",
+      ".",
+      "Time: 0.779",
+      "",
+      "OK (6 tests)",
+      ""
+    ],
+    "eslint-final.log": [
+      "Browserslist: caniuse-lite is outdated. Please run:",
+      "  npx update-browserslist-db@latest",
+      "  Why you should do it regularly: https://github.com/browserslist/update-db#readme",
+      " DONE  No lint errors found!"
+    ],
+    "eslint-corrective.log": [
+      "Browserslist: caniuse-lite is outdated. Please run:",
+      "  npx update-browserslist-db@latest",
+      "  Why you should do it regularly: https://github.com/browserslist/update-db#readme",
+      " DONE  No lint errors found!"
+    ],
+    "owner-eslint.log": [
+      "Browserslist: caniuse-lite is outdated. Please run:",
+      "  npx update-browserslist-db@latest",
+      "  Why you should do it regularly: https://github.com/browserslist/update-db#readme",
+      " DONE  No lint errors found!"
+    ],
+    "alert-eslint.log": [
+      "Browserslist: caniuse-lite is outdated. Please run:",
+      "  npx update-browserslist-db@latest",
+      "  Why you should do it regularly: https://github.com/browserslist/update-db#readme",
+      " DONE  No lint errors found!"
+    ]
+  },
+  "vnfSuiteTests": 48,
+  "realAntDesignRetryControlsTested": true,
+  "productionBuilds": [
+    {
+      "head": "011905e5d6f5fa726570c6cbbe5e53a2741b6d22",
+      "returnCode": 0,
+      "seconds": 692.2,
+      "nodeOptions": "--openssl-legacy-provider --max-old-space-size=6144"
+    },
+    {
+      "head": "0daf69a6f8332689aba61d2ca3223e6e8f617402",
+      "returnCode": 0,
+      "seconds": 722.9,
+      "nodeOptions": "--openssl-legacy-provider --max-old-space-size=6144"
+    },
+    {
+      "head": "e9084917946c515adc9b72a0e7fd841298181d20",
+      "returnCode": 0,
+      "seconds": 668.9,
+      "nodeOptions": "--openssl-legacy-provider --max-old-space-size=6144"
+    },
+    {
+      "head": "7096f6fc95e223732d1bcabced9a741e76630990",
+      "returnCode": 0,
+      "seconds": 676.4,
+      "nodeOptions": "--openssl-legacy-provider --max-old-space-size=6144"
+    }
+  ],
+  "reportMarkdownPassed": true,
+  "jsonParsePassed": true,
+  "sensitiveValueScanPassed": true
+}

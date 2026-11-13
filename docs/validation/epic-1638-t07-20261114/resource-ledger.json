@@ -1,0 +1,32 @@
+{
+  "initialTemplates": 46,
+  "finalTemplates": 46,
+  "templates": [
+    {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "name": "qa-t07-vnf-20261113",
+      "vnfNicDefinitionsCleaned": true,
+      "vnfDetailsCleaned": true,
+      "deletedThroughZoneUi": true,
+      "jobid": "d2902945-53b6-4e61-b4c1-bc9acde993fd",
+      "jobstatus": 1,
+      "forced": false
+    },
+    {
+      "id": "e284c5a0-4bcf-4a04-b382-335763a15db9",
+      "name": "qa-t07-domain-20261114",
+      "vnfNicDefinitionsCleaned": true,
+      "vnfDetailsCleaned": true,
+      "deletedThroughZoneUi": true,
+      "uiSuccess": true,
+      "resultRetained": true,
+      "jobid": "08ed22a7-b71e-4384-9b2a-4cb1b73d7b29",
+      "jobstatus": 1,
+      "success": true,
+      "forced": false
+    }
+  ],
+  "qaSearchRemaining": 0,
+  "httpFixtureCleanup": "removed after exact path and SHA-256 verification, including the final domain round",
+  "operational423SourcePreserved": true
+}

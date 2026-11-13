@@ -1,0 +1,12 @@
+{
+  "org/apache/cloudstack/api/command/user/template/UpdateVnfTemplateCmd": {
+    "baselineByteExact": true,
+    "onlySensitiveAnnotationChanged": true,
+    "sha256": "ad5cb38c2894c42c74575b828fa0769d4a0d19beb9d22bc728b2360dc1f246f4"
+  },
+  "org/apache/cloudstack/api/command/admin/template/UpdateVnfTemplateCmdByAdmin": {
+    "baselineByteExact": true,
+    "onlySensitiveAnnotationChanged": true,
+    "sha256": "ab4b801688cafa2c7da2cb0e76a7308d52b9a03983d310fe99f3970c5bc21965"
+  }
+}

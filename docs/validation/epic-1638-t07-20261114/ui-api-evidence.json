@@ -1,0 +1,5039 @@
+[
+  {
+    "label": "register-qa",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "register-qa",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "register-qa",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "register-qa",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "register-qa",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "register-qa",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "register-qa",
+    "command": "registerTemplate",
+    "params": {
+      "name": "qa-t07-vnf-20261113",
+      "templatetype": "VNF"
+    },
+    "http": 200,
+    "result": {
+      "registertemplateresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": false,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "register-qa",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 47,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "qa-listed",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 47,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "qa-listed",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 47,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "qa-listed",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 47,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "qa-listed",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 47,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "qa-listed",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 47,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "qa-listed",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 47,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "qa-listed",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 47,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "qa-listed",
+    "command": "listTemplates",
+    "params": {
+      "keyword": "qa-t07-vnf-20261113"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "before-settings",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "before-settings",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "before-settings",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "before-settings",
+    "command": "listDetailOptions",
+    "params": {
+      "resourcetype": "VnfTemplate"
+    },
+    "http": 200,
+    "result": {
+      "listdetailoptionsresponse": {
+        "detailoptions": {
+          "details": {
+            "ssh_port": [],
+            "http_path": [],
+            "version": [],
+            "http_port": [],
+            "maintainer": [],
+            "password": "[redacted]",
+            "https_port": [],
+            "access_methods": [
+              "console",
+              "http",
+              "https",
+              "ssh-key",
+              "ssh-password"
+            ],
+            "vendor": [],
+            "web_user": [],
+            "ssh_password": "[redacted]",
+            "web_password": "[redacted]",
+            "username": [],
+            "ssh_user": [],
+            "https_path": []
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "before-unsupported-key",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfdetails[0].qaAudit": "baseline-check"
+    },
+    "http": 431,
+    "result": {
+      "updatetemplateresponse": {
+        "errorcode": 431,
+        "errortext": "Invalid VNF detail found: qaAudit. Valid values are ACCESS_METHODS, USERNAME, PASSWORD, SSH_USER, SSH_PASSWORD, SSH_PORT, WEB_USER, WEB_PASSWORD, HTTP_PATH, HTTP_PORT, HTTPS_PATH, HTTPS_PORT and VERSION, VENDOR, MAINTAINER"
+      }
+    }
+  },
+  {
+    "label": "before-unsupported-key-final",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "before-unsupported-key-final",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "before-version-save",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfdetails[0].version": "1.0"
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfdetails": {
+            "version": "1.0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "baseline-before-restart",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "1.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "baseline-before-restart",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "1.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "baseline-before-restart",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "1.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "baseline-before-restart",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "1.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "baseline-before-restart",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "1.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "baseline-before-restart",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "1.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "baseline-before-restart",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "1.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "baseline-before-restart",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "1.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "baseline-before-restart",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "1.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "baseline-before-restart",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "1.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "baseline-before-restart",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "1.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "baseline-before-restart",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "1.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "baseline-before-restart",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "1.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "baseline-before-restart",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "1.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "detail-delete-last",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "1.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "detail-delete-last",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "1.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "detail-delete-last",
+    "command": "listDetailOptions",
+    "params": {
+      "resourcetype": "VnfTemplate"
+    },
+    "http": 200,
+    "result": {
+      "listdetailoptionsresponse": {
+        "detailoptions": {
+          "details": {
+            "ssh_port": [],
+            "http_path": [],
+            "version": [],
+            "http_port": [],
+            "maintainer": [],
+            "password": [],
+            "https_port": [],
+            "access_methods": [
+              "console",
+              "http",
+              "https",
+              "ssh-key",
+              "ssh-password"
+            ],
+            "vendor": [],
+            "web_user": [],
+            "ssh_password": [],
+            "web_password": [],
+            "username": [],
+            "ssh_user": [],
+            "https_path": []
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "detail-delete-last",
+    "command": "listDetailOptions",
+    "params": {
+      "resourcetype": "VnfTemplate"
+    },
+    "http": 200,
+    "result": {
+      "listdetailoptionsresponse": {
+        "detailoptions": {
+          "details": {
+            "ssh_port": [],
+            "http_path": [],
+            "version": [],
+            "http_port": [],
+            "maintainer": [],
+            "password": [],
+            "https_port": [],
+            "access_methods": [
+              "console",
+              "http",
+              "https",
+              "ssh-key",
+              "ssh-password"
+            ],
+            "vendor": [],
+            "web_user": [],
+            "ssh_password": [],
+            "web_password": [],
+            "username": [],
+            "ssh_user": [],
+            "https_path": []
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "detail-delete-last",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "cleanupvnfdetails": "true"
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363"
+        }
+      }
+    }
+  },
+  {
+    "label": "detail-delete-last",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "detail-delete-last",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "detail-server-rejection",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfdetails[0].version": "1.0"
+    },
+    "http": 431,
+    "result": {
+      "updatetemplateresponse": {
+        "errorcode": 431,
+        "errortext": "Invalid VNF detail found: qaAudit. Valid values are ACCESS_METHODS, USERNAME, PASSWORD, SSH_USER, SSH_PASSWORD, SSH_PORT, WEB_USER, WEB_PASSWORD, HTTP_PATH, HTTP_PORT, HTTPS_PATH, HTTPS_PORT and VERSION, VENDOR, MAINTAINER"
+      }
+    }
+  },
+  {
+    "label": "detail-retry-success",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfdetails[0].version": "1.0"
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfdetails": {
+            "version": "1.0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "detail-retry-success",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "1.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "detail-retry-success",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "1.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "version-edit-success",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "1.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "version-edit-success",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfdetails[0].version": "2.0"
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfdetails": {
+            "version": "2.0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "version-edit-success",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "version-edit-success",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-server-rejection",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-server-rejection",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfnics[0].deviceid": "0",
+      "vnfnics[0].name": "Management",
+      "vnfnics[0].required": "true",
+      "vnfnics[0].management": "true",
+      "vnfnics[0].description": ""
+    },
+    "http": 431,
+    "result": {
+      "updatetemplateresponse": {
+        "errorcode": 431,
+        "errortext": "deviceid must be consecutive and start from 0. Nic deviceid should be 0 but actual is 2."
+      }
+    }
+  },
+  {
+    "label": "nic-retry-success",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfnics[0].deviceid": "0",
+      "vnfnics[0].name": "Management",
+      "vnfnics[0].required": "true",
+      "vnfnics[0].management": "true",
+      "vnfnics[0].description": ""
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfnics": [
+            {
+              "deviceid": 0,
+              "name": "Management",
+              "required": true,
+              "management": true,
+              "description": ""
+            }
+          ],
+          "vnfdetails": {
+            "version": "2.0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "nic-retry-success",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-retry-success",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-invalid--1",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-invalid--1",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-add-optional",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfnics[0].deviceid": "0",
+      "vnfnics[0].name": "Management",
+      "vnfnics[0].required": "true",
+      "vnfnics[0].management": "true",
+      "vnfnics[0].description": "",
+      "vnfnics[1].deviceid": "1",
+      "vnfnics[1].name": "Data",
+      "vnfnics[1].required": "false",
+      "vnfnics[1].management": "false",
+      "vnfnics[1].description": ""
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfnics": [
+            {
+              "deviceid": 0,
+              "name": "Management",
+              "required": true,
+              "management": true,
+              "description": ""
+            },
+            {
+              "deviceid": 1,
+              "name": "Data",
+              "required": false,
+              "management": false,
+              "description": ""
+            }
+          ],
+          "vnfdetails": {
+            "version": "2.0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "nic-add-optional",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Data",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-add-optional",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Data",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-add-third",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfnics[0].deviceid": "0",
+      "vnfnics[0].name": "Management",
+      "vnfnics[0].required": "true",
+      "vnfnics[0].management": "true",
+      "vnfnics[0].description": "",
+      "vnfnics[1].deviceid": "1",
+      "vnfnics[1].name": "Data",
+      "vnfnics[1].required": "false",
+      "vnfnics[1].management": "false",
+      "vnfnics[1].description": "",
+      "vnfnics[2].deviceid": "2",
+      "vnfnics[2].name": "Spare",
+      "vnfnics[2].required": "false",
+      "vnfnics[2].management": "false",
+      "vnfnics[2].description": ""
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfnics": [
+            {
+              "deviceid": 0,
+              "name": "Management",
+              "required": true,
+              "management": true,
+              "description": ""
+            },
+            {
+              "deviceid": 1,
+              "name": "Data",
+              "required": false,
+              "management": false,
+              "description": ""
+            },
+            {
+              "deviceid": 2,
+              "name": "Spare",
+              "required": false,
+              "management": false,
+              "description": ""
+            }
+          ],
+          "vnfdetails": {
+            "version": "2.0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "nic-add-third",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Data",
+                "required": false,
+                "management": false,
+                "description": ""
+              },
+              {
+                "deviceid": 2,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-add-third",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Data",
+                "required": false,
+                "management": false,
+                "description": ""
+              },
+              {
+                "deviceid": 2,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-edit-success",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfnics[0].deviceid": "0",
+      "vnfnics[0].name": "Management",
+      "vnfnics[0].required": "true",
+      "vnfnics[0].management": "true",
+      "vnfnics[0].description": "",
+      "vnfnics[1].deviceid": "1",
+      "vnfnics[1].name": "Data-edited",
+      "vnfnics[1].required": "false",
+      "vnfnics[1].management": "false",
+      "vnfnics[1].description": "NIC 편집 검증",
+      "vnfnics[2].deviceid": "2",
+      "vnfnics[2].name": "Spare",
+      "vnfnics[2].required": "false",
+      "vnfnics[2].management": "false",
+      "vnfnics[2].description": ""
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfnics": [
+            {
+              "deviceid": 0,
+              "name": "Management",
+              "required": true,
+              "management": true,
+              "description": ""
+            },
+            {
+              "deviceid": 1,
+              "name": "Data-edited",
+              "required": false,
+              "management": false,
+              "description": "NIC 편집 검증"
+            },
+            {
+              "deviceid": 2,
+              "name": "Spare",
+              "required": false,
+              "management": false,
+              "description": ""
+            }
+          ],
+          "vnfdetails": {
+            "version": "2.0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "nic-edit-success",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Data-edited",
+                "required": false,
+                "management": false,
+                "description": "NIC 편집 검증"
+              },
+              {
+                "deviceid": 2,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-edit-success",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Data-edited",
+                "required": false,
+                "management": false,
+                "description": "NIC 편집 검증"
+              },
+              {
+                "deviceid": 2,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-move-down",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfnics[0].deviceid": "0",
+      "vnfnics[0].name": "Management",
+      "vnfnics[0].required": "true",
+      "vnfnics[0].management": "true",
+      "vnfnics[0].description": "",
+      "vnfnics[1].deviceid": "1",
+      "vnfnics[1].name": "Spare",
+      "vnfnics[1].required": "false",
+      "vnfnics[1].management": "false",
+      "vnfnics[1].description": "",
+      "vnfnics[2].deviceid": "2",
+      "vnfnics[2].name": "Data-edited",
+      "vnfnics[2].required": "false",
+      "vnfnics[2].management": "false",
+      "vnfnics[2].description": "NIC 편집 검증"
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfnics": [
+            {
+              "deviceid": 0,
+              "name": "Management",
+              "required": true,
+              "management": true,
+              "description": ""
+            },
+            {
+              "deviceid": 1,
+              "name": "Spare",
+              "required": false,
+              "management": false,
+              "description": ""
+            },
+            {
+              "deviceid": 2,
+              "name": "Data-edited",
+              "required": false,
+              "management": false,
+              "description": "NIC 편집 검증"
+            }
+          ],
+          "vnfdetails": {
+            "version": "2.0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "nic-move-down",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              },
+              {
+                "deviceid": 2,
+                "name": "Data-edited",
+                "required": false,
+                "management": false,
+                "description": "NIC 편집 검증"
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-move-down",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              },
+              {
+                "deviceid": 2,
+                "name": "Data-edited",
+                "required": false,
+                "management": false,
+                "description": "NIC 편집 검증"
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-required-order-blocked",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              },
+              {
+                "deviceid": 2,
+                "name": "Data-edited",
+                "required": false,
+                "management": false,
+                "description": "NIC 편집 검증"
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-move-up",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfnics[0].deviceid": "0",
+      "vnfnics[0].name": "Management",
+      "vnfnics[0].required": "true",
+      "vnfnics[0].management": "true",
+      "vnfnics[0].description": "",
+      "vnfnics[1].deviceid": "1",
+      "vnfnics[1].name": "Data-edited",
+      "vnfnics[1].required": "false",
+      "vnfnics[1].management": "false",
+      "vnfnics[1].description": "NIC 편집 검증",
+      "vnfnics[2].deviceid": "2",
+      "vnfnics[2].name": "Spare",
+      "vnfnics[2].required": "false",
+      "vnfnics[2].management": "false",
+      "vnfnics[2].description": ""
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfnics": [
+            {
+              "deviceid": 0,
+              "name": "Management",
+              "required": true,
+              "management": true,
+              "description": ""
+            },
+            {
+              "deviceid": 1,
+              "name": "Data-edited",
+              "required": false,
+              "management": false,
+              "description": "NIC 편집 검증"
+            },
+            {
+              "deviceid": 2,
+              "name": "Spare",
+              "required": false,
+              "management": false,
+              "description": ""
+            }
+          ],
+          "vnfdetails": {
+            "version": "2.0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "nic-move-up",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Data-edited",
+                "required": false,
+                "management": false,
+                "description": "NIC 편집 검증"
+              },
+              {
+                "deviceid": 2,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-move-up",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Data-edited",
+                "required": false,
+                "management": false,
+                "description": "NIC 편집 검증"
+              },
+              {
+                "deviceid": 2,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-delete-observation",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Data-edited",
+                "required": false,
+                "management": false,
+                "description": "NIC 편집 검증"
+              },
+              {
+                "deviceid": 2,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-delete-observation",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Data-edited",
+                "required": false,
+                "management": false,
+                "description": "NIC 편집 검증"
+              },
+              {
+                "deviceid": 2,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-delete-middle-settled",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Data-edited",
+                "required": false,
+                "management": false,
+                "description": "NIC 편집 검증"
+              },
+              {
+                "deviceid": 2,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-delete-middle-settled",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfnics[0].deviceid": "0",
+      "vnfnics[0].name": "Management",
+      "vnfnics[0].required": "true",
+      "vnfnics[0].management": "true",
+      "vnfnics[0].description": "",
+      "vnfnics[1].deviceid": "1",
+      "vnfnics[1].name": "Spare",
+      "vnfnics[1].required": "false",
+      "vnfnics[1].management": "false",
+      "vnfnics[1].description": ""
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfnics": [
+            {
+              "deviceid": 0,
+              "name": "Management",
+              "required": true,
+              "management": true,
+              "description": ""
+            },
+            {
+              "deviceid": 1,
+              "name": "Spare",
+              "required": false,
+              "management": false,
+              "description": ""
+            }
+          ],
+          "vnfdetails": {
+            "version": "2.0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "nic-delete-middle-settled",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-delete-middle-settled",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-middle-delete-proof",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-middle-delete-proof",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-prefix-probe-add",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-prefix-probe-add",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-prefix-probe-add",
+    "command": "listDetailOptions",
+    "params": {
+      "resourcetype": "VnfTemplate"
+    },
+    "http": 200,
+    "result": {
+      "listdetailoptionsresponse": {
+        "detailoptions": {
+          "details": {
+            "ssh_port": [],
+            "http_path": [],
+            "version": [],
+            "http_port": [],
+            "maintainer": [],
+            "password": [],
+            "https_port": [],
+            "access_methods": [
+              "console",
+              "http",
+              "https",
+              "ssh-key",
+              "ssh-password"
+            ],
+            "vendor": [],
+            "web_user": [],
+            "ssh_password": [],
+            "web_password": [],
+            "username": [],
+            "ssh_user": [],
+            "https_path": []
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "nic-prefix-probe-add",
+    "command": "listDetailOptions",
+    "params": {
+      "resourcetype": "VnfTemplate"
+    },
+    "http": 200,
+    "result": {
+      "listdetailoptionsresponse": {
+        "detailoptions": {
+          "details": {
+            "ssh_port": [],
+            "http_path": [],
+            "version": [],
+            "http_port": [],
+            "maintainer": [],
+            "password": [],
+            "https_port": [],
+            "access_methods": [
+              "console",
+              "http",
+              "https",
+              "ssh-key",
+              "ssh-password"
+            ],
+            "vendor": [],
+            "web_user": [],
+            "ssh_password": [],
+            "web_password": [],
+            "username": [],
+            "ssh_user": [],
+            "https_path": []
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "nic-prefix-probe-add",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfnics[0].deviceid": "0",
+      "vnfnics[0].name": "Management",
+      "vnfnics[0].required": "true",
+      "vnfnics[0].management": "true",
+      "vnfnics[0].description": "",
+      "vnfnics[1].deviceid": "1",
+      "vnfnics[1].name": "Spare",
+      "vnfnics[1].required": "false",
+      "vnfnics[1].management": "false",
+      "vnfnics[1].description": "",
+      "vnfnics[2].deviceid": "2",
+      "vnfnics[2].name": "Prefix-probe",
+      "vnfnics[2].required": "false",
+      "vnfnics[2].management": "false",
+      "vnfnics[2].description": ""
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfnics": [
+            {
+              "deviceid": 0,
+              "name": "Management",
+              "required": true,
+              "management": true,
+              "description": ""
+            },
+            {
+              "deviceid": 1,
+              "name": "Spare",
+              "required": false,
+              "management": false,
+              "description": ""
+            },
+            {
+              "deviceid": 2,
+              "name": "Prefix-probe",
+              "required": false,
+              "management": false,
+              "description": ""
+            }
+          ],
+          "vnfdetails": {
+            "version": "2.0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "nic-prefix-probe-add",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              },
+              {
+                "deviceid": 2,
+                "name": "Prefix-probe",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-prefix-probe-add",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              },
+              {
+                "deviceid": 2,
+                "name": "Prefix-probe",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-prefix-probe-delete",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              },
+              {
+                "deviceid": 2,
+                "name": "Prefix-probe",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-prefix-probe-delete",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              },
+              {
+                "deviceid": 2,
+                "name": "Prefix-probe",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-prefix-probe-delete",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              },
+              {
+                "deviceid": 2,
+                "name": "Prefix-probe",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-prefix-probe-delete",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfnics[0].deviceid": "0",
+      "vnfnics[0].name": "Management",
+      "vnfnics[0].required": "true",
+      "vnfnics[0].management": "true",
+      "vnfnics[0].description": "",
+      "vnfnics[1].deviceid": "1",
+      "vnfnics[1].name": "Spare",
+      "vnfnics[1].required": "false",
+      "vnfnics[1].management": "false",
+      "vnfnics[1].description": ""
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfnics": [
+            {
+              "deviceid": 0,
+              "name": "Management",
+              "required": true,
+              "management": true,
+              "description": ""
+            },
+            {
+              "deviceid": 1,
+              "name": "Spare",
+              "required": false,
+              "management": false,
+              "description": ""
+            }
+          ],
+          "vnfdetails": {
+            "version": "2.0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "nic-prefix-probe-delete",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-prefix-probe-delete",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              },
+              {
+                "deviceid": 1,
+                "name": "Spare",
+                "required": false,
+                "management": false,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-delete-single",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfnics[0].deviceid": "0",
+      "vnfnics[0].name": "Management",
+      "vnfnics[0].required": "true",
+      "vnfnics[0].management": "true",
+      "vnfnics[0].description": ""
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfnics": [
+            {
+              "deviceid": 0,
+              "name": "Management",
+              "required": true,
+              "management": true,
+              "description": ""
+            }
+          ],
+          "vnfdetails": {
+            "version": "2.0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "nic-delete-single",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-delete-single",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-delete-last-cleanup",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfnics": [
+              {
+                "deviceid": 0,
+                "name": "Management",
+                "required": true,
+                "management": true,
+                "description": ""
+              }
+            ],
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-delete-last-cleanup",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "cleanupvnfnics": "true"
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfdetails": {
+            "version": "2.0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "nic-delete-last-cleanup",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "nic-delete-last-cleanup",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "secret-add-password",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfdetails[0].version": "2.0",
+      "vnfdetails[0].password": "[redacted]"
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfdetails": {
+            "password": "[redacted]",
+            "version": "2.0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "secret-add-password",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "password": "[redacted]",
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "secret-add-password",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "password": "[redacted]",
+              "version": "2.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "secrets-fresh-ui-reload",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "password": "[redacted]",
+              "ssh_password": "[redacted]",
+              "version": "2.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "secrets-fresh-ui-reload",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "password": "[redacted]",
+              "ssh_password": "[redacted]",
+              "version": "2.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "version-edit-preserves-secrets",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "password": "[redacted]",
+              "ssh_password": "[redacted]",
+              "version": "2.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "version-edit-preserves-secrets",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "password": "[redacted]",
+              "ssh_password": "[redacted]",
+              "version": "2.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "version-edit-preserves-secrets",
+    "command": "listDetailOptions",
+    "params": {
+      "resourcetype": "VnfTemplate"
+    },
+    "http": 200,
+    "result": {
+      "listdetailoptionsresponse": {
+        "detailoptions": {
+          "details": {
+            "ssh_port": [],
+            "http_path": [],
+            "version": [],
+            "http_port": [],
+            "maintainer": [],
+            "password": [],
+            "https_port": [],
+            "access_methods": [
+              "console",
+              "http",
+              "https",
+              "ssh-key",
+              "ssh-password"
+            ],
+            "vendor": [],
+            "web_user": [],
+            "ssh_password": [],
+            "web_password": [],
+            "username": [],
+            "ssh_user": [],
+            "https_path": []
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "version-edit-preserves-secrets",
+    "command": "listDetailOptions",
+    "params": {
+      "resourcetype": "VnfTemplate"
+    },
+    "http": 200,
+    "result": {
+      "listdetailoptionsresponse": {
+        "detailoptions": {
+          "details": {
+            "ssh_port": [],
+            "http_path": [],
+            "version": [],
+            "http_port": [],
+            "maintainer": [],
+            "password": [],
+            "https_port": [],
+            "access_methods": [
+              "console",
+              "http",
+              "https",
+              "ssh-key",
+              "ssh-password"
+            ],
+            "vendor": [],
+            "web_user": [],
+            "ssh_password": [],
+            "web_password": [],
+            "username": [],
+            "ssh_user": [],
+            "https_path": []
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "version-edit-preserves-secrets",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "password": "[redacted]",
+              "ssh_password": "[redacted]",
+              "version": "2.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "version-edit-preserves-secrets",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "password": "[redacted]",
+              "ssh_password": "[redacted]",
+              "version": "2.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "version-edit-preserves-secrets",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfdetails[0].password": "[redacted]",
+      "vnfdetails[0].ssh_password": "[redacted]",
+      "vnfdetails[0].web_password": "[redacted]",
+      "vnfdetails[0].version": "3.0"
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfdetails": {
+            "password": "[redacted]",
+            "ssh_password": "[redacted]",
+            "version": "3.0",
+            "web_password": "[redacted]"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "version-edit-preserves-secrets",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "password": "[redacted]",
+              "ssh_password": "[redacted]",
+              "version": "3.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "version-edit-preserves-secrets",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "password": "[redacted]",
+              "ssh_password": "[redacted]",
+              "version": "3.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "secret-explicit-replacement",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfdetails[0].password": "[redacted]",
+      "vnfdetails[0].version": "3.0",
+      "vnfdetails[0].web_password": "[redacted]",
+      "vnfdetails[0].ssh_password": "[redacted]"
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfdetails": {
+            "password": "[redacted]",
+            "ssh_password": "[redacted]",
+            "version": "3.0",
+            "web_password": "[redacted]"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "secret-explicit-replacement",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "password": "[redacted]",
+              "ssh_password": "[redacted]",
+              "version": "3.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "secret-explicit-replacement",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "password": "[redacted]",
+              "ssh_password": "[redacted]",
+              "version": "3.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "port-valid-save",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfdetails[0].password": "[redacted]",
+      "vnfdetails[0].ssh_password": "[redacted]",
+      "vnfdetails[0].version": "3.0",
+      "vnfdetails[0].web_password": "[redacted]",
+      "vnfdetails[0].ssh_port": "22"
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfdetails": {
+            "password": "[redacted]",
+            "ssh_password": "[redacted]",
+            "ssh_port": "22",
+            "version": "3.0",
+            "web_password": "[redacted]"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "port-valid-save",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "password": "[redacted]",
+              "ssh_password": "[redacted]",
+              "ssh_port": "22",
+              "version": "3.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "port-valid-save",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "password": "[redacted]",
+              "ssh_password": "[redacted]",
+              "ssh_port": "22",
+              "version": "3.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "access-methods-save",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfdetails[0].password": "[redacted]",
+      "vnfdetails[0].ssh_password": "[redacted]",
+      "vnfdetails[0].ssh_port": "22",
+      "vnfdetails[0].version": "3.0",
+      "vnfdetails[0].web_password": "[redacted]",
+      "vnfdetails[0].access_methods": "https,ssh-password"
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfdetails": {
+            "access_methods": "https,ssh-password",
+            "password": "[redacted]",
+            "ssh_password": "[redacted]",
+            "ssh_port": "22",
+            "version": "3.0",
+            "web_password": "[redacted]"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "access-methods-save",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "access_methods": "https,ssh-password",
+              "password": "[redacted]",
+              "ssh_password": "[redacted]",
+              "ssh_port": "22",
+              "version": "3.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "access-methods-save",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "access_methods": "https,ssh-password",
+              "password": "[redacted]",
+              "ssh_password": "[redacted]",
+              "ssh_port": "22",
+              "version": "3.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "secret-delete-observation",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "access_methods": "https,ssh-password",
+              "password": "[redacted]",
+              "ssh_password": "[redacted]",
+              "ssh_port": "22",
+              "version": "3.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "secret-delete-observation",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "access_methods": "https,ssh-password",
+              "password": "[redacted]",
+              "ssh_password": "[redacted]",
+              "ssh_port": "22",
+              "version": "3.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "secret-delete-observation",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "access_methods": "https,ssh-password",
+              "password": "[redacted]",
+              "ssh_password": "[redacted]",
+              "ssh_port": "22",
+              "version": "3.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "secret-delete-password",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfdetails[0].access_methods": "https,ssh-password",
+      "vnfdetails[0].ssh_password": "[redacted]",
+      "vnfdetails[0].ssh_port": "22",
+      "vnfdetails[0].version": "3.0",
+      "vnfdetails[0].web_password": "[redacted]"
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfdetails": {
+            "access_methods": "https,ssh-password",
+            "ssh_password": "[redacted]",
+            "ssh_port": "22",
+            "version": "3.0",
+            "web_password": "[redacted]"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "secret-delete-password",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "access_methods": "https,ssh-password",
+              "ssh_password": "[redacted]",
+              "ssh_port": "22",
+              "version": "3.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "secret-delete-password",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "access_methods": "https,ssh-password",
+              "ssh_password": "[redacted]",
+              "ssh_port": "22",
+              "version": "3.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "secret-delete-ssh-password",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "access_methods": "https,ssh-password",
+              "ssh_password": "[redacted]",
+              "ssh_port": "22",
+              "version": "3.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "secret-delete-ssh-password",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfdetails[0].access_methods": "https,ssh-password",
+      "vnfdetails[0].ssh_port": "22",
+      "vnfdetails[0].version": "3.0",
+      "vnfdetails[0].web_password": "[redacted]"
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfdetails": {
+            "access_methods": "https,ssh-password",
+            "ssh_port": "22",
+            "version": "3.0",
+            "web_password": "[redacted]"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "secret-delete-ssh-password",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "access_methods": "https,ssh-password",
+              "ssh_port": "22",
+              "version": "3.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "secret-delete-ssh-password",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "access_methods": "https,ssh-password",
+              "ssh_port": "22",
+              "version": "3.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "secret-delete-web-password",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "access_methods": "https,ssh-password",
+              "ssh_port": "22",
+              "version": "3.0",
+              "web_password": "[redacted]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "secret-delete-web-password",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfdetails[0].access_methods": "https,ssh-password",
+      "vnfdetails[0].ssh_port": "22",
+      "vnfdetails[0].version": "3.0"
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfdetails": {
+            "access_methods": "https,ssh-password",
+            "ssh_port": "22",
+            "version": "3.0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "secret-delete-web-password",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "access_methods": "https,ssh-password",
+              "ssh_port": "22",
+              "version": "3.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "secret-delete-web-password",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "access_methods": "https,ssh-password",
+              "ssh_port": "22",
+              "version": "3.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "detail-delete-port",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfdetails[0].access_methods": "https,ssh-password",
+      "vnfdetails[0].version": "3.0"
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfdetails": {
+            "access_methods": "https,ssh-password",
+            "version": "3.0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "detail-delete-port",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "access_methods": "https,ssh-password",
+              "version": "3.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "detail-delete-port",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "access_methods": "https,ssh-password",
+              "version": "3.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "detail-delete-access-methods",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "access_methods": "https,ssh-password",
+              "version": "3.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "detail-delete-access-methods",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "vnfdetails[0].version": "3.0"
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "vnfdetails": {
+            "version": "3.0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "label": "detail-delete-access-methods",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "3.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "detail-delete-access-methods",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "vnfdetails": {
+              "version": "3.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "detail-delete-final-cleanup",
+    "command": "updateVnfTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "cleanupvnfdetails": "true"
+    },
+    "http": 200,
+    "result": {
+      "updatetemplateresponse": {
+        "template": {
+          "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+          "name": "qa-t07-vnf-20261113",
+          "templatetype": "VNF",
+          "isready": false,
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363"
+        }
+      }
+    }
+  },
+  {
+    "label": "detail-delete-final-cleanup",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "detail-delete-final-cleanup",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+            "name": "qa-t07-vnf-20261113",
+            "templatetype": "VNF",
+            "isready": true,
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "qa-template-delete-started",
+    "command": "deleteTemplate",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+      "forced": "false"
+    },
+    "http": 200,
+    "result": {
+      "deletetemplateresponse": {
+        "jobid": "d2902945-53b6-4e61-b4c1-bc9acde993fd"
+      }
+    }
+  },
+  {
+    "label": "qa-template-delete-started",
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "d2902945-53b6-4e61-b4c1-bc9acde993fd"
+    },
+    "http": 200,
+    "result": {
+      "queryasyncjobresultresponse": {
+        "jobid": "d2902945-53b6-4e61-b4c1-bc9acde993fd",
+        "jobstatus": 0
+      }
+    }
+  },
+  {
+    "label": "qa-template-delete-complete",
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "d2902945-53b6-4e61-b4c1-bc9acde993fd"
+    },
+    "http": 200,
+    "result": {
+      "queryasyncjobresultresponse": {
+        "jobresult": {
+          "success": true
+        },
+        "jobid": "d2902945-53b6-4e61-b4c1-bc9acde993fd",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "label": "qa-template-delete-complete",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {}
+    }
+  },
+  {
+    "label": "cleanup-search-zero",
+    "command": "listTemplates",
+    "params": {
+      "id": "c1060466-debb-4a21-adb9-3b7ec04fb0f6"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {}
+    }
+  },
+  {
+    "label": "cleanup-search-zero",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "cleanup-search-zero",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "cleanup-search-zero",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "cleanup-search-zero",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "cleanup-search-zero",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "cleanup-search-zero",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "cleanup-search-zero",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "cleanup-search-zero",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "cleanup-search-zero",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "cleanup-search-zero",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "cleanup-search-zero",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "cleanup-search-zero",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "cleanup-search-zero",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "cleanup-search-zero",
+    "command": "listTemplates",
+    "params": {
+      "keyword": "qa-t07-"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {}
+    }
+  },
+  {
+    "label": "cleanup-total-restored",
+    "command": "listTemplates",
+    "params": {},
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {
+        "count": 46,
+        "template": []
+      }
+    }
+  },
+  {
+    "label": "domain-qa-delete-start",
+    "command": "deleteTemplate",
+    "params": {
+      "id": "e284c5a0-4bcf-4a04-b382-335763a15db9",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+      "forced": "false"
+    },
+    "http": 200,
+    "result": {
+      "deletetemplateresponse": {
+        "jobid": "08ed22a7-b71e-4384-9b2a-4cb1b73d7b29"
+      }
+    }
+  },
+  {
+    "label": "domain-qa-delete-start",
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "08ed22a7-b71e-4384-9b2a-4cb1b73d7b29"
+    },
+    "http": 200,
+    "result": {
+      "queryasyncjobresultresponse": {
+        "jobid": "08ed22a7-b71e-4384-9b2a-4cb1b73d7b29",
+        "jobstatus": 0
+      }
+    }
+  },
+  {
+    "label": "domain-qa-delete-complete",
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "08ed22a7-b71e-4384-9b2a-4cb1b73d7b29"
+    },
+    "http": 200,
+    "result": {
+      "queryasyncjobresultresponse": {
+        "jobresult": {
+          "success": true
+        },
+        "jobid": "08ed22a7-b71e-4384-9b2a-4cb1b73d7b29",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "label": "domain-qa-delete-complete",
+    "command": "listTemplates",
+    "params": {
+      "id": "e284c5a0-4bcf-4a04-b382-335763a15db9"
+    },
+    "http": 200,
+    "result": {
+      "listtemplatesresponse": {}
+    }
+  }
+]

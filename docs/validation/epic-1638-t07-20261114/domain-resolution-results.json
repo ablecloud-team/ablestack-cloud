@@ -1,0 +1,240 @@
+{
+  "id": "e284c5a0-4bcf-4a04-b382-335763a15db9",
+  "results": {
+    "before-domain-path-api": {
+      "nicAddEnabled": false,
+      "fixtureUserHasDomainPath": false,
+      "uniqueDomainReads": [],
+      "realCallerPathObserved": false,
+      "domainResponses": [],
+      "expiredEventsIgnored": 1
+    },
+    "realRegistration": {
+      "id": "e284c5a0-4bcf-4a04-b382-335763a15db9",
+      "readyTextPresent": true
+    },
+    "after-domain-path-api": {
+      "fixtureUserHasDomainPath": false,
+      "nicAddEnabled": true,
+      "lookupWarningVisible": false,
+      "uniqueDomainReads": [
+        "47178e2f-bd56-11f1-b573-002481560363",
+        "00000000-0000-4000-8000-000000000075"
+      ],
+      "realCallerPathObserved": true,
+      "domainResponses": [
+        {
+          "id": "47178e2f-bd56-11f1-b573-002481560363",
+          "path": "ROOT",
+          "status": 200,
+          "source": "real-server-ui-read"
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000075",
+          "path": "ROOT/VnfChild/",
+          "status": 200,
+          "source": "fixture"
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000075",
+          "path": "ROOT/VnfChild/",
+          "status": 200,
+          "source": "fixture"
+        },
+        {
+          "id": "47178e2f-bd56-11f1-b573-002481560363",
+          "path": "ROOT",
+          "status": 200,
+          "source": "real-server-ui-read"
+        }
+      ],
+      "expiredEventsIgnored": 1
+    },
+    "after-domain-prefix-boundary": {
+      "fixtureUserHasDomainPath": false,
+      "nicAddEnabled": false,
+      "lookupWarningVisible": false,
+      "uniqueDomainReads": [
+        "00000000-0000-4000-8000-000000000076",
+        "00000000-0000-4000-8000-000000000077"
+      ],
+      "realCallerPathObserved": false,
+      "domainResponses": [
+        {
+          "id": "00000000-0000-4000-8000-000000000076",
+          "path": "ROOT/A/",
+          "status": 200,
+          "source": "fixture"
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000077",
+          "path": "ROOT/AB/",
+          "status": 200,
+          "source": "fixture"
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000076",
+          "path": "ROOT/A/",
+          "status": 200,
+          "source": "fixture"
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000077",
+          "path": "ROOT/AB/",
+          "status": 200,
+          "source": "fixture"
+        }
+      ],
+      "expiredEventsIgnored": 1
+    },
+    "domain-lookup-failure": {
+      "fixtureUserHasDomainPath": false,
+      "nicAddEnabled": false,
+      "lookupWarningVisible": true,
+      "uniqueDomainReads": [
+        "47178e2f-bd56-11f1-b573-002481560363",
+        "00000000-0000-4000-8000-000000000075"
+      ],
+      "realCallerPathObserved": true,
+      "domainResponses": [
+        {
+          "id": "47178e2f-bd56-11f1-b573-002481560363",
+          "path": "ROOT",
+          "status": 200,
+          "source": "real-server-ui-read"
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000075",
+          "status": 431,
+          "source": "fixture"
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000075",
+          "status": 431,
+          "source": "fixture"
+        },
+        {
+          "id": "47178e2f-bd56-11f1-b573-002481560363",
+          "path": "ROOT",
+          "status": 200,
+          "source": "real-server-ui-read"
+        }
+      ],
+      "expiredEventsIgnored": 1,
+      "retryButtons": 1
+    },
+    "before-options-retry-button": {
+      "injectedFailures": 2,
+      "warningVisible": true,
+      "detailAddEnabled": false,
+      "retryButtons": 0
+    },
+    "domain-lookup-retry-success": {
+      "fixtureUserHasDomainPath": false,
+      "nicAddEnabled": true,
+      "lookupWarningVisible": false,
+      "uniqueDomainReads": [
+        "47178e2f-bd56-11f1-b573-002481560363",
+        "00000000-0000-4000-8000-000000000075"
+      ],
+      "realCallerPathObserved": true,
+      "domainResponses": [
+        {
+          "id": "47178e2f-bd56-11f1-b573-002481560363",
+          "path": "ROOT",
+          "status": 200,
+          "source": "real-server-ui-read"
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000075",
+          "status": 431,
+          "source": "fixture"
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000075",
+          "status": 431,
+          "source": "fixture"
+        },
+        {
+          "id": "47178e2f-bd56-11f1-b573-002481560363",
+          "path": "ROOT",
+          "status": 200,
+          "source": "real-server-ui-read"
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000075",
+          "path": "ROOT/VnfChild/",
+          "status": 200,
+          "source": "fixture"
+        },
+        {
+          "id": "47178e2f-bd56-11f1-b573-002481560363",
+          "path": "ROOT",
+          "status": 200,
+          "source": "real-server-ui-read"
+        }
+      ],
+      "expiredEventsIgnored": 1,
+      "retriedFromWarning": true
+    },
+    "after-options-failure": {
+      "injectedFailures": 2,
+      "warningVisible": true,
+      "detailAddEnabled": false,
+      "retryButtons": 1
+    },
+    "options-retry-success": {
+      "realApi": {
+        "http": 200,
+        "supportedKeys": [
+          "access_methods",
+          "http_path",
+          "http_port",
+          "https_path",
+          "https_port",
+          "maintainer",
+          "password",
+          "ssh_password",
+          "ssh_port",
+          "ssh_user",
+          "username",
+          "vendor",
+          "version",
+          "web_password",
+          "web_user"
+        ]
+      },
+      "detailAddEnabled": true,
+      "warningVisible": false
+    },
+    "rootCrud": {
+      "valueSaved": true,
+      "settingsCleaned": true
+    },
+    "cleanup": {
+      "uiSuccess": true,
+      "resultRetained": true,
+      "jobid": "08ed22a7-b71e-4384-9b2a-4cb1b73d7b29",
+      "jobstatus": 1,
+      "success": true
+    },
+    "qaRemainingZero": true,
+    "totalRestored": true,
+    "hostsAfter": [
+      "ablecube13-1실행 중정상10.10.13.1 x86_64KVM4.23.0.0정상AvailableCluster13-Zoneccvm-mngt",
+      "ablecube13-2실행 중정상10.10.13.2 x86_64KVM4.23.0.0정상AvailableCluster13-Zoneccvm-mngt",
+      "ablecube13-3실행 중정상10.10.13.3 x86_64KVM4.23.0.0비활성화DisabledCluster13-Zoneccvm-mngt"
+    ],
+    "appearance": {
+      "dark": true,
+      "height": 841,
+      "width": 1680
+    },
+    "loadedAssets": [
+      "/client/js/chunk-20906438.91f48346.js",
+      "/client/js/less.min.js",
+      "/client/js/vendors.bbcbe36b.js",
+      "/client/js/app.527e4cd6.js"
+    ]
+  }
+}

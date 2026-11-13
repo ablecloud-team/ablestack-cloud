@@ -1,0 +1,11 @@
+{
+  "backup": "/var/tmp/epic1638-t07-locale-backup-i0zscec2",
+  "files": 2,
+  "moldPidPreserved": true,
+  "indexUnchanged": true,
+  "localeHashes": {
+    "en": "0b7e10a1aec77cf9bbef898fe2d1d3ddc525cf2ebe6b0f0148bf078f96bcaf3a",
+    "ko_KR": "9f8d123ffa44955a3066cd2c94d5ff954f86be0faeb8ce00889ee3d4c88d0289"
+  },
+  "sourceHead": "519b10825d7b417074db0953fe34e5ed70271d38"
+}
