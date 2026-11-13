@@ -187,8 +187,13 @@ class RbdDeletionProbe {
         NodeList nodes = root.getElementsByTagName("*");
         for (int i = 0; i < nodes.getLength(); i++) {
             Element element = (Element) nodes.item(i);
-            if (element.getTagName().toLowerCase(Locale.ROOT).contains("namespace") || element.getAttribute("name").toLowerCase(Locale.ROOT).contains("namespace")) {
+            String tag = element.getTagName().toLowerCase(Locale.ROOT);
+            if (tag.equals("namespace") || tag.endsWith(":namespace")) {
                 throw new IllegalArgumentException("Unverified namespace");
+            }
+            if ((tag.equals("option") || tag.endsWith(":option"))
+                    && !Set.of("rbd_default_data_pool", "rbd_default_format").contains(element.getAttribute("name"))) {
+                throw new IllegalArgumentException("Unverified RBD configuration override");
             }
         }
         Element source = (Element) root.getElementsByTagName("source").item(0);
@@ -214,7 +219,8 @@ class RbdDeletionProbe {
                 throw new IllegalArgumentException("Authentication mismatch");
             }
         } else if (!"ceph".equals(auth.getAttribute("type")) || !StringUtils.equals(pool.getAuthUserName(), auth.getAttribute("username"))
-                || StringUtils.isBlank(pool.getAuthSecret()) || !pool.getUuid().equals(((Element) auth.getElementsByTagName("secret").item(0)).getAttribute("uuid"))) {
+                || StringUtils.isBlank(pool.getAuthSecret()) || !UUID.fromString(pool.getUuid()).equals(
+                        UUID.fromString(((Element) auth.getElementsByTagName("secret").item(0)).getAttribute("uuid")))) {
             throw new IllegalArgumentException("Authentication mismatch");
         }
     }

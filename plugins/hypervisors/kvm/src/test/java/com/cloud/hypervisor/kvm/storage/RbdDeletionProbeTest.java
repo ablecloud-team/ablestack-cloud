@@ -181,6 +181,7 @@ public class RbdDeletionProbeTest {
         for (String xml : new String[]{XML.replace("<name>rbd</name>", "<name>other</name>"),
                 XML.replace("<source>", "<source><namespace>other</namespace>"),
                 XML.replace("</pool>", "<config><option name='rbd_namespace' value='other'/></config></pool>"),
+                XML.replace("</pool>", "<config><option name='mon_host' value='other-cluster'/></config></pool>"),
                 XML.replace("mon-b", "wrong-mon"), XML.replace("<host name='mon-a'/>", "<host name='mon-a' port='6789'/>"),
                 XML.replace("username='admin'", "username='other'"), XML.replace("<uuid>" + POOL, "<uuid>00000000-0000-0000-0000-000000000000"),
                 "<pool type='rbd'>"}) {
@@ -190,5 +191,9 @@ public class RbdDeletionProbeTest {
 
     @Test public void malformedPoolConfigurationNeverConnects() {
         when(pool.getSourceDir()).thenReturn("rbd/namespace"); noNativeAccess(read());
+    }
+    @Test public void namespaceWordInAHostnameDoesNotInventANamespace() {
+        when(pool.getSourceHost()).thenReturn("namespace-mon,mon-a");
+        assertEquals(RbdDeletionProbe.State.PRESENT, probe.probe(pool, IMAGE, XML.replace("mon-b", "namespace-mon")).state);
     }
 }
