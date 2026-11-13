@@ -3,7 +3,7 @@
 // Licensed under the Apache License, Version 2.0 (the "License");
 // http://www.apache.org/licenses/LICENSE-2.0 . Distributed AS IS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND.
-import { shallowMount, flushPromises } from '@vue/test-utils'
+import { mount, shallowMount, flushPromises } from '@vue/test-utils'
 import { h } from 'vue'
 import Clone from '@/views/offering/CloneVpcOffering'
 import { vpcServiceProviderMap, vpcProviderChoices, sameVpcProviders, buildVpcCloneProviderParams } from '@/utils/vpcOfferingProviders'
@@ -19,16 +19,16 @@ const passthrough = { render () { return h('div', this.$slots.default?.()) } }
 let wrappers
 beforeEach(() => {
   wrappers = []; jest.clearAllMocks()
-  getAPI.mockImplementation(command => Promise.resolve({ [command.toLowerCase() + 'response']: {} }))
+  getAPI.mockImplementation(command => Promise.resolve({ [command.toLowerCase() + 'response']: command === 'listServiceOfferings' ? { serviceoffering: [] } : {} }))
   postAPI.mockResolvedValue({ clonevpcofferingresponse: { jobid: 'job' } })
 })
 afterEach(() => wrappers.forEach(wrapper => wrapper.unmount()))
-async function open (source = resource) {
-  const wrapper = shallowMount(Clone, {
+async function open (source = resource, realForm = false) {
+  const wrapper = (realForm ? mount : shallowMount)(Clone, {
     props: { resource: JSON.parse(JSON.stringify(source)) },
     global: {
       mocks: { $t: key => key, $getApiParams: () => new Proxy({}, { get: () => ({ description: 'description' }) }), $message: { success: jest.fn() }, $notifyError: jest.fn() },
-      stubs: { AForm: form, AList: list, ASpin: passthrough, AFormItem: passthrough, ARow: passthrough, ACol: passthrough, AListItem: passthrough }
+      stubs: { AForm: realForm ? false : form, AList: list, ASpin: passthrough, AFormItem: realForm ? false : passthrough, ARow: passthrough, ACol: passthrough, AListItem: passthrough }
     }
   })
   wrappers.push(wrapper); await flushPromises()
@@ -145,4 +145,16 @@ test('the VR flag checks every provider, including the second provider of a mult
   expect(wrapper.vm.isVpcVirtualRouterForAtLeastOneService).toBe(true)
   wrapper.vm.handleSupportedServiceChange('Lb', true, ['InternalLbVm'])
   expect(wrapper.vm.isVpcVirtualRouterForAtLeastOneService).toBe(false)
+})
+
+test('the real Ant form gives provider inputs independent IDs instead of linking every input to the validation group', async () => {
+  const wrapper = await open(resource, true)
+  const ids = wrapper.findAll('input[role="combobox"]').map(input => input.attributes('id'))
+  expect(ids.length).toBeGreaterThan(3)
+  expect(ids.every(Boolean)).toBe(true)
+  expect(new Set(ids).size).toBe(ids.length)
+  expect(ids).not.toContain('form_item_serviceproviders')
+  const serviceIds = wrapper.findAll('.supported-services-container input[id]').map(input => input.attributes('id'))
+  expect(new Set(serviceIds).size).toBe(serviceIds.length)
+  expect(wrapper.get('#vpc-clone-provider-source-Lb').element.labels[0].textContent).toContain('Lb label.provider')
 })

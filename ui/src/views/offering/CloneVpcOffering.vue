@@ -157,7 +157,7 @@
             </a-radio-button>
           </a-radio-group>
         </a-form-item>
-        <a-form-item name="serviceproviders" ref="serviceproviders">
+        <a-form-item name="serviceproviders" ref="serviceproviders" :autoLink="false">
           <template #label>
             <tooltip-label :title="$t('label.supportedservices')" :tooltip="apiParams.supportedservices ? apiParams.supportedservices.description : ''"/>
           </template>
@@ -169,6 +169,7 @@
                   <a-row class="vpc-service-provider" :gutter="12">
                     <a-col :xs="24" :sm="9">
                       <a-checkbox
+                        :id="'vpc-clone-service-' + resource.id + '-' + item.name"
                         :checked="!!selectedServiceProviderMap[item.name]"
                         :disabled="form.provider === 'NSX' || form.provider === 'Netris'"
                         @change="event => handleSupportedServiceChange(item.name, event.target.checked, item.selectedProviders)">
@@ -176,8 +177,15 @@
                       </a-checkbox>
                     </a-col>
                     <a-col :xs="24" :sm="15">
+                      <label
+                        v-if="selectedServiceProviderMap[item.name]"
+                        class="provider-label"
+                        :for="'vpc-clone-provider-' + resource.id + '-' + item.name">
+                        {{ item.description }} {{ $t('label.provider') }}
+                      </label>
                       <a-select
                         v-if="selectedServiceProviderMap[item.name]"
+                        :id="'vpc-clone-provider-' + resource.id + '-' + item.name"
                         :aria-label="item.description + ' ' + $t('label.provider')"
                         :mode="item.name === 'Lb' || item.selectedProviders.length > 1 ? 'multiple' : undefined"
                         :value="item.name === 'Lb' || item.selectedProviders.length > 1 ? item.selectedProviders : item.selectedProviders[0]"
@@ -836,5 +844,16 @@ export default {
     align-items: center;
 
     .ant-select { width: 100%; }
+    .provider-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
   }
 </style>
