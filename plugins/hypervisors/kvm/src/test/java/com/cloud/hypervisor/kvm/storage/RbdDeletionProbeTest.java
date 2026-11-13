@@ -97,19 +97,19 @@ public class RbdDeletionProbeTest {
     }
 
     @Test public void onlyImageOpenEnoentIsConfirmedAbsent() throws Exception {
-        stores.close(); stores = mockConstruction(Rbd.class, (s, ignored) -> when(s.openReadOnly(IMAGE)).thenThrow(rbdError(-2)));
+        stores.close(); stores = mockConstruction(Rbd.class, (s, ignored) -> doThrow(rbdError(-2)).when(s).openReadOnly(IMAGE));
         assertEquals(RbdDeletionProbe.State.ABSENT_CONFIRMED, read().state);
         verify(connection()).ioCtxDestroy(context); verify(connection()).shutDown(); verify(store(), never()).close(any());
     }
 
     @Test public void imagePermissionFailureIsUnknown() throws Exception {
-        stores.close(); stores = mockConstruction(Rbd.class, (s, ignored) -> when(s.openReadOnly(IMAGE)).thenThrow(rbdError(-13)));
+        stores.close(); stores = mockConstruction(Rbd.class, (s, ignored) -> doThrow(rbdError(-13)).when(s).openReadOnly(IMAGE));
         RbdDeletionProbe.Result r = read(); assertEquals(RbdDeletionProbe.State.UNKNOWN, r.state); assertEquals(-13, r.nativeCode);
         verify(connection()).ioCtxDestroy(context); verify(connection()).shutDown();
     }
 
     @Test public void busyImageIsNotAbsent() throws Exception {
-        stores.close(); stores = mockConstruction(Rbd.class, (s, ignored) -> when(s.openReadOnly(IMAGE)).thenThrow(rbdError(-16)));
+        stores.close(); stores = mockConstruction(Rbd.class, (s, ignored) -> doThrow(rbdError(-16)).when(s).openReadOnly(IMAGE));
         assertEquals(RbdDeletionProbe.State.UNKNOWN, read().state);
     }
 
@@ -130,19 +130,19 @@ public class RbdDeletionProbeTest {
 
     @Test public void missingPoolDoesNotMeanImageAbsent() throws Exception {
         connections.close(); connections = mockConstruction(Rados.class, (c, ignored) -> {
-            when(c.clusterFsid()).thenReturn(FSID); when(c.ioCtxCreate("rbd")).thenThrow(radosError(-2));
+            when(c.clusterFsid()).thenReturn(FSID); doThrow(radosError(-2)).when(c).ioCtxCreate("rbd");
         });
         RbdDeletionProbe.Result r = read(); assertEquals(RbdDeletionProbe.State.UNKNOWN, r.state); assertEquals("POOL", r.stage); verify(connection()).shutDown();
     }
 
     @Test public void imageVanishingDuringStatRequiresRevalidation() throws Exception {
-        when(image.stat()).thenThrow(rbdError(-2)); RbdDeletionProbe.Result r = read();
+        doThrow(rbdError(-2)).when(image).stat(); RbdDeletionProbe.Result r = read();
         assertEquals(RbdDeletionProbe.State.UNKNOWN, r.state); assertEquals("READ_IMAGE", r.stage);
         verify(store()).close(image); verify(connection()).ioCtxDestroy(context); verify(connection()).shutDown();
     }
 
     @Test public void snapshotReadFailureIsNotAbsence() throws Exception {
-        when(image.snapList()).thenThrow(rbdError(-16)); assertEquals(RbdDeletionProbe.State.UNKNOWN, read().state);
+        doThrow(rbdError(-16)).when(image).snapList(); assertEquals(RbdDeletionProbe.State.UNKNOWN, read().state);
         verify(store()).close(image); verify(connection()).shutDown();
     }
 

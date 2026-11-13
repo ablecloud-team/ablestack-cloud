@@ -103,17 +103,20 @@ public class RbdDeletionContractTest {
         doReturn(present, other).when(adapter).probeRbdDeletion(pool, IMAGE); fails("RBD_TARGET_CHANGED");
     }
     @Test public void missingLibvirtEntryRefreshesOnceAfterRbdPresenceEvidence() throws Exception {
-        when(nativePool.storageVolLookupByName(IMAGE)).thenThrow(error(org.libvirt.Error.ErrorNumber.VIR_ERR_NO_STORAGE_VOL)).thenReturn(volume);
+        LibvirtException missing = error(org.libvirt.Error.ErrorNumber.VIR_ERR_NO_STORAGE_VOL);
+        when(nativePool.storageVolLookupByName(IMAGE)).thenThrow(missing).thenReturn(volume);
         assertTrue(delete()); verify(nativePool).refresh(0); verify(volume).delete(0);
     }
     @Test public void persistentLookupMismatchDoesNotBecomeSuccess() throws Exception {
         doReturn(present).when(adapter).probeRbdDeletion(pool, IMAGE);
-        when(nativePool.storageVolLookupByName(IMAGE)).thenThrow(error(org.libvirt.Error.ErrorNumber.VIR_ERR_NO_STORAGE_VOL));
+        LibvirtException missing = error(org.libvirt.Error.ErrorNumber.VIR_ERR_NO_STORAGE_VOL);
+        when(nativePool.storageVolLookupByName(IMAGE)).thenThrow(missing);
         fails("IMAGE_PRESENT_DELETE_FAILED"); verify(nativePool).refresh(0); verify(volume, never()).delete(0);
     }
     @Test public void lookupAuthFailureDoesNotRefreshOrSucceed() throws Exception {
         doReturn(present).when(adapter).probeRbdDeletion(pool, IMAGE);
-        when(nativePool.storageVolLookupByName(IMAGE)).thenThrow(error(org.libvirt.Error.ErrorNumber.VIR_ERR_AUTH_FAILED));
+        LibvirtException denied = error(org.libvirt.Error.ErrorNumber.VIR_ERR_AUTH_FAILED);
+        when(nativePool.storageVolLookupByName(IMAGE)).thenThrow(denied);
         fails("IMAGE_PRESENT_DELETE_FAILED"); verify(nativePool, never()).refresh(0); verify(volume, never()).delete(0);
     }
     @Test public void nullLookupWithPresentImageCannotSucceed() throws Exception {
