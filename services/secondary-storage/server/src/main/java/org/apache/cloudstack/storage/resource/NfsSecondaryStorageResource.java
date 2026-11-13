@@ -3585,7 +3585,7 @@ public class NfsSecondaryStorageResource extends ServerResourceBase implements S
         }
         String checkSum = uploadEntity.getChksum();
         if (StringUtils.isNotBlank(checkSum)) {
-            scr.add("-c", checkSum);
+            PostUploadChecksum.addChecksumArgument(scr, uploadEntity, checkSum);
         }
 
         // add options common to ISO and template
@@ -3611,11 +3611,11 @@ public class NfsSecondaryStorageResource extends ServerResourceBase implements S
         scr.add("-f", fileSavedTempLocation); // this is the temporary
         // template file downloaded
         if (uploadEntity.getChksum() != null && uploadEntity.getChksum().length() > 1) {
-            scr.add("-c", uploadEntity.getChksum());
+            PostUploadChecksum.addChecksumArgument(scr, uploadEntity, uploadEntity.getChksum());
         }
         scr.add("-u"); // cleanup
         String result;
-        result = scr.execute();
+        result = PostUploadChecksum.execute(scr, uploadEntity, fileSavedTempLocation);
 
         if (result != null) {
             return result;
