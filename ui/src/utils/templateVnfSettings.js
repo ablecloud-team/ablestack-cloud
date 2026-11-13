@@ -18,7 +18,7 @@
 export const VNF_DETAIL_KEYS = Object.freeze(['access_methods', 'username', 'password', 'ssh_user', 'ssh_password', 'ssh_port', 'web_user', 'web_password', 'http_path', 'http_port', 'https_path', 'https_port', 'version', 'vendor', 'maintainer'])
 export const isVnfSecret = key => /password/i.test(key)
 export const normalizeVnfKey = key => String(key || '').trim().toLowerCase()
-export function vnfWriteAllowed (resource = {}, user = {}, project = {}, apis = {}) {
+export function vnfWriteAllowed (resource = {}, user = {}, project = {}, apis = {}, domainPaths = {}) {
   if (resource.templatetype !== 'VNF' || !resource.id || !user.id || !('updateVnfTemplate' in apis)) return false
   if (user.roletype === 'Admin') return true
   if (resource.projectid) return resource.projectid === project.id
@@ -26,8 +26,10 @@ export function vnfWriteAllowed (resource = {}, user = {}, project = {}, apis = 
   if (user.domainid && user.domainid === resource.domainid && user.account && user.account === resource.account) return true
   if (user.roletype !== 'DomainAdmin') return false
   if (user.domainid && user.domainid === resource.domainid) return true
-  const parent = user.domainpath && (user.domainpath.endsWith('/') ? user.domainpath : user.domainpath + '/')
-  return !!(parent && resource.domainpath && resource.domainpath.startsWith(parent))
+  const path = domainPaths[user.domainid]
+  const target = domainPaths[resource.domainid]
+  const parent = path && (path.endsWith('/') ? path : path + '/')
+  return !!(parent && target && target.startsWith(parent))
 }
 export function vnfDetailError (key, value, options) {
   key = normalizeVnfKey(key)
@@ -47,4 +49,17 @@ export function vnfNicError (rows) {
     if (!nic.required) optional = true
   }
   return ''
+}
+
+// listUsers does not advertise domainpath. Resolve both IDs through listDomains.
+export async function loadVnfDomainPaths (getAPI, resource = {}, user = {}, apis = {}) {
+  if (user.roletype !== 'DomainAdmin' || resource.projectid || resource.domainid === user.domainid) return {}
+  if (!user.domainid || !resource.domainid || !('listDomains' in apis)) throw new Error('Domain scope unavailable')
+  const entries = await Promise.all([user.domainid, resource.domainid].map(async id => {
+    const json = await getAPI('listDomains', { id, listall: true }, { preserveOnFailure: true, timeout: 15000 })
+    const matches = (json.listdomainsresponse?.domain || []).filter(d => d.id === id)
+    if (matches.length !== 1 || typeof matches[0].path !== 'string' || !matches[0].path) throw new Error('Domain scope unavailable')
+    return [id, matches[0].path]
+  }))
+  return Object.fromEntries(entries)
 }

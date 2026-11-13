@@ -11577,5 +11577,6 @@
   "label.vnf.secret.unchanged": "Keep existing value",
   "label.vnf.secret.new": "Enter a new secret value",
   "message.vnf.nic.move.boundary": "Cannot move past the end or across the required/optional NIC boundary.",
-  "label.edit.setting": "Edit setting"
+  "label.edit.setting": "Edit setting",
+  "message.vnf.owner.lookup.failed": "Could not verify the domain scope. Retry the lookup."
 }
