@@ -2,7 +2,8 @@
 // contributor license agreements. See NOTICE for ownership information.
 // Licensed under the Apache License, Version 2.0; http://www.apache.org/licenses/LICENSE-2.0
 // Distributed on an AS IS BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND.
-import { shallowMount } from '@vue/test-utils'
+import { shallowMount, flushPromises } from '@vue/test-utils'
+import { Alert, Button } from 'ant-design-vue'
 import Settings from '@/views/image/TemplateVnfSettings.vue'
 import { getAPI, postAPI } from '@/api'
 import { vnfWriteAllowed, vnfDetailError, isVnfSecret, vnfNicError, loadVnfDomainPaths } from '@/utils/templateVnfSettings'
@@ -210,4 +211,10 @@ test('unverified response path properties cannot bypass the domain lookup', () =
 test('Admin and same-domain DomainAdmin do not need extra domain queries', async () => {
   expect(await loadVnfDomainPaths(getAPI, { domainid: 'same' }, { roletype: 'Admin' }, {})).toEqual({})
   expect(await loadVnfDomainPaths(getAPI, { domainid: 'same' }, { roletype: 'DomainAdmin', domainid: 'same' }, {})).toEqual({}); expect(getAPI).not.toHaveBeenCalled()
+})
+
+test.each([['ownerDomainError', 'loadOwnerDomains'], ['optionsError', 'loadOptions']])('real Ant Design alert renders the %s retry control', async (field, method) => {
+  const c = context(); const w = shallowMount(Settings, { props: { resource: c.resource }, global: { mocks: { $getApiParams: () => ({ vnfnics: {}, vnfdetails: {} }), $store: c.$store, $route: c.$route, $t: k => k }, components: { 'a-alert': Alert, 'a-button': Button }, stubs: { AAlert: false, AButton: false, Wave: false }, directives: { focus: {} } } })
+  await flushPromises(); const retry = jest.spyOn(w.vm, method).mockResolvedValue(); await w.setData({ [field]: true })
+  const button = w.get('.ant-alert-description button'); expect(button.text()).toBe('label.retry'); await button.trigger('click'); expect(retry).toHaveBeenCalledTimes(1); w.unmount()
 })

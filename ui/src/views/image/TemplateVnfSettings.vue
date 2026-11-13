@@ -18,7 +18,7 @@
 <template>
   <div class="vnf-settings">
     <a-alert v-if="saveError" type="error" show-icon role="alert" :message="saveError" />
-    <a-alert v-if="ownerDomainError" type="warning" show-icon :message="$t('message.vnf.owner.lookup.failed')"><template #action><a-button size="small" :loading="ownerDomainLoading" @click="loadOwnerDomains">{{ $t('label.retry') }}</a-button></template></a-alert>
+    <a-alert v-if="ownerDomainError" type="warning" show-icon :message="$t('message.vnf.owner.lookup.failed')"><template #description><a-button size="small" :loading="ownerDomainLoading" @click="loadOwnerDomains">{{ $t('label.retry') }}</a-button></template></a-alert>
     <a-divider />
     <div class="title"><tooltip-label :title="$t('label.vnf.nics')" :tooltip="apiParams.vnfnics?.description" /></div>
     <a-button type="dashed" class="vnf-add" :disabled="updateBusy || !canWrite" @click="onShowAddVnfNic"><template #icon><plus-outlined /></template>{{ $t('label.vnf.nic.add') }}</a-button>
@@ -61,7 +61,7 @@ destroy-on-close
     </MoldDialog>
     <a-divider />
     <div class="title"><tooltip-label :title="$t('label.vnf.details')" :tooltip="apiParams.vnfdetails?.description" /></div>
-    <a-alert v-if="optionsError" type="warning" show-icon :message="$t('message.vnf.detail.options.failed')" ><template #action><a-button size="small" :loading="optionsLoading" @click="loadOptions">{{ $t('label.retry') }}</a-button></template></a-alert>
+    <a-alert v-if="optionsError" type="warning" show-icon :message="$t('message.vnf.detail.options.failed')" ><template #description><a-button size="small" :loading="optionsLoading" @click="loadOptions">{{ $t('label.retry') }}</a-button></template></a-alert>
     <a-button type="dashed" class="vnf-add" :disabled="updateBusy || !canWrite || !optionsReady" @click="onShowAddVnfDetail"><template #icon><plus-outlined /></template>{{ $t('label.vnf.detail.add') }}</a-button>
     <a-list size="large">
       <a-list-item v-for="item in vnfDetails" :key="item.name">
