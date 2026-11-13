@@ -16,10 +16,21 @@
 // under the License.
 
 <template>
-  <div
-    :class="'form-layout'"
-    @keyup.ctrl.enter="handleSubmit">
-    <span v-if="uploading">
+  <MoldDialog size="md" form-actions focus-guard :title="$t(currentForm === 'Create' ? 'label.action.register.template' : 'label.upload.template.from.local')" :closable="!blocksNavigation" :keyboard="!blocksNavigation" @cancel="closeAction">
+  <div class="template-form-content" @keyup.ctrl.enter="handleSubmit">
+    <a-alert v-if="submitError" type="error" show-icon role="alert" :message="submitError" />
+    <div v-if="linkFailed">
+      <a-alert type="warning" show-icon :message="$t('message.userdata.image.partial')" :description="acceptedTemplateId" />
+      <MoldDialogActions :busy="submitting">
+        <a-button @click="closeAction">{{ $t('label.close') }}</a-button>
+        <a-button type="primary" :loading="submitting" @click="retryUserdataLink">{{ $t('label.template.retry.userdata') }}</a-button>
+      </MoldDialogActions>
+    </div>
+    <div v-else-if="uploadFailed">
+      <a-alert type="warning" show-icon :message="$t('message.template.upload.retry')" :description="acceptedTemplateId" />
+      <MoldDialogActions :busy="blocksNavigation"><a-button @click="closeAction">{{ $t('label.close') }}</a-button><a-button type="primary" :loading="loading" @click="retryUpload">{{ $t('label.retry.upload') }}</a-button></MoldDialogActions>
+    </div>
+    <span v-else-if="uploading">
       <loading-outlined />
       {{ $t('message.upload.file.processing') }}
       <a-progress :percent="uploadPercentage" />
@@ -30,7 +41,7 @@
         show-icon
         :message="$t('message.ssvm.cert.untrusted')"
         :description="$t('message.ssvm.cert.trust.instructions')" />
-      <div :span="24" class="action-button">
+      <MoldDialogActions :busy="blocksNavigation">
         <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
         <a-button :href="ssvmOrigin" target="_blank" rel="noopener noreferrer">
           {{ $t('label.ssvm.open.cert.page') }}
@@ -38,7 +49,7 @@
         <a-button type="primary" :loading="loading" @click="retryUpload">
           {{ $t('label.retry.upload') }}
         </a-button>
-      </div>
+      </MoldDialogActions>
     </div>
     <a-spin :spinning="loading" v-else>
       <a-form
@@ -264,26 +275,14 @@
               v-model:value="form.externaldetails" />
           </a-card>
         </a-form-item>
-        <a-row :gutter="12" v-if="(hyperKVMShow || hyperCustomShow) && currentForm === 'Create'">
-          <a-col :md="24" :lg="12">
-            <a-form-item ref="directdownload" name="directdownload">
-              <template #label>
-                <tooltip-label :title="$t('label.directdownload')" :tooltip="apiParams.directdownload.description"/>
-              </template>
-              <a-switch v-model:checked="form.directdownload" @change="handleChangeDirect" />
-            </a-form-item>
-          </a-col>
-          <a-col :md="24" :lg="12">
-            <a-form-item ref="checksum" name="checksum">
-              <template #label>
-                <tooltip-label :title="$t('label.checksum')" :tooltip="apiParams.checksum.description"/>
-              </template>
-              <a-input
-                v-model:value="form.checksum"
-                :placeholder="apiParams.checksum.description" />
-            </a-form-item>
-          </a-col>
-        </a-row>
+        <a-form-item ref="directdownload" name="directdownload" v-if="(hyperKVMShow || hyperCustomShow) && currentForm === 'Create' && supportsParam('directdownload')">
+          <template #label><tooltip-label :title="$t('label.directdownload')" :tooltip="apiParams.directdownload.description" /></template>
+          <a-switch v-model:checked="form.directdownload" @change="handleChangeDirect" />
+        </a-form-item>
+        <a-form-item ref="checksum" name="checksum" v-if="supportsParam('checksum')" :extra="$t('message.template.checksum.help')">
+          <template #label><tooltip-label :title="$t('label.checksum')" :tooltip="$t('message.template.checksum.help')" /></template>
+          <a-input v-model:value="form.checksum" :placeholder="$t('message.template.checksum.placeholder')" />
+        </a-form-item>
         <a-row :gutter="12" v-if="allowed && hyperXenServerShow">
           <a-form-item ref="xenserverToolsVersion61plus" name="xenserverToolsVersion61plus" v-if="hyperXenServerShow" :label="$t('label.xenservertoolsversion61plus')">
             <a-switch v-model:checked="form.xenserverToolsVersion61plus" />
@@ -421,7 +420,7 @@
             :placeholder="apiParams.templatetag.description"
             v-focus="currentForm !== 'Create'"/>
         </a-form-item>
-        <a-row :gutter="12">
+        <a-row :gutter="12" v-if="canLinkUserData">
           <a-col :md="24" :lg="12">
             <a-form-item
               name="userdataid"
@@ -487,7 +486,10 @@
                       {{ $t('label.isdynamicallyscalable') }}
                     </a-checkbox>
                   </a-col>
-                  <a-col :span="12">
+                  <a-col :xs="24" :sm="12" v-if="supportsParam('sshkeyenabled')">
+                    <a-checkbox value="sshkeyenabled">{{ $t('label.sshkeyenabled') }}</a-checkbox>
+                  </a-col>
+                  <a-col :span="12" v-if="supportsParam('requireshvm')">
                     <a-checkbox value="requireshvm">
                       {{ $t('label.requireshvm') }}
                     </a-checkbox>
@@ -503,7 +505,7 @@
                     </a-checkbox>
                   </a-col>
                   <a-col :span="12">
-                    <a-checkbox value="forCks" v-if="currentForm === 'Create'">
+                    <a-checkbox value="forcks" v-if="supportsParam('forcks')">
                       {{ $t('label.forcks') }}
                     </a-checkbox>
                   </a-col>
@@ -512,13 +514,14 @@
             </a-form-item>
           </a-col>
         </a-row>
-        <div :span="24" class="action-button">
+        <MoldDialogActions :busy="blocksNavigation">
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
           <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-        </div>
+        </MoldDialogActions>
       </a-form>
     </a-spin>
   </div>
+  </MoldDialog>
 </template>
 
 <script>
@@ -531,6 +534,9 @@ import { probeSsvmCert } from '@/utils/ssvmProbe'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import DetailsInput from '@/components/widgets/DetailsInput'
+import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
+import { validTemplateChecksum } from '@/utils/templateForm'
 
 export default {
   name: 'RegisterOrUploadTemplate',
@@ -548,11 +554,18 @@ export default {
   components: {
     ResourceIcon,
     TooltipLabel,
-    DetailsInput
+    DetailsInput,
+    MoldDialog,
+    MoldDialogActions
   },
   data () {
     return {
       uploadPercentage: 0,
+      submitting: false,
+      submitError: '',
+      acceptedTemplateId: '',
+      linkFailed: false,
+      uploadFailed: false,
       uploading: false,
       fileList: [],
       ssvmCertUntrusted: false,
@@ -597,7 +610,7 @@ export default {
     }
   },
   beforeCreate () {
-    this.apiParams = this.$getApiParams('registerTemplate')
+    this.apiParams = this.$getApiParams(['plus-outlined', 'PlusOutlined'].includes(this.action.currentAction.icon) ? 'registerTemplate' : 'getUploadParamsForTemplate')
     this.linkUserDataParams = this.$getApiParams('linkUserDataToTemplate')
   },
   created () {
@@ -605,6 +618,8 @@ export default {
     this.fetchData()
   },
   computed: {
+    canLinkUserData () { return ['listUserData', 'linkUserDataToTemplate'].every(api => api in this.$store.getters.apis) },
+    blocksNavigation () { return this.submitting || this.uploading || this.loading },
     isAdminRole () {
       return this.$store.getters.userInfo.roletype === 'Admin'
     },
@@ -617,6 +632,7 @@ export default {
     }
   },
   methods: {
+    supportsParam (name) { return !!this.apiParams[name] },
     initForm () {
       this.formRef = ref()
       this.form = reactive({
@@ -624,6 +640,7 @@ export default {
         groupenabled: ['requireshvm']
       })
       this.rules = reactive({
+        checksum: [{ validator: async (rule, value) => { if (!validTemplateChecksum(value)) throw new Error(this.$t('message.template.checksum.invalid')) } }],
         url: [{ required: true, message: this.$t('message.error.required.input') }],
         file: [{ required: true, message: this.$t('message.error.required.input') }],
         name: [{ required: true, message: this.$t('message.error.required.input') }],
@@ -675,6 +692,7 @@ export default {
       return false
     },
     async retryUpload () {
+      if (this.blocksNavigation) return
       this.loading = true
       const reachable = await probeSsvmCert(this.ssvmOrigin)
       this.loading = false
@@ -683,7 +701,7 @@ export default {
         return
       }
       this.ssvmCertUntrusted = false
-      this.handleUpload()
+      await this.handleUpload()
     },
     handleUpload () {
       const { fileList } = this
@@ -691,9 +709,11 @@ export default {
       fileList.forEach(file => {
         formData.append('files[]', file)
       })
+      this.uploadFailed = false
+      this.submitError = ''
       this.uploading = true
       this.uploadPercentage = 0
-      axios.post(this.uploadParams.postURL,
+      return axios.post(this.uploadParams.postURL,
         formData,
         {
           headers: {
@@ -708,17 +728,13 @@ export default {
           },
           timeout: 86400000
         }).then((json) => {
-        this.$notification.info({
-          message: this.$t('message.success.upload'),
-          description: this.$t('message.template.upload.transferred')
-        })
-        this.$emit('refresh-data')
-        this.closeAction()
+        this.$notification.info({ message: this.$t('message.success.upload'), description: this.$t('message.template.upload.transferred') })
+        return this.finishRegistration()
       }).catch(e => {
+        this.uploadFailed = true
+        this.submitError = e.message || this.$t('message.request.failed')
         this.$notifyError(e)
-      }).finally(() => {
-        this.uploading = false
-      })
+      }).finally(() => { this.uploading = false })
     },
     fetchCustomHypervisorName () {
       if (!('listConfigurations' in this.$store.getters.apis)) {
@@ -831,6 +847,7 @@ export default {
       })
     },
     fetchUserData () {
+      if (!this.canLinkUserData) return
       const params = {}
       params.listAll = true
 
@@ -1128,130 +1145,122 @@ export default {
       }
       this.form.externaldetails = undefined
     },
-    handleSubmit (e) {
-      e.preventDefault()
-      if (this.loading) return
-      this.formRef.value.validate().then(() => {
-        if (this.currentForm === 'Create') {
-          delete this.form.zoneid
+    registrationParams () {
+      const formRaw = toRaw(this.form)
+      const formvalues = this.handleRemoveFields(formRaw)
+      let params = {}
+      for (const key in formvalues) {
+        const input = formvalues[key]
+
+        if (input === undefined) {
+          continue
+        }
+        if (key === 'file') {
+          continue
+        }
+
+        if (key === 'zoneids') {
+          if (input.length === 1 && input[0] === this.$t('label.all.zone')) {
+            params.zoneids = '-1'
+            continue
+          }
+          params[key] = input.join()
+        } else if (key === 'zoneid') {
+          if (input === this.$t('label.all.zone')) {
+            params.zoneid = '-1'
+            continue
+          }
+          params[key] = input
+        } else if (key === 'hypervisor') {
+          params[key] = this.hyperVisor.opts[input].name
+        } else if (key === 'groupenabled') {
+          for (const index in input) {
+            const name = input[index]
+            params[name] = true
+          }
+        } else if (key === 'externaldetails') {
+          Object.entries(input).forEach(([k, v]) => {
+            params['externaldetails[0].' + k] = v
+          })
         } else {
-          delete this.form.zoneids
-        }
-        const formRaw = toRaw(this.form)
-        const formvalues = this.handleRemoveFields(formRaw)
-        let params = {}
-        for (const key in formvalues) {
-          const input = formvalues[key]
-
-          if (input === undefined) {
-            continue
+          const formattedDetailData = {}
+          switch (key) {
+            case 'rootDiskControllerType':
+              if (input) {
+                formattedDetailData['details[0].rootDiskController'] = input
+              }
+              break
+            case 'nicAdapterType':
+              formattedDetailData['details[0].nicAdapter'] = input
+              break
+            case 'keyboardType':
+              formattedDetailData['details[0].keyboard'] = input
+              break
+            case 'xenserverToolsVersion61plus':
+              formattedDetailData['details[0].hypervisortoolsversion'] = input
+              break
           }
-          if (key === 'file') {
-            continue
-          }
 
-          if (key === 'zoneids') {
-            if (input.length === 1 && input[0] === this.$t('label.all.zone')) {
-              params.zoneids = '-1'
-              continue
-            }
-            params[key] = input.join()
-          } else if (key === 'zoneid') {
-            if (input === this.$t('label.all.zone')) {
-              params.zoneid = '-1'
-              continue
-            }
-            params[key] = input
-          } else if (key === 'hypervisor') {
-            params[key] = this.hyperVisor.opts[input].name
-          } else if (key === 'groupenabled') {
-            for (const index in input) {
-              const name = input[index]
-              params[name] = true
-            }
-          } else if (key === 'externaldetails') {
-            Object.entries(input).forEach(([k, v]) => {
-              params['externaldetails[0].' + k] = v
-            })
+          if (Object.keys(formattedDetailData).length > 0) {
+            params = Object.assign({}, params, formattedDetailData)
           } else {
-            const formattedDetailData = {}
-            switch (key) {
-              case 'rootDiskControllerType':
-                if (input) {
-                  formattedDetailData['details[0].rootDiskController'] = input
-                }
-                break
-              case 'nicAdapterType':
-                formattedDetailData['details[0].nicAdapter'] = input
-                break
-              case 'keyboardType':
-                formattedDetailData['details[0].keyboard'] = input
-                break
-              case 'xenserverToolsVersion61plus':
-                formattedDetailData['details[0].hypervisortoolsversion'] = input
-                break
-            }
-
-            if (Object.keys(formattedDetailData).length > 0) {
-              params = Object.assign({}, params, formattedDetailData)
-            } else {
-              params[key] = input
-            }
+            params[key] = input
           }
         }
-        if (!('requireshvm' in params)) { // handled as default true by API
-          params.requireshvm = false
-        }
-        if (this.selectedFormat === 'External') {
-          params.format = 'External'
-        }
+      }
+      if (this.selectedFormat === 'External') {
+        params.format = 'External'
+      }
+      delete params[this.currentForm === 'Create' ? 'zoneid' : 'zoneids']
+      for (const key of ['isextractable', 'passwordenabled', 'isdynamicallyscalable', 'requireshvm', 'sshkeyenabled', 'isfeatured', 'ispublic', 'forcks']) {
+        if (this.supportsParam(key)) params[key] = (this.form.groupenabled || []).includes(key)
+        else delete params[key]
+      }
+      if (!this.supportsParam('checksum') || !params.checksum) delete params.checksum
+      return params
+    },
+    async handleSubmit (e) {
+      if (e?.preventDefault) e.preventDefault()
+      if (this.blocksNavigation || this.acceptedTemplateId) return
+      this.submitting = true
+      this.submitError = ''
+      try {
+        await this.formRef.value.validate()
+        const params = this.registrationParams()
         if (this.currentForm === 'Create') {
-          this.loading = true
-          postAPI('registerTemplate', params).then(json => {
-            if (this.userdataid !== null) {
-              this.linkUserdataToTemplate(this.userdataid, json.registertemplateresponse.template[0].id, this.userdatapolicy)
-            }
-            this.$notification.info({
-              message: this.$t('label.register.template'),
-              description: `${this.$t('message.template.registration.accepted')} ${params.name}`
-            })
-            this.$emit('refresh-data')
-            this.closeAction()
-          }).catch(error => {
-            this.$notifyError(error)
-          }).finally(() => {
-            this.loading = false
-          })
-        } else if (this.currentForm === 'Upload') {
-          this.loading = true
-          if (this.fileList.length > 1) {
-            this.$notification.error({
-              message: this.$t('message.error.upload.template'),
-              description: this.$t('message.error.upload.template.description'),
-              duration: 0
-            })
-          }
-          getAPI('getUploadParamsForTemplate', params).then(async json => {
-            this.uploadParams = (json.postuploadtemplateresponse && json.postuploadtemplateresponse.getuploadparams) ? json.postuploadtemplateresponse.getuploadparams : ''
-            if (this.userdataid !== null) {
-              this.linkUserdataToTemplate(this.userdataid, json.postuploadtemplateresponse.template[0].id)
-            }
-            this.ssvmOrigin = new URL(this.uploadParams.postURL).origin
-            const trusted = await probeSsvmCert(this.ssvmOrigin)
-            if (!trusted) {
-              this.ssvmCertUntrusted = true
-              return
-            }
-            this.handleUpload()
-          }).catch(error => {
-            this.$notifyError(error)
-          }).finally(() => {
-            this.loading = false
-          })
+          const json = await postAPI('registerTemplate', params, { preserveOnFailure: true })
+          this.acceptedTemplateId = json.registertemplateresponse.template[0].id
+          this.$notification.info({ message: this.$t('label.register.template'), description: `${this.$t('message.template.registration.accepted')} ${params.name}` })
+          await this.finishRegistration()
+        } else {
+          const json = await getAPI('getUploadParamsForTemplate', params, { preserveOnFailure: true })
+          this.uploadParams = json.postuploadtemplateresponse.getuploadparams
+          this.acceptedTemplateId = this.uploadParams.id
+          this.ssvmOrigin = new URL(this.uploadParams.postURL).origin
+          if (!(await probeSsvmCert(this.ssvmOrigin))) { this.ssvmCertUntrusted = true; return }
+          await this.handleUpload()
         }
-      }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
-      })
+      } catch (error) {
+        if (error.errorFields?.length) this.formRef.value.scrollToField(error.errorFields[0].name)
+        else { this.submitError = error.response?.headers?.['x-description'] || error.message || this.$t('message.request.failed'); this.$notifyError(error) }
+      } finally { this.submitting = false }
+    },
+    async finishRegistration () {
+      this.$emit('refresh-data')
+      if (this.userdataid && this.acceptedTemplateId) {
+        try { await this.linkUserdataToTemplate(this.userdataid, this.acceptedTemplateId, this.userdatapolicy) } catch (error) {
+          this.linkFailed = true
+          this.submitError = error.response?.headers?.['x-description'] || error.message || this.$t('message.request.failed')
+          return
+        }
+      }
+      this.$emit('close-action')
+    },
+    async retryUserdataLink () {
+      if (this.submitting) return
+      this.submitting = true
+      this.submitError = ''
+      try { await this.finishRegistration() } finally { this.submitting = false }
     },
     handleChangeDirect (checked) {
       this.allowDirectDownload = checked
@@ -1269,23 +1278,11 @@ export default {
       return Promise.resolve()
     },
     closeAction () {
+      if (this.blocksNavigation) return
       this.$emit('close-action')
     },
     linkUserdataToTemplate (userdataid, templateid, userdatapolicy) {
-      this.loading = true
-      const params = {}
-      params.userdataid = userdataid
-      params.templateid = templateid
-      if (userdatapolicy) {
-        params.userdatapolicy = userdatapolicy
-      }
-      postAPI('linkUserDataToTemplate', params).then(json => {
-        this.closeAction()
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.loading = false
-      })
+      return postAPI('linkUserDataToTemplate', { userdataid, templateid, ...(userdatapolicy ? { userdatapolicy } : {}) }, { preserveOnFailure: true })
     },
     resetSelect (arrSelectReset) {
       arrSelectReset.forEach(name => {
@@ -1334,11 +1331,6 @@ export default {
 </script>
 
 <style scoped lang="less">
-  .form-layout {
-    width: 80vw;
-
-    @media (min-width: 700px) {
-      width: 550px;
-    }
-  }
+  .template-form-content { min-width: 0; }
+  .template-form-content :deep(.ant-alert) { margin-bottom: 16px; }
 </style>

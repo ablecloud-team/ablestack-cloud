@@ -104,6 +104,7 @@ export default {
       actions: [
         {
           api: 'registerTemplate',
+          selfManagedDialog: true,
           icon: 'plus-outlined',
           label: 'label.action.register.template',
           docHelp: 'adminguide/templates.html#uploading-templates-from-a-remote-http-server',
@@ -114,6 +115,7 @@ export default {
         },
         {
           api: 'registerTemplate',
+          selfManagedDialog: true,
           icon: 'cloud-upload-outlined',
           label: 'label.upload.template.from.local',
           docHelp: 'adminguide/templates.html#uploading-templates-and-isos-from-a-local-computer',
