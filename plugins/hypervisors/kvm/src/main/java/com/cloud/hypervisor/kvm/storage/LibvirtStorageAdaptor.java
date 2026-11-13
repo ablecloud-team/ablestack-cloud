@@ -1297,66 +1297,8 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
 
         logger.info("Attempting to remove volume " + uuid + " from pool " + pool.getUuid());
 
-        /**
-         * RBD volume can have snapshots and while they exist libvirt
-         * can't remove the RBD volume
-         *
-         * We have to remove those snapshots first
-         */
         if (pool.getType() == StoragePoolType.RBD) {
-            try {
-                logger.info("Unprotecting and Removing RBD snapshots of image " + pool.getSourceDir() + "/" + uuid + " prior to removing the image");
-
-                Rados r = new Rados(pool.getAuthUserName());
-                r.confSet("mon_host", pool.getSourceHost() + ":" + pool.getSourcePort());
-                r.confSet("key", pool.getAuthSecret());
-                r.confSet("client_mount_timeout", "30");
-                r.connect();
-                logger.debug("Successfully connected to Ceph cluster at " + r.confGet("mon_host"));
-
-                IoCTX io = r.ioCtxCreate(pool.getSourceDir());
-                Rbd rbd = new Rbd(io);
-                RbdImage image = rbd.open(uuid);
-                logger.debug("Fetching list of snapshots of RBD image " + pool.getSourceDir() + "/" + uuid);
-                List<RbdSnapInfo> snaps = image.snapList();
-                try {
-                    for (RbdSnapInfo snap : snaps) {
-                        if (image.snapIsProtected(snap.name)) {
-                            logger.debug("Unprotecting snapshot " + pool.getSourceDir() + "/" + uuid + "@" + snap.name);
-                            image.snapUnprotect(snap.name);
-                        } else {
-                            logger.debug("Snapshot " + pool.getSourceDir() + "/" + uuid + "@" + snap.name + " is not protected.");
-                        }
-                        logger.debug("Removing snapshot " + pool.getSourceDir() + "/" + uuid + "@" + snap.name);
-                        image.snapRemove(snap.name);
-                    }
-                    logger.info("Successfully unprotected and removed any remaining snapshots (" + snaps.size() + ") of "
-                        + pool.getSourceDir() + "/" + uuid + " Continuing to remove the RBD image");
-                } catch (RbdException e) {
-                    logger.error("Failed to remove snapshot with exception: " + e.toString() +
-                        ", RBD error: " + ErrorCode.getErrorMessage(e.getReturnValue()));
-                    throw new CloudRuntimeException(e.toString() + " - " + ErrorCode.getErrorMessage(e.getReturnValue()));
-                } finally {
-                    logger.debug("Closing image and destroying context");
-                    rbd.close(image);
-                    r.ioCtxDestroy(io);
-                }
-            } catch (RadosException e) {
-                logger.error("Failed to remove snapshot with exception: " + e.toString() +
-                    ", RBD error: " + ErrorCode.getErrorMessage(e.getReturnValue()));
-                throw new CloudRuntimeException(e.toString() + " - " + ErrorCode.getErrorMessage(e.getReturnValue()));
-            } catch (RbdException e) {
-                logger.error("Failed to remove snapshot with exception: " + e.toString() +
-                    ", RBD error: " + ErrorCode.getErrorMessage(e.getReturnValue()));
-                throw new CloudRuntimeException(e.toString() + " - " + ErrorCode.getErrorMessage(e.getReturnValue()));
-            }
-            //Check if rbd image is already mapped
-            String device = Script.runSimpleBashScript("rbd showmapped | grep \"" + pool.getSourceDir()+"[ ]*" + uuid + "\" | grep -o \"[^ ]*[ ]*$\"");
-            if(device != null) {
-                //If not mapped, map and return mapped device
-                Script.runSimpleBashScript("rbd unmap " + device + " --id " + pool.getAuthUserName());
-                device = Script.runSimpleBashScript("rbd showmapped | grep \"" + pool.getSourceDir()+"[ ]*" + uuid +"\" | grep -o \"[^ ]*[ ]*$\"");
-            }
+            return deleteRbdPhysicalDisk(uuid, (LibvirtStoragePool) pool);
         }
 
         LibvirtStoragePool libvirtPool = (LibvirtStoragePool)pool;
@@ -1376,6 +1318,127 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
             return true;
         } catch (LibvirtException e) {
             throw new CloudRuntimeException(e.toString());
+        }
+    }
+
+    protected RbdDeletionProbe.Result probeRbdDeletion(LibvirtStoragePool pool, String imageName) {
+        try {
+            return new RbdDeletionProbe().probe(pool, imageName, pool.getPool().getXMLDesc(0));
+        } catch (LibvirtException | RuntimeException error) {
+            return RbdDeletionProbe.unknown("LIBVIRT_POOL_XML", 0, null, -1);
+        }
+    }
+
+    protected StorageVol lookupRbdVolume(LibvirtStoragePool pool, String imageName) throws LibvirtException {
+        try {
+            return pool.getPool().storageVolLookupByName(imageName);
+        } catch (LibvirtException error) {
+            if (error.getError() == null || error.getError().getCode() != org.libvirt.Error.ErrorNumber.VIR_ERR_NO_STORAGE_VOL) {
+                throw error;
+            }
+            // Called only after the exact RBD target has been proved present. Refresh metadata once.
+            pool.getPool().refresh(0);
+            return pool.getPool().storageVolLookupByName(imageName);
+        }
+    }
+
+    protected boolean deleteRbdPhysicalDisk(String imageName, LibvirtStoragePool pool) {
+        RbdDeletionProbe.Result before = probeRbdDeletion(pool, imageName);
+        if (before.state == RbdDeletionProbe.State.ABSENT_CONFIRMED) {
+            logger.info("RBD cleanup confirmed already absent: pool={} image={} {}", pool.getUuid(), imageName, before.describe());
+            return true;
+        }
+        if (before.state == RbdDeletionProbe.State.UNKNOWN) {
+            throw rbdDeletionFailure("RBD_LOOKUP_UNKNOWN", pool, imageName, before, null);
+        }
+        StorageVol volume = null;
+        LibvirtException libvirtError = null;
+        RuntimeException preparationError = null;
+        try {
+            if (before.snapshots > 0) {
+                prepareRbdDeletionSnapshots(pool, imageName);
+            }
+            volume = lookupRbdVolume(pool, imageName);
+            if (volume == null) {
+                throw new CloudRuntimeException("RBD/libvirt metadata mismatch");
+            }
+            volume.delete(0);
+        } catch (LibvirtException error) {
+            libvirtError = error;
+        } catch (RuntimeException error) {
+            preparationError = error;
+        } finally {
+            if (volume != null) {
+                try {
+                    volume.free();
+                } catch (LibvirtException error) {
+                    logger.warn("Unable to free RBD libvirt volume handle for pool {}", pool.getUuid());
+                }
+            }
+        }
+        RbdDeletionProbe.Result after = probeRbdDeletion(pool, imageName);
+        if (after.state != RbdDeletionProbe.State.UNKNOWN && (!StringUtils.equals(before.fsid, after.fsid) || before.poolId != after.poolId)) {
+            throw rbdDeletionFailure("RBD_TARGET_CHANGED", pool, imageName, after, libvirtError);
+        }
+        if (after.state == RbdDeletionProbe.State.ABSENT_CONFIRMED) {
+            logger.info("RBD cleanup confirmed physical absence: pool={} image={} {}", pool.getUuid(), imageName, after.describe());
+            return true;
+        }
+        String reason = after.state == RbdDeletionProbe.State.UNKNOWN ? "RBD_LOOKUP_UNKNOWN"
+                : (libvirtError != null || preparationError != null ? "IMAGE_PRESENT_DELETE_FAILED" : "IMAGE_PRESENT_AFTER_DELETE");
+        throw rbdDeletionFailure(reason, pool, imageName, after, libvirtError);
+    }
+
+    private CloudRuntimeException rbdDeletionFailure(String reason, LibvirtStoragePool pool, String imageName,
+            RbdDeletionProbe.Result evidence, LibvirtException libvirtError) {
+        String image = imageName != null && imageName.matches("[a-zA-Z0-9_.-]+") ? imageName : "<unverified>";
+        String errorCode = libvirtError == null || libvirtError.getError() == null ? "unavailable" : String.valueOf(libvirtError.getError().getCode());
+        String message = "RBD cleanup [" + reason + "] pool=" + pool.getUuid() + " image=" + image + " " + evidence.describe()
+                + " libvirtCode=" + errorCode + " libvirtReportedErrno="
+                + (libvirtError == null || libvirtError.getError() == null ? "unavailable" : libvirtError.getError().getInt1()) + ". "
+                + (evidence.state == RbdDeletionProbe.State.PRESENT ? "The RBD image still exists. " : "Image absence could not be verified. ")
+                + "Check the storage target, permissions, active users/watchers and snapshot/child references, then retry normal deletion. No forced cleanup was performed.";
+        logger.warn(message);
+        return new CloudRuntimeException(message);
+    }
+
+    /** Preserve the existing snapshot cleanup contract; close all native handles before libvirt removal. */
+    protected void prepareRbdDeletionSnapshots(LibvirtStoragePool pool, String imageName) {
+        Rados connection = new Rados(StringUtils.isBlank(pool.getAuthUserName()) ? null : pool.getAuthUserName());
+        IoCTX context = null;
+        Rbd rbd = null;
+        RbdImage image = null;
+        try {
+            RbdDeletionProbe.configure(connection, pool);
+            connection.connect();
+            context = connection.ioCtxCreate(pool.getSourceDir());
+            context.setNamespace("");
+            rbd = new Rbd(context);
+            image = rbd.open(imageName);
+            for (RbdSnapInfo snapshot : image.snapList()) {
+                if (image.snapIsProtected(snapshot.name)) {
+                    image.snapUnprotect(snapshot.name);
+                }
+                image.snapRemove(snapshot.name);
+            }
+        } catch (RadosException | RbdException error) {
+            throw new CloudRuntimeException("RBD snapshot preparation failed. Preserve the volume and inspect snapshot/child references before normal retry.");
+        } finally {
+            try {
+                if (image != null) {
+                    rbd.close(image);
+                }
+            } catch (RbdException error) {
+                throw new CloudRuntimeException("RBD snapshot image handle could not be closed.");
+            } finally {
+                try {
+                    if (context != null) {
+                        connection.ioCtxDestroy(context);
+                    }
+                } finally {
+                    connection.shutDown();
+                }
+            }
         }
     }
 
