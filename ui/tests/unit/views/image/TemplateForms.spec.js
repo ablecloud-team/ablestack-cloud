@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { shallowMount } from '@vue/test-utils'
 import Template from '@/views/image/UpdateTemplate.vue'
 import Register from '@/views/image/RegisterOrUploadTemplate.vue'
 import { validTemplateChecksum } from '@/utils/templateForm'
@@ -84,4 +85,12 @@ test('file transfer failure reuses accepted upload parameters instead of creatin
   const c = context(Register, { currentForm: 'Upload' }); c.uploadParams = { id: 'accepted', postURL: 'https://ssvm.example/upload', signature: 'test', expires: 'test', metadata: 'test' }; c.acceptedTemplateId = 'accepted'; c.fileList = []; c.finishRegistration = jest.fn().mockResolvedValue()
   axios.post.mockRejectedValueOnce(new Error('transfer reset')); await c.handleUpload(); expect(c.uploadFailed).toBe(true); expect(c.uploading).toBe(false); expect(c.finishRegistration).not.toHaveBeenCalled()
   axios.post.mockResolvedValueOnce({}); await c.retryUpload(); expect(axios.post).toHaveBeenCalledTimes(2); expect(getAPI).not.toHaveBeenCalled(); expect(c.finishRegistration).toHaveBeenCalledTimes(1); expect(c.acceptedTemplateId).toBe('accepted')
+})
+
+test.each([['plus-outlined', 'Create', 'registerTemplate'], ['cloud-upload-outlined', 'Upload', 'getUploadParamsForTemplate']])('self-managed %s renders with currentAction prop', (icon, mode, api) => {
+  const wrapper = shallowMount({ ...Register, methods: { ...Register.methods, fetchData () {} } }, {
+    props: { resource: {}, currentAction: { icon } },
+    global: { mocks: { $getApiParams: jest.fn(() => metadata), $store: { getters: { userInfo: { roletype: 'Admin' }, apis: {} } }, $t: key => key }, stubs: { MoldDialog: { template: '<div><slot /></div>' }, 'a-spin': { template: '<div><slot /></div>' }, 'a-form': { template: '<form><slot /></form>' } } }
+  })
+  expect(wrapper.vm.currentForm).toBe(mode); expect(wrapper.vm.apiParams).toBe(metadata); expect(wrapper.vm.$getApiParams).toHaveBeenCalledWith(api); wrapper.unmount()
 })

@@ -546,10 +546,8 @@ export default {
       type: Object,
       required: true
     },
-    action: {
-      type: Object,
-      required: true
-    }
+    action: { type: Object, default: () => ({}) },
+    currentAction: { type: Object, default: () => ({}) }
   },
   components: {
     ResourceIcon,
@@ -598,7 +596,7 @@ export default {
       allowed: false,
       allowDirectDownload: false,
       uploadParams: null,
-      currentForm: ['plus-outlined', 'PlusOutlined'].includes(this.action.currentAction.icon) ? 'Create' : 'Upload',
+      currentForm: ['plus-outlined', 'PlusOutlined'].includes((this.action?.currentAction?.icon || this.currentAction?.icon)) ? 'Create' : 'Upload',
       domains: [],
       accounts: [],
       domainLoading: false,
@@ -610,7 +608,7 @@ export default {
     }
   },
   beforeCreate () {
-    this.apiParams = this.$getApiParams(['plus-outlined', 'PlusOutlined'].includes(this.action.currentAction.icon) ? 'registerTemplate' : 'getUploadParamsForTemplate')
+    this.apiParams = this.$getApiParams(['plus-outlined', 'PlusOutlined'].includes((this.action?.currentAction?.icon || this.currentAction?.icon)) ? 'registerTemplate' : 'getUploadParamsForTemplate')
     this.linkUserDataParams = this.$getApiParams('linkUserDataToTemplate')
   },
   created () {
