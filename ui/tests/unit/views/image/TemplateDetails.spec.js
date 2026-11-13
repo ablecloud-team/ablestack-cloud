@@ -102,7 +102,7 @@ test('VNF settings stay gated by their API and recover when hidden', () => {
   ctx.resource.templatetype = 'USER'; ResourceView.methods.setActiveTab.call(ctx); expect(ctx.activeTab).toBe('details')
 })
 function catalog () {
-  const c = { resource: { id: 'template-a', templatetype: 'SHAREDFS' }, $store: { getters: store.getters, state: { user: { token: 'first-session' } } }, rows: [], total: 0, page: 1, epoch: 0, busy: false, active: true, error: '', $t: t, $notifyError: jest.fn() }
+  const c = { $route: { path: '/template/template-a', meta: { name: 'template' } }, resource: { id: 'template-a', templatetype: 'SHAREDFS' }, $store: { getters: store.getters, state: { user: { token: 'first-session' } } }, rows: [], total: 0, page: 1, epoch: 0, busy: false, active: true, error: '', $t: t, $notifyError: jest.fn() }
   Object.defineProperty(c, 'scope', { get: () => Catalog.computed.scope.call(c) })
   Object.defineProperty(c, 'eligible', { get: () => Catalog.computed.eligible.call(c) })
   c.load = Catalog.methods.load.bind(c)

@@ -1,4 +1,20 @@
-<!-- Licensed under the Apache License, Version 2.0. See the NOTICE file. -->
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 <template>
   <div v-if="eligible" class="catalog-summary">
     <a-space class="catalog-toolbar" wrap>
@@ -25,8 +41,8 @@ export default {
   props: { resource: { type: Object, default: () => ({}) } },
   data () { return { rows: [], page: 1, total: 0, busy: false, error: '', epoch: 0, active: true } },
   computed: {
-    eligible () { return isStorageServiceTemplate(this.resource) && canReadTemplateRuntimeCatalog(this.$store.getters) },
-    scope () { const g = this.$store.getters; return JSON.stringify([this.resource.id, this.resource.templatetype, g.userInfo?.id, g.userInfo?.roletype, g.project?.id, this.$store.state?.user?.token, Object.keys(g.apis || {}).sort()]) },
+    eligible () { return canReadTemplateRuntimeCatalog(this.$store?.getters) && (this.$route?.meta?.name !== 'template' || isStorageServiceTemplate(this.resource)) },
+    scope () { const g = this.$store?.getters || {}; return JSON.stringify([this.$route?.path, this.resource.id, this.resource.templatetype, g.userInfo?.id, g.userInfo?.roletype, g.project?.id, this.$store?.state?.user?.token, Object.keys(g.apis || {}).sort()]) },
     columns () { return ['version', 'state', 'validationstatus', 'profileid'].map(key => ({ key, dataIndex: key, title: this.$t('label.' + key), width: 180 })) }
   },
   watch: { scope () { this.epoch++; this.rows = []; this.total = 0; this.page = 1; this.error = ''; this.busy = false; if (this.active) this.load() } },
