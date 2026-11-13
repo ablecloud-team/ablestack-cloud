@@ -1,0 +1,26 @@
+[
+  {
+    "cluster": 31,
+    "bodyClass": "",
+    "dialogs": 0,
+    "header": "qa-gn1569-31-shared-reg\n생성\nAC\nadmin cloud",
+    "viewport": {
+      "height": 841,
+      "width": 1680
+    },
+    "cacheRestored": true,
+    "interceptionCleared": true
+  },
+  {
+    "cluster": 32,
+    "bodyClass": "",
+    "dialogs": 0,
+    "header": "qa-gn1569-32-shared-reg\n생성\nAC\nadmin cloud",
+    "viewport": {
+      "height": 841,
+      "width": 1680
+    },
+    "cacheRestored": true,
+    "interceptionCleared": true
+  }
+]

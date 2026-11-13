@@ -1,0 +1,554 @@
+[
+  {
+    "cluster": 31,
+    "theme": "light",
+    "background": "rgb(255, 255, 255)",
+    "body": {
+      "clientWidth": 708,
+      "scrollWidth": 708
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 866,
+      "height": 832,
+      "left": 280,
+      "right": 1000,
+      "top": 34,
+      "width": 720
+    },
+    "enable": "true",
+    "height": 900,
+    "labelColor": "rgb(75, 85, 99)",
+    "labelFont": "14px",
+    "services": {
+      "clientWidth": 642,
+      "scrollWidth": 642
+    },
+    "submit": {
+      "bottom": 849,
+      "height": 32,
+      "left": 913.234375,
+      "right": 971,
+      "top": 817,
+      "width": 57.765625
+    },
+    "summary": {
+      "clientWidth": 652,
+      "scrollWidth": 652
+    },
+    "summaryText": "절약 모드\t활성화\n읽기 전용: 원본 설정을 복제본에도 명시적으로 보존합니다.",
+    "width": 1280,
+    "imageDimensions": {
+      "width": 1280,
+      "height": 900
+    },
+    "screenshot": "31-state-light-1280.png",
+    "sourceCommit": "5e1d22312e2578e419abd81492bcb95e7f8d7fd9"
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "background": "rgb(255, 255, 255)",
+    "body": {
+      "clientWidth": 708,
+      "scrollWidth": 708
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 866,
+      "height": 832,
+      "left": 280,
+      "right": 1000,
+      "top": 34,
+      "width": 720
+    },
+    "enable": "true",
+    "height": 900,
+    "labelColor": "rgb(75, 85, 99)",
+    "labelFont": "14px",
+    "services": {
+      "clientWidth": 642,
+      "scrollWidth": 642
+    },
+    "submit": {
+      "bottom": 849,
+      "height": 32,
+      "left": 913.234375,
+      "right": 971,
+      "top": 817,
+      "width": 57.765625
+    },
+    "summary": {
+      "clientWidth": 652,
+      "scrollWidth": 652
+    },
+    "summaryText": "절약 모드\t활성화\n읽기 전용: 원본 설정을 복제본에도 명시적으로 보존합니다.",
+    "width": 1280,
+    "imageDimensions": {
+      "width": 1280,
+      "height": 900
+    },
+    "screenshot": "32-state-light-1280.png",
+    "sourceCommit": "5e1d22312e2578e419abd81492bcb95e7f8d7fd9"
+  },
+  {
+    "cluster": 31,
+    "theme": "light",
+    "background": "rgb(255, 255, 255)",
+    "body": {
+      "clientWidth": 708,
+      "scrollWidth": 708
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 866,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 34,
+      "width": 720
+    },
+    "enable": "true",
+    "height": 900,
+    "labelColor": "rgb(75, 85, 99)",
+    "labelFont": "14px",
+    "services": {
+      "clientWidth": 642,
+      "scrollWidth": 642
+    },
+    "submit": {
+      "bottom": 849,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 817,
+      "width": 57.765625
+    },
+    "summary": {
+      "clientWidth": 652,
+      "scrollWidth": 652
+    },
+    "summaryText": "절약 모드\t활성화\n읽기 전용: 원본 설정을 복제본에도 명시적으로 보존합니다.",
+    "width": 768,
+    "imageDimensions": {
+      "width": 768,
+      "height": 900
+    },
+    "screenshot": "31-state-light-768.png",
+    "sourceCommit": "5e1d22312e2578e419abd81492bcb95e7f8d7fd9"
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "background": "rgb(255, 255, 255)",
+    "body": {
+      "clientWidth": 708,
+      "scrollWidth": 708
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 866,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 34,
+      "width": 720
+    },
+    "enable": "true",
+    "height": 900,
+    "labelColor": "rgb(75, 85, 99)",
+    "labelFont": "14px",
+    "services": {
+      "clientWidth": 642,
+      "scrollWidth": 642
+    },
+    "submit": {
+      "bottom": 849,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 817,
+      "width": 57.765625
+    },
+    "summary": {
+      "clientWidth": 652,
+      "scrollWidth": 652
+    },
+    "summaryText": "절약 모드\t활성화\n읽기 전용: 원본 설정을 복제본에도 명시적으로 보존합니다.",
+    "width": 768,
+    "imageDimensions": {
+      "width": 768,
+      "height": 900
+    },
+    "screenshot": "32-state-light-768.png",
+    "sourceCommit": "5e1d22312e2578e419abd81492bcb95e7f8d7fd9"
+  },
+  {
+    "cluster": 31,
+    "theme": "light",
+    "background": "rgb(255, 255, 255)",
+    "body": {
+      "clientWidth": 324,
+      "scrollWidth": 324
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 888,
+      "height": 876,
+      "left": 12,
+      "right": 348,
+      "top": 12,
+      "width": 336
+    },
+    "enable": "true",
+    "height": 900,
+    "labelColor": "rgb(75, 85, 99)",
+    "labelFont": "14px",
+    "services": {
+      "clientWidth": 282,
+      "scrollWidth": 282
+    },
+    "submit": {
+      "bottom": 871,
+      "height": 32,
+      "left": 273.234375,
+      "right": 331,
+      "top": 839,
+      "width": 57.765625
+    },
+    "summary": {
+      "clientWidth": 292,
+      "scrollWidth": 292
+    },
+    "summaryText": "절약 모드\t활성화\n읽기 전용: 원본 설정을 복제본에도 명시적으로 보존합니다.",
+    "width": 360,
+    "imageDimensions": {
+      "width": 360,
+      "height": 900
+    },
+    "screenshot": "31-state-light-360.png",
+    "sourceCommit": "5e1d22312e2578e419abd81492bcb95e7f8d7fd9"
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "background": "rgb(255, 255, 255)",
+    "body": {
+      "clientWidth": 324,
+      "scrollWidth": 324
+    },
+    "dark": false,
+    "dialog": {
+      "bottom": 888,
+      "height": 876,
+      "left": 12,
+      "right": 348,
+      "top": 12,
+      "width": 336
+    },
+    "enable": "true",
+    "height": 900,
+    "labelColor": "rgb(75, 85, 99)",
+    "labelFont": "14px",
+    "services": {
+      "clientWidth": 282,
+      "scrollWidth": 282
+    },
+    "submit": {
+      "bottom": 871,
+      "height": 32,
+      "left": 273.234375,
+      "right": 331,
+      "top": 839,
+      "width": 57.765625
+    },
+    "summary": {
+      "clientWidth": 292,
+      "scrollWidth": 292
+    },
+    "summaryText": "절약 모드\t활성화\n읽기 전용: 원본 설정을 복제본에도 명시적으로 보존합니다.",
+    "width": 360,
+    "imageDimensions": {
+      "width": 360,
+      "height": 900
+    },
+    "screenshot": "32-state-light-360.png",
+    "sourceCommit": "5e1d22312e2578e419abd81492bcb95e7f8d7fd9"
+  },
+  {
+    "cluster": 31,
+    "theme": "dark",
+    "background": "rgb(34, 40, 47)",
+    "body": {
+      "clientWidth": 708,
+      "scrollWidth": 708
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 866,
+      "height": 832,
+      "left": 280,
+      "right": 1000,
+      "top": 34,
+      "width": 720
+    },
+    "enable": "true",
+    "height": 900,
+    "labelColor": "rgba(255, 255, 255, 0.65)",
+    "labelFont": "14px",
+    "services": {
+      "clientWidth": 642,
+      "scrollWidth": 642
+    },
+    "submit": {
+      "bottom": 849,
+      "height": 32,
+      "left": 913.234375,
+      "right": 971,
+      "top": 817,
+      "width": 57.765625
+    },
+    "summary": {
+      "clientWidth": 652,
+      "scrollWidth": 652
+    },
+    "summaryText": "절약 모드\t활성화\n읽기 전용: 원본 설정을 복제본에도 명시적으로 보존합니다.",
+    "width": 1280,
+    "imageDimensions": {
+      "width": 1280,
+      "height": 900
+    },
+    "screenshot": "31-state-dark-1280.png",
+    "sourceCommit": "5e1d22312e2578e419abd81492bcb95e7f8d7fd9"
+  },
+  {
+    "cluster": 32,
+    "theme": "dark",
+    "background": "rgb(34, 40, 47)",
+    "body": {
+      "clientWidth": 708,
+      "scrollWidth": 708
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 866,
+      "height": 832,
+      "left": 280,
+      "right": 1000,
+      "top": 34,
+      "width": 720
+    },
+    "enable": "true",
+    "height": 900,
+    "labelColor": "rgba(255, 255, 255, 0.65)",
+    "labelFont": "14px",
+    "services": {
+      "clientWidth": 642,
+      "scrollWidth": 642
+    },
+    "submit": {
+      "bottom": 849,
+      "height": 32,
+      "left": 913.234375,
+      "right": 971,
+      "top": 817,
+      "width": 57.765625
+    },
+    "summary": {
+      "clientWidth": 652,
+      "scrollWidth": 652
+    },
+    "summaryText": "절약 모드\t활성화\n읽기 전용: 원본 설정을 복제본에도 명시적으로 보존합니다.",
+    "width": 1280,
+    "imageDimensions": {
+      "width": 1280,
+      "height": 900
+    },
+    "screenshot": "32-state-dark-1280.png",
+    "sourceCommit": "5e1d22312e2578e419abd81492bcb95e7f8d7fd9"
+  },
+  {
+    "cluster": 31,
+    "theme": "dark",
+    "background": "rgb(34, 40, 47)",
+    "body": {
+      "clientWidth": 708,
+      "scrollWidth": 708
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 866,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 34,
+      "width": 720
+    },
+    "enable": "true",
+    "height": 900,
+    "labelColor": "rgba(255, 255, 255, 0.65)",
+    "labelFont": "14px",
+    "services": {
+      "clientWidth": 642,
+      "scrollWidth": 642
+    },
+    "submit": {
+      "bottom": 849,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 817,
+      "width": 57.765625
+    },
+    "summary": {
+      "clientWidth": 652,
+      "scrollWidth": 652
+    },
+    "summaryText": "절약 모드\t활성화\n읽기 전용: 원본 설정을 복제본에도 명시적으로 보존합니다.",
+    "width": 768,
+    "imageDimensions": {
+      "width": 768,
+      "height": 900
+    },
+    "screenshot": "31-state-dark-768.png",
+    "sourceCommit": "5e1d22312e2578e419abd81492bcb95e7f8d7fd9"
+  },
+  {
+    "cluster": 32,
+    "theme": "dark",
+    "background": "rgb(34, 40, 47)",
+    "body": {
+      "clientWidth": 708,
+      "scrollWidth": 708
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 866,
+      "height": 832,
+      "left": 24,
+      "right": 744,
+      "top": 34,
+      "width": 720
+    },
+    "enable": "true",
+    "height": 900,
+    "labelColor": "rgba(255, 255, 255, 0.65)",
+    "labelFont": "14px",
+    "services": {
+      "clientWidth": 642,
+      "scrollWidth": 642
+    },
+    "submit": {
+      "bottom": 849,
+      "height": 32,
+      "left": 657.234375,
+      "right": 715,
+      "top": 817,
+      "width": 57.765625
+    },
+    "summary": {
+      "clientWidth": 652,
+      "scrollWidth": 652
+    },
+    "summaryText": "절약 모드\t활성화\n읽기 전용: 원본 설정을 복제본에도 명시적으로 보존합니다.",
+    "width": 768,
+    "imageDimensions": {
+      "width": 768,
+      "height": 900
+    },
+    "screenshot": "32-state-dark-768.png",
+    "sourceCommit": "5e1d22312e2578e419abd81492bcb95e7f8d7fd9"
+  },
+  {
+    "cluster": 31,
+    "theme": "dark",
+    "background": "rgb(34, 40, 47)",
+    "body": {
+      "clientWidth": 324,
+      "scrollWidth": 324
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 888,
+      "height": 876,
+      "left": 12,
+      "right": 348,
+      "top": 12,
+      "width": 336
+    },
+    "enable": "true",
+    "height": 900,
+    "labelColor": "rgba(255, 255, 255, 0.65)",
+    "labelFont": "14px",
+    "services": {
+      "clientWidth": 282,
+      "scrollWidth": 282
+    },
+    "submit": {
+      "bottom": 871,
+      "height": 32,
+      "left": 273.234375,
+      "right": 331,
+      "top": 839,
+      "width": 57.765625
+    },
+    "summary": {
+      "clientWidth": 292,
+      "scrollWidth": 292
+    },
+    "summaryText": "절약 모드\t활성화\n읽기 전용: 원본 설정을 복제본에도 명시적으로 보존합니다.",
+    "width": 360,
+    "imageDimensions": {
+      "width": 360,
+      "height": 900
+    },
+    "screenshot": "31-state-dark-360.png",
+    "sourceCommit": "5e1d22312e2578e419abd81492bcb95e7f8d7fd9"
+  },
+  {
+    "cluster": 32,
+    "theme": "dark",
+    "background": "rgb(34, 40, 47)",
+    "body": {
+      "clientWidth": 324,
+      "scrollWidth": 324
+    },
+    "dark": true,
+    "dialog": {
+      "bottom": 888,
+      "height": 876,
+      "left": 12,
+      "right": 348,
+      "top": 12,
+      "width": 336
+    },
+    "enable": "true",
+    "height": 900,
+    "labelColor": "rgba(255, 255, 255, 0.65)",
+    "labelFont": "14px",
+    "services": {
+      "clientWidth": 282,
+      "scrollWidth": 282
+    },
+    "submit": {
+      "bottom": 871,
+      "height": 32,
+      "left": 273.234375,
+      "right": 331,
+      "top": 839,
+      "width": 57.765625
+    },
+    "summary": {
+      "clientWidth": 292,
+      "scrollWidth": 292
+    },
+    "summaryText": "절약 모드\t활성화\n읽기 전용: 원본 설정을 복제본에도 명시적으로 보존합니다.",
+    "width": 360,
+    "imageDimensions": {
+      "width": 360,
+      "height": 900
+    },
+    "screenshot": "32-state-dark-360.png",
+    "sourceCommit": "5e1d22312e2578e419abd81492bcb95e7f8d7fd9"
+  }
+]

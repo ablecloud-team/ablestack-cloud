@@ -1,0 +1,32 @@
+{
+  "listVPCOfferings": {
+    "beforeCount": 7,
+    "afterCount": 7,
+    "idSetsMatch": true,
+    "fieldDifferences": []
+  },
+  "listVPCs": {
+    "beforeCount": 1,
+    "afterCount": 1,
+    "idSetsMatch": true,
+    "fieldDifferences": []
+  },
+  "listNetworks": {
+    "beforeCount": 16,
+    "afterCount": 16,
+    "idSetsMatch": true,
+    "fieldDifferences": []
+  },
+  "listRouters": {
+    "beforeCount": 10,
+    "afterCount": 10,
+    "idSetsMatch": true,
+    "fieldDifferences": []
+  },
+  "listVirtualMachines": {
+    "beforeCount": 58,
+    "afterCount": 58,
+    "idSetsMatch": true,
+    "fieldDifferences": []
+  }
+}

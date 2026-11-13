@@ -1,0 +1,84 @@
+{
+  "zoneId": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+  "tested": [
+    {
+      "id": "a36de48c-20af-4a01-8d32-0028c7b67677",
+      "name": "qa-vpc1652-20261113-31-ui-enabled-untouched",
+      "enabled": true,
+      "inCandidates": true
+    },
+    {
+      "id": "bcd950bf-a850-44db-a6b7-4b63436349ea",
+      "name": "qa-vpc1652-20261113-31-ui-enabled-on",
+      "enabled": true,
+      "inCandidates": true
+    },
+    {
+      "id": "39371f5f-a52c-4b5d-92ad-5e57538c2300",
+      "name": "qa-vpc1652-20261113-31-ui-enabled-off",
+      "enabled": false,
+      "inCandidates": false
+    },
+    {
+      "id": "092ad4ac-7ef5-43b8-9626-184e697b1ef7",
+      "name": "qa-vpc1652-20261113-31-ui-enabled-on-off",
+      "enabled": false,
+      "inCandidates": false
+    },
+    {
+      "id": "dba6be30-e859-4550-ad9e-573ac8a3ae76",
+      "name": "qa-vpc1652-20261113-31-ui-disabled-untouched",
+      "enabled": false,
+      "inCandidates": false
+    },
+    {
+      "id": "767e5f14-ef59-46bf-8512-dae476df05f3",
+      "name": "qa-vpc1652-20261113-31-ui-disabled-on",
+      "enabled": true,
+      "inCandidates": true
+    },
+    {
+      "id": "46bfa2dd-59a9-4303-be1f-7ba14429982e",
+      "name": "qa-vpc1652-20261113-31-ui-disabled-off",
+      "enabled": false,
+      "inCandidates": false
+    },
+    {
+      "id": "80934944-636a-472c-be8d-6c7098176a9b",
+      "name": "qa-vpc1652-20261113-31-ui-disabled-on-off",
+      "enabled": false,
+      "inCandidates": false
+    },
+    {
+      "id": "f8eb5ff4-dbbd-47c6-8933-0909f8084671",
+      "name": "qa-vpc1652-20261113-31-ui-cap-true",
+      "enabled": false,
+      "inCandidates": false
+    },
+    {
+      "id": "31a95495-79d2-4f19-bf46-14653c776eaf",
+      "name": "qa-vpc1652-20261113-31-ui-cap-false",
+      "enabled": false,
+      "inCandidates": false
+    },
+    {
+      "id": "7edc9ea6-6872-459a-9c39-167a81f6527e",
+      "name": "qa-vpc1652-20261113-31-ui-retry",
+      "enabled": false,
+      "inCandidates": false
+    },
+    {
+      "id": "3cf81ae9-6ed8-465f-9e18-f74167c24fd7",
+      "name": "qa-vpc1652-20261113-31-ui-final-enabled",
+      "enabled": true,
+      "inCandidates": true
+    },
+    {
+      "id": "36acb982-7370-4d1c-8c21-08e2ae0f0a6c",
+      "name": "qa-vpc1652-20261113-31-ui-final-disabled",
+      "enabled": false,
+      "inCandidates": false
+    }
+  ],
+  "matches": true
+}

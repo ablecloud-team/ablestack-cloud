@@ -1,0 +1,291 @@
+{
+  "readOnly": true,
+  "rows": [
+    {
+      "id": "c92622b0-692f-4d0e-a948-6db0f6ec6159",
+      "name": "Redundant VPC offering",
+      "state": "Enabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": true,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "dfee162b-9057-4c85-b577-6fefa98b663c",
+      "name": "qa-vpc1652-20261113-31-source-enabled",
+      "state": "Enabled",
+      "conserveMode": true,
+      "serviceOfferingId": "314ccb87-0e40-4438-9d1f-474c52e4e609",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "1f89b379-9d78-414b-b6dc-49e5bb6be61f",
+      "name": "qa-vpc1652-20261113-31-source-disabled",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "7d113584-79bd-4249-8eb9-39cb4e848e82",
+      "name": "qa-vpc1652-20261113-31-api-enabled-inherit",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": "314ccb87-0e40-4438-9d1f-474c52e4e609",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "31836b9d-4a1a-47d8-a3e2-8cd7f7251b2d",
+      "name": "qa-vpc1652-20261113-31-api-enabled-true",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": "314ccb87-0e40-4438-9d1f-474c52e4e609",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "d2ae7da1-e9d6-4b31-b389-b7f976d3fae0",
+      "name": "qa-vpc1652-20261113-31-api-enabled-false",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": "314ccb87-0e40-4438-9d1f-474c52e4e609",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "3cde3dde-f02c-4e45-a1f7-3825bbb30b38",
+      "name": "qa-vpc1652-20261113-31-api-disabled-inherit",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "519b83ff-f010-4386-bd3c-01ca93b1ea9a",
+      "name": "qa-vpc1652-20261113-31-api-disabled-true",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "060a999a-ed86-4f7b-bf52-82857d114232",
+      "name": "qa-vpc1652-20261113-31-api-disabled-false",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "268881b3-338a-4d9b-af4b-5e4522bc14e7",
+      "name": "qa-vpc1652-20261113-31-api-conserve-true",
+      "state": "Disabled",
+      "conserveMode": true,
+      "serviceOfferingId": "314ccb87-0e40-4438-9d1f-474c52e4e609",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "912ed4e5-c88c-4c31-b900-e57d8390bd4f",
+      "name": "qa-vpc1652-20261113-31-api-conserve-false",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": "314ccb87-0e40-4438-9d1f-474c52e4e609",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "3d44e4a8-49e0-430e-abe7-e6857f3e4aff",
+      "name": "qa-vpc1652-20261113-31-api-cap-true",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": true,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "d923e0a7-45e8-4c8d-bc21-f9b23074b35c",
+      "name": "qa-vpc1652-20261113-31-api-cap-false",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "a36de48c-20af-4a01-8d32-0028c7b67677",
+      "name": "qa-vpc1652-20261113-31-ui-enabled-untouched",
+      "state": "Enabled",
+      "conserveMode": true,
+      "serviceOfferingId": "314ccb87-0e40-4438-9d1f-474c52e4e609",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "bcd950bf-a850-44db-a6b7-4b63436349ea",
+      "name": "qa-vpc1652-20261113-31-ui-enabled-on",
+      "state": "Enabled",
+      "conserveMode": true,
+      "serviceOfferingId": "93be49a2-77a0-461c-bed5-9dfe34bd5b48",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "39371f5f-a52c-4b5d-92ad-5e57538c2300",
+      "name": "qa-vpc1652-20261113-31-ui-enabled-off",
+      "state": "Disabled",
+      "conserveMode": true,
+      "serviceOfferingId": "314ccb87-0e40-4438-9d1f-474c52e4e609",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "092ad4ac-7ef5-43b8-9626-184e697b1ef7",
+      "name": "qa-vpc1652-20261113-31-ui-enabled-on-off",
+      "state": "Disabled",
+      "conserveMode": true,
+      "serviceOfferingId": "314ccb87-0e40-4438-9d1f-474c52e4e609",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "dba6be30-e859-4550-ad9e-573ac8a3ae76",
+      "name": "qa-vpc1652-20261113-31-ui-disabled-untouched",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "767e5f14-ef59-46bf-8512-dae476df05f3",
+      "name": "qa-vpc1652-20261113-31-ui-disabled-on",
+      "state": "Enabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "46bfa2dd-59a9-4303-be1f-7ba14429982e",
+      "name": "qa-vpc1652-20261113-31-ui-disabled-off",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "80934944-636a-472c-be8d-6c7098176a9b",
+      "name": "qa-vpc1652-20261113-31-ui-disabled-on-off",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "f8eb5ff4-dbbd-47c6-8933-0909f8084671",
+      "name": "qa-vpc1652-20261113-31-ui-cap-true",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": true,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "31a95495-79d2-4f19-bf46-14653c776eaf",
+      "name": "qa-vpc1652-20261113-31-ui-cap-false",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "7edc9ea6-6872-459a-9c39-167a81f6527e",
+      "name": "qa-vpc1652-20261113-31-ui-retry",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "3cf81ae9-6ed8-465f-9e18-f74167c24fd7",
+      "name": "qa-vpc1652-20261113-31-ui-final-enabled",
+      "state": "Enabled",
+      "conserveMode": true,
+      "serviceOfferingId": "314ccb87-0e40-4438-9d1f-474c52e4e609",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "36acb982-7370-4d1c-8c21-08e2ae0f0a6c",
+      "name": "qa-vpc1652-20261113-31-ui-final-disabled",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    }
+  ]
+}

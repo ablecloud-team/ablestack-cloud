@@ -1,0 +1,32 @@
+[
+  {
+    "cluster": 31,
+    "rect": {
+      "height": 104,
+      "width": 292,
+      "x": 29,
+      "y": 465
+    },
+    "text": "inherit\ntrue\n원본 유지\n활성화\n비활성화",
+    "viewport": {
+      "height": 900,
+      "width": 360
+    },
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "rect": {
+      "height": 104,
+      "width": 292,
+      "x": 29,
+      "y": 465
+    },
+    "text": "inherit\ntrue\n원본 유지\n활성화\n비활성화",
+    "viewport": {
+      "height": 900,
+      "width": 360
+    },
+    "pass": true
+  }
+]

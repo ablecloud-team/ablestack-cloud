@@ -1,0 +1,60 @@
+[
+  {
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "d5e2d7fa-0c54-4a6c-be61-11aedf51987b",
+      "name": "qa-vpc1652-20261113-32-ui-retry",
+      "displaytext": "qa-vpc1652-20261113-32-source-disabled",
+      "conservemode": "false",
+      "internetprotocol": "ipv4",
+      "networkmode": "NATTED",
+      "enable": "false"
+    }
+  },
+  {
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "d5e2d7fa-0c54-4a6c-be61-11aedf51987b",
+      "name": "qa-vpc1652-20261113-32-ui-retry",
+      "displaytext": "qa-vpc1652-20261113-32-source-disabled",
+      "conservemode": "false",
+      "internetprotocol": "ipv4",
+      "networkmode": "NATTED",
+      "enable": "false"
+    }
+  },
+  {
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "c43030eb-5c42-409f-beae-93bba51322c5",
+      "name": "qa-vpc1652-20261113-32-ui-final-enabled",
+      "displaytext": "qa-vpc1652-20261113-32-source-enabled",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "conservemode": "true",
+      "internetprotocol": "ipv4",
+      "networkmode": "NATTED",
+      "enable": "true"
+    }
+  },
+  {
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "d5e2d7fa-0c54-4a6c-be61-11aedf51987b",
+      "name": "qa-vpc1652-20261113-32-ui-final-disabled",
+      "displaytext": "qa-vpc1652-20261113-32-source-disabled",
+      "conservemode": "false",
+      "internetprotocol": "ipv4",
+      "networkmode": "NATTED",
+      "enable": "false"
+    }
+  }
+]

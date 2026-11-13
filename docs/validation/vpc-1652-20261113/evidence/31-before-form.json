@@ -1,0 +1,20 @@
+{
+  "cluster": 31,
+  "controls": [
+    {
+      "checked": null,
+      "id": "form_item_redundantrouter",
+      "label": null
+    },
+    {
+      "checked": "true",
+      "id": "form_item_ispublic",
+      "label": null
+    },
+    {
+      "checked": null,
+      "id": "form_item_enable",
+      "label": null
+    }
+  ]
+}

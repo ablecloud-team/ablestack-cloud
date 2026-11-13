@@ -1,0 +1,137 @@
+{
+  "readOnly": true,
+  "rows": [
+    {
+      "id": "dfee162b-9057-4c85-b577-6fefa98b663c",
+      "name": "qa-vpc1652-20261113-31-source-enabled",
+      "state": "Enabled",
+      "conserveMode": true,
+      "serviceOfferingId": "314ccb87-0e40-4438-9d1f-474c52e4e609",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "1f89b379-9d78-414b-b6dc-49e5bb6be61f",
+      "name": "qa-vpc1652-20261113-31-source-disabled",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "7d113584-79bd-4249-8eb9-39cb4e848e82",
+      "name": "qa-vpc1652-20261113-31-api-enabled-inherit",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": "314ccb87-0e40-4438-9d1f-474c52e4e609",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "31836b9d-4a1a-47d8-a3e2-8cd7f7251b2d",
+      "name": "qa-vpc1652-20261113-31-api-enabled-true",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": "314ccb87-0e40-4438-9d1f-474c52e4e609",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "d2ae7da1-e9d6-4b31-b389-b7f976d3fae0",
+      "name": "qa-vpc1652-20261113-31-api-enabled-false",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": "314ccb87-0e40-4438-9d1f-474c52e4e609",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "3cde3dde-f02c-4e45-a1f7-3825bbb30b38",
+      "name": "qa-vpc1652-20261113-31-api-disabled-inherit",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "519b83ff-f010-4386-bd3c-01ca93b1ea9a",
+      "name": "qa-vpc1652-20261113-31-api-disabled-true",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "060a999a-ed86-4f7b-bf52-82857d114232",
+      "name": "qa-vpc1652-20261113-31-api-disabled-false",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "268881b3-338a-4d9b-af4b-5e4522bc14e7",
+      "name": "qa-vpc1652-20261113-31-api-conserve-true",
+      "state": "Disabled",
+      "conserveMode": true,
+      "serviceOfferingId": "314ccb87-0e40-4438-9d1f-474c52e4e609",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "912ed4e5-c88c-4c31-b900-e57d8390bd4f",
+      "name": "qa-vpc1652-20261113-31-api-conserve-false",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": "314ccb87-0e40-4438-9d1f-474c52e4e609",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "3d44e4a8-49e0-430e-abe7-e6857f3e4aff",
+      "name": "qa-vpc1652-20261113-31-api-cap-true",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": true,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    },
+    {
+      "id": "d923e0a7-45e8-4c8d-bc21-f9b23074b35c",
+      "name": "qa-vpc1652-20261113-31-api-cap-false",
+      "state": "Disabled",
+      "conserveMode": false,
+      "serviceOfferingId": null,
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false,
+      "specifyAsNumber": false
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+[
+  {
+    "id": "c43030eb-5c42-409f-beae-93bba51322c5",
+    "name": "qa-vpc1652-20261113-32-source-enabled",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "d5e2d7fa-0c54-4a6c-be61-11aedf51987b",
+    "name": "qa-vpc1652-20261113-32-source-disabled",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "dc87fd8c-4a3a-4ba2-9931-ceab6e0c7156",
+    "name": "qa-vpc1652-20261113-32-ui-enabled-untouched",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "d684bd63-b653-4d76-a7b0-9ec00318fec8",
+    "name": "qa-vpc1652-20261113-32-ui-enabled-on",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "dccee5d0-9d7b-44bd-93f4-2e2e80bd3977",
+    "name": "qa-vpc1652-20261113-32-ui-enabled-off",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "611d06d1-4997-4f9e-baa2-67fae8a8d8cb",
+    "name": "qa-vpc1652-20261113-32-ui-enabled-on-off",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "1114d6e6-184b-4fc1-ba84-8d35d26f8ec5",
+    "name": "qa-vpc1652-20261113-32-ui-disabled-untouched",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "11aa9fd3-7285-45d9-a92c-510eaa7e30c0",
+    "name": "qa-vpc1652-20261113-32-ui-disabled-on",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "0657b8c0-d086-437f-b8af-c8bc8e157c34",
+    "name": "qa-vpc1652-20261113-32-ui-disabled-off",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "f41b1845-7274-41d4-b329-cb610be43599",
+    "name": "qa-vpc1652-20261113-32-ui-disabled-on-off",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "76e420f1-dc53-4ad1-99dc-7991b305dccc",
+    "name": "qa-vpc1652-20261113-32-ui-cap-true",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "0bae219e-94c2-4445-bb07-daa08496fd2c",
+    "name": "qa-vpc1652-20261113-32-ui-cap-false",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "dae59a74-acf0-4050-9a22-612e72408279",
+    "name": "qa-vpc1652-20261113-32-ui-retry",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "1f9f1ea5-a143-4c99-b257-4310d913634b",
+    "name": "qa-vpc1652-20261113-32-ui-final-enabled",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "e5ab0c08-a3eb-45db-b7bd-bd868473ec6e",
+    "name": "qa-vpc1652-20261113-32-ui-final-disabled",
+    "result": {
+      "success": true
+    }
+  }
+]
