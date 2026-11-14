@@ -17,7 +17,7 @@
 
 <template>
   <MoldDialog size="md" form-actions focus-guard :title="$t(currentForm === 'Create' ? 'label.action.register.template' : 'label.upload.template.from.local')" :closable="!blocksNavigation" :keyboard="!blocksNavigation" @cancel="closeAction">
-  <div class="template-form-content" @keyup.ctrl.enter="handleSubmit">
+  <div class="template-form-content" :class="{ 'sharedfs-profile-form': isSharedFsRegistration }" @keyup.ctrl.enter="handleSubmit">
     <a-alert ref="typeError" tabindex="-1" v-if="submitError" type="error" show-icon role="alert" :message="submitError" />
     <div v-if="linkFailed">
       <a-alert type="warning" show-icon :message="$t('message.userdata.image.partial')" :description="acceptedTemplateId" />
@@ -1353,4 +1353,6 @@ export default {
 <style scoped lang="less">
   .template-form-content { min-width: 0; }
   .template-form-content :deep(.ant-alert) { margin-bottom: 16px; }
+  .template-form-content.sharedfs-profile-form :deep(.ant-checkbox-disabled + span),
+  .template-form-content.sharedfs-profile-form :deep(.ant-select-disabled .ant-select-selection-item) { color: var(--ui-text-secondary); }
 </style>
