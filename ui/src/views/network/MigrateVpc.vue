@@ -51,7 +51,7 @@ focus-guard
         <section>
           <h3>{{ $t('label.network.migration.destination') }}</h3>
           <a-form-item :label="$t('label.vpcoffering')">
-            <a-select :value="targetId || undefined" show-search option-filter-prop="label" :aria-label="$t('label.vpc.migration.target')" :placeholder="$t('message.network.migration.select')" :disabled="busy || unsettled || status === 'success' || !!context.previous" @change="selectTarget">
+            <a-select :value="targetId || undefined" show-search option-filter-prop="label" :aria-label="$t('label.vpc.migration.target')" :placeholder="$t('message.vpc.migration.select')" :disabled="busy || unsettled || status === 'success' || !!context.previous" @change="selectTarget">
               <a-select-option v-for="o in targets" :key="o.id" :value="o.id" :label="o.name">{{ o.name }} · {{ o.id }}</a-select-option>
             </a-select>
           </a-form-item>
@@ -69,7 +69,7 @@ focus-guard
             <a-tag v-if="context.previous">{{ $t(row.locked ? 'label.vpc.migration.tier.fixed' : 'label.vpc.migration.tier.remaining') }}</a-tag>
             <p v-if="row.source" class="migration-help">{{ $t('label.vpc.migration.previous') }}: {{ row.source.id }} · {{ physicalName(row.source.physicalnetworkid) }} · {{ row.source.state }}</p>
             <a-form-item :label="$t('label.network.offering')">
-              <a-select :value="mappings[row.network.id] || undefined" show-search option-filter-prop="label" :aria-label="$t('label.network.offering') + ': ' + row.network.name" :placeholder="$t('message.network.migration.select')" :disabled="busy || unsettled || status === 'success' || row.locked || !target" @change="value => selectTier(row.network.id, value)">
+              <a-select :value="mappings[row.network.id] || undefined" show-search option-filter-prop="label" :aria-label="$t('label.network.offering') + ': ' + row.network.name" :placeholder="$t('message.vpc.migration.select')" :disabled="busy || unsettled || status === 'success' || row.locked || !target" @change="value => selectTier(row.network.id, value)">
                 <a-select-option v-for="c in choices(row)" :key="c.offering.id" :value="c.offering.id" :label="c.offering.name">{{ c.offering.name }} · {{ c.physical.name }}</a-select-option>
               </a-select>
             </a-form-item>
@@ -129,7 +129,7 @@ export default {
     busy () { return this.loading || this.working },
     unsettled () { return ['submitting', 'running', 'unknown'].includes(this.status) },
     reason () { return this.context ? vpcMigrationReason(this.context) : '' },
-    targets () { return this.context ? vpcMigrationTargets(this.context) : [] },
+    targets () { return this.context ? this.status === 'success' ? [this.context.offering] : vpcMigrationTargets(this.context) : [] },
     target () { return this.targets.find(o => o.id === this.targetId) },
     preview () { try { return this.context && buildVpcMigrationPlan(this.context, this.targetId, this.mappings) } catch (_) { return null } },
     canStart () { return this.active() && this.loaded && !this.busy && !this.unsettled && this.status !== 'success' && !this.storageError && this.acknowledged && this.diagnostic === 'ready' && !!this.preview && vpcMigrationVisible(this.resource, this.$store.getters) },
@@ -168,7 +168,13 @@ export default {
     text (e) { const d = Object.values(e?.response?.data || {}).find(v => v?.errorcode); const s = d?.errortext || e?.message || this.$t('message.request.failed'); return /^(message\.vpc\.migration\.|message\.network\.migration\.)/.test(s) ? this.$t(s) : [d?.errorcode, s].filter(Boolean).join(': ') },
     services (o) { return (o?.service || []).map(s => s.name + ': ' + (s.provider || []).map(p => p.name).join(', ')).join('; ') || '—' },
     physicalName (id) { return this.context?.physical.find(p => p.id === id)?.name || id || '—' },
-    choices (row) { return this.target ? vpcTierMigrationTargets(this.context, row, this.target) : [] },
+    choices (row) {
+      if (this.status === 'success') {
+        const physical = this.context.physical.find(p => p.id === row.network.physicalnetworkid)
+        return physical ? [{ offering: row.offering, physical }] : []
+      }
+      return this.target ? vpcTierMigrationTargets(this.context, row, this.target) : []
+    },
     destination (row) { return this.choices(row).find(c => c.offering.id === this.mappings[row.network.id]) },
     persist () {
       if (!this.active() || this.storageError) return false
@@ -179,9 +185,9 @@ export default {
     },
     setContext (context) {
       this.context = context; this.acknowledged = false; this.diagnostic = ''
-      if (context.previous) this.targetId = context.offering.id
+      if (context.previous || this.status === 'success') this.targetId = context.offering.id
       else if (!vpcMigrationTargets(context).some(o => o.id === this.targetId)) this.targetId = ''
-      this.mappings = Object.fromEntries(context.tiers.map(r => [r.network.id, r.locked ? r.network.networkofferingid : this.mappings[r.network.id] || '']))
+      this.mappings = Object.fromEntries(context.tiers.map(r => [r.network.id, r.locked || this.status === 'success' ? r.network.networkofferingid : this.mappings[r.network.id] || '']))
     },
     async load () {
       if (this.busy || !this.active()) return
@@ -192,6 +198,7 @@ export default {
         const context = await readVpcMigrationContext(this.read, this.resource)
         if (!this.active(token)) return
         this.setContext(context); this.loaded = true
+        if (this.status === 'success' && (!this.plan || !this.original || !vpcMigrationSucceeded(context, this.plan, this.original))) this.result('unknown', this.$t('message.vpc.migration.result'))
         await this.diagnose(token)
       } catch (e) { if (this.active(token)) this.error = this.text(e) } finally { if (this.active(token)) this.loading = false }
     },
@@ -204,7 +211,11 @@ export default {
       this.diagnostic = 'checking'
       try { await diagnoseVpcMigrationPlan(this.read, this.$store.getters, this.context, plan); if (this.active(token) && sequence === this.diagnosticGeneration) this.diagnostic = 'ready' } catch (e) { if (this.active(token) && sequence === this.diagnosticGeneration) { this.diagnostic = 'failed'; this.error = this.text(e) } }
     },
-    result (status, error = '') { this.status = status; this.error = error; const h = this.history.at(-1); if (h) Object.assign(h, { status, error }); this.persist() },
+    result (status, error = '') {
+      this.status = status; this.error = error
+      if (status === 'success') { this.targetId = this.context.offering.id; this.mappings = Object.fromEntries(this.context.tiers.map(r => [r.network.id, r.network.networkofferingid])) }
+      const h = this.history.at(-1); if (h) Object.assign(h, { status, error }); this.persist()
+    },
     async start () {
       if (!this.canStart) return
       const token = ++this.generation; const expected = vpcMigrationFingerprint(this.context); const selected = this.preview; const selectedFingerprint = vpcMigrationPlanFingerprint(this.context, selected)

@@ -11600,6 +11600,7 @@
   "label.vpc.migration.diagnostic.checking": "Checking physical networks and providers for every Tier",
   "label.vpc.migration.diagnostic.ready": "Physical networks and providers verified for every Tier",
   "label.vpc.migration.diagnostic.failed": "Destination provider verification failed; submission blocked",
+  "message.vpc.migration.select": "Select a compatible offering.",
   "message.vpc.migration.impact": "Administrator-only VPC migration. Review the VPC offering and mappings for every Tier. Routers, Tiers and attached VM NICs are migrated; connections may be interrupted. Partial failure preserves source resources without automatic rollback.",
   "message.vpc.migration.support": "This screen supports IPv4/NATTED single VPC routers and Tier offerings with matching service, provider and addressing contracts. Same-network transitions change offerings; other physical networks require ready Guest/VLAN providers. External providers, redundancy, IPv6, dynamic routing and gateway/VPN/static-route configurations are excluded. The server performs authoritative validation.",
   "message.vpc.migration.acknowledge": "I reviewed every Tier mapping, service and physical network, interruption risk and partial-failure recovery conditions.",

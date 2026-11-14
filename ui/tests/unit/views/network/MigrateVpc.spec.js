@@ -55,6 +55,8 @@ test('requires every Tier and impact acknowledgement, then sends one complete ex
   w.vm.acknowledged = true; await w.vm.start()
   expect(postAPI).toHaveBeenCalledTimes(1); expect(postAPI.mock.calls[0][1]).toMatchObject({ vpcid: 'v', vpcofferingid: 'o2', resume: false, 'tiernetworkofferings[0].networkid': 't1', 'tiernetworkofferings[1].networkid': 't2' })
   expect(w.vm.status).toBe('success'); expect(w.emitted('refresh-data')).toHaveLength(1)
+  expect(w.vm.targetId).toBe('o2'); expect(w.vm.target.name).toBe(context.offering.name)
+  for (const row of w.vm.context.tiers) expect(w.vm.destination(row)).toMatchObject({ offering: { id: row.network.networkofferingid }, physical: { id: row.network.physicalnetworkid } })
 })
 test.each(['tier', 'owner', 'offering', 'read'])('fresh %s change prevents POST and requires a new review', async kind => {
   const w = await mount(); await ready(w)
@@ -85,6 +87,14 @@ test('lost receipt and reopen use the pre-saved ID, never a second POST', async 
   const w = await mount(); await ready(w); failureMode = 'transport'; await w.vm.start(); expect(w.vm.status).toBe('unknown'); const id = w.vm.jobId; w.vm.close(); w.unmount()
   const reopened = await mount(); expect(reopened.vm.jobId).toBe(id); expect(reopened.vm.status).toBe('unknown'); expect(reopened.vm.canStart).toBe(false)
   failureMode = ''; await reopened.vm.settle(); expect(reopened.vm.status).toBe('success'); expect(postAPI).toHaveBeenCalledTimes(1)
+})
+
+test('reopened verified result retains offering names and revalidates actual resources', async () => {
+  const w = await mount(); await ready(w); await w.vm.start(); w.unmount()
+  const reopened = await mount(); expect(reopened.vm.status).toBe('success'); expect(reopened.vm.targetId).toBe(context.offering.id)
+  for (const row of reopened.vm.context.tiers) expect(reopened.vm.destination(row).offering.name).toBe(row.offering.name)
+  context.tiers[0].network.networkofferingid = 'unexpected'
+  await reopened.vm.load(); expect(reopened.vm.status).toBe('unknown'); expect(reopened.vm.canStart).toBe(false); expect(postAPI).toHaveBeenCalledTimes(1)
 })
 test('final resource lookup failure remains uncertain and can recheck the same successful job', async () => {
   const w = await mount(); await ready(w); let queried = false
