@@ -1,0 +1,40 @@
+
+> cloudstack-ui@4.22.0 test:unit
+> vue-cli-service test:unit --runInBand --silent --coverage=false --forceExit --runTestsByPath tests/unit/views/image/TemplateVnfSettings.spec.js tests/unit/views/image/TemplateZoneOperations.spec.js tests/unit/components/network/VpnPsk.spec.js tests/unit/components/view/ResourceView.spec.js tests/unit/components/view/ListViewAccounts.spec.js tests/unit/views/compute/AutoScaleUiStandard.spec.js tests/unit/components/view/ListViewTemplateType.spec.js tests/unit/views/image/TemplateForms.spec.js tests/unit/components/view/SSHKeyPairNamePresentation.spec.js tests/unit/views/AutogenTemplateRead.spec.js tests/unit/components/view/ListViewProjectReference.spec.js tests/unit/components/view/InfoCardSSHKeyPairVmQuery.spec.js tests/unit/components/view/InfoCardIconLifecycle.spec.js tests/unit/views/BulkActionLifecycle.spec.js tests/unit/components/view/TemplateSearchForm.spec.js tests/unit/views/image/TemplateDetails.spec.js tests/unit/utils/templateFormMessages.spec.js tests/unit/views/image/TemplateAvailabilityRead.spec.js tests/unit/components/offering/LinkedDiskOffering.spec.js tests/unit/views/storage/RuntimeCatalog.spec.js tests/unit/components/BulkActionProgress.spec.js tests/unit/utils/templateAvailability.spec.js tests/unit/views/compute/ImageUserDataDialog.spec.js tests/unit/components/widgets/TemplateAvailability.spec.js tests/unit/utils/templateSearch.spec.js tests/unit/components/view/ImageDeployInstanceButton.spec.js tests/unit/views/image/TemplatePermissions.spec.js
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+PASS tests/unit/components/network/VpnPsk.spec.js
+PASS tests/unit/views/image/TemplateZoneOperations.spec.js
+PASS tests/unit/components/view/SSHKeyPairNamePresentation.spec.js
+PASS tests/unit/components/view/ResourceView.spec.js
+PASS tests/unit/components/view/ListViewTemplateType.spec.js
+PASS tests/unit/views/compute/AutoScaleUiStandard.spec.js
+PASS tests/unit/views/image/TemplatePermissions.spec.js
+PASS tests/unit/views/image/TemplateForms.spec.js
+PASS tests/unit/views/AutogenTemplateRead.spec.js
+PASS tests/unit/views/image/TemplateVnfSettings.spec.js
+PASS tests/unit/views/image/TemplateDetails.spec.js
+PASS tests/unit/components/view/ListViewAccounts.spec.js
+PASS tests/unit/views/image/TemplateAvailabilityRead.spec.js
+PASS tests/unit/components/view/ListViewProjectReference.spec.js
+PASS tests/unit/components/view/TemplateSearchForm.spec.js
+PASS tests/unit/components/offering/LinkedDiskOffering.spec.js
+PASS tests/unit/views/BulkActionLifecycle.spec.js
+PASS tests/unit/components/view/InfoCardSSHKeyPairVmQuery.spec.js
+PASS tests/unit/utils/templateFormMessages.spec.js
+PASS tests/unit/components/view/InfoCardIconLifecycle.spec.js
+PASS tests/unit/views/storage/RuntimeCatalog.spec.js
+PASS tests/unit/components/view/ImageDeployInstanceButton.spec.js
+PASS tests/unit/components/BulkActionProgress.spec.js
+PASS tests/unit/utils/templateAvailability.spec.js
+PASS tests/unit/views/compute/ImageUserDataDialog.spec.js
+PASS tests/unit/utils/templateSearch.spec.js
+PASS tests/unit/components/widgets/TemplateAvailability.spec.js
+
+Test Suites: 27 passed, 27 total
+Tests:       434 passed, 434 total
+Snapshots:   0 total
+Time:        20.979s
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?

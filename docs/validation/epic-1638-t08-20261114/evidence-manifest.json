@@ -16,8 +16,8 @@
     "sha256": "f6a0271ae61f70a01a675d5fe6da47f3bb83c507fbb8988b86ecd0fbc0bb8da9"
   },
   "evidence/project-async-backend-tests.log": {
-    "bytes": 52,
-    "sha256": "c3aa1b5de34fd90986c9232d8a1f2fb58caeef9d8fce40a43a6c35e5252c256f"
+    "bytes": 51,
+    "sha256": "65426c24fbb75c31e787d45dbb25ec0596e678b80a42ec264f367ea4665e3ff3"
   },
   "evidence/project-acl-backend-manifest.json": {
     "bytes": 302,
@@ -68,8 +68,8 @@
     "sha256": "acac7ac004c82158ce484f82e68a96c6a3b5c0942505e46f3fc3f433956021f7"
   },
   "evidence/project-acl-backend-tests.log": {
-    "bytes": 64,
-    "sha256": "04df55252d5f887607c7204c7259dbd2ae65e65e283b80d7f886d9e1d1ca5696"
+    "bytes": 63,
+    "sha256": "f2b4091da6ae7a4e39cfd3c4a2020fad8f3bebf6534eab475f6dba7a5aaaaa28"
   },
   "evidence/cleanup-summary.json": {
     "bytes": 1830,
@@ -92,8 +92,8 @@
     "sha256": "9727922f481cf6b8a6482dda332030e576714a5b41917cf76e10b7278b57e648"
   },
   "evidence/private-acl-backend-tests.log": {
-    "bytes": 56,
-    "sha256": "2821b4eb8017de7eb8d6e1fdc8f1e1794108682bb34318f60784f590a18160c9"
+    "bytes": 55,
+    "sha256": "28611a8b1922e05ea5d0900feaa83e0609c23d7f63deca5716c0418ed494caf0"
   },
   "evidence/second-deployment.json": {
     "bytes": 479,
