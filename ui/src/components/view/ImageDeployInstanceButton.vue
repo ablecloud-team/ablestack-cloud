@@ -20,6 +20,9 @@
     <a-dropdown-button
       type="primary"
       :loading="loading"
+      :visible="zoneMenuVisible"
+      @visibleChange="zoneMenuVisible = $event"
+      @click="handleMainClick"
       v-if="allowed"
       :disabled="!zones || zones.length === 0">
         <rocket-outlined />
@@ -42,6 +45,7 @@
 
 <script>
 import { getAPI } from '@/api'
+import { readTemplateResource } from '@/utils/templateSearch'
 import ResourceIcon from '@/components/view/ResourceIcon'
 
 export default {
@@ -64,7 +68,9 @@ export default {
     return {
       imageApi: 'listTemplates',
       loading: false,
-      zones: []
+      zones: [],
+      zoneMenuVisible: false,
+      requestVersion: 0
     }
   },
   mounted () {
@@ -73,71 +79,58 @@ export default {
     }
     this.fetchData()
   },
+  beforeUnmount () { this.requestVersion++ },
   watch: {
-    resource (newValue) {
-      if (newValue?.id) {
-        this.fetchData()
-      }
-    }
+    readScope () { this.fetchData() }
   },
   computed: {
+    readScope () {
+      const g = this.$store.getters
+      return JSON.stringify([this.resource?.id, this.resource?.isready, this.resource?.bootable, this.$route.meta.name, g.userInfo?.id, g.userInfo?.roletype, g.userInfo?.roleid, g.project?.id, g.listAllProjects, this.$store.state?.user?.token, Object.keys(g.apis || {}).sort()])
+    },
     allowed () {
-      return (this.$route.meta.name === 'template' ||
-        (this.$route.meta.name === 'iso' && this.resource?.bootable)) &&
-        !!this.resource?.isready
+      return 'deployVirtualMachine' in (this.$store.getters.apis || {}) &&
+        (this.$route.meta.name === 'template' || (this.$route.meta.name === 'iso' && this.resource?.bootable)) && !!this.resource?.isready
     }
   },
   methods: {
     fetchData () {
       this.fetchResourceData()
     },
-    fetchResourceData () {
-      if (!this.resource || !this.resource.id || !this.resource.isready) {
-        return
-      }
-      const params = {
-        id: this.resource.id,
-        templatefilter: 'executable',
-        listall: true
-      }
-
-      this.dataSource = []
-      this.itemCount = 0
+    async fetchResourceData () {
+      const version = ++this.requestVersion; const scope = this.readScope
+      const current = () => version === this.requestVersion && scope === this.readScope
+      this.zoneMenuVisible = false; this.zones = []; this.loading = false
+      if (!this.resource?.id || !this.allowed) return
       this.loading = true
-      this.zones = []
-      getAPI(this.imageApi, params).then(json => {
-        const imageResponse = json?.[this.imageApi.toLowerCase() + 'response']?.[this.$route.meta.name] || []
-        this.zones = imageResponse.map(i => ({
-          id: i.zoneid,
-          name: i.zonename
-        }))
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.loading = false
-        if (this.zones.length !== 0) {
-          this.$emit('update-zones', this.zones)
-        }
-        this.fetchZonesForIcon()
-      })
+      const params = { id: this.resource.id, listall: true }
+      try {
+        const json = this.imageApi === 'listTemplates'
+          ? await readTemplateResource(getAPI, params, this.$store.getters, current)
+          : await getAPI(this.imageApi, { ...params, isofilter: 'executable' })
+        if (!current()) return
+        const rows = json?.[this.imageApi.toLowerCase() + 'response']?.[this.$route.meta.name] || []
+        this.zones = [...new Map(rows.filter(i => i.zoneid && i.isready !== false).map(i => [i.zoneid, { id: i.zoneid, name: i.zonename }])).values()]
+        if (!this.zones.length) return
+        this.$emit('update-zones', this.zones)
+        const icons = await getAPI('listZones', { showicon: true, ids: this.zones.map(z => z.id).join(',') })
+        if (!current()) return
+        const byId = new Map((icons.listzonesresponse?.zone || []).map(z => [z.id, z]))
+        this.zones = this.zones.map(z => ({ ...z, icon: byId.get(z.id)?.icon }))
+      } catch (error) {
+        if (current()) this.$notifyError(error)
+      } finally {
+        if (current()) this.loading = false
+      }
     },
-    fetchZonesForIcon () {
-      if (!this.zones) {
-        return
-      }
-      const zoneids = this.zones.map(z => z.id)
-      this.loading = true
-      const params = { showicon: true, ids: zoneids.join(',') }
-      getAPI('listZones', params).then(json => {
-        this.zones = json.listzonesresponse.zone || []
-      }).finally(() => {
-        this.loading = false
-        if (this.zones.length !== 0) {
-          this.$emit('update-zones', this.zones)
-        }
-      })
+    handleMainClick () {
+      if (!this.allowed || this.loading || !this.zones.length) return
+      if (this.zones.length === 1) this.handleDeployInstanceMenu({ key: this.zones[0].id })
+      else this.zoneMenuVisible = true
     },
     handleDeployInstanceMenu (e) {
+      if (!this.allowed || this.loading || !this.zones.some(z => z.id === e.key)) return
+      this.zoneMenuVisible = false
       const query = { zoneid: e.key }
       query[this.$route.meta.name + 'id'] = this.resource.id
       if (this.resource.arch) {

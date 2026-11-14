@@ -18,7 +18,6 @@
 <template>
   <div class="vnf-settings">
     <a-alert v-if="saveError" type="error" show-icon role="alert" :message="saveError" />
-    <a-alert v-if="ownerDomainError" type="warning" show-icon :message="$t('message.vnf.owner.lookup.failed')"><template #description><a-button size="small" :loading="ownerDomainLoading" @click="loadOwnerDomains">{{ $t('label.retry') }}</a-button></template></a-alert>
     <a-divider />
     <div class="title"><tooltip-label :title="$t('label.vnf.nics')" :tooltip="apiParams.vnfnics?.description" /></div>
     <a-button type="dashed" class="vnf-add" :disabled="updateBusy || !canWrite" @click="onShowAddVnfNic"><template #icon><plus-outlined /></template>{{ $t('label.vnf.nic.add') }}</a-button>
@@ -106,18 +105,18 @@ import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
-import { VNF_DETAIL_KEYS, isVnfSecret, normalizeVnfKey, vnfWriteAllowed, vnfDetailError, vnfNicError, loadVnfDomainPaths } from '@/utils/templateVnfSettings'
+import { VNF_DETAIL_KEYS, isVnfSecret, normalizeVnfKey, vnfWriteAllowed, vnfDetailError, vnfNicError } from '@/utils/templateVnfSettings'
 const cloneNics = rows => (rows || []).map(n => ({ ...n }))
 export default {
   name: 'TemplateVnfSettings',
   components: { MoldDialog, MoldDialogActions, TooltipButton, TooltipLabel },
   props: { resource: { type: Object, required: true }, loading: { type: Boolean, default: false } },
   data () {
-    return { ownerDomainPaths: {}, ownerDomainSequence: 0, ownerDomainLoading: false, ownerDomainError: false, updateBusy: false, updateSequence: 0, optionsSequence: 0, optionsLoading: false, optionsReady: false, optionsError: false, vnfDetailOptions: {}, columns: [], vnfNics: [], vnfDetails: [], previousVnfNics: [], previousVnfDetails: [], showAddVnfNic: false, showEditVnfNic: false, nicDraft: {}, nicError: '', saveError: '', showAddVnfDetail: false, showEditDetail: false, detailDraft: { key: '', value: '', values: [], replaceSecret: false }, detailError: '' }
+    return { updateBusy: false, updateSequence: 0, optionsSequence: 0, optionsLoading: false, optionsReady: false, optionsError: false, vnfDetailOptions: {}, columns: [], vnfNics: [], vnfDetails: [], previousVnfNics: [], previousVnfDetails: [], showAddVnfNic: false, showEditVnfNic: false, nicDraft: {}, nicError: '', saveError: '', showAddVnfDetail: false, showEditDetail: false, detailDraft: { key: '', value: '', values: [], replaceSecret: false }, detailError: '' }
   },
   beforeCreate () { this.apiParams = this.$getApiParams('updateVnfTemplate') || {} },
   computed: {
-    canWrite () { return vnfWriteAllowed(this.resource, this.$store.getters.userInfo, this.$store.getters.project, this.$store.getters.apis, this.ownerDomainPaths) },
+    canWrite () { return vnfWriteAllowed(this.resource, this.$store.getters.userInfo, this.$store.getters.project, this.$store.getters.apis) },
     editorOpen () { return this.showAddVnfNic || this.showEditVnfNic || this.showAddVnfDetail || this.showEditDetail },
     detailSecret () { return isVnfSecret(this.detailDraft.key) },
     detailKeys () { return Object.keys(this.vnfDetailOptions).sort().filter(k => !this.vnfDetails.some(d => normalizeVnfKey(d.name) === k) || (this.showEditDetail && this.detailDraft.key === k)).map(value => ({ value })) },
@@ -130,13 +129,13 @@ export default {
   },
   created () {
     this.columns = ['deviceid', 'name', 'required', 'management', 'description', 'actions'].map(key => ({ key, dataIndex: key, title: this.$t({ deviceid: 'label.deviceid', name: 'label.name', required: 'label.required', management: 'label.vnf.nic.management', description: 'label.description', actions: 'label.action' }[key]), ...(['required', 'management', 'actions'].includes(key) ? { slots: { customRender: key } } : {}), ...(key === 'actions' ? { width: 165 } : {}) }))
-    this.initForm(); this.loadOptions(); this.loadOwnerDomains()
+    this.initForm(); this.loadOptions()
   },
   beforeUnmount () { this.invalidate() },
   deactivated () { this.invalidate() },
-  activated () { this.initForm(); this.loadOptions(); this.loadOwnerDomains() },
+  activated () { this.initForm(); this.loadOptions() },
   watch: {
-    nicScope () { this.invalidate(); this.initForm(); this.loadOptions(); this.loadOwnerDomains() },
+    nicScope () { this.invalidate(); this.initForm(); this.loadOptions() },
     loading (value) { if (!value && !this.updateBusy && !this.editorOpen) this.initForm() }
   },
   methods: {
@@ -149,22 +148,9 @@ export default {
     },
     fetchData () { this.vnfNics = cloneNics(this.previousVnfNics); this.vnfDetails = this.previousVnfDetails.map(d => ({ ...d })) },
     invalidate () {
-      this.ownerDomainSequence++; this.ownerDomainPaths = {}; this.ownerDomainError = false; this.ownerDomainLoading = false
       this.updateSequence++; this.optionsSequence++; this.updateBusy = false; this.optionsLoading = false; this.optionsReady = false
       this.showAddVnfNic = this.showEditVnfNic = this.showAddVnfDetail = this.showEditDetail = false
       this.nicTrigger = this.detailTrigger = null; this.resetNicDraft(); this.resetDetailDraft(); this.saveError = ''
-    },
-    async loadOwnerDomains () {
-      const scope = this.nicScope; const sequence = ++this.ownerDomainSequence
-      this.ownerDomainPaths = {}; this.ownerDomainError = false; this.ownerDomainLoading = true
-      try {
-        const paths = this.$store.getters.project?.id ? {} : await loadVnfDomainPaths(getAPI, this.resource, this.$store.getters.userInfo, this.$store.getters.apis)
-        if (scope === this.nicScope && sequence === this.ownerDomainSequence) this.ownerDomainPaths = paths
-      } catch (e) {
-        if (scope === this.nicScope && sequence === this.ownerDomainSequence) this.ownerDomainError = true
-      } finally {
-        if (scope === this.nicScope && sequence === this.ownerDomainSequence) this.ownerDomainLoading = false
-      }
     },
     async loadOptions () {
       const scope = this.nicScope; const sequence = ++this.optionsSequence; this.optionsReady = false; this.optionsError = false; this.optionsLoading = true

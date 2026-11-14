@@ -6,7 +6,7 @@ import { shallowMount, flushPromises } from '@vue/test-utils'
 import { Alert, Button } from 'ant-design-vue'
 import Settings from '@/views/image/TemplateVnfSettings.vue'
 import { getAPI, postAPI } from '@/api'
-import { vnfWriteAllowed, vnfDetailError, isVnfSecret, vnfNicError, loadVnfDomainPaths } from '@/utils/templateVnfSettings'
+import { vnfWriteAllowed, vnfDetailError, isVnfSecret, vnfNicError } from '@/utils/templateVnfSettings'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 
 const original = { deviceid: 0, name: 'Management', required: true, management: true }
@@ -157,10 +157,10 @@ test('NIC nonconsecutive, required ordering and boundary moves cannot mutate; la
   const c = context(); c.vnfNics = [original, optional]; expect(vnfNicError([original, { ...optional, deviceid: 2 }])).toBeTruthy(); expect(vnfNicError([{ ...original, required: false }, { ...optional, required: true }])).toBeTruthy(); await c.moveVnfNicUp(original); await c.moveVnfNicDown(optional); expect(postAPI).not.toHaveBeenCalled(); c.vnfNics = [{ ...original }]; postAPI.mockResolvedValueOnce(reply([])); await c.deleteVnfNic(original); expect(postAPI.mock.calls[0][1]).toEqual({ id: 'template', cleanupvnfnics: true })
 })
 test('removing a middle NIC renumbers following definitions and retains flags', async () => { const c = context(); c.vnfNics = [original, optional, { ...optional, deviceid: 2, name: 'Third' }]; postAPI.mockResolvedValueOnce(reply([original, { ...optional, deviceid: 1, name: 'Third' }])); await c.deleteVnfNic(optional); expect(postAPI.mock.calls[0][1]['vnfnics[1].deviceid']).toBe(1); expect(postAPI.mock.calls[0][1]['vnfnics[1].name']).toBe('Third') })
-test('permission matrix distinguishes owner, descendant DomainAdmin, project and outside scope', () => {
+test('permission matrix distinguishes owner, read-only DomainAdmin, project and outside scope', () => {
   const resource = { id: 't', templatetype: 'VNF', account: 'owner', domainid: 'child', domainpath: 'ROOT/Parent/Child/' }; const apis = { updateVnfTemplate: {} }; const user = { id: 'u', roletype: 'User', account: 'owner', domainid: 'child' }
   expect(vnfWriteAllowed(resource, user, {}, apis)).toBe(true); expect(vnfWriteAllowed(resource, { ...user, account: 'other' }, {}, apis)).toBe(false)
-  expect(vnfWriteAllowed(resource, { ...user, roletype: 'DomainAdmin', account: 'admin', domainid: 'parent', domainpath: 'ROOT/Parent/' }, {}, apis, { parent: 'ROOT/Parent/', child: 'ROOT/Parent/Child/' })).toBe(true)
+  expect(vnfWriteAllowed(resource, { ...user, roletype: 'DomainAdmin', account: 'admin', domainid: 'parent', domainpath: 'ROOT/Parent/' }, {}, apis, { parent: 'ROOT/Parent/', child: 'ROOT/Parent/Child/' })).toBe(false)
   expect(vnfWriteAllowed(resource, { ...user, roletype: 'DomainAdmin', domainid: 'outside', domainpath: 'ROOT/Else/' }, {}, apis)).toBe(false)
   expect(vnfWriteAllowed({ ...resource, projectid: 'p' }, user, { id: 'p' }, apis)).toBe(true); expect(vnfWriteAllowed({ ...resource, projectid: 'p' }, user, {}, apis)).toBe(false)
   expect(vnfWriteAllowed(resource, user, { id: 'p' }, apis)).toBe(false); expect(vnfWriteAllowed(resource, user, {}, {})).toBe(false)
@@ -184,36 +184,14 @@ test('cancelling an invalid NIC draft does not leave a resource-level error', as
   c.closeVnfNicModal(); c.afterVnfNicClose(); expect(c.nicError).toBe(''); expect(c.saveError).toBe('')
 })
 
-function domainContext () {
-  const c = context(); c.resource = { id: 'template', templatetype: 'VNF', domainid: 'child', account: 'owner', vnfnics: [] }
-  c.$store.getters.userInfo = { id: 'admin', roletype: 'DomainAdmin', domainid: 'parent', account: 'manager' }; c.$store.getters.project = {}; c.$store.getters.apis.listDomains = {}; return c
-}
-test('DomainAdmin resolves advertised listDomains IDs rather than an invented listUsers path', async () => {
-  const c = domainContext(); expect(c.canWrite).toBe(false)
-  getAPI.mockImplementation((api, p) => Promise.resolve({ listdomainsresponse: { domain: [{ id: p.id, path: p.id === 'parent' ? 'ROOT/A/' : 'ROOT/A/Child/' }] } }))
-  await c.loadOwnerDomains(); expect(c.canWrite).toBe(true); expect(getAPI.mock.calls.map(x => x[1].id)).toEqual(['parent', 'child']); expect(c.ownerDomainError).toBe(false)
-})
-test('similar domain name prefixes do not grant descendant access', async () => {
-  const c = domainContext(); getAPI.mockImplementation((api, p) => Promise.resolve({ listdomainsresponse: { domain: [{ id: p.id, path: p.id === 'parent' ? 'ROOT/A/' : 'ROOT/AB/' }] } }))
-  await c.loadOwnerDomains(); expect(c.canWrite).toBe(false)
-})
-test('missing domain API and failed lookups cannot grant access or dispatch a write', async () => {
-  const c = domainContext(); delete c.$store.getters.apis.listDomains; await c.loadOwnerDomains(); expect(c.canWrite).toBe(false); expect(c.ownerDomainError).toBe(true); expect(getAPI).not.toHaveBeenCalled()
-  c.$store.getters.apis.listDomains = {}; getAPI.mockRejectedValue(new Error('unavailable')); await c.loadOwnerDomains(); expect(c.canWrite).toBe(false); expect(c.ownerDomainError).toBe(true); await c.updateVnfTemplate(false, true, []); expect(postAPI).not.toHaveBeenCalled()
-})
-test('late domain results cannot authorize another resource scope', async () => {
-  const c = domainContext(); const pending = []; getAPI.mockImplementation((api, p) => new Promise(resolve => pending.push(() => resolve({ listdomainsresponse: { domain: [{ id: p.id, path: p.id === 'parent' ? 'ROOT/A/' : 'ROOT/A/Child/' }] } }))))
-  const request = c.loadOwnerDomains(); c.resource.domainid = 'other'; c.invalidate(); pending.forEach(done => done()); await request; expect(c.canWrite).toBe(false); expect(c.ownerDomainPaths).toEqual({})
-})
-test('unverified response path properties cannot bypass the domain lookup', () => {
-  const c = domainContext(); c.$store.getters.userInfo.domainpath = 'ROOT/A/'; c.resource.domainpath = 'ROOT/A/Child/'; expect(c.canWrite).toBe(false)
-})
-test('Admin and same-domain DomainAdmin do not need extra domain queries', async () => {
-  expect(await loadVnfDomainPaths(getAPI, { domainid: 'same' }, { roletype: 'Admin' }, {})).toEqual({})
-  expect(await loadVnfDomainPaths(getAPI, { domainid: 'same' }, { roletype: 'DomainAdmin', domainid: 'same' }, {})).toEqual({}); expect(getAPI).not.toHaveBeenCalled()
+test.each(['same', 'parent', 'outside'])('DomainAdmin cannot modify a different owner in %s domain', domainid => {
+  const resource = { id: 't', templatetype: 'VNF', domainid: 'same', account: 'owner' }
+  const user = { id: 'u', roletype: 'DomainAdmin', domainid, account: 'manager' }
+  expect(vnfWriteAllowed(resource, user, {}, { updateVnfTemplate: {} }, { parent: 'ROOT/', same: 'ROOT/A/' })).toBe(false)
+  expect(vnfWriteAllowed(resource, { ...user, domainid: 'same', account: 'owner' }, {}, { updateVnfTemplate: {} })).toBe(true)
 })
 
-test.each([['ownerDomainError', 'loadOwnerDomains'], ['optionsError', 'loadOptions']])('real Ant Design alert renders the %s retry control', async (field, method) => {
+test.each([['optionsError', 'loadOptions']])('real Ant Design alert renders the %s retry control', async (field, method) => {
   const c = context(); const w = shallowMount(Settings, { props: { resource: c.resource }, global: { mocks: { $getApiParams: () => ({ vnfnics: {}, vnfdetails: {} }), $store: c.$store, $route: c.$route, $t: k => k }, components: { 'a-alert': Alert, 'a-button': Button }, stubs: { AAlert: false, AButton: false, Wave: false }, directives: { focus: {} } } })
   await flushPromises(); const retry = jest.spyOn(w.vm, method).mockResolvedValue(); await w.setData({ [field]: true })
   const button = w.get('.ant-alert-description button'); expect(button.text()).toBe('label.retry'); await button.trigger('click'); expect(retry).toHaveBeenCalledTimes(1); w.unmount()
