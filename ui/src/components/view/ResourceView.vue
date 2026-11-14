@@ -223,7 +223,7 @@ export default {
       this.wideLayout = false
       const query = Object.assign({}, this.$route.query)
       query.tab = key
-      if (networkTabRoute(this.$route) || ['ssh', 'userdata', 'cniconfiguration', 'affinitygroup', 'volume', 'computeoffering', 'diskoffering'].includes(this.$route.meta?.name)) {
+      if (networkTabRoute(this.$route) || ['ssh', 'userdata', 'cniconfiguration', 'affinitygroup', 'volume', 'computeoffering', 'diskoffering', 'vpcoffering', 'privategw'].includes(this.$route.meta?.name)) {
         this.$router.push({ path: this.$route.path, query })
         this.$emit('onTabChange', key)
         return
@@ -266,7 +266,7 @@ export default {
     setActiveTab () {
       const requestedTab = this.$route.query.tab || this.historyTab
       const network = networkTabRoute(this.$route)
-      const available = network ? uniqueTabs(this.tabs).filter(tab => !this.networkTabsReady || this.showTab(tab)) : ['ssh', 'userdata', 'cniconfiguration', 'affinitygroup', 'volume', 'computeoffering', 'diskoffering'].includes(this.$route.meta?.name) ? this.tabs.filter(tab => this.showTab(tab)) : this.tabs
+      const available = network ? uniqueTabs(this.tabs).filter(tab => !this.networkTabsReady || this.showTab(tab)) : ['ssh', 'userdata', 'cniconfiguration', 'affinitygroup', 'volume', 'computeoffering', 'diskoffering', 'vpcoffering', 'privategw'].includes(this.$route.meta?.name) ? this.tabs.filter(tab => this.showTab(tab)) : this.tabs
       const selected = network ? selectedNetworkTab(available, requestedTab) : available.find(tab => tab.name === requestedTab) || available[0]
       this.activeTab = selected ? selected.name : ''
       // Invalid library deep links use the visible fallback tab in the URL too.
@@ -275,7 +275,7 @@ export default {
       // canonicalize its URL.
       const routeTabs = this.$route.meta?.tabs
       const ownsRouteTabs = (this.$route.meta?.name === 'publicip' || !routeTabs) || (routeTabs.length === this.tabs.length && routeTabs.every((tab, index) => tab.name === this.tabs[index].name))
-      if (ownsRouteTabs && ((network && this.networkTabsReady) || ['userdata', 'cniconfiguration', 'volume', 'computeoffering', 'diskoffering'].includes(this.$route.meta?.name)) && this.$route.query.tab && selected && requestedTab !== selected.name) {
+      if (ownsRouteTabs && ((network && this.networkTabsReady) || ['userdata', 'cniconfiguration', 'volume', 'computeoffering', 'diskoffering', 'vpcoffering', 'privategw'].includes(this.$route.meta?.name)) && this.$route.query.tab && selected && requestedTab !== selected.name) {
         if (this.$route.meta?.name === 'guestnetwork' && conditionalGuestTab(requestedTab)) {
           this.conditionalTabNotice = guestFeatureStatus(requestedTab, this.resource, this.$store.getters)
         } else if (this.$route.meta?.name === 'guestnetwork' && this.resource.type === 'L2' &&

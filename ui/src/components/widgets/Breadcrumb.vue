@@ -23,7 +23,7 @@
         :to="breadcrumbLocation(item)"
       >
         <render-icon v-if="index == 0" :icon="item.meta.icon" style="font-size: 16px" @click="resetToMainView" />
-        <span v-if="item.meta.title">{{ $t(item.meta.title) }}</span>
+        <span v-if="item.meta.title">{{ item.vpcParent ? $t('label.vpc') + ' · ' + (resource.vpcname || resource.vpcid) : $t(item.meta.title) }}</span>
       </router-link>
       <router-link
         v-else-if="tungstenPaths.includes(item.path)"
@@ -92,13 +92,14 @@ export default {
     this.getBreadcrumb()
   },
   watch: {
+    'resource.vpcid' () { this.getBreadcrumb() },
     '$route.fullPath' () {
       this.getBreadcrumb()
     }
   },
   methods: {
     documentationUrl,
-    breadcrumbLocation (item) { return item.path === '/guestnetwork' && this.$route.meta?.name === 'guestnetwork' && this.$route.params?.id ? networkListLocation(this.$route) : { path: item.path === '' ? '/' : item.path } },
+    breadcrumbLocation (item) { if (item.vpcParent) return { path: item.path, query: { tab: 'pgw' } }; return item.path === '/guestnetwork' && this.$route.meta?.name === 'guestnetwork' && this.$route.params?.id ? networkListLocation(this.$route) : { path: item.path === '' ? '/' : item.path } },
     getBreadcrumb () {
       this.name = this.$route.name
       this.breadList = []
@@ -109,6 +110,10 @@ export default {
         }
         this.breadList.push(item)
       })
+      if (this.$route.meta?.name === 'privategw' && this.resource.vpcid) {
+        this.breadList = this.breadList.filter(item => item.path !== '/privategw')
+        this.breadList.splice(this.breadList.length - 1, 0, { name: 'vpc-parent', path: '/vpc/' + this.resource.vpcid, vpcParent: true, meta: { title: 'label.vpc' } })
+      }
     },
     resetToMainView () {
       this.$store.dispatch('SetProject', {})

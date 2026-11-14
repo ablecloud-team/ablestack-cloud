@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div :class="{ 'autoscale-screen': $route.meta?.name === 'autoscalevmgroup', 'userdata-library': $route.meta?.name === 'userdata', 'affinity-library': $route.meta?.name === 'affinitygroup', 'snapshot-list-page': isSnapshotList, 'object-storage-ui': isObjectStorageUi, 'bucket-list-page': isBucketList, 'vm-list-page': isVmList, 'volume-list-page': isVolumeList, 'themed-list-toolbar': isVmList || isVolumeList || isGuestNetworkList || ($route.name === 'sharedfs' && !dataView), 'guest-network-page': isGuestNetworkUi, 'runtime-catalog-screen': $route.meta?.name === 'runtimebundle' }">
+  <div :class="{ 'autoscale-screen': $route.meta?.name === 'autoscalevmgroup', 'userdata-library': $route.meta?.name === 'userdata', 'affinity-library': $route.meta?.name === 'affinitygroup', 'snapshot-list-page': isSnapshotList, 'object-storage-ui': isObjectStorageUi, 'bucket-list-page': isBucketList, 'vm-list-page': isVmList, 'volume-list-page': isVolumeList, 'themed-list-toolbar': isVpcUi || isVmList || isVolumeList || isGuestNetworkList || ($route.name === 'sharedfs' && !dataView), 'guest-network-page': isGuestNetworkUi, 'runtime-catalog-screen': $route.meta?.name === 'runtimebundle' }">
     <div class="content-breadcrumb">
       <a-card class="breadcrumb-card" style="z-index: 10">
         <a-row>
@@ -197,9 +197,9 @@
       <keep-alive :max="(isStorageUi || isPolicyUi || isObjectStorageUi) ? 1 : undefined" v-else-if="currentAction.component && (!currentAction.invokedAsGroupAction || ['destroyVirtualMachine', 'deleteBackup', 'destroySharedFileSystem'].includes(currentAction.api))">
         <component
           :is="currentAction.fixedFormFooter ? 'SharedFSFormDialog' : standardActionDialog ? 'MoldDialog' : 'a-modal'"
-          :size="currentAction.standardDialogSize || (isObjectStorageUi ? 'md' : isStorageUi ? storageDialogSize(currentAction.api) : undefined)"
+          :size="currentAction.standardDialogSize || (isVpcUi || isObjectStorageUi ? 'md' : isStorageUi ? storageDialogSize(currentAction.api) : undefined)"
           class="mold-dialog"
-          :class="{ 'object-storage-dialog': isObjectStorageUi, 'autoscale-dialog': $route.meta?.name === 'autoscalevmgroup', 'storage-standard-dialog': standardActionDialog, 'snapshot-standard-dialog': currentAction.snapshotStandardDialog, 'sharedfs-standard-dialog': $route.meta?.name === 'sharedfs' }"
+          :class="{ 'object-storage-dialog': isObjectStorageUi, 'autoscale-dialog': $route.meta?.name === 'autoscalevmgroup', 'storage-standard-dialog': standardActionDialog, 'vpc-standard-dialog': isVpcUi, 'snapshot-standard-dialog': currentAction.snapshotStandardDialog, 'sharedfs-standard-dialog': $route.meta?.name === 'sharedfs' }"
           centered
           :visible="showAction"
           :closable="true"
@@ -209,7 +209,7 @@
           :confirmLoading="actionLoading"
           :footer="standardActionDialog ? undefined : null"
           :form-actions="standardActionDialog"
-          :focus-guard="!!currentAction.snapshotStandardDialog"
+          :focus-guard="isVpcUi || !!currentAction.snapshotStandardDialog"
           :after-close="restoreClosedActionFocus"
           :width="currentAction.dialogWidth || 'auto'"
         >
@@ -226,6 +226,7 @@
               <question-circle-outlined />
             </a>
           </template>
+          <VpcActionContext v-if="isVpcUi && resource.id" :resources="[resource]" />
           <keep-alive :max="(isStorageUi || isPolicyUi || isObjectStorageUi) ? 1 : undefined">
             <component
               :key="(isStorageUi || isPolicyUi || isObjectStorageUi) ? storageActionGeneration : undefined"
@@ -481,15 +482,18 @@
         <br />
       </component>
       <component
-        :is="(isStorageUi || isBucketGroupDelete || isGuestNetworkDelete) ? 'MoldDialog' : 'a-modal'"
-        :size="(isStorageUi || isBucketGroupDelete || isGuestNetworkDelete) ? 'md' : undefined"
+        :is="(isVpcUi || isStorageUi || isBucketGroupDelete || isGuestNetworkDelete) ? 'MoldDialog' : 'a-modal'"
+        :size="(isVpcUi || isStorageUi || isBucketGroupDelete || isGuestNetworkDelete) ? 'md' : undefined"
         class="mold-dialog"
-        :class="{ 'storage-standard-dialog': isStorageUi || isBucketGroupDelete || isGuestNetworkDelete, 'object-storage-dialog': isBucketGroupDelete, 'autoscale-dialog': $route.meta?.name === 'autoscalevmgroup' }"
+        :class="{ 'storage-standard-dialog': isStorageUi || isBucketGroupDelete || isGuestNetworkDelete, 'vpc-standard-dialog': isVpcUi, 'object-storage-dialog': isBucketGroupDelete, 'autoscale-dialog': $route.meta?.name === 'autoscalevmgroup' }"
           v-else
         :visible="showAction"
-        :closable="true"
+        :closable="!isVpcUi || !actionLoading"
         :maskClosable="false"
         :width="(isBucketGroupDelete || isGuestNetworkDelete) ? 'min(720px, calc(100vw - 32px))' : (currentAction.invokedAsGroupAction ? modalWidth : 760)"
+        :focus-guard="isVpcUi"
+        :keyboard="!isVpcUi || !actionLoading"
+        :after-close="restoreClosedActionFocus"
         :ok-button-props="getOkProps()"
         ok-text="111"
         :cancel-button-props="getCancelProps()"
@@ -508,6 +512,8 @@
             <question-circle-outlined />
           </a>
         </template>
+        <VpcActionContext v-if="isVpcUi" :resources="currentAction.invokedAsGroupAction ? selectedItems : [resource]" />
+        <a-alert v-if="isVpcUi && vpcActionError" type="error" show-icon :message="vpcActionError" style="margin-bottom: 16px" />
         <a-spin
           :spinning="actionLoading"
           v-ctrl-enter="handleSubmit"
@@ -834,7 +840,7 @@
         </a-spin>
         <template #footer>
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-          <a-button type="primary" @click="handleSubmit" :disabled="isSubmitDisabled" :loading="actionLoading" ref="submit">{{ $t('label.ok') }}</a-button>
+          <a-button type="primary" @click="handleSubmit" :disabled="isSubmitDisabled" :loading="actionLoading" :danger="isVpcUi && currentAction.api.startsWith('delete')" ref="submit">{{ $t(isVpcUi ? currentAction.label : 'label.ok') }}</a-button>
         </template>
       </component>
     </div>
@@ -851,7 +857,7 @@
       <a-alert v-if="snapshotSearchFailure" class="storage-query-error" type="error" show-icon :message="$t('message.snapshot.search.' + snapshotSearchFailure)" />
       <a-alert v-if="policySearchFailure" class="storage-query-error" type="error" show-icon :message="$t('message.snapshot.policy.search.' + policySearchFailure)" />
       <a-alert v-if="isSnapshotCopyList" class="storage-query-error" type="info" show-icon :message="$t('message.snapshot.search.copy.readonly')" />
-      <a-alert v-if="(isStorageUi || isSnapshotReadView) && listRefreshError" class="storage-query-error" type="error" show-icon :message="$t(listLoadedScope ? 'message.list.refresh.stale' : 'error.fetching.data')">
+      <a-alert v-if="(isVpcUi || isStorageUi || isSnapshotReadView) && listRefreshError" class="storage-query-error" type="error" show-icon :message="$t(listLoadedScope ? 'message.list.refresh.stale' : 'error.fetching.data')">
         <template #description><p v-if="isSnapshotReadView && snapshotListError">{{ snapshotListError.startsWith('message.') ? $t(snapshotListError) : snapshotListError }}</p><a-button size="small" :disabled="listRequestPending" @click="fetchData({ irefresh: true })">{{ $t('label.retry') }}</a-button></template>
       </a-alert>
       <div v-if="dataView">
@@ -871,11 +877,11 @@
           v-else-if="(!(isSnapshotDetail || isPolicyDetail) || resource.id || loading) && (!isSshKeyPairDetail || sshKeyPairDetailVisible) && ($route.meta?.name !== 'vmgroup' || resource.id || loading)"
           :key="isSshKeyPairDetail || isSnapshotDetail || isPolicyDetail ? listScope() : $route.path"
           :readPending="listRequestPending"
-          :readFailed="['vpc', 'ilb'].includes($route.meta?.name) && listRefreshError"
+          :readFailed="(isVpcUi || $route.meta?.name === 'ilb') && listRefreshError"
           :readyForActions="(isStorageUi || isObjectStorageUi || isSnapshotDetail || isPolicyDetail) ? storageActionReady : isSshKeyPairDetail ? sshKeyPairDetailActionReady : ($route.meta?.name === 'cniconfiguration' ? cniDetailActionReady : ($route.meta?.name !== 'vmgroup' || vmGroupQueryReady))"
           :resource="resource"
           :loading="loading"
-          :quiet-refresh="['sharedfs', 'runtimebundle'].includes($route.meta?.name)"
+          :quiet-refresh="isVpcUi || ['sharedfs', 'runtimebundle'].includes($route.meta?.name)"
           :tabs="$route.meta.tabs"
           :actions="(isSshKeyPairDetail && !sshKeyPairDetailActionReady) || ($route.meta?.name === 'vmgroup' && !vmGroupQueryReady) ? [] : actions"
           @exec-action="handleDataViewAction"
@@ -978,6 +984,7 @@ import Breadcrumb from '@/components/widgets/Breadcrumb'
 import { documentationUrl } from '@/utils/cniFileImport'
 import ListView from '@/components/view/ListView'
 import ResourceView from '@/components/view/ResourceView'
+import VpcActionContext from '@/components/network/VpcActionContext'
 import MoldDialog from '@/components/view/MoldDialog'
 import NetworkOperationPolicy from '@/components/view/NetworkOperationPolicy'
 import { storageUiRoute, storageDialogSize, storageDetailRouteKey } from '@/utils/storageUi'
@@ -1013,6 +1020,7 @@ export default {
     BucketStoreFilter,
     Breadcrumb,
     MoldDialog,
+    VpcActionContext,
     ResourceView,
     ListView,
     ActionButton,
@@ -1068,6 +1076,7 @@ export default {
       resource: {},
       selectedRowKeys: [],
       currentAction: {},
+      vpcActionError: '',
       actionTrigger: null,
       actionFocusReturn: null,
       showAction: false,
@@ -1360,6 +1369,7 @@ export default {
     isGuestNetworkUi () { return ['guestnetwork', 'networkoffering'].includes(this.$route.meta?.name) },
     isVmList () { return !this.dataView && this.$route.meta?.name === 'vm' },
     isBucketList () { return !this.dataView && this.$route.meta?.name === 'buckets' },
+    isVpcUi () { return ['vpc', 'vpcoffering', 'privategw'].includes(this.$route.meta?.name) },
     isObjectStorageUi () { return ['buckets', 'objectstore'].includes(this.$route.meta?.name) },
     isStorageUi () { return storageUiRoute(this.$route) },
     isSnapshotList () { return snapshotListRoute(this.$route) },
@@ -1370,7 +1380,7 @@ export default {
     isSnapshotReadView () { return this.isSnapshotList || this.isSnapshotDetail || this.isPolicyDetail || snapshotPolicyListRoute(this.$route) },
     isSnapshotCopyList () { return snapshotCopyList(this.$route) },
     isGuestNetworkDelete () { return this.$route.meta?.name === 'guestnetwork' && this.currentAction.api === 'deleteNetwork' },
-    standardActionDialog () { return this.isStorageUi || this.isObjectStorageUi || !!this.currentAction.standardDialogSize },
+    standardActionDialog () { return this.isVpcUi || this.isStorageUi || this.isObjectStorageUi || !!this.currentAction.standardDialogSize },
     storageActionReady () { return !this.listRequestPending && !this.listRefreshError && this.listLoadedScope === this.listScope() },
     policySelectionAvailable () {
       return this.isPolicyList && !this.policySearchFailure && this.actions.some(action => action.groupAction && action.api in this.$store.getters.apis)
@@ -2488,13 +2498,13 @@ export default {
       const scope = this.listScope?.()
       const restoreFocus = () => {
         if (snapshotDialog && (generation !== this.storageActionGeneration || scope !== this.listScope?.() || originPath !== this.$route?.path)) return
-        let replacement = (this.isStorageUi || snapshotDialog) && originPath === this.$route?.path
+        let replacement = (this.isVpcUi || this.isStorageUi || snapshotDialog) && originPath === this.$route?.path
           ? (this.$refs?.detailActionsTrigger?.$el || (triggerLabel && Array.from(this.$el?.querySelectorAll('.autogen-toolbar-actions button') || []).find(button => button.getAttribute('aria-label') === triggerLabel)))
           : null
         if (policyDeleteDialog && !replacement && originPath === this.$route?.path) replacement = this.$el?.querySelector('.autogen-toolbar-actions button:not([disabled])')
         // A portal menu item may remain connected but hidden after its dropdown closes.
         // Snapshot dialogs return to the stable toolbar/detail button in the current route.
-        const target = snapshotDialog && replacement?.isConnected ? replacement : trigger?.isConnected ? trigger : replacement
+        const target = (this.isVpcUi || snapshotDialog) && replacement?.isConnected ? replacement : trigger?.isConnected ? trigger : replacement
         if (!this.showAction && target?.isConnected && target !== document.body) {
           target.focus({ preventScroll: true })
         }
@@ -2511,6 +2521,7 @@ export default {
       })
     },
     cancelAction () {
+      if (this.isVpcUi && this.actionLoading) return
       eventBus.emit('action-closing', { action: this.currentAction })
       this.closeAction()
     },
@@ -2567,6 +2578,7 @@ export default {
         ['listSnapshotPolicies', 'listVolumes', 'createSnapshotPolicy'].every(api => api in (this.$store.getters.apis || {}))
     },
     execAction (action, isGroupAction) {
+      this.vpcActionError = ''
       if ((snapshotListRoute(this.$route) || snapshotDetailRoute(this.$route) || policyDetailRoute(this.$route) || snapshotPolicyListRoute(this.$route)) && this.storageActionReady === false && !this.canOpenPolicyCreate(action, isGroupAction)) return
       if (storageUiRoute(this.$route) && (action.dataView || isGroupAction) && !this.storageActionReady) return
       this.storageActionGeneration++
@@ -3348,6 +3360,7 @@ export default {
           }
 
           if (!isVmGroupAction(action.api)) console.log(error)
+          if (this.isVpcUi) this.vpcActionError = Object.values(error.response?.data || {}).find(value => value?.errortext)?.errortext || error.message || this.$t('error.fetching.data')
           eventBus.emit('update-resource-state', { selectedItems: this.selectedItems, resource: this.getDataIdentifier(params), state: 'failed' })
           if (isVmGroupAction(action.api)) this.notifyVmGroupError(error)
           else this.$notifyError(error)

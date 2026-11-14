@@ -16,8 +16,8 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="fetchLoading">
-    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
+  <a-spin class="vpc-tab" :spinning="fetchLoading">
+    <a-alert v-if="listRefreshFailed" type="warning" show-icon :message="$t('message.list.refresh.stale')" class="vpc-query-notice"><template #action><a-button size="small" :disabled="fetchLoading" @click="handleFetchData">{{ $t('label.retry') }}</a-button></template></a-alert>
     <a-tabs
       :tabPosition="resourceTabPosition"
       :activeKey="currentTab"
@@ -37,8 +37,8 @@
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.network.acls')" key="acl" v-if="'listNetworkACLLists' in $store.getters.apis">
         <a-button
-          type="dashed"
-          style="width: 100%"
+          type="primary"
+          class="vpc-tab-create"
           :disabled="!('createNetworkACLList' in $store.getters.apis)"
           @click="() => handleOpenModals('networkAcl')">
           <template #icon><plus-circle-outlined /></template>
@@ -48,6 +48,7 @@
           class="table"
           size="small"
           :columns="networkAclsColumns"
+          :scroll="{ x: 480 }"
           :dataSource="networkAcls"
           :rowKey="item => item.id"
           :pagination="false"
@@ -75,13 +76,18 @@
             <span>{{ props.value }} / {{ $t('label.page') }}</span>
           </template>
         </a-pagination>
-        <a-modal
+        <MoldDialog
+          size="md"
+form-actions
+focus-guard
+          :closable="!aclSubmitting"
+:keyboard="!aclSubmitting"
           :visible="modals.networkAcl"
           :title="$t('label.add.acl')"
-          :footer="null"
           :maskClosable="false"
-          :closable="true"
-          @cancel="modals.networkAcl = false">
+          @cancel="closeAcl">
+          <VpcActionContext :resources="[resource]" />
+          <a-alert v-if="aclError" type="error" show-icon :message="aclError" class="vpc-query-notice" />
           <a-form
             layout="vertical"
             :ref="formRef"
@@ -99,17 +105,17 @@
               <a-input v-model:value="form.description" />
             </a-form-item>
 
-            <div :span="24" class="action-button">
-              <a-button @click="modals.networkAcl = false">{{ $t('label.cancel') }}</a-button>
-              <a-button type="primary" @click="handleNetworkAclFormSubmit">{{ $t('label.ok') }}</a-button>
-            </div>
+            <MoldDialogActions :busy="aclSubmitting">
+              <a-button @click="closeAcl">{{ $t('label.cancel') }}</a-button>
+              <a-button type="primary" :loading="aclSubmitting" @click="handleNetworkAclFormSubmit">{{ $t('label.ok') }}</a-button>
+            </MoldDialogActions>
           </a-form>
-        </a-modal>
+        </MoldDialog>
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.private.gateway')" key="pgw" v-if="'listPrivateGateways' in $store.getters.apis">
         <a-button
-          type="dashed"
-          style="width: 100%"
+          type="primary"
+          class="vpc-tab-create"
           :disabled="!('createPrivateGateway' in $store.getters.apis)"
           @click="gatewayCreate = true">
           <template #icon><plus-circle-outlined /></template>
@@ -119,6 +125,7 @@
           class="table"
           size="small"
           :columns="privateGatewaysColumns"
+          :scroll="{ x: 760 }"
           :dataSource="privateGateways"
           :rowKey="item => item.id"
           :pagination="false"
@@ -152,8 +159,8 @@
       <a-tab-pane :tab="$t('label.vpn.gateway')" key="vpngw" v-if="'listVpnGateways' in $store.getters.apis">
         <a-button
           v-if="vpnGateways.length === 0"
-          type="dashed"
-          style="width: 100%"
+          type="primary"
+          class="vpc-tab-create"
           :disabled="!('createVpnGateway' in $store.getters.apis)"
           @click="() => handleOpenModals('vpnGateway')">
           <template #icon><plus-circle-outlined /></template>
@@ -176,8 +183,8 @@
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.vpn.connection')" key="vpnc" v-if="'listVpnConnections' in $store.getters.apis">
         <a-button
-          type="dashed"
-          style="width: 100%"
+          type="primary"
+          class="vpc-tab-create"
           :disabled="!('createVpnConnection' in $store.getters.apis)"
           @click="handleOpenModals('vpnConnection')">
           <template #icon><plus-circle-outlined /></template>
@@ -187,6 +194,7 @@
           class="table"
           size="small"
           :columns="vpnConnectionsColumns"
+          :scroll="{ x: 640 }"
           :dataSource="vpnConnections"
           :pagination="false"
           :rowKey="record => record.id">
@@ -246,6 +254,9 @@
 </template>
 
 <script>
+import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
+import VpcActionContext from '@/components/network/VpcActionContext'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
@@ -271,6 +282,9 @@ export default {
   mixins: [mixinDevice, listRefreshMixin(['fetchComments', 'fetchPrivateGateways', 'fetchVpnGateways', 'fetchVpnConnections', 'fetchAclList'], { select: vm => ({ vpngw: ['fetchVpnGateways'], pgw: ['fetchPrivateGateways'], vpnc: ['fetchVpnConnections'], acl: ['fetchAclList'], comments: ['fetchComments'] }[vm.currentTab] || []) })],
   name: 'VpcTab',
   components: {
+    MoldDialog,
+    MoldDialogActions,
+    VpcActionContext,
     VpnPsk,
     VpcVpnCreate,
     PrivateGatewayCreate,
@@ -300,6 +314,8 @@ export default {
   data () {
     return {
       fetchLoading: false,
+      aclSubmitting: false,
+      aclError: '',
       privateGateways: [],
       vpnGateways: [],
       vpnCreate: '',
@@ -384,16 +400,13 @@ export default {
     },
     '$route.fullPath': function () {
       this.setCurrentTab()
+      this.handleFetchData()
     }
   },
   created () {
     this.initForm()
     this.setCurrentTab()
     this.handleFetchData()
-    const self = this
-    window.addEventListener('popstate', function () {
-      self.setCurrentTab()
-    })
   },
   methods: {
     initForm () {
@@ -405,7 +418,14 @@ export default {
       return ['Admin'].includes(this.$store.getters.userInfo.roletype)
     },
     setCurrentTab () {
-      this.currentTab = this.$route?.query?.tab || 'details'
+      const apis = this.$store.getters.apis
+      const available = ['details', 'tier', 'staticroutes', ...Object.entries({ ip: 'listPublicIpAddresses', acl: 'listNetworkACLLists', pgw: 'listPrivateGateways', vpngw: 'listVpnGateways', vpnc: 'listVpnConnections', events: 'listEvents', comments: 'listAnnotations', vnf: 'deployVnfAppliance' }).filter(([, api]) => api in apis).map(([tab]) => tab)]
+      if (this.resource.ip4routing === 'Dynamic') available.push('bgppeers')
+      if (this.isAdmin()) available.push('vr')
+      if ('runCustomAction' in apis && 'listCustomActions' in apis && this.resource.service?.some(service => service.name === 'CustomAction')) available.push('customactions')
+      const requested = this.$route?.query?.tab || 'details'
+      this.currentTab = !this.resource.id || available.includes(requested) ? requested : 'details'
+      if (this.resource.id && requested !== this.currentTab) this.$router.replace({ path: this.$route.path, query: { ...this.$route.query, tab: this.currentTab } })
     },
     handleChangeTab (e) {
       this.vpnCreate = ''
@@ -414,17 +434,7 @@ export default {
       this.page = 1
       this.pageSize = 10
       this.handleFetchData()
-      const query = Object.assign({}, this.$route.query)
-      query.tab = e
-      history.pushState(
-        {},
-        null,
-        '#' + this.$route.path + '?' + Object.keys(query).map(key => {
-          return (
-            encodeURIComponent(key) + '=' + encodeURIComponent(query[key])
-          )
-        }).join('&')
-      )
+      this.$router.push({ path: this.$route.path, query: { ...this.$route.query, tab: e } })
     },
     handleFetchData () {
       switch (this.currentTab) {
@@ -533,6 +543,7 @@ export default {
     handleOpenModals (e) {
       if (e === 'vpnGateway' || e === 'vpnConnection') { this.vpnCreate = e === 'vpnGateway' ? 'gateway' : 'connection'; return }
       this.initForm()
+      this.aclError = ''
 
       switch (e) {
         case 'networkAcl':
@@ -543,46 +554,29 @@ export default {
           break
       }
     },
-    handleNetworkAclFormSubmit () {
-      if (this.fetchLoading) return
-      this.fetchLoading = true
-
-      this.formRef.value.validate().then(() => {
+    closeAcl () { if (!this.aclSubmitting) this.modals.networkAcl = false },
+    async handleNetworkAclFormSubmit () {
+      if (this.aclSubmitting || !('createNetworkACLList' in this.$store.getters.apis)) return
+      this.aclSubmitting = true
+      this.aclError = ''
+      let polling = false
+      const complete = () => { this.aclSubmitting = false; this.modals.networkAcl = false; this.fetchAclList() }
+      const failed = () => { this.aclSubmitting = false; this.aclError = this.$t('message.add.network.acl.failed'); this.fetchAclList() }
+      try {
+        await this.formRef.value.validate()
         const values = toRaw(this.form)
-
-        postAPI('createNetworkACLList', {
-          name: values.name,
-          description: values.description,
-          vpcid: this.resource.id
-        }).then(response => {
-          this.$pollJob({
-            jobId: response.createnetworkacllistresponse.jobid,
-            title: this.$t('message.success.add.network.acl'),
-            description: values.name || values.description,
-            successMethod: () => {
-              this.fetchLoading = false
-            },
-            errorMessage: this.$t('message.add.network.acl.failed'),
-            errorMethod: () => {
-              this.fetchLoading = false
-            },
-            loadingMessage: this.$t('message.add.network.acl.processing'),
-            catchMessage: this.$t('error.fetching.async.job.result'),
-            catchMethod: () => {
-              this.fetchLoading = false
-            }
-          })
-        }).catch(error => {
-          this.$notifyError(error)
-        }).finally(() => {
-          this.modals.networkAcl = false
-          this.fetchLoading = false
-          this.fetchAclList()
-        })
-      }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
-        this.fetchLoading = false
-      })
+        const response = await postAPI('createNetworkACLList', { name: values.name, description: values.description, vpcid: this.resource.id })
+        const body = response.createnetworkacllistresponse
+        if (body.jobid) {
+          polling = true
+          this.$pollJob({ jobId: body.jobid, title: this.$t('message.success.add.network.acl'), description: values.name || values.description, successMethod: complete, errorMethod: failed, errorMessage: this.$t('message.add.network.acl.failed'), catchMethod: failed, catchMessage: this.$t('error.fetching.async.job.result'), loadingMessage: this.$t('message.add.network.acl.processing') })
+          return
+        }
+        complete()
+      } catch (error) {
+        if (error.errorFields?.length) this.formRef.value.scrollToField(error.errorFields[0].name)
+        else { this.aclError = error.response?.data?.createnetworkacllistresponse?.errortext || error.response?.data?.errorresponse?.errortext || error.message || this.$t('message.add.network.acl.failed'); this.$notifyError(error) }
+      } finally { if (!polling) this.aclSubmitting = false }
     },
     changePage (page, pageSize) {
       this.page = page
@@ -599,6 +593,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.vpc-tab { min-width: 0; }
+.vpc-tab-create { margin-bottom: 16px; }
+.vpc-query-notice { margin-bottom: 16px; }
+:deep(.ant-table-cell) { overflow-wrap: anywhere; }
+:deep(.ant-pagination) { display: flex; flex-wrap: wrap; gap: 4px; }
+
 .list {
 
   &__item,

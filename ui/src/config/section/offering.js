@@ -616,7 +616,7 @@ export default {
         label: 'label.add.vpc.offering',
         listView: true,
         popup: true,
-        standardDialogSize: 'md',
+        standardDialogSize: 'lg',
         component: shallowRef(defineAsyncComponent(() => import('@/views/offering/AddVpcOffering.vue')))
       }, {
         api: 'updateVPCOffering',
