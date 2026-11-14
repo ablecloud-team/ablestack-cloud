@@ -33,7 +33,7 @@ size="small"
 :data-source="visibleNics"
 :pagination="false"
 :row-key="record=>record.deviceid"
-:scroll="{x:850}">
+:scroll="{x:800}">
         <template #bodyCell="{column,record}">
           <span v-if="['required','management'].includes(column.key)">{{ $t(record[column.key]?'label.yes':'label.no') }}</span>
           <a-tooltip v-else-if="['name','description'].includes(column.key)" :title="record[column.key]"><span class="template-cell-value">{{ record[column.key] || '—' }}</span></a-tooltip>
@@ -153,7 +153,7 @@ export default {
     }
   },
   created () {
-    this.columns = ['deviceid', 'name', 'required', 'management', 'description', 'actions'].map(key => ({ key, dataIndex: key, title: this.$t({ deviceid: 'label.deviceid', name: 'label.name', required: 'label.required', management: 'label.vnf.nic.management', description: 'label.description', actions: 'label.action' }[key]), ...({ deviceid: 80, name: 180, required: 90, management: 100, description: 220, actions: 200 }[key] ? { width: { deviceid: 80, name: 180, required: 90, management: 100, description: 220, actions: 200 }[key] } : {}) }))
+    this.columns = ['deviceid', 'name', 'required', 'management', 'description', 'actions'].map(key => ({ key, dataIndex: key, title: this.$t({ deviceid: 'label.deviceid', name: 'label.name', required: 'label.required', management: 'label.vnf.nic.management', description: 'label.description', actions: 'label.action' }[key]), ...({ deviceid: 72, name: 200, required: 80, management: 96, description: 176, actions: 176 }[key] ? { width: { deviceid: 72, name: 200, required: 80, management: 96, description: 176, actions: 176 }[key] } : {}) }))
     this.initForm(); this.loadOptions()
   },
   beforeUnmount () { this.invalidate() },
