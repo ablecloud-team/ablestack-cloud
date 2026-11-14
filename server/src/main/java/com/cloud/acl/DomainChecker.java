@@ -183,6 +183,11 @@ public class DomainChecker extends AdapterBase implements SecurityChecker {
             Account owner = _accountDao.findById(template.getAccountId());
             // validate that the template is usable by the account
             if (!template.isPublicTemplate()) {
+                // Launch permission grants use of a private image, not modification.
+                if (accessType == AccessType.OperateEntry && !_accountService.isRootAdmin(caller.getId()) && owner.getId() != caller.getId()
+                        && (owner.getType() != Account.Type.PROJECT || !_projectMgr.canAccessProjectAccount(caller, owner.getId()))) {
+                    throw new PermissionDeniedException("Only the owner, Root Admin, or an authorized project member can modify this template");
+                }
                 if (_accountService.isRootAdmin(caller.getId()) || (owner.getId() == caller.getId())) {
                     return true;
                 }
