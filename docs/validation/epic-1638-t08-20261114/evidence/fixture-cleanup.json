@@ -1,0 +1,16 @@
+[
+  {
+    "root": "/usr/share/cloudstack-management/webapp/qa-template-t08-20261114",
+    "file": "/usr/share/cloudstack-management/webapp/qa-template-t08-20261114/cirros.qcow2",
+    "sha256BeforeRemoval": "7d6355852aeb6dbcd191bcda7cd74f1536cfe5cbf8a10495a7283a8396e4b75b",
+    "removed": true,
+    "host": "10.10.13.10"
+  },
+  {
+    "root": "/var/tmp/epic1638-t08-sourceproof-dff588a0",
+    "file": "/var/tmp/epic1638-t08-sourceproof-dff588a0/baseline.raw",
+    "sha256BeforeRemoval": "6929b434340d837cbc1517eac0dfd3149b80446f46bb715c1e1efc415854815c",
+    "removed": true,
+    "host": "10.10.13.2"
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "markdownlint": "PASS",
+  "relativeLinks": "PASS",
+  "jsonParsing": "PASS",
+  "scopedESLintFiles": 18,
+  "scopedESLint": "PASS",
+  "sourceRAT_AL": 22,
+  "sourceRAT_excludedJson": 2,
+  "T08PathsInPriorLintDiagnostics": [],
+  "newEvidenceGitleaks": "PASS",
+  "screenshotFormat": "JPEG content; corrected report file extensions without image reencoding"
+}

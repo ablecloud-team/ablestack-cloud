@@ -1,0 +1,8 @@
+{
+  "date": "2026-11-14",
+  "realEnvironment": "cluster13 single Zone KVM x86_64",
+  "realMultiZone": "NOT_RUN_SCOPE_ADJUSTED",
+  "nonKvm": "NOT_RUN_SCOPE_ADJUSTED",
+  "multiZoneFeaturePreserved": true,
+  "userDecision": "현재 추가 존 제공 어려움. 멀티 존 기능을 삭제하지 않고 검증 완료 범위를 현재 환경으로 조정."
+}

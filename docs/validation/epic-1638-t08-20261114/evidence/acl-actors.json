@@ -1,0 +1,68 @@
+[
+  {
+    "key": "parent_da",
+    "username": "qa-t08-da",
+    "role": "Domain Admin",
+    "domainId": "fd3eb21e-eb2b-479a-b849-db86f3a67275",
+    "domainPath": "/qa-t08-20261114",
+    "id": "7a36f8d4-4de7-4c5e-a7b5-97138633db2f"
+  },
+  {
+    "key": "child_da",
+    "username": "qa-t08-da-a",
+    "role": "Domain Admin",
+    "domainId": "790cb9e6-f64e-4f40-ba09-29e34b6b9c13",
+    "domainPath": "/qa-t08-20261114/A",
+    "id": "07f64198-64a7-4c9c-bdf7-9ff8424adc8d"
+  },
+  {
+    "key": "a",
+    "username": "qa-t08-a",
+    "role": "User",
+    "domainId": "790cb9e6-f64e-4f40-ba09-29e34b6b9c13",
+    "domainPath": "/qa-t08-20261114/A",
+    "id": "00c752c4-023f-4f01-b57e-a987881de0bb"
+  },
+  {
+    "key": "b",
+    "username": "qa-t08-b",
+    "role": "User",
+    "domainId": "790cb9e6-f64e-4f40-ba09-29e34b6b9c13",
+    "domainPath": "/qa-t08-20261114/A",
+    "id": "e7bd89ec-7468-4196-9528-cf5b515a0c4c"
+  },
+  {
+    "key": "n",
+    "username": "qa-t08-n",
+    "role": "User",
+    "domainId": "790cb9e6-f64e-4f40-ba09-29e34b6b9c13",
+    "domainPath": "/qa-t08-20261114/A",
+    "id": "eac289d5-32db-4c02-909d-2461fa1f7015"
+  },
+  {
+    "key": "c",
+    "username": "qa-t08-c",
+    "role": "User",
+    "domainId": "3c5e62b2-2f4a-49c6-9af1-a1a8a00a5a15",
+    "domainPath": "/qa-t08-20261114/AB",
+    "accountId": "a1a0b186-0d31-4055-bf76-a9b61394acc6"
+  },
+  {
+    "key": "o",
+    "username": "qa-t08-o",
+    "role": "User",
+    "domainId": "d0a96ad0-299f-49d8-af1f-e054aa3bcd61",
+    "domainPath": "/qa-t08-out-20261114",
+    "id": "f6998d94-e07d-4838-adf0-bbca413cc6d8"
+  },
+  {
+    "key": "v",
+    "username": "qa-t08-v",
+    "role": "User",
+    "domainId": "790cb9e6-f64e-4f40-ba09-29e34b6b9c13",
+    "domainPath": "/qa-t08-20261114/A",
+    "laterRole": "Read-Only User - Default",
+    "id": "49dbbd16-6aba-477c-b8fa-9fbe88ed1a51",
+    "effectiveRole": "Read-Only User - Default"
+  }
+]

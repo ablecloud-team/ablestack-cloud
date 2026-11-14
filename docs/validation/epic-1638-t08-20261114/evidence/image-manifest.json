@@ -1,0 +1,42 @@
+{
+  "source": "https://download.cirros-cloud.net/0.6.3/cirros-0.6.3-x86_64-disk.img",
+  "checksumSource": "https://download.cirros-cloud.net/0.6.3/SHA256SUMS",
+  "sha256": "7d6355852aeb6dbcd191bcda7cd74f1536cfe5cbf8a10495a7283a8396e4b75b",
+  "bytes": 21692416,
+  "formatInfo": {
+    "children": [
+      {
+        "name": "file",
+        "info": {
+          "children": [],
+          "virtual-size": 21692416,
+          "filename": "/tmp/epic-1638-t08/cirros-0.6.3-x86_64-disk.img",
+          "format": "file",
+          "actual-size": 21692416,
+          "format-specific": {
+            "type": "file",
+            "data": {}
+          },
+          "dirty-flag": false
+        }
+      }
+    ],
+    "virtual-size": 117440512,
+    "filename": "/tmp/epic-1638-t08/cirros-0.6.3-x86_64-disk.img",
+    "cluster-size": 65536,
+    "format": "qcow2",
+    "actual-size": 21692416,
+    "format-specific": {
+      "type": "qcow2",
+      "data": {
+        "compat": "1.1",
+        "compression-type": "zlib",
+        "lazy-refcounts": false,
+        "refcount-bits": 16,
+        "corrupt": false,
+        "extended-l2": false
+      }
+    },
+    "dirty-flag": false
+  }
+}

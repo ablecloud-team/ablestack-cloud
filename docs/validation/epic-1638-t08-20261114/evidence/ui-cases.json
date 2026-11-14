@@ -1,0 +1,2219 @@
+[
+  {
+    "id": "ACL-root-write-foreign-vnf",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T03:58:58.086Z",
+    "templateId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+    "expectedValueVisible": true
+  },
+  {
+    "id": "ACL-parent-DA-foreign-private-write-before-fix",
+    "status": "PRODUCT_FAILURE",
+    "actor": "qa-t08-da",
+    "observedAt": "2026-11-14T04:01:08.724Z",
+    "templateId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+    "httpStatus": 531,
+    "errorCode": 4365,
+    "reason": "UI allows edit but server rejects launch permission; unchanged source and retained draft",
+    "unchangedValueVisible": true
+  },
+  {
+    "id": "ACL-parent-DA-outside-private-read-denied",
+    "status": "PASS",
+    "actor": "qa-t08-da",
+    "observedAt": "2026-11-14T04:01:23.192Z",
+    "templateId": "70a203fc-e480-4909-998b-d9bca7283916",
+    "unavailableVisible": true,
+    "api": [
+      {
+        "command": "updateVnfTemplate",
+        "method": "POST",
+        "targetId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 531,
+        "errorCode": 531,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listDetailOptions",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listDomains",
+        "method": "GET",
+        "targetId": "fd3eb21e-eb2b-479a-b849-db86f3a67275",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      },
+      {
+        "command": "listDomains",
+        "method": "GET",
+        "targetId": "790cb9e6-f64e-4f40-ba09-29e34b6b9c13",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "70a203fc-e480-4909-998b-d9bca7283916",
+        "projectId": null,
+        "filter": "all",
+        "httpStatus": 531,
+        "errorCode": 531,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "id": "ACL-DA-A-prefix-AB-read-denied",
+    "status": "PASS",
+    "actor": "qa-t08-da-a",
+    "observedAt": "2026-11-14T04:01:43.863Z",
+    "templateId": "fb1e6629-1609-4e2a-8c87-08aae94b123a",
+    "unavailableVisible": true,
+    "api": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "fb1e6629-1609-4e2a-8c87-08aae94b123a",
+        "projectId": null,
+        "filter": "all",
+        "httpStatus": 531,
+        "errorCode": 531,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "id": "ACL-DA-own-vnf-write",
+    "status": "PASS",
+    "actor": "qa-t08-da-a",
+    "observedAt": "2026-11-14T04:02:58.759Z",
+    "templateId": "ab828b12-7909-4c0b-aaa7-8cdc07978c84",
+    "valueVisible": true,
+    "api": [
+      {
+        "command": "updateVnfTemplate",
+        "method": "POST",
+        "targetId": "ab828b12-7909-4c0b-aaa7-8cdc07978c84",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "ab828b12-7909-4c0b-aaa7-8cdc07978c84",
+        "projectId": null,
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "ab828b12-7909-4c0b-aaa7-8cdc07978c84",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      },
+      {
+        "command": "listZones",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ACL-root-grant-account-B",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T04:05:12.514Z",
+    "templateId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+    "grantee": "qa-t08-b",
+    "api": [
+      {
+        "command": "updateTemplatePermissions",
+        "method": "POST",
+        "targetId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+        "projectId": null,
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ACL-root-public-toggle-C",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T04:05:54.234Z",
+    "templateId": "fb1e6629-1609-4e2a-8c87-08aae94b123a",
+    "api": [
+      {
+        "command": "updateTemplatePermissions",
+        "method": "POST",
+        "targetId": "fb1e6629-1609-4e2a-8c87-08aae94b123a",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "fb1e6629-1609-4e2a-8c87-08aae94b123a",
+        "projectId": null,
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "fb1e6629-1609-4e2a-8c87-08aae94b123a",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      },
+      {
+        "command": "listZones",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "DOWNLOAD-extraction-success-file-receive-pending",
+    "status": "PENDING_MANUAL",
+    "actor": "admin",
+    "observedAt": "2026-11-14T04:08:03.952Z",
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "extractApi": [
+      {
+        "command": "extractTemplate",
+        "method": "POST",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": null,
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ],
+    "downloadEvent": false,
+    "reason": "New tab observation blocked by browser URL policy; no workaround attempted; manual byte/hash verification requested"
+  },
+  {
+    "id": "DOWNLOAD-browser-receipt-hash",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T04:10:42.544Z",
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "method": "operator downloaded through UI; agent verified local bytes",
+    "bytes": 21692416,
+    "sha256": "7d6355852aeb6dbcd191bcda7cd74f1536cfe5cbf8a10495a7283a8396e4b75b",
+    "sourceMatch": true
+  },
+  {
+    "id": "ACL-B-shared-read-and-UI-write-denied",
+    "status": "PASS",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T04:11:35.302Z",
+    "templateId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+    "headingVisible": true,
+    "addDisabled": true,
+    "api": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      },
+      {
+        "command": "listDetailOptions",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listZones",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ACL-B-own-vnf-write",
+    "status": "PASS",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T04:11:47.369Z",
+    "templateId": "ecda0b6f-f540-40d3-8723-3f9014d71e31",
+    "valueVisible": true,
+    "api": [
+      {
+        "command": "updateVnfTemplate",
+        "method": "POST",
+        "targetId": "ecda0b6f-f540-40d3-8723-3f9014d71e31",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "ecda0b6f-f540-40d3-8723-3f9014d71e31",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      },
+      {
+        "command": "listZones",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ACL-shared-recipient-server-write-before-fix",
+    "status": "PRODUCT_FAILURE",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T04:12:40.879Z",
+    "templateId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+    "probe": "UI-originated B own edit POST with target ID changed to the shared QA template; real cookie and server ACL",
+    "serverHttpStatus": 200,
+    "unexpectedTargetValueVisible": true,
+    "uiWriteDisabled": true,
+    "noExistingNonQaResourceTouched": true
+  },
+  {
+    "id": "ACL-B-shared-server-write-denied-after-fix",
+    "status": "PASS",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T04:19:59.185Z",
+    "command": "updateVnfTemplate",
+    "originalId": "ecda0b6f-f540-40d3-8723-3f9014d71e31",
+    "targetId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+    "api": [
+      {
+        "command": "updateVnfTemplate",
+        "method": "POST",
+        "targetId": "ecda0b6f-f540-40d3-8723-3f9014d71e31",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 531,
+        "errorCode": 531,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "id": "ACL-B-denied-write-preserves-A",
+    "status": "PASS",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T04:20:11.798Z",
+    "templateId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+    "baselineStillVisible": true,
+    "deniedDraftAbsent": true
+  },
+  {
+    "id": "ACL-project-Regular-member-write",
+    "status": "PASS",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T04:20:45.463Z",
+    "templateId": "a6a1deb0-1665-43fb-9549-2864ec9e1f1b",
+    "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+    "valueVisible": true,
+    "api": [
+      {
+        "command": "updateVnfTemplate",
+        "method": "POST",
+        "targetId": "a6a1deb0-1665-43fb-9549-2864ec9e1f1b",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "a6a1deb0-1665-43fb-9549-2864ec9e1f1b",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      },
+      {
+        "command": "listZones",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ACL-project-nonmember-read-denied",
+    "status": "PASS",
+    "actor": "qa-t08-n",
+    "observedAt": "2026-11-14T04:21:21.098Z",
+    "templateId": "a6a1deb0-1665-43fb-9549-2864ec9e1f1b",
+    "unavailableVisible": true,
+    "api": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "a6a1deb0-1665-43fb-9549-2864ec9e1f1b",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 531,
+        "errorCode": 531,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "id": "ACL-project-nonmember-server-write-denied",
+    "status": "PASS",
+    "actor": "qa-t08-n",
+    "observedAt": "2026-11-14T04:21:29.733Z",
+    "command": "updateVnfTemplate",
+    "targetId": "a6a1deb0-1665-43fb-9549-2864ec9e1f1b",
+    "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+    "method": "UI refresh changed to POST, real actor cookie and session",
+    "networkOriginalRequest": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "a6a1deb0-1665-43fb-9549-2864ec9e1f1b",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 432,
+        "errorCode": 432,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "a6a1deb0-1665-43fb-9549-2864ec9e1f1b",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 531,
+        "errorCode": 531,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "id": "ACL-nonmember-project-choice-absent",
+    "status": "PASS",
+    "actor": "qa-t08-n",
+    "observedAt": "2026-11-14T04:21:40.423Z",
+    "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+    "visibleProjectChoice": false
+  },
+  {
+    "id": "ACL-N-private-A-read-denied",
+    "status": "PASS",
+    "actor": "qa-t08-n",
+    "observedAt": "2026-11-14T04:22:03.633Z",
+    "templateId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+    "unavailableVisible": true
+  },
+  {
+    "id": "ACL-N-public-C-read-only",
+    "status": "PASS",
+    "actor": "qa-t08-n",
+    "observedAt": "2026-11-14T04:22:12.166Z",
+    "templateId": "fb1e6629-1609-4e2a-8c87-08aae94b123a",
+    "headingVisible": true,
+    "addDisabled": true
+  },
+  {
+    "id": "ACL-N-public-C-server-write-denied",
+    "status": "PASS",
+    "actor": "qa-t08-n",
+    "observedAt": "2026-11-14T04:22:20.602Z",
+    "command": "updateVnfTemplate",
+    "targetId": "fb1e6629-1609-4e2a-8c87-08aae94b123a",
+    "projectId": "",
+    "method": "UI refresh changed to POST, real actor cookie and session",
+    "networkOriginalRequest": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "fb1e6629-1609-4e2a-8c87-08aae94b123a",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 531,
+        "errorCode": 531,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "id": "ACL-readonly-own-detail-no-mutation-controls",
+    "status": "PASS",
+    "actor": "qa-t08-v",
+    "observedAt": "2026-11-14T04:22:50.534Z",
+    "templateId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+    "headingVisible": true,
+    "vnfTabAbsent": true,
+    "actionsAbsent": true,
+    "createVmAbsent": true,
+    "api": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ACL-readonly-updateVnfTemplate-denied",
+    "status": "PASS",
+    "actor": "qa-t08-v",
+    "observedAt": "2026-11-14T04:23:37.747Z",
+    "command": "updateVnfTemplate",
+    "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+    "projectId": "",
+    "method": "UI refresh changed to POST, real actor cookie and session",
+    "networkOriginalRequest": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 432,
+        "errorCode": 432,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ACL-readonly-updateTemplate-denied",
+    "status": "PASS",
+    "actor": "qa-t08-v",
+    "observedAt": "2026-11-14T04:23:39.224Z",
+    "command": "updateTemplate",
+    "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+    "projectId": "",
+    "method": "UI refresh changed to POST, real actor cookie and session",
+    "networkOriginalRequest": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 432,
+        "errorCode": 432,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "id": "ACL-readonly-updateTemplatePermissions-denied",
+    "status": "PASS",
+    "actor": "qa-t08-v",
+    "observedAt": "2026-11-14T04:23:40.218Z",
+    "command": "updateTemplatePermissions",
+    "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+    "projectId": "",
+    "method": "UI refresh changed to POST, real actor cookie and session",
+    "networkOriginalRequest": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 432,
+        "errorCode": 432,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "id": "ACL-readonly-deleteTemplate-denied",
+    "status": "PASS",
+    "actor": "qa-t08-v",
+    "observedAt": "2026-11-14T04:23:41.209Z",
+    "command": "deleteTemplate",
+    "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+    "projectId": "",
+    "method": "UI refresh changed to POST, real actor cookie and session",
+    "networkOriginalRequest": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 432,
+        "errorCode": 432,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "id": "ACL-readonly-copyTemplate-denied",
+    "status": "PASS",
+    "actor": "qa-t08-v",
+    "observedAt": "2026-11-14T04:23:42.209Z",
+    "command": "copyTemplate",
+    "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+    "projectId": "",
+    "method": "UI refresh changed to POST, real actor cookie and session",
+    "networkOriginalRequest": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 432,
+        "errorCode": 432,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "id": "ACL-readonly-prepareTemplate-denied",
+    "status": "PASS",
+    "actor": "qa-t08-v",
+    "observedAt": "2026-11-14T04:23:43.211Z",
+    "command": "prepareTemplate",
+    "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+    "projectId": "",
+    "method": "UI refresh changed to POST, real actor cookie and session",
+    "networkOriginalRequest": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 432,
+        "errorCode": 432,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "id": "ACL-readonly-registerTemplate-denied",
+    "status": "PASS",
+    "actor": "qa-t08-v",
+    "observedAt": "2026-11-14T04:23:44.201Z",
+    "command": "registerTemplate",
+    "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+    "projectId": "",
+    "method": "UI refresh changed to POST, real actor cookie and session",
+    "networkOriginalRequest": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 432,
+        "errorCode": 432,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "id": "ACL-readonly-getUploadParamsForTemplate-denied",
+    "status": "PASS",
+    "actor": "qa-t08-v",
+    "observedAt": "2026-11-14T04:23:45.204Z",
+    "command": "getUploadParamsForTemplate",
+    "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+    "projectId": "",
+    "method": "UI refresh changed to POST, real actor cookie and session",
+    "networkOriginalRequest": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 432,
+        "errorCode": 432,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "id": "ACL-readonly-Zone-actions-disabled",
+    "status": "PASS",
+    "actor": "qa-t08-v",
+    "observedAt": "2026-11-14T04:23:59.323Z",
+    "copyDisabled": true,
+    "deleteDisabled": true,
+    "prepareAbsent": true
+  },
+  {
+    "id": "ACL-C-public-owner-write-after-server-fix",
+    "status": "PASS",
+    "actor": "qa-t08-c",
+    "observedAt": "2026-11-14T04:24:24.617Z",
+    "templateId": "fb1e6629-1609-4e2a-8c87-08aae94b123a",
+    "valueVisible": true,
+    "api": [
+      {
+        "command": "updateVnfTemplate",
+        "method": "POST",
+        "targetId": "fb1e6629-1609-4e2a-8c87-08aae94b123a",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "fb1e6629-1609-4e2a-8c87-08aae94b123a",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      },
+      {
+        "command": "listZones",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ACL-C-private-A-read-denied",
+    "status": "PASS",
+    "actor": "qa-t08-c",
+    "observedAt": "2026-11-14T04:24:29.690Z",
+    "templateId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+    "unavailableVisible": true
+  },
+  {
+    "id": "ACL-O-private-owner-write-after-server-fix",
+    "status": "PASS",
+    "actor": "qa-t08-o",
+    "observedAt": "2026-11-14T04:24:49.516Z",
+    "templateId": "70a203fc-e480-4909-998b-d9bca7283916",
+    "valueVisible": true,
+    "api": [
+      {
+        "command": "updateVnfTemplate",
+        "method": "POST",
+        "targetId": "70a203fc-e480-4909-998b-d9bca7283916",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "70a203fc-e480-4909-998b-d9bca7283916",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      },
+      {
+        "command": "listZones",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ACL-O-private-A-read-denied",
+    "status": "PASS",
+    "actor": "qa-t08-o",
+    "observedAt": "2026-11-14T04:24:55.034Z",
+    "templateId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+    "unavailableVisible": true
+  },
+  {
+    "id": "ACL-A-private-owner-write-after-server-fix",
+    "status": "PASS",
+    "actor": "qa-t08-a",
+    "observedAt": "2026-11-14T04:25:42.158Z",
+    "templateId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+    "valueVisible": true,
+    "api": [
+      {
+        "command": "updateVnfTemplate",
+        "method": "POST",
+        "targetId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      },
+      {
+        "command": "listZones",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "FORM-normal-owner-edit-preserves-options",
+    "status": "PASS",
+    "actor": "qa-t08-a",
+    "observedAt": "2026-11-14T04:26:09.086Z",
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "before": {
+      "archVisible": true,
+      "ssh": "false",
+      "hvm": "true",
+      "cks": "false"
+    },
+    "updatedDescriptionVisible": true,
+    "api": [
+      {
+        "command": "updateTemplate",
+        "method": "POST",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      },
+      {
+        "command": "listZones",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "BOOT-URL-deploy-precondition-failure",
+    "status": "ENVIRONMENT_BLOCKED",
+    "actor": "qa-t08-a",
+    "observedAt": "2026-11-14T04:33:00.585Z",
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "attemptedOfferings": [
+      "1C1GB"
+    ],
+    "error": "ALLOCATION_AGENT_UNAVAILABLE: no matching qualified pool and Agent; no legacy fallback is allowed",
+    "stage": "first request rejected before allocation; compatible CKS Instance retry succeeded with async job 94352971-fa1a-40e0-8374-b682bfef4fc1",
+    "api": []
+  },
+  {
+    "id": "BOOT-URL-VM-created-running",
+    "status": "PASS",
+    "actor": "qa-t08-a",
+    "observedAt": "2026-11-14T04:34:08.088Z",
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "vmId": "5304dae8-a66c-4ac5-a464-41f0fac4450a",
+    "jobId": "94352971-fa1a-40e0-8374-b682bfef4fc1",
+    "jobStatus": 1,
+    "runningVisible": true,
+    "guestBootStillPending": true
+  },
+  {
+    "id": "UPLOAD-4.23-real-user-SHA256-ready",
+    "status": "PASS",
+    "actor": "qa-t08-a",
+    "observedAt": "2026-11-14T04:45:55.570Z",
+    "templateId": "ad9b844f-2fdd-4502-acde-486caf9334c0",
+    "sourceBytes": 21692416,
+    "sha256": "7d6355852aeb6dbcd191bcda7cd74f1536cfe5cbf8a10495a7283a8396e4b75b",
+    "isready": true,
+    "downloadState": "DOWNLOADED",
+    "downloadPercent": 100,
+    "uiReadyVisible": true,
+    "api": [
+      {
+        "command": "getUploadParamsForTemplate",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": "self",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 3
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "ad9b844f-2fdd-4502-acde-486caf9334c0",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      },
+      {
+        "command": "listZones",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ],
+    "resourceStatus": "Download Complete"
+  },
+  {
+    "vmId": "fd87b9f1-89fa-4cdf-b3a6-ca42c8ee678f",
+    "templateId": "ad9b844f-2fdd-4502-acde-486caf9334c0",
+    "jobId": "a883fbf8-c2c1-45b4-8ec1-51f122638d72",
+    "jobStatus": 1,
+    "runningVisible": true,
+    "guestBootStillPending": true,
+    "id": "BOOT-LOCAL-VM-created-running",
+    "status": "PASS",
+    "actor": "qa-t08-a",
+    "observedAt": "2026-11-14T04:48:15.304Z"
+  },
+  {
+    "placeholder": "쉼표로 구분된 명령 목록을 입력하십시오.",
+    "reason": "account-name field is described as a command list",
+    "id": "PERMISSIONS-normal-user-placeholder-before-fix",
+    "status": "PRODUCT_FAILURE",
+    "actor": "qa-t08-a",
+    "observedAt": "2026-11-14T04:52:09.634Z"
+  },
+  {
+    "templateId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+    "grantee": "qa-t08-b",
+    "api": [
+      {
+        "command": "updateTemplatePermissions",
+        "method": "POST",
+        "targetId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ],
+    "id": "ACL-owner-A-remove-account-B",
+    "status": "PASS",
+    "actor": "qa-t08-a",
+    "observedAt": "2026-11-14T04:53:30.106Z"
+  },
+  {
+    "templateId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+    "unavailableVisible": true,
+    "api": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 531,
+        "errorCode": 531,
+        "success": null,
+        "count": null
+      }
+    ],
+    "id": "ACL-B-access-revoked-after-owner-remove",
+    "status": "PASS",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T04:55:08.570Z"
+  },
+  {
+    "templateId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+    "readAllowed": true,
+    "addDisabled": true,
+    "id": "ACL-parent-DA-descendant-read-UI-write-denied-after-fix",
+    "status": "PASS",
+    "actor": "qa-t08-da",
+    "observedAt": "2026-11-14T04:57:00.133Z"
+  },
+  {
+    "actor": "qa-t08-da",
+    "command": "updateVnfTemplate",
+    "targetId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+    "projectId": "",
+    "method": "UI refresh changed to POST, real actor cookie and session",
+    "networkOriginalRequest": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+        "projectId": null,
+        "filter": "all",
+        "httpStatus": 531,
+        "errorCode": 531,
+        "success": null,
+        "count": null
+      }
+    ],
+    "id": "ACL-parent-DA-foreign-private-server-write-denied",
+    "status": "PASS",
+    "observedAt": "2026-11-14T04:57:01.525Z"
+  },
+  {
+    "templateId": "7993d834-c6dc-47c3-9039-ba7561c8fd86",
+    "valueVisible": true,
+    "api": [
+      {
+        "command": "updateVnfTemplate",
+        "method": "POST",
+        "targetId": "7993d834-c6dc-47c3-9039-ba7561c8fd86",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "7993d834-c6dc-47c3-9039-ba7561c8fd86",
+        "projectId": null,
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ],
+    "id": "ACL-parent-DA-own-vnf-write-after-fix",
+    "status": "PASS",
+    "actor": "qa-t08-da",
+    "observedAt": "2026-11-14T04:57:58.123Z"
+  },
+  {
+    "templateId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+    "headingVisible": true,
+    "addDisabled": true,
+    "id": "ACL-DA-A-same-domain-foreign-readonly",
+    "status": "PASS",
+    "actor": "qa-t08-da-a",
+    "observedAt": "2026-11-14T04:58:17.498Z"
+  },
+  {
+    "templateId": "fb1e6629-1609-4e2a-8c87-08aae94b123a",
+    "headingVisible": true,
+    "addDisabled": true,
+    "id": "ACL-DA-A-public-AB-prefix-write-disabled",
+    "status": "PASS",
+    "actor": "qa-t08-da-a",
+    "observedAt": "2026-11-14T04:58:18.036Z"
+  },
+  {
+    "templateId": "ab828b12-7909-4c0b-aaa7-8cdc07978c84",
+    "valueVisible": true,
+    "api": [
+      {
+        "command": "updateVnfTemplate",
+        "method": "POST",
+        "targetId": "ab828b12-7909-4c0b-aaa7-8cdc07978c84",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "ab828b12-7909-4c0b-aaa7-8cdc07978c84",
+        "projectId": null,
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ],
+    "id": "ACL-DA-A-own-vnf-write-after-fix",
+    "status": "PASS",
+    "actor": "qa-t08-da-a",
+    "observedAt": "2026-11-14T04:59:10.879Z"
+  },
+  {
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "storageId": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+    "alreadyCachedBeforeRequest": true,
+    "operationSuccessVisible": true,
+    "api": [
+      {
+        "command": "prepareTemplate",
+        "method": "POST",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": null,
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ],
+    "id": "ACL-root-prepare-foreign-template-explicit-pool",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T05:00:32.086Z"
+  },
+  {
+    "zoneCount": 1,
+    "actualTransfer": "NOT_RUN_SCOPE_ADJUSTED",
+    "reasonVisible": true,
+    "confirmDisabled": true,
+    "id": "ZONE-copy-no-target-preserved",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T05:00:44.276Z"
+  },
+  {
+    "vmId": "5304dae8-a66c-4ac5-a464-41f0fac4450a",
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "guestOs": "CirrOS 0.6.3",
+    "kernel": "Linux 5.15.0-117-generic x86_64",
+    "markerSha256": "42cb6197ed874d1ed24c70c0a42e46ffeeca40b2b43c35a97035ffab92c1c5e6",
+    "proof": "UI VM creation and noVNC console observation; auxiliary guest serial shell prepared marker and displayed actual OS/host output",
+    "fixtureMetadataSourcesForVolumeSnapshotClones": "nocloud configdrive; source registered image unchanged",
+    "id": "BOOT-URL-actual-guest-console-proof",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T05:10:26.568Z"
+  },
+  {
+    "vmId": "fd87b9f1-89fa-4cdf-b3a6-ca42c8ee678f",
+    "templateId": "ad9b844f-2fdd-4502-acde-486caf9334c0",
+    "guestOs": "CirrOS 0.6.3",
+    "kernel": "Linux 5.15.0-117-generic x86_64",
+    "markerSha256": "42cb6197ed874d1ed24c70c0a42e46ffeeca40b2b43c35a97035ffab92c1c5e6",
+    "proof": "UI VM creation and noVNC observation; auxiliary guest serial shell displayed actual OS and marker output",
+    "id": "BOOT-LOCAL-actual-guest-console-proof",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T05:11:22.156Z"
+  },
+  {
+    "command": "createTemplate",
+    "id": "CREATE-template-from-ROOT-volume-ready",
+    "jobId": "ad54f7a1-104d-4418-bf57-1db8a8ddbae1",
+    "jobStatus": 1,
+    "errorCode": null,
+    "resource": {
+      "id": "cab5b9f8-d0bb-4c7d-99d6-6faed419026b",
+      "name": "qa-t08-from-volume",
+      "isready": true,
+      "status": "Download Complete",
+      "account": "admin",
+      "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+      "arch": "x86_64",
+      "format": "QCOW2"
+    },
+    "sourceVolumeId": "dff588a0-1aa9-46d7-a297-0dbeab41721c",
+    "uiReadyVisible": true,
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T05:19:06.938Z"
+  },
+  {
+    "command": "createSnapshot",
+    "id": "CREATE-source-volume-snapshot-backed-up",
+    "jobId": "8b807c6a-9711-4cb0-897f-b739f2e636cd",
+    "jobStatus": 1,
+    "errorCode": null,
+    "resource": {
+      "id": "7ac2b172-022a-417e-a496-2fe026695cbe",
+      "name": "qa-t08-source-snapshot",
+      "state": "BackedUp",
+      "account": "qa-t08-a",
+      "domainid": "790cb9e6-f64e-4f40-ba09-29e34b6b9c13"
+    },
+    "sourceVolumeId": "dff588a0-1aa9-46d7-a297-0dbeab41721c",
+    "uiBackedUpVisible": true,
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T05:24:00.568Z"
+  },
+  {
+    "command": "createTemplate",
+    "id": "CREATE-template-from-snapshot-ready",
+    "jobId": "f95e9528-ebd2-431a-b304-89bd5be77ced",
+    "jobStatus": 1,
+    "errorCode": null,
+    "resource": {
+      "id": "9ed853d1-f196-44a4-8c69-99d53f61a87b",
+      "name": "qa-t08-from-snapshot",
+      "isready": true,
+      "status": "Download Complete",
+      "account": "admin",
+      "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+      "arch": "x86_64",
+      "format": "QCOW2"
+    },
+    "templateId": "9ed853d1-f196-44a4-8c69-99d53f61a87b",
+    "sourceSnapshotId": "7ac2b172-022a-417e-a496-2fe026695cbe",
+    "uiReadyVisible": true,
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T05:28:43.442Z"
+  },
+  {
+    "templateId": "9ed853d1-f196-44a4-8c69-99d53f61a87b",
+    "triggerFocusedBeforeOpen": true,
+    "dialogClosed": true,
+    "focusAfterRefresh": {
+      "label": "템플릿 복사",
+      "tag": "BUTTON"
+    },
+    "id": "A11Y-Zone-ESC-focus-restored-after-fix",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T05:29:19.749Z"
+  },
+  {
+    "command": "deployVirtualMachine",
+    "id": "BOOT-VOLUME-clone-running",
+    "jobId": "14ea1968-cff6-41c7-9d33-28668e46dafc",
+    "jobStatus": 1,
+    "errorCode": null,
+    "resource": {
+      "id": "8434ed98-f81d-4ad2-99be-9afa918abaca",
+      "name": "qa-t08-volume-clone",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+      "arch": "x86_64"
+    },
+    "vmId": "8434ed98-f81d-4ad2-99be-9afa918abaca",
+    "templateId": "cab5b9f8-d0bb-4c7d-99d6-6faed419026b",
+    "uiRunning": true,
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T05:31:52.947Z"
+  },
+  {
+    "vmId": "8434ed98-f81d-4ad2-99be-9afa918abaca",
+    "templateId": "cab5b9f8-d0bb-4c7d-99d6-6faed419026b",
+    "sourceVolumeId": "dff588a0-1aa9-46d7-a297-0dbeab41721c",
+    "guestOs": "CirrOS 0.6.3",
+    "kernel": "Linux 5.15.0-117-generic x86_64",
+    "markerCreatedInClone": false,
+    "markerSha256": "42cb6197ed874d1ed24c70c0a42e46ffeeca40b2b43c35a97035ffab92c1c5e6",
+    "sourceMarkerMatches": true,
+    "uiConsoleObserved": true,
+    "id": "BOOT-VOLUME-clone-guest-and-marker-preserved",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T05:32:17.193Z"
+  },
+  {
+    "command": "deployVirtualMachine",
+    "id": "BOOT-SNAPSHOT-clone-running",
+    "jobId": "fb5f8b64-9af1-4f53-96b5-f6231f0bf5ac",
+    "jobStatus": 1,
+    "errorCode": null,
+    "resource": {
+      "id": "e8e89f84-5489-4be5-8c7d-2a1109eca3fa",
+      "name": "qa-t08-snapshot-clone",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+      "arch": "x86_64"
+    },
+    "vmId": "e8e89f84-5489-4be5-8c7d-2a1109eca3fa",
+    "templateId": "9ed853d1-f196-44a4-8c69-99d53f61a87b",
+    "uiRunning": true,
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T05:32:43.859Z"
+  },
+  {
+    "vmId": "e8e89f84-5489-4be5-8c7d-2a1109eca3fa",
+    "templateId": "9ed853d1-f196-44a4-8c69-99d53f61a87b",
+    "sourceSnapshotId": "7ac2b172-022a-417e-a496-2fe026695cbe",
+    "guestOs": "CirrOS 0.6.3",
+    "kernel": "Linux 5.15.0-117-generic x86_64",
+    "markerCreatedInClone": false,
+    "markerSha256": "42cb6197ed874d1ed24c70c0a42e46ffeeca40b2b43c35a97035ffab92c1c5e6",
+    "sourceMarkerMatches": true,
+    "uiConsoleObserved": true,
+    "id": "BOOT-SNAPSHOT-clone-guest-and-marker-preserved",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T05:34:01.574Z"
+  },
+  {
+    "volumeId": "dff588a0-1aa9-46d7-a297-0dbeab41721c",
+    "logicalBytes": 117440512,
+    "logicalSha256": "6929b434340d837cbc1517eac0dfd3149b80446f46bb715c1e1efc415854815c",
+    "comparison": "qemu-img logical content comparison against raw baseline; allocation-map equality excluded across formats",
+    "compareExitCode": 0,
+    "formatUnchanged": true,
+    "sizeUnchanged": true,
+    "sourceVmRemainedStopped": true,
+    "id": "SOURCE-logical-content-preserved-after-template-and-snapshot",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T05:34:01.583Z"
+  },
+  {
+    "templateId": "22cf5790-dea1-4cc4-93ae-cefb0e1e9a56",
+    "expectedMismatch": true,
+    "server": [
+      {
+        "origin": "http://10.10.13.4",
+        "httpStatus": 403,
+        "checksumMismatch": false
+      },
+      {
+        "origin": "http://10.10.13.4",
+        "httpStatus": 500,
+        "checksumMismatch": true
+      }
+    ],
+    "uiFailureVisible": true,
+    "acceptedMetadataRetained": true,
+    "automaticResubmitAbsent": true,
+    "id": "UPLOAD-4.23-SHA256-mismatch-rejected",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T05:38:17.076Z"
+  },
+  {
+    "templateId": "22cf5790-dea1-4cc4-93ae-cefb0e1e9a56",
+    "statusText": "다운로드/업로드 실패",
+    "downloadState": "DOWNLOAD_ERROR",
+    "ready": false,
+    "vmCreateDisabled": true,
+    "copyDisabled": true,
+    "prepareDisabled": true,
+    "id": "UPLOAD-mismatch-failure-status-and-actions-consistent",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T05:39:01.445Z"
+  },
+  {
+    "templateId": "22cf5790-dea1-4cc4-93ae-cefb0e1e9a56",
+    "failedStateVisible": true,
+    "readyFalseVisible": true,
+    "operationColumnAbsent": true,
+    "id": "ZONE-single-delete-confirm-preserves-failed-state",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T05:39:35.775Z"
+  },
+  {
+    "templateId": "22cf5790-dea1-4cc4-93ae-cefb0e1e9a56",
+    "command": "deleteTemplate",
+    "id": "ZONE-single-last-delete-result-retained",
+    "jobId": "36fe3a64-f083-4aed-a7fe-93858c6f5964",
+    "jobStatus": 1,
+    "errorCode": null,
+    "resource": null,
+    "successSummaryVisible": true,
+    "detailRouteRetained": true,
+    "api": [
+      {
+        "command": "deleteTemplate",
+        "method": "POST",
+        "targetId": "22cf5790-dea1-4cc4-93ae-cefb0e1e9a56",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "36fe3a64-f083-4aed-a7fe-93858c6f5964"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "jobId": "36fe3a64-f083-4aed-a7fe-93858c6f5964",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null,
+        "jobStatus": 1
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "22cf5790-dea1-4cc4-93ae-cefb0e1e9a56",
+        "projectId": null,
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      }
+    ],
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T05:41:26.062Z"
+  },
+  {
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "placeholderCorrect": true,
+    "emptyTargetWarning": true,
+    "mutationRequests": 0,
+    "id": "PERMISSIONS-localized-account-guide-and-empty-target-block",
+    "status": "PASS",
+    "actor": "qa-t08-a",
+    "observedAt": "2026-11-14T05:51:56.728Z"
+  },
+  {
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "targetProjectIds": "8053037d-11c0-4da6-85c0-85794e15324e",
+    "permissionOperation": "add",
+    "sharingFlagParametersAbsent": true,
+    "api": [
+      {
+        "command": "updateTemplatePermissions",
+        "method": "POST",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ],
+    "id": "ACL-owner-A-grants-USER-template-to-project-UUID",
+    "status": "PASS",
+    "actor": "qa-t08-a",
+    "observedAt": "2026-11-14T05:52:35.232Z"
+  },
+  {
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+    "unavailableInDefaultContext": true,
+    "api": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 531,
+        "errorCode": 531,
+        "success": null,
+        "count": null
+      }
+    ],
+    "id": "ACL-project-grant-does-not-grant-B-personal-scope",
+    "status": "PASS",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T05:54:15.763Z"
+  },
+  {
+    "id": "A11Y-native-Tab-Enter-Esc-focus-operator-confirmed",
+    "status": "PASS",
+    "actor": "operator (separate browser)",
+    "verificationMethod": "operator manual",
+    "observedAt": "2026-11-14T05:59:42.874Z",
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "steps": [
+      "Tab to template copy",
+      "Enter opens dialog",
+      "Escape closes dialog",
+      "focus returns to copy button"
+    ],
+    "userConfirmed": true,
+    "uiHeadAtConfirmation": "bdbe611c0ec7e01a48f54321e4216ae0c340024d"
+  },
+  {
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+    "member": "qa-t08-b",
+    "grantPersistedByOwner": true,
+    "actualRequestProjectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+    "httpStatus": 531,
+    "uiUnavailable": true,
+    "reason": "project launch grant exists but private-template access only checks the personal account",
+    "id": "ACL-project-member-shared-USER-template-read-before-fix",
+    "status": "PRODUCT_FAILURE",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T05:59:42.951Z"
+  },
+  {
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+    "readAllowed": true,
+    "personalScopeStillDenied": true,
+    "metadataActionsAbsent": true,
+    "api": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ],
+    "id": "ACL-project-member-shared-USER-read-after-fix",
+    "status": "PASS",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T06:07:26.961Z"
+  },
+  {
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+    "sharedListEntryVisible": true,
+    "listUrl": "http://10.10.13.10:8080/client/#/template?templatefilter=shared&filter=shared&page=1&pagesize=20",
+    "id": "ACL-project-shared-template-discoverable-in-list",
+    "status": "PASS",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T06:12:32.660Z"
+  },
+  {
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+    "vmId": "fabc373b-3e9d-4871-9338-b2b82252a46a",
+    "jobId": "74c7e032-4314-42c6-9949-d81c900eaf21",
+    "jobStatus": 2,
+    "errorCode": 530,
+    "partialVmVisible": true,
+    "partialVmState": "Stopped",
+    "reason": "async VM creation loses the selected project when checking the shared template",
+    "id": "ACL-project-shared-VM-async-context-before-fix",
+    "status": "PRODUCT_FAILURE",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T06:17:48.647Z"
+  },
+  {
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+    "vmId": "47a8bb9d-0a7a-4b10-9a75-2865937a2942",
+    "jobId": "3baf2136-c459-4c2f-875d-430df524ab13",
+    "jobStatus": 1,
+    "vmState": "Stopped",
+    "uiProjectLinkMatches": true,
+    "guestBootClaimed": false,
+    "api": [
+      {
+        "command": "deployVirtualMachine",
+        "method": "POST",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "3baf2136-c459-4c2f-875d-430df524ab13"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "3baf2136-c459-4c2f-875d-430df524ab13",
+        "jobStatus": 0
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "3baf2136-c459-4c2f-875d-430df524ab13",
+        "jobStatus": 1
+      }
+    ],
+    "id": "ACL-project-member-actually-uses-shared-USER-template",
+    "status": "PASS",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T06:37:10.987Z"
+  },
+  {
+    "templateId": "a6a1deb0-1665-43fb-9549-2864ec9e1f1b",
+    "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+    "valueVisible": true,
+    "api": [
+      {
+        "command": "updateVnfTemplate",
+        "method": "POST",
+        "targetId": "a6a1deb0-1665-43fb-9549-2864ec9e1f1b",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "a6a1deb0-1665-43fb-9549-2864ec9e1f1b",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ],
+    "id": "ACL-project-admin-A-owned-project-VNF-write",
+    "status": "PASS",
+    "actor": "qa-t08-a",
+    "observedAt": "2026-11-14T06:37:58.535Z"
+  },
+  {
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "targetProjectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+    "api": [
+      {
+        "command": "updateTemplatePermissions",
+        "method": "POST",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ],
+    "id": "ACL-owner-removes-project-template-grant",
+    "status": "PASS",
+    "actor": "qa-t08-a",
+    "observedAt": "2026-11-14T06:41:34.042Z"
+  },
+  {
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+    "unavailable": true,
+    "api": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": "executable",
+        "httpStatus": 531,
+        "errorCode": 531,
+        "success": null,
+        "count": null
+      }
+    ],
+    "id": "ACL-project-member-access-revoked-after-remove",
+    "status": "PASS",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T06:41:58.585Z"
+  },
+  {
+    "templateId": "a6a1deb0-1665-43fb-9549-2864ec9e1f1b",
+    "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+    "ownedProjectTemplateVisible": true,
+    "id": "ACL-project-membership-and-owned-template-preserved",
+    "status": "PASS",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T06:41:59.094Z"
+  },
+  {
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "grantee": "qa-t08-b",
+    "api": [
+      {
+        "command": "updateTemplatePermissions",
+        "method": "POST",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ],
+    "id": "ACL-owner-A-direct-account-grant-to-B",
+    "status": "PASS",
+    "actor": "qa-t08-a",
+    "observedAt": "2026-11-14T06:42:36.117Z"
+  },
+  {
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "personalContext": true,
+    "entryTemplateIdMatches": true,
+    "api": [
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": null,
+        "filter": "executable",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ],
+    "id": "ACL-direct-account-B-personal-read-and-deploy-entry",
+    "status": "PASS",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T06:52:55.699Z"
+  },
+  {
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "command": "deployVirtualMachine",
+    "id": "ACL-direct-account-grant-use",
+    "jobId": "ff5e7ba5-7e7b-4c6f-877c-e9337b3ccd01",
+    "jobStatus": 1,
+    "errorCode": null,
+    "resource": {
+      "id": "13514b85-47b0-4fb3-a37b-a7d38c67647c",
+      "name": "qa-t08-account-use",
+      "state": "Stopped",
+      "account": "qa-t08-b",
+      "domainid": "790cb9e6-f64e-4f40-ba09-29e34b6b9c13"
+    },
+    "scope": "personal default context; UI wizard; startvm=false; actual guest boot not claimed",
+    "status": "PASS",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T07:00:58.251Z"
+  },
+  {
+    "request": [],
+    "operation": "reset both direct account and project grants; UI confirmation",
+    "id": "ACL-reset-account-project-grants",
+    "status": "PASS",
+    "actor": "qa-t08-a",
+    "observedAt": "2026-11-14T07:01:45.292Z",
+    "evidenceLimitation": "UI reset and both recipient contexts observed; request capture unavailable in that tab. Separate PASS cases verify default/project denial and membership preservation."
+  },
+  {
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "uiMessage": "템플릿이 삭제되었거나 조회 권한이 없습니다.",
+    "id": "ACL-reset-default-denied",
+    "status": "PASS",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T07:02:23.086Z"
+  },
+  {
+    "templateId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "selectedProject": "8053037d-11c0-4da6-85c0-85794e15324e",
+    "uiMessage": "템플릿이 삭제되었거나 조회 권한이 없습니다.",
+    "id": "ACL-reset-project-denied",
+    "status": "PASS",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T07:02:57.905Z"
+  },
+  {
+    "projectOwnedTemplate": "a6a1deb0-1665-43fb-9549-2864ec9e1f1b",
+    "sharedTemplateDenied": true,
+    "projectOwnedTemplateStillVisible": true,
+    "id": "ACL-reset-preserves-membership",
+    "status": "PASS",
+    "actor": "qa-t08-b",
+    "observedAt": "2026-11-14T07:03:04.257Z"
+  },
+  {
+    "actions": [
+      "add required management NIC0",
+      "add required NIC1",
+      "move NIC1 up",
+      "edit name and required=false preserving management=true",
+      "required/optional boundary movement disabled",
+      "delete selected and last NIC"
+    ],
+    "versionPreserved": true,
+    "emptyNics": true,
+    "id": "VNF-NIC-integrated-crud",
+    "status": "PASS",
+    "actor": "qa-t08-a",
+    "observedAt": "2026-11-14T07:04:28.933Z"
+  },
+  {
+    "route": "http://10.10.13.10:8080/client/#/template?name=qa-t08-a-url-cirros&hypervisor=KVM&forcks=false&page=1&pagesize=20",
+    "expectedTemplate": "qa-t08-a-url-cirros",
+    "pageReset": true,
+    "id": "SEARCH-exact-KVM-false",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T07:05:23.309Z"
+  },
+  {
+    "page2Restored": true,
+    "exactNameHypervisorFalseRestored": "http://10.10.13.10:8080/client/#/template?name=qa-t08-a-url-cirros&hypervisor=KVM&forcks=false&page=1&pagesize=20",
+    "nonstandardBannerAbsent": true,
+    "id": "SEARCH-breadcrumb-page-and-conditions",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T07:05:31.646Z"
+  },
+  {
+    "route": "http://10.10.13.10:8080/client/#/template?q=qa-t08-no-such-name&keyword=qa-t08-no-such-name&page=1&pagesize=20",
+    "rows": [
+      "이름상태OS 유형CPU 아키텍처하이퍼바이저크기계정템플릿 유형순서",
+      "데이터 없음"
+    ],
+    "id": "SEARCH-keyword-empty-result",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T07:05:51.158Z"
+  },
+  {
+    "isoId": "5836b8f6-9336-4766-8f77-e39218f6e826",
+    "existingDataMutation": false,
+    "accessibleLabels": [
+      "연산",
+      "공유",
+      "계정"
+    ],
+    "listCount": 8,
+    "id": "ISO-shared-permission-modal-regression",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T07:06:13.219Z"
+  },
+  {
+    "resourceId": "7ac2b172-022a-417e-a496-2fe026695cbe",
+    "uiAbsentAfterConfirmedDelete": true,
+    "id": "CLEANUP-snapshot",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T07:11:15.658Z"
+  },
+  {
+    "uiHead": "ab5b5a93c65579ad0535ea984b31d89036aee357",
+    "loadedApp": "app.7f1ba9e2.js",
+    "accessibleNames": [
+      "프로젝트",
+      "필터링 기준"
+    ],
+    "id": "DEPLOY-final-ui-context-selectors",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T07:16:40.883Z"
+  },
+  {
+    "uiHead": "ab5b5a93c65579ad0535ea984b31d89036aee357",
+    "copyLabel": "Zone 선택 :",
+    "prepareLabel": "기본 스토리지 :",
+    "escapeFocus": "BUTTON aria-label=템플릿 복사",
+    "noCopyTargets": true,
+    "id": "DEPLOY-final-zone-accessible-label-focus",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T07:17:15.781Z"
+  },
+  {
+    "resourceId": "7993d834-c6dc-47c3-9039-ba7561c8fd86",
+    "events": [
+      {
+        "command": "deleteTemplate",
+        "method": "POST",
+        "targetId": "7993d834-c6dc-47c3-9039-ba7561c8fd86",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "2f7c38fc-d18e-4af6-95f9-8a0e2d0a7a36"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "2f7c38fc-d18e-4af6-95f9-8a0e2d0a7a36",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobStatus": 0
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "2f7c38fc-d18e-4af6-95f9-8a0e2d0a7a36",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null,
+        "jobStatus": 1
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "7993d834-c6dc-47c3-9039-ba7561c8fd86",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      }
+    ],
+    "originalStatePreserved": {
+      "status": "사용 가능",
+      "ready": true,
+      "created": "2026. 11. 14. 오후 1:57:11"
+    },
+    "retainedUntilClose": true,
+    "forced": false,
+    "id": "ZONE-selected-last-copy-delete",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T07:18:27.860Z"
+  },
+  {
+    "exactVmIds": [
+      "5304dae8-a66c-4ac5-a464-41f0fac4450a",
+      "fd87b9f1-89fa-4cdf-b3a6-ca42c8ee678f",
+      "8434ed98-f81d-4ad2-99be-9afa918abaca",
+      "e8e89f84-5489-4be5-8c7d-2a1109eca3fa",
+      "fabc373b-3e9d-4871-9338-b2b82252a46a",
+      "47a8bb9d-0a7a-4b10-9a75-2865937a2942",
+      "13514b85-47b0-4fb3-a37b-a7d38c67647c"
+    ],
+    "personalSearchEmpty": true,
+    "projectSearchEmpty": true,
+    "expungeRootVolumes": true,
+    "id": "CLEANUP-vms-personal-and-project",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T07:23:31.566Z"
+  },
+  {
+    "templatesRestored": 46,
+    "qaTemplateSearchEmpty": true,
+    "qaVmPersonalAndProjectSearchEmpty": true,
+    "qaNetworkSearchEmpty": true,
+    "projects": 0,
+    "domainsRemaining": [
+      "ROOT"
+    ],
+    "initialAccountsPreserved": [
+      "admin정상Root AdminAdminROOT",
+      "baremetal-system-account정상UserUserROOT",
+      "epic898-config-denied-1791388603비활성화UserUserROOT"
+    ],
+    "hosts": [
+      "이름상태리소스 상태IP 주소CPU 아키텍처하이퍼바이저버전HA 활성화HA 상태클러스터Zone관리 서버",
+      "ablecube13-1실행 중정상10.10.13.1 x86_64KVM4.23.0.0정상AvailableCluster13-Zoneccvm-mngt",
+      "ablecube13-2실행 중정상10.10.13.2 x86_64KVM4.23.0.0정상AvailableCluster13-Zoneccvm-mngt",
+      "ablecube13-3실행 중정상10.10.13.3 x86_64KVM4.23.0.0비활성화DisabledCluster13-Zoneccvm-mngt"
+    ],
+    "systemVms": [
+      "이름상태Agent 상태시스템 VM 유형Public IP 주소사설 IP 주소로컬 연결 IP 주소버전호스트CPU 아키텍처Zone",
+      "s-244-VM실행 중실행 중secondarystoragevm10.10.13.410.10.13.7169.254.2.1084.23.0.0ablecube13-1x86_6413-Zone",
+      "v-245-VM실행 중실행 중consoleproxy10.10.13.510.10.13.6169.254.243.214.23.0.0ablecube13-2x86_6413-Zone"
+    ],
+    "id": "CLEANUP-final-inventory",
+    "status": "PASS",
+    "actor": "admin",
+    "observedAt": "2026-11-14T07:32:30.458Z"
+  }
+]

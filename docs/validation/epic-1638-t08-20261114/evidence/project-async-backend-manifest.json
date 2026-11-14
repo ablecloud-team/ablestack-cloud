@@ -1,0 +1,9 @@
+{
+  "sourceHead": "2e485bb52560d0d0b4db86bad724ac7e720a7153",
+  "classes": {
+    "com/cloud/api/ApiDispatcher.class": {
+      "original": "ba90cfe87d573c17101ccc2704aa410ec5fb50a5ebb5879344b136272cc7b847",
+      "patched": "eff1d307902ca1d54adbc84b00cd00b0e48b86bebea81c79b1d954e9caa6e294"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "baselineMethodMatchesDeployed": true,
+  "changedMethods": [
+    "checkAccess(Lcom/cloud/user/Account;Lorg/apache/cloudstack/acl/ControlledEntity;Lorg/apache/cloudstack/acl/SecurityChecker$AccessType;)Z"
+  ],
+  "allOtherMethodsPreserved": true,
+  "fullClassRecompileDeployed": false,
+  "classSha256": "d709bc2d0ba5286216c0d9f491f0bb46133cfde43b0a9178b6b21a257e3d0201"
+}

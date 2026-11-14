@@ -1,0 +1,12 @@
+{
+  "case": "RT10 actual browser file receipt",
+  "method": "operator UI download, agent local file verification",
+  "fileName": "qa-t08-a-url-cirros.qcow2",
+  "bytes": 21692416,
+  "sha256": "7d6355852aeb6dbcd191bcda7cd74f1536cfe5cbf8a10495a7283a8396e4b75b",
+  "sourceSha256": "7d6355852aeb6dbcd191bcda7cd74f1536cfe5cbf8a10495a7283a8396e4b75b",
+  "sourceBytes": 21692416,
+  "bytesEqual": true,
+  "sha256Equal": true,
+  "browserSecurityPolicyBypassed": false
+}

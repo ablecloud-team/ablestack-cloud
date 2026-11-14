@@ -1,0 +1,20 @@
+{
+  "observations": 98,
+  "passObservations": 91,
+  "historicalFailuresOrPending": {
+    "ACL-parent-DA-foreign-private-write-before-fix": "ACL-parent-DA-foreign-private-server-write-denied",
+    "ACL-shared-recipient-server-write-before-fix": "ACL-B-shared-server-write-denied-after-fix",
+    "PERMISSIONS-normal-user-placeholder-before-fix": "PERMISSIONS-localized-account-guide-and-empty-target-block",
+    "ACL-project-member-shared-USER-template-read-before-fix": "ACL-project-member-shared-USER-read-after-fix",
+    "ACL-project-shared-VM-async-context-before-fix": "ACL-project-member-actually-uses-shared-USER-template",
+    "DOWNLOAD-extraction-success-file-receive-pending": "DOWNLOAD-browser-receipt-hash",
+    "BOOT-URL-deploy-precondition-failure": "BOOT-URL-actual-guest-console-proof"
+  },
+  "unresolvedRequiredCases": [],
+  "scopeAdjusted": [
+    "actual-multi-zone-transfer",
+    "actual-non-KVM",
+    "other-architecture"
+  ],
+  "operatorConfirmedNativeKeyboard": true
+}

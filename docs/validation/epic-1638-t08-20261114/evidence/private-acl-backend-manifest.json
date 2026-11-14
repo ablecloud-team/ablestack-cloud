@@ -1,0 +1,9 @@
+{
+  "sourceHead": "d4b6e81997bf6bf6ed52dbc893a6c7b409398622",
+  "classes": {
+    "com/cloud/acl/DomainChecker.class": {
+      "original": "12aadacc95f37c7103af9f94f01a7636d42d6765ddd7ef72709dba6004f4cc2b",
+      "patched": "bbd53576e20dbe413722f5e24dff3de810f5831a0eabcd5f2b8ded1ed495517f"
+    }
+  }
+}

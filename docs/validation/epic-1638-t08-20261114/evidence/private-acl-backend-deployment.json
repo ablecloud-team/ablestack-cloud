@@ -1,0 +1,16 @@
+{
+  "sourceHead": "d4b6e81997bf6bf6ed52dbc893a6c7b409398622",
+  "backup": "/var/tmp/epic1638-t08-backend-backup-3lete1fa",
+  "originalJarSha256": "fd63680c7c9d0396aad05adc416ff8796ab2dfa16fc97e71b23d3de6b40346cb",
+  "patchedJarSha256": "857fc802b9e25aeb25607af3b258c83e01444863427809d0cedf45cd99843ed9",
+  "changedEntries": [
+    "com/cloud/acl/DomainChecker.class"
+  ],
+  "allOtherEntriesIdentical": true,
+  "oldPid": "2381637",
+  "newPid": "2458834",
+  "active": "active",
+  "databaseChanged": false,
+  "hostAgentsChanged": false,
+  "systemVmsChanged": false
+}

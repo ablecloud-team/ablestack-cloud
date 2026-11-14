@@ -1,0 +1,61 @@
+{
+  "finishedAt": "2026-11-14T07:32:54.132Z",
+  "uiHead": "ab5b5a93c65579ad0535ea984b31d89036aee357",
+  "templates": {
+    "created": 13,
+    "deleted": 13,
+    "initialCatalog": 46,
+    "finalCatalog": 46,
+    "qaSearch": 0
+  },
+  "vms": {
+    "created": 7,
+    "deleted": 7,
+    "personalSearch": 0,
+    "projectSearch": 0
+  },
+  "snapshots": {
+    "created": 1,
+    "deleted": 1
+  },
+  "networks": {
+    "created": 3,
+    "deleted": 3,
+    "qaSearch": 0
+  },
+  "projects": {
+    "created": 1,
+    "deleted": 1,
+    "remaining": 0
+  },
+  "domains": {
+    "created": 4,
+    "deleted": 4,
+    "remaining": [
+      "ROOT"
+    ]
+  },
+  "accounts": {
+    "created": 8,
+    "deleted": 8,
+    "remaining": [
+      "admin정상Root AdminAdminROOT",
+      "baremetal-system-account정상UserUserROOT",
+      "epic898-config-denied-1791388603비활성화UserUserROOT"
+    ]
+  },
+  "hosts": [
+    "이름상태리소스 상태IP 주소CPU 아키텍처하이퍼바이저버전HA 활성화HA 상태클러스터Zone관리 서버",
+    "ablecube13-1실행 중정상10.10.13.1 x86_64KVM4.23.0.0정상AvailableCluster13-Zoneccvm-mngt",
+    "ablecube13-2실행 중정상10.10.13.2 x86_64KVM4.23.0.0정상AvailableCluster13-Zoneccvm-mngt",
+    "ablecube13-3실행 중정상10.10.13.3 x86_64KVM4.23.0.0비활성화DisabledCluster13-Zoneccvm-mngt"
+  ],
+  "systemVms": [
+    "이름상태Agent 상태시스템 VM 유형Public IP 주소사설 IP 주소로컬 연결 IP 주소버전호스트CPU 아키텍처Zone",
+    "s-244-VM실행 중실행 중secondarystoragevm10.10.13.410.10.13.7169.254.2.1084.23.0.0ablecube13-1x86_6413-Zone",
+    "v-245-VM실행 중실행 중consoleproxy10.10.13.510.10.13.6169.254.243.214.23.0.0ablecube13-2x86_6413-Zone"
+  ],
+  "viewportRestored": true,
+  "themeRestored": "dark",
+  "physicalStorageCachesPurged": false
+}
