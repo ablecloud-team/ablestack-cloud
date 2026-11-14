@@ -1,0 +1,11 @@
+{
+  "localBase": "1046a5dc3f21cb9cca0ab6881dd906d64b591e80",
+  "originBase": "1046a5dc3f21cb9cca0ab6881dd906d64b591e80",
+  "upstreamBase": "1046a5dc3f21cb9cca0ab6881dd906d64b591e80",
+  "originBaseBefore": "2c4045f1606f58085188c5cb1a203429cad0bf3e",
+  "baseDivergence": [
+    0,
+    0
+  ],
+  "method": "fast-forward fork synchronization of existing upstream commits; feature work stays on origin feature branch"
+}
