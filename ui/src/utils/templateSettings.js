@@ -23,7 +23,7 @@ export function templateSettingsCanWrite (resource = {}, getters = {}) {
     : !getters.project?.id && resource.domainid === user.domainid && resource.account === user.account)
 }
 export function templateSettingRestriction (resource, name) {
-  if (name.startsWith('extraconfig') || (resource.readonlydetails || '').split(',').map(v => v.trim()).includes(name)) return 'readonly'
+  if (name && (name.startsWith('extraconfig') || (resource.readonlydetails || '').split(',').map(v => v.trim()).includes(name))) return 'readonly'
   return ''
 }
 export function templateSettingsFingerprint (resource) {

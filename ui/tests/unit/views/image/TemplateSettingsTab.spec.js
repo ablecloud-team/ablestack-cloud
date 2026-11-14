@@ -68,3 +68,8 @@ test('read failure preserves existing rows while option failure disables mutatio
 test('reactivating a kept-alive settings tab reloads after deactivation cleared its scope', async () => {
   const c = context(); Settings.deactivated.call(c); expect(c.loaded).toBe(false); Settings.activated.call(c); await new Promise(resolve => setTimeout(resolve, 0)); expect(c.loaded).toBe(true)
 })
+
+test.each([undefined, '', ' , ', 'protected'])('add opens without treating an empty draft name as a readonly setting (%s)', readonlydetails => {
+  const c = context(); c.source.readonlydetails = readonlydetails; c.open('add', null)
+  expect(c.dialog).toBe('add'); expect(c.draftName).toBe(''); expect(postAPI).not.toHaveBeenCalled()
+})
