@@ -175,13 +175,13 @@ export default {
       {
         title: this.$t('label.status'),
         dataIndex: 'status',
-        width: 160
+        width: 112
       },
       {
         key: 'isready',
         title: this.$t('label.isready'),
         dataIndex: 'isready',
-        width: 76
+        width: 64
       },
       {
         key: 'actions',
