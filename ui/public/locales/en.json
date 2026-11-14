@@ -11578,5 +11578,8 @@
   "label.vnf.secret.new": "Enter a new secret value",
   "message.vnf.nic.move.boundary": "Cannot move past the end or across the required/optional NIC boundary.",
   "label.edit.setting": "Edit setting",
-  "message.vnf.owner.lookup.failed": "Could not verify the domain scope. Retry the lookup."
+  "message.vnf.owner.lookup.failed": "Could not verify the domain scope. Retry the lookup.",
+  "label.select.accounts": "Select accounts",
+  "message.template.permissions.account.names": "Enter account names separated by commas.",
+  "message.template.permissions.target.required": "Enter or select at least one sharing target."
 }

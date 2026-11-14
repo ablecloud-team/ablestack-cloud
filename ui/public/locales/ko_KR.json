@@ -11586,5 +11586,8 @@
   "label.vnf.secret.new": "새 비밀 값을 입력하세요.",
   "message.vnf.nic.move.boundary": "목록 끝이나 필수·선택 NIC 경계를 넘어 이동할 수 없습니다.",
   "label.edit.setting": "속성 편집",
-  "message.vnf.owner.lookup.failed": "도메인 범위를 확인하지 못했습니다. 다시 조회해 주세요."
+  "message.vnf.owner.lookup.failed": "도메인 범위를 확인하지 못했습니다. 다시 조회해 주세요.",
+  "label.select.accounts": "계정 선택",
+  "message.template.permissions.account.names": "계정 이름을 쉼표로 구분해 입력하세요.",
+  "message.template.permissions.target.required": "공유 대상을 하나 이상 입력하거나 선택하세요."
 }
