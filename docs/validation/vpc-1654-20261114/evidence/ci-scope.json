@@ -1,0 +1,14 @@
+{
+  "vueHeaderEqualsExistingCanonical": true,
+  "files": [
+    "ui/src/views/network/PrivateGatewayCreate.vue",
+    "ui/src/views/offering/VpcOfferingOperationStatus.vue"
+  ],
+  "note": "Global pre-commit Vue license hook listed the new file despite the exact existing HTML comment template; hook uses // style for Vue. No invalid top-level // header was added. RAT reports all five changed JS/Vue/test files as AL.",
+  "licenseRun": "43552698084",
+  "licenseUnknownBaseline": 4079,
+  "conflictRun": "43552697955",
+  "conflictResult": "success",
+  "preCommitRun": "43552697999",
+  "preCommitResult": "failure"
+}

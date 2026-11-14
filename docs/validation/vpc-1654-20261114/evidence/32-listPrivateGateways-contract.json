@@ -1,0 +1,238 @@
+{
+  "count": 1,
+  "api": [
+    {
+      "name": "listPrivateGateways",
+      "description": "List private gateways",
+      "isasync": false,
+      "related": "createPrivateGateway,createPrivateGateway,listPrivateGateways",
+      "params": [
+        {
+          "name": "keyword",
+          "description": "List by keyword",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "page",
+          "description": "",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "id",
+          "description": "List private gateway by ID",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "createPrivateGateway,listPrivateGateways,createPrivateGateway,listPrivateGateways"
+        },
+        {
+          "name": "vpcid",
+          "description": "List gateways by VPC",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "createVPC,listVPCs,createVPC,listVPCs,updateVPC,migrateVPC"
+        },
+        {
+          "name": "pagesize",
+          "description": "",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "account",
+          "description": "List resources by Account. Must be used with the domainId parameter.",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "listall",
+          "description": "If set to false, list only resources belonging to the command's caller; if set to true - list resources that the caller is authorized to see. Default value is false. Resources dedicated to a project are listed only if using the projectid parameter.",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "vlan",
+          "description": "List gateways by VLAN",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "domainid",
+          "description": "List only resources belonging to the domain specified",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "createDomain,listDomainChildren,listDomains,listDomains,updateDomain,moveDomain"
+        },
+        {
+          "name": "isrecursive",
+          "description": "Defaults to false, but if true, lists all resources from the parent specified by the domainId till leaves.",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "ipaddress",
+          "description": "List gateways by IP address",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "state",
+          "description": "List gateways by state",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "projectid",
+          "description": "List objects by project; if projectid=-1 lists All Instances",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "listProjectAccounts,activateProject,createProject,listProjects,suspendProject,updateProject"
+        }
+      ],
+      "response": [
+        {
+          "name": "sourcenatsupported",
+          "description": "Source Nat enable status",
+          "type": "boolean"
+        },
+        {
+          "name": "vpcname",
+          "description": "VPC name the private gateway belongs to",
+          "type": "string"
+        },
+        {
+          "name": "vlan",
+          "description": "The Network implementation uri for the private gateway",
+          "type": "string"
+        },
+        {
+          "name": "state",
+          "description": "State of the gateway, can be Creating, Ready, Deleting",
+          "type": "string"
+        },
+        {
+          "name": "aclid",
+          "description": "ACL ID set for private gateway",
+          "type": "string"
+        },
+        {
+          "name": "hasannotations",
+          "description": "True if the entity/resource has annotations",
+          "type": "boolean"
+        },
+        {
+          "name": "ipaddress",
+          "description": "The private gateway's IP address",
+          "type": "string"
+        },
+        {
+          "name": "vpcid",
+          "description": "VPC ID the private gateway belongs to",
+          "type": "string"
+        },
+        {
+          "name": "domainid",
+          "description": "The ID of the domain associated with the private gateway",
+          "type": "string"
+        },
+        {
+          "name": "jobstatus",
+          "description": "The current status of the latest async job acting on this object",
+          "type": "integer"
+        },
+        {},
+        {
+          "name": "physicalnetworkid",
+          "description": "The physical Network id",
+          "type": "string"
+        },
+        {
+          "name": "account",
+          "description": "The Account associated with the private gateway",
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "description": "The ID of the private gateway",
+          "type": "string"
+        },
+        {
+          "name": "project",
+          "description": "The project name of the private gateway",
+          "type": "string"
+        },
+        {
+          "name": "zonename",
+          "description": "The name of the zone the private gateway belongs to",
+          "type": "string"
+        },
+        {
+          "name": "zoneid",
+          "description": "Zone ID of the private gateway",
+          "type": "string"
+        },
+        {
+          "name": "domainpath",
+          "description": "Path of the domain to which the private gateway belongs",
+          "type": "string"
+        },
+        {
+          "name": "domain",
+          "description": "The domain associated with the private gateway",
+          "type": "string"
+        },
+        {
+          "name": "jobid",
+          "description": "The UUID of the latest async job acting on this object",
+          "type": "string"
+        },
+        {
+          "name": "aclname",
+          "description": "ACL name set for private gateway",
+          "type": "string"
+        },
+        {
+          "name": "associatednetwork",
+          "description": "The name of the Network associated with this private gateway",
+          "type": "string"
+        },
+        {},
+        {
+          "name": "netmask",
+          "description": "The private gateway's netmask",
+          "type": "string"
+        },
+        {
+          "name": "projectid",
+          "description": "The project ID of the private gateway",
+          "type": "string"
+        },
+        {
+          "name": "gateway",
+          "description": "The gateway",
+          "type": "string"
+        },
+        {
+          "name": "associatednetworkid",
+          "description": "The ID of the Network associated with this private gateway",
+          "type": "string"
+        }
+      ],
+      "httprequesttype": "GET"
+    }
+  ]
+}

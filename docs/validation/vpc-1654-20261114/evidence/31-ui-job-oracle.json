@@ -1,0 +1,251 @@
+[
+  {
+    "jobid": null,
+    "case": "initial-capture-interrupted",
+    "currentEntity": [
+      {
+        "id": "3895ca9b-cd73-4966-b595-d6bad9a221ae",
+        "gateway": "10.253.31.1",
+        "netmask": "255.255.255.0",
+        "ipaddress": "10.253.31.2",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "zonename": "Zone",
+        "vlan": "vlan://3701",
+        "vpcid": "e7bdf187-7060-4033-a3a6-f9970eb2c295",
+        "vpcname": "qa-vpc1654-20261114-31-admin",
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "state": "Ready",
+        "sourcenatsupported": false,
+        "aclid": "8cc93567-b253-11f1-a895-0024814c313f",
+        "aclname": "default_deny"
+      }
+    ],
+    "limitation": "Browser request/poll capture lost on CUA reset; listAsyncJobs returned empty. Only unique entity Ready was independently verified."
+  },
+  {
+    "jobid": "135eb040-3197-487b-ab74-0cf37532e025",
+    "case": "keyboard-retry-query-timeout-reload-recheck",
+    "actualServerJob": {
+      "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domainpath": "ROOT",
+      "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+      "cmd": "org.apache.cloudstack.api.command.admin.vpc.CreatePrivateGatewayByAdminCmd",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "privategateway": {
+          "id": "3100c94c-e4dd-4105-b952-35af3bd4e740",
+          "gateway": "10.253.31.1",
+          "netmask": "255.255.255.0",
+          "ipaddress": "10.253.31.4",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "vlan": "vlan://3702",
+          "vpcid": "e7bdf187-7060-4033-a3a6-f9970eb2c295",
+          "vpcname": "qa-vpc1654-20261114-31-admin",
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "state": "Ready",
+          "sourcenatsupported": false,
+          "aclid": "8cc93567-b253-11f1-a895-0024814c313f",
+          "aclname": "default_deny"
+        }
+      },
+      "jobinstancetype": "PrivateGateway",
+      "jobinstanceid": "3100c94c-e4dd-4105-b952-35af3bd4e740",
+      "created": "2026-11-14T13:14:29+0900",
+      "completed": "2026-11-14T13:14:32+0900",
+      "jobid": "135eb040-3197-487b-ab74-0cf37532e025",
+      "jobstatus": 1
+    },
+    "currentEntity": [
+      {
+        "id": "3100c94c-e4dd-4105-b952-35af3bd4e740",
+        "gateway": "10.253.31.1",
+        "netmask": "255.255.255.0",
+        "ipaddress": "10.253.31.4",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "zonename": "Zone",
+        "vlan": "vlan://3702",
+        "vpcid": "e7bdf187-7060-4033-a3a6-f9970eb2c295",
+        "vpcname": "qa-vpc1654-20261114-31-admin",
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "state": "Ready",
+        "sourcenatsupported": false,
+        "aclid": "8cc93567-b253-11f1-a895-0024814c313f",
+        "aclname": "default_deny"
+      }
+    ],
+    "syntheticFailureOnly": false
+  },
+  {
+    "jobid": "d0c679ed-c085-438e-94cb-4eb7262ca5fb",
+    "case": "late-success-other-vpc-and-recovery",
+    "actualServerJob": {
+      "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domainpath": "ROOT",
+      "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+      "cmd": "org.apache.cloudstack.api.command.admin.vpc.CreatePrivateGatewayByAdminCmd",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "privategateway": {
+          "id": "1d8a46b2-91f4-4c01-981a-2341c33b08e8",
+          "gateway": "10.253.31.1",
+          "netmask": "255.255.255.0",
+          "ipaddress": "10.253.31.5",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "vlan": "vlan://3703",
+          "vpcid": "e7bdf187-7060-4033-a3a6-f9970eb2c295",
+          "vpcname": "qa-vpc1654-20261114-31-admin",
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "state": "Ready",
+          "sourcenatsupported": false,
+          "aclid": "8cc93567-b253-11f1-a895-0024814c313f",
+          "aclname": "default_deny"
+        }
+      },
+      "jobinstancetype": "PrivateGateway",
+      "jobinstanceid": "1d8a46b2-91f4-4c01-981a-2341c33b08e8",
+      "created": "2026-11-14T13:29:44+0900",
+      "completed": "2026-11-14T13:29:47+0900",
+      "jobid": "d0c679ed-c085-438e-94cb-4eb7262ca5fb",
+      "jobstatus": 1
+    },
+    "currentEntity": [
+      {
+        "id": "1d8a46b2-91f4-4c01-981a-2341c33b08e8",
+        "gateway": "10.253.31.1",
+        "netmask": "255.255.255.0",
+        "ipaddress": "10.253.31.5",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "zonename": "Zone",
+        "vlan": "vlan://3703",
+        "vpcid": "e7bdf187-7060-4033-a3a6-f9970eb2c295",
+        "vpcname": "qa-vpc1654-20261114-31-admin",
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "state": "Ready",
+        "sourcenatsupported": false,
+        "aclid": "8cc93567-b253-11f1-a895-0024814c313f",
+        "aclname": "default_deny"
+      }
+    ],
+    "syntheticFailureOnly": false
+  },
+  {
+    "jobid": "0780fc85-84db-44db-9655-d26873f3267c",
+    "case": "normal-user-project-custom-acl",
+    "params": {
+      "command": "createPrivateGateway",
+      "response": "json",
+      "vpcid": "99a15cdf-ea6f-4161-9ba1-41762bbd9b4e",
+      "projectid": "9a3cff7e-e0e6-4157-b370-f857fee66a64",
+      "ipaddress": "10.254.31.2",
+      "gateway": "10.254.31.1",
+      "netmask": "255.255.255.0",
+      "sourcenatsupported": "false",
+      "aclid": "1e477d5a-b7fd-40c6-aeef-cf62ef484309",
+      "associatednetworkid": "820043bf-5edc-4654-bd83-0a5819d76ecf",
+      "customjobid": "0780fc85-84db-44db-9655-d26873f3267c"
+    },
+    "receipt": {
+      "id": "960e96f8-c0e6-43a5-b77a-dbe4e1b4bde7",
+      "jobid": "0780fc85-84db-44db-9655-d26873f3267c"
+    },
+    "actualServerJob": {
+      "accountid": "b1f02ed6-af20-469e-90c2-3cb87a6c0787",
+      "account": "qa-vpc1654-20261114-31-user",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domainpath": "ROOT",
+      "userid": "3d4c3457-1a72-4654-a40f-7f19f7d0c3ac",
+      "cmd": "org.apache.cloudstack.api.command.user.vpc.CreatePrivateGatewayCmd",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "privategateway": {
+          "id": "960e96f8-c0e6-43a5-b77a-dbe4e1b4bde7",
+          "gateway": "10.254.31.1",
+          "netmask": "255.255.255.0",
+          "ipaddress": "10.254.31.2",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "vpcid": "99a15cdf-ea6f-4161-9ba1-41762bbd9b4e",
+          "vpcname": "qa-vpc1654-20261114-31-project-vpc",
+          "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+          "account": "PrjAcct-qa-vpc1654-20261114-31-project-1",
+          "projectid": "9a3cff7e-e0e6-4157-b370-f857fee66a64",
+          "project": "qa-vpc1654-20261114-31-project",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "state": "Ready",
+          "sourcenatsupported": false,
+          "aclid": "1e477d5a-b7fd-40c6-aeef-cf62ef484309",
+          "aclname": "qa-vpc1654-20261114-31-project-acl",
+          "associatednetworkid": "820043bf-5edc-4654-bd83-0a5819d76ecf",
+          "associatednetwork": "qa-vpc1654-20261114-31-project-l2"
+        }
+      },
+      "jobinstancetype": "PrivateGateway",
+      "jobinstanceid": "960e96f8-c0e6-43a5-b77a-dbe4e1b4bde7",
+      "created": "2026-11-14T13:37:06+0900",
+      "completed": "2026-11-14T13:37:09+0900",
+      "jobid": "0780fc85-84db-44db-9655-d26873f3267c",
+      "jobstatus": 1
+    },
+    "currentEntity": [
+      {
+        "id": "960e96f8-c0e6-43a5-b77a-dbe4e1b4bde7",
+        "gateway": "10.254.31.1",
+        "netmask": "255.255.255.0",
+        "ipaddress": "10.254.31.2",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "zonename": "Zone",
+        "vlan": "vlan://4021",
+        "vpcid": "99a15cdf-ea6f-4161-9ba1-41762bbd9b4e",
+        "vpcname": "qa-vpc1654-20261114-31-project-vpc",
+        "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+        "account": "PrjAcct-qa-vpc1654-20261114-31-project-1",
+        "projectid": "9a3cff7e-e0e6-4157-b370-f857fee66a64",
+        "project": "qa-vpc1654-20261114-31-project",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "state": "Ready",
+        "sourcenatsupported": false,
+        "aclid": "1e477d5a-b7fd-40c6-aeef-cf62ef484309",
+        "aclname": "qa-vpc1654-20261114-31-project-acl",
+        "associatednetworkid": "820043bf-5edc-4654-bd83-0a5819d76ecf",
+        "associatednetwork": "qa-vpc1654-20261114-31-project-l2"
+      }
+    ],
+    "syntheticFailureOnly": false
+  }
+]

@@ -1,0 +1,322 @@
+[
+  {
+    "file": "31-before-malformed.png",
+    "format": "PNG",
+    "width": 1680,
+    "height": 897,
+    "bytes": 111819,
+    "sha256": "6580771d9964766900ab7cda1ee30afabd3b818738ac6cce1ba6194bc31cb44b"
+  },
+  {
+    "file": "31-cleanup-empty.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 841,
+    "bytes": 58678,
+    "sha256": "7a05eeab73ec67160e044078fa608c4e39addd44b509150c0e3e9d9c252df8b8"
+  },
+  {
+    "file": "31-dark-1280.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 900,
+    "bytes": 84205,
+    "sha256": "5abd9da419ddee0b0290e45fde99d09ba236d19a76873186fea92507466202e6"
+  },
+  {
+    "file": "31-dark-360-lower.jpg",
+    "format": "JPEG",
+    "width": 360,
+    "height": 900,
+    "bytes": 39840,
+    "sha256": "b494c5a8b90d661b04a5212a89eb3ed9a108071ceff4e49519180c6441b0f899"
+  },
+  {
+    "file": "31-dark-360.jpg",
+    "format": "JPEG",
+    "width": 360,
+    "height": 900,
+    "bytes": 42001,
+    "sha256": "6b2899cd28de2e2b61833065425ba66ea30222a88fa7628ab2850a6dca803a9d"
+  },
+  {
+    "file": "31-dark-768.jpg",
+    "format": "JPEG",
+    "width": 768,
+    "height": 900,
+    "bytes": 55432,
+    "sha256": "5729cd35cae6e098212b2f5b88d968e1bfc8e647d3909697906e7a75c16a6311"
+  },
+  {
+    "file": "31-http-431-retained.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 897,
+    "bytes": 102342,
+    "sha256": "57df84d62bb8a197374777b7ade7e814d528647ad2f1fcf7127156896daa2209"
+  },
+  {
+    "file": "31-keyboard-recheck-success.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 841,
+    "bytes": 97493,
+    "sha256": "9d3bc16b8a93292683449acacfafed29aaff2758f27e77529336c272cea134fb"
+  },
+  {
+    "file": "31-late-response-other-vpc.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 841,
+    "bytes": 89364,
+    "sha256": "b61cb9ea7c7f0238dea40fd6659cc6c38b1a46f908fda5698e73235cdd72e64b"
+  },
+  {
+    "file": "31-light-1280.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 900,
+    "bytes": 86662,
+    "sha256": "9045348b0cc877ddd330560202a4e27fa0ff96e9ed216532169e63f1fbac2369"
+  },
+  {
+    "file": "31-light-360-lower.jpg",
+    "format": "JPEG",
+    "width": 360,
+    "height": 900,
+    "bytes": 40781,
+    "sha256": "296dd20334da14a3582dcc0c0102f8cef31993199a67f1b3cd77744bb0ae4fb1"
+  },
+  {
+    "file": "31-light-360-popup.jpg",
+    "format": "JPEG",
+    "width": 360,
+    "height": 900,
+    "bytes": 40117,
+    "sha256": "5b9cc5235bb3abbf7f81ad121fc0f90bec55ad439a48f4275b8fdb4b255bebcd"
+  },
+  {
+    "file": "31-light-360.jpg",
+    "format": "JPEG",
+    "width": 360,
+    "height": 900,
+    "bytes": 43448,
+    "sha256": "26b8e3cd0a49071e1e9e7019d7278ae31554c1774a1156d383e4a0edb9b343b5"
+  },
+  {
+    "file": "31-light-768.jpg",
+    "format": "JPEG",
+    "width": 768,
+    "height": 900,
+    "bytes": 57979,
+    "sha256": "9a4d2d07fa158ad224d9ee69e3692a9a590778c91da9e2828d440a33feabe089"
+  },
+  {
+    "file": "31-local-invalid.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 897,
+    "bytes": 107941,
+    "sha256": "9d26349ffcca3c3d382da601876878eee06b6909539c20d13f7bca48664e9308"
+  },
+  {
+    "file": "31-pending-guard.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 841,
+    "bytes": 86080,
+    "sha256": "c8728616436eb7316190d85247d0f3106704e8f01d0514278ab93b7eee689049"
+  },
+  {
+    "file": "31-project-candidate-failed.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 841,
+    "bytes": 95322,
+    "sha256": "87d4f3074b95e371d035051236830e398efa264bb800cb236a52e4209a063c09"
+  },
+  {
+    "file": "31-project-created.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 841,
+    "bytes": 89991,
+    "sha256": "c8e052e140269f709a61798b9bc1174d6522b878f9be27d0754fdece08b2e0aa"
+  },
+  {
+    "file": "31-project-recovered.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 841,
+    "bytes": 103560,
+    "sha256": "64f867ee136c739eb29ba3ffedadf5a2703e899ac4f6e7f2c8afec320e508a50"
+  },
+  {
+    "file": "31-query-unknown.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 841,
+    "bytes": 86080,
+    "sha256": "c8728616436eb7316190d85247d0f3106704e8f01d0514278ab93b7eee689049"
+  },
+  {
+    "file": "32-before-reopen.png",
+    "format": "PNG",
+    "width": 1680,
+    "height": 841,
+    "bytes": 116596,
+    "sha256": "6bd1c60d4f0099a6a7a5ee1303f2bcc3e4f6297510a0e92a06f771a79f2adfbf"
+  },
+  {
+    "file": "32-cleanup-empty.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 841,
+    "bytes": 74116,
+    "sha256": "35f9341085bbf392d250a9cd32d7da3171ffe34628bd338d62c1169a168b252a"
+  },
+  {
+    "file": "32-dark-1280.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 900,
+    "bytes": 88476,
+    "sha256": "da05159b7b6f20691ce9b8cd969a0149e308e0bd036f10b49aefac3812b1d5e4"
+  },
+  {
+    "file": "32-dark-360-lower.jpg",
+    "format": "JPEG",
+    "width": 360,
+    "height": 900,
+    "bytes": 40135,
+    "sha256": "a1e57e3c20412a563d979b4f70988898df40051eaa3fd9a878ea81f131e26d6b"
+  },
+  {
+    "file": "32-dark-360.jpg",
+    "format": "JPEG",
+    "width": 360,
+    "height": 900,
+    "bytes": 42451,
+    "sha256": "43d562fc10ad5512142d1621554549f45a6e533049156bbce11b66da5765352b"
+  },
+  {
+    "file": "32-dark-768.jpg",
+    "format": "JPEG",
+    "width": 768,
+    "height": 900,
+    "bytes": 56514,
+    "sha256": "690a6d477e228761421df3c67ef97812ed0a34cda034ca38e3513e3f84ee4be7"
+  },
+  {
+    "file": "32-failed-job-retry-success.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 841,
+    "bytes": 114869,
+    "sha256": "e79eaaa9fe290d996bd9ff78720a89f70bbf8e7e6e7354335e17c524fa3b08e2"
+  },
+  {
+    "file": "32-http-431-retained.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 841,
+    "bytes": 103705,
+    "sha256": "63f301109169fb046b3204e6dd160f4262f110518e899570157d6d1e23b980d3"
+  },
+  {
+    "file": "32-job-failure-retained.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 841,
+    "bytes": 107207,
+    "sha256": "9c99a909ea677e69680cae24fe2edad2c9fc56d803c33412ffdb22ce461a280a"
+  },
+  {
+    "file": "32-keyboard-success.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 841,
+    "bytes": 111036,
+    "sha256": "abd98ff4bb1bb618cffed0fc2d68d29c9e8c9363cefba8da7edecb7b690b9c25"
+  },
+  {
+    "file": "32-light-1280.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 641,
+    "bytes": 61578,
+    "sha256": "fb698161fda89e6e7756096eba3d30f6a47366f43450c5aa71c3fd5177429db5"
+  },
+  {
+    "file": "32-light-360-lower.jpg",
+    "format": "JPEG",
+    "width": 360,
+    "height": 900,
+    "bytes": 40832,
+    "sha256": "ed924fc27a25bec9e467eb5d8ad0654363c104b2d2bf0030015f06777576ad02"
+  },
+  {
+    "file": "32-light-360-popup.jpg",
+    "format": "JPEG",
+    "width": 360,
+    "height": 900,
+    "bytes": 40190,
+    "sha256": "4e4cc00ad58ac393d9e45ac172ddb3f19ebc5d862b73531707ece699995b6c6f"
+  },
+  {
+    "file": "32-light-360.jpg",
+    "format": "JPEG",
+    "width": 360,
+    "height": 900,
+    "bytes": 43545,
+    "sha256": "2d20f64feac68866b4ec4288f796095caa190a375a6a64c0a58fdecfa14522a4"
+  },
+  {
+    "file": "32-light-768.jpg",
+    "format": "JPEG",
+    "width": 768,
+    "height": 900,
+    "bytes": 57951,
+    "sha256": "3ad735dc1eb731fefca27e21d2e156e38aae2acc21d0c3fb4bd7ec00d65cb90b"
+  },
+  {
+    "file": "32-local-invalid.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 841,
+    "bytes": 111973,
+    "sha256": "1a4465119445267c4a7474ce848fbb7c2c59e9b38a2c7fff064a2a41e61a1bc4"
+  },
+  {
+    "file": "32-owner-created.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 841,
+    "bytes": 87787,
+    "sha256": "118dffe93a67fe400611f67edadd47cd019598c1059d917d032f980f1df3dc78"
+  },
+  {
+    "file": "32-owner-input.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 841,
+    "bytes": 101703,
+    "sha256": "00af3230bb4704f992225ec647dcb74bdafd100eac7992009c13b2f819a8d3f7"
+  },
+  {
+    "file": "32-pending-guard.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 841,
+    "bytes": 91742,
+    "sha256": "ed9df281f140ae22e2a4197b70d679c09e6dfeae0af25cf0b37441f593fed8b3"
+  },
+  {
+    "file": "32-result-unknown.jpg",
+    "format": "JPEG",
+    "width": 1680,
+    "height": 841,
+    "bytes": 101363,
+    "sha256": "9c95d6c206f082844fe1fb820dbbd2386ce9ec34d882d3ed3a5c365619ebcdda"
+  }
+]

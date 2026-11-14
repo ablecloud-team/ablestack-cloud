@@ -1,0 +1,55 @@
+{
+  "scope": "Only task-created VLAN9999 gateway/network rows; private IP/static route/active NIC references zero, parent VPC already removed. No backend implementation change.",
+  "evidence": {
+    "inspect": [
+      {
+        "gatewayBefore": "4\t18ac4056-fc04-4551-906a-b18cb8ebbc53\t23\t543\t10.246.32.2\tvlan://9999\tDeleting\tNULL\t1e2348bf-35c0-43a7-ab6c-5794df5e15d4\tqa-vpc1654-20261114-32-admin\t2026-11-14 04:42:20"
+      },
+      {
+        "checks": {
+          "privateIps": "0",
+          "staticRoutes": "0",
+          "activeVmNics": "0",
+          "network": "543\t03a59da3-0612-4da9-8331-3fdf9d5fa4c3\tvpc-qa-vpc1654-20261114-32-admin-privateNetwork\tGuest\tSetup\tNULL",
+          "refs": "static_routes\tvpc_gateway_id\nvpc_gateway_details\tvpc_gateway_id"
+        }
+      }
+    ],
+    "apply": [
+      {
+        "gatewayBefore": "4\t18ac4056-fc04-4551-906a-b18cb8ebbc53\t23\t543\t10.246.32.2\tvlan://9999\tDeleting\tNULL\t1e2348bf-35c0-43a7-ab6c-5794df5e15d4\tqa-vpc1654-20261114-32-admin\t2026-11-14 04:42:20"
+      },
+      {
+        "checks": {
+          "privateIps": "0",
+          "staticRoutes": "0",
+          "activeVmNics": "0",
+          "network": "543\t03a59da3-0612-4da9-8331-3fdf9d5fa4c3\tvpc-qa-vpc1654-20261114-32-admin-privateNetwork\tGuest\tSetup\tNULL",
+          "refs": "static_routes\tvpc_gateway_id\nvpc_gateway_details\tvpc_gateway_id"
+        }
+      },
+      {
+        "softRemovedRows": 1,
+        "gatewayAfter": "4\t18ac4056-fc04-4551-906a-b18cb8ebbc53\t23\t543\t10.246.32.2\tvlan://9999\tDeleting\t2026-11-14 13:43:25\t1e2348bf-35c0-43a7-ab6c-5794df5e15d4\tqa-vpc1654-20261114-32-admin\t2026-11-14 04:42:20"
+      }
+    ],
+    "network": [
+      {
+        "gatewayBefore": "4\t18ac4056-fc04-4551-906a-b18cb8ebbc53\t23\t543\t10.246.32.2\tvlan://9999\tDeleting\t2026-11-14 13:43:25\t1e2348bf-35c0-43a7-ab6c-5794df5e15d4\tqa-vpc1654-20261114-32-admin\t2026-11-14 04:42:20"
+      },
+      {
+        "checks": {
+          "privateIps": "0",
+          "staticRoutes": "0",
+          "activeVmNics": "0",
+          "network": "543\t03a59da3-0612-4da9-8331-3fdf9d5fa4c3\tvpc-qa-vpc1654-20261114-32-admin-privateNetwork\tGuest\tSetup\tNULL",
+          "refs": "static_routes\tvpc_gateway_id\nvpc_gateway_details\tvpc_gateway_id"
+        }
+      },
+      {
+        "networkSoftRemovedRows": 1,
+        "networkAfter": "543\t03a59da3-0612-4da9-8331-3fdf9d5fa4c3\tvpc-qa-vpc1654-20261114-32-admin-privateNetwork\tSetup\t2026-11-14 13:44:09"
+      }
+    ]
+  }
+}

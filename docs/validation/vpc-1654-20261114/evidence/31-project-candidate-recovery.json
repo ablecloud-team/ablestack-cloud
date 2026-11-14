@@ -1,0 +1,218 @@
+{
+  "before": {
+    "buttons": [
+      {
+        "disabled": false,
+        "text": ""
+      },
+      {
+        "disabled": false,
+        "text": "게이트웨이 후보 새로고침"
+      },
+      {
+        "disabled": false,
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "text": "확인"
+      }
+    ],
+    "fields": [
+      {
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_associatednetworkid",
+        "label": null,
+        "value": ""
+      },
+      {
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_ipaddress",
+        "label": "IP",
+        "value": "10.254.31.2"
+      },
+      {
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_gateway",
+        "label": "게이트웨이",
+        "value": "10.254.31.1"
+      },
+      {
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_netmask",
+        "label": "넷마스크",
+        "value": "255.255.255.0"
+      },
+      {
+        "checked": false,
+        "disabled": false,
+        "id": "",
+        "label": "Source NAT",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_acl",
+        "label": null,
+        "value": ""
+      }
+    ],
+    "open": true,
+    "selections": [
+      "qa-vpc1654-20261114-31-project-l2",
+      "qa-vpc1654-20261114-31-project-acl · VPC gateway binding test only"
+    ],
+    "status": [],
+    "text": "새 게이트웨이 추가하기\nqa-vpc1654-20261114-31-project-vpc\n99a15cdf-ea6f-4161-9ba1-41762bbd9b4e\nqa-vpc1654-20261114-31-project · Zone\n게이트웨이 후보 새로고침\n연결된 네트워크\nqa-vpc1654-20261114-31-project-l2\nIP\n게이트웨이\n넷마스크\n\n서버는 네트워크 정책에 따라 RFC 1918/6598 주소 대역을 검사합니다. 기존 네트워크의 주소 대역 및 VLAN 중복 검사도 적용됩니다.\n\nSource NAT\nACL\n1e477d5a-b7fd-40c6-aeef-cf62ef484309\nqa-vpc1654-20261114-31-project-acl · VPC gateway binding test only\n새 창은 API 기본값과 같은 default_deny를 선택합니다. 명시한 ACL 선택은 재열기와 새로고침 시 유지됩니다.\n취소\n확인"
+  },
+  "failed": {
+    "buttons": [
+      {
+        "disabled": false,
+        "text": ""
+      },
+      {
+        "disabled": false,
+        "text": "게이트웨이 후보 새로고침"
+      },
+      {
+        "disabled": false,
+        "text": "취소"
+      },
+      {
+        "disabled": true,
+        "text": "확인"
+      }
+    ],
+    "fields": [
+      {
+        "checked": false,
+        "disabled": true,
+        "id": "form_item_associatednetworkid",
+        "label": null,
+        "value": ""
+      },
+      {
+        "checked": false,
+        "disabled": true,
+        "id": "form_item_ipaddress",
+        "label": "IP",
+        "value": "10.254.31.2"
+      },
+      {
+        "checked": false,
+        "disabled": true,
+        "id": "form_item_gateway",
+        "label": "게이트웨이",
+        "value": "10.254.31.1"
+      },
+      {
+        "checked": false,
+        "disabled": true,
+        "id": "form_item_netmask",
+        "label": "넷마스크",
+        "value": "255.255.255.0"
+      },
+      {
+        "checked": false,
+        "disabled": true,
+        "id": "",
+        "label": "Source NAT",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "disabled": true,
+        "id": "form_item_acl",
+        "label": null,
+        "value": ""
+      }
+    ],
+    "open": true,
+    "selections": [
+      "820043bf-5edc-4654-bd83-0a5819d76ecf",
+      "1e477d5a-b7fd-40c6-aeef-cf62ef484309"
+    ],
+    "status": [
+      "사설 게이트웨이 작업을 완료하지 못했습니다. 입력을 보존했습니다.\nNetwork Error"
+    ],
+    "text": "새 게이트웨이 추가하기\nqa-vpc1654-20261114-31-project-vpc\n99a15cdf-ea6f-4161-9ba1-41762bbd9b4e\nqa-vpc1654-20261114-31-project · Zone\n사설 게이트웨이 작업을 완료하지 못했습니다. 입력을 보존했습니다.\nNetwork Error\n게이트웨이 후보 새로고침\n연결된 네트워크\n820043bf-5edc-4654-bd83-0a5819d76ecf\nIP\n게이트웨이\n넷마스크\n\n서버는 네트워크 정책에 따라 RFC 1918/6598 주소 대역을 검사합니다. 기존 네트워크의 주소 대역 및 VLAN 중복 검사도 적용됩니다.\n\nSource NAT\nACL\n1e477d5a-b7fd-40c6-aeef-cf62ef484309\n새 창은 API 기본값과 같은 default_deny를 선택합니다. 명시한 ACL 선택은 재열기와 새로고침 시 유지됩니다.\n취소\n확인"
+  },
+  "recovered": {
+    "buttons": [
+      {
+        "disabled": false,
+        "text": ""
+      },
+      {
+        "disabled": false,
+        "text": "게이트웨이 후보 새로고침"
+      },
+      {
+        "disabled": false,
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "text": "확인"
+      }
+    ],
+    "fields": [
+      {
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_associatednetworkid",
+        "label": null,
+        "value": ""
+      },
+      {
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_ipaddress",
+        "label": "IP",
+        "value": "10.254.31.2"
+      },
+      {
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_gateway",
+        "label": "게이트웨이",
+        "value": "10.254.31.1"
+      },
+      {
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_netmask",
+        "label": "넷마스크",
+        "value": "255.255.255.0"
+      },
+      {
+        "checked": false,
+        "disabled": false,
+        "id": "",
+        "label": "Source NAT",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_acl",
+        "label": null,
+        "value": ""
+      }
+    ],
+    "open": true,
+    "selections": [
+      "qa-vpc1654-20261114-31-project-l2",
+      "qa-vpc1654-20261114-31-project-acl · VPC gateway binding test only"
+    ],
+    "status": [],
+    "text": "새 게이트웨이 추가하기\nqa-vpc1654-20261114-31-project-vpc\n99a15cdf-ea6f-4161-9ba1-41762bbd9b4e\nqa-vpc1654-20261114-31-project · Zone\n게이트웨이 후보 새로고침\n연결된 네트워크\nqa-vpc1654-20261114-31-project-l2\nIP\n게이트웨이\n넷마스크\n\n서버는 네트워크 정책에 따라 RFC 1918/6598 주소 대역을 검사합니다. 기존 네트워크의 주소 대역 및 VLAN 중복 검사도 적용됩니다.\n\nSource NAT\nACL\nqa-vpc1654-20261114-31-project-acl · VPC gateway binding test only\n새 창은 API 기본값과 같은 default_deny를 선택합니다. 명시한 ACL 선택은 재열기와 새로고침 시 유지됩니다.\n취소\n확인"
+  },
+  "injection": "listNetworkACLLists network failure; no server mutation"
+}

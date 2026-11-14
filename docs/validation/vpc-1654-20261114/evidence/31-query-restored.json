@@ -1,0 +1,102 @@
+{
+  "buttons": [
+    {
+      "disabled": false,
+      "text": ""
+    },
+    {
+      "disabled": true,
+      "text": "게이트웨이 후보 새로고침"
+    },
+    {
+      "disabled": false,
+      "text": "취소"
+    },
+    {
+      "disabled": false,
+      "text": "작업 결과 다시 조회"
+    }
+  ],
+  "fields": [
+    {
+      "checked": true,
+      "disabled": true,
+      "id": "",
+      "label": null,
+      "value": "vlan"
+    },
+    {
+      "checked": false,
+      "disabled": true,
+      "id": "",
+      "label": null,
+      "value": "associated"
+    },
+    {
+      "checked": false,
+      "disabled": true,
+      "id": "form_item_physicalnetwork",
+      "label": null,
+      "value": ""
+    },
+    {
+      "checked": false,
+      "disabled": true,
+      "id": "form_item_vlan",
+      "label": "VLAN/VNI",
+      "value": "3702"
+    },
+    {
+      "checked": false,
+      "disabled": true,
+      "id": "",
+      "label": "VLAN ID/범위 중복 우회",
+      "value": "on"
+    },
+    {
+      "checked": false,
+      "disabled": true,
+      "id": "form_item_ipaddress",
+      "label": "IP",
+      "value": "10.253.31.4"
+    },
+    {
+      "checked": false,
+      "disabled": true,
+      "id": "form_item_gateway",
+      "label": "게이트웨이",
+      "value": "10.253.31.1"
+    },
+    {
+      "checked": false,
+      "disabled": true,
+      "id": "form_item_netmask",
+      "label": "넷마스크",
+      "value": "255.255.255.0"
+    },
+    {
+      "checked": false,
+      "disabled": true,
+      "id": "",
+      "label": "Source NAT",
+      "value": "on"
+    },
+    {
+      "checked": false,
+      "disabled": true,
+      "id": "form_item_acl",
+      "label": null,
+      "value": ""
+    }
+  ],
+  "open": true,
+  "selections": [
+    "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+    "8cc93567-b253-11f1-a895-0024814c313f"
+  ],
+  "status": [
+    "사설 게이트웨이 작업을 완료하지 못했습니다. 입력을 보존했습니다.\n작업 결과가 확인되지 않았습니다. 새로 제출하기 전에 같은 작업을 재조회하십시오.",
+    "작업 결과가 확인되지 않았습니다. 새로 제출하기 전에 같은 작업을 재조회하십시오.\n작업 ID: 135eb040-3197-487b-ab74-0cf37532e025\n기존 작업과 게이트웨이 결과가 확인될 때까지 새 생성 요청을 차단합니다."
+  ],
+  "text": "새 게이트웨이 추가하기\nqa-vpc1654-20261114-31-admin\ne7bdf187-7060-4033-a3a6-f9970eb2c295\nadmin · Zone\n사설 게이트웨이 작업을 완료하지 못했습니다. 입력을 보존했습니다.\n작업 결과가 확인되지 않았습니다. 새로 제출하기 전에 같은 작업을 재조회하십시오.\n작업 결과가 확인되지 않았습니다. 새로 제출하기 전에 같은 작업을 재조회하십시오.\n작업 ID: 135eb040-3197-487b-ab74-0cf37532e025\n기존 작업과 게이트웨이 결과가 확인될 때까지 새 생성 요청을 차단합니다.\n게이트웨이 후보 새로고침\n연결 방식\nVLAN/VNI\n연결된 네트워크\n물리 네트워크\n51cdd7ed-ab33-419d-98fc-8e7eabea1194\nVLAN/VNI\nVLAN ID/범위 중복 우회\nIP\n게이트웨이\n넷마스크\n\n서버는 네트워크 정책에 따라 RFC 1918/6598 주소 대역을 검사합니다. 기존 네트워크의 주소 대역 및 VLAN 중복 검사도 적용됩니다.\n\nSource NAT\nACL\n8cc93567-b253-11f1-a895-0024814c313f\n새 창은 API 기본값과 같은 default_deny를 선택합니다. 명시한 ACL 선택은 재열기와 새로고침 시 유지됩니다.\n취소\n작업 결과 다시 조회"
+}

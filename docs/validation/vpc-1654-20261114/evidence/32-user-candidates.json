@@ -1,0 +1,126 @@
+{
+  "owner": {
+    "vpc": "49754f4d-0c8d-4266-84ff-3e1924d7da8f",
+    "networks": [
+      {
+        "id": "e3009a6b-c1bf-4161-b216-ab8063aa6c45",
+        "name": "qa-vpc1654-20261114-32-user-l2",
+        "displaytext": "qa-vpc1654-20261114-32-user-l2",
+        "broadcastdomaintype": "Vlan",
+        "traffictype": "Guest",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "zonename": "Zone",
+        "networkofferingid": "4a711c03-f9bd-4989-96fc-ea38ca9e79a1",
+        "networkofferingname": "기본 L2 VLAN 네트워크오퍼링",
+        "networkofferingdisplaytext": "기본 L2 VLAN 네트워크오퍼링",
+        "networkofferingconservemode": true,
+        "networkofferingavailability": "Optional",
+        "issystem": false,
+        "state": "Setup",
+        "related": "e3009a6b-c1bf-4161-b216-ab8063aa6c45",
+        "dns1": "8.8.8.8",
+        "type": "L2",
+        "acltype": "Account",
+        "account": "qa-vpc1654-20261114-32-user",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "service": [],
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "restartrequired": false,
+        "specifyvlan": true,
+        "specifyipranges": false,
+        "canusefordeploy": true,
+        "ispersistent": false,
+        "tags": [],
+        "strechedl2subnet": false,
+        "redundantrouter": false,
+        "supportsvmautoscaling": false,
+        "created": "2026-11-14T12:25:47+0900",
+        "receivedbytes": 0,
+        "sentbytes": 0,
+        "publicmtu": 1500,
+        "privatemtu": 1500,
+        "hasannotations": false
+      }
+    ],
+    "acls": [
+      {
+        "id": "3b64a0c2-b23b-11f1-990e-0024811f8935",
+        "name": "default_allow",
+        "description": "Default Network ACL Allow All"
+      },
+      {
+        "id": "3b63c03f-b23b-11f1-990e-0024811f8935",
+        "name": "default_deny",
+        "description": "Default Network ACL Deny All"
+      }
+    ]
+  },
+  "project": {
+    "vpc": "3811a093-6949-497f-81e9-6329db3eddcf",
+    "networks": [
+      {
+        "id": "a3a28fd4-e237-4522-a990-5f71c54608b0",
+        "name": "qa-vpc1654-20261114-32-project-l2",
+        "displaytext": "qa-vpc1654-20261114-32-project-l2",
+        "broadcastdomaintype": "Vlan",
+        "traffictype": "Guest",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "zonename": "Zone",
+        "networkofferingid": "4a711c03-f9bd-4989-96fc-ea38ca9e79a1",
+        "networkofferingname": "기본 L2 VLAN 네트워크오퍼링",
+        "networkofferingdisplaytext": "기본 L2 VLAN 네트워크오퍼링",
+        "networkofferingconservemode": true,
+        "networkofferingavailability": "Optional",
+        "issystem": false,
+        "state": "Setup",
+        "related": "a3a28fd4-e237-4522-a990-5f71c54608b0",
+        "dns1": "8.8.8.8",
+        "type": "L2",
+        "acltype": "Account",
+        "projectid": "041dfa69-10c0-4727-9935-73115fabb438",
+        "project": "qa-vpc1654-20261114-32-project",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "service": [],
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "restartrequired": false,
+        "specifyvlan": true,
+        "specifyipranges": false,
+        "canusefordeploy": true,
+        "ispersistent": false,
+        "tags": [],
+        "strechedl2subnet": false,
+        "redundantrouter": false,
+        "supportsvmautoscaling": false,
+        "created": "2026-11-14T12:26:28+0900",
+        "receivedbytes": 0,
+        "sentbytes": 0,
+        "publicmtu": 1500,
+        "privatemtu": 1500,
+        "hasannotations": false
+      }
+    ],
+    "acls": [
+      {
+        "id": "4e2798ea-8e2f-4899-8764-84c766db0234",
+        "name": "qa-vpc1654-20261114-32-project-acl",
+        "description": "VPC gateway binding test only",
+        "vpcid": "3811a093-6949-497f-81e9-6329db3eddcf",
+        "vpcname": "qa-vpc1654-20261114-32-project-vpc"
+      },
+      {
+        "id": "3b64a0c2-b23b-11f1-990e-0024811f8935",
+        "name": "default_allow",
+        "description": "Default Network ACL Allow All"
+      },
+      {
+        "id": "3b63c03f-b23b-11f1-990e-0024811f8935",
+        "name": "default_deny",
+        "description": "Default Network ACL Deny All"
+      }
+    ]
+  }
+}
