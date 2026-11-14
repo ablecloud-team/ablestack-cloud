@@ -6,7 +6,6 @@
   "serverSuccess": 19,
   "http431": 2,
   "styles": 12,
-  "mobileLower": 4,
   "screenshots": 43,
   "cleanup": {
     "31": {
@@ -21,5 +20,8 @@
       "deleteProject": 1,
       "deleteAccount": 1
     }
-  }
+  },
+  "mobileScrollInputs": 4,
+  "mobileFullLongErrorVisualConfirmed": 2,
+  "cluster32MobileLowerCaptureLimitation": true
 }

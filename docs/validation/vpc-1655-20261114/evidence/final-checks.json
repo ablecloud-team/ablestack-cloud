@@ -5,7 +5,7 @@
   "utf8LfJsonValidation": true,
   "secretMatches": 0,
   "sensitiveCredentialKeys": 0,
-  "textFilesScanned": 88,
+  "textFilesScanned": 90,
   "styleRowsPassed": 12,
   "preservationKindsPerCluster": 12,
   "source": "281e9758c04137f42475ca3742acf34f3f0ba339"
