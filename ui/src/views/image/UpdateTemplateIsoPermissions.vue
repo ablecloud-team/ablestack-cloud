@@ -23,8 +23,9 @@
     </div>
 
     <div class="form__item">
-      <p class="form__label">{{ $t('label.operation') }}</p>
+      <label class="form__label" :for="formId+'-operation'">{{ $t('label.operation') }}</label>
       <a-select
+        :id="formId+'-operation'"
         v-model:value="selectedOperation"
         :defaultValue="'add'"
         @change="fetchData"
@@ -42,11 +43,12 @@
 
     <template v-if="selectedOperation !== 'reset'">
       <div class="form__item">
-        <p class="form__label">
+        <label class="form__label" :for="formId+'-sharewith'">
           <span class="required">*</span>
           {{ $t('label.sharewith') }}
-        </p>
+        </label>
         <a-select
+          :id="formId+'-sharewith'"
           v-model:value="selectedShareWith"
           :defaultValue="'Account'"
           @change="fetchData"
@@ -62,11 +64,12 @@
 
       <template v-if="selectedShareWith === 'Account'">
         <div class="form__item">
-          <p class="form__label">
+          <label class="form__label" :for="formId+'-accounts'">
             {{ $t('label.account') }}
-          </p>
+          </label>
           <div v-if="showAccountSelect">
             <a-select
+              :id="formId+'-accounts'"
               mode="multiple"
               :placeholder="$t('label.select.accounts')"
               v-model:value="selectedAccounts"
@@ -87,17 +90,18 @@
             </a-select>
           </div>
           <div v-else>
-            <a-input v-model:value="selectedAccountsList" :placeholder="$t('message.template.permissions.account.names')"></a-input>
+            <a-input :id="formId+'-accounts'" v-model:value="selectedAccountsList" :placeholder="$t('message.template.permissions.account.names')"></a-input>
           </div>
         </div>
       </template>
 
       <template v-else>
         <div class="form__item">
-          <p class="form__label">
+          <label class="form__label" :for="formId+'-projects'">
             {{ $t('label.project') }}
-          </p>
+          </label>
           <a-select
+            :id="formId+'-projects'"
             mode="multiple"
             :placeholder="$t('label.select.projects')"
             v-model:value="selectedProjects"
@@ -129,6 +133,7 @@
 <script>
 import { getAPI, postAPI } from '@/api'
 import ResourceIcon from '@/components/view/ResourceIcon'
+let formSequence = 0
 
 export default {
   name: 'UpdateTemplateIsoPermissions',
@@ -144,6 +149,7 @@ export default {
   inject: ['parentFetchData'],
   data () {
     return {
+      formId: 'image-permissions-' + (++formSequence),
       projects: [],
       accounts: [],
       permittedAccounts: [],

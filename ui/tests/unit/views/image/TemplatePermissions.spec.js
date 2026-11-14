@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { mount, flushPromises } from '@vue/test-utils'
+import { Select, Input, Button, Alert } from 'ant-design-vue'
 import Permissions from '@/views/image/UpdateTemplateIsoPermissions'
 import { getAPI, postAPI } from '@/api'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
@@ -58,4 +60,16 @@ test('a successful empty permissions reply clears earlier grants', async () => {
   const c = context({ permittedAccounts: ['old'], permittedProjects: ['old'] })
   getAPI.mockResolvedValueOnce({ listtemplatepermissionsresponse: { templatepermission: { id: 'image' } } })
   await c.fetchTemplatePermissions(); expect(c.permittedAccounts).toEqual([]); expect(c.permittedProjects).toEqual([])
+})
+
+test.each(['Admin', 'User'])('actual permission controls have linked accessible labels in %s mode', async roletype => {
+  getAPI.mockResolvedValue({ listtemplatepermissionsresponse: { templatepermission: {} }, listaccountsresponse: { account: [] }, listprojectsresponse: { project: [] } })
+  const w = mount(Permissions, { attachTo: document.body, props: { resource: { id: 'image', domainid: 'domain' } }, global: { provide: { parentFetchData: jest.fn() }, mocks: { $t: k => k, $route: { meta: { name: 'template' } }, $store: { getters: { features: { allowuserviewalldomainaccounts: false }, userInfo: { roletype } } } }, components: { 'a-select': Select, 'a-select-option': Select.Option, 'a-input': Input, 'a-button': Button, 'a-alert': Alert }, stubs: { ASelect: false, ASelectOption: false, AInput: false, AButton: false, AAlert: false, Wave: false }, directives: { focus: {}, 'ctrl-enter': {} } } })
+  await flushPromises()
+  const assertLabels = () => {
+    const controls = w.findAll('input[id^="image-permissions-"]')
+    expect(controls).toHaveLength(3)
+    for (const input of controls) expect(Array.from(input.element.labels || []).some(label => label.textContent.trim())).toBe(true)
+  }
+  assertLabels(); await w.setData({ selectedShareWith: 'Project' }); assertLabels(); w.unmount()
 })
