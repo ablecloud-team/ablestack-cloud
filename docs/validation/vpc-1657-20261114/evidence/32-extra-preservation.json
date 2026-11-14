@@ -1,0 +1,8 @@
+{
+  "networkOfferingIdsEqual": true,
+  "networkOfferingCount": 24,
+  "fieldDifferences": [],
+  "bgpPeers": [],
+  "asNumbers": [],
+  "externalAndPhysicalConfigurationNotMutatedByTest": true
+}

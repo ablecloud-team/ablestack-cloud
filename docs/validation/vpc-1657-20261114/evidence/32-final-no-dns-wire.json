@@ -1,0 +1,17 @@
+{
+  "params": {
+    "command": "createVPC",
+    "response": "json",
+    "name": "qa-vpc1657-20261114-32-ui-final-no-dns",
+    "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+    "vpcofferingid": "62e1d443-5802-46bc-864d-72ff35b684a1",
+    "account": "admin",
+    "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+    "start": "false",
+    "cidr": "10.249.32.48/28",
+    "keepmacaddressonpublicnic": "false",
+    "customjobid": "1a8f8825-a72c-4bc4-a601-6367400486cd"
+  },
+  "requests": 1,
+  "truncated": false
+}

@@ -1,0 +1,412 @@
+[
+  {
+    "case": "default-ipv4-creation",
+    "params": {
+      "customjobid": "eedf195a-a31f-4360-afbc-20d6bea7bfb5",
+      "name": "qa-vpc1657-20261114-31-design",
+      "displaytext": "VPC-07 empirical candidate validation",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+      "cidr": "10.247.31.16/28",
+      "start": "false",
+      "dns1": "8.8.8.8"
+    },
+    "receipt": {
+      "id": "816ed35c-c37e-4fac-8d58-d26251ba734f",
+      "jobid": "eedf195a-a31f-4360-afbc-20d6bea7bfb5"
+    },
+    "job": {
+      "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domainpath": "ROOT",
+      "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+      "cmd": "org.apache.cloudstack.api.command.admin.vpc.CreateVPCCmdByAdmin",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "vpc": {
+          "id": "816ed35c-c37e-4fac-8d58-d26251ba734f",
+          "name": "qa-vpc1657-20261114-31-design",
+          "displaytext": "VPC-07 empirical candidate validation",
+          "state": "Enabled",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "service": [
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "NetworkACL",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Lb",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                },
+                {
+                  "name": "InternalLbVm"
+                }
+              ]
+            },
+            {
+              "name": "SourceNat",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "PortForwarding",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Vpn",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "StaticNat",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            }
+          ],
+          "cidr": "10.247.31.16/28",
+          "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+          "vpcofferingname": "Default VPC offering",
+          "vpcofferingconservemode": false,
+          "created": "2026-11-14T18:02:50+0900",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "network": [],
+          "restartrequired": false,
+          "networkdomain": "cs2cloud.internal",
+          "tags": [],
+          "fordisplay": true,
+          "distributedvpcrouter": false,
+          "regionlevelvpc": false,
+          "redundantvpcrouter": false,
+          "publicmtu": 1500,
+          "dns1": "8.8.8.8",
+          "keepmacaddressonpublicnic": true,
+          "hasannotations": false
+        }
+      },
+      "jobinstancetype": "None",
+      "created": "2026-11-14T18:02:50+0900",
+      "completed": "2026-11-14T18:02:50+0900",
+      "jobid": "eedf195a-a31f-4360-afbc-20d6bea7bfb5",
+      "jobstatus": 1
+    },
+    "success": true,
+    "expectedSuccess": true
+  },
+  {
+    "case": "disabled-offering-rejected",
+    "params": {
+      "customjobid": "c1139d9e-ac91-4379-b314-4d9c862e0d00",
+      "name": "qa-vpc1657-20261114-31-disabled-reject",
+      "displaytext": "VPC-07 empirical candidate validation",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "vpcofferingid": "054f6027-3ed5-4f8a-84cf-29ef9fcda8d6",
+      "cidr": "10.247.31.32/28",
+      "start": "false"
+    },
+    "receipt": {
+      "uuidList": [
+        {
+          "uuid": "054f6027-3ed5-4f8a-84cf-29ef9fcda8d6",
+          "description": "vpcOfferingId"
+        }
+      ],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "Unable to find vpc offering in Enabled state by specified id"
+    },
+    "job": null,
+    "success": false,
+    "expectedSuccess": false
+  },
+  {
+    "case": "dns-on-no-dns-offering-rejected",
+    "params": {
+      "customjobid": "5a844e86-1d70-450a-9376-bdc4b1286afc",
+      "name": "qa-vpc1657-20261114-31-dns-reject",
+      "displaytext": "VPC-07 empirical candidate validation",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "vpcofferingid": "0eca9e3f-1000-4c5a-9a55-e5ea199259e5",
+      "cidr": "10.247.31.48/28",
+      "start": "false",
+      "dns1": "8.8.8.8"
+    },
+    "receipt": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "DNS can not be specified for VPCs with offering that do not support DNS service"
+    },
+    "job": null,
+    "success": false,
+    "expectedSuccess": false
+  },
+  {
+    "case": "no-dns-creation-with-omitted-dns",
+    "params": {
+      "customjobid": "b6796ff8-d0e1-4a11-823d-4d98cd34de46",
+      "name": "qa-vpc1657-20261114-31-no-dns-design",
+      "displaytext": "VPC-07 empirical candidate validation",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "vpcofferingid": "0eca9e3f-1000-4c5a-9a55-e5ea199259e5",
+      "cidr": "10.247.31.64/28",
+      "start": "false"
+    },
+    "receipt": {
+      "id": "0f3594b9-a103-467b-b661-dac3989f33ab",
+      "jobid": "b6796ff8-d0e1-4a11-823d-4d98cd34de46"
+    },
+    "job": {
+      "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domainpath": "ROOT",
+      "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+      "cmd": "org.apache.cloudstack.api.command.admin.vpc.CreateVPCCmdByAdmin",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "vpc": {
+          "id": "0f3594b9-a103-467b-b661-dac3989f33ab",
+          "name": "qa-vpc1657-20261114-31-no-dns-design",
+          "displaytext": "VPC-07 empirical candidate validation",
+          "state": "Enabled",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "service": [
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "NetworkACL",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Lb",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                },
+                {
+                  "name": "InternalLbVm"
+                }
+              ]
+            },
+            {
+              "name": "SourceNat",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "PortForwarding",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Vpn",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "StaticNat",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            }
+          ],
+          "cidr": "10.247.31.64/28",
+          "vpcofferingid": "0eca9e3f-1000-4c5a-9a55-e5ea199259e5",
+          "vpcofferingname": "qa-vpc1657-20261114-31-no-dns",
+          "vpcofferingconservemode": false,
+          "created": "2026-11-14T18:02:51+0900",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "network": [],
+          "restartrequired": false,
+          "networkdomain": "cs2cloud.internal",
+          "tags": [],
+          "fordisplay": true,
+          "distributedvpcrouter": false,
+          "regionlevelvpc": false,
+          "redundantvpcrouter": false,
+          "publicmtu": 1500,
+          "keepmacaddressonpublicnic": true,
+          "hasannotations": false
+        }
+      },
+      "jobinstancetype": "None",
+      "created": "2026-11-14T18:02:51+0900",
+      "completed": "2026-11-14T18:02:51+0900",
+      "jobid": "b6796ff8-d0e1-4a11-823d-4d98cd34de46",
+      "jobstatus": 1
+    },
+    "success": true,
+    "expectedSuccess": true
+  },
+  {
+    "case": "ipv6-dns-on-ipv4-offering-rejected",
+    "params": {
+      "customjobid": "34020d79-f317-48c0-b0cb-f72719d6d184",
+      "name": "qa-vpc1657-20261114-31-ipv6-reject",
+      "displaytext": "VPC-07 empirical candidate validation",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+      "cidr": "10.247.31.80/28",
+      "start": "false",
+      "ip6dns1": "2001:4860:4860::8888"
+    },
+    "receipt": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "IPv6 DNS can be specified for IPv6 enabled VPC"
+    },
+    "job": null,
+    "success": false,
+    "expectedSuccess": false
+  },
+  {
+    "case": "cidrsize-on-natted-offering-rejected",
+    "params": {
+      "customjobid": "5b084f1b-4b34-4490-a37b-677e41a953db",
+      "name": "qa-vpc1657-20261114-31-cidrsize-reject",
+      "displaytext": "VPC-07 empirical candidate validation",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+      "start": "false",
+      "cidrsize": 28
+    },
+    "receipt": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "VPC cidr size is only applicable on VPC with Routed mode"
+    },
+    "job": null,
+    "success": false,
+    "expectedSuccess": false
+  },
+  {
+    "case": "unconfigured-bgp-reference-rejected",
+    "params": {
+      "customjobid": "aa30b9f1-2296-4ffb-aea1-ed619aa4c65d",
+      "name": "qa-vpc1657-20261114-31-bgp-reject",
+      "displaytext": "VPC-07 empirical candidate validation",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+      "cidr": "10.247.31.112/28",
+      "start": "false",
+      "bgppeerids": "c67d3939-6660-4236-bf17-5be0b2d62690"
+    },
+    "receipt": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 9999,
+      "errortext": "Unable to execute API command createvpc due to invalid value. Invalid parameter bgppeerids value=c67d3939-6660-4236-bf17-5be0b2d62690 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class."
+    },
+    "job": null,
+    "success": false,
+    "expectedSuccess": false
+  },
+  {
+    "case": "l2-offering-is-not-private-gateway-isolated-offering",
+    "params": {
+      "customjobid": "063aef4e-d616-422e-8eb0-a7a7d2cff91a",
+      "vpcid": "816ed35c-c37e-4fac-8d58-d26251ba734f",
+      "networkofferingid": "79ec5c18-b71c-4f7a-9b5d-8694b16b8a54",
+      "ipaddress": "10.248.31.2",
+      "gateway": "10.248.31.1",
+      "netmask": "255.255.255.0",
+      "vlan": "3995"
+    },
+    "receipt": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "The network offering cannot be used to create Isolated network"
+    },
+    "job": null,
+    "success": false,
+    "expectedSuccess": false
+  }
+]

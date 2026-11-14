@@ -1,0 +1,74 @@
+[
+  {
+    "command": "deleteVPC",
+    "id": "8b90407e-9737-4d38-bcea-e433079e4604",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPC",
+    "id": "56e55bab-4be8-4f1a-9ec0-c6a59581a038",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPC",
+    "id": "59ef2230-2173-4b47-9183-ffcc745a11d9",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPC",
+    "id": "10ffe9a8-6bf4-4a3b-9ca9-0b440eef3350",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPC",
+    "id": "0f3594b9-a103-467b-b661-dac3989f33ab",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPC",
+    "id": "816ed35c-c37e-4fac-8d58-d26251ba734f",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPCOffering",
+    "id": "0eca9e3f-1000-4c5a-9a55-e5ea199259e5",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPCOffering",
+    "id": "054f6027-3ed5-4f8a-84cf-29ef9fcda8d6",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "da7470ec-d0d6-4f62-91fa-37113d0a8427",
+    "result": {
+      "success": true
+    },
+    "success": true
+  }
+]

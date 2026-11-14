@@ -1,0 +1,115 @@
+{
+  "count": 1,
+  "api": [
+    {
+      "name": "changeBgpPeersForVpc",
+      "description": "Change the BGP peers for a VPC.",
+      "since": "4.20.0",
+      "isasync": true,
+      "related": "createBgpPeer,listBgpPeers,updateBgpPeer,dedicateBgpPeer,releaseBgpPeer",
+      "params": [
+        {
+          "name": "vpcid",
+          "description": "UUID of the VPC which the Bgp Peers are associated to.",
+          "type": "uuid",
+          "length": 255,
+          "required": true,
+          "related": "createVPC,listVPCs,createVPC,listVPCs,updateVPC,migrateVPC"
+        },
+        {
+          "name": "bgppeerids",
+          "description": "Ids of the Bgp Peer. If it is empty, all BGP peers will be unlinked.",
+          "type": "list",
+          "length": 255,
+          "required": false,
+          "related": "createBgpPeer,listBgpPeers,updateBgpPeer,dedicateBgpPeer,releaseBgpPeer,changeBgpPeersForVpc"
+        }
+      ],
+      "response": [
+        {
+          "name": "password",
+          "description": "password of bgp peer",
+          "type": "string"
+        },
+        {
+          "name": "domainid",
+          "description": "the domain ID of the bgp peer",
+          "type": "string"
+        },
+        {
+          "name": "jobstatus",
+          "description": "The current status of the latest async job acting on this object",
+          "type": "integer"
+        },
+        {
+          "name": "id",
+          "description": "id of the bgp peer",
+          "type": "string"
+        },
+        {
+          "name": "domain",
+          "description": "the domain name of the bgp peer",
+          "type": "string"
+        },
+        {
+          "name": "zonename",
+          "description": "name of zone to which the bgp peer belongs to.",
+          "type": "string"
+        },
+        {
+          "name": "details",
+          "description": "additional key/value details of the bgp peer",
+          "type": "map"
+        },
+        {
+          "name": "projectid",
+          "description": "the project id of the bgp peer",
+          "type": "string"
+        },
+        {},
+        {
+          "name": "jobid",
+          "description": "The UUID of the latest async job acting on this object",
+          "type": "string"
+        },
+        {
+          "name": "created",
+          "description": "date when this bgp peer was created.",
+          "type": "date"
+        },
+        {
+          "name": "ip6address",
+          "description": "IPv6 address of bgp peer",
+          "type": "string"
+        },
+        {
+          "name": "asnumber",
+          "description": "AS number of bgp peer",
+          "type": "long"
+        },
+        {
+          "name": "project",
+          "description": "the project name of the bgp peer",
+          "type": "string"
+        },
+        {
+          "name": "ipaddress",
+          "description": "IPv4 address of bgp peer",
+          "type": "string"
+        },
+        {},
+        {
+          "name": "zoneid",
+          "description": "id of zone to which the bgp peer belongs to.",
+          "type": "string"
+        },
+        {
+          "name": "account",
+          "description": "the account of the bgp peer",
+          "type": "string"
+        }
+      ],
+      "httprequesttype": "POST"
+    }
+  ]
+}

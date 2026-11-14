@@ -1,0 +1,11 @@
+{
+  "fault": "HTTP200 listvpcofferingsresponse {} (browser response injection)",
+  "text": "VPC 추가\n이름\n설명\nZone\n Zone\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nCIDR\n네트워크 도메인\nVPC 오퍼링\n공용 NIC의 MAC 주소 유지\n시작\n취소\n확인",
+  "confirmEnabled": true,
+  "logs": [
+    {
+      "message": "TypeError: Cannot read properties of undefined (reading 'length')\n    at http://10.10.31.10:8080/client/js/chunk-c6ec819a.3d411682.js:1:19708\n    at <anonymous>",
+      "level": "error"
+    }
+  ]
+}

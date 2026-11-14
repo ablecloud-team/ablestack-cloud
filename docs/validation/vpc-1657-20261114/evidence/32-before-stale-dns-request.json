@@ -1,0 +1,13 @@
+{
+  "command": "createVPC",
+  "response": "json",
+  "account": "admin",
+  "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+  "start": "false",
+  "keepmacaddressonpublicnic": "true",
+  "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+  "vpcofferingid": "62e1d443-5802-46bc-864d-72ff35b684a1",
+  "dns1": "8.8.8.8",
+  "name": "qa-vpc1657-20261114-32-before-dns",
+  "cidr": "10.249.32.0/28"
+}

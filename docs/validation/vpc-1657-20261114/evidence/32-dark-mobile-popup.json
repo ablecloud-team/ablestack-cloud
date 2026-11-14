@@ -1,0 +1,9 @@
+{
+  "bottom": 679,
+  "height": 264,
+  "right": 321,
+  "text": "b6a82d84-e551-49bb-8e68-863ce4b93857\n0f0ab89c-f3e9-4578-add9-3cb2530c70b6\n062da246-7720-4aa0-9093-26cbb81a7998\nDefault VPC offering\nDefault VPC offering with Netscaler · 물리망·제공자 구성이 맞지 않음\nRedundant VPC offering\nVPC offering with NSX - NAT Mode · NSX 오퍼링·Zone 설정 불일치\nVPC offering with NSX - Route Mode · NSX 오퍼링·Zone 설정 불일치\nVPC offering with Netris - Route Mode · 물리망·제공자 구성이 맞지 않음\nVPC offering with Netris - NAT Mode · 물리망·제공자 구성이 맞지 않음\nqa-vpc1657-20261114-32-no-dns",
+  "width": 292,
+  "x": 29,
+  "y": 415
+}

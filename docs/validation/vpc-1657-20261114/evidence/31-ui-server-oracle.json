@@ -1,0 +1,942 @@
+[
+  {
+    "case": "root-default-dns",
+    "job": {
+      "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domainpath": "ROOT",
+      "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+      "cmd": "org.apache.cloudstack.api.command.admin.vpc.CreateVPCCmdByAdmin",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "vpc": {
+          "id": "10ffe9a8-6bf4-4a3b-9ca9-0b440eef3350",
+          "name": "qa-vpc1657-20261114-31-ui-default",
+          "displaytext": "qa-vpc1657-20261114-31-ui-default",
+          "state": "Enabled",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "service": [
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "NetworkACL",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Lb",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                },
+                {
+                  "name": "InternalLbVm"
+                }
+              ]
+            },
+            {
+              "name": "SourceNat",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "PortForwarding",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Vpn",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "StaticNat",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            }
+          ],
+          "cidr": "10.249.31.0/28",
+          "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+          "vpcofferingname": "Default VPC offering",
+          "vpcofferingconservemode": false,
+          "created": "2026-11-14T18:46:44+0900",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "network": [],
+          "restartrequired": false,
+          "networkdomain": "cs2cloud.internal",
+          "tags": [],
+          "fordisplay": true,
+          "distributedvpcrouter": false,
+          "regionlevelvpc": false,
+          "redundantvpcrouter": false,
+          "publicmtu": 1500,
+          "dns1": "8.8.8.8",
+          "keepmacaddressonpublicnic": true,
+          "hasannotations": false
+        }
+      },
+      "jobinstancetype": "None",
+      "created": "2026-11-14T18:46:44+0900",
+      "completed": "2026-11-14T18:46:44+0900",
+      "jobid": "c83f719b-a35a-4c1c-82f8-fa96276c919e",
+      "jobstatus": 1
+    },
+    "actual": {
+      "id": "10ffe9a8-6bf4-4a3b-9ca9-0b440eef3350",
+      "name": "qa-vpc1657-20261114-31-ui-default",
+      "displaytext": "qa-vpc1657-20261114-31-ui-default",
+      "state": "Enabled",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "zonename": "Zone",
+      "service": [
+        {
+          "name": "Dhcp",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "UserData",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "NetworkACL",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Lb",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            },
+            {
+              "name": "InternalLbVm"
+            }
+          ]
+        },
+        {
+          "name": "SourceNat",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "PortForwarding",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Vpn",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "StaticNat",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Dns",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        }
+      ],
+      "cidr": "10.249.31.0/28",
+      "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+      "vpcofferingname": "Default VPC offering",
+      "vpcofferingconservemode": false,
+      "created": "2026-11-14T18:46:44+0900",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "network": [],
+      "restartrequired": false,
+      "networkdomain": "cs2cloud.internal",
+      "tags": [],
+      "fordisplay": true,
+      "distributedvpcrouter": false,
+      "regionlevelvpc": false,
+      "redundantvpcrouter": false,
+      "publicmtu": 1500,
+      "dns1": "8.8.8.8",
+      "keepmacaddressonpublicnic": true,
+      "hasannotations": false
+    }
+  },
+  {
+    "case": "root-selected-user-after-late-response",
+    "job": {
+      "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domainpath": "ROOT",
+      "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+      "cmd": "org.apache.cloudstack.api.command.admin.vpc.CreateVPCCmdByAdmin",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "vpc": {
+          "id": "59ef2230-2173-4b47-9183-ffcc745a11d9",
+          "name": "qa-vpc1657-20261114-31-ui-owner",
+          "displaytext": "qa-vpc1657-20261114-31-ui-owner",
+          "state": "Enabled",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "service": [
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "NetworkACL",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Lb",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                },
+                {
+                  "name": "InternalLbVm"
+                }
+              ]
+            },
+            {
+              "name": "SourceNat",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "PortForwarding",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Vpn",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "StaticNat",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            }
+          ],
+          "cidr": "10.249.31.32/28",
+          "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+          "vpcofferingname": "Default VPC offering",
+          "vpcofferingconservemode": false,
+          "created": "2026-11-14T18:56:49+0900",
+          "account": "qa-vpc1657-20261114-31-user",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "network": [],
+          "restartrequired": false,
+          "networkdomain": "cs1cacloud.internal",
+          "tags": [],
+          "fordisplay": true,
+          "distributedvpcrouter": false,
+          "regionlevelvpc": false,
+          "redundantvpcrouter": false,
+          "publicmtu": 1500,
+          "keepmacaddressonpublicnic": true,
+          "hasannotations": false
+        }
+      },
+      "jobinstancetype": "None",
+      "created": "2026-11-14T18:56:49+0900",
+      "completed": "2026-11-14T18:56:49+0900",
+      "jobid": "20883630-5d67-4684-bf3e-506666dd6d06",
+      "jobstatus": 1
+    },
+    "actual": {
+      "id": "59ef2230-2173-4b47-9183-ffcc745a11d9",
+      "name": "qa-vpc1657-20261114-31-ui-owner",
+      "displaytext": "qa-vpc1657-20261114-31-ui-owner",
+      "state": "Enabled",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "zonename": "Zone",
+      "service": [
+        {
+          "name": "Dhcp",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "UserData",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "NetworkACL",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Lb",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            },
+            {
+              "name": "InternalLbVm"
+            }
+          ]
+        },
+        {
+          "name": "SourceNat",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "PortForwarding",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Vpn",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "StaticNat",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Dns",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        }
+      ],
+      "cidr": "10.249.31.32/28",
+      "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+      "vpcofferingname": "Default VPC offering",
+      "vpcofferingconservemode": false,
+      "created": "2026-11-14T18:56:49+0900",
+      "account": "qa-vpc1657-20261114-31-user",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "network": [],
+      "restartrequired": false,
+      "networkdomain": "cs1cacloud.internal",
+      "tags": [],
+      "fordisplay": true,
+      "distributedvpcrouter": false,
+      "regionlevelvpc": false,
+      "redundantvpcrouter": false,
+      "publicmtu": 1500,
+      "keepmacaddressonpublicnic": true,
+      "hasannotations": false
+    }
+  },
+  {
+    "case": "ordinary-user-default",
+    "job": {
+      "accountid": "da7470ec-d0d6-4f62-91fa-37113d0a8427",
+      "account": "qa-vpc1657-20261114-31-user",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domainpath": "ROOT",
+      "userid": "738364b2-39e9-4fa5-8425-b35fc1852c4b",
+      "cmd": "org.apache.cloudstack.api.command.user.vpc.CreateVPCCmd",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "vpc": {
+          "id": "56e55bab-4be8-4f1a-9ec0-c6a59581a038",
+          "name": "qa-vpc1657-20261114-31-ui-user",
+          "displaytext": "qa-vpc1657-20261114-31-ui-user",
+          "state": "Enabled",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "service": [
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "NetworkACL",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Lb",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                },
+                {
+                  "name": "InternalLbVm"
+                }
+              ]
+            },
+            {
+              "name": "SourceNat",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "PortForwarding",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Vpn",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "StaticNat",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            }
+          ],
+          "cidr": "10.249.31.48/28",
+          "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+          "vpcofferingname": "Default VPC offering",
+          "vpcofferingconservemode": false,
+          "created": "2026-11-14T18:58:14+0900",
+          "account": "qa-vpc1657-20261114-31-user",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "network": [],
+          "restartrequired": false,
+          "networkdomain": "cs1cacloud.internal",
+          "tags": [],
+          "fordisplay": true,
+          "distributedvpcrouter": false,
+          "regionlevelvpc": false,
+          "redundantvpcrouter": false,
+          "publicmtu": 1500,
+          "dns1": "8.8.4.4",
+          "hasannotations": false
+        }
+      },
+      "jobinstancetype": "None",
+      "created": "2026-11-14T18:58:14+0900",
+      "completed": "2026-11-14T18:58:14+0900",
+      "jobid": "4dcfc58c-1378-4e36-9812-c70589fbb0bb",
+      "jobstatus": 1
+    },
+    "actual": {
+      "id": "56e55bab-4be8-4f1a-9ec0-c6a59581a038",
+      "name": "qa-vpc1657-20261114-31-ui-user",
+      "displaytext": "qa-vpc1657-20261114-31-ui-user",
+      "state": "Enabled",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "zonename": "Zone",
+      "service": [
+        {
+          "name": "Dhcp",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "UserData",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "NetworkACL",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Lb",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            },
+            {
+              "name": "InternalLbVm"
+            }
+          ]
+        },
+        {
+          "name": "SourceNat",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "PortForwarding",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Vpn",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "StaticNat",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Dns",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        }
+      ],
+      "cidr": "10.249.31.48/28",
+      "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+      "vpcofferingname": "Default VPC offering",
+      "vpcofferingconservemode": false,
+      "created": "2026-11-14T18:58:14+0900",
+      "account": "qa-vpc1657-20261114-31-user",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "network": [],
+      "restartrequired": false,
+      "networkdomain": "cs1cacloud.internal",
+      "tags": [],
+      "fordisplay": true,
+      "distributedvpcrouter": false,
+      "regionlevelvpc": false,
+      "redundantvpcrouter": false,
+      "publicmtu": 1500,
+      "dns1": "8.8.4.4",
+      "keepmacaddressonpublicnic": true,
+      "hasannotations": false
+    }
+  },
+  {
+    "case": "final-85ca90-native-confirm-after-530-with-source-nat",
+    "job": {
+      "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domainpath": "ROOT",
+      "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+      "cmd": "org.apache.cloudstack.api.command.admin.vpc.CreateVPCCmdByAdmin",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "vpc": {
+          "id": "8b90407e-9737-4d38-bcea-e433079e4604",
+          "name": "qa-vpc1657-20261114-31-ui-final-snat",
+          "displaytext": "VPC1657 final input preservation",
+          "state": "Enabled",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "service": [
+            {
+              "name": "Dhcp",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "UserData",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "NetworkACL",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Lb",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                },
+                {
+                  "name": "InternalLbVm"
+                }
+              ]
+            },
+            {
+              "name": "SourceNat",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "PortForwarding",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Vpn",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "StaticNat",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            },
+            {
+              "name": "Dns",
+              "provider": [
+                {
+                  "name": "VpcVirtualRouter"
+                }
+              ]
+            }
+          ],
+          "cidr": "10.249.31.96/28",
+          "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+          "vpcofferingname": "Default VPC offering",
+          "vpcofferingconservemode": false,
+          "created": "2026-11-14T19:28:01+0900",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "network": [],
+          "restartrequired": false,
+          "networkdomain": "vpc1657.internal",
+          "tags": [],
+          "fordisplay": true,
+          "distributedvpcrouter": false,
+          "regionlevelvpc": false,
+          "redundantvpcrouter": false,
+          "publicmtu": 1500,
+          "dns1": "8.8.8.8",
+          "keepmacaddressonpublicnic": true,
+          "hasannotations": false
+        }
+      },
+      "jobinstancetype": "None",
+      "created": "2026-11-14T19:28:01+0900",
+      "completed": "2026-11-14T19:28:01+0900",
+      "jobid": "44aa2bab-a819-4487-ac8e-1911ae771536",
+      "jobstatus": 1
+    },
+    "actual": {
+      "id": "8b90407e-9737-4d38-bcea-e433079e4604",
+      "name": "qa-vpc1657-20261114-31-ui-final-snat",
+      "displaytext": "VPC1657 final input preservation",
+      "state": "Enabled",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "zonename": "Zone",
+      "service": [
+        {
+          "name": "Dhcp",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "UserData",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "NetworkACL",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Lb",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            },
+            {
+              "name": "InternalLbVm"
+            }
+          ]
+        },
+        {
+          "name": "SourceNat",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "PortForwarding",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Vpn",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "StaticNat",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Dns",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        }
+      ],
+      "cidr": "10.249.31.96/28",
+      "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+      "vpcofferingname": "Default VPC offering",
+      "vpcofferingconservemode": false,
+      "created": "2026-11-14T19:28:01+0900",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "network": [],
+      "restartrequired": false,
+      "networkdomain": "vpc1657.internal",
+      "tags": [],
+      "fordisplay": true,
+      "distributedvpcrouter": false,
+      "regionlevelvpc": false,
+      "redundantvpcrouter": false,
+      "publicmtu": 1500,
+      "dns1": "8.8.8.8",
+      "keepmacaddressonpublicnic": true,
+      "hasannotations": false
+    },
+    "sourceNatIps": [
+      {
+        "id": "956b6cb3-4bf8-41e4-b6df-12911f30e625",
+        "ipaddress": "10.10.31.105",
+        "state": "Allocated",
+        "issourcenat": true,
+        "vpcid": "8b90407e-9737-4d38-bcea-e433079e4604",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+      }
+    ]
+  }
+]

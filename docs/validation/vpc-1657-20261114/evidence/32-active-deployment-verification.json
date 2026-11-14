@@ -1,0 +1,39 @@
+{
+  "http": 200,
+  "staticFiles": 695,
+  "allManifestHashesMatch": true,
+  "webInfMetaInfConfigsJarPidAndLargeImagePreserved": true,
+  "pid": "2422731",
+  "indexSha256": "6f8dbe0f92d6acb605f99ee3a243e5d59c22f512fd2aee780f08055967ddf83f",
+  "markers": {
+    "vpc-create-receipt:v1:": [
+      "js/chunk-2630ac2f.9cbd5267.js"
+    ],
+    "message.vpc.create.gateway.offering.policy": [
+      "js/chunk-40306c46.04051900.js"
+    ],
+    "vpc-migration:v1:": [
+      "js/chunk-1fec2529.853dcc75.js"
+    ],
+    "vpc-restart:v1:": [
+      "js/chunk-56783d16.dcb2b2ce.js"
+    ],
+    "vpc-private-gateway:v1:": [
+      "js/chunk-40306c46.04051900.js"
+    ],
+    "vpc.offering.operation.v1:": [
+      "js/chunk-18c5d0ca.036fbf9b.js"
+    ],
+    "blockingLoadingState": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ],
+    "fetchSyncProgress": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ],
+    "extractJobId": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ]
+  },
+  "createFormVShowAnd530GuardPresent": true,
+  "webapp": "/usr/share/cloudstack-management/webapp"
+}

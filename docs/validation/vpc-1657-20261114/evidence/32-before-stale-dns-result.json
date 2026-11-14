@@ -1,0 +1,7 @@
+{
+  "text": "VPC 추가\n이름\n설명\nZone\n Zone\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nCIDR\n네트워크 도메인\nVPC 오퍼링\nqa-vpc1657-20261114-32-no-dns\n서비스용 네트워크의 라우터에 대한 IPv4 주소\n공용 NIC의 MAC 주소 유지\n시작\n취소\n확인",
+  "notifications": [
+    "요청 실패 (431)DNS can not be specified for VPCs with offering that do not support DNS service"
+  ],
+  "fault": "none; real old UI submit"
+}

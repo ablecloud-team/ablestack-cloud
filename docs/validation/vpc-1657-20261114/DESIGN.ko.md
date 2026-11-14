@@ -1,9 +1,20 @@
 <!--
-Licensed to the Apache Software Foundation (ASF) under one or more
-contributor license agreements. See NOTICE for copyright ownership.
-The ASF licenses this file under the Apache License, Version 2.0.
-http://www.apache.org/licenses/LICENSE-2.0
-Distributed on an AS IS BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND.
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
 -->
 
 # #1657 VPC 생성 조건·후보와 API 노출 정책
@@ -33,6 +44,11 @@ L2 게이트웨이 오퍼링 6건은 HTTP431로 생성 전에 거부됐다. 총 
 | VPC 오퍼링 | Zone·대상 소유 도메인·Enabled·NSX/ROUTED 조건과 제공자 진단 | 첫 원소 접근을 제거하고 선택/필터 사유를 분리한다. 선택 직전과 제출 직전 동일 범위로 확인한다 |
 | DNS/IPv6 DNS/AS/MTU/라우터 IP | 기존 조건부 옵션 유지·실제 조건에만 전송 | No-DNS 전환 시 DNS 제거, IPv4에서 IPv6 DNS 제거, NATTED에서 cidrsize/AS 제거. NSX/Netris가 관리하는 Source NAT IP를 직접 보내지 않는다 |
 | 외부 제공자/IPv6/Dynamic | 기존 조건부 경로를 보존하되 추가 환경 확인 표시 | 제공자 설정 조회와 외부 장비/세션 동작을 구분한다. 미구성 BGP/IPv6/NSX/Netris/Netscaler 동작 성공을 발표하지 않는다 |
+| `name`, `displaytext`, `networkdomain`, `start` | 일반 생성 UI 유지 | 실제 정의 생성에서 이름·설명·도메인과 명시 `start=false`를 검증했다. 기존 라우터 시작/일반 네트워크 회귀는 반복하지 않는다 |
+| `cidr`, `cidrsize`, `asnumber` | 주소·라우팅 모드 조건에 맞는 UI | NATTED는 CIDR, ROUTED는 크기 또는 Root의 직접 CIDR 중 하나만 전송한다. Dynamic/AS 지정 오퍼링의 AS는 해당 Zone의 최신 미할당 번호만 사용한다. 실제 AS 풀은 없어 양성 실행은 미검증이다 |
+| `publicmtu`, `userouteripresolver`, IPv6 DNS | Zone·제공자·메타데이터 조건부 UI | 두 클러스터의 MTU 직접 지정은 비활성이고 NSX/IPv6 환경은 없다. 조건/초기화/전송은 단위 검증이며 실제 장비 동작 PASS로 합산하지 않는다 |
+| `keepmacaddressonpublicnic` | Root 관리자 UI, 다른 역할은 서버 기본값 유지 | Root의 명시 true/false 요청과 VPC 응답 boolean을 확인했다. 일반 사용자 요청에는 인자를 붙이지 않는다 |
+| `fordisplay` | 서버의 기본 표시 유지, 고급 지정은 API 전용 | 생성 UI는 숨김 VPC를 만들지 않는다. 임의 폼 값도 whitelist 밖이면 전송하지 않는다 |
 
 ## 구현 계약
 

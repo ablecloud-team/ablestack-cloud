@@ -1,0 +1,1766 @@
+{
+  "listVPCs": [
+    {
+      "id": "876d40cb-64e6-42a8-a5d4-1122c7c0f1b8",
+      "name": "qa-gn1569-31-reg-vpc",
+      "state": "Enabled",
+      "account": "qa-gn1569-31-owner",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "2c41c280-c915-4952-ab59-a527bf248c94",
+      "name": "rt1230-offline-custom-cni-r29-vpc",
+      "state": "Enabled",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    }
+  ],
+  "listPrivateGateways": [],
+  "listStaticRoutes": [],
+  "listNetworks": [
+    {
+      "id": "ad1a8462-ed3d-46f6-894e-e630f0484c13",
+      "name": "qa-gn1612-31-warm-internal-tier",
+      "state": "Implemented",
+      "account": "qa-gn1569-31-owner",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "6a09e40c-0585-4e08-bc3c-c5003f178cd9",
+      "name": "qa-gn1569-31-scope-account",
+      "state": "Setup",
+      "account": "qa-gn1569-31-followup-consumer",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "2de83b57-a297-4bae-868e-cd31d1292f12",
+      "name": "qa-gn1569-31-scope-subdomains",
+      "state": "Setup",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "b92b3567-2b70-47db-8c62-89bec746b5fd",
+      "name": "qa-gn1569-31-scope-domain",
+      "state": "Setup",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "b55e3a03-25f0-4790-b576-71d736b5995b",
+      "name": "qa-gn1569-31-scope-all",
+      "state": "Setup",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "87601b32-f211-4609-819f-6d0f4810b788",
+      "name": "qa-gn1569-31-shared-reg",
+      "state": "Setup",
+      "account": "qa-gn1569-31-owner",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "4a5ac294-90e7-418c-9755-b17f4a9b78f3",
+      "name": "qa-gn1569-31-reg-tier",
+      "state": "Implemented",
+      "account": "qa-gn1569-31-owner",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "b056b626-fe5e-4b75-ba17-78e421162dd7",
+      "name": "qa-gn1569-31-nosnat",
+      "state": "Setup",
+      "account": "qa-gn1569-31-owner",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "56afc870-edf9-4251-bde5-bcdf6b77fa12",
+      "name": "k8-kernel-update-test-network",
+      "state": "Implemented",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "710d2c0d-1992-40c8-8846-1478110be4e6",
+      "name": "AS-PROD-31-AS01-userNetwork",
+      "state": "Allocated",
+      "account": "epic1346-as01-user31",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "2bc57a4a-89ed-46c0-afb4-5d1c2faee549",
+      "name": "AS-PROD-31-AS01-net",
+      "state": "Allocated",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "18733c35-2768-4f0e-a5fb-b7f2f4c12382",
+      "name": "E1335-31-permission-user-L2",
+      "state": "Setup",
+      "account": "epic1335-user31",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "ae274fff-3d8e-4285-ac73-26a767c1fea7",
+      "name": "E1335-VM-Origin-L2",
+      "state": "Setup",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "b18b4600-6f42-4827-bbba-253a2cfed320",
+      "name": "k8s-ui1330-gfs2-net",
+      "state": "Implemented",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "1a3d2a69-b66a-4afa-9fb2-c40a87a754db",
+      "name": "rt1230-offline-custom-cni-r34-tier",
+      "state": "Allocated",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "79f125f2-8411-48ce-a96a-4a815f39d164",
+      "name": "rt1230-offline-custom-cni-r31-tier",
+      "state": "Allocated",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "e2ebdb86-75f7-498e-bfac-82d1796af5e2",
+      "name": "rt1230-offline-custom-cni-r29-tier",
+      "state": "Allocated",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "957281d8-692d-4761-9adb-a3f5567b40d7",
+      "name": "rt1230-v13412-external-etcd-gfs2-r18-net",
+      "state": "Implemented",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "b3e7c062-c074-43cf-8374-0a3f74368874",
+      "name": "rt1230-v13412-ha-gfs2-r17-net",
+      "state": "Implemented",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "ea344bee-6633-41df-861e-c2eaf66fa5c9",
+      "name": "rt1230-v1342-gfs2-r16-net",
+      "state": "Implemented",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "ba4d479d-304a-4adf-8a80-aa042ebb2a93",
+      "name": "rt1230-v1371-gfs2-r15-net",
+      "state": "Implemented",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "0fa6be3d-2c14-437c-9e88-bb3bacae74e6",
+      "name": "rt1230-v1365-gfs2-r14-net",
+      "state": "Implemented",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "4734b8f0-06e5-43c3-8263-fe2ab9f493bd",
+      "name": "rt1230-v1359-gfs2-r13-net",
+      "state": "Implemented",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "baed64d8-dc13-4868-a53c-f86b2d663297",
+      "name": "rt1230-v1365-gfs2-r9-net",
+      "state": "Implemented",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "41f095bf-79b7-422e-9eb3-29946b948467",
+      "name": "rt1230-gfs2-v13412-r5-net",
+      "state": "Implemented",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "aab34179-3277-4948-8409-8e32b658ecc4",
+      "name": "rt1230-gfs2-v13412-r3-net",
+      "state": "Implemented",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "c865539a-00db-4f9a-bfe1-b1dc53e323c9",
+      "name": "epic1216-acl-user-b",
+      "state": "Setup",
+      "account": "epic1216-user-b",
+      "domainid": "1c32dd7e-dde2-47f0-b551-8e2e448fb110",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "2e440c60-362e-4dc7-9d76-bed0c801b9ab",
+      "name": "epic1216-acl-user-a",
+      "state": "Setup",
+      "account": "epic1216-user-a",
+      "domainid": "41104588-fae9-495a-be0c-557230dafdf2",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "a037eecd-629e-446b-b0c4-f56674d99e0c",
+      "name": "Admin-Isoloated-Net",
+      "state": "Implemented",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "0e7813ec-b262-47e2-9b60-ccde56e16a70",
+      "name": "L2-Test",
+      "state": "Setup",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "d2fb4fd9-e933-4862-8527-5c2d92bf8c71",
+      "name": "ADMIN-L2-Network",
+      "state": "Setup",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    }
+  ],
+  "listNetworkACLLists": [
+    {
+      "id": "08e2e719-bc1b-4071-b967-6eb815707e37",
+      "name": "qa-gn1569-31-reg-acl"
+    },
+    {
+      "id": "21c4108b-b135-4270-bce6-5fcb181d9eb7",
+      "name": "rt1230-offline-custom-cni-r29-acl"
+    },
+    {
+      "id": "8cc96409-b253-11f1-a895-0024814c313f",
+      "name": "default_allow"
+    },
+    {
+      "id": "8cc93567-b253-11f1-a895-0024814c313f",
+      "name": "default_deny"
+    }
+  ],
+  "listPhysicalNetworks": [
+    {
+      "id": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+      "name": "Physical Network 1",
+      "state": "Enabled",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "1f1e349b-2895-4248-9856-22457d737bf4",
+      "name": "qa-pvlan1599-31",
+      "state": "Enabled",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    }
+  ],
+  "listZones": [
+    {
+      "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "name": "Zone"
+    }
+  ],
+  "listVPCOfferings": [
+    {
+      "id": "49767c4b-61bd-4535-9957-af9908e220f1",
+      "name": "Default VPC offering",
+      "state": "Enabled"
+    },
+    {
+      "id": "99610eae-9728-4741-879d-303372ce954a",
+      "name": "Default VPC  offering with Netscaler",
+      "state": "Enabled"
+    },
+    {
+      "id": "c92622b0-692f-4d0e-a948-6db0f6ec6159",
+      "name": "Redundant VPC offering",
+      "state": "Enabled"
+    },
+    {
+      "id": "7f586547-1949-44bd-8dc1-0a8d9fdaf177",
+      "name": "VPC offering with NSX - NAT Mode",
+      "state": "Enabled"
+    },
+    {
+      "id": "b6e0f549-a4f8-4f6f-8453-4d1c5c3bc941",
+      "name": "VPC offering with NSX - Route Mode",
+      "state": "Enabled"
+    },
+    {
+      "id": "c7e7e72b-1123-4a42-b909-2f9d986e3c65",
+      "name": "VPC offering with Netris - Route Mode",
+      "state": "Enabled"
+    },
+    {
+      "id": "d64a752e-71cd-4844-bc51-9a3937b14a3b",
+      "name": "VPC offering with Netris - NAT Mode",
+      "state": "Enabled"
+    }
+  ],
+  "listRouters": [
+    {
+      "id": "e0940f20-822d-4803-bf23-d82d0cac5240",
+      "name": "r-100-VM",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "274275d2-43ed-46e0-8f47-3716fd1a01f8",
+      "name": "r-161-VM",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "7ef7b263-c156-4d50-b742-c7e5863f7336",
+      "name": "r-175-VM",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "a240174c-2cfd-48a0-96de-1513a6066bf1",
+      "name": "r-192-VM",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "4f8b76b9-800a-454c-bf86-3d79eafe903f",
+      "name": "r-218-VM",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "5a62b46c-1e14-4a34-929e-98a743afc799",
+      "name": "r-226-VM",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "3e98d959-cb12-4a1e-947d-074a55a333ad",
+      "name": "r-232-VM",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "2c5c9be5-27cc-4b1a-9511-e71ca7d22ae4",
+      "name": "r-242-VM",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "7aee004d-4cb5-4650-adb2-cf777770a823",
+      "name": "r-248-VM",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "f64a0a5a-e043-44f4-879a-4b705e516dc5",
+      "name": "r-255-VM",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "c303216e-68ab-42ed-859d-b736155885c8",
+      "name": "r-307-VM",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "8caf5062-268a-4ce3-8507-b70dc909f51e",
+      "name": "r-348-VM",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "d7597ad5-5a3f-4f21-8218-d956e01814a6",
+      "name": "r-926-VM",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "e8c62cb2-c214-43af-8155-48d2f74e6298",
+      "name": "r-940-VM",
+      "state": "Running",
+      "account": "qa-gn1569-31-owner",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "5b6290e8-dea7-4e00-9431-8d25bfd4a534",
+      "name": "r-986-VM",
+      "state": "Running",
+      "account": "system",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "02c6fd6f-f5db-40da-ac91-f24935991bd5",
+      "name": "r-988-VM",
+      "state": "Running",
+      "account": "system",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "24f0cf40-5e82-4b1b-9712-339d0a846729",
+      "name": "r-989-VM",
+      "state": "Running",
+      "account": "system",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "16b6604b-11de-4f39-a73c-1c3b70b7b0be",
+      "name": "r-990-VM",
+      "state": "Running",
+      "account": "system",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "015c889c-c0d8-4889-9905-df465a08e949",
+      "name": "r-1011-VM",
+      "state": "Running",
+      "account": "qa-gn1569-31-owner",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "32037dd3-3f5b-46a1-b12e-224a13233f64",
+      "name": "r-1028-VM",
+      "state": "Running",
+      "account": "system",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    }
+  ],
+  "listVirtualMachines": [
+    {
+      "id": "05f940bb-5ca7-4f58-8e41-ed8440758f0b",
+      "name": "GFS-TEST-VM",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "36d5333d-670a-4644-8c68-1f1dc154ba3a",
+      "name": "W2025-GFS2-Sparse",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "2f35ea9a-7ff2-494f-a857-6527e0fb1976",
+      "name": "R10-Sparse",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "708d87cd-1d8a-4911-b22a-4211cdf1634f",
+      "name": "R10-Sparse-Clone1",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "dbdefe41-64a0-4ab1-a596-5d5f5131517c",
+      "name": "R10-Sparse-Clone2",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "1fdd690d-b0ca-45bf-9088-8534e409b866",
+      "name": "R10-Sparse-Clone3",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "3f135c5e-a3cf-4eec-9e90-51f3148c406d",
+      "name": "R10-Sparse-Clone4",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "c475abf7-2346-4015-9cef-001a78472c25",
+      "name": "R10-Sparse-Clone5",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "630888e1-bcef-4b40-9952-b3409a664bae",
+      "name": "VM-630888e1-bcef-4b40-9952-b3409a664bae",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "f4be8cb2-f649-47ef-bcd2-7b59b71d5471",
+      "name": "W2025-Sparse-Clone1",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "06c6d7a7-f4da-4c2f-9a9b-c43cd015f6d9",
+      "name": "W2025-Sparse-Clone2",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "9a2a9ac1-088e-40d5-b753-197a559b06e3",
+      "name": "W2025-Sparse-Clone3",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "4cb71960-fc75-43e1-9830-8f4ee198def7",
+      "name": "U26-Sparse",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "e7f843af-f39f-4a3e-b5fc-bcc458d40fe9",
+      "name": "ccccc",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "d3cd2c68-78e3-42dd-a944-7c5ce731e658",
+      "name": "Ubuntu22-Sparse",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "04125c04-cfa5-4f43-be41-39e3c7d536d3",
+      "name": "Ubuntu24-Sparse",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "40f046e8-7433-4cc8-a0f0-1bc60513d222",
+      "name": "Debian12-Sparse",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "b51c954a-45fc-4fdd-a395-e1b3b5b5d367",
+      "name": "Debian13-Sparse",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "c5ac0d8b-c004-4040-8334-d57586eee4c7",
+      "name": "Rocky9-Sparse",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "2785322f-54d0-4a5d-bf42-59bef03635d4",
+      "name": "Rocky8-Sparse",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "675696ba-a228-44c4-94c3-3c788808ce3d",
+      "name": "Windows22-Sparse",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "3ff1be7c-689c-4633-bcaa-060ccead098d",
+      "name": "Windows19-Sparse",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "c51bcc9c-e045-40d7-b215-e319b36c1d45",
+      "name": "Windows11-Sparse",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "77e627f0-c30c-41a1-9e4c-766eb13226de",
+      "name": "Rocky10-Process",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c",
+      "name": "Rocky9-Process",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "b2f056be-8072-4067-b84a-da4180ccfe64",
+      "name": "Rocky8-Process",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "785fcdf7-2d4e-4e76-97c9-e1ccea9900fe",
+      "name": "Ubuntu26-Process",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "90af4c7f-298f-4b43-afc3-8192f8ee13e0",
+      "name": "Ubuntu24-Process",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "e338decb-58bf-4ade-875b-e6e937c67f3c",
+      "name": "Ubuntu22-Process",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "dd0714e4-2110-48e9-b964-f63a58580ea3",
+      "name": "Debian12-Process",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "c35058bd-a596-477d-83f3-3dae6dbc53aa",
+      "name": "Debian13-Process",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "1203c136-d6dd-4574-8294-b58729c3e73c",
+      "name": "JSVM-1",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "a673e1d4-51d3-4dd9-9753-0632100d2dc0",
+      "name": "JSVM-2",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "4f4ed3f6-a07c-49ee-9d44-4057167bd4d5",
+      "name": "JSVM-3",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "b5dfd5dc-ea95-409b-a80c-f670f0aca538",
+      "name": "Windows25-Process",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "413bffe3-9831-4bfd-81f5-4e34d6cf9d11",
+      "name": "Windows22-Process",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "4a84687b-475f-42cb-8f39-58f09d469d19",
+      "name": "Windows19-Process",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "26d02494-0fc2-4356-8eb3-414cc78adbe5",
+      "name": "Windows11-Process",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "5059ac67-e070-4dbf-8e2c-f56ca2c1a47e",
+      "name": "R10-Clone-Test",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "654fe7a4-ac32-47f6-8ba6-37c45720809c",
+      "name": "rt1230-gfs2-nfs-r4",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "cc19d37f-1997-4fa6-a790-a24c6cfff8fd",
+      "name": "rt1230-gfs2-nfs-r9",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "dcced222-bc4e-4d62-bf58-163f84c8db9e",
+      "name": "k8s-lifecycle31-v1342-gfs2-r10-control-1a1104d0e28",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "581dbb97-0a98-4e62-b8fb-b63d38658404",
+      "name": "k8s-lifecycle31-v1342-gfs2-r10-node-1a1104d4352",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "d9b1866e-3d77-4dc3-a04f-f9da96744e8e",
+      "name": "k8s-lifecycle31-v1342-gfs2-r10-node-1a1104d7362",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "ea22f68a-445a-47ee-9e8a-0d788239d4e9",
+      "name": "k8s-lifecycle31-v1349-gfs2-r11-control-1a1107396f6",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "fe40dc29-baa6-4b9a-aee5-a4d5d46796b6",
+      "name": "k8s-lifecycle31-v1349-gfs2-r11-node-1a11073c7e1",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "1ccaff45-bfdf-4b19-91cd-09ef21c6c64b",
+      "name": "k8s-lifecycle31-v1349-gfs2-r11-node-1a11073ff3e",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "70fa4a54-6aaf-4a98-afc9-8c0258303b47",
+      "name": "k8s-lifecycle31-v13412-gfs2-r12-control-1a110d2d317",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "6813d7b8-eb20-4277-8c23-6959cae7b48a",
+      "name": "k8s-lifecycle31-v13412-gfs2-r12-node-1a110d3089c",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "940c1031-36d9-4505-b66e-f23d9fca0af0",
+      "name": "k8s-lifecycle31-v13412-gfs2-r12-node-1a110d33df6",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "a4519646-0fc5-4f57-b6ee-8195eee8e6d1",
+      "name": "k8s-lifecycle31-v1359-gfs2-r13-control-1a111566cc0",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "90a7f3fa-5674-4fc4-a3e4-a72f1530c1b3",
+      "name": "k8s-lifecycle31-v1359-gfs2-r13-node-1a11156a2dd",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "f7dda5d1-ef35-457e-9658-ad926d433646",
+      "name": "rt1230-gfs2-nfs-r13",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "45cd82fc-fe24-43be-a72d-717b15a3572d",
+      "name": "k8s-lifecycle31-v1359-gfs2-r13-node-1a11156e008",
+      "state": "Stopped",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "78cf8fe8-0542-4f76-899d-0d67e0bb3bdd",
+      "name": "rt1230-gfs2-nfs-r14",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "3322f877-9275-4dfb-9a78-5807643c4d9c",
+      "name": "k8s-lifecycle31-v1365-gfs2-r14-control-1a11187d008",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "e7fd5a23-eb83-40b8-8ceb-4acfde1e5026",
+      "name": "k8s-lifecycle31-v1365-gfs2-r14-node-1a111880452",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "d3f477db-e142-4392-a2b3-6defd01944f5",
+      "name": "k8s-lifecycle31-v1365-gfs2-r14-node-1a1118838d2",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "1cb3a5ce-0d23-4818-bf6d-a32d72d9a237",
+      "name": "rt1230-gfs2-nfs-r15",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "2bc185d1-b52e-4c92-b018-0e284ccbb73e",
+      "name": "k8s-lifecycle31-v1371-gfs2-r15-control-1a1119d4621",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "e94939f1-ff13-4aaf-9e70-d21581c2cd95",
+      "name": "k8s-lifecycle31-v1371-gfs2-r15-node-1a1119d7e04",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "5887ae10-1f39-4ba4-a80a-97297c958114",
+      "name": "k8s-lifecycle31-v1371-gfs2-r15-node-1a1119db426",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "aef0ce9e-f956-4740-9e18-bbb2c1a9d797",
+      "name": "rt1230-gfs2-nfs-r16",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "72e7c09b-3b13-4332-848c-35b3577e8aaf",
+      "name": "rt1230-gfs2-nfs-r17",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "f3bfe51e-4601-432e-8ce0-c1320035c5fa",
+      "name": "rt1230-gfs2-nfs-r18",
+      "state": "Running",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "3d0d7299-be08-4624-8a24-b2d0431fe46c",
+      "name": "sdrdsf",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "97828f05-0c3a-4711-9041-05a1557b2db1",
+      "name": "VM-Clone-TEST",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "f583bb20-8774-4dc0-acd4-00d8883e887d",
+      "name": "Windows11-Clone-TEST",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "5d6b08d0-c573-4202-8343-ccd3c520fd84",
+      "name": "VM-5d6b08d0-c573-4202-8343-ccd3c520fd84",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "118d329f-f088-446e-9bc3-3272491d8c7d",
+      "name": "k8s-ui1330-final-managed-control-1a11a9b68b8",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "278e059b-c426-4c8b-a7b2-5e6a804b4041",
+      "name": "k8s-ui1330-final-managed-node-1a11a9b9ae6",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "38b847ad-a6dc-45c1-92ab-3dbcde4949c9",
+      "name": "E1335-31-L-BIOS-seed",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "e4f0c7cf-9302-4da0-87c2-268c43430367",
+      "name": "E1335-31-L-BIOS-volume-off",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "944774d1-84cf-4527-a57d-7e4c724ae9d6",
+      "name": "E1335-31-L-BIOS-snapshot-off",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "49f17319-2a58-4a73-9b62-15c68ffe1248",
+      "name": "E1335-31-L-BIOS-volume-on",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "f75b6f21-9d5f-4fa7-8a64-e424301378bb",
+      "name": "E1335-31-L-BIOS-snapshot-on-data-two",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "21e1d229-819e-46af-a18c-ab0856d439f0",
+      "name": "E1335-31-W-UEFI-seed-r2",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "5dbc658d-f6a3-46d4-9afd-3dd9768a3880",
+      "name": "E1335-31-template-prefill-r3",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "44f52be4-0c5c-46c7-9121-69490162a712",
+      "name": "E1335-31-concurrent-adopt-a",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "79748c3a-b0ce-40b9-8537-7c4c8b599ae9",
+      "name": "E1335-31-ISO-two-media-regression",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "2c0cc0bd-1a16-4d17-aaff-2820780304d8",
+      "name": "E1335-31-ISO-two-media-no-configdrive",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "4d472e96-a267-48ea-9ff4-96b129b2e669",
+      "name": "E1335-31-W-UEFI-volume-off",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "c6e11c06-0db9-4423-8429-790379edba48",
+      "name": "E1335-31-W-UEFI-volume-on",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "5769363e-cc47-4d60-8806-5a5959b207c9",
+      "name": "E1335-31-W-UEFI-snapshot-off",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "bac37bfb-d130-4262-b092-58465ce662ff",
+      "name": "E1335-31-W-UEFI-snapshot-on",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "34c37d16-70ae-48ac-b2d0-32020e9ae57a",
+      "name": "E1335-31-L-BIOS-deleted-source-restore",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "a155f563-a12e-45cf-b840-d316ed1b7078",
+      "name": "E1335-31-permission-user-seed",
+      "state": "Stopped",
+      "account": "epic1335-user31",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "fd7ec902-03da-4ea8-80d4-07fc7cc0de5a",
+      "name": "E1335-31-permission-user-snapshot-create",
+      "state": "Stopped",
+      "account": "epic1335-user31",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "6b87c13f-20c5-4dba-9e2a-3dbb308c7c5f",
+      "name": "E1335-31-permission-user-volume-create-r2",
+      "state": "Stopped",
+      "account": "epic1335-user31",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "335883d4-319c-4234-8791-2df7870a4d48",
+      "name": "E1335-31-fault-management-qos",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "c6d83045-4156-4118-a4a8-0198a4a9837b",
+      "name": "E1335-31-fault-management-qos-r2",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "a40721ed-8267-49d0-8861-820a919851c5",
+      "name": "E1345-31-file-on",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "be399161-fde8-49f0-af32-0e24daa6a80d",
+      "name": "E1345-31-file-boot-on",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "01b08f41-e8d2-48d2-82a3-18e68ea6f666",
+      "name": "E1345-31-generic-snapshot-off",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "661829fb-df0f-4da4-8ffb-fe39860a2be9",
+      "name": "E1345-31-user-upload-off",
+      "state": "Stopped",
+      "account": "epic1335-user31",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "4f39826d-de7c-4316-ab2e-4d28ed5e2907",
+      "name": "E1345-31-local-off-r3",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "a795afba-36dc-4a37-b1e4-e4942d72d613",
+      "name": "E1345-31-url-on",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "bc35e1a5-5433-441d-b038-6bdc64d514ed",
+      "name": "E1345-31-concurrent-B",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "5d72f909-8c99-4726-8816-1c20f8621325",
+      "name": "VM-5d72f909-8c99-4726-8816-1c20f8621325",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "63ad5919-f090-4b2f-801f-377f2d178eb7",
+      "name": "test-thin-none",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "aefd8289-6959-4c4d-8b2b-25a2049bb6b2",
+      "name": "VM-aefd8289-6959-4c4d-8b2b-25a2049bb6b2",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "193368de-2271-4d6c-a97b-beb5a2347f9d",
+      "name": "VM-193368de-2271-4d6c-a97b-beb5a2347f9d",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "edb39d9b-1e33-4bfd-84db-af6b4d31a8f7",
+      "name": "tj-test-vm-1",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "25cb2b2c-21de-42cd-804f-39b73d4d875b",
+      "name": "tj-test-vm-2",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "33385865-bc81-44c1-bdd2-4548b8f435ad",
+      "name": "tj-test-vm-3",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "be7176b8-3840-4843-8a65-3aca706e1845",
+      "name": "VM-be7176b8-3840-4843-8a65-3aca706e1845",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "35a4f2d4-c4a9-4368-9d68-8aa279b6edf1",
+      "name": "VM-35a4f2d4-c4a9-4368-9d68-8aa279b6edf1",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "aa1b74a9-ba41-4e6f-aa75-45dc8738135e",
+      "name": "VM-aa1b74a9-ba41-4e6f-aa75-45dc8738135e",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "0c1abeaf-18bd-40d2-85eb-5c8e440ac0ec",
+      "name": "VM-0c1abeaf-18bd-40d2-85eb-5c8e440ac0ec",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "a3b50b22-7494-4d9b-beaf-86f504bb7894",
+      "name": "E1367-VM-DETAIL-31",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "698b48de-40c6-43c3-8e71-b9b698a3e149",
+      "name": "test-sparse-snapshot-01",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "d3cbe039-4519-4836-9b2b-94f2a0bf5f9e",
+      "name": "tj-sparse-vm-1",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "3b26f48f-d711-4648-8b0f-52311818011c",
+      "name": "tj-sparse-vm-2",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "09822f0b-c43f-4743-90e3-1d411e83a27e",
+      "name": "tj-sparse-vm-3",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "8e7cdafc-ed45-45ed-ab2f-724903354749",
+      "name": "VM-8e7cdafc-ed45-45ed-ab2f-724903354749",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "c742c655-e333-4f56-a830-7753adeff924",
+      "name": "VM-c742c655-e333-4f56-a830-7753adeff924",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "e3b14f81-89cf-4247-bbfd-4fa3023b76d8",
+      "name": "tj-win2025-1",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "9195ddfb-8f5b-43d7-b5c2-598495a75524",
+      "name": "tj-win2025-2",
+      "state": "Stopped",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "58d0aaf4-b6c6-4651-9fdb-2c20804a9274",
+      "name": "cube-test-1",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "d22a710a-7297-42fe-8e74-713f3f56e5b7",
+      "name": "cube-test-2",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "34647a4f-887c-4652-a6d7-a21ea8ece685",
+      "name": "cube-test-3",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "a0163421-e7ea-4c99-95dd-a94cf2125240",
+      "name": "k8-kernel-update-test-control-1a1af86a07e",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "4d39c461-0047-40da-83d7-6bcb149a688e",
+      "name": "k8-kernel-update-test-node-1a1af86c8ec",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "012a414e-5c4b-480d-8114-c6d2e1ccb70c",
+      "name": "k8-kernel-update-test-node-1a1af86ee74",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "cae707e9-1851-4ce1-a63c-ecd5173a64f7",
+      "name": "qa-gn1569-31-nosnat-vm",
+      "state": "Running",
+      "account": "qa-gn1569-31-owner",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "ecdb6b5b-3675-4878-af3b-04252f17a7ea",
+      "name": "qa-gn1569-31-scope-owner-vm",
+      "state": "Running",
+      "account": "qa-gn1569-31-followup-consumer",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "5adc4475-fc07-403d-ad2a-8e6f95595e47",
+      "name": "qa-gn1569-31-scope-child-vm",
+      "state": "Running",
+      "account": "qa-gn1569-31-scope-child",
+      "domainid": "d4f7b77a-b7ae-4b1b-9644-09611dfb66e0",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "1f6adf08-ba15-4afb-9f10-69fba5d18bd4",
+      "name": "qa-gn1569-31-scope-outsider-vm",
+      "state": "Running",
+      "account": "qa-gn1569-31-followup-outsider",
+      "domainid": "786cc789-53f0-473a-b6cb-c7d3dab8104e",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "b5243511-3851-4e2b-83f7-c905c8b47bbc",
+      "name": "rocky-95-airgap-repo-test",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "8558f355-43c8-47ac-b15d-f18d2e992bcd",
+      "name": "rocky-95-airgap-repo-test-2",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "95f9dac8-920a-475d-91ff-5bc015c15d0e",
+      "name": "qa-gn1616-31-allocated-vm",
+      "state": "Running",
+      "account": "qa-gn1569-31-owner",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    },
+    {
+      "id": "1f43f0f9-d83c-450f-b9d0-339411d521cd",
+      "name": "sharedfs-shraed-fs-1a1ce55eeac",
+      "state": "Running",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+    }
+  ],
+  "listAccounts": [
+    {
+      "id": "a75c97c6-b253-11f1-a895-0024814c313f",
+      "name": "admin",
+      "state": "enabled",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "acb967d5-f3ee-4672-8194-9422fd572430",
+      "name": "baremetal-system-account",
+      "state": "enabled",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "1157440e-c40b-476a-8d93-91e232fb2760",
+      "name": "epic1216-user-a",
+      "state": "enabled",
+      "domainid": "41104588-fae9-495a-be0c-557230dafdf2"
+    },
+    {
+      "id": "c347b33f-66d5-433f-8994-6ac54012939a",
+      "name": "epic1216-user-b",
+      "state": "enabled",
+      "domainid": "1c32dd7e-dde2-47f0-b551-8e2e448fb110"
+    },
+    {
+      "id": "4039e037-7bc7-436f-9bd0-b52e32e70b89",
+      "name": "epic1216-domain-admin",
+      "state": "enabled",
+      "domainid": "41104588-fae9-495a-be0c-557230dafdf2"
+    },
+    {
+      "id": "71e4d54f-4559-4f98-90da-6ed66bbe1a1a",
+      "name": "k1230-20261006",
+      "state": "enabled",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "81d568da-c5a9-413d-a69a-efe7e4a9ce11",
+      "name": "kubeadmin-d629aa4e",
+      "state": "enabled",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "91b9c1d8-7f34-4c28-ace3-85fc25d6e4c6",
+      "name": "epic1335-user31",
+      "state": "enabled",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "8da32d5a-e7fd-4309-9ef8-b2f97b02fee4",
+      "name": "epic1346-as01-user31",
+      "state": "enabled",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "f0271d26-aac4-49ca-95a4-c82a3bf016da",
+      "name": "epic1346-as01-limited31",
+      "state": "enabled",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "0f981bb7-b32c-4766-a990-6974c224d4d4",
+      "name": "qa-gn1569-31-owner",
+      "state": "enabled",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364"
+    },
+    {
+      "id": "0f0cc814-dae9-4615-9124-bdd0b701242a",
+      "name": "qa-gn1569-31-member",
+      "state": "enabled",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364"
+    },
+    {
+      "id": "73353822-7ca2-4187-8ef6-405e027fb1e9",
+      "name": "qa-gn1569-31-readonly",
+      "state": "enabled",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364"
+    },
+    {
+      "id": "b2f751dd-fbb1-4d78-98a2-abfa4bbac423",
+      "name": "qa-gn1597-31-ip-member",
+      "state": "enabled",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364"
+    },
+    {
+      "id": "917f7e74-63fb-41f7-913a-06a6a4702307",
+      "name": "qa-gn1597-31-ip-nonmember",
+      "state": "enabled",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364"
+    },
+    {
+      "id": "909d0a81-0c71-4de5-ad85-9e3b01e12d19",
+      "name": "qa-gn1597-31-ip-outside",
+      "state": "enabled",
+      "domainid": "786cc789-53f0-473a-b6cb-c7d3dab8104e"
+    },
+    {
+      "id": "cac52db4-8a00-428f-8480-b760550efc22",
+      "name": "qa-gn1569-31-followup-consumer",
+      "state": "enabled",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364"
+    },
+    {
+      "id": "c7cb0b2f-74ee-46e8-828d-fa0b73e3c567",
+      "name": "qa-gn1569-31-followup-outsider",
+      "state": "enabled",
+      "domainid": "786cc789-53f0-473a-b6cb-c7d3dab8104e"
+    },
+    {
+      "id": "f9d5b939-14c6-4b05-a1dc-5874f5fa03bd",
+      "name": "qa-gn1569-31-scope-peer",
+      "state": "enabled",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364"
+    },
+    {
+      "id": "fa90f3b4-6d10-40fe-9d85-4f3599adabdc",
+      "name": "qa-gn1569-31-scope-child",
+      "state": "enabled",
+      "domainid": "d4f7b77a-b7ae-4b1b-9644-09611dfb66e0"
+    },
+    {
+      "id": "d075f786-8e92-458d-b219-d17f786a4823",
+      "name": "qa-gn1569-31-scope-domainadmin",
+      "state": "enabled",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364"
+    },
+    {
+      "id": "ab5fbae4-4111-4835-9284-f0fe1139a5db",
+      "name": "qa-gn1569-31-scope-readonly",
+      "state": "enabled",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364"
+    },
+    {
+      "id": "b3047cd0-68c8-4558-8500-62536943d36d",
+      "name": "qa-gn1569-31-vpn-lb-readonly",
+      "state": "enabled",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364"
+    },
+    {
+      "id": "2b11a017-5049-40bd-bc4b-61ccec9adba8",
+      "name": "qa-gn1620-31-ssl-deny",
+      "state": "enabled",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364"
+    },
+    {
+      "id": "9c755aba-9e65-4c60-8148-2eb565581aaf",
+      "name": "qa-gn1622-31-ssl-allow",
+      "state": "enabled",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364"
+    },
+    {
+      "id": "2d8a7181-9bf6-4c1b-8dd6-20d7c1fcd780",
+      "name": "qa-gn1622-31-ssl-read-deny",
+      "state": "enabled",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364"
+    }
+  ],
+  "listProjects": [
+    {
+      "id": "73cac73e-ab37-417c-91dd-793de797e8f4",
+      "name": "epic1216-project-a",
+      "state": "Active",
+      "domainid": "41104588-fae9-495a-be0c-557230dafdf2"
+    },
+    {
+      "id": "d629aa4e-eb4a-43fb-abf6-45ad86cae21c",
+      "name": "rt1230-vpc-project-r26",
+      "state": "Active",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "94bc0ded-ace2-4dd8-b1d6-dab52fe07af5",
+      "name": "E1335-Permission-31",
+      "state": "Active",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "fb318714-bc01-4be5-9e33-0f49a7013127",
+      "name": "AS-PROD-31-AS01-project",
+      "state": "Active",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "ded3436a-00a8-4043-990d-69200d9a321b",
+      "name": "qa-gn1597-31-project",
+      "state": "Active",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364"
+    },
+    {
+      "id": "dc9a2e6e-c977-44c2-b87c-dcf3d8e70687",
+      "name": "qa-gn1569-31-conditional",
+      "state": "Active",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364"
+    },
+    {
+      "id": "59614883-4085-4a76-99da-b8a1e3a78eed",
+      "name": "qa-gn1569-31-shared-reg",
+      "state": "Active",
+      "domainid": "f3772036-4b8f-41fd-83f2-b71751950364"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "requests": 1,
+  "params": {
+    "command": "createVPC",
+    "response": "json",
+    "name": "qa-vpc1657-20261114-31-ui-final-snat",
+    "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+    "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+    "account": "admin",
+    "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+    "start": "false",
+    "displaytext": "VPC1657 final input preservation",
+    "networkdomain": "vpc1657.internal",
+    "cidr": "10.249.31.96/28",
+    "dns1": "8.8.8.8",
+    "sourcenatipaddress": "10.10.31.105",
+    "keepmacaddressonpublicnic": "true",
+    "customjobid": "44aa2bab-a819-4487-ac8e-1911ae771536"
+  },
+  "truncated": false
+}

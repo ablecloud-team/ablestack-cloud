@@ -1,0 +1,26 @@
+{
+  "source": "85ca902dd1e1b93cf10b52a09c4edff79b711632",
+  "http": 530,
+  "params": {
+    "command": "createVPC",
+    "response": "json",
+    "name": "qa-vpc1657-20261114-31-ui-final-snat",
+    "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+    "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+    "account": "admin",
+    "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+    "start": "false",
+    "displaytext": "VPC1657 final input preservation",
+    "networkdomain": "vpc1657.internal",
+    "cidr": "10.249.31.96/28",
+    "dns1": "8.8.8.8",
+    "sourcenatipaddress": "10.253.31.9",
+    "keepmacaddressonpublicnic": "true",
+    "customjobid": "e2c6f884-966d-452d-a6b3-632ee6a0dfae"
+  },
+  "cidr": "10.249.31.96/28",
+  "sourceNat": "10.253.31.9",
+  "dns1": "8.8.8.8",
+  "text": "VPC 추가\n530: new source NAT address cannot be acquired\nVPC의 소유자·오퍼링과 조건부 설정을 확인하십시오.\n재시도\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\nDefault VPC offering\n사용할 수 없는 오퍼링 (3)\nDefault VPC offering\n49767c4b-61bd-4535-9957-af9908e220f1\nIPv4 · NATTED / Static · Enabled\nDhcp: VpcVirtualRouter; UserData: VpcVirtualRouter; NetworkACL: VpcVirtualRouter; Lb: VpcVirtualRouter, InternalLbVm; SourceNat: VpcVirtualRouter; PortForwarding: VpcVirtualRouter; Vpn: VpcVirtualRouter; StaticNat: VpcVirtualRouter; Dns: VpcVirtualRouter\n제공자 설정 점검을 통과했습니다.\nPhysical Network 1 · 51cdd7ed-ab33-419d-98fc-8e7eabea1194\n\n구성 확인 결과입니다. 외부 장비 준비 상태와 실제 통신은 별도로 확인해야 합니다.\n\nCIDR\n네트워크 도메인\nDNS 1\nDNS 2\n서비스용 네트워크의 라우터에 대한 IPv4 주소\n공용 NIC의 MAC 주소 유지\n시작\n취소\n확인",
+  "truncated": false
+}

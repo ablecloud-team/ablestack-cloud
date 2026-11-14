@@ -1,0 +1,173 @@
+{
+  "count": 1,
+  "api": [
+    {
+      "name": "listBgpPeers",
+      "description": "Lists Bgp Peers.",
+      "since": "4.20.0",
+      "isasync": false,
+      "related": "releaseBgpPeer",
+      "params": [
+        {
+          "name": "account",
+          "description": "the account which the Bgp Peer is dedicated to. Must be used with the domainId parameter.",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "isdedicated",
+          "description": "Lists only dedicated or non-dedicated Bgp Peers. If not set, lists all dedicated and non-dedicated BGP peers the domain/account can access.",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "zoneid",
+          "description": "UUID of zone to which the Bgp Peer belongs to.",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "listZones"
+        },
+        {
+          "name": "id",
+          "description": "UUID of the Bgp Peer.",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "listBgpPeers,releaseBgpPeer"
+        },
+        {
+          "name": "asnumber",
+          "description": "AS number of the Bgp Peer.",
+          "type": "long",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "domainid",
+          "description": "the domain ID which the Bgp Peer is dedicated to.",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "createDomain,listDomains,listDomains"
+        },
+        {
+          "name": "page",
+          "description": "",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "projectid",
+          "description": "project who which the Bgp Peer is dedicated to",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": ""
+        },
+        {
+          "name": "keyword",
+          "description": "List by keyword",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "pagesize",
+          "description": "",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        }
+      ],
+      "response": [
+        {},
+        {
+          "name": "created",
+          "description": "date when this bgp peer was created.",
+          "type": "date"
+        },
+        {
+          "name": "password",
+          "description": "password of bgp peer",
+          "type": "string"
+        },
+        {
+          "name": "ip6address",
+          "description": "IPv6 address of bgp peer",
+          "type": "string"
+        },
+        {
+          "name": "account",
+          "description": "the account of the bgp peer",
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "description": "id of the bgp peer",
+          "type": "string"
+        },
+        {
+          "name": "jobid",
+          "description": "The UUID of the latest async job acting on this object",
+          "type": "string"
+        },
+        {
+          "name": "ipaddress",
+          "description": "IPv4 address of bgp peer",
+          "type": "string"
+        },
+        {
+          "name": "zoneid",
+          "description": "id of zone to which the bgp peer belongs to.",
+          "type": "string"
+        },
+        {
+          "name": "domain",
+          "description": "the domain name of the bgp peer",
+          "type": "string"
+        },
+        {
+          "name": "jobstatus",
+          "description": "The current status of the latest async job acting on this object",
+          "type": "integer"
+        },
+        {
+          "name": "zonename",
+          "description": "name of zone to which the bgp peer belongs to.",
+          "type": "string"
+        },
+        {
+          "name": "details",
+          "description": "additional key/value details of the bgp peer",
+          "type": "map"
+        },
+        {
+          "name": "projectid",
+          "description": "the project id of the bgp peer",
+          "type": "string"
+        },
+        {},
+        {
+          "name": "asnumber",
+          "description": "AS number of bgp peer",
+          "type": "long"
+        },
+        {
+          "name": "project",
+          "description": "the project name of the bgp peer",
+          "type": "string"
+        },
+        {
+          "name": "domainid",
+          "description": "the domain ID of the bgp peer",
+          "type": "string"
+        }
+      ],
+      "httprequesttype": "GET"
+    }
+  ]
+}

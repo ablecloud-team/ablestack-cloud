@@ -1,0 +1,74 @@
+{
+  "source": "85ca902dd1e1b93cf10b52a09c4edff79b711632",
+  "exit": 0,
+  "seconds": 732.7,
+  "node": "v20.20.2",
+  "npm": "10.8.2",
+  "nodeOptions": "--openssl-legacy-provider --max-old-space-size=8192",
+  "sourceUiClean": true,
+  "fullCloudBuild": false,
+  "changedFiles": {
+    "ui/public/locales/en.json": "ad247cf7aae03502d53c3c26c2dfb0d77c32b24870b6e0660c34adc873e54ebb",
+    "ui/public/locales/ko_KR.json": "f9a24140235932bab343dec5eb11bcf38468ecafae88c57092ad02c911bae7c3",
+    "ui/src/config/section/network.js": "924eb8f94eb49b86346d1a598673279b9f9da9ca23ac6b73f7e691ab94bb4d2a",
+    "ui/src/utils/vpcCreate.js": "758f431a36ae616ec7db2ff813925ed6e197d17f9b38d607473a3981b613ab18",
+    "ui/src/views/network/CreateVpc.vue": "3c9637e6c75dcfe8d858089d54d5f75123c23e6914eea2b6783b621ed43223db",
+    "ui/src/views/network/PrivateGatewayCreate.vue": "beb78a3b4a3412471b9394a4559039ac73ae3491d3fcb261c5600581c6edb8fa",
+    "ui/tests/fixtures/vpcCreate.js": "12e20f33ae49525cb3ac0e1e23cc3d1d17b8e38fca58df678895a9aa8a33bbd8",
+    "ui/tests/unit/utils/vpcCreate.spec.js": "445ee6fa5d92665ea7eebaff5c4a4a9a78ce21aa9a77d1d15a78a7289ae0393c",
+    "ui/tests/unit/views/network/CreateVpc.spec.js": "439c113874c42d798b2e2211626f7f9d5de7db2035da5fd1caff8cf630dce247",
+    "ui/tests/unit/views/network/PrivateGatewayCreate.spec.js": "66d0037ec15d2d438d39e977d78d9c9801e31e89cee949c598a631bbb3b1fb64"
+  },
+  "lockfileSha256": "23379939285231d360907e8d7242206efd5359654b9903614788040680133ffc",
+  "indexSha256": "6f8dbe0f92d6acb605f99ee3a243e5d59c22f512fd2aee780f08055967ddf83f",
+  "appBundles": [
+    "js/app.8bc8338d.js"
+  ],
+  "markers": {
+    "vpc-create-receipt:v1:": [
+      "js/chunk-2630ac2f.9cbd5267.js"
+    ],
+    "vpc-create-dialog": [
+      "js/chunk-2630ac2f.9cbd5267.js"
+    ],
+    "message.vpc.create.gateway.offering.policy": [
+      "js/chunk-40306c46.04051900.js"
+    ],
+    "vpc-migration:v1:": [
+      "js/chunk-1fec2529.853dcc75.js"
+    ],
+    "message.vpc.migration.impact": [
+      "js/chunk-1fec2529.853dcc75.js"
+    ],
+    "vpc-restart:v1:": [
+      "js/chunk-56783d16.dcb2b2ce.js"
+    ],
+    "message.vpc.restart.results": [
+      "js/chunk-56783d16.dcb2b2ce.js"
+    ],
+    "vpc-private-gateway:v1:": [
+      "js/chunk-40306c46.04051900.js"
+    ],
+    "message.private.gateway.no.resubmit": [
+      "js/chunk-40306c46.04051900.js"
+    ],
+    "vpc.offering.operation.v1:": [
+      "js/chunk-18c5d0ca.036fbf9b.js"
+    ],
+    "message.vpc.offering.operation.no.resubmit": [
+      "js/chunk-18c5d0ca.036fbf9b.js"
+    ],
+    "message.success.clone.vpc.offering": [
+      "js/chunk-18c5d0ca.036fbf9b.js"
+    ],
+    "blockingLoadingState": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ],
+    "fetchSyncProgress": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ],
+    "extractJobId": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ]
+  }
+}

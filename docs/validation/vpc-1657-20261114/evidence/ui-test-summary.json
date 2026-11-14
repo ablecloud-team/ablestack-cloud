@@ -1,0 +1,47 @@
+{
+  "success": false,
+  "numPassedTestSuites": 387,
+  "numFailedTestSuites": 6,
+  "numPassedTests": 5995,
+  "numFailedTests": 13,
+  "source": "78498bbe5cf5ac1450324aa0ae4a04cb73bb12d7",
+  "baseline": "330ced29fc019185b09d25cf316f54175067adba",
+  "unchangedFailingFiles": [
+    "tests/unit/storageIscsiPreparationFailure.spec.js",
+    "tests/unit/views/compute/CreationSourceDeployment.spec.js",
+    "tests/unit/views/storage/SnapshotTabs.spec.js",
+    "tests/unit/views/storage/SmbShareRequestContract.spec.js",
+    "tests/unit/storageConfigDispatchFailure.spec.js",
+    "tests/unit/views/compute/VmGroupOwnership.spec.js"
+  ],
+  "same13FailuresReproducedOnBaseline": true,
+  "failedTests": [
+    "actual coordinator DAO/API dispatch rejection guidance restore preflight shows the protocol and original blocking codes without an apply claim",
+    "actual coordinator DAO/API dispatch rejection guidance the real serialized no-start failure renders its preserved code and dispatch-specific guidance",
+    "actual manager guard through coordinator and DAO renders its first public reason without rollback ambiguity",
+    "events server search resets the page and sends the same fixed resource and project",
+    "keeps incomplete creation ownership unresolved rather than falling back to admin {\"selectedAccount\": null, \"selectedAccountType\": \"Account\"}",
+    "keeps incomplete creation ownership unresolved rather than falling back to admin {\"selectedAccountType\": \"Project\", \"selectedProject\": null}",
+    "mounted SMB preflight and actual API submit contract fixed-create preview is derived from the parameters sent by the actual component",
+    "mounted SMB preflight and actual API submit contract fixed-update preview is derived from the parameters sent by the actual component",
+    "mounted SMB preflight and actual API submit contract inherit-create preview is derived from the parameters sent by the actual component",
+    "mounted SMB preflight and actual API submit contract ordinary-create preview is derived from the parameters sent by the actual component",
+    "policy events stay scoped to the policy UUID and project rather than its source volume",
+    "switching to a project without selecting one clears the prior account source",
+    "uses only the selected project when ownership changes to a project"
+  ],
+  "focused": {
+    "success": true,
+    "numPassedTestSuites": 3,
+    "numPassedTests": 86,
+    "numFailedTests": 0
+  },
+  "finalFocused": {
+    "success": true,
+    "numPassedTestSuites": 3,
+    "numPassedTests": 89,
+    "numFailedTests": 0,
+    "numFailedTestSuites": 0,
+    "source": "85ca902dd1e1b93cf10b52a09c4edff79b711632"
+  }
+}

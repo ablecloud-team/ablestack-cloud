@@ -1,0 +1,16 @@
+{
+  "headRefOid": "85ca902dd1e1b93cf10b52a09c4edff79b711632",
+  "statusCheckRollup": [
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-11-14T10:10:00Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/43583951910/job/132414366804",
+      "name": "triage",
+      "startedAt": "2026-11-14T10:09:56Z",
+      "status": "COMPLETED",
+      "workflowName": "PR Merge Conflict Check"
+    }
+  ],
+  "capturedAt": "2026-11-14T10:58:08.011978+00:00"
+}

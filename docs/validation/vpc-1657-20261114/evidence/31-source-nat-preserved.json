@@ -1,0 +1,25 @@
+{
+  "before": {
+    "id": "956b6cb3-4bf8-41e4-b6df-12911f30e625",
+    "ipaddress": "10.10.31.105",
+    "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+    "state": "Free",
+    "allocated": null,
+    "account": null,
+    "vpcid": null,
+    "associatednetworkid": null,
+    "issourcenat": false
+  },
+  "after": {
+    "id": "956b6cb3-4bf8-41e4-b6df-12911f30e625",
+    "ipaddress": "10.10.31.105",
+    "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+    "state": "Free",
+    "allocated": null,
+    "account": null,
+    "vpcid": null,
+    "associatednetworkid": null,
+    "issourcenat": false
+  },
+  "equal": true
+}

@@ -1,0 +1,7 @@
+{
+  "source": "398004f6ec54dc33bb57765f1024972a1751e55c",
+  "text": "VPC 추가\nVPC의 소유자·오퍼링과 조건부 설정을 확인하십시오.\n재시도\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\nd64a752e-71cd-4844-bc51-9a3937b14a3b\nVPC offering with Netris - NAT Mode\n사용할 수 없는 오퍼링 (3)\nVPC offering with Netris - NAT Mode\nd64a752e-71cd-4844-bc51-9a3937b14a3b\nIPv4 · NATTED / Static · Enabled\nDhcp: VpcVirtualRouter; UserData: VpcVirtualRouter; NetworkACL: Netris; Lb: Netris; SourceNat: Netris; PortForwarding: Netris; Vpn: VpcVirtualRouter; StaticNat: Netris; Dns: VpcVirtualRouter\n이 오퍼링은 외부 장비·IPv6·동적 라우팅 환경의 별도 준비가 필요합니다. 제출 전에 실제 환경을 확인하십시오.\nPhysical Network 1 · 51cdd7ed-ab33-419d-98fc-8e7eabea1194\n\n구성 확인 결과입니다. 외부 장비 준비 상태와 실제 통신은 별도로 확인해야 합니다.\n\nCIDR\n네트워크 도메인\nDNS 1\nDNS 2\n공용 NIC의 MAC 주소 유지\n시작\n외부 제공자·IPv6·동적 라우팅 환경을 별도로 확인했습니다. 설정 점검만으로 장비 준비나 통신 동작이 보장되지는 않습니다.\n취소\n확인",
+  "confirmEnabled": false,
+  "sourceNatInputCount": 0,
+  "createSubmitted": false
+}

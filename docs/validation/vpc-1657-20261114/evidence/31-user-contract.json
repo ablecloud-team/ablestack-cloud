@@ -1,0 +1,75 @@
+[
+  {
+    "name": "listASNumbers",
+    "params": [
+      "account",
+      "page",
+      "networkid",
+      "pagesize",
+      "zoneid",
+      "asnrangeid",
+      "asnumber",
+      "keyword",
+      "domainid",
+      "vpcid",
+      "isallocated"
+    ]
+  },
+  {
+    "name": "createVPC",
+    "params": [
+      "zoneid",
+      "projectid",
+      "userouteripresolver",
+      "sourcenatipaddress",
+      "networkdomain",
+      "vpcofferingid",
+      "dns2",
+      "ip6dns1",
+      "cidrsize",
+      "cidr",
+      "domainid",
+      "publicmtu",
+      "account",
+      "bgppeerids",
+      "ip6dns2",
+      "start",
+      "displaytext",
+      "name",
+      "dns1",
+      "asnumber"
+    ]
+  },
+  {
+    "name": "createPrivateGateway",
+    "params": [
+      "ipaddress",
+      "netmask",
+      "sourcenatsupported",
+      "physicalnetworkid",
+      "networkofferingid",
+      "gateway",
+      "bypassvlanoverlapcheck",
+      "vpcid",
+      "aclid",
+      "vlan",
+      "associatednetworkid"
+    ]
+  },
+  {
+    "name": "listVPCOfferings",
+    "params": [
+      "id",
+      "pagesize",
+      "keyword",
+      "name",
+      "supportedservices",
+      "page",
+      "zoneid",
+      "displaytext",
+      "domainid",
+      "isdefault",
+      "state"
+    ]
+  }
+]

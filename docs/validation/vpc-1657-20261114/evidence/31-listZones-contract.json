@@ -1,0 +1,434 @@
+{
+  "count": 1,
+  "api": [
+    {
+      "name": "listZones",
+      "description": "Lists zones",
+      "isasync": false,
+      "related": "createZone,listZones",
+      "params": [
+        {
+          "name": "ids",
+          "description": "the IDs of the zones, mutually exclusive with id",
+          "type": "list",
+          "length": 255,
+          "required": false,
+          "since": "4.19.0",
+          "related": "createZone,listZones,listZones"
+        },
+        {
+          "name": "page",
+          "description": "",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "pagesize",
+          "description": "",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "available",
+          "description": "True if you want to retrieve all available Zones. False if you only want to return the Zones from which you have at least one Instance. Default is false.",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "networktype",
+          "description": "The Network type of the zone that the Instance belongs to",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "showcapacities",
+          "description": "Flag to display the capacity of the zones",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "domainid",
+          "description": "The ID of the domain associated with the zone",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "createDomain,listDomainChildren,listDomains,listDomains,moveDomain"
+        },
+        {
+          "name": "storageaccessgroup",
+          "description": "the name of the storage access group",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.21.0"
+        },
+        {
+          "name": "name",
+          "description": "The name of the zone",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "tags",
+          "description": "List zones by resource tags (key/value pairs)",
+          "type": "map",
+          "length": 255,
+          "required": false,
+          "since": "4.3"
+        },
+        {
+          "name": "id",
+          "description": "The ID of the zone",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "createZone,listZones,listZones"
+        },
+        {
+          "name": "keyword",
+          "description": "List by keyword",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "showicon",
+          "description": "Flag to display the resource image for the zones",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        }
+      ],
+      "response": [
+        {
+          "name": "type",
+          "description": "The type of the zone - core or edge",
+          "type": "string"
+        },
+        {},
+        {
+          "name": "domainid",
+          "description": "The UUID of the containing domain, null for public zones",
+          "type": "string"
+        },
+        {
+          "name": "gputotal",
+          "description": "Total GPUs in the Zone",
+          "type": "long"
+        },
+        {
+          "name": "resourcedetails",
+          "description": "Meta data associated with the zone (key/value pairs)",
+          "type": "map"
+        },
+        {
+          "name": "localstorageenabled",
+          "description": "True if local storage offering enabled, false otherwise",
+          "type": "boolean"
+        },
+        {
+          "name": "ip6dns1",
+          "description": "The first IPv6 DNS for the Zone",
+          "type": "string"
+        },
+        {
+          "name": "gpuused",
+          "description": "Used GPUs in the Zone",
+          "type": "long"
+        },
+        {
+          "name": "allowuserspecifyvrmtu",
+          "description": "Allow end users to specify VR MTU",
+          "type": "boolean"
+        },
+        {
+          "name": "name",
+          "description": "Zone name",
+          "type": "string"
+        },
+        {
+          "name": "icon",
+          "description": "Base64 string representation of the resource icon",
+          "type": "resourceiconresponse"
+        },
+        {
+          "name": "storageaccessgroups",
+          "description": "comma-separated list of storage access groups for the zone",
+          "type": "string"
+        },
+        {
+          "name": "provider",
+          "description": "External network provider if any",
+          "type": "string"
+        },
+        {
+          "name": "zonetoken",
+          "description": "Zone Token",
+          "type": "string"
+        },
+        {
+          "name": "asnrange",
+          "description": "AS Number Range",
+          "type": "string"
+        },
+        {
+          "name": "dns1",
+          "description": "The first DNS for the Zone",
+          "type": "string"
+        },
+        {
+          "name": "capacity",
+          "description": "The capacity of the Zone",
+          "type": "list",
+          "response": [
+            {
+              "name": "clusterid",
+              "description": "The Cluster ID",
+              "type": "string"
+            },
+            {
+              "name": "capacityused",
+              "description": "The capacity currently in use",
+              "type": "long"
+            },
+            {
+              "name": "capacitytotal",
+              "description": "The total capacity available",
+              "type": "long"
+            },
+            {
+              "name": "zoneid",
+              "description": "The Zone ID",
+              "type": "string"
+            },
+            {
+              "name": "capacityallocated",
+              "description": "The capacity currently in allocated",
+              "type": "long"
+            },
+            {
+              "name": "podid",
+              "description": "The Pod ID",
+              "type": "string"
+            },
+            {
+              "name": "zonename",
+              "description": "The Zone name",
+              "type": "string"
+            },
+            {
+              "name": "percentused",
+              "description": "The percentage of capacity currently in use",
+              "type": "string"
+            },
+            {
+              "name": "type",
+              "description": "The capacity type",
+              "type": "short"
+            },
+            {
+              "name": "clustername",
+              "description": "The Cluster name",
+              "type": "string"
+            },
+            {
+              "name": "podname",
+              "description": "The Pod name",
+              "type": "string"
+            },
+            {
+              "name": "name",
+              "description": "The capacity name",
+              "type": "string"
+            },
+            {
+              "name": "tag",
+              "description": "The tag for the capacity type",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "name": "displaytext",
+          "description": "The display text of the zone",
+          "type": "string"
+        },
+        {
+          "name": "routerprivateinterfacemaxmtu",
+          "description": "The maximum value the MTU can have on the VR's private interfaces",
+          "type": "integer"
+        },
+        {
+          "name": "allocationstate",
+          "description": "The allocation state of the cluster",
+          "type": "string"
+        },
+        {
+          "name": "internaldns2",
+          "description": "The second internal DNS for the Zone",
+          "type": "string"
+        },
+        {
+          "name": "domain",
+          "description": "Network domain name for the Networks in the zone",
+          "type": "string"
+        },
+        {
+          "name": "routerpublicinterfacemaxmtu",
+          "description": "The maximum value the MTU can have on the VR's public interfaces",
+          "type": "integer"
+        },
+        {
+          "name": "domainname",
+          "description": "The name of the containing domain, null for public zones",
+          "type": "string"
+        },
+        {
+          "name": "internaldns1",
+          "description": "The first internal DNS for the Zone",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "description": "Zone description",
+          "type": "string"
+        },
+        {
+          "name": "jobstatus",
+          "description": "The current status of the latest async job acting on this object",
+          "type": "integer"
+        },
+        {},
+        {
+          "name": "ismultiarch",
+          "description": "True, if zone contains clusters and hosts from different CPU architectures",
+          "type": "boolean"
+        },
+        {
+          "name": "tags",
+          "description": "The list of resource tags associated with zone.",
+          "type": "set",
+          "response": [
+            {
+              "name": "domainpath",
+              "description": "Path of the Domain associated with the tag",
+              "type": "string"
+            },
+            {
+              "name": "resourcetype",
+              "description": "Resource type",
+              "type": "string"
+            },
+            {
+              "name": "projectid",
+              "description": "The project ID the tag belongs to",
+              "type": "string"
+            },
+            {
+              "name": "value",
+              "description": "Tag value",
+              "type": "string"
+            },
+            {
+              "name": "resourceid",
+              "description": "ID of the resource",
+              "type": "string"
+            },
+            {
+              "name": "project",
+              "description": "The project name where tag belongs to",
+              "type": "string"
+            },
+            {
+              "name": "domainid",
+              "description": "The ID of the domain associated with the tag",
+              "type": "string"
+            },
+            {
+              "name": "key",
+              "description": "Tag key name",
+              "type": "string"
+            },
+            {
+              "name": "domain",
+              "description": "The domain associated with the tag",
+              "type": "string"
+            },
+            {
+              "name": "account",
+              "description": "The Account associated with the tag",
+              "type": "string"
+            },
+            {
+              "name": "customer",
+              "description": "Customer associated with the tag",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "name": "isnsxenabled",
+          "description": "True, if zone is NSX enabled",
+          "type": "boolean"
+        },
+        {
+          "name": "id",
+          "description": "Zone id",
+          "type": "string"
+        },
+        {
+          "name": "guestcidraddress",
+          "description": "The guest CIDR address for the Zone",
+          "type": "string"
+        },
+        {
+          "name": "ip6dns2",
+          "description": "The second IPv6 DNS for the Zone",
+          "type": "string"
+        },
+        {
+          "name": "securitygroupsenabled",
+          "description": "True if security groups support is enabled, false otherwise",
+          "type": "boolean"
+        },
+        {
+          "name": "hasannotations",
+          "description": "True if the entity/resource has annotations",
+          "type": "boolean"
+        },
+        {
+          "name": "jobid",
+          "description": "The UUID of the latest async job acting on this object",
+          "type": "string"
+        },
+        {
+          "name": "networktype",
+          "description": "The Network type of the zone; can be Basic or Advanced",
+          "type": "string"
+        },
+        {
+          "name": "dhcpprovider",
+          "description": "The DHCP Provider for the Zone",
+          "type": "string"
+        },
+        {
+          "name": "routedmodeenabled",
+          "description": "True, if routed Network/VPC is enabled",
+          "type": "boolean"
+        },
+        {
+          "name": "dns2",
+          "description": "The second DNS for the Zone",
+          "type": "string"
+        }
+      ],
+      "httprequesttype": "GET"
+    }
+  ]
+}

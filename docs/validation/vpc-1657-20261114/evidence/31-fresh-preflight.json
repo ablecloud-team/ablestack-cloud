@@ -1,0 +1,6 @@
+{
+  "createRequests": 0,
+  "confirmEnabled": false,
+  "text": "VPC 추가\nZone·오퍼링·제공자 구성이 바뀌었습니다. 후보를 다시 조회하고 설정을 검토한 뒤 제출하십시오.\nZone·오퍼링·제공자 구성이 바뀌었습니다. 후보를 다시 조회하고 설정을 검토한 뒤 제출하십시오.\n재시도\nZone·오퍼링·제공자 구성이 바뀌었습니다. 후보를 다시 조회하고 설정을 검토한 뒤 제출하십시오.\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\nDefault VPC offering\n사용할 수 없는 오퍼링 (3)\nDefault VPC offering\n49767c4b-61bd-4535-9957-af9908e220f1\nIPv4 · NATTED / Static · Enabled\nDhcp: VpcVirtualRouter; UserData: VpcVirtualRouter; NetworkACL: VpcVirtualRouter; Lb: VpcVirtualRouter, InternalLbVm; SourceNat: VpcVirtualRouter; PortForwarding: VpcVirtualRouter; Vpn: VpcVirtualRouter; StaticNat: VpcVirtualRouter; Dns: VpcVirtualRouter\n제공자 설정 점검을 통과했습니다.\nPhysical Network 1 · 51cdd7ed-ab33-419d-98fc-8e7eabea1194\n\n구성 확인 결과입니다. 외부 장비 준비 상태와 실제 통신은 별도로 확인해야 합니다.\n\nCIDR\n네트워크 도메인\nDNS 1\nDNS 2\n서비스용 네트워크의 라우터에 대한 IPv4 주소\n공용 NIC의 MAC 주소 유지\n시작\n취소\n확인",
+  "truncated": false
+}

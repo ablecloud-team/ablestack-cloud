@@ -1,0 +1,7 @@
+{
+  "case": "invalid-cidr",
+  "cluster": 31,
+  "createRequests": 0,
+  "truncated": true,
+  "visibleError": "Invalid CIDR format"
+}

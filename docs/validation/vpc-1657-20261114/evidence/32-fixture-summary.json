@@ -1,0 +1,48 @@
+[
+  {
+    "api": "cloneVPCOffering",
+    "id": "dd4364be-d018-4f7c-b509-8b9c491f7200",
+    "name": "qa-vpc1657-20261114-32-disabled",
+    "state": "Disabled"
+  },
+  {
+    "api": "cloneVPCOffering",
+    "id": "62e1d443-5802-46bc-864d-72ff35b684a1",
+    "name": "qa-vpc1657-20261114-32-no-dns",
+    "state": "Enabled"
+  },
+  {
+    "api": "createAccount",
+    "id": "50f58187-e4eb-4c1b-aacc-427d9f97fe9b",
+    "name": "qa-vpc1657-20261114-32-user",
+    "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+    "state": "enabled"
+  },
+  {
+    "api": "createProject",
+    "id": "7b927494-d513-4b6a-80db-887567850628",
+    "name": "qa-vpc1657-20261114-32-project",
+    "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+    "state": "Active"
+  },
+  {
+    "api": "createVPC",
+    "id": "64368f98-ed07-448d-b820-b85549d47cd8",
+    "name": "qa-vpc1657-20261114-32-design",
+    "account": "admin",
+    "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+    "cidr": "10.247.32.16/28",
+    "vpcofferingid": "a77c3f64-5bb4-4b69-9811-5cc09a231c43",
+    "state": "Enabled"
+  },
+  {
+    "api": "createVPC",
+    "id": "adc6a0dc-78cb-4c49-9687-6772cf0c8972",
+    "name": "qa-vpc1657-20261114-32-no-dns-design",
+    "account": "admin",
+    "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+    "cidr": "10.247.32.64/28",
+    "vpcofferingid": "62e1d443-5802-46bc-864d-72ff35b684a1",
+    "state": "Enabled"
+  }
+]

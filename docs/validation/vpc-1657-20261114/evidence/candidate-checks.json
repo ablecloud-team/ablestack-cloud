@@ -1,0 +1,89 @@
+[
+  {
+    "case": "invalid-cidr",
+    "cluster": 31,
+    "createRequests": 0,
+    "truncated": true,
+    "visibleError": "Invalid CIDR format"
+  },
+  {
+    "case": "missing-array",
+    "reason": "empty",
+    "httpStatus": 200,
+    "confirmEnabled": false,
+    "createRequests": 0,
+    "truncated": false,
+    "text": "VPC 추가\n이 Zone·소유 도메인에 활성 VPC 오퍼링이 없습니다. 오퍼링 범위·상태를 확인한 뒤 다시 시도하십시오.\n재시도\n이 Zone·소유 도메인에 활성 VPC 오퍼링이 없습니다. 오퍼링 범위·상태를 확인한 뒤 다시 시도하십시오.\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\n취소\n확인",
+    "retryRecovered": true
+  },
+  {
+    "case": "empty-array",
+    "reason": "empty",
+    "httpStatus": 200,
+    "confirmEnabled": false,
+    "createRequests": 0,
+    "truncated": false,
+    "text": "VPC 추가\n이 Zone·소유 도메인에 활성 VPC 오퍼링이 없습니다. 오퍼링 범위·상태를 확인한 뒤 다시 시도하십시오.\n재시도\n이 Zone·소유 도메인에 활성 VPC 오퍼링이 없습니다. 오퍼링 범위·상태를 확인한 뒤 다시 시도하십시오.\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\n취소\n확인",
+    "retryRecovered": true
+  },
+  {
+    "case": "malformed-page",
+    "reason": "lookup",
+    "httpStatus": 200,
+    "confirmEnabled": false,
+    "createRequests": 0,
+    "truncated": false,
+    "text": "VPC 추가\nIncomplete listVPCOfferings page\n후보 조회가 실패했거나 응답이 완전하지 않습니다. 생성 요청을 보내지 않았습니다. 조회를 다시 시도하십시오.\n재시도\n후보 조회가 실패했거나 응답이 완전하지 않습니다. 생성 요청을 보내지 않았습니다. 조회를 다시 시도하십시오.\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\n취소\n확인",
+    "retryRecovered": true
+  },
+  {
+    "case": "all-filtered",
+    "reason": "incompatible",
+    "httpStatus": 200,
+    "confirmEnabled": false,
+    "createRequests": 0,
+    "truncated": false,
+    "text": "VPC 추가\n조회된 모든 오퍼링이 Zone·제공자 조건에 맞지 않습니다. 사용할 수 없는 오퍼링의 사유를 확인하십시오.\n재시도\n조회된 모든 오퍼링이 Zone·제공자 조건에 맞지 않습니다. 사용할 수 없는 오퍼링의 사유를 확인하십시오.\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\n사용할 수 없는 오퍼링 (8)\n취소\n확인",
+    "retryRecovered": true
+  },
+  {
+    "case": "provider-unavailable",
+    "reason": "incompatible",
+    "httpStatus": 200,
+    "confirmEnabled": false,
+    "createRequests": 0,
+    "truncated": false,
+    "text": "VPC 추가\n조회된 모든 오퍼링이 Zone·제공자 조건에 맞지 않습니다. 사용할 수 없는 오퍼링의 사유를 확인하십시오.\n재시도\n조회된 모든 오퍼링이 Zone·제공자 조건에 맞지 않습니다. 사용할 수 없는 오퍼링의 사유를 확인하십시오.\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\n사용할 수 없는 오퍼링 (1)\n취소\n확인",
+    "retryRecovered": true
+  },
+  {
+    "case": "lookup-503",
+    "reason": "lookup",
+    "httpStatus": 503,
+    "confirmEnabled": false,
+    "createRequests": 0,
+    "truncated": false,
+    "text": "VPC 추가\n503: Expected VPC1657 lookup outage\n후보 조회가 실패했거나 응답이 완전하지 않습니다. 생성 요청을 보내지 않았습니다. 조회를 다시 시도하십시오.\n재시도\n후보 조회가 실패했거나 응답이 완전하지 않습니다. 생성 요청을 보내지 않았습니다. 조회를 다시 시도하십시오.\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\n취소\n확인",
+    "retryRecovered": true
+  },
+  {
+    "case": "lookup-403",
+    "reason": "permission",
+    "httpStatus": 403,
+    "confirmEnabled": false,
+    "createRequests": 0,
+    "truncated": false,
+    "text": "VPC 추가\n531: Expected VPC1657 permission denial\n생성 후보를 조회하는 필수 API 권한이 없습니다. 역할·권한을 확인한 뒤 다시 로그인하십시오.\n재시도\n생성 후보를 조회하는 필수 API 권한이 없습니다. 역할·권한을 확인한 뒤 다시 로그인하십시오.\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\n취소\n확인",
+    "retryRecovered": true
+  },
+  {
+    "case": "no-zones",
+    "reason": "zones.empty",
+    "httpStatus": 200,
+    "confirmEnabled": false,
+    "createRequests": 0,
+    "truncated": false,
+    "text": "VPC 추가\n현재 범위에서 조회되는 Zone이 없습니다.\n재시도\n현재 범위에서 조회되는 Zone이 없습니다.\n이름\n설명\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\n취소\n확인",
+    "retryRecovered": true
+  }
+]

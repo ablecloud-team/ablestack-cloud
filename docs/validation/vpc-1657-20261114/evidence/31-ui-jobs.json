@@ -1,0 +1,79 @@
+[
+  {
+    "case": "root-default-dns",
+    "jobid": "c83f719b-a35a-4c1c-82f8-fa96276c919e",
+    "params": {
+      "command": "createVPC",
+      "response": "json",
+      "name": "qa-vpc1657-20261114-31-ui-default",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "start": "false",
+      "cidr": "10.249.31.0/28",
+      "dns1": "8.8.8.8",
+      "keepmacaddressonpublicnic": "true",
+      "customjobid": "c83f719b-a35a-4c1c-82f8-fa96276c919e"
+    },
+    "source": "78498bbe5cf5ac1450324aa0ae4a04cb73bb12d7"
+  },
+  {
+    "case": "root-selected-user-after-late-response",
+    "jobid": "20883630-5d67-4684-bf3e-506666dd6d06",
+    "params": {
+      "command": "createVPC",
+      "response": "json",
+      "name": "qa-vpc1657-20261114-31-ui-owner",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+      "account": "qa-vpc1657-20261114-31-user",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "start": "false",
+      "cidr": "10.249.31.32/28",
+      "keepmacaddressonpublicnic": "true",
+      "customjobid": "20883630-5d67-4684-bf3e-506666dd6d06"
+    },
+    "source": "78498bbe5cf5ac1450324aa0ae4a04cb73bb12d7"
+  },
+  {
+    "case": "ordinary-user-default",
+    "jobid": "4dcfc58c-1378-4e36-9812-c70589fbb0bb",
+    "params": {
+      "command": "createVPC",
+      "response": "json",
+      "name": "qa-vpc1657-20261114-31-ui-user",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+      "account": "qa-vpc1657-20261114-31-user",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "start": "false",
+      "cidr": "10.249.31.48/28",
+      "dns1": "8.8.4.4",
+      "customjobid": "4dcfc58c-1378-4e36-9812-c70589fbb0bb"
+    },
+    "source": "78498bbe5cf5ac1450324aa0ae4a04cb73bb12d7"
+  },
+  {
+    "case": "final-85ca90-native-confirm-after-530-with-source-nat",
+    "source": "85ca902dd1e1b93cf10b52a09c4edff79b711632",
+    "jobid": "44aa2bab-a819-4487-ac8e-1911ae771536",
+    "params": {
+      "command": "createVPC",
+      "response": "json",
+      "name": "qa-vpc1657-20261114-31-ui-final-snat",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "start": "false",
+      "displaytext": "VPC1657 final input preservation",
+      "networkdomain": "vpc1657.internal",
+      "cidr": "10.249.31.96/28",
+      "dns1": "8.8.8.8",
+      "sourcenatipaddress": "10.10.31.105",
+      "keepmacaddressonpublicnic": "true",
+      "customjobid": "44aa2bab-a819-4487-ac8e-1911ae771536"
+    }
+  }
+]

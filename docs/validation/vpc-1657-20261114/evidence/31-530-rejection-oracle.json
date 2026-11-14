@@ -1,0 +1,11 @@
+{
+  "jobid": "29af3479-3c41-4a6d-97a3-2691e7a4c045",
+  "jobQuery": {
+    "uuidList": [],
+    "errorcode": 431,
+    "cserrorcode": 9999,
+    "errortext": "Unable to execute API command queryasyncjobresult due to invalid value. Invalid parameter jobid value=29af3479-3c41-4a6d-97a3-2691e7a4c045 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class."
+  },
+  "matchingVpcs": [],
+  "definitiveSynchronousRejection": true
+}

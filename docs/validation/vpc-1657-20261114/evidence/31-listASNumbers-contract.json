@@ -1,0 +1,198 @@
+{
+  "count": 1,
+  "api": [
+    {
+      "name": "listASNumbers",
+      "description": "List Autonomous Systems Numbers",
+      "since": "4.20.0",
+      "isasync": false,
+      "related": "",
+      "params": [
+        {
+          "name": "account",
+          "description": "account name",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "related": "createAccount,disableAccount,enableAccount,lockAccount,updateAccount,markDefaultZoneForAccount,listAccounts,listAccounts"
+        },
+        {
+          "name": "page",
+          "description": "",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "networkid",
+          "description": "the network id",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "createNetwork,listNetworks,updateNetwork,createNetwork,updateNetwork,listNetworks,migrateNetwork,listNetscalerLoadBalancerNetworks,listNiciraNvpDeviceNetworks,listPaloAltoFirewallNetworks,listBrocadeVcsDeviceNetworks"
+        },
+        {
+          "name": "pagesize",
+          "description": "",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "zoneid",
+          "description": "the zone ID",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "createZone,updateZone,listZones,listZones"
+        },
+        {
+          "name": "asnrangeid",
+          "description": "the AS Number range ID",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "createASNRange,listASNRanges"
+        },
+        {
+          "name": "asnumber",
+          "description": "AS number",
+          "type": "integer",
+          "length": 255,
+          "required": false,
+          "related": "listASNumbers"
+        },
+        {
+          "name": "keyword",
+          "description": "List by keyword",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "domainid",
+          "description": "domain id",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "createDomain,listDomainChildren,listDomains,listDomains,updateDomain,moveDomain"
+        },
+        {
+          "name": "vpcid",
+          "description": "the vpc id",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "createVPC,listVPCs,updateVPC,createVPC,listVPCs,updateVPC,migrateVPC"
+        },
+        {
+          "name": "isallocated",
+          "description": "to indicate if the AS number is allocated to any network",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        }
+      ],
+      "response": [
+        {
+          "name": "associatednetworkid",
+          "description": "Network ID",
+          "type": "string"
+        },
+        {
+          "name": "asnumber",
+          "description": "AS Number",
+          "type": "long"
+        },
+        {
+          "name": "vpcname",
+          "description": "VPC Name",
+          "type": "string"
+        },
+        {
+          "name": "domain",
+          "description": "the domain name",
+          "type": "string"
+        },
+        {
+          "name": "zoneid",
+          "description": "Zone ID",
+          "type": "string"
+        },
+        {
+          "name": "associatednetworkname",
+          "description": "Network Name",
+          "type": "string"
+        },
+        {
+          "name": "asnrangeid",
+          "description": "AS Number ID",
+          "type": "string"
+        },
+        {
+          "name": "vpcid",
+          "description": "VPC ID",
+          "type": "string"
+        },
+        {},
+        {
+          "name": "jobid",
+          "description": "The UUID of the latest async job acting on this object",
+          "type": "string"
+        },
+        {
+          "name": "allocated",
+          "description": "Allocated Date",
+          "type": "date"
+        },
+        {
+          "name": "accountid",
+          "description": "Account ID",
+          "type": "string"
+        },
+        {
+          "name": "allocationstate",
+          "description": "Allocation state",
+          "type": "string"
+        },
+        {
+          "name": "asnrange",
+          "description": "AS Number Range",
+          "type": "string"
+        },
+        {
+          "name": "account",
+          "description": "the account name",
+          "type": "string"
+        },
+        {
+          "name": "zonename",
+          "description": "the zone name of the AS Number range",
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "description": "ID of the AS Number",
+          "type": "string"
+        },
+        {
+          "name": "domainid",
+          "description": "Domain ID",
+          "type": "string"
+        },
+        {
+          "name": "created",
+          "description": "Created Date",
+          "type": "date"
+        },
+        {},
+        {
+          "name": "jobstatus",
+          "description": "The current status of the latest async job acting on this object",
+          "type": "integer"
+        }
+      ],
+      "httprequesttype": "GET"
+    }
+  ]
+}

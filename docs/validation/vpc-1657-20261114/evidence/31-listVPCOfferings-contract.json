@@ -1,0 +1,281 @@
+{
+  "count": 1,
+  "api": [
+    {
+      "name": "listVPCOfferings",
+      "description": "Lists VPC offerings",
+      "isasync": false,
+      "related": "cloneVPCOffering,updateVPCOffering",
+      "params": [
+        {
+          "name": "id",
+          "description": "List VPC offerings by ID",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "cloneVPCOffering,updateVPCOffering,listVPCOfferings"
+        },
+        {
+          "name": "pagesize",
+          "description": "",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "keyword",
+          "description": "List by keyword",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "name",
+          "description": "List VPC offerings by name",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "supportedservices",
+          "description": "List VPC offerings supporting certain services",
+          "type": "list",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "page",
+          "description": "",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "zoneid",
+          "description": "ID of zone VPC offering is associated with",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "since": "4.13",
+          "related": "listZones"
+        },
+        {
+          "name": "displaytext",
+          "description": "List VPC offerings by display text",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "domainid",
+          "description": "List VPC offerings available for VPC creation in specific domain",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "since": "4.18",
+          "related": "createDomain,listDomains,listDomains"
+        },
+        {
+          "name": "isdefault",
+          "description": "True if need to list only default VPC offerings. Default value is false",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "state",
+          "description": "List VPC offerings by state",
+          "type": "string",
+          "length": 255,
+          "required": false
+        }
+      ],
+      "response": [
+        {
+          "name": "networkmode",
+          "description": "Mode in which the network will operate. The valid values are NATTED and ROUTED",
+          "type": "string"
+        },
+        {
+          "name": "zoneid",
+          "description": "The zone ID(s) this disk offering belongs to. Ignore this information as it is not currently applicable.",
+          "type": "string"
+        },
+        {
+          "name": "jobstatus",
+          "description": "The current status of the latest async job acting on this object",
+          "type": "integer"
+        },
+        {
+          "name": "redundantvpcrouter",
+          "description": "True if the offering uses redundant VPC routers",
+          "type": "boolean"
+        },
+        {
+          "name": "name",
+          "description": "The name of the VPC offering",
+          "type": "string"
+        },
+        {
+          "name": "isdefault",
+          "description": "True if VPC offering is default, false otherwise",
+          "type": "boolean"
+        },
+        {
+          "name": "state",
+          "description": "State of the VPC offering. Can be Disabled/Enabled",
+          "type": "string"
+        },
+        {
+          "name": "domain",
+          "description": "The domain name(s) this disk offering belongs to. Ignore this information as it is not currently applicable.",
+          "type": "string"
+        },
+        {
+          "name": "conservemode",
+          "description": "True if the VPC offering is IP conserve mode enabled, allowing public IP services to be used across multiple VPC tiers.",
+          "type": "boolean"
+        },
+        {
+          "name": "distributedvpcrouter",
+          "description": "Indicates if the VPC offering supports distributed router for one-hop forwarding",
+          "type": "boolean"
+        },
+        {
+          "name": "specifyasnumber",
+          "description": "True if network offering supports choosing AS numbers",
+          "type": "boolean"
+        },
+        {
+          "name": "created",
+          "description": "The date this VPC offering was created",
+          "type": "date"
+        },
+        {},
+        {
+          "name": "id",
+          "description": "The ID of the VPC offering",
+          "type": "string"
+        },
+        {
+          "name": "zone",
+          "description": "The zone name(s) this disk offering belongs to. Ignore this information as it is not currently applicable.",
+          "type": "string"
+        },
+        {
+          "name": "jobid",
+          "description": "The UUID of the latest async job acting on this object",
+          "type": "string"
+        },
+        {
+          "name": "routingmode",
+          "description": "The routing mode for the network offering, supported types are Static or Dynamic.",
+          "type": "string"
+        },
+        {
+          "name": "displaytext",
+          "description": "An alternate display text of the VPC offering.",
+          "type": "string"
+        },
+        {
+          "name": "service",
+          "description": "The list of supported services",
+          "type": "list",
+          "response": [
+            {
+              "name": "capability",
+              "description": "The list of capabilities",
+              "type": "list",
+              "response": [
+                {
+                  "name": "value",
+                  "description": "The capability value",
+                  "type": "string"
+                },
+                {
+                  "name": "name",
+                  "description": "The capability name",
+                  "type": "string"
+                },
+                {
+                  "name": "canchooseservicecapability",
+                  "description": "Can this service capability value can be choosable while creatine Network offerings",
+                  "type": "boolean"
+                }
+              ]
+            },
+            {
+              "name": "provider",
+              "description": "The service provider name",
+              "type": "list",
+              "response": [
+                {
+                  "name": "physicalnetworkid",
+                  "description": "The physical Network this belongs to",
+                  "type": "string"
+                },
+                {
+                  "name": "id",
+                  "description": "UUID of the Network provider",
+                  "type": "string"
+                },
+                {
+                  "name": "state",
+                  "description": "State of the Network provider",
+                  "type": "string"
+                },
+                {
+                  "name": "name",
+                  "description": "The provider name",
+                  "type": "string"
+                },
+                {
+                  "name": "canenableindividualservice",
+                  "description": "True if individual services can be enabled/disabled",
+                  "type": "boolean"
+                },
+                {
+                  "name": "servicelist",
+                  "description": "Services for this provider",
+                  "type": "list"
+                },
+                {
+                  "name": "destinationphysicalnetworkid",
+                  "description": "The destination physical Network",
+                  "type": "string"
+                }
+              ]
+            },
+            {
+              "name": "name",
+              "description": "The service name",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "name": "supportsregionLevelvpc",
+          "description": "Indicated if the offering can support region level VPC",
+          "type": "boolean"
+        },
+        {},
+        {
+          "name": "fornsx",
+          "description": "True if VPC offering can be used by NSX networks only",
+          "type": "boolean"
+        },
+        {
+          "name": "domainid",
+          "description": "The domain ID(s) this disk offering belongs to. Ignore this information as it is not currently applicable.",
+          "type": "string"
+        },
+        {
+          "name": "internetprotocol",
+          "description": "The internet protocol of the VPC offering",
+          "type": "string"
+        }
+      ],
+      "httprequesttype": "GET"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+[
+  {
+    "case": "root-no-dns-after-transition",
+    "jobid": "62063010-02b7-47ec-a00d-fdad9ec918e2",
+    "params": {
+      "command": "createVPC",
+      "response": "json",
+      "name": "qa-vpc1657-20261114-32-ui-no-dns",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "vpcofferingid": "62e1d443-5802-46bc-864d-72ff35b684a1",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "start": "false",
+      "cidr": "10.249.32.0/28",
+      "keepmacaddressonpublicnic": "true",
+      "customjobid": "62063010-02b7-47ec-a00d-fdad9ec918e2"
+    },
+    "source": "78498bbe5cf5ac1450324aa0ae4a04cb73bb12d7"
+  },
+  {
+    "case": "lost-receipt-reopen-same-job",
+    "jobid": "c7942288-d82d-4395-8625-21a879659e3c",
+    "params": {
+      "command": "createVPC",
+      "response": "json",
+      "name": "qa-vpc1657-20261114-32-ui-lost",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "vpcofferingid": "a77c3f64-5bb4-4b69-9811-5cc09a231c43",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "start": "false",
+      "cidr": "10.249.32.16/28",
+      "keepmacaddressonpublicnic": "true",
+      "customjobid": "c7942288-d82d-4395-8625-21a879659e3c"
+    },
+    "source": "78498bbe5cf5ac1450324aa0ae4a04cb73bb12d7"
+  },
+  {
+    "case": "ordinary-user-active-project",
+    "jobid": "e1509b7b-5fe1-4aec-80b3-7074e7180d40",
+    "params": {
+      "command": "createVPC",
+      "response": "json",
+      "name": "qa-vpc1657-20261114-32-ui-project",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "vpcofferingid": "a77c3f64-5bb4-4b69-9811-5cc09a231c43",
+      "projectid": "7b927494-d513-4b6a-80db-887567850628",
+      "start": "false",
+      "cidr": "10.249.32.32/28",
+      "customjobid": "e1509b7b-5fe1-4aec-80b3-7074e7180d40"
+    },
+    "source": "78498bbe5cf5ac1450324aa0ae4a04cb73bb12d7"
+  },
+  {
+    "case": "final-85ca90-no-dns-explicit-mac-false",
+    "source": "85ca902dd1e1b93cf10b52a09c4edff79b711632",
+    "jobid": "1a8f8825-a72c-4bc4-a601-6367400486cd",
+    "params": {
+      "command": "createVPC",
+      "response": "json",
+      "name": "qa-vpc1657-20261114-32-ui-final-no-dns",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "vpcofferingid": "62e1d443-5802-46bc-864d-72ff35b684a1",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "start": "false",
+      "cidr": "10.249.32.48/28",
+      "keepmacaddressonpublicnic": "false",
+      "customjobid": "1a8f8825-a72c-4bc4-a601-6367400486cd"
+    }
+  }
+]

@@ -1,0 +1,674 @@
+[
+  {
+    "cluster": 31,
+    "theme": "light",
+    "width": 1280,
+    "source": "85ca902dd1e1b93cf10b52a09c4edff79b711632",
+    "body": {
+      "bottom": 800,
+      "clientHeight": 710,
+      "clientWidth": 708,
+      "height": 710,
+      "right": 999,
+      "scrollHeight": 1393,
+      "scrollTop": 0,
+      "scrollWidth": 708,
+      "width": 718,
+      "x": 281,
+      "y": 90
+    },
+    "content": {
+      "bottom": 866,
+      "clientHeight": 830,
+      "clientWidth": 718,
+      "height": 832,
+      "right": 1000,
+      "scrollHeight": 830,
+      "scrollTop": 0,
+      "scrollWidth": 718,
+      "width": 720,
+      "x": 280,
+      "y": 34
+    },
+    "dark": false,
+    "footer": {
+      "bottom": 865,
+      "clientHeight": 64,
+      "clientWidth": 718,
+      "height": 65,
+      "right": 999,
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "scrollWidth": 718,
+      "width": 718,
+      "x": 281,
+      "y": 800
+    },
+    "style": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "font": "14px"
+    },
+    "text": "VPC 추가\nVPC의 소유자·오퍼링과 조건부 설정을 확인하십시오.\n재시도\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\nDefault VPC offering\n사용할 수 없는 오퍼링 (3)\nDefault VPC offering\n49767c4b-61bd-4535-9957-af9908e220f1\nIPv4 · NATTED / Static · Enabled\nDhcp: VpcVirtualRouter; UserData: VpcVirtualRouter; NetworkACL: VpcVirtualRouter; Lb: VpcVirtualRouter, InternalLbVm; SourceNat: VpcVirtualRouter; PortForwarding: VpcVirtualRouter; Vpn: VpcVirtualRouter; StaticNat: VpcVirtualRouter; Dns: VpcVirtualRouter\n제공자 설정 점검을 통과했습니다.\nPhysical Network 1 · 51cdd7ed-ab33-419d-98fc-8e7eabea1194\n\n구성 확인 결과입니다. 외부 장비 준비 상태와 실제 통신은 별도로 확인해야 합니다.\n\nCIDR\n네트워크 도메인\nDNS 1\nDNS 2\n서비스용 네트워크의 라우터에 대한 IPv4 주소\n공용 NIC의 MAC 주소 유지\n시작\n취소\n확인",
+    "viewport": {
+      "height": 900,
+      "width": 1280
+    }
+  },
+  {
+    "cluster": 31,
+    "theme": "light",
+    "width": 768,
+    "source": "85ca902dd1e1b93cf10b52a09c4edff79b711632",
+    "body": {
+      "bottom": 800,
+      "clientHeight": 710,
+      "clientWidth": 708,
+      "height": 710,
+      "right": 743,
+      "scrollHeight": 1393,
+      "scrollTop": 0,
+      "scrollWidth": 708,
+      "width": 718,
+      "x": 25,
+      "y": 90
+    },
+    "content": {
+      "bottom": 866,
+      "clientHeight": 830,
+      "clientWidth": 718,
+      "height": 832,
+      "right": 744,
+      "scrollHeight": 830,
+      "scrollTop": 0,
+      "scrollWidth": 718,
+      "width": 720,
+      "x": 24,
+      "y": 34
+    },
+    "dark": false,
+    "footer": {
+      "bottom": 865,
+      "clientHeight": 64,
+      "clientWidth": 718,
+      "height": 65,
+      "right": 743,
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "scrollWidth": 718,
+      "width": 718,
+      "x": 25,
+      "y": 800
+    },
+    "style": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "font": "14px"
+    },
+    "text": "VPC 추가\nVPC의 소유자·오퍼링과 조건부 설정을 확인하십시오.\n재시도\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\nDefault VPC offering\n사용할 수 없는 오퍼링 (3)\nDefault VPC offering\n49767c4b-61bd-4535-9957-af9908e220f1\nIPv4 · NATTED / Static · Enabled\nDhcp: VpcVirtualRouter; UserData: VpcVirtualRouter; NetworkACL: VpcVirtualRouter; Lb: VpcVirtualRouter, InternalLbVm; SourceNat: VpcVirtualRouter; PortForwarding: VpcVirtualRouter; Vpn: VpcVirtualRouter; StaticNat: VpcVirtualRouter; Dns: VpcVirtualRouter\n제공자 설정 점검을 통과했습니다.\nPhysical Network 1 · 51cdd7ed-ab33-419d-98fc-8e7eabea1194\n\n구성 확인 결과입니다. 외부 장비 준비 상태와 실제 통신은 별도로 확인해야 합니다.\n\nCIDR\n네트워크 도메인\nDNS 1\nDNS 2\n서비스용 네트워크의 라우터에 대한 IPv4 주소\n공용 NIC의 MAC 주소 유지\n시작\n취소\n확인",
+    "viewport": {
+      "height": 900,
+      "width": 768
+    }
+  },
+  {
+    "cluster": 31,
+    "theme": "light",
+    "width": 360,
+    "source": "85ca902dd1e1b93cf10b52a09c4edff79b711632",
+    "body": {
+      "bottom": 722,
+      "clientHeight": 654,
+      "clientWidth": 324,
+      "height": 654,
+      "right": 347,
+      "scrollHeight": 1636,
+      "scrollTop": 0,
+      "scrollWidth": 324,
+      "width": 334,
+      "x": 13,
+      "y": 68
+    },
+    "content": {
+      "bottom": 788,
+      "clientHeight": 774,
+      "clientWidth": 334,
+      "height": 776,
+      "right": 348,
+      "scrollHeight": 774,
+      "scrollTop": 0,
+      "scrollWidth": 334,
+      "width": 336,
+      "x": 12,
+      "y": 12
+    },
+    "dark": false,
+    "footer": {
+      "bottom": 787,
+      "clientHeight": 64,
+      "clientWidth": 334,
+      "height": 65,
+      "right": 347,
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "scrollWidth": 334,
+      "width": 334,
+      "x": 13,
+      "y": 722
+    },
+    "style": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "font": "14px"
+    },
+    "text": "VPC 추가\nVPC의 소유자·오퍼링과 조건부 설정을 확인하십시오.\n재시도\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\nDefault VPC offering\n사용할 수 없는 오퍼링 (3)\nDefault VPC offering\n49767c4b-61bd-4535-9957-af9908e220f1\nIPv4 · NATTED / Static · Enabled\nDhcp: VpcVirtualRouter; UserData: VpcVirtualRouter; NetworkACL: VpcVirtualRouter; Lb: VpcVirtualRouter, InternalLbVm; SourceNat: VpcVirtualRouter; PortForwarding: VpcVirtualRouter; Vpn: VpcVirtualRouter; StaticNat: VpcVirtualRouter; Dns: VpcVirtualRouter\n제공자 설정 점검을 통과했습니다.\nPhysical Network 1 · 51cdd7ed-ab33-419d-98fc-8e7eabea1194\n\n구성 확인 결과입니다. 외부 장비 준비 상태와 실제 통신은 별도로 확인해야 합니다.\n\nCIDR\n네트워크 도메인\nDNS 1\nDNS 2\n서비스용 네트워크의 라우터에 대한 IPv4 주소\n공용 NIC의 MAC 주소 유지\n시작\n취소\n확인",
+    "viewport": {
+      "height": 800,
+      "width": 360
+    }
+  },
+  {
+    "cluster": 31,
+    "theme": "dark",
+    "width": 1280,
+    "source": "85ca902dd1e1b93cf10b52a09c4edff79b711632",
+    "body": {
+      "bottom": 800,
+      "clientHeight": 710,
+      "clientWidth": 708,
+      "height": 710,
+      "right": 999,
+      "scrollHeight": 1393,
+      "scrollTop": 0,
+      "scrollWidth": 708,
+      "width": 718,
+      "x": 281,
+      "y": 90
+    },
+    "content": {
+      "bottom": 866,
+      "clientHeight": 830,
+      "clientWidth": 718,
+      "height": 832,
+      "right": 1000,
+      "scrollHeight": 830,
+      "scrollTop": 0,
+      "scrollWidth": 718,
+      "width": 720,
+      "x": 280,
+      "y": 34
+    },
+    "dark": true,
+    "footer": {
+      "bottom": 865,
+      "clientHeight": 64,
+      "clientWidth": 718,
+      "height": 65,
+      "right": 999,
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "scrollWidth": 718,
+      "width": 718,
+      "x": 281,
+      "y": 800
+    },
+    "style": {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgb(240, 243, 246)",
+      "font": "14px"
+    },
+    "text": "VPC 추가\nVPC의 소유자·오퍼링과 조건부 설정을 확인하십시오.\n재시도\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\nDefault VPC offering\n사용할 수 없는 오퍼링 (3)\nDefault VPC offering\n49767c4b-61bd-4535-9957-af9908e220f1\nIPv4 · NATTED / Static · Enabled\nDhcp: VpcVirtualRouter; UserData: VpcVirtualRouter; NetworkACL: VpcVirtualRouter; Lb: VpcVirtualRouter, InternalLbVm; SourceNat: VpcVirtualRouter; PortForwarding: VpcVirtualRouter; Vpn: VpcVirtualRouter; StaticNat: VpcVirtualRouter; Dns: VpcVirtualRouter\n제공자 설정 점검을 통과했습니다.\nPhysical Network 1 · 51cdd7ed-ab33-419d-98fc-8e7eabea1194\n\n구성 확인 결과입니다. 외부 장비 준비 상태와 실제 통신은 별도로 확인해야 합니다.\n\nCIDR\n네트워크 도메인\nDNS 1\nDNS 2\n서비스용 네트워크의 라우터에 대한 IPv4 주소\n공용 NIC의 MAC 주소 유지\n시작\n취소\n확인",
+    "viewport": {
+      "height": 900,
+      "width": 1280
+    }
+  },
+  {
+    "cluster": 31,
+    "theme": "dark",
+    "width": 768,
+    "source": "85ca902dd1e1b93cf10b52a09c4edff79b711632",
+    "body": {
+      "bottom": 800,
+      "clientHeight": 710,
+      "clientWidth": 708,
+      "height": 710,
+      "right": 743,
+      "scrollHeight": 1393,
+      "scrollTop": 0,
+      "scrollWidth": 708,
+      "width": 718,
+      "x": 25,
+      "y": 90
+    },
+    "content": {
+      "bottom": 866,
+      "clientHeight": 830,
+      "clientWidth": 718,
+      "height": 832,
+      "right": 744,
+      "scrollHeight": 830,
+      "scrollTop": 0,
+      "scrollWidth": 718,
+      "width": 720,
+      "x": 24,
+      "y": 34
+    },
+    "dark": true,
+    "footer": {
+      "bottom": 865,
+      "clientHeight": 64,
+      "clientWidth": 718,
+      "height": 65,
+      "right": 743,
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "scrollWidth": 718,
+      "width": 718,
+      "x": 25,
+      "y": 800
+    },
+    "style": {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgb(240, 243, 246)",
+      "font": "14px"
+    },
+    "text": "VPC 추가\nVPC의 소유자·오퍼링과 조건부 설정을 확인하십시오.\n재시도\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\nDefault VPC offering\n사용할 수 없는 오퍼링 (3)\nDefault VPC offering\n49767c4b-61bd-4535-9957-af9908e220f1\nIPv4 · NATTED / Static · Enabled\nDhcp: VpcVirtualRouter; UserData: VpcVirtualRouter; NetworkACL: VpcVirtualRouter; Lb: VpcVirtualRouter, InternalLbVm; SourceNat: VpcVirtualRouter; PortForwarding: VpcVirtualRouter; Vpn: VpcVirtualRouter; StaticNat: VpcVirtualRouter; Dns: VpcVirtualRouter\n제공자 설정 점검을 통과했습니다.\nPhysical Network 1 · 51cdd7ed-ab33-419d-98fc-8e7eabea1194\n\n구성 확인 결과입니다. 외부 장비 준비 상태와 실제 통신은 별도로 확인해야 합니다.\n\nCIDR\n네트워크 도메인\nDNS 1\nDNS 2\n서비스용 네트워크의 라우터에 대한 IPv4 주소\n공용 NIC의 MAC 주소 유지\n시작\n취소\n확인",
+    "viewport": {
+      "height": 900,
+      "width": 768
+    }
+  },
+  {
+    "cluster": 31,
+    "theme": "dark",
+    "width": 360,
+    "source": "85ca902dd1e1b93cf10b52a09c4edff79b711632",
+    "body": {
+      "bottom": 722,
+      "clientHeight": 654,
+      "clientWidth": 324,
+      "height": 654,
+      "right": 347,
+      "scrollHeight": 1636,
+      "scrollTop": 0,
+      "scrollWidth": 324,
+      "width": 334,
+      "x": 13,
+      "y": 68
+    },
+    "content": {
+      "bottom": 788,
+      "clientHeight": 774,
+      "clientWidth": 334,
+      "height": 776,
+      "right": 348,
+      "scrollHeight": 774,
+      "scrollTop": 0,
+      "scrollWidth": 334,
+      "width": 336,
+      "x": 12,
+      "y": 12
+    },
+    "dark": true,
+    "footer": {
+      "bottom": 787,
+      "clientHeight": 64,
+      "clientWidth": 334,
+      "height": 65,
+      "right": 347,
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "scrollWidth": 334,
+      "width": 334,
+      "x": 13,
+      "y": 722
+    },
+    "style": {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgb(240, 243, 246)",
+      "font": "14px"
+    },
+    "text": "VPC 추가\nVPC의 소유자·오퍼링과 조건부 설정을 확인하십시오.\n재시도\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\nDefault VPC offering\n사용할 수 없는 오퍼링 (3)\nDefault VPC offering\n49767c4b-61bd-4535-9957-af9908e220f1\nIPv4 · NATTED / Static · Enabled\nDhcp: VpcVirtualRouter; UserData: VpcVirtualRouter; NetworkACL: VpcVirtualRouter; Lb: VpcVirtualRouter, InternalLbVm; SourceNat: VpcVirtualRouter; PortForwarding: VpcVirtualRouter; Vpn: VpcVirtualRouter; StaticNat: VpcVirtualRouter; Dns: VpcVirtualRouter\n제공자 설정 점검을 통과했습니다.\nPhysical Network 1 · 51cdd7ed-ab33-419d-98fc-8e7eabea1194\n\n구성 확인 결과입니다. 외부 장비 준비 상태와 실제 통신은 별도로 확인해야 합니다.\n\nCIDR\n네트워크 도메인\nDNS 1\nDNS 2\n서비스용 네트워크의 라우터에 대한 IPv4 주소\n공용 NIC의 MAC 주소 유지\n시작\n취소\n확인",
+    "viewport": {
+      "height": 800,
+      "width": 360
+    }
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "width": 1280,
+    "source": "85ca902dd1e1b93cf10b52a09c4edff79b711632",
+    "body": {
+      "bottom": 800,
+      "clientHeight": 710,
+      "clientWidth": 708,
+      "height": 710,
+      "right": 999,
+      "scrollHeight": 1393,
+      "scrollTop": 0,
+      "scrollWidth": 708,
+      "width": 718,
+      "x": 281,
+      "y": 90
+    },
+    "content": {
+      "bottom": 866,
+      "clientHeight": 830,
+      "clientWidth": 718,
+      "height": 832,
+      "right": 1000,
+      "scrollHeight": 830,
+      "scrollTop": 0,
+      "scrollWidth": 718,
+      "width": 720,
+      "x": 280,
+      "y": 34
+    },
+    "dark": false,
+    "footer": {
+      "bottom": 865,
+      "clientHeight": 64,
+      "clientWidth": 718,
+      "height": 65,
+      "right": 999,
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "scrollWidth": 718,
+      "width": 718,
+      "x": 281,
+      "y": 800
+    },
+    "style": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "font": "14px"
+    },
+    "text": "VPC 추가\nVPC의 소유자·오퍼링과 조건부 설정을 확인하십시오.\n재시도\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\nDefault VPC offering\n사용할 수 없는 오퍼링 (5)\nDefault VPC offering\na77c3f64-5bb4-4b69-9811-5cc09a231c43\nIPv4 · NATTED / Static · Enabled\nDhcp: VpcVirtualRouter; UserData: VpcVirtualRouter; NetworkACL: VpcVirtualRouter; Lb: VpcVirtualRouter, InternalLbVm; SourceNat: VpcVirtualRouter; PortForwarding: VpcVirtualRouter; Vpn: VpcVirtualRouter; StaticNat: VpcVirtualRouter; Dns: VpcVirtualRouter\n제공자 설정 점검을 통과했습니다.\nPhysical Network 1 · f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b\n\n구성 확인 결과입니다. 외부 장비 준비 상태와 실제 통신은 별도로 확인해야 합니다.\n\nCIDR\n네트워크 도메인\nDNS 1\nDNS 2\n서비스용 네트워크의 라우터에 대한 IPv4 주소\n공용 NIC의 MAC 주소 유지\n시작\n취소\n확인",
+    "viewport": {
+      "height": 900,
+      "width": 1280
+    }
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "width": 768,
+    "source": "85ca902dd1e1b93cf10b52a09c4edff79b711632",
+    "body": {
+      "bottom": 800,
+      "clientHeight": 710,
+      "clientWidth": 708,
+      "height": 710,
+      "right": 743,
+      "scrollHeight": 1393,
+      "scrollTop": 0,
+      "scrollWidth": 708,
+      "width": 718,
+      "x": 25,
+      "y": 90
+    },
+    "content": {
+      "bottom": 866,
+      "clientHeight": 830,
+      "clientWidth": 718,
+      "height": 832,
+      "right": 744,
+      "scrollHeight": 830,
+      "scrollTop": 0,
+      "scrollWidth": 718,
+      "width": 720,
+      "x": 24,
+      "y": 34
+    },
+    "dark": false,
+    "footer": {
+      "bottom": 865,
+      "clientHeight": 64,
+      "clientWidth": 718,
+      "height": 65,
+      "right": 743,
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "scrollWidth": 718,
+      "width": 718,
+      "x": 25,
+      "y": 800
+    },
+    "style": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "font": "14px"
+    },
+    "text": "VPC 추가\nVPC의 소유자·오퍼링과 조건부 설정을 확인하십시오.\n재시도\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\nDefault VPC offering\n사용할 수 없는 오퍼링 (5)\nDefault VPC offering\na77c3f64-5bb4-4b69-9811-5cc09a231c43\nIPv4 · NATTED / Static · Enabled\nDhcp: VpcVirtualRouter; UserData: VpcVirtualRouter; NetworkACL: VpcVirtualRouter; Lb: VpcVirtualRouter, InternalLbVm; SourceNat: VpcVirtualRouter; PortForwarding: VpcVirtualRouter; Vpn: VpcVirtualRouter; StaticNat: VpcVirtualRouter; Dns: VpcVirtualRouter\n제공자 설정 점검을 통과했습니다.\nPhysical Network 1 · f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b\n\n구성 확인 결과입니다. 외부 장비 준비 상태와 실제 통신은 별도로 확인해야 합니다.\n\nCIDR\n네트워크 도메인\nDNS 1\nDNS 2\n서비스용 네트워크의 라우터에 대한 IPv4 주소\n공용 NIC의 MAC 주소 유지\n시작\n취소\n확인",
+    "viewport": {
+      "height": 900,
+      "width": 768
+    }
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "width": 360,
+    "source": "85ca902dd1e1b93cf10b52a09c4edff79b711632",
+    "body": {
+      "bottom": 722,
+      "clientHeight": 654,
+      "clientWidth": 324,
+      "height": 654,
+      "right": 347,
+      "scrollHeight": 1636,
+      "scrollTop": 0,
+      "scrollWidth": 324,
+      "width": 334,
+      "x": 13,
+      "y": 68
+    },
+    "content": {
+      "bottom": 788,
+      "clientHeight": 774,
+      "clientWidth": 334,
+      "height": 776,
+      "right": 348,
+      "scrollHeight": 774,
+      "scrollTop": 0,
+      "scrollWidth": 334,
+      "width": 336,
+      "x": 12,
+      "y": 12
+    },
+    "dark": false,
+    "footer": {
+      "bottom": 787,
+      "clientHeight": 64,
+      "clientWidth": 334,
+      "height": 65,
+      "right": 347,
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "scrollWidth": 334,
+      "width": 334,
+      "x": 13,
+      "y": 722
+    },
+    "style": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "font": "14px"
+    },
+    "text": "VPC 추가\nVPC의 소유자·오퍼링과 조건부 설정을 확인하십시오.\n재시도\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\nDefault VPC offering\n사용할 수 없는 오퍼링 (5)\nDefault VPC offering\na77c3f64-5bb4-4b69-9811-5cc09a231c43\nIPv4 · NATTED / Static · Enabled\nDhcp: VpcVirtualRouter; UserData: VpcVirtualRouter; NetworkACL: VpcVirtualRouter; Lb: VpcVirtualRouter, InternalLbVm; SourceNat: VpcVirtualRouter; PortForwarding: VpcVirtualRouter; Vpn: VpcVirtualRouter; StaticNat: VpcVirtualRouter; Dns: VpcVirtualRouter\n제공자 설정 점검을 통과했습니다.\nPhysical Network 1 · f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b\n\n구성 확인 결과입니다. 외부 장비 준비 상태와 실제 통신은 별도로 확인해야 합니다.\n\nCIDR\n네트워크 도메인\nDNS 1\nDNS 2\n서비스용 네트워크의 라우터에 대한 IPv4 주소\n공용 NIC의 MAC 주소 유지\n시작\n취소\n확인",
+    "viewport": {
+      "height": 800,
+      "width": 360
+    }
+  },
+  {
+    "cluster": 32,
+    "theme": "dark",
+    "width": 1280,
+    "source": "85ca902dd1e1b93cf10b52a09c4edff79b711632",
+    "body": {
+      "bottom": 800,
+      "clientHeight": 710,
+      "clientWidth": 708,
+      "height": 710,
+      "right": 999,
+      "scrollHeight": 1393,
+      "scrollTop": 0,
+      "scrollWidth": 708,
+      "width": 718,
+      "x": 281,
+      "y": 90
+    },
+    "content": {
+      "bottom": 866,
+      "clientHeight": 830,
+      "clientWidth": 718,
+      "height": 832,
+      "right": 1000,
+      "scrollHeight": 830,
+      "scrollTop": 0,
+      "scrollWidth": 718,
+      "width": 720,
+      "x": 280,
+      "y": 34
+    },
+    "dark": true,
+    "footer": {
+      "bottom": 865,
+      "clientHeight": 64,
+      "clientWidth": 718,
+      "height": 65,
+      "right": 999,
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "scrollWidth": 718,
+      "width": 718,
+      "x": 281,
+      "y": 800
+    },
+    "style": {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgb(240, 243, 246)",
+      "font": "14px"
+    },
+    "text": "VPC 추가\nVPC의 소유자·오퍼링과 조건부 설정을 확인하십시오.\n재시도\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\nDefault VPC offering\n사용할 수 없는 오퍼링 (5)\nDefault VPC offering\na77c3f64-5bb4-4b69-9811-5cc09a231c43\nIPv4 · NATTED / Static · Enabled\nDhcp: VpcVirtualRouter; UserData: VpcVirtualRouter; NetworkACL: VpcVirtualRouter; Lb: VpcVirtualRouter, InternalLbVm; SourceNat: VpcVirtualRouter; PortForwarding: VpcVirtualRouter; Vpn: VpcVirtualRouter; StaticNat: VpcVirtualRouter; Dns: VpcVirtualRouter\n제공자 설정 점검을 통과했습니다.\nPhysical Network 1 · f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b\n\n구성 확인 결과입니다. 외부 장비 준비 상태와 실제 통신은 별도로 확인해야 합니다.\n\nCIDR\n네트워크 도메인\nDNS 1\nDNS 2\n서비스용 네트워크의 라우터에 대한 IPv4 주소\n공용 NIC의 MAC 주소 유지\n시작\n취소\n확인",
+    "viewport": {
+      "height": 900,
+      "width": 1280
+    }
+  },
+  {
+    "cluster": 32,
+    "theme": "dark",
+    "width": 768,
+    "source": "85ca902dd1e1b93cf10b52a09c4edff79b711632",
+    "body": {
+      "bottom": 800,
+      "clientHeight": 710,
+      "clientWidth": 708,
+      "height": 710,
+      "right": 743,
+      "scrollHeight": 1393,
+      "scrollTop": 0,
+      "scrollWidth": 708,
+      "width": 718,
+      "x": 25,
+      "y": 90
+    },
+    "content": {
+      "bottom": 866,
+      "clientHeight": 830,
+      "clientWidth": 718,
+      "height": 832,
+      "right": 744,
+      "scrollHeight": 830,
+      "scrollTop": 0,
+      "scrollWidth": 718,
+      "width": 720,
+      "x": 24,
+      "y": 34
+    },
+    "dark": true,
+    "footer": {
+      "bottom": 865,
+      "clientHeight": 64,
+      "clientWidth": 718,
+      "height": 65,
+      "right": 743,
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "scrollWidth": 718,
+      "width": 718,
+      "x": 25,
+      "y": 800
+    },
+    "style": {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgb(240, 243, 246)",
+      "font": "14px"
+    },
+    "text": "VPC 추가\nVPC의 소유자·오퍼링과 조건부 설정을 확인하십시오.\n재시도\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\nDefault VPC offering\n사용할 수 없는 오퍼링 (5)\nDefault VPC offering\na77c3f64-5bb4-4b69-9811-5cc09a231c43\nIPv4 · NATTED / Static · Enabled\nDhcp: VpcVirtualRouter; UserData: VpcVirtualRouter; NetworkACL: VpcVirtualRouter; Lb: VpcVirtualRouter, InternalLbVm; SourceNat: VpcVirtualRouter; PortForwarding: VpcVirtualRouter; Vpn: VpcVirtualRouter; StaticNat: VpcVirtualRouter; Dns: VpcVirtualRouter\n제공자 설정 점검을 통과했습니다.\nPhysical Network 1 · f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b\n\n구성 확인 결과입니다. 외부 장비 준비 상태와 실제 통신은 별도로 확인해야 합니다.\n\nCIDR\n네트워크 도메인\nDNS 1\nDNS 2\n서비스용 네트워크의 라우터에 대한 IPv4 주소\n공용 NIC의 MAC 주소 유지\n시작\n취소\n확인",
+    "viewport": {
+      "height": 900,
+      "width": 768
+    }
+  },
+  {
+    "cluster": 32,
+    "theme": "dark",
+    "width": 360,
+    "source": "85ca902dd1e1b93cf10b52a09c4edff79b711632",
+    "body": {
+      "bottom": 722,
+      "clientHeight": 654,
+      "clientWidth": 324,
+      "height": 654,
+      "right": 347,
+      "scrollHeight": 1636,
+      "scrollTop": 0,
+      "scrollWidth": 324,
+      "width": 334,
+      "x": 13,
+      "y": 68
+    },
+    "content": {
+      "bottom": 788,
+      "clientHeight": 774,
+      "clientWidth": 334,
+      "height": 776,
+      "right": 348,
+      "scrollHeight": 774,
+      "scrollTop": 0,
+      "scrollWidth": 334,
+      "width": 336,
+      "x": 12,
+      "y": 12
+    },
+    "dark": true,
+    "footer": {
+      "bottom": 787,
+      "clientHeight": 64,
+      "clientWidth": 334,
+      "height": 65,
+      "right": 347,
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "scrollWidth": 334,
+      "width": 334,
+      "x": 13,
+      "y": 722
+    },
+    "style": {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgb(240, 243, 246)",
+      "font": "14px"
+    },
+    "text": "VPC 추가\nVPC의 소유자·오퍼링과 조건부 설정을 확인하십시오.\n재시도\n이름\n설명\nZone\nZone\n소유자 목록 업데이트\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\nVPC 오퍼링\nDefault VPC offering\n사용할 수 없는 오퍼링 (5)\nDefault VPC offering\na77c3f64-5bb4-4b69-9811-5cc09a231c43\nIPv4 · NATTED / Static · Enabled\nDhcp: VpcVirtualRouter; UserData: VpcVirtualRouter; NetworkACL: VpcVirtualRouter; Lb: VpcVirtualRouter, InternalLbVm; SourceNat: VpcVirtualRouter; PortForwarding: VpcVirtualRouter; Vpn: VpcVirtualRouter; StaticNat: VpcVirtualRouter; Dns: VpcVirtualRouter\n제공자 설정 점검을 통과했습니다.\nPhysical Network 1 · f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b\n\n구성 확인 결과입니다. 외부 장비 준비 상태와 실제 통신은 별도로 확인해야 합니다.\n\nCIDR\n네트워크 도메인\nDNS 1\nDNS 2\n서비스용 네트워크의 라우터에 대한 IPv4 주소\n공용 NIC의 MAC 주소 유지\n시작\n취소\n확인",
+    "viewport": {
+      "height": 800,
+      "width": 360
+    }
+  }
+]

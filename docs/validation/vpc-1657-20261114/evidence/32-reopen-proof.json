@@ -1,0 +1,11 @@
+{
+  "case": "lost-receipt-reopen",
+  "sameJob": true,
+  "query": {
+    "jobid": "c7942288-d82d-4395-8625-21a879659e3c",
+    "command": "queryAsyncJobResult",
+    "response": "json"
+  },
+  "extraCreateRequests": 0,
+  "truncated": false
+}

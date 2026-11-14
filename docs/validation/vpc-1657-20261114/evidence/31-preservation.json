@@ -1,0 +1,122 @@
+{
+  "listVPCs": {
+    "beforeCount": 2,
+    "afterCount": 2,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  },
+  "listPrivateGateways": {
+    "beforeCount": 0,
+    "afterCount": 0,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  },
+  "listStaticRoutes": {
+    "beforeCount": 0,
+    "afterCount": 0,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  },
+  "listNetworks": {
+    "beforeCount": 31,
+    "afterCount": 31,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  },
+  "listNetworkACLLists": {
+    "beforeCount": 4,
+    "afterCount": 4,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  },
+  "listPhysicalNetworks": {
+    "beforeCount": 2,
+    "afterCount": 2,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  },
+  "listZones": {
+    "beforeCount": 1,
+    "afterCount": 1,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  },
+  "listVPCOfferings": {
+    "beforeCount": 7,
+    "afterCount": 7,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  },
+  "listRouters": {
+    "beforeCount": 20,
+    "afterCount": 20,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  },
+  "listVirtualMachines": {
+    "beforeCount": 132,
+    "afterCount": 132,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  },
+  "listAccounts": {
+    "beforeCount": 26,
+    "afterCount": 26,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  },
+  "listProjects": {
+    "beforeCount": 7,
+    "afterCount": 7,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  }
+}
