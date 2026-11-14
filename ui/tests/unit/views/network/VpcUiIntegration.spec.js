@@ -19,6 +19,7 @@ import { shallowMount, flushPromises } from '@vue/test-utils'
 import { h, reactive, compile } from 'vue'
 import fs from 'fs'
 import path from 'path'
+import { Alert } from 'ant-design-vue'
 import Routes from '@/views/network/StaticRoutesTab'
 import VpcTab from '@/views/network/VpcTab'
 import Breadcrumb from '@/components/widgets/Breadcrumb'
@@ -42,6 +43,17 @@ beforeEach(() => {
   getAPI.mockImplementation(api => Promise.resolve({ [api.toLowerCase() + 'response']: {} }))
 })
 afterEach(() => { wrappers.splice(0).forEach(w => w.unmount()) })
+
+test.each(['VpcTab.vue', 'StaticRoutesTab.vue'])('actual %s retry notice renders with the installed Alert API and invokes its retry', async file => {
+  const source = fs.readFileSync(path.resolve(__dirname, '../../../../src/views/network', file), 'utf8')
+  const notice = source.match(/<a-alert v-if="listRefreshFailed"[^]*?<\/a-alert>/)[0]
+  const retry = jest.fn()
+  const w = shallowMount({ render: compile('<div>' + notice + '</div>'), data: () => ({ listRefreshFailed: true, fetchLoading: false, componentLoading: false }), methods: { handleFetchData: retry, fetchData: retry } }, { global: { mocks: { $t: key => key }, stubs: { AAlert: Alert, AButton: { render () { return h('button', this.$slots.default?.()) } } } } })
+  wrappers.push(w)
+  expect(w.text()).toContain('label.retry')
+  await w.find('button').trigger('click')
+  expect(retry).toHaveBeenCalledTimes(1)
+})
 
 test.each([{}, { api: 'deleteVPC', label: 'label.delete' }])('actual generic footer can render an inactive VPC action without an API: %j', action => {
   const source = fs.readFileSync(path.resolve(__dirname, '../../../../src/views/AutogenView.vue'), 'utf8')

@@ -17,7 +17,7 @@
 
 <template>
   <a-spin class="vpc-tab" :spinning="fetchLoading">
-    <a-alert v-if="listRefreshFailed" type="warning" show-icon :message="$t('message.list.refresh.stale')" class="vpc-query-notice"><template #action><a-button size="small" :disabled="fetchLoading" @click="handleFetchData">{{ $t('label.retry') }}</a-button></template></a-alert>
+    <a-alert v-if="listRefreshFailed" type="warning" show-icon :message="$t('message.list.refresh.stale')" class="vpc-query-notice"><template #description><a-button size="small" :disabled="fetchLoading" @click="handleFetchData">{{ $t('label.retry') }}</a-button></template></a-alert>
     <a-tabs
       :tabPosition="resourceTabPosition"
       :activeKey="currentTab"

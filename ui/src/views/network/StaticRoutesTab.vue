@@ -17,7 +17,7 @@
 
 <template>
   <a-spin :spinning="componentLoading" class="vpc-static-routes">
-    <a-alert v-if="listRefreshFailed" type="warning" show-icon :message="$t('message.list.refresh.stale')" class="route-notice"><template #action><a-button size="small" :disabled="componentLoading" @click="fetchData">{{ $t('label.retry') }}</a-button></template></a-alert>
+    <a-alert v-if="listRefreshFailed" type="warning" show-icon :message="$t('message.list.refresh.stale')" class="route-notice"><template #description><a-button size="small" :disabled="componentLoading" @click="fetchData">{{ $t('label.retry') }}</a-button></template></a-alert>
     <div class="route-toolbar"><a-button type="primary" :disabled="componentLoading || !('createStaticRoute' in $store.getters.apis)" @click="openCreate"><template #icon><plus-outlined /></template>{{ $t('label.add.route') }}</a-button></div>
     <a-table size="small" :scroll="{ x: 760 }" :loading="loading" :columns="columns" :dataSource="routes" :pagination="false" :rowKey="record => record.id">
       <template #bodyCell="{ column, text, record }">
