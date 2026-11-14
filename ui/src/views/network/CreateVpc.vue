@@ -31,7 +31,7 @@ under the License.
       <a-alert type="warning" show-icon :message="$t('message.vpc.create.receipt')" role="status" />
       <div class="vpc-create-target"><strong>{{ pending.params.name }}</strong><span>{{ pending.params.zoneid }} · {{ pending.params.vpcofferingid }}</span><span>{{ pending.params.projectid || pending.params.account }} · {{ pending.params.domainid || '—' }}</span><span>{{ $t('label.job.id') }}: {{ pending.id }}</span></div>
     </template>
-    <a-form v-else ref="formRef" :model="form" :rules="rules" layout="vertical" @keydown.ctrl.enter.prevent.stop="handleSubmit">
+    <a-form v-show="!pending" ref="formRef" :model="form" :rules="rules" layout="vertical" @keydown.ctrl.enter.prevent.stop="handleSubmit">
       <div class="vpc-create-toolbar"><span role="status">{{ $t('message.vpc.create.' + (loadingZones || loadingOffering ? 'loading' : loadReason || 'review')) }}</span><a-button :loading="loadingZones || loadingOffering" :disabled="submitting || loadingZones || loadingOffering" @click="reload">{{ $t('label.retry') }}</a-button></div>
       <a-alert v-if="loadReason" type="warning" show-icon :message="$t('message.vpc.create.' + loadReason)" role="alert" />
       <a-form-item name="name" :label="$t('label.name')"><a-input v-model:value="form.name" :disabled="submitting" :aria-label="$t('label.name')" /></a-form-item>

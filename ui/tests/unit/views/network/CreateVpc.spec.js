@@ -38,10 +38,10 @@ beforeEach(() => {
   getAPI.mockImplementation(lookup); postAPI.mockImplementation((api, p) => { submitted = p; return Promise.resolve({ createvpcresponse: { jobid: p.customjobid } }) })
 })
 afterEach(() => { wrappers.forEach(w => w.unmount()); jest.restoreAllMocks() })
-async function open (role = 'Admin', project = false, editGetters) {
+async function open (role = 'Admin', project = false, editGetters, ownerStub) {
   const getters = reactive(makeGetters(role)); if (project) getters.project = { id: 'p', name: 'Project' }; if (editGetters) editGetters(getters)
   const route = reactive({ fullPath: '/vpc' }); const state = reactive({ user: { token: 'session' } })
-  const w = shallowMount(Dialog, { global: { mocks: { $t: k => k, $store: { getters, state }, $route: route, $pollJob: poll }, stubs: { MoldDialog: dialog, MoldDialogActions: actions, AButton: button, AForm: form } } })
+  const w = shallowMount(Dialog, { global: { mocks: { $t: k => k, $store: { getters, state }, $route: route, $pollJob: poll }, stubs: { MoldDialog: dialog, MoldDialogActions: actions, AButton: button, AForm: form, ...(ownerStub ? { OwnershipSelection: ownerStub } : {}) } } })
   wrappers.push(w); await drain()
   if (w.vm.selectOwner) { await w.vm.fetchOwnerOptions({ ready: true, selectedAccountType: 'Account', selectedAccount: 'admin', selectedDomain: 'd' }); await drain() }
   return { w, getters, route, state }
@@ -128,6 +128,13 @@ test('Mold synchronous 530 with no accepted job keeps Source NAT input and permi
 test('a proxy 503 stays unconfirmed and never enables creation replay', async () => {
   const { w } = await open(); fill(w); postAPI.mockRejectedValueOnce({ response: { status: 503, data: { errorresponse: { errorcode: 503, errortext: 'proxy unavailable' } } } }); await w.vm.handleSubmit()
   expect(w.vm.pending).not.toBeNull(); failure = 'queryAsyncJobResult'; await w.vm.handleSubmit(); expect(postAPI).toHaveBeenCalledTimes(1); expect(poll).not.toHaveBeenCalled(); expect(w.vm.pending).not.toBeNull()
+})
+test('a rejected request never remounts ownership discovery or clears CIDR, DNS and Source NAT inputs', async () => {
+  let mounts = 0
+  const ownerStub = { emits: ['fetch-owner'], mounted () { mounts++; this.$emit('fetch-owner', { ready: false }); this.$emit('fetch-owner', { ready: true, selectedAccountType: 'Account', selectedAccount: 'admin', selectedDomain: 'd' }) }, render () { return h('div') } }
+  const { w } = await open('Admin', false, null, ownerStub); fill(w); Object.assign(w.vm.form, { dns1: '8.8.8.8', sourcenatipaddress: '10.253.31.9' })
+  postAPI.mockRejectedValueOnce({ response: { status: 530, data: { createvpcresponse: { errorcode: 530, errortext: 'new source NAT address cannot be acquired' } } } }); await w.vm.handleSubmit(); await drain()
+  expect(mounts).toBe(1); expect(w.vm.form).toMatchObject({ cidr: '10.9.0.0/24', dns1: '8.8.8.8', sourcenatipaddress: '10.253.31.9' }); expect(w.vm.error).toContain('530'); expect(w.vm.canSubmit).toBe(true)
 })
 test.each(['cmd', 'userid', 'jobid'])('a mismatched recovered %s is never attached to this creation', async key => {
   const { w } = await open(); fill(w); postAPI.mockRejectedValueOnce(Error('connection lost')); await w.vm.handleSubmit()
