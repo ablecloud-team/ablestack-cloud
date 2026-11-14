@@ -25,12 +25,20 @@
       <template v-if="phase === 'confirm' && kind === 'copy'">
         <p>{{ rows[0]?.zonename }}</p>
         <a-alert v-if="!optionsLoading && !error && !destinations.length" type="info" show-icon :message="$t('message.template.zone.copy.empty')" />
-        <a-form-item :label="$t('label.select.zones')">
-          <a-select v-model:value="selectedZones" mode="multiple" :loading="optionsLoading" :disabled="!destinations.length" option-filter-prop="label" show-search :options="destinations.map(z => ({value:z.id,label:z.name}))" />
+        <a-form-item :label="$t('label.select.zones')" :html-for="selectorId">
+          <a-select
+:id="selectorId"
+v-model:value="selectedZones"
+mode="multiple"
+:loading="optionsLoading"
+:disabled="!destinations.length"
+option-filter-prop="label"
+show-search
+:options="destinations.map(z => ({value:z.id,label:z.name}))" />
         </a-form-item>
       </template>
-      <a-form-item v-if="phase === 'confirm' && kind === 'prepare'" :label="$t('label.primary.storage')">
-        <a-select v-model:value="poolid" :loading="optionsLoading" :options="eligiblePools.map(p => ({value:p.id,label:p.name}))" />
+      <a-form-item v-if="phase === 'confirm' && kind === 'prepare'" :label="$t('label.primary.storage')" :html-for="selectorId">
+        <a-select :id="selectorId" v-model:value="poolid" :loading="optionsLoading" :options="eligiblePools.map(p => ({value:p.id,label:p.name}))" />
         <p v-if="!optionsLoading && !error && !eligiblePools.length">{{ $t('message.template.zone.pool.empty') }}</p>
       </a-form-item>
       <a-table :columns="displayColumns" :data-source="rows" :pagination="false" :scroll="{x:700}" row-key="zoneid" size="small">
@@ -69,6 +77,7 @@ export default {
   emits: ['retained', 'refresh', 'refresh-parent', 'closed'],
   data () { return { visible: false, kind: 'delete', phase: 'confirm', rows: [], forced: false, busy: false, error: '', destinations: [], pools: [], selectedZones: [], poolid: undefined, optionsLoading: false, epoch: 0, operationContext: '', returnFocus: null } },
   computed: {
+    selectorId () { return 'template-zone-' + this.resource.id + '-' + this.kind },
     eligiblePools () { return this.pools.filter(p => preparePoolEligible(p, this.rows[0]?.zoneid)) },
     canSubmit () {
       if (this.busy || this.optionsLoading || !this.permitted || !this.rows.length) return false

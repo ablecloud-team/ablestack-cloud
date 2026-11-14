@@ -15,7 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { shallowMount, flushPromises } from '@vue/test-utils'
+import { mount, shallowMount, flushPromises } from '@vue/test-utils'
+import { Select, Form } from 'ant-design-vue'
 import { h } from 'vue'
 import Ops from '@/views/image/TemplateZoneOperations'
 import Zones from '@/views/image/TemplateZones'
@@ -104,4 +105,13 @@ test('closing cannot focus a disconnected or changed-scope trigger', async () =>
   jest.spyOn(trigger, 'getClientRects').mockReturnValue([{}]); const focus = jest.spyOn(trigger, 'focus')
   const c = context(); await c.open('delete', [row]); c.context = 'other-scope'; c.close()
   expect(focus).not.toHaveBeenCalled(); trigger.remove()
+})
+
+test.each([['copy', 'label.select.zones'], ['prepare', 'label.primary.storage']])('actual %s selector exposes a native accessible name', async (kind, label) => {
+  getAPI.mockResolvedValue({ listzonesresponse: { zone: [] }, liststoragepoolsresponse: { storagepool: [pool] } })
+  const slot = { template: '<div><slot /></div>' }
+  const w = mount(Ops, { attachTo: document.body, props: { resource, context: 'scope', permitted: true }, global: { mocks: { $store: context().$store, $route: context().$route, $router: { push: jest.fn() }, $t: k => k, $toLocaleDate: v => v }, components: { 'a-select': Select, 'a-form-item': Form.Item }, stubs: { MoldDialog: slot, MoldDialogActions: slot, AFormItem: false, ATable: true, AAlert: true, AButton: true, TemplateAvailability: true, Wave: false }, directives: { 'ctrl-enter': {} } } })
+  await w.vm.open(kind, [row]); await flushPromises()
+  expect(Array.from(w.get('input[role="combobox"]').element.labels || []).some(item => item.textContent.includes(label))).toBe(true)
+  w.unmount()
 })

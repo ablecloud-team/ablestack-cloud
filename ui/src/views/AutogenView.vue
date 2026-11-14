@@ -38,6 +38,7 @@
                   <template #icon><reload-outlined /></template>
                   {{ $t('label.refresh') }}
                 </a-button>
+                <label v-if="isTemplateList" :for="templateFilterId" class="template-filter-accessible-label">{{ $t('label.filterby') }}</label>
                 <a-tooltip placement="right">
                   <template #title>
                     {{ $t('label.filterby') }}
@@ -45,6 +46,7 @@
                   <a-select
                     v-if="!dataView && filters && filters.length > 0"
                     :placeholder="$t('label.filterby')"
+                    :id="isTemplateList ? templateFilterId : undefined"
                     :value="filterValue"
                     style="min-width: 100px; margin-left: 10px; margin-bottom: 5px"
                     size=small
@@ -1018,6 +1020,7 @@ import { sshKeyPairDeleteTargets } from '@/utils/sshKeyPairDeletion'
 import { isSshKeyPairDetailRoute, sshKeyPairDetailScope, sshKeyPairDetailTarget, sshKeyPairDetailParams, sshKeyPairMatchesTarget, sshKeyPairDetailResult, sshKeyPairDetailFailure, sshKeyPairVmParams } from '@/utils/sshKeyPairIdentity'
 import { normalizeVmGroupName, isVmGroupNameAction, isVmGroupAction, vmGroupErrorKey, vmGroupDeleteTargets } from '@/utils/vmGroupNames'
 
+let templateFilterSequence = 0
 export default {
   name: 'Resource',
   components: {
@@ -1058,6 +1061,7 @@ export default {
   },
   data () {
     return {
+      templateFilterId: 'template-filter-' + (++templateFilterSequence),
       storageActionGeneration: 0,
       apiName: '',
       loading: false,
@@ -3960,4 +3964,8 @@ export default {
 .template-list-page :deep(.ant-table-thead th) { white-space: nowrap; }
 .template-list-page :deep(.ant-table-cell) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .template-list-page :deep(.ant-breadcrumb) { overflow-wrap: anywhere; }
+</style>
+
+<style scoped>
+.template-filter-accessible-label { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 </style>
