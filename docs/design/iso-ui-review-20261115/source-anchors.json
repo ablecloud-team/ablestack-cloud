@@ -1,0 +1,236 @@
+{
+  "ui/src/views/image/RegisterOrUploadIso.vue": {
+    "lines": 722,
+    "anchors": [
+      {
+        "line": 634,
+        "text": "this.linkUserdataToTemplate(this.userdataid, json.postuploadisoresponse.iso[0].id)"
+      }
+    ]
+  },
+  "ui/src/views/image/UpdateISO.vue": {
+    "lines": 322,
+    "anchors": [
+      {
+        "line": 208,
+        "text": "const resourceFields = ['name', 'displaytext', 'passwordenabled', 'isdynamicallyscalable', 'ostypeid', 'forceupdateostype', 'userdataid', 'userdatapolicy']"
+      }
+    ]
+  },
+  "ui/src/views/image/IsoZones.vue": {
+    "lines": 641,
+    "anchors": [
+      {
+        "line": 22,
+        "text": "v-if=\"(('deleteIso' in $store.getters.apis) && this.selectedItems.length > 0)\""
+      },
+      {
+        "line": 497,
+        "text": "if (this.selectedItems.length > 0) {"
+      },
+      {
+        "line": 508,
+        "text": "if (this.selectedItems.length > 0) {"
+      },
+      {
+        "line": 512,
+        "text": "showLoading: !(this.selectedItems.length > 0 && this.showGroupActionModal),"
+      },
+      {
+        "line": 515,
+        "text": "bulkAction: this.selectedItems.length > 0 && this.showGroupActionModal"
+      }
+    ]
+  },
+  "ui/src/config/section/image.js": {
+    "lines": 431,
+    "anchors": [
+      {
+        "line": 300,
+        "text": "!(record.account === 'system' && record.domainid === 1) &&"
+      },
+      {
+        "line": 322,
+        "text": "!(record.account === 'system' && record.domainid === 1) &&"
+      },
+      {
+        "line": 337,
+        "text": "!(record.account === 'system' && record.domainid === 1) &&"
+      },
+      {
+        "line": 363,
+        "text": "!(record.account === 'system' && record.domainid === 1) &&"
+      }
+    ]
+  },
+  "api/src/main/java/org/apache/cloudstack/api/AbstractGetUploadParamsCmd.java": {
+    "lines": 115,
+    "anchors": [
+      {
+        "line": 43,
+        "text": "@Parameter(name = ApiConstants.CHECKSUM, type = CommandType.STRING, description = \"The checksum value of this Volume/Template/ISO \" + ApiConstants.CHECKSUM_PARAMETER_PREFIX_DESCRIPTION)"
+      }
+    ]
+  },
+  "api/src/main/java/org/apache/cloudstack/api/command/user/iso/GetUploadParamsForIsoCmd.java": {
+    "lines": 176,
+    "anchors": [
+      {
+        "line": 53,
+        "text": "@Parameter(name = ApiConstants.BOOTABLE, type = BaseCmd.CommandType.BOOLEAN, description = \"True if this ISO is bootable. If not passed explicitly its assumed to be true\")"
+      }
+    ]
+  },
+  "api/src/main/java/org/apache/cloudstack/api/command/user/iso/ListIsosCmd.java": {
+    "lines": 218,
+    "anchors": [
+      {
+        "line": 49,
+        "text": "@Parameter(name = ApiConstants.BOOTABLE, type = CommandType.BOOLEAN, description = \"True if the ISO is bootable, false otherwise\")"
+      },
+      {
+        "line": 61,
+        "text": "@Parameter(name = ApiConstants.IS_READY, type = CommandType.BOOLEAN, description = \"True if this ISO is ready to be deployed\")"
+      },
+      {
+        "line": 90,
+        "text": "@Parameter(name = ApiConstants.ARCH, type = CommandType.STRING,"
+      },
+      {
+        "line": 100,
+        "text": "@Parameter(name = ApiConstants.USER_DATA_ID, type = CommandType.UUID, entityType = UserDataResponse.class,"
+      }
+    ]
+  },
+  "api/src/main/java/org/apache/cloudstack/api/command/admin/iso/ListIsosCmdByAdmin.java": {
+    "lines": 49,
+    "anchors": [
+      {
+        "line": 32,
+        "text": "@Parameter(name = ApiConstants.IMAGE_STORE_ID, type = CommandType.UUID, entityType = ImageStoreResponse.class,"
+      },
+      {
+        "line": 36,
+        "text": "@Parameter(name = ApiConstants.STORAGE_ID, type = CommandType.UUID, entityType = StoragePoolResponse.class,"
+      }
+    ]
+  },
+  "api/src/main/java/org/apache/cloudstack/api/BaseUpdateTemplateOrIsoCmd.java": {
+    "lines": 166,
+    "anchors": [
+      {
+        "line": 33,
+        "text": "@Parameter(name = ApiConstants.BOOTABLE, type = CommandType.BOOLEAN, description = \"True if image is bootable, false otherwise; available only for updateIso API\")"
+      },
+      {
+        "line": 86,
+        "text": "@Parameter(name = ApiConstants.ARCH, type = CommandType.STRING,"
+      }
+    ]
+  },
+  "ui/src/views/image/UpdateTemplateIsoPermissions.vue": {
+    "lines": 352,
+    "anchors": [
+      {
+        "line": 155,
+        "text": "permittedAccounts: [],"
+      },
+      {
+        "line": 156,
+        "text": "permittedProjects: [],"
+      },
+      {
+        "line": 175,
+        "text": "? !this.permittedAccounts.includes(a.name)"
+      },
+      {
+        "line": 176,
+        "text": ": this.permittedAccounts.includes(a.name)"
+      },
+      {
+        "line": 183,
+        "text": "? !this.permittedProjects.includes(p.id)"
+      },
+      {
+        "line": 184,
+        "text": ": this.permittedProjects.includes(p.id)"
+      },
+      {
+        "line": 237,
+        "text": "this.permittedAccounts = Array.isArray(permission.account) ? permission.account : []"
+      },
+      {
+        "line": 238,
+        "text": "this.permittedProjects = Array.isArray(permission.projectids) ? permission.projectids : []"
+      },
+      {
+        "line": 248,
+        "text": "const permission = response.listisopermissionsresponse?.templatepermission || {}"
+      },
+      {
+        "line": 249,
+        "text": "this.permittedAccounts = Array.isArray(permission.account) ? permission.account : []"
+      },
+      {
+        "line": 250,
+        "text": "this.permittedProjects = Array.isArray(permission.projectids) ? permission.projectids : []"
+      }
+    ]
+  },
+  "server/src/main/java/com/cloud/storage/upload/params/UploadParamsBase.java": {
+    "lines": 286,
+    "anchors": [
+      {
+        "line": 54,
+        "text": "UploadParamsBase(long userId, String name, String displayText, CPU.CPUArch arch,"
+      },
+      {
+        "line": 77,
+        "text": "this.checksum = checksum;"
+      },
+      {
+        "line": 90,
+        "text": "UploadParamsBase(long userId, String name, String displayText, boolean isPublic, boolean isFeatured,"
+      }
+    ]
+  },
+  "server/src/main/java/com/cloud/template/TemplateAdapterBase.java": {
+    "lines": 727,
+    "anchors": [
+      {
+        "line": 516,
+        "text": "params.getHypervisorType(), params.getChecksum(), params.isBootable(), params.getTemplateTag(), owner,"
+      },
+      {
+        "line": 546,
+        "text": "public TemplateProfile prepare(GetUploadParamsForIsoCmd cmd) throws ResourceAllocationException {"
+      },
+      {
+        "line": 547,
+        "text": "UploadParams params = new IsoUploadParams(CallContext.current().getCallingUserId(), cmd.getName(),"
+      }
+    ]
+  },
+  "server/src/main/java/com/cloud/storage/upload/params/IsoUploadParams.java": {
+    "lines": 33,
+    "anchors": [
+      {
+        "line": 24,
+        "text": "public IsoUploadParams(long userId, String name, String displayText, Boolean isPublic, Boolean isFeatured,"
+      },
+      {
+        "line": 26,
+        "text": "super(userId, name, displayText, isPublic, isFeatured, isExtractable, osTypeId, zoneId, bootable, ownerId, dynamicallyScalable);"
+      }
+    ]
+  },
+  "server/src/main/java/com/cloud/template/TemplateManagerImpl.java": {
+    "lines": 3052,
+    "anchors": [
+      {
+        "line": 1921,
+        "text": "// For Isos normal user can change it, as their are no derivatives."
+      }
+    ]
+  }
+}
