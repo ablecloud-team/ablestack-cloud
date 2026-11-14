@@ -115,3 +115,10 @@ test.each([['copy', 'label.select.zones'], ['prepare', 'label.primary.storage']]
   expect(Array.from(w.get('input[role="combobox"]').element.labels || []).some(item => item.textContent.includes(label))).toBe(true)
   w.unmount()
 })
+
+test('store progress never coerces unknown or invalid values into a completed download', () => {
+  const { templateStorePresentation } = require('@/utils/templateZoneOperations')
+  expect(templateStorePresentation({ downloadState: 'DOWNLOADED', downloadPercent: '100' })).toMatchObject({ percent: 100, badge: 'success' })
+  for (const value of [null, undefined, '', -1, 101, 'bad'])expect(templateStorePresentation({ downloadPercent: value }).percent).toBeNull()
+  expect(templateStorePresentation({ downloadState: 'NEW_STATE' })).toMatchObject({ badge: 'default', label: 'label.unknown' })
+})

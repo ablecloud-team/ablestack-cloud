@@ -80,18 +80,18 @@ export default {
       tabs: [{
         name: 'details',
         component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailsTab.vue')))
-      }, { name: 'runtime.catalog', component: shallowRef(defineAsyncComponent(() => import('@/views/tools/RuntimeBundleCatalogSummary.vue'))), show: record => canReadTemplateRuntimeCatalog(store.getters) && isStorageServiceTemplate(record) },
-      {
+      }, {
         name: 'zones',
         component: shallowRef(defineAsyncComponent(() => import('@/views/image/TemplateZones.vue')))
       }, {
         name: 'settings',
-        component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailSettings')))
+        component: shallowRef(defineAsyncComponent(() => import('@/views/image/TemplateSettingsTab.vue')))
       }, {
         name: 'vnf.settings',
         component: shallowRef(defineAsyncComponent(() => import('@/views/image/TemplateVnfSettings.vue'))),
         show: (record) => { return record.templatetype === 'VNF' && 'updateVnfTemplate' in store.getters.apis }
       },
+      { name: 'runtime.catalog', label: () => 'runtime.bundle.tab', component: shallowRef(defineAsyncComponent(() => import('@/views/tools/RuntimeBundleCatalogSummary.vue'))), show: record => canReadTemplateRuntimeCatalog(store.getters) && isStorageServiceTemplate(record) },
       {
         name: 'events',
         resourceType: 'Template',

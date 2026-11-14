@@ -18,23 +18,26 @@
 <template>
   <div class="vnf-settings">
     <a-alert v-if="saveError" type="error" show-icon role="alert" :message="saveError" />
-    <a-divider />
-    <div class="title"><tooltip-label :title="$t('label.vnf.nics')" :tooltip="apiParams.vnfnics?.description" /></div>
-    <a-button type="dashed" class="vnf-add" :disabled="updateBusy || !canWrite" @click="onShowAddVnfNic"><template #icon><plus-outlined /></template>{{ $t('label.vnf.nic.add') }}</a-button>
-    <a-table size="small" :loading="loading" :columns="columns" :data-source="vnfNics" :pagination="false" :row-key="record => record.deviceid" :scroll="{ x: 600 }">
-      <template #required="{record}">{{ $t(record.required ? 'label.yes' : 'label.no') }}</template>
-      <template #management="{record}">{{ $t(record.management ? 'label.yes' : 'label.no') }}</template>
-      <template #actions="{record}">
-        <div v-if="canWrite" class="shift-btns">
-          <tooltip-button :tooltip="$t('label.vnf.nic.edit')" icon="edit-outlined" :disabled="updateBusy || editorOpen" @onClick="onShowEditVnfNic(record, $event)" />
-          <tooltip-button :tooltip="$t(canMove(record, -1) ? 'label.move.up.row' : 'message.vnf.nic.move.boundary')" icon="caret-up-outlined" :disabled="updateBusy || editorOpen || !canMove(record, -1)" @onClick="moveVnfNicUp(record)" />
-          <tooltip-button :tooltip="$t(canMove(record, 1) ? 'label.move.down.row' : 'message.vnf.nic.move.boundary')" icon="caret-down-outlined" :disabled="updateBusy || editorOpen || !canMove(record, 1)" @onClick="moveVnfNicDown(record)" />
-          <a-popconfirm :title="$t('message.vnf.nic.delete.confirm', { name: record.name, id: record.deviceid })" :disabled="updateBusy || editorOpen" :ok-text="$t('label.yes')" :cancel-text="$t('label.no')" @confirm="deleteVnfNic(record)">
-            <tooltip-button :tooltip="$t('label.vnf.nic.delete')" icon="delete-outlined" :danger="true" :disabled="updateBusy || editorOpen" />
-          </a-popconfirm>
-        </div>
-      </template>
-    </a-table>
+    <section class="template-tab-section" :aria-label="$t('label.vnf.nics')">
+      <h5 class="template-tab-section-title">{{ $t('label.vnf.nics') }}</h5>
+      <div class="template-tab-toolbar">
+        <a-button v-if="canWrite" type="primary" :disabled="updateBusy || editorOpen" @click="onShowAddVnfNic"><template #icon><plus-outlined /></template>{{ $t('label.vnf.nic.add') }}</a-button>
+        <a-button :disabled="updateBusy || editorOpen" :loading="loading" @click="refreshView"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
+        <a-input-search v-model:value="nicSearch" :placeholder="$t('label.template.vnf.nic.search')" @change="nicPage=1" />
+      </div>
+      <a-table size="small" :loading="loading" :columns="columns" :data-source="visibleNics" :pagination="false" :row-key="record=>record.deviceid" :scroll="{x:850}">
+        <template #required="{record}">{{ $t(record.required?'label.yes':'label.no') }}</template>
+        <template #management="{record}">{{ $t(record.management?'label.yes':'label.no') }}</template>
+        <template #bodyCell="{column,record}"><a-tooltip v-if="['name','description'].includes(column.key)" :title="record[column.key]"><span class="template-cell-value">{{ record[column.key] || '—' }}</span></a-tooltip></template>
+        <template #actions="{record}"><div v-if="canWrite" class="template-row-actions">
+          <a-button type="link" size="small" :disabled="updateBusy || editorOpen" @click="onShowEditVnfNic(record,$event)">{{ $t('label.edit') }}</a-button>
+          <tooltip-button :tooltip="$t(nicSearch?'message.template.vnf.move.filtered':canMove(record,-1)?'label.move.up.row':'message.vnf.nic.move.boundary')" icon="caret-up-outlined" :disabled="updateBusy || editorOpen || !canMove(record,-1)" @onClick="moveVnfNicUp(record)" />
+          <tooltip-button :tooltip="$t(nicSearch?'message.template.vnf.move.filtered':canMove(record,1)?'label.move.down.row':'message.vnf.nic.move.boundary')" icon="caret-down-outlined" :disabled="updateBusy || editorOpen || !canMove(record,1)" @onClick="moveVnfNicDown(record)" />
+          <a-popconfirm :title="$t('message.vnf.nic.delete.confirm',{name:record.name,id:record.deviceid})" :disabled="updateBusy || editorOpen" :ok-text="$t('label.yes')" :cancel-text="$t('label.no')" @confirm="deleteVnfNic(record)"><tooltip-button :tooltip="$t('label.vnf.nic.delete')" icon="delete-outlined" :danger="true" :disabled="updateBusy || editorOpen" /></a-popconfirm>
+        </div></template>
+      </a-table>
+      <div class="template-tab-pagination"><a-pagination v-model:current="nicPage" v-model:page-size="nicPageSize" :total="filteredNics.length" show-size-changer :page-size-options="['10','20','50']" /></div>
+    </section>
     <MoldDialog
 class="vnf-template-nic-dialog"
 size="md"
@@ -58,19 +61,26 @@ destroy-on-close
         <MoldDialogActions :busy="updateBusy"><a-button @click="closeVnfNicModal">{{ $t('label.cancel') }}</a-button><a-button type="primary" :loading="updateBusy" :disabled="!canWrite" @click="submitVnfNic">{{ $t('label.ok') }}</a-button></MoldDialogActions>
       </a-form>
     </MoldDialog>
-    <a-divider />
-    <div class="title"><tooltip-label :title="$t('label.vnf.details')" :tooltip="apiParams.vnfdetails?.description" /></div>
-    <a-alert v-if="optionsError" type="warning" show-icon :message="$t('message.vnf.detail.options.failed')" ><template #description><a-button size="small" :loading="optionsLoading" @click="loadOptions">{{ $t('label.retry') }}</a-button></template></a-alert>
-    <a-button type="dashed" class="vnf-add" :disabled="updateBusy || !canWrite || !optionsReady" @click="onShowAddVnfDetail"><template #icon><plus-outlined /></template>{{ $t('label.vnf.detail.add') }}</a-button>
-    <a-list size="large">
-      <a-list-item v-for="item in vnfDetails" :key="item.name">
-        <a-list-item-meta :title="item.name"><template #description><span class="vnf-value">{{ getDisplayValue(item.name, item.value) }}</span></template></a-list-item-meta>
-        <template #actions><div v-if="canWrite" class="shift-btns">
-          <tooltip-button :tooltip="$t('label.edit')" icon="edit-outlined" :disabled="updateBusy || editorOpen || !optionsReady" @onClick="showEditVnfDetail(item.name, $event)" />
-          <a-popconfirm :title="$t('label.delete.setting') + ': ' + item.name + '?'" :disabled="updateBusy || editorOpen" :ok-text="$t('label.yes')" :cancel-text="$t('label.no')" @confirm="deleteVnfDetail(item.name)"><tooltip-button :tooltip="$t('label.delete')" icon="delete-outlined" :danger="true" :disabled="updateBusy || editorOpen" /></a-popconfirm>
-        </div></template>
-      </a-list-item>
-    </a-list>
+    <section class="template-tab-section" :aria-label="$t('label.vnf.details')">
+      <h5 class="template-tab-section-title">{{ $t('label.vnf.details') }}</h5>
+      <a-alert v-if="optionsError" type="warning" show-icon :message="$t('message.vnf.detail.options.failed')"><template #description><a-button size="small" :loading="optionsLoading" @click="loadOptions">{{ $t('label.retry') }}</a-button></template></a-alert>
+      <div class="template-tab-toolbar">
+        <a-button v-if="canWrite" type="primary" :disabled="updateBusy || editorOpen || !optionsReady" @click="onShowAddVnfDetail"><template #icon><plus-outlined /></template>{{ $t('label.vnf.detail.add') }}</a-button>
+        <a-button :disabled="updateBusy || editorOpen" :loading="loading" @click="refreshView"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
+        <a-input-search v-model:value="detailSearch" :placeholder="$t('label.template.vnf.detail.search')" @change="detailPage=1" />
+      </div>
+      <a-table size="small" :columns="detailColumns" :data-source="visibleDetails" :pagination="false" row-key="name" :scroll="{x:650}">
+        <template #bodyCell="{column,record}">
+          <a-tooltip v-if="column.key==='name'" :title="record.name"><span class="template-cell-value">{{ record.name }}</span></a-tooltip>
+          <a-tooltip v-else-if="column.key==='value'" :title="getDisplayValue(record.name,record.value)"><span class="template-cell-value">{{ getDisplayValue(record.name,record.value) }}</span></a-tooltip>
+          <div v-else-if="column.key==='actions' && canWrite" class="template-row-actions">
+            <a-button size="small" type="link" :disabled="updateBusy || editorOpen || !optionsReady" @click="showEditVnfDetail(record.name,$event)">{{ $t('label.edit') }}</a-button>
+            <a-popconfirm :title="$t('label.delete.setting')+': '+record.name+'?'" :disabled="updateBusy || editorOpen" :ok-text="$t('label.yes')" :cancel-text="$t('label.no')" @confirm="deleteVnfDetail(record.name)"><tooltip-button :tooltip="$t('label.delete')" icon="delete-outlined" :danger="true" :disabled="updateBusy || editorOpen" /></a-popconfirm>
+          </div>
+        </template>
+      </a-table>
+      <div class="template-tab-pagination"><a-pagination v-model:current="detailPage" v-model:page-size="detailPageSize" :total="filteredDetails.length" show-size-changer :page-size-options="['10','20','50']" /></div>
+    </section>
     <MoldDialog
 class="vnf-template-detail-dialog"
 size="md"
@@ -112,10 +122,15 @@ export default {
   components: { MoldDialog, MoldDialogActions, TooltipButton, TooltipLabel },
   props: { resource: { type: Object, required: true }, loading: { type: Boolean, default: false } },
   data () {
-    return { updateBusy: false, updateSequence: 0, optionsSequence: 0, optionsLoading: false, optionsReady: false, optionsError: false, vnfDetailOptions: {}, columns: [], vnfNics: [], vnfDetails: [], previousVnfNics: [], previousVnfDetails: [], showAddVnfNic: false, showEditVnfNic: false, nicDraft: {}, nicError: '', saveError: '', showAddVnfDetail: false, showEditDetail: false, detailDraft: { key: '', value: '', values: [], replaceSecret: false }, detailError: '' }
+    return { nicSearch: '', detailSearch: '', nicPage: 1, detailPage: 1, nicPageSize: 10, detailPageSize: 10, updateBusy: false, updateSequence: 0, optionsSequence: 0, optionsLoading: false, optionsReady: false, optionsError: false, vnfDetailOptions: {}, columns: [], vnfNics: [], vnfDetails: [], previousVnfNics: [], previousVnfDetails: [], showAddVnfNic: false, showEditVnfNic: false, nicDraft: {}, nicError: '', saveError: '', showAddVnfDetail: false, showEditDetail: false, detailDraft: { key: '', value: '', values: [], replaceSecret: false }, detailError: '' }
   },
   beforeCreate () { this.apiParams = this.$getApiParams('updateVnfTemplate') || {} },
   computed: {
+    filteredNics () { const q = this.nicSearch.toLowerCase(); return this.vnfNics.filter(n => [n.deviceid, n.name, n.description].some(v => String(v ?? '').toLowerCase().includes(q))) },
+    visibleNics () { return this.filteredNics.slice((this.nicPage - 1) * this.nicPageSize, this.nicPage * this.nicPageSize) },
+    filteredDetails () { const q = this.detailSearch.toLowerCase(); return this.vnfDetails.filter(d => d.name.toLowerCase().includes(q) || (!isVnfSecret(d.name) && String(d.value).toLowerCase().includes(q))) },
+    visibleDetails () { return this.filteredDetails.slice((this.detailPage - 1) * this.detailPageSize, this.detailPage * this.detailPageSize) },
+    detailColumns () { return [{ key: 'name', dataIndex: 'name', title: this.$t('label.name'), width: 220 }, { key: 'value', dataIndex: 'value', title: this.$t('label.value') }, { key: 'actions', title: this.$t('label.actions'), width: 140 }] },
     canWrite () { return vnfWriteAllowed(this.resource, this.$store.getters.userInfo, this.$store.getters.project, this.$store.getters.apis) },
     editorOpen () { return this.showAddVnfNic || this.showEditVnfNic || this.showAddVnfDetail || this.showEditDetail },
     detailSecret () { return isVnfSecret(this.detailDraft.key) },
@@ -128,17 +143,22 @@ export default {
     }
   },
   created () {
-    this.columns = ['deviceid', 'name', 'required', 'management', 'description', 'actions'].map(key => ({ key, dataIndex: key, title: this.$t({ deviceid: 'label.deviceid', name: 'label.name', required: 'label.required', management: 'label.vnf.nic.management', description: 'label.description', actions: 'label.action' }[key]), ...(['required', 'management', 'actions'].includes(key) ? { slots: { customRender: key } } : {}), ...(key === 'actions' ? { width: 165 } : {}) }))
+    this.columns = ['deviceid', 'name', 'required', 'management', 'description', 'actions'].map(key => ({ key, dataIndex: key, title: this.$t({ deviceid: 'label.deviceid', name: 'label.name', required: 'label.required', management: 'label.vnf.nic.management', description: 'label.description', actions: 'label.action' }[key]), ...(['required', 'management', 'actions'].includes(key) ? { slots: { customRender: key } } : {}), ...({ deviceid: 80, name: 180, required: 90, management: 100, description: 220, actions: 200 }[key] ? { width: { deviceid: 80, name: 180, required: 90, management: 100, description: 220, actions: 200 }[key] } : {}) }))
     this.initForm(); this.loadOptions()
   },
   beforeUnmount () { this.invalidate() },
   deactivated () { this.invalidate() },
   activated () { this.initForm(); this.loadOptions() },
   watch: {
+    'filteredNics.length' () { this.nicPage = Math.min(this.nicPage, Math.max(1, Math.ceil(this.filteredNics.length / this.nicPageSize))) },
+    'filteredDetails.length' () { this.detailPage = Math.min(this.detailPage, Math.max(1, Math.ceil(this.filteredDetails.length / this.detailPageSize))) },
+    nicPageSize () { this.nicPage = 1 },
+    detailPageSize () { this.detailPage = 1 },
     nicScope () { this.invalidate(); this.initForm(); this.loadOptions() },
     loading (value) { if (!value && !this.updateBusy && !this.editorOpen) this.initForm() }
   },
   methods: {
+    refreshView () { if (!this.updateBusy && !this.editorOpen) { this.$emit('refresh'); this.loadOptions() } },
     isAdminOrOwner () { return this.canWrite },
     initForm () {
       if (this.updateBusy || this.editorOpen) return
@@ -148,6 +168,7 @@ export default {
     },
     fetchData () { this.vnfNics = cloneNics(this.previousVnfNics); this.vnfDetails = this.previousVnfDetails.map(d => ({ ...d })) },
     invalidate () {
+      this.nicSearch = this.detailSearch = ''; this.nicPage = this.detailPage = 1
       this.updateSequence++; this.optionsSequence++; this.updateBusy = false; this.optionsLoading = false; this.optionsReady = false
       this.showAddVnfNic = this.showEditVnfNic = this.showAddVnfDetail = this.showEditDetail = false
       this.nicTrigger = this.detailTrigger = null; this.resetNicDraft(); this.resetDetailDraft(); this.saveError = ''
@@ -194,6 +215,7 @@ export default {
       return this.updateVnfTemplateNics(this.vnfNics.filter(n => n.deviceid !== record.deviceid).map((n, deviceid) => ({ ...n, deviceid })))
     },
     canMove (record, direction) {
+      if ((this.nicSearch || '').trim()) return false
       const other = this.vnfNics.find(n => Number(n.deviceid) === Number(record.deviceid) + direction)
       return !!(other && !!other.required === !!record.required)
     },

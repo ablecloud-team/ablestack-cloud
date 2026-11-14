@@ -90,6 +90,7 @@
 </template>
 
 <script>
+import '@/style/components/view/template-tabs.less'
 import { networkTabRoute, uniqueTabs, selectedNetworkTab } from '@/utils/networkTabs'
 import { conditionalGuestTab, guestFeatureStatus } from '@/utils/conditionalGuestNetwork'
 import DetailsTab from '@/components/view/DetailsTab'
