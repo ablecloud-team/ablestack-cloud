@@ -54,6 +54,7 @@
     :message="$t(l2Network.configDrive ? 'message.l2.network.configdrive' : 'message.l2.network.basic')" />
   <a-list
     class="resource-details-list"
+    :class="{ 'template-details-list': $route.meta.name === 'template' }"
     size="small"
     :dataSource="(fetchDetails() || []).concat(Object.keys(allocationDetails))">
     <template #renderItem="{item}">
@@ -67,7 +68,12 @@
           <a-tooltip v-if="['volume', 'snapshot', 'template', 'iso'].includes($route.meta.name) && item === 'savingrate'"><template #title>{{ $t('message.savingrate') }}</template><QuestionCircleOutlined style="margin-left: 8px;"/></a-tooltip>
           <a-tooltip v-if="$route.meta.name === 'storagepool' && item === 'disksizeallocated'" :title="$t('message.storage.allocated.meaning')"><info-circle-outlined style="margin-left: 8px" /></a-tooltip>
           <br/>
-          <network-ip-vm-link v-if="$route.meta.name === 'publicip' && item === 'virtualmachinename'" :record="dataResource" />
+          <template-detail-value
+            v-if="$route.meta.name === 'template' && presentedTemplateValue(item)"
+            :field="item"
+            :value="dataResource[item]"
+            :label="$t(getDetailTitle(item))" />
+          <network-ip-vm-link v-else-if="$route.meta.name === 'publicip' && item === 'virtualmachinename'" :record="dataResource" />
           <InternalLbRules v-else-if="$route.meta.name === 'ilb' && item === 'loadbalancerrule'" :record="dataResource" :loading="loading" />
           <div v-else-if="allocationDetails[item]">{{ allocationDetails[item].value }}</div>
           <div v-else-if="item === 'vlan' && guestPvlan">
@@ -405,6 +411,8 @@ import { networkTypeLabel } from '@/utils/networkLifecycle'
 import { l2ConfigDrive, l2PvlanDetails } from '@/utils/l2Network'
 import { sharedScopeLabel } from '@/utils/sharedNetwork'
 import Status from '@/components/widgets/Status'
+import TemplateDetailValue from '@/components/widgets/TemplateDetailValue'
+import { presentedTemplateValue } from '@/utils/templateDetails'
 import NetworkIpVmLink from '@/components/widgets/NetworkIpVmLink'
 import { creationVmDetails } from '@/utils/creationVmPresentation'
 import { getAblestackBackupOfferingVisibleDetails } from '@/utils/ablestackBackupPolicy'
@@ -432,6 +440,7 @@ export default {
   name: 'DetailsTab',
   components: {
     InternalLbRules,
+    TemplateDetailValue,
     VpnPsk,
     PvlanSupportNotice,
     NetworkIpVmLink,
@@ -688,6 +697,7 @@ export default {
       }
       this.dataResource.account = projectAdmins.join()
     },
+    presentedTemplateValue,
     fetchDetails () {
       let details = this.$route.meta.details
 
@@ -723,6 +733,8 @@ export default {
       return detailsKeys
     },
     getDetailTitle (detail) {
+      if (this.$route.meta.name === 'template' && detail === 'format') return 'label.template.image.format'
+      if (this.$route.meta.name === 'template' && detail === 'templatetype') return 'label.template.type'
       if (detail === 'sharedscope') return this.$t('label.shared.scope')
       return `label.${String(this.detailsTitles[detail]).toLowerCase()}`
     },
@@ -967,6 +979,11 @@ export default {
   color: var(--ui-text-primary);
 }
 
+.template-details-list :deep(.ant-list-item > div) {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
 .preline {
   white-space: pre-line;
   word-break: break-word;

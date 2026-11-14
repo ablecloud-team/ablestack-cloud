@@ -116,15 +116,15 @@ public class ApiDispatcher {
     }
 
     public void dispatch(final BaseCmd cmd, final Map<String, String> params, final boolean execute) throws Exception {
-        // Let the chain of responsibility dispatch gradually
-        standardDispatchChain.dispatch(new DispatchTask(cmd, params));
-
         final CallContext ctx = CallContext.current();
-        ctx.setEventDisplayEnabled(cmd.isDisplay());
-        if(params.get(ApiConstants.PROJECT_ID) != null) {
+        // Replayed async jobs need project scope before parameter/entity access checks.
+        if (params.get(ApiConstants.PROJECT_ID) != null) {
             Project project = _entityMgr.findByUuidIncludingRemoved(Project.class, params.get(ApiConstants.PROJECT_ID));
             ctx.setProject(project);
         }
+        // Let the chain of responsibility dispatch gradually.
+        standardDispatchChain.dispatch(new DispatchTask(cmd, params));
+        ctx.setEventDisplayEnabled(cmd.isDisplay());
         if (cmd.getApiResourceId() != null) {
             ctx.setEventResourceId(cmd.getApiResourceId());
         }

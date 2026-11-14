@@ -32,7 +32,7 @@ import java.util.Map;
 
 @APICommand(name = "updateVnfTemplate", description = "Updates a template to VNF template or attributes of a VNF template.",
         responseObject = TemplateResponse.class, responseView = ResponseView.Restricted,
-        requestHasSensitiveInfo = false, responseHasSensitiveInfo = false,
+        requestHasSensitiveInfo = true, responseHasSensitiveInfo = true,
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User},
         since = "4.19.0")
 public class UpdateVnfTemplateCmd extends UpdateTemplateCmd implements UserCmd {

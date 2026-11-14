@@ -1,0 +1,9 @@
+{
+  "baselineMethodMatchesDeployed": true,
+  "changedMethods": [
+    "dispatch(Lorg/apache/cloudstack/api/BaseCmd;Ljava/util/Map;Z)V"
+  ],
+  "allOtherMethodsPreserved": true,
+  "fullClassRecompileDeployed": false,
+  "classSha256": "eff1d307902ca1d54adbc84b00cd00b0e48b86bebea81c79b1d954e9caa6e294"
+}

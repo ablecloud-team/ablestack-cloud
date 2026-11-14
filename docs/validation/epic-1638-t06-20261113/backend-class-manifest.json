@@ -1,0 +1,18 @@
+{
+  "org/apache/cloudstack/api/command/admin/template/PrepareTemplateCmd.class": {
+    "sha256": "0867ee216eb006b0699c86c7c0c49cba19f8dbce24ec90687f766f6f93cbb47f",
+    "oldSha256": "3c4d0932dc896a09669d173a2a9a07af79ba56cdebf77328b7819b6d977285b0"
+  },
+  "com/cloud/api/query/dao/TemplateJoinDaoImpl.class": {
+    "sha256": "d974b319c0923209332e16c11687fac1c97d12aa144f4fc1255bdf3af4578403",
+    "oldSha256": "f5edd65463879858af6f29fd44a329f5739c873b969c4b73ec184c89225dd479"
+  },
+  "com/cloud/template/TemplatePreparationValidation.class": {
+    "sha256": "ef8a0acd80557cfec5e1cfdae0588ea49c5095c374d143f7b7ac3f4b6e53c671",
+    "oldSha256": null
+  },
+  "com/cloud/template/TemplateManagerImpl.class": {
+    "sha256": "e36ef1902693d54083dd14ab8406c0afe40ea4791fd079490e27830a6d2c4595",
+    "oldSha256": "b94e9084a4ccbda225e35fb79435667ad55c105795d2b4e1b45d2cc71c466649"
+  }
+}

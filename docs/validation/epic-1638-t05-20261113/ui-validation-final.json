@@ -1,0 +1,289 @@
+{
+  "clipboard": {
+    "checkedBy": "user",
+    "result": "PASS",
+    "statement": "체크섬 클립보드 복사/붙여넣기를 직접 확인했고 이상 없음",
+    "date": "2026-11-13"
+  },
+  "viewports": [
+    {
+      "theme": "dark",
+      "width": 1680,
+      "bodyWidth": 1670,
+      "cardScrollWidth": 392,
+      "cardWidth": 392,
+      "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+      "created": "생성일\n\n2026. 11. 13. 오후 4:27:10",
+      "crossZone": "아니오",
+      "format": "이미지 형식\n\nQCOW2",
+      "hvm": "아니오",
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "nameScrollWidth": 262,
+      "nameWidth": 262,
+      "panelScrollWidth": 829,
+      "panelWidth": 829,
+      "ssh": "예",
+      "typeRows": 1,
+      "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2",
+      "viewport": 1680
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "bodyWidth": 1014,
+      "cardScrollWidth": 290,
+      "cardWidth": 290,
+      "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+      "created": "생성일\n\n2026. 11. 13. 오후 4:27:10",
+      "crossZone": "아니오",
+      "format": "이미지 형식\n\nQCOW2",
+      "hvm": "아니오",
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "nameScrollWidth": 160,
+      "nameWidth": 160,
+      "panelScrollWidth": 451,
+      "panelWidth": 451,
+      "ssh": "예",
+      "typeRows": 1,
+      "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2",
+      "viewport": 1024
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "bodyWidth": 380,
+      "cardScrollWidth": 344,
+      "cardWidth": 344,
+      "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+      "created": "생성일\n\n2026. 11. 13. 오후 4:27:10",
+      "crossZone": "아니오",
+      "format": "이미지 형식\n\nQCOW2",
+      "hvm": "아니오",
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "nameScrollWidth": 214,
+      "nameWidth": 214,
+      "panelScrollWidth": 296,
+      "panelWidth": 296,
+      "ssh": "예",
+      "typeRows": 1,
+      "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2",
+      "viewport": 390
+    },
+    {
+      "theme": "light",
+      "width": 1680,
+      "bodyWidth": 1670,
+      "cardScrollWidth": 392,
+      "cardWidth": 392,
+      "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+      "created": "생성일\n\n2026. 11. 13. 오후 4:27:10",
+      "crossZone": "아니오",
+      "format": "이미지 형식\n\nQCOW2",
+      "hvm": "아니오",
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "nameScrollWidth": 262,
+      "nameWidth": 262,
+      "panelScrollWidth": 829,
+      "panelWidth": 829,
+      "ssh": "예",
+      "typeRows": 1,
+      "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2",
+      "viewport": 1680
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "bodyWidth": 1014,
+      "cardScrollWidth": 290,
+      "cardWidth": 290,
+      "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+      "created": "생성일\n\n2026. 11. 13. 오후 4:27:10",
+      "crossZone": "아니오",
+      "format": "이미지 형식\n\nQCOW2",
+      "hvm": "아니오",
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "nameScrollWidth": 160,
+      "nameWidth": 160,
+      "panelScrollWidth": 451,
+      "panelWidth": 451,
+      "ssh": "예",
+      "typeRows": 1,
+      "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2",
+      "viewport": 1024
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "bodyWidth": 380,
+      "cardScrollWidth": 344,
+      "cardWidth": 344,
+      "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+      "created": "생성일\n\n2026. 11. 13. 오후 4:27:10",
+      "crossZone": "아니오",
+      "format": "이미지 형식\n\nQCOW2",
+      "hvm": "아니오",
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "nameScrollWidth": 214,
+      "nameWidth": 214,
+      "panelScrollWidth": 296,
+      "panelWidth": 296,
+      "ssh": "예",
+      "typeRows": 1,
+      "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2",
+      "viewport": 390
+    }
+  ],
+  "tabs": {
+    "Zone": {
+      "visible": true,
+      "contentPresent": true
+    },
+    "설정": {
+      "visible": true,
+      "contentPresent": true
+    },
+    "이벤트": {
+      "visible": true,
+      "contentPresent": true
+    },
+    "코멘트": {
+      "visible": true,
+      "contentPresent": true
+    },
+    "user": {
+      "url": "http://10.10.13.10:8080/client/#/template/09a88b6b-12de-4541-abc1-b5392bc55d66?tab=details",
+      "runtimeTabCount": 0,
+      "globalLinkCount": 1
+    },
+    "sharedfs": {
+      "runtimeVisible": true,
+      "unknownExplicit": true,
+      "globalCatalogLink": 1,
+      "mobile": {
+        "bodyWidth": 380,
+        "scrollWidth": 296,
+        "viewport": 390,
+        "width": 296
+      },
+      "page2": true
+    },
+    "management": {
+      "visible": true,
+      "unknownExplicit": true
+    },
+    "system": {
+      "url": "http://10.10.13.10:8080/client/#/template/ee2be8d7-6b18-417b-b2a7-a52c7bc14758?tab=details",
+      "runtimeTabCount": 0,
+      "globalLinkCount": 1
+    },
+    "vnf": {
+      "checkedInPriorUiPhase": true,
+      "runtimeHidden": true,
+      "vnfSettingsVisible": true,
+      "userConversionReturnedToDetails": true,
+      "evidence": "after-vnf-tabs.png and updateTemplate UI requests"
+    }
+  },
+  "regression": {
+    "vm": {
+      "target": "#/vm/9f3bf7a1-c5b2-45ba-ba06-1e466d09b364",
+      "sameLabels": true,
+      "labels": [
+        "VM 호스트 명",
+        "VM 표시 명",
+        "에이전트 버전",
+        "아이디",
+        "상태",
+        "IP 주소",
+        "템플릿",
+        "템플릿 유형",
+        "컴퓨트 오퍼링",
+        "동적으로 확장 가능",
+        "HA 활성화",
+        "하이퍼바이저",
+        "CPU 아키텍처",
+        "계정",
+        "도메인",
+        "Zone",
+        "VBMC 포트",
+        "삭제 보호"
+      ],
+      "scrollWidth": 970,
+      "width": 970
+    },
+    "iso": {
+      "target": "#/iso/71ed0193-510e-4d01-8faa-f1fb3faa7b1a",
+      "sameLabels": true,
+      "labels": [
+        "이름",
+        "아이디",
+        "설명",
+        "OS 유형",
+        "CPU 아키텍처",
+        "부팅 가능",
+        "준비",
+        "비밀번호 관리 사용",
+        "직접 다운로드",
+        "추출 가능",
+        "공개",
+        "추천",
+        "동적으로 확장 가능",
+        "계정",
+        "도메인"
+      ],
+      "scrollWidth": 999,
+      "width": 999
+    },
+    "volume": {
+      "target": "#/volume/3940999e-3065-488b-9d64-ef483d9af506",
+      "sameLabels": true,
+      "labels": [
+        "이름",
+        "아이디",
+        "유형",
+        "스토리지 유형",
+        "디스크 오퍼링",
+        "장치 ID",
+        "크기",
+        "물리적 크기",
+        "프로비저닝 유형",
+        "Write-Cache 유형",
+        "이용",
+        "디스크 파일시스템 사용량",
+        "압축/중복제거",
+        "압축 사용 상태",
+        "중복제거 사용 상태",
+        "디스크 읽기 (KiB)",
+        "디스크 쓰기 (KiB)",
+        "디스크 읽기(IO)",
+        "디스크 쓰기(IO)",
+        "디스크 IOPS",
+        "경로",
+        "삭제 보호",
+        "요청 정책 / 형식",
+        "확정 정책",
+        "실제 적용 정책",
+        "실제 적용 방식",
+        "실제 이미지 형식",
+        "논리 용량",
+        "관측 할당량",
+        "관측 시각",
+        "할당 증거"
+      ],
+      "scrollWidth": 974,
+      "width": 974
+    }
+  },
+  "cleanup": {
+    "templateId": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+    "jobid": "ea45ccce-531b-4564-836f-bbe391f51ce2",
+    "jobstatus": 1,
+    "success": true,
+    "qaRemaining": 0,
+    "totalTemplates": 46
+  },
+  "restored": {
+    "theme": "dark",
+    "viewport": "default"
+  }
+}

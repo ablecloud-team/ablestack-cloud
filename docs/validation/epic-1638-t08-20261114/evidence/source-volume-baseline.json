@@ -1,0 +1,9 @@
+{
+  "sourceVolumeId": "dff588a0-1aa9-46d7-a297-0dbeab41721c",
+  "sourcePath": "/mnt/glue-gfs/dff588a0-1aa9-46d7-a297-0dbeab41721c",
+  "format": "qcow2",
+  "virtualBytes": 117440512,
+  "baselinePath": "/var/tmp/epic1638-t08-sourceproof-dff588a0/baseline.raw",
+  "logicalSha256": "6929b434340d837cbc1517eac0dfd3149b80446f46bb715c1e1efc415854815c",
+  "sourceGuestStopped": true
+}

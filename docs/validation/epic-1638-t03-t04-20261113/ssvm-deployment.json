@@ -1,0 +1,21 @@
+{
+  "hostname": "s-1-VM",
+  "target": "/usr/local/cloud/systemvm/cloud-secondary-storage-4.21.0.0-Mold.Diplo-202609221440.jar",
+  "backup": "/var/tmp/epic1638-t34-ssvm-backup-yelul5hx",
+  "jarSha256": "d5f6dbcf45df292dcfb1d12d84e30ee14f41cb4a9e70f0a1ff82aa62b9c78667",
+  "oldPid": "3541",
+  "newPid": "2166725",
+  "service": "cloud.service",
+  "active": true,
+  "changedExistingEntries": [
+    "org/apache/cloudstack/storage/resource/NfsSecondaryStorageResource.class"
+  ],
+  "addedEntries": [
+    "org/apache/cloudstack/storage/resource/PostUploadChecksum.class"
+  ],
+  "otherJarEntriesPreserved": true,
+  "runtimeVersionPreserved": "4.21.0.0-Mold.Diplo-202609221440",
+  "vmRebooted": false,
+  "hostAgentRestarted": false,
+  "schemaChanged": false
+}

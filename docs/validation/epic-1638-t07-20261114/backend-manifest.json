@@ -1,0 +1,17 @@
+{
+  "sourceHead": "3de46e65491a7b4b24486b896e65afd2d52d0bae",
+  "classes": {
+    "org/apache/cloudstack/api/command/user/template/UpdateVnfTemplateCmd.class": {
+      "original": "60ef445095e3b2065d446134aca614976816275356e4ef92abf412766572137e",
+      "patched": "ad5cb38c2894c42c74575b828fa0769d4a0d19beb9d22bc728b2360dc1f246f4"
+    },
+    "org/apache/cloudstack/api/command/admin/template/UpdateVnfTemplateCmdByAdmin.class": {
+      "original": "5f269a3453b05b15f5b74a5aa1937f0a73403e9038ec35b2aa3a8fdf519d187e",
+      "patched": "ab4b801688cafa2c7da2cb0e76a7308d52b9a03983d310fe99f3970c5bc21965"
+    },
+    "com/cloud/api/ApiServer.class": {
+      "original": "afb20ee6270e50c1f31a9c7e29533062111f3e0e7db2a95375b12418b63394a0",
+      "patched": "54adff3ef3374df70a9f1ff8fcee6428c208c5c99eaabf6e7773b7a5aa2a9c68"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "com/cloud/template/TemplateManagerImpl.class": {
+    "changedMethods": [
+      "prepareTemplate(JJLjava/lang/Long;)Lcom/cloud/template/VirtualMachineTemplate;"
+    ],
+    "addedMethods": []
+  },
+  "com/cloud/api/query/dao/TemplateJoinDaoImpl.class": {
+    "changedMethods": [
+      "newTemplateResponse(Ljava/util/EnumSet;Lorg/apache/cloudstack/api/ResponseObject$ResponseView;Lcom/cloud/api/query/vo/TemplateJoinVO;)Lorg/apache/cloudstack/api/response/TemplateResponse;"
+    ],
+    "addedMethods": [
+      "cachedPrimaryPoolIds(Ljava/util/List;)Ljava/util/List;"
+    ]
+  },
+  "org/apache/cloudstack/api/command/admin/template/PrepareTemplateCmd.class": {
+    "changedMethods": [],
+    "addedMethods": []
+  }
+}

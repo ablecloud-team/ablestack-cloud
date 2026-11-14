@@ -1,0 +1,9 @@
+{
+  "head": "981f90d36c9817c690281246077b791ef84bdff1",
+  "backup": "/var/tmp/epic1638-t34-locale-backup-1mab_y7i",
+  "file": "locales/ko_KR.json",
+  "sha256": "7f829df78d0ac75226e26397ddb88c70d88a508c8271f9158a91a15114678327",
+  "indexUnchanged": true,
+  "moldRestarted": false,
+  "staticLocaleOnly": true
+}

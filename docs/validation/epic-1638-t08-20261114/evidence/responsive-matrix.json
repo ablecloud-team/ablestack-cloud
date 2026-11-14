@@ -1,0 +1,214 @@
+[
+  {
+    "theme": "dark",
+    "width": 1680,
+    "view": "detail",
+    "bodyWidth": 1670,
+    "checksumVisible": true,
+    "documentWidth": 1670,
+    "viewport": 1680
+  },
+  {
+    "theme": "dark",
+    "width": 1024,
+    "view": "detail",
+    "bodyWidth": 1014,
+    "checksumVisible": true,
+    "documentWidth": 1014,
+    "viewport": 1024
+  },
+  {
+    "theme": "dark",
+    "width": 390,
+    "view": "detail",
+    "bodyWidth": 380,
+    "checksumVisible": true,
+    "documentWidth": 380,
+    "viewport": 390
+  },
+  {
+    "theme": "dark",
+    "width": 320,
+    "view": "detail",
+    "bodyWidth": 310,
+    "checksumVisible": true,
+    "documentWidth": 310,
+    "viewport": 320
+  },
+  {
+    "theme": "light",
+    "width": 1670,
+    "view": "permission-dialog",
+    "buttons": [
+      {
+        "label": "Close",
+        "left": 1053,
+        "right": 1109
+      },
+      {
+        "label": "취소",
+        "left": 951.46875,
+        "right": 1009.234375
+      },
+      {
+        "label": "확인",
+        "left": 1022.234375,
+        "right": 1080
+      }
+    ],
+    "clientWidth": 1670,
+    "left": 0,
+    "right": 1670,
+    "scrollWidth": 1670,
+    "viewport": 1680
+  },
+  {
+    "theme": "light",
+    "width": 1014,
+    "view": "permission-dialog",
+    "buttons": [
+      {
+        "label": "Close",
+        "left": 725,
+        "right": 781
+      },
+      {
+        "label": "취소",
+        "left": 623.46875,
+        "right": 681.234375
+      },
+      {
+        "label": "확인",
+        "left": 694.234375,
+        "right": 752
+      }
+    ],
+    "clientWidth": 1014,
+    "left": 0,
+    "right": 1014,
+    "scrollWidth": 1014,
+    "viewport": 1024
+  },
+  {
+    "theme": "light",
+    "width": 380,
+    "view": "permission-dialog",
+    "buttons": [
+      {
+        "label": "Close",
+        "left": 306,
+        "right": 362
+      },
+      {
+        "label": "취소",
+        "left": 212.46875,
+        "right": 270.234375
+      },
+      {
+        "label": "확인",
+        "left": 283.234375,
+        "right": 341
+      }
+    ],
+    "clientWidth": 380,
+    "left": 0,
+    "right": 380,
+    "scrollWidth": 380,
+    "viewport": 390
+  },
+  {
+    "theme": "light",
+    "width": 310,
+    "view": "permission-dialog",
+    "buttons": [
+      {
+        "label": "Close",
+        "left": 243,
+        "right": 299
+      },
+      {
+        "label": "취소",
+        "left": 149.46875,
+        "right": 207.234375
+      },
+      {
+        "label": "확인",
+        "left": 220.234375,
+        "right": 278
+      }
+    ],
+    "clientWidth": 310,
+    "left": 0,
+    "right": 310,
+    "scrollWidth": 310,
+    "viewport": 320
+  },
+  {
+    "theme": "light",
+    "requestedWidth": 1680,
+    "view": "list",
+    "documentWidth": 1670,
+    "tableWidth": 1453,
+    "viewport": 1680
+  },
+  {
+    "theme": "light",
+    "requestedWidth": 1024,
+    "view": "list",
+    "documentWidth": 1014,
+    "tableWidth": 1453,
+    "viewport": 1024
+  },
+  {
+    "theme": "light",
+    "requestedWidth": 390,
+    "view": "list",
+    "documentWidth": 380,
+    "tableWidth": 1453,
+    "viewport": 390
+  },
+  {
+    "theme": "light",
+    "requestedWidth": 320,
+    "view": "list",
+    "documentWidth": 310,
+    "tableWidth": 1453,
+    "viewport": 320
+  },
+  {
+    "theme": "dark",
+    "requestedWidth": 1680,
+    "view": "prepare-dialog",
+    "buttons": true,
+    "clientWidth": 1680,
+    "scrollWidth": 1680,
+    "viewport": 1680
+  },
+  {
+    "theme": "dark",
+    "requestedWidth": 1024,
+    "view": "prepare-dialog",
+    "buttons": true,
+    "clientWidth": 1024,
+    "scrollWidth": 1024,
+    "viewport": 1024
+  },
+  {
+    "theme": "dark",
+    "requestedWidth": 390,
+    "view": "prepare-dialog",
+    "buttons": true,
+    "clientWidth": 390,
+    "scrollWidth": 390,
+    "viewport": 390
+  },
+  {
+    "theme": "dark",
+    "requestedWidth": 320,
+    "view": "prepare-dialog",
+    "buttons": true,
+    "clientWidth": 320,
+    "scrollWidth": 320,
+    "viewport": 320
+  }
+]

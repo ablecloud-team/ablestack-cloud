@@ -1,0 +1,14 @@
+{
+  "case": "volume",
+  "host": "10.10.13.3",
+  "vmId": "8434ed98-f81d-4ad2-99be-9afa918abaca",
+  "os": "0.6.3",
+  "kernel": "Linux 5.15.0-117-generic x86_64",
+  "marker": "qa-t08-source-20261114",
+  "markerSha256": "42cb6197ed874d1ed24c70c0a42e46ffeeca40b2b43c35a97035ffab92c1c5e6",
+  "markerCreated": false,
+  "fixtureMetadataSourcesAdjusted": false,
+  "sourceHashMatches": true,
+  "consoleDisplayPrepared": true,
+  "credentialSaved": false
+}

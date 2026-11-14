@@ -1,0 +1,22 @@
+{
+  "remote": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+  "local": "/tmp/epic-1638-t03-t04/runtime-libs/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+  "sha256": "a48dd1825b5a51d60ea293d6a10b92cff520be8892892e758aa68e4b0e073e9f",
+  "classSha256": "d3894d7e8ae9251f4f3ac26f6c212f66c4a6951893efa728113ef3cad6ce271f",
+  "classBytes": 267679,
+  "patchedJarSha256": "341d2e120fd575c2fe6104ac4cab540c2cd4378e972859a3a0c0f8d0d417b85d",
+  "patchedClassSha256": "3e317ca2d2a3599a4cf4f9708bb88e7f2b93ab8bbfcc5564381c46411e0ae36f",
+  "changedEntries": [
+    "com/cloud/api/query/QueryManagerImpl.class"
+  ],
+  "allOtherEntriesIdentical": true,
+  "publicApiIdentical": true,
+  "syntheticInnerBytecodeIdentical": true,
+  "schemaChanged": false,
+  "compileFlags": [
+    "--release",
+    "17",
+    "-g",
+    "-proc:none"
+  ]
+}

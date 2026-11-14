@@ -1,0 +1,8 @@
+{
+  "baselineAuditMethodMatchesDeployed": true,
+  "changedMethods": [
+    "buildAuditTrail(Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V"
+  ],
+  "allOtherMethodsPreserved": true,
+  "fullClassRecompileDeployed": false
+}

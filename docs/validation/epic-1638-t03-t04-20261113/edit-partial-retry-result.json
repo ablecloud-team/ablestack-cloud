@@ -1,0 +1,38 @@
+{
+  "requests": [
+    {
+      "command": "updateTemplate",
+      "params": {
+        "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+        "name": "qa-t34-url-20261113",
+        "displaytext": "T03 partial update retry keeps metadata",
+        "arch": "s390x",
+        "sshkeyenabled": "false",
+        "requireshvm": "false",
+        "ostypeid": "473557e5-bd56-11f1-b573-002481560363",
+        "forcks": "false"
+      },
+      "http": 200
+    },
+    {
+      "command": "linkUserDataToTemplate",
+      "params": {
+        "templateid": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+        "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+        "userdatapolicy": "denyoverride"
+      },
+      "networkError": "net::ERR_CONNECTION_RESET"
+    },
+    {
+      "command": "linkUserDataToTemplate",
+      "params": {
+        "templateid": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+        "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+        "userdatapolicy": "denyoverride"
+      },
+      "http": 200
+    }
+  ],
+  "updateCount": 1,
+  "linkCount": 2
+}

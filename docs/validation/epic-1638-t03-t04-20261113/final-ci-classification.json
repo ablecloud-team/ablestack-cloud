@@ -1,0 +1,56 @@
+{
+  "licenseRun": 43377229337,
+  "lintRun": 43377229178,
+  "unapproved": 4079,
+  "newJavaAndUiTextFiles": {
+    "server/src/test/java/com/cloud/api/query/QueryTemplateReadinessTest.java": [
+      "  AL    server/src/test/java/com/cloud/api/query/QueryTemplateReadinessTest.java"
+    ],
+    "services/secondary-storage/server/src/main/java/org/apache/cloudstack/storage/resource/PostUploadChecksum.java": [
+      "  AL    services/secondary-storage/server/src/main/java/org/apache/cloudstack/storage/resource/PostUploadChecksum.java"
+    ],
+    "services/secondary-storage/server/src/test/java/org/apache/cloudstack/storage/resource/PostUploadChecksumTest.java": [
+      "  AL    services/secondary-storage/server/src/test/java/org/apache/cloudstack/storage/resource/PostUploadChecksumTest.java"
+    ],
+    "ui/src/components/widgets/TemplateAvailability.vue": [
+      "  AL    ui/src/components/widgets/TemplateAvailability.vue"
+    ],
+    "ui/src/utils/templateAvailability.js": [
+      "  AL    ui/src/utils/templateAvailability.js"
+    ],
+    "ui/src/utils/templateForm.js": [
+      "  AL    ui/src/utils/templateForm.js"
+    ],
+    "ui/src/utils/templateSearch.js": [
+      "  AL    ui/src/utils/templateSearch.js"
+    ],
+    "ui/tests/unit/components/view/ListViewTemplateType.spec.js": [
+      "  AL    ui/tests/unit/components/view/ListViewTemplateType.spec.js"
+    ],
+    "ui/tests/unit/components/view/TemplateSearchForm.spec.js": [
+      "  AL    ui/tests/unit/components/view/TemplateSearchForm.spec.js"
+    ],
+    "ui/tests/unit/components/widgets/TemplateAvailability.spec.js": [
+      "  AL    ui/tests/unit/components/widgets/TemplateAvailability.spec.js"
+    ],
+    "ui/tests/unit/utils/templateAvailability.spec.js": [
+      "  AL    ui/tests/unit/utils/templateAvailability.spec.js"
+    ],
+    "ui/tests/unit/utils/templateFormMessages.spec.js": [
+      "  AL    ui/tests/unit/utils/templateFormMessages.spec.js"
+    ],
+    "ui/tests/unit/utils/templateSearch.spec.js": [
+      "  AL    ui/tests/unit/utils/templateSearch.spec.js"
+    ],
+    "ui/tests/unit/views/AutogenTemplateRead.spec.js": [
+      "  AL    ui/tests/unit/views/AutogenTemplateRead.spec.js"
+    ],
+    "ui/tests/unit/views/image/TemplateAvailabilityRead.spec.js": [
+      "  AL    ui/tests/unit/views/image/TemplateAvailabilityRead.spec.js"
+    ],
+    "ui/tests/unit/views/image/TemplateForms.spec.js": [
+      "  AL    ui/tests/unit/views/image/TemplateForms.spec.js"
+    ]
+  },
+  "lintFeatureFindings": []
+}

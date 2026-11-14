@@ -1,0 +1,5881 @@
+[
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listUserData",
+    "params": {
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "registerUserData",
+    "params": {
+      "name": "qa-t34-userdata-20261113"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listUserData",
+    "params": {
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 2,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 2,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 2,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 2,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 2,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 2,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 2,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "false",
+      "page": "2",
+      "pagesize": "1"
+    },
+    "http": 200,
+    "result": {
+      "count": 2,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 43,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 43,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 43,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 43,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 43,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listUserData",
+    "params": {},
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 45,
+      "templates": []
+    }
+  },
+  {
+    "command": "listUserData",
+    "params": {},
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "registerTemplate",
+    "params": {
+      "sshkeyenabled": "true",
+      "forcks": "true",
+      "name": "qa-t34-url-20261113",
+      "displaytext": "T03 URL checksum and metadata fixture",
+      "checksum": "{SHA-256}a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+      "zoneids": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+      "hypervisor": "KVM",
+      "format": "QCOW2",
+      "ostypeid": "473557e5-bd56-11f1-b573-002481560363",
+      "arch": "x86_64",
+      "requireshvm": "false",
+      "ispublic": "false"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 URL checksum and metadata fixture",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 46,
+      "templates": []
+    }
+  },
+  {
+    "command": "linkUserDataToTemplate",
+    "params": {
+      "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+      "templateid": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "userdatapolicy": "append"
+    },
+    "networkError": "net::ERR_CONNECTION_RESET"
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 46,
+      "templates": []
+    }
+  },
+  {
+    "command": "linkUserDataToTemplate",
+    "params": {
+      "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+      "templateid": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "userdatapolicy": "append"
+    },
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 46,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "qa-t34-url-20261113",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 URL checksum and metadata fixture",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 URL checksum and metadata fixture",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 URL checksum and metadata fixture",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 URL checksum and metadata fixture",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listUserData",
+    "params": {
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "updateTemplate",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "name": "qa-t34-url-20261113",
+      "displaytext": "T03 description save with x86_64 and false flags",
+      "arch": "x86_64",
+      "sshkeyenabled": "false",
+      "requireshvm": "false",
+      "ostypeid": "473557e5-bd56-11f1-b573-002481560363",
+      "forcks": "false"
+    },
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 description save with x86_64 and false flags",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 description save with x86_64 and false flags",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 description save with x86_64 and false flags",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 description save with x86_64 and false flags",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listUserData",
+    "params": {
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "updateTemplate",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "name": "qa-t34-url-20261113",
+      "displaytext": "T03 description save with x86_64 and false flags",
+      "arch": "aarch64",
+      "sshkeyenabled": "false",
+      "requireshvm": "false",
+      "ostypeid": "473557e5-bd56-11f1-b573-002481560363",
+      "forcks": "false"
+    },
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 description save with x86_64 and false flags",
+          "arch": "aarch64",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 description save with x86_64 and false flags",
+          "arch": "aarch64",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 description save with x86_64 and false flags",
+          "arch": "aarch64",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listUserData",
+    "params": {
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "updateTemplate",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "name": "qa-t34-url-20261113",
+      "displaytext": "T03 description save with x86_64 and false flags",
+      "arch": "s390x",
+      "sshkeyenabled": "false",
+      "requireshvm": "false",
+      "ostypeid": "473557e5-bd56-11f1-b573-002481560363",
+      "forcks": "false"
+    },
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 description save with x86_64 and false flags",
+          "arch": "s390x",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 description save with x86_64 and false flags",
+          "arch": "s390x",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 description save with x86_64 and false flags",
+          "arch": "s390x",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listUserData",
+    "params": {
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 description save with x86_64 and false flags",
+          "arch": "s390x",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 description save with x86_64 and false flags",
+          "arch": "s390x",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listUserData",
+    "params": {
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "updateTemplate",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "name": "qa-t34-url-20261113",
+      "displaytext": "T03 partial update retry keeps metadata",
+      "arch": "s390x",
+      "sshkeyenabled": "false",
+      "requireshvm": "false",
+      "ostypeid": "473557e5-bd56-11f1-b573-002481560363",
+      "forcks": "false"
+    },
+    "http": 200
+  },
+  {
+    "command": "linkUserDataToTemplate",
+    "params": {
+      "templateid": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+      "userdatapolicy": "denyoverride"
+    },
+    "networkError": "net::ERR_CONNECTION_RESET"
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 partial update retry keeps metadata",
+          "arch": "s390x",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 partial update retry keeps metadata",
+          "arch": "s390x",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "linkUserDataToTemplate",
+    "params": {
+      "templateid": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+      "userdatapolicy": "denyoverride"
+    },
+    "http": 200
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 partial update retry keeps metadata",
+          "arch": "s390x",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "DENYOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 partial update retry keeps metadata",
+          "arch": "s390x",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "DENYOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listUserData",
+    "params": {},
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "getUploadParamsForTemplate",
+    "params": {
+      "requireshvm": "true",
+      "forcks": "true",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+      "name": "qa-t34-local-20261113",
+      "displaytext": "T03 local checksum CKS and user data fixture",
+      "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+      "hypervisor": "KVM",
+      "format": "QCOW2",
+      "ostypeid": "473557e5-bd56-11f1-b573-002481560363",
+      "sshkeyenabled": "false",
+      "ispublic": "false"
+    },
+    "http": 200,
+    "result": {
+      "uploadTemplateId": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 47,
+      "templates": []
+    }
+  },
+  {
+    "command": "listUserData",
+    "params": {},
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "getUploadParamsForTemplate",
+    "params": {
+      "requireshvm": "true",
+      "forcks": "true",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+      "name": "qa-t34-local-ready-20261113",
+      "displaytext": "T03 local ready checksum",
+      "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+      "hypervisor": "KVM",
+      "format": "QCOW2",
+      "ostypeid": "473557e5-bd56-11f1-b573-002481560363",
+      "sshkeyenabled": "false",
+      "ispublic": "false"
+    },
+    "http": 200,
+    "result": {
+      "uploadTemplateId": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "linkUserDataToTemplate",
+    "params": {
+      "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+      "templateid": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "userdatapolicy": "append"
+    },
+    "http": 200,
+    "result": {
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "isready": false,
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "qa-t34-local-ready-20261113",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "qa-t34-local-ready-20261113",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "true",
+      "hypervisor": "KVM",
+      "forcks": "true",
+      "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "true",
+      "hypervisor": "KVM",
+      "forcks": "true",
+      "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "true",
+      "hypervisor": "KVM",
+      "forcks": "true",
+      "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "true",
+      "hypervisor": "KVM",
+      "forcks": "true",
+      "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "true",
+      "hypervisor": "KVM",
+      "forcks": "true",
+      "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "true",
+      "hypervisor": "KVM",
+      "forcks": "true",
+      "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "true",
+      "hypervisor": "KVM",
+      "forcks": "true",
+      "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "true",
+      "hypervisor": "KVM",
+      "forcks": "true",
+      "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "true",
+      "hypervisor": "KVM",
+      "forcks": "false",
+      "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 partial update retry keeps metadata",
+          "arch": "s390x",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "DENYOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "isready": "true",
+      "hypervisor": "KVM",
+      "forcks": "false",
+      "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+      "projectid": "-1",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 partial update retry keeps metadata",
+          "arch": "s390x",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "DENYOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "projectid": "-1",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "projectid": "-1",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "projectid": "-1",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "projectid": "-1",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "projectid": "-1",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "projectid": "-1",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "projectid": "-1",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 48,
+      "templates": []
+    }
+  },
+  {
+    "command": "listUserData",
+    "params": {},
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "getUploadParamsForTemplate",
+    "params": {
+      "requireshvm": "true",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+      "name": "qa-t34-421-checksum-mismatch-20261113",
+      "checksum": "00000000000000000000000000000000",
+      "hypervisor": "KVM",
+      "format": "QCOW2",
+      "ostypeid": "473557e5-bd56-11f1-b573-002481560363",
+      "arch": "aarch64",
+      "sshkeyenabled": "false",
+      "ispublic": "false",
+      "forcks": "false"
+    },
+    "http": 200,
+    "result": {
+      "uploadTemplateId": "5c18e4d7-c86a-4ed2-9574-1862908cafa0",
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 49,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "5c18e4d7-c86a-4ed2-9574-1862908cafa0",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "5c18e4d7-c86a-4ed2-9574-1862908cafa0",
+          "name": "qa-t34-421-checksum-mismatch-20261113",
+          "displaytext": "qa-t34-421-checksum-mismatch-20261113",
+          "arch": "aarch64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "checksum": "00000000000000000000000000000000",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "5c18e4d7-c86a-4ed2-9574-1862908cafa0",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "5c18e4d7-c86a-4ed2-9574-1862908cafa0",
+          "name": "qa-t34-421-checksum-mismatch-20261113",
+          "displaytext": "qa-t34-421-checksum-mismatch-20261113",
+          "arch": "aarch64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "checksum": "00000000000000000000000000000000",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 49,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 49,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 49,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 49,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 49,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "name": "qa-t34-local",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "name": "qa-t34-local",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "name": "qa-t34-local",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "name": "qa-t34-local",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "name": "qa-t34-local",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "name": "qa-t34-local",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "name": "qa-t34-local",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "name": "qa-t34-local",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 49,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "qa-t34-local",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 2,
+      "templates": [
+        {
+          "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+          "name": "qa-t34-local-20261113",
+          "displaytext": "T03 local checksum CKS and user data fixture",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        },
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listUserData",
+    "params": {
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "updateTemplate",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "name": "qa-t34-local-ready-20261113-이름-우선-표시-검증-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-긴-이름은-한줄-말줄임으로-표시하고-마우스를-올리면-전체-이름을-확인",
+      "displaytext": "T03 local ready checksum",
+      "arch": "x86_64",
+      "sshkeyenabled": "false",
+      "requireshvm": "true",
+      "ostypeid": "473557e5-bd56-11f1-b573-002481560363",
+      "forcks": "true"
+    },
+    "http": 200,
+    "result": {
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113-이름-우선-표시-검증-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-긴-이름은-한줄-말줄임으로-표시하고-마우스를-올리면-전체-이름을-확인",
+          "displaytext": "T03 local ready checksum",
+          "isready": false,
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113-이름-우선-표시-검증-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-긴-이름은-한줄-말줄임으로-표시하고-마우스를-올리면-전체-이름을-확인",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113-이름-우선-표시-검증-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-긴-이름은-한줄-말줄임으로-표시하고-마우스를-올리면-전체-이름을-확인",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "qa-t34-local",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 2,
+      "templates": [
+        {
+          "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+          "name": "qa-t34-local-20261113",
+          "displaytext": "T03 local checksum CKS and user data fixture",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        },
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113-이름-우선-표시-검증-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-긴-이름은-한줄-말줄임으로-표시하고-마우스를-올리면-전체-이름을-확인",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "qa-t34-local",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 2,
+      "templates": [
+        {
+          "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+          "name": "qa-t34-local-20261113",
+          "displaytext": "T03 local checksum CKS and user data fixture",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        },
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113-이름-우선-표시-검증-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-긴-이름은-한줄-말줄임으로-표시하고-마우스를-올리면-전체-이름을-확인",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "qa-t34-local",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 2,
+      "templates": [
+        {
+          "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+          "name": "qa-t34-local-20261113",
+          "displaytext": "T03 local checksum CKS and user data fixture",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        },
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113-이름-우선-표시-검증-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-긴-이름은-한줄-말줄임으로-표시하고-마우스를-올리면-전체-이름을-확인",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "qa-t34-local",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 2,
+      "templates": [
+        {
+          "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+          "name": "qa-t34-local-20261113",
+          "displaytext": "T03 local checksum CKS and user data fixture",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        },
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113-이름-우선-표시-검증-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-긴-이름은-한줄-말줄임으로-표시하고-마우스를-올리면-전체-이름을-확인",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "qa-t34-local",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 2,
+      "templates": [
+        {
+          "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+          "name": "qa-t34-local-20261113",
+          "displaytext": "T03 local checksum CKS and user data fixture",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        },
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113-이름-우선-표시-검증-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-긴-이름은-한줄-말줄임으로-표시하고-마우스를-올리면-전체-이름을-확인",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "qa-t34-local",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 2,
+      "templates": [
+        {
+          "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+          "name": "qa-t34-local-20261113",
+          "displaytext": "T03 local checksum CKS and user data fixture",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        },
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113-이름-우선-표시-검증-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-긴-이름은-한줄-말줄임으로-표시하고-마우스를-올리면-전체-이름을-확인",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "qa-t34-local",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 2,
+      "templates": [
+        {
+          "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+          "name": "qa-t34-local-20261113",
+          "displaytext": "T03 local checksum CKS and user data fixture",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        },
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113-이름-우선-표시-검증-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-긴-이름은-한줄-말줄임으로-표시하고-마우스를-올리면-전체-이름을-확인",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "qa-t34-local",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 2,
+      "templates": [
+        {
+          "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+          "name": "qa-t34-local-20261113",
+          "displaytext": "T03 local checksum CKS and user data fixture",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        },
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113-이름-우선-표시-검증-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-긴-이름은-한줄-말줄임으로-표시하고-마우스를-올리면-전체-이름을-확인",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "Europa",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 36,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "Europa",
+      "page": "2",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 36,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "01ba45ea-5399-43ab-a557-5a6408cfacfd",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "01ba45ea-5399-43ab-a557-5a6408cfacfd",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "Europa",
+      "page": "2",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 36,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "01ba45ea-5399-43ab-a557-5a6408cfacfd",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "01ba45ea-5399-43ab-a557-5a6408cfacfd",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "Europa",
+      "page": "2",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 36,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "Europa",
+      "page": "2",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 36,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 49,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 49,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 49,
+      "templates": []
+    }
+  },
+  {
+    "command": "listUserData",
+    "params": {},
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "registerTemplate",
+    "params": {
+      "requireshvm": "true",
+      "name": "Europa-SystemVM-4.23-T34-20261113",
+      "displaytext": "4.23.0.0 SystemVM OS 8ad2d1e; T03 checksum verified host payload",
+      "checksum": "04e986a6e4c9bc67c7cdf5bcafd09c58",
+      "zoneids": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+      "hypervisor": "KVM",
+      "format": "QCOW2",
+      "ostypeid": "a961b319-71f4-4750-9a28-e3b0b4d04f4f",
+      "arch": "x86_64",
+      "sshkeyenabled": "false",
+      "ispublic": "false",
+      "forcks": "false"
+    },
+    "http": 431,
+    "result": {
+      "error": "System and Builtin templates must be cross zone.",
+      "templates": []
+    }
+  },
+  {
+    "command": "registerTemplate",
+    "params": {
+      "requireshvm": "true",
+      "name": "Europa-SystemVM-4.23-T34-20261113",
+      "displaytext": "4.23.0.0 SystemVM OS 8ad2d1e; T03 checksum verified host payload",
+      "checksum": "04e986a6e4c9bc67c7cdf5bcafd09c58",
+      "zoneids": "-1",
+      "hypervisor": "KVM",
+      "format": "QCOW2",
+      "ostypeid": "a961b319-71f4-4750-9a28-e3b0b4d04f4f",
+      "arch": "x86_64",
+      "sshkeyenabled": "false",
+      "ispublic": "false",
+      "forcks": "false"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 50,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "Europa-SystemVM-4.23-T34-20261113",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "1feac62d-67e0-499b-94f1-eb36651ad6f8",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "1feac62d-67e0-499b-94f1-eb36651ad6f8",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "1feac62d-67e0-499b-94f1-eb36651ad6f8",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "1feac62d-67e0-499b-94f1-eb36651ad6f8",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "1feac62d-67e0-499b-94f1-eb36651ad6f8",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "1feac62d-67e0-499b-94f1-eb36651ad6f8",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "1feac62d-67e0-499b-94f1-eb36651ad6f8",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "1feac62d-67e0-499b-94f1-eb36651ad6f8",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "1feac62d-67e0-499b-94f1-eb36651ad6f8",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "1feac62d-67e0-499b-94f1-eb36651ad6f8",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "1feac62d-67e0-499b-94f1-eb36651ad6f8",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "1feac62d-67e0-499b-94f1-eb36651ad6f8",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "1feac62d-67e0-499b-94f1-eb36651ad6f8",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "executable",
+      "id": "8f89a05f-45b0-495f-b437-c8e002464992"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "8d0affec-3e57-49ed-98f4-5f05f846d409"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "8d0affec-3e57-49ed-98f4-5f05f846d409",
+      "jobstatus": 0,
+      "templates": []
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "8d0affec-3e57-49ed-98f4-5f05f846d409"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "8d0affec-3e57-49ed-98f4-5f05f846d409",
+      "jobstatus": 0,
+      "templates": []
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "8d0affec-3e57-49ed-98f4-5f05f846d409"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "8d0affec-3e57-49ed-98f4-5f05f846d409",
+      "jobstatus": 0,
+      "templates": []
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "8d0affec-3e57-49ed-98f4-5f05f846d409"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "8d0affec-3e57-49ed-98f4-5f05f846d409",
+      "jobstatus": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "executable",
+      "id": "1feac62d-67e0-499b-94f1-eb36651ad6f8"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "executable",
+      "id": "1feac62d-67e0-499b-94f1-eb36651ad6f8"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "executable",
+      "id": "8f89a05f-45b0-495f-b437-c8e002464992"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "3b2ea571-749a-4ca6-9406-787eba9c03d8"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "3b2ea571-749a-4ca6-9406-787eba9c03d8",
+      "jobstatus": 0,
+      "templates": []
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "3b2ea571-749a-4ca6-9406-787eba9c03d8"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "3b2ea571-749a-4ca6-9406-787eba9c03d8",
+      "jobstatus": 0,
+      "templates": []
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "3b2ea571-749a-4ca6-9406-787eba9c03d8"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "3b2ea571-749a-4ca6-9406-787eba9c03d8",
+      "jobstatus": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 50,
+      "templates": []
+    }
+  },
+  {
+    "command": "listUserData",
+    "params": {},
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "getUploadParamsForTemplate",
+    "params": {
+      "requireshvm": "true",
+      "sshkeyenabled": "true",
+      "forcks": "true",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+      "name": "qa-t34-423-sha256-ready-20261113",
+      "checksum": "{SHA-256}a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+      "hypervisor": "KVM",
+      "format": "QCOW2",
+      "ostypeid": "473557e5-bd56-11f1-b573-002481560363",
+      "ispublic": "false"
+    },
+    "http": 200,
+    "result": {
+      "uploadTemplateId": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 51,
+      "templates": []
+    }
+  },
+  {
+    "command": "linkUserDataToTemplate",
+    "params": {
+      "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+      "templateid": "c1196900-a09d-4d3d-b692-a28c410076fb"
+    },
+    "http": 200,
+    "result": {
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "isready": false,
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 51,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "qa-t34-423-sha256-ready-20261113",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "qa-t34-423-sha256-ready-20261113",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listUserData",
+    "params": {},
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "getUploadParamsForTemplate",
+    "params": {
+      "requireshvm": "true",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+      "name": "qa-t34-423-checksum-mismatch-20261113",
+      "checksum": "00000000000000000000000000000000",
+      "hypervisor": "KVM",
+      "format": "QCOW2",
+      "ostypeid": "473557e5-bd56-11f1-b573-002481560363",
+      "sshkeyenabled": "false",
+      "ispublic": "false",
+      "forcks": "false"
+    },
+    "http": 200,
+    "result": {
+      "uploadTemplateId": "d4eb0e46-a372-466d-8c6d-134d77e6139d",
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "qa-t34-423-sha256-ready-20261113",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "d4eb0e46-a372-466d-8c6d-134d77e6139d",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "d4eb0e46-a372-466d-8c6d-134d77e6139d",
+          "name": "qa-t34-423-checksum-mismatch-20261113",
+          "displaytext": "qa-t34-423-checksum-mismatch-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "checksum": "00000000000000000000000000000000",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "d4eb0e46-a372-466d-8c6d-134d77e6139d",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "d4eb0e46-a372-466d-8c6d-134d77e6139d",
+          "name": "qa-t34-423-checksum-mismatch-20261113",
+          "displaytext": "qa-t34-423-checksum-mismatch-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "checksum": "00000000000000000000000000000000",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "d4eb0e46-a372-466d-8c6d-134d77e6139d",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "d4eb0e46-a372-466d-8c6d-134d77e6139d",
+          "name": "qa-t34-423-checksum-mismatch-20261113",
+          "displaytext": "qa-t34-423-checksum-mismatch-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "checksum": "00000000000000000000000000000000",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "d4eb0e46-a372-466d-8c6d-134d77e6139d",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "d4eb0e46-a372-466d-8c6d-134d77e6139d",
+          "name": "qa-t34-423-checksum-mismatch-20261113",
+          "displaytext": "qa-t34-423-checksum-mismatch-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "checksum": "00000000000000000000000000000000",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "executable",
+      "id": "1feac62d-67e0-499b-94f1-eb36651ad6f8"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "d4eb0e46-a372-466d-8c6d-134d77e6139d",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "d4eb0e46-a372-466d-8c6d-134d77e6139d",
+          "name": "qa-t34-423-checksum-mismatch-20261113",
+          "displaytext": "qa-t34-423-checksum-mismatch-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "checksum": "00000000000000000000000000000000",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "d4eb0e46-a372-466d-8c6d-134d77e6139d",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "d4eb0e46-a372-466d-8c6d-134d77e6139d",
+          "name": "qa-t34-423-checksum-mismatch-20261113",
+          "displaytext": "qa-t34-423-checksum-mismatch-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "checksum": "00000000000000000000000000000000",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "d4eb0e46-a372-466d-8c6d-134d77e6139d",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "d4eb0e46-a372-466d-8c6d-134d77e6139d",
+          "name": "qa-t34-423-checksum-mismatch-20261113",
+          "displaytext": "qa-t34-423-checksum-mismatch-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "checksum": "00000000000000000000000000000000",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        }
+      ]
+    }
+  },
+  {
+    "command": "deleteTemplate",
+    "params": {
+      "id": "d4eb0e46-a372-466d-8c6d-134d77e6139d",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "a04c5ebf-83a4-40bd-9ab9-4c1f9f2a3c3e",
+      "templates": []
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "a04c5ebf-83a4-40bd-9ab9-4c1f9f2a3c3e"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "a04c5ebf-83a4-40bd-9ab9-4c1f9f2a3c3e",
+      "jobstatus": 1,
+      "success": true,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "d4eb0e46-a372-466d-8c6d-134d77e6139d",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "d4eb0e46-a372-466d-8c6d-134d77e6139d",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 51,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 51,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 51,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+          "name": "qa-t34-local-20261113",
+          "displaytext": "T03 local checksum CKS and user data fixture",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+          "name": "qa-t34-local-20261113",
+          "displaytext": "T03 local checksum CKS and user data fixture",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+          "name": "qa-t34-local-20261113",
+          "displaytext": "T03 local checksum CKS and user data fixture",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        }
+      ]
+    }
+  },
+  {
+    "command": "deleteTemplate",
+    "params": {
+      "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "05f2da75-72d0-4b7d-b87c-3e3d84d82122",
+      "templates": []
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "05f2da75-72d0-4b7d-b87c-3e3d84d82122"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "05f2da75-72d0-4b7d-b87c-3e3d84d82122",
+      "jobstatus": 0,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+          "name": "qa-t34-local-20261113",
+          "displaytext": "T03 local checksum CKS and user data fixture",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "458bc5e4-7989-4334-b76c-28eee77ddb54",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "5c18e4d7-c86a-4ed2-9574-1862908cafa0",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "5c18e4d7-c86a-4ed2-9574-1862908cafa0",
+          "name": "qa-t34-421-checksum-mismatch-20261113",
+          "displaytext": "qa-t34-421-checksum-mismatch-20261113",
+          "arch": "aarch64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "checksum": "00000000000000000000000000000000",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "5c18e4d7-c86a-4ed2-9574-1862908cafa0",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "5c18e4d7-c86a-4ed2-9574-1862908cafa0",
+          "name": "qa-t34-421-checksum-mismatch-20261113",
+          "displaytext": "qa-t34-421-checksum-mismatch-20261113",
+          "arch": "aarch64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "checksum": "00000000000000000000000000000000",
+          "isready": false,
+          "status": "Processing",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        }
+      ]
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "05f2da75-72d0-4b7d-b87c-3e3d84d82122"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "05f2da75-72d0-4b7d-b87c-3e3d84d82122",
+      "jobstatus": 1,
+      "success": true,
+      "templates": []
+    }
+  },
+  {
+    "command": "deleteTemplate",
+    "params": {
+      "id": "5c18e4d7-c86a-4ed2-9574-1862908cafa0",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "94341914-4a3e-4763-965e-dee132eb6bc6",
+      "templates": []
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "94341914-4a3e-4763-965e-dee132eb6bc6"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "94341914-4a3e-4763-965e-dee132eb6bc6",
+      "jobstatus": 1,
+      "success": true,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "5c18e4d7-c86a-4ed2-9574-1862908cafa0",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "5c18e4d7-c86a-4ed2-9574-1862908cafa0",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 49,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 partial update retry keeps metadata",
+          "arch": "s390x",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "DENYOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 partial update retry keeps metadata",
+          "arch": "s390x",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "DENYOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 partial update retry keeps metadata",
+          "arch": "s390x",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "DENYOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "deleteTemplate",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "873f35a5-9785-415b-8730-904002f6482f",
+      "templates": []
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "873f35a5-9785-415b-8730-904002f6482f"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "873f35a5-9785-415b-8730-904002f6482f",
+      "jobstatus": 0,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+          "name": "qa-t34-url-20261113",
+          "displaytext": "T03 partial update retry keeps metadata",
+          "arch": "s390x",
+          "sshkeyenabled": false,
+          "requireshvm": false,
+          "forcks": false,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": false,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "DENYOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "e0c5216b-082d-442e-b1c1-46f340c4cf0b",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113-이름-우선-표시-검증-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-긴-이름은-한줄-말줄임으로-표시하고-마우스를-올리면-전체-이름을-확인",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113-이름-우선-표시-검증-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-긴-이름은-한줄-말줄임으로-표시하고-마우스를-올리면-전체-이름을-확인",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113-이름-우선-표시-검증-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-긴-이름은-한줄-말줄임으로-표시하고-마우스를-올리면-전체-이름을-확인",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "873f35a5-9785-415b-8730-904002f6482f"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "873f35a5-9785-415b-8730-904002f6482f",
+      "jobstatus": 1,
+      "success": true,
+      "templates": []
+    }
+  },
+  {
+    "command": "deleteTemplate",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "82ef5358-f460-4134-a469-5300393d47aa",
+      "templates": []
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "82ef5358-f460-4134-a469-5300393d47aa"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "82ef5358-f460-4134-a469-5300393d47aa",
+      "jobstatus": 0,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+          "name": "qa-t34-local-ready-20261113-이름-우선-표시-검증-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-긴-이름은-한줄-말줄임으로-표시하고-마우스를-올리면-전체-이름을-확인",
+          "displaytext": "T03 local ready checksum",
+          "arch": "x86_64",
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "37c6e1dc70aaf136834e92bf9637f613",
+          "isready": false,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "APPEND"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "ba7199fe-796c-4f2a-96cd-3d05044cc9b4",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "82ef5358-f460-4134-a469-5300393d47aa"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "82ef5358-f460-4134-a469-5300393d47aa",
+      "jobstatus": 1,
+      "success": true,
+      "templates": []
+    }
+  },
+  {
+    "command": "deleteTemplate",
+    "params": {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "ec683ee2-a53d-41ad-ad7c-5ef5d2d66c15",
+      "templates": []
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "ec683ee2-a53d-41ad-ad7c-5ef5d2d66c15"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "ec683ee2-a53d-41ad-ad7c-5ef5d2d66c15",
+      "jobstatus": 0,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": false,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "ec683ee2-a53d-41ad-ad7c-5ef5d2d66c15"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "ec683ee2-a53d-41ad-ad7c-5ef5d2d66c15",
+      "jobstatus": 1,
+      "success": true,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 46,
+      "templates": []
+    }
+  },
+  {
+    "command": "listUserData",
+    "params": {
+      "id": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "1"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listUserData",
+    "params": {
+      "id": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+      "page": "1",
+      "pagesize": "2"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": []
+    }
+  },
+  {
+    "command": "deleteUserData",
+    "params": {
+      "id": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596"
+    },
+    "http": 200,
+    "result": {
+      "success": true,
+      "templates": []
+    }
+  },
+  {
+    "command": "listUserData",
+    "params": {
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 46,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "keyword": "qa-t34-",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 46,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 46,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 46,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 46,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 46,
+      "templates": []
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 46,
+      "templates": []
+    }
+  }
+]

@@ -1,0 +1,84 @@
+{
+  "head": "ab5b5a93c65579ad0535ea984b31d89036aee357",
+  "sourceBoundary": {
+    "implementationHead": "ab5b5a93c65579ad0535ea984b31d89036aee357",
+    "previousUiHead": "784f1c2c137cea9c0d16bab484c6f1bcae98dbaa",
+    "localeCorrectionHead": "f5f047558ef",
+    "baseline": "460b33770cb071d869f61c2aac0d81773890ebc3",
+    "changedInputs": [
+      "ui/src/views/AutogenView.vue",
+      "ui/src/components/header/ProjectMenu.vue",
+      "ui/src/views/image/TemplateZoneOperations.vue",
+      "ui/tests/unit/views/image/TemplateZoneOperations.spec.js"
+    ],
+    "unrelatedUpstreamFeaturesExcluded": true
+  },
+  "baselineIndex": {
+    "sha256": "29f705712668a08d3c4e20dad2f0fb8825f7fb6fc2ca61b7233ff62d96577b9e",
+    "size": 39475
+  },
+  "files": {
+    "index.html": {
+      "sha256": "1ab5dba7267aeb2ae00e21e27f7933b2606d97f202e464dd067882ebeda7f19f",
+      "size": 39475,
+      "previous": {
+        "sha256": "29f705712668a08d3c4e20dad2f0fb8825f7fb6fc2ca61b7233ff62d96577b9e",
+        "size": 39475
+      }
+    },
+    "color.less": {
+      "sha256": "d0f2faaf0268c9c39ac27230c0e89678eb90735c85809eedf03e666f9c5630c1",
+      "size": 714333,
+      "previous": {
+        "sha256": "7eb27aca204b57b35e2e0a270f03919c62d7bf5274913e91c1f60f5c6460a531",
+        "size": 714304
+      }
+    },
+    "css/chunk-3fd0795f.c094b4ba.css": {
+      "sha256": "32be0ff20ce5db481dd065c7421feafa811383e648fcd317e3bc5a5ac896c0d8",
+      "size": 349,
+      "previous": null
+    },
+    "css/app.778c5590.css": {
+      "sha256": "a597961cf18d0a087c974727c979032ce7138c6b0edf86f1e91a2bda7b389fcd",
+      "size": 343401,
+      "previous": null
+    },
+    "js/chunk-3fd0795f.aba5eefb.js": {
+      "sha256": "c51cf171d1f933049f7e6b3e877de8739598f62faebdf7210ce975e6b1eca65c",
+      "size": 36825,
+      "previous": null
+    },
+    "js/app.7f1ba9e2.js": {
+      "sha256": "50a0d2d01aec6d8fca7977ef5d590007dfac3f74e0e0082b6a2403748f7aa7ce",
+      "size": 1875625,
+      "previous": null
+    },
+    "js/chunk-3fd0795f.aba5eefb.js.map": {
+      "sha256": "648099ce5529c9212656791305c0f3bb0e18edd9d53132cc0b346a98fedf7d25",
+      "size": 68481,
+      "previous": null
+    },
+    "js/vendors.599553d0.js.map": {
+      "sha256": "c616c60818c432472426ba37d6b37c56fb8f9faee6b189ea290ae5128da70925",
+      "size": 18251765,
+      "previous": null
+    },
+    "js/app.7f1ba9e2.js.map": {
+      "sha256": "21b0fc2a26cb419f31f4d71ec3e29bba838bc26295f8eb7e89322f1aff3303f7",
+      "size": 3738942,
+      "previous": null
+    },
+    "js/vendors.599553d0.js": {
+      "sha256": "9e28d1cf1d6b1dd70639de7906124782020f125f869b14fbcf9d6a3d290555a6",
+      "size": 6051840,
+      "previous": null
+    }
+  },
+  "protected": {
+    "config.json": "71c175523a2e251faf574bd5d977c37e81d21c9cc0b8a98dfb1642c6b8a448d7",
+    "WEB-INF/web.xml": "04772d62c28054b1947a84e7b83f2f7c0ab343dc457f0b5e730a631d2ef08c25"
+  },
+  "moldPid": "2473572",
+  "backendJarSha256": "8fe7c6611dd1983084a3de8b5ed70b78f05a4551931022a4f1c0af5bb9f5e2c6"
+}

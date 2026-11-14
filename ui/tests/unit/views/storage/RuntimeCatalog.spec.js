@@ -1,4 +1,20 @@
-// Licensed under the Apache License, Version 2.0. See the NOTICE file.
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import { shallowMount, flushPromises } from '@vue/test-utils'
 import Action from '@/views/tools/RuntimeCatalogAction.vue'
 import Records from '@/views/tools/RuntimeCatalogRecords.vue'
@@ -72,13 +88,21 @@ describe('runtime catalogue mounted components and real ApiResponseSerializer re
     expect(getAPI).toHaveBeenLastCalledWith('listStorageServiceRuntimeBundleValidations', { bundleid: 'bundle-uuid', page: 2, pagesize: 20 })
     expect(postAPI).not.toHaveBeenCalled()
   })
-  it('template and infrastructure summaries consume the same catalogue without mutation or invented target compatibility', async () => {
+  it('Storage Service template summaries consume the same catalogue without mutation or invented target compatibility', async () => {
     getAPI.mockResolvedValue(copy(wire.bundles))
-    wrapper = shallowMount(Summary, { props: { resource: { id: 'unobserved-template' } }, global: { mocks: { $t: x => x, $notifyError: jest.fn() }, stubs: { RouterLink: true } } })
+    wrapper = shallowMount(Summary, { props: { resource: { id: 'storage-template', templatetype: 'SHAREDFS' } }, global: { mocks: { $route: { path: '/template/storage-template', meta: { name: 'template' } }, $store: { getters: { userInfo: { roletype: 'Admin' }, apis: { listStorageServiceRuntimeBundles: {} } } }, $t: x => x, $notifyError: jest.fn() }, stubs: { RouterLink: true } } })
     await flushPromises()
     expect(getAPI).toHaveBeenLastCalledWith('listStorageServiceRuntimeBundles', { purpose: 'catalog', page: 1, pagesize: 10 })
     expect(wrapper.vm.rows[0].state).toBe('SUSPENDED')
     expect(wrapper.html()).toContain('message.runtime.catalog.context.unknown')
+    expect(postAPI).not.toHaveBeenCalled()
+  })
+  it('preserves the authorized global catalogue on infrastructure without a template record', async () => {
+    getAPI.mockResolvedValue(copy(wire.bundles))
+    wrapper = shallowMount(Summary, { global: { mocks: { $route: { path: '/infrasummary', meta: { name: 'infrasummary' } }, $store: { getters: { userInfo: { roletype: 'Admin' }, apis: { listStorageServiceRuntimeBundles: {} } } }, $t: x => x, $notifyError: jest.fn() }, stubs: { RouterLink: true } } })
+    await flushPromises()
+    expect(getAPI).toHaveBeenLastCalledWith('listStorageServiceRuntimeBundles', { purpose: 'catalog', page: 1, pagesize: 10 })
+    expect(wrapper.vm.rows[0].state).toBe('SUSPENDED')
     expect(postAPI).not.toHaveBeenCalled()
   })
 })

@@ -17,6 +17,8 @@
 
 import { shallowRef, defineAsyncComponent } from 'vue'
 import store from '@/store'
+import { templateAvailability } from '@/utils/templateAvailability'
+import { isStorageServiceTemplate, canReadTemplateRuntimeCatalog } from '@/utils/templateDetails'
 import { isZoneCreated } from '@/utils/zone'
 import kubernetesIcon from '@/assets/icons/kubernetes.svg?inline'
 
@@ -38,13 +40,8 @@ export default {
       columns: () => {
         var fields = ['name',
           {
-            state: (record) => {
-              if (record.isready) {
-                return 'Ready'
-              }
-              return 'Not Ready'
-            }
-          }, 'ostypename', 'arch', 'hypervisor']
+            state: record => templateAvailability(record).state
+          }, 'format', 'ostypename', 'arch', 'hypervisor']
         if (['Admin', 'DomainAdmin'].includes(store.getters.userInfo.roletype)) {
           fields.push('size')
           fields.push('account')
@@ -60,15 +57,15 @@ export default {
       },
       details: () => {
         var fields = ['name', 'id', 'displaytext', 'checksum', 'hypervisor', 'arch', 'format', 'externalprovisioner', 'ostypename', 'size', 'physicalsize', 'isready', 'passwordenabled',
-          'crossZones', 'templatetype', 'directdownload', 'deployasis', 'ispublic', 'isfeatured', 'isextractable', 'isdynamicallyscalable', 'crosszones', 'type',
+          'sshkeyenabled', 'requireshvm', 'templatetype', 'directdownload', 'deployasis', 'ispublic', 'isfeatured', 'isextractable', 'isdynamicallyscalable', 'crossZones',
           'account', 'domain', 'created', 'userdatadetails', 'userdatapolicy', 'forcks', 'url']
         if (['Admin'].includes(store.getters.userInfo.roletype)) {
-          fields.push('templatetag', 'templatetype', 'kvdoenable')
+          fields.push('templatetag', 'kvdoenable')
         }
         return fields
       },
       searchFilters: () => {
-        var filters = ['name', 'zoneid', 'tags', 'arch', 'oscategoryid', 'templatetype', 'extensionid']
+        var filters = ['name', 'zoneid', 'tags', 'arch', 'oscategoryid', 'templatetype', 'extensionid', 'isready', 'hypervisor', 'forcks', 'userdataid']
         if (['Admin', 'DomainAdmin'].includes(store.getters.userInfo.roletype)) {
           filters.push('storageid')
           filters.push('imagestoreid')
@@ -83,7 +80,7 @@ export default {
       tabs: [{
         name: 'details',
         component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailsTab.vue')))
-      }, { name: 'runtime.catalog', component: shallowRef(defineAsyncComponent(() => import('@/views/tools/RuntimeBundleCatalogSummary.vue'))), show: () => store.getters.userInfo.roletype === 'Admin' },
+      }, { name: 'runtime.catalog', component: shallowRef(defineAsyncComponent(() => import('@/views/tools/RuntimeBundleCatalogSummary.vue'))), show: record => canReadTemplateRuntimeCatalog(store.getters) && isStorageServiceTemplate(record) },
       {
         name: 'zones',
         component: shallowRef(defineAsyncComponent(() => import('@/views/image/TemplateZones.vue')))
@@ -108,6 +105,7 @@ export default {
       actions: [
         {
           api: 'registerTemplate',
+          selfManagedDialog: true,
           icon: 'plus-outlined',
           label: 'label.action.register.template',
           docHelp: 'adminguide/templates.html#uploading-templates-from-a-remote-http-server',
@@ -118,6 +116,7 @@ export default {
         },
         {
           api: 'registerTemplate',
+          selfManagedDialog: true,
           icon: 'cloud-upload-outlined',
           label: 'label.upload.template.from.local',
           docHelp: 'adminguide/templates.html#uploading-templates-and-isos-from-a-local-computer',

@@ -1,0 +1,15 @@
+{
+  "initialTemplates": 46,
+  "templates": [
+    {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+      "deletedThroughZoneUi": true
+    }
+  ],
+  "fixture": {
+    "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2",
+    "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909"
+  },
+  "finalTemplateCount": 46
+}

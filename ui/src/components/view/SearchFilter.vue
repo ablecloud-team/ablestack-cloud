@@ -216,6 +216,7 @@ export default {
       return (text.length <= length) ? text : (text.substring(0, length - 3) + '...')
     },
     retrieveFieldLabel (fieldName) {
+      if (this.apiName === 'listTemplates' && fieldName === 'name') return this.$t('label.template.name.exact')
       if (fieldName === 'forvpc') return this.$t('label.network.search.forvpc')
       if (fieldName === 'networkofferingid') return this.$t('label.network.offering')
       if (fieldName === 'physicalnetworkid') return this.$t('label.physical.network')
@@ -255,6 +256,7 @@ export default {
         const label = snapshotSearchValue(key, value)
         if (label) return this.$t(label)
       }
+      if (this.apiName === 'listTemplates' && ['isready', 'forcks'].includes(key)) return this.$t(String(value) === 'true' ? 'label.yes' : 'label.no')
       let formattedValue = ''
       if (key.includes('type')) {
         if (this.$route.path === '/guestnetwork' || this.$route.path.includes('/guestnetwork/')) {

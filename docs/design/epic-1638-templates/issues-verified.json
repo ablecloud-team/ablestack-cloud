@@ -1,0 +1,105 @@
+[
+  {
+    "key": "T01",
+    "number": 1639,
+    "id": 6353968436,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1639",
+    "title": "[Europa][1638][T01][P1] 템플릿 유형 enum의 잘못된 상세 링크 수정",
+    "parent": 1638,
+    "blocked_by": [],
+    "priority": "P1"
+  },
+  {
+    "key": "T02",
+    "number": 1640,
+    "id": 6353969740,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1640",
+    "title": "[Europa][1638][T02][P1] 템플릿 다운로드 상태와 실패 원인 표시 통일",
+    "parent": 1638,
+    "blocked_by": [],
+    "priority": "P1"
+  },
+  {
+    "key": "T03",
+    "number": 1641,
+    "id": 6353971167,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1641",
+    "title": "[Europa][1638][T03][P2] 템플릿 등록·로컬 업로드·편집 필드 정합성 개선",
+    "parent": 1638,
+    "blocked_by": [
+      1640
+    ],
+    "priority": "P2"
+  },
+  {
+    "key": "T04",
+    "number": 1642,
+    "id": 6353972513,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1642",
+    "title": "[Europa][1638][T04][P2] 템플릿 목록·breadcrumb·운영 검색 표준화",
+    "parent": 1638,
+    "blocked_by": [
+      1639,
+      1640
+    ],
+    "priority": "P2"
+  },
+  {
+    "key": "T05",
+    "number": 1643,
+    "id": 6353973915,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1643",
+    "title": "[Europa][1638][T05][P2] 템플릿 상세·탭·긴 값 표시와 현지화 개선",
+    "parent": 1638,
+    "blocked_by": [
+      1640,
+      1641,
+      1642
+    ],
+    "priority": "P2"
+  },
+  {
+    "key": "T06",
+    "number": 1644,
+    "id": 6353975733,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1644",
+    "title": "[Europa][1638][T06][P2] 템플릿 Zone 복사·삭제·사전 준비 작업 설계와 UX 개선",
+    "parent": 1638,
+    "blocked_by": [
+      1640,
+      1643
+    ],
+    "priority": "P2"
+  },
+  {
+    "key": "T07",
+    "number": 1645,
+    "id": 6353976985,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1645",
+    "title": "[Europa][1638][T07][P2] VNF 템플릿 속성 검증·NIC 작업·실패 복구 개선",
+    "parent": 1638,
+    "blocked_by": [
+      1641,
+      1643
+    ],
+    "priority": "P2"
+  },
+  {
+    "key": "T08",
+    "number": 1646,
+    "id": 6353978351,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1646",
+    "title": "[Europa][1638][T08][P2] 템플릿 개선 통합 UI 회귀·접근성·실환경 검증",
+    "parent": 1638,
+    "blocked_by": [
+      1639,
+      1640,
+      1641,
+      1642,
+      1643,
+      1644,
+      1645
+    ],
+    "priority": "P2"
+  }
+]

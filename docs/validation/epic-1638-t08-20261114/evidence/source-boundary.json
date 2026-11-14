@@ -1,0 +1,13 @@
+{
+  "implementationHead": "ab5b5a93c65579ad0535ea984b31d89036aee357",
+  "previousUiHead": "784f1c2c137cea9c0d16bab484c6f1bcae98dbaa",
+  "localeCorrectionHead": "f5f047558ef",
+  "baseline": "460b33770cb071d869f61c2aac0d81773890ebc3",
+  "changedInputs": [
+    "ui/src/views/AutogenView.vue",
+    "ui/src/components/header/ProjectMenu.vue",
+    "ui/src/views/image/TemplateZoneOperations.vue",
+    "ui/tests/unit/views/image/TemplateZoneOperations.spec.js"
+  ],
+  "unrelatedUpstreamFeaturesExcluded": true
+}

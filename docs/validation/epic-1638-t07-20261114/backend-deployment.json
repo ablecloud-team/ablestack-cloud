@@ -1,0 +1,18 @@
+{
+  "sourceHead": "3de46e65491a7b4b24486b896e65afd2d52d0bae",
+  "backup": "/var/tmp/epic1638-t07-backend-backup-iroj8e7x",
+  "originalJarSha256": "2f2aa2f44c8c51ce4402d0b1e496853e70efa187809e8854a200c9db334a3dab",
+  "patchedJarSha256": "fd63680c7c9d0396aad05adc416ff8796ab2dfa16fc97e71b23d3de6b40346cb",
+  "changedEntries": [
+    "org/apache/cloudstack/api/command/admin/template/UpdateVnfTemplateCmdByAdmin.class",
+    "org/apache/cloudstack/api/command/user/template/UpdateVnfTemplateCmd.class",
+    "com/cloud/api/ApiServer.class"
+  ],
+  "allOtherEntriesIdentical": true,
+  "oldPid": "2352863",
+  "newPid": "2381637",
+  "active": "active",
+  "databaseChanged": false,
+  "hostAgentsChanged": false,
+  "systemVmsChanged": false
+}

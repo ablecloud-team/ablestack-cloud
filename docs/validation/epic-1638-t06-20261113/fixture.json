@@ -1,0 +1,8 @@
+{
+  "path": "/usr/share/cloudstack-management/webapp/qa-template-t06-20261113/fixture.qcow2",
+  "url": "http://10.10.13.10:8080/client/qa-template-t06-20261113/fixture.qcow2",
+  "md5": "37c6e1dc70aaf136834e92bf9637f613",
+  "sha256": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+  "bytes": 196616,
+  "initialTemplates": 46
+}

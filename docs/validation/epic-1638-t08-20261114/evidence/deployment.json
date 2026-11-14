@@ -1,0 +1,16 @@
+{
+  "codeHead": "ab5b5a93c65579ad0535ea984b31d89036aee357",
+  "root": "/usr/share/cloudstack-management/webapp",
+  "backup": "/var/tmp/epic1638-t08-ui-backup-dzkvteji",
+  "files": 10,
+  "added": 8,
+  "overwritten": [
+    "index.html",
+    "color.less"
+  ],
+  "indexSha256": "1ab5dba7267aeb2ae00e21e27f7933b2606d97f202e464dd067882ebeda7f19f",
+  "protectedPreserved": true,
+  "moldPidPreserved": true,
+  "oldHashedAssetsRetained": true,
+  "deploymentType": "UI static delta only"
+}

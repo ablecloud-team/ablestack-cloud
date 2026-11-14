@@ -1,0 +1,49 @@
+{
+  "ui": {
+    "suites": 14,
+    "tests": 165,
+    "passed": true,
+    "head": "c0f2be7dddfaf575239bf63ae3acc18c8d965e0e",
+    "scopedEslintFiles": 18,
+    "scopedEslintPassed": true,
+    "staticLocaleTests": 2,
+    "staticLocaleTestsPassed": true
+  },
+  "backendReadiness": {
+    "tests": 3,
+    "passed": true
+  },
+  "checksum": {
+    "tests": 6,
+    "currentSourceRuntimePassed": true,
+    "deployed421RuntimePassed": true,
+    "deployed423RuntimePassed": true
+  },
+  "reportMarkdownlint": {
+    "version": "0.45.0",
+    "passed": true
+  },
+  "liveUpload": {
+    "421": {
+      "md5Ready": true,
+      "mismatchRejected": true
+    },
+    "423": {
+      "sha256Ready": true,
+      "mismatchRejected": true
+    }
+  },
+  "cleanup": {
+    "templateDeleteJobs": 6,
+    "allStatus1SuccessTrue": true,
+    "qaTemplatesRemaining": 0,
+    "userdataRemaining": 0,
+    "totalTemplates": 46,
+    "retainedSystemTemplate": 1
+  },
+  "limitations": [
+    "multi-role and multi-zone full ACL matrix belongs to T08",
+    "empty QCOW2 transfer and readiness only; no guest OS boot",
+    "existing full-repository CI remains non-green"
+  ]
+}

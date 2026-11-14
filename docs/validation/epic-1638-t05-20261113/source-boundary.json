@@ -1,0 +1,49 @@
+{
+  "canonicalBase": "0edd20dcc9218312b3da533582f03e11535c5eb8",
+  "previousFeatureHead": "1628cb7cf50f6401767e7d1bc6d3c1566d44ed69",
+  "implementationHead": "8f631d4095104abb9b2d3bb367da32517e47fd27",
+  "previousUiJavaScriptHead": "c0f2be7dddfaf575239bf63ae3acc18c8d965e0e",
+  "previousStaticLocaleHead": "981f90d36c9817c690281246077b791ef84bdff1",
+  "runtimeUiBaseline": "460b33770cb071d869f61c2aac0d81773890ebc3",
+  "buildDirectory": "/root/work/.build-epic1638-t03-t04-20261113/ui",
+  "method": "existing scoped T01-T04 archive plus only T05 git diff; git apply --check passed",
+  "changedInputs": [
+    "ui/src/components/view/DetailsTab.vue",
+    "ui/src/components/view/InfoCard.vue",
+    "ui/src/components/view/ResourceView.vue",
+    "ui/src/components/widgets/TemplateDetailValue.vue",
+    "ui/src/config/section/image.js",
+    "ui/src/utils/templateDetails.js",
+    "ui/src/views/tools/RuntimeBundleCatalogSummary.vue",
+    "ui/tests/unit/views/image/TemplateDetails.spec.js",
+    "ui/tests/unit/views/storage/RuntimeCatalog.spec.js"
+  ],
+  "inputHashes": {
+    "ui/src/components/view/DetailsTab.vue": "3638bcb2334331d552b97589f83feb2f23f66b29bb2d444d3b279a5a0f03cfed",
+    "ui/src/components/view/InfoCard.vue": "d55f78ffa18c8cd1d67bb4cfcca09bc56e097e11e22ea7968a4932f907dc53a0",
+    "ui/src/components/view/ResourceView.vue": "530c029bce6dd5147983dbf9c963480846ac9a052d8d03b7c44044f8ea77de21",
+    "ui/src/components/widgets/TemplateDetailValue.vue": "17358464f6ccc610c41ecab68dce48e725191979dfad015e4482ab7f3f00fac7",
+    "ui/src/config/section/image.js": "8f82fcbf7eff04b3526f93979f409a77924c5933d44f7a7cffb2cd684c853244",
+    "ui/src/utils/templateDetails.js": "094f6943f593df956bc72dabfd2732b8cb8fe6c038eec96010d5edb7c4a07781",
+    "ui/src/views/tools/RuntimeBundleCatalogSummary.vue": "3bc5eb02f701fd3f67c70e8aa9c15c62651e37001579d16668bc58e312fa62d7",
+    "ui/tests/unit/views/image/TemplateDetails.spec.js": "8619816a5022806e29713d7cc72839a413e6a4498d67479ea65ef1286a1c7940",
+    "ui/tests/unit/views/storage/RuntimeCatalog.spec.js": "28e415469b8b1686b53dca0025229c9244c2394f4f5546cb8cc7f4c9ad9abcb6"
+  },
+  "excludedUpstreamPaths": [
+    "ui/src/components/view/ResourceTags.vue",
+    "ui/src/components/view/AnnotationsTab.vue",
+    "ui/src/utils/resourceTags.js"
+  ],
+  "excludedPathsMatchRuntimeBaseline": true,
+  "uiOnly": true,
+  "backendChanged": false,
+  "databaseChanged": false,
+  "systemVmsChanged": false,
+  "hostAgentsChanged": false,
+  "crossZoneApiField": "crossZones",
+  "canonicalUiTests": {
+    "suites": 22,
+    "tests": 342,
+    "passed": true
+  }
+}

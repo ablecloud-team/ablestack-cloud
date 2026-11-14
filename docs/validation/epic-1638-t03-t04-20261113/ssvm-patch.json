@@ -1,0 +1,27 @@
+{
+  "jar": "/tmp/epic-1638-t03-t04/ssvm-libs/cloud-secondary-storage-4.21.0.0-Mold.Diplo-202609221440.jar",
+  "remoteJar": "/usr/local/cloud/systemvm/cloud-secondary-storage-4.21.0.0-Mold.Diplo-202609221440.jar",
+  "jarSha256": "21d749eea42660e0f47da9f9b7e81cadb8e3b6b34455b704c74d3d7aef9e5e8a",
+  "nfsClassSha256": "46ae34c11e329c1da82c3d51e77680280b32fae249c5d340b47d71361a889811",
+  "classMajor": 55,
+  "jars": 271,
+  "tarBytes": 125573120,
+  "patchedJar": "/tmp/epic-1638-t03-t04/cloud-secondary-storage-t34-patched.jar",
+  "patchedJarSha256": "d5f6dbcf45df292dcfb1d12d84e30ee14f41cb4a9e70f0a1ff82aa62b9c78667",
+  "patchedClassSha256": "2f3da2edcb5073973771795ef8582c34d5b49a1197cd91bfad64cd9b8e405fc0",
+  "helperClassSha256": "762bdb555e949ffb09d1d20141238a71153656479dcea19bb56b61dd17492290",
+  "changedExistingEntries": [
+    "org/apache/cloudstack/storage/resource/NfsSecondaryStorageResource.class"
+  ],
+  "addedEntries": [
+    "org/apache/cloudstack/storage/resource/PostUploadChecksum.class"
+  ],
+  "changedMethods": [
+    "public postUpload(Ljava/lang/String;Ljava/lang/String;J)Ljava/lang/String;"
+  ],
+  "allOtherMethodsAndInnerClassesIdentical": true,
+  "allOtherJarEntriesIdentical": true,
+  "baselineSourceRef": "65d4c2fd6ce6856b1dd4b343077b6bd511bab5d8",
+  "baselineExactClassMatch": true,
+  "compileJdk": 11
+}

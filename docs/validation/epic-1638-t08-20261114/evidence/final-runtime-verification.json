@@ -1,0 +1,17 @@
+{
+  "activeAssetsCompared": 975,
+  "mismatches": [],
+  "protected": {
+    "config.json": "71c175523a2e251faf574bd5d977c37e81d21c9cc0b8a98dfb1642c6b8a448d7",
+    "WEB-INF/web.xml": "04772d62c28054b1947a84e7b83f2f7c0ab343dc457f0b5e730a631d2ef08c25"
+  },
+  "moldPid": "2473572",
+  "active": "active",
+  "backendJarSha256": "8fe7c6611dd1983084a3de8b5ed70b78f05a4551931022a4f1c0af5bb9f5e2c6",
+  "servedIndexSha256": "1ab5dba7267aeb2ae00e21e27f7933b2606d97f202e464dd067882ebeda7f19f",
+  "servedIndexMatches": true,
+  "uiHead": "ab5b5a93c65579ad0535ea984b31d89036aee357",
+  "databaseSchemaChanged": false,
+  "hostAgentsChanged": false,
+  "systemVmRuntimeChanged": false
+}

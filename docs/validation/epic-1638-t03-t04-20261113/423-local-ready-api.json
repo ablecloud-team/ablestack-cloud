@@ -1,0 +1,60 @@
+[
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "templatefilter": "executable",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  },
+  {
+    "command": "listTemplates",
+    "params": {
+      "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "c1196900-a09d-4d3d-b692-a28c410076fb",
+          "name": "qa-t34-423-sha256-ready-20261113",
+          "displaytext": "qa-t34-423-sha256-ready-20261113",
+          "arch": "x86_64",
+          "sshkeyenabled": true,
+          "requireshvm": true,
+          "forcks": true,
+          "checksum": "a868962514df6e6678042c72d4eebca7b842a2e4edd1df7e00bdf626a6fac15c",
+          "isready": true,
+          "status": "Download Complete",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "userdataid": "2a3c9c0d-5e9c-47e5-80e9-6266c1d62596",
+          "userdatapolicy": "ALLOWOVERRIDE"
+        }
+      ]
+    }
+  }
+]

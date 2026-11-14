@@ -1,0 +1,16 @@
+{
+  "sourceHead": "2e485bb52560d0d0b4db86bad724ac7e720a7153",
+  "backup": "/var/tmp/epic1638-t08-project-async-backend-backup-dqepgr3r",
+  "originalJarSha256": "b27edeacd5caa8c7e372aaa6d8e2c9433a0fec74f9c7e8b0e0e62f2667b18328",
+  "patchedJarSha256": "8fe7c6611dd1983084a3de8b5ed70b78f05a4551931022a4f1c0af5bb9f5e2c6",
+  "changedEntries": [
+    "com/cloud/api/ApiDispatcher.class"
+  ],
+  "allOtherEntriesIdentical": true,
+  "oldPid": "2470307",
+  "newPid": "2473572",
+  "active": "active",
+  "databaseChanged": false,
+  "hostAgentsChanged": false,
+  "systemVmsChanged": false
+}

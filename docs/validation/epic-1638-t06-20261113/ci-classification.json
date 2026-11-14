@@ -1,0 +1,69 @@
+{
+  "head": "241d79387dae71dea09ccd3547ad25ec6726364e",
+  "licenseRun": "43404630697",
+  "unapproved": 4077,
+  "touchedFiles": {
+    "api/src/main/java/org/apache/cloudstack/api/command/admin/template/PrepareTemplateCmd.java": [
+      "  AL    api/src/main/java/org/apache/cloudstack/api/command/admin/template/PrepareTemplateCmd.java"
+    ],
+    "server/src/main/java/com/cloud/api/query/dao/TemplateJoinDaoImpl.java": [
+      "  AL    server/src/main/java/com/cloud/api/query/dao/TemplateJoinDaoImpl.java"
+    ],
+    "server/src/main/java/com/cloud/template/TemplateManagerImpl.java": [
+      "  AL    server/src/main/java/com/cloud/template/TemplateManagerImpl.java"
+    ],
+    "server/src/main/java/com/cloud/template/TemplatePreparationValidation.java": [
+      "  AL    server/src/main/java/com/cloud/template/TemplatePreparationValidation.java"
+    ],
+    "server/src/test/java/com/cloud/api/query/dao/TemplatePrimaryCacheEvidenceTest.java": [
+      "  AL    server/src/test/java/com/cloud/api/query/dao/TemplatePrimaryCacheEvidenceTest.java"
+    ],
+    "server/src/test/java/com/cloud/template/TemplateManagerImplTest.java": [
+      "  AL    server/src/test/java/com/cloud/template/TemplateManagerImplTest.java"
+    ],
+    "server/src/test/java/com/cloud/template/TemplatePreparationValidationTest.java": [
+      "  AL    server/src/test/java/com/cloud/template/TemplatePreparationValidationTest.java"
+    ],
+    "ui/src/components/view/ResourceView.vue": [
+      "  AL    ui/src/components/view/ResourceView.vue"
+    ],
+    "ui/src/utils/templateZoneOperations.js": [
+      "  AL    ui/src/utils/templateZoneOperations.js"
+    ],
+    "ui/src/views/AutogenView.vue": [
+      "  AL    ui/src/views/AutogenView.vue"
+    ],
+    "ui/src/views/image/TemplateZoneOperations.vue": [
+      "  AL    ui/src/views/image/TemplateZoneOperations.vue"
+    ],
+    "ui/src/views/image/TemplateZones.vue": [
+      "  AL    ui/src/views/image/TemplateZones.vue"
+    ],
+    "ui/tests/unit/views/image/TemplateZoneOperations.spec.js": [
+      "  AL    ui/tests/unit/views/image/TemplateZoneOperations.spec.js"
+    ]
+  },
+  "lintRun": "43404630606",
+  "lintConclusion": "failure",
+  "lintTouchedFileFindings": {},
+  "lintTouchedPathsCompared": 15,
+  "lintFailedHooks": [
+    "run oxipng...............................................................Failed",
+    "add license for all Markdown files.......................................Failed",
+    "add license for all properties files.....................................Failed",
+    "add license for all Shell files..........................................Failed",
+    "add license for all SQL files............................................Failed",
+    "add license for all Vue files............................................Failed",
+    "add license for all YAML files...........................................Failed",
+    "check that scripts with shebangs are executable..........................Failed",
+    "check for broken symlinks................................................Failed",
+    "fix end of files.........................................................Failed",
+    "fix utf-8 byte order marker..............................................Failed",
+    "mixed line ending........................................................Failed",
+    "trim trailing whitespace.................................................Failed",
+    "run codespell............................................................Failed",
+    "flake8...................................................................Failed",
+    "run markdownlint.........................................................Failed"
+  ],
+  "lintIdentityInventoryExcluded": true
+}

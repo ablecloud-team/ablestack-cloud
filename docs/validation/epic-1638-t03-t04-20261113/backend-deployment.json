@@ -1,0 +1,17 @@
+{
+  "target": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+  "backup": "/var/tmp/epic1638-t34-backend-backup-l7gn85he",
+  "oldPid": "2234509",
+  "newPid": "2323824",
+  "service": "mold.service",
+  "active": true,
+  "httpIndex": 200,
+  "jarSha256": "341d2e120fd575c2fe6104ac4cab540c2cd4378e972859a3a0c0f8d0d417b85d",
+  "classSha256": "3e317ca2d2a3599a4cf4f9708bb88e7f2b93ab8bbfcc5564381c46411e0ae36f",
+  "changedEntries": [
+    "com/cloud/api/query/QueryManagerImpl.class"
+  ],
+  "allOtherJarEntriesPreserved": true,
+  "databaseSchemaChanged": false,
+  "hostAgentsChanged": false
+}

@@ -5155,7 +5155,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
                 null, cmd.getPageSizeVal(), cmd.getStartIndex(), cmd.getZoneId(), cmd.getStoragePoolId(),
                 cmd.getImageStoreId(), hypervisorType, showDomr, cmd.listInReadyState(), permittedAccounts, caller,
                 listProjectResourcesCriteria, tags, showRemovedTmpl, cmd.getIds(), parentTemplateId, cmd.getShowUnique(),
-                templateType, isVnf, domainId, isRecursive, cmd.getArch(), cmd.getOsCategoryId(), forCks, cmd.getKvdoEnable(), cmd.getExtensionId(), cmd.getUserDataId());
+                templateType, isVnf, domainId, isRecursive, cmd.getArch(), cmd.getOsCategoryId(), forCks, cmd.getKvdoEnable(), cmd.getExtensionId(), cmd.getUserDataId(), cmd.isReady());
     }
 
     private Pair<List<TemplateJoinVO>, Integer> searchForTemplatesInternal(Long templateId, String name, String keyword,
@@ -5164,7 +5164,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             boolean showDomr, boolean onlyReady, List<Account> permittedAccounts, Account caller,
             ListProjectResourcesCriteria listProjectResourcesCriteria, Map<String, String> tags,
             boolean showRemovedTmpl, List<Long> ids, Long parentTemplateId, Boolean showUnique, String templateType,
-            Boolean isVnf, Long domainId, boolean isRecursive, CPU.CPUArch arch, Long osCategoryId, Boolean forCks, Boolean kvdoEnable, Long extensionId, Long userDataId) {
+            Boolean isVnf, Long domainId, boolean isRecursive, CPU.CPUArch arch, Long osCategoryId, Boolean forCks, Boolean kvdoEnable, Long extensionId, Long userDataId, Boolean readiness) {
 
         // check if zone is configured, if not, just return empty list
         List<HypervisorType> hypers = null;
@@ -5378,7 +5378,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         applyPublicTemplateSharingRestrictions(sc, caller);
 
         return templateChecks(isIso, hypers, tags, name, keyword, hyperType, onlyReady, bootable, zoneId, showDomr, caller,
-                showRemovedTmpl, parentTemplateId, showUnique, templateType, isVnf, forCks, searchFilter, sc);
+                showRemovedTmpl, parentTemplateId, showUnique, templateType, isVnf, forCks, searchFilter, sc, readiness);
     }
 
     /**
@@ -5433,7 +5433,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
     private Pair<List<TemplateJoinVO>, Integer> templateChecks(boolean isIso, List<HypervisorType> hypers, Map<String, String> tags, String name, String keyword,
                                                                HypervisorType hyperType, boolean onlyReady, Boolean bootable, Long zoneId, boolean showDomr, Account caller,
                                                                boolean showRemovedTmpl, Long parentTemplateId, Boolean showUnique, String templateType, Boolean isVnf, Boolean forCks,
-                                                               Filter searchFilter, SearchCriteria<TemplateJoinVO> sc) {
+                                                               Filter searchFilter, SearchCriteria<TemplateJoinVO> sc, Boolean readiness) {
         if (!isIso) {
             // add hypervisor criteria for template case
             if (hypers != null && !hypers.isEmpty()) {
@@ -5497,6 +5497,16 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             sc.addAnd("state", SearchCriteria.Op.SC, readySc);
         }
 
+        if (Boolean.FALSE.equals(readiness)) {
+            // Explicit false is the complement of the API response's isready,
+            // rather than the legacy "only ready" flag being disabled.
+            SearchCriteria<TemplateJoinVO> notReady = _templateJoinDao.createSearchCriteria();
+            notReady.addOr("state", SearchCriteria.Op.NEQ, TemplateState.Ready);
+            notReady.addOr("state", SearchCriteria.Op.NULL);
+            sc.addAnd("state", SearchCriteria.Op.SC, notReady);
+            sc.addAnd("format", SearchCriteria.Op.NIN, ImageFormat.BAREMETAL, ImageFormat.EXTERNAL);
+        }
+
         if (!showDomr) {
             // excluding system template
             sc.addAnd("templateType", SearchCriteria.Op.NEQ, Storage.TemplateType.SYSTEM);
@@ -5554,12 +5564,23 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             }
         }
 
-        return findTemplatesByIdOrTempZonePair(uniqueTmplPair, showRemovedTmpl, showUnique, caller);
+        Pair<List<TemplateJoinVO>, Integer> result = findTemplatesByIdOrTempZonePair(uniqueTmplPair, showRemovedTmpl, showUnique, caller);
+        if (readiness != null) {
+            // Distinct-ID expansion may include copies from other Zones/stores.
+            // Keep only copies matching the same predicate used for pagination.
+            return new Pair<>(result.first().stream().filter(row -> templateMatchesReadiness(row, readiness)).collect(Collectors.toList()), result.second());
+        }
+        return result;
 
         // TODO: revisit the special logic for iso search in
         // VMTemplateDaoImpl.searchForTemplates and understand why we need to
         // specially handle ISO. The original logic is very twisted and no idea
         // about what the code was doing.
+    }
+
+    static boolean templateMatchesReadiness(TemplateJoinVO row, Boolean readiness) {
+        boolean ready = row.getFormat() == ImageFormat.BAREMETAL || row.getFormat() == ImageFormat.EXTERNAL || row.getState() == org.apache.cloudstack.engine.subsystem.api.storage.ObjectInDataStoreStateMachine.State.Ready;
+        return readiness == null || readiness.booleanValue() == ready;
     }
 
     // findTemplatesByIdOrTempZonePair returns the templates with the given ids if showUnique is true, or else by the TempZonePair
@@ -5631,7 +5652,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
                 cmd.getPageSizeVal(), cmd.getStartIndex(), cmd.getZoneId(), cmd.getStoragePoolId(), cmd.getImageStoreId(),
                 hypervisorType, true, cmd.listInReadyState(), permittedAccounts, caller, listProjectResourcesCriteria,
                 tags, showRemovedISO, null, null, cmd.getShowUnique(), null, null,
-                domainId, isRecursive, cmd.getArch(), cmd.getOsCategoryId(), null, null, null, cmd.getUserDataId());
+                domainId, isRecursive, cmd.getArch(), cmd.getOsCategoryId(), null, null, null, cmd.getUserDataId(), null);
     }
 
     @Override

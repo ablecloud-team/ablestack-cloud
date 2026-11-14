@@ -1,0 +1,4306 @@
+[
+  {
+    "label": "qa-template-register",
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 46,
+      "templates": [
+        {
+          "id": "6a8ad0f8-ccf0-429d-a1eb-d7fa2f6ec669",
+          "name": "systemvmtemplate-x86_64-kvm-Europa-202609091134",
+          "templatetype": "SYSTEM",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-01T16:29:31+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "ad371aa1-504d-41ef-8de8-bc99eef9594c",
+          "name": "Rocky9",
+          "templatetype": "USER",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-01T16:38:38+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "e07d9ce2-92ef-43d5-95bd-38c7a95c026b",
+          "name": "Windows Server 2025 x86_64 Base Image",
+          "templatetype": "USER",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-07T14:10:21+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "3eacdc88-f0e8-40af-9a01-073670449bfb",
+          "name": "Europa-SystemVM-248653b58920-20261021",
+          "templatetype": "SYSTEM",
+          "checksum": "1e6454e9d3d7e614fe5630183522a9209f5bdf5e2677bf388b3e1924993057c6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-21T03:58:50+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c16a3592-dbab-49ae-8006-5230b4a73898",
+          "name": "Europa-SystemVM-1442-15ea52315437-20261022",
+          "templatetype": "SYSTEM",
+          "checksum": "aa9e627b137bd7b5313cbfb073b4f48490f15fa5df59f7665d07ee2d6143cff7",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-22T01:17:45+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c83b4e03-272a-4c51-a4a0-cf93cd758501",
+          "name": "Europa-SystemVM-1443-b3dbcd8c3790-20261022",
+          "templatetype": "SYSTEM",
+          "checksum": "cd52372ab4d8821c1b809be7b9b052e020ba83e4469dcbf03dcd51d71cfa8648fcac138f0b993d37f05da5a4e7e52eae312e2d46a15473a419c9314657b2a1e6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-22T11:29:06+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "2a8fa5b1-faac-4576-a2cd-14c1938bebd8",
+          "name": "Europa-SystemVM-1443-static-cf5351e05570-20261023",
+          "templatetype": "SYSTEM",
+          "checksum": "073914a1fe8bcc31dc450489c4e4ddcbe5803a718b1ea84d3514bfe2db17ee2234c269971f39ada80ad3c9ecef7eadc175216c69fe118f584555556573a0ca5d",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-23T02:53:59+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "f6ae443d-9965-4f86-bd22-043c94dbcae6",
+          "name": "Europa-SystemVM-1443-observation-3214dfed5c93-20261023",
+          "templatetype": "SYSTEM",
+          "checksum": "8a11cc9d3f41dd33c155f0e8237f03d50965fd84cf4401f7562b19f964203c67ab5a4e086a8c90ce6daa37dbc9c9ebb2cf4d3d796772d02d7295da78d551c46b",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-23T12:50:09+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "3854fd59-b92b-4f72-a6e3-f64296345c0a",
+          "name": "Europa-SystemVM-1444-config-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "4198580a5f892fba7ceda951e329e0d261d3d996d4773947b1381e397490e1b6718108953af781e966639356304e75f5dff38b979394491c027102698a1fa74a",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T14:54:44+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c0dea1a6-14f8-441d-a308-0f1571d22931",
+          "name": "Europa-SystemVM-1444-nvme-identity-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "66d553dd0f0061e7b5b479ed8d113afd50213105095f8ceeba257149ea1879d3dd3e47e7666cc9c91126b229f2061282b9e2a2ca6660f53bcfcf3b5867028420",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T16:11:26+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "9d08b23b-4b06-4f24-9588-6bccbbbafe1f",
+          "name": "Europa-SystemVM-1445-preflight-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "19fc97a0cc38a842e9f7ed8769bec3500e26362dfc3fbf064f4f1174b5be31e2e17cf6e7d140a7453903e6c9fae347fd7ced4c10ab4536f5a35d98b15ae6dda9",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T19:42:11+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c408e951-89a0-42f3-8075-a5e4dd3f9bfa",
+          "name": "Europa-SystemVM-1448-network-20261026",
+          "templatetype": "SYSTEM",
+          "checksum": "cdf33817e74d35eac560a46dcc80b0fa95cc2a14074ec89249a6099fd902dbdf",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-26T01:42:55+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "a567da21-34bb-4989-95f6-22e7a88fbaef",
+          "name": "Windows-Server-2025-x86-64-Cloud-Image.qcow2",
+          "templatetype": "USER",
+          "checksum": "c2d4108fc68d010f14e0196375f9b6bd1bd984cea6d436f978211a4cfcca04098ca8e214395f0a825d15c2cb32d2779e41b135331e493bde6dd3a8e071a368a6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-26T18:17:29+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "d5b4c21d-aae5-46ab-9c01-57f8833b6af6",
+          "name": "Europa-SystemVM-1450-nfs-posix-20261027",
+          "templatetype": "SYSTEM",
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d",
+          "isready": false,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T08:01:57+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "ee2be8d7-6b18-417b-b2a7-a52c7bc14758",
+          "name": "Europa-SystemVM-1450-nfs-posix-sha256",
+          "templatetype": "SYSTEM",
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T09:02:22+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "dc9b8417-2ed3-4709-a880-75d9890014f8",
+          "name": "Europa-SystemVM-1450-deferred-posix-r4",
+          "templatetype": "SYSTEM",
+          "checksum": "4d91e34ab34fe10120f3568ddf62eb9a6063647620d2471c5b9c900aed4b5c74",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T11:21:52+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "001babbd-3064-4806-9b99-58819da17eb2",
+          "name": "Europa-SystemVM-1451-nfs-idmapping-20261027",
+          "templatetype": "SYSTEM",
+          "checksum": "0f27d55427f1e2851578572076c04de685278dda4ee3e8b6ccce83b9ceb71371",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T14:41:20+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "97e5d8ff-4c4d-4524-9bb1-543020957f7c",
+          "name": "Europa-SystemVM-1451-bootstrap-20261028-r4",
+          "templatetype": "SYSTEM",
+          "checksum": "8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-28T11:00:21+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "8754cfc3-811c-4309-95ec-c8aaf66854c8",
+          "name": "Europa-SystemVM-1452-posix-20261028-r1",
+          "templatetype": "SYSTEM",
+          "checksum": "fe1f7582726a764c77ab25111f85c017407ed32ac2dfa5c41b7cd387890805b1",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-28T20:41:02+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "c4c9bb14-2279-4332-b794-e388159d11a7",
+          "name": "Europa-SystemVM-1453-inheritance-20261029-r1",
+          "templatetype": "SYSTEM",
+          "checksum": "b9a511a9ef6f76cb7525e53bb257f75e6ba08c5e99950bda537647ae2d35ce32",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-29T20:27:21+0900",
+          "isdynamicallyscalable": true
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "qa-template-register",
+    "command": "registerTemplate",
+    "params": {
+      "zoneids": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+      "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+      "checksum": "{SHA-512}db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+      "templatetype": "USER",
+      "hypervisor": "KVM",
+      "format": "QCOW2",
+      "sshkeyenabled": "true",
+      "requireshvm": "false"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": false,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "qa-template-register",
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 47,
+      "templates": [
+        {
+          "id": "6a8ad0f8-ccf0-429d-a1eb-d7fa2f6ec669",
+          "name": "systemvmtemplate-x86_64-kvm-Europa-202609091134",
+          "templatetype": "SYSTEM",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-01T16:29:31+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "ad371aa1-504d-41ef-8de8-bc99eef9594c",
+          "name": "Rocky9",
+          "templatetype": "USER",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-01T16:38:38+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "e07d9ce2-92ef-43d5-95bd-38c7a95c026b",
+          "name": "Windows Server 2025 x86_64 Base Image",
+          "templatetype": "USER",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-07T14:10:21+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "3eacdc88-f0e8-40af-9a01-073670449bfb",
+          "name": "Europa-SystemVM-248653b58920-20261021",
+          "templatetype": "SYSTEM",
+          "checksum": "1e6454e9d3d7e614fe5630183522a9209f5bdf5e2677bf388b3e1924993057c6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-21T03:58:50+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c16a3592-dbab-49ae-8006-5230b4a73898",
+          "name": "Europa-SystemVM-1442-15ea52315437-20261022",
+          "templatetype": "SYSTEM",
+          "checksum": "aa9e627b137bd7b5313cbfb073b4f48490f15fa5df59f7665d07ee2d6143cff7",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-22T01:17:45+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c83b4e03-272a-4c51-a4a0-cf93cd758501",
+          "name": "Europa-SystemVM-1443-b3dbcd8c3790-20261022",
+          "templatetype": "SYSTEM",
+          "checksum": "cd52372ab4d8821c1b809be7b9b052e020ba83e4469dcbf03dcd51d71cfa8648fcac138f0b993d37f05da5a4e7e52eae312e2d46a15473a419c9314657b2a1e6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-22T11:29:06+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "2a8fa5b1-faac-4576-a2cd-14c1938bebd8",
+          "name": "Europa-SystemVM-1443-static-cf5351e05570-20261023",
+          "templatetype": "SYSTEM",
+          "checksum": "073914a1fe8bcc31dc450489c4e4ddcbe5803a718b1ea84d3514bfe2db17ee2234c269971f39ada80ad3c9ecef7eadc175216c69fe118f584555556573a0ca5d",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-23T02:53:59+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "f6ae443d-9965-4f86-bd22-043c94dbcae6",
+          "name": "Europa-SystemVM-1443-observation-3214dfed5c93-20261023",
+          "templatetype": "SYSTEM",
+          "checksum": "8a11cc9d3f41dd33c155f0e8237f03d50965fd84cf4401f7562b19f964203c67ab5a4e086a8c90ce6daa37dbc9c9ebb2cf4d3d796772d02d7295da78d551c46b",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-23T12:50:09+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "3854fd59-b92b-4f72-a6e3-f64296345c0a",
+          "name": "Europa-SystemVM-1444-config-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "4198580a5f892fba7ceda951e329e0d261d3d996d4773947b1381e397490e1b6718108953af781e966639356304e75f5dff38b979394491c027102698a1fa74a",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T14:54:44+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c0dea1a6-14f8-441d-a308-0f1571d22931",
+          "name": "Europa-SystemVM-1444-nvme-identity-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "66d553dd0f0061e7b5b479ed8d113afd50213105095f8ceeba257149ea1879d3dd3e47e7666cc9c91126b229f2061282b9e2a2ca6660f53bcfcf3b5867028420",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T16:11:26+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "9d08b23b-4b06-4f24-9588-6bccbbbafe1f",
+          "name": "Europa-SystemVM-1445-preflight-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "19fc97a0cc38a842e9f7ed8769bec3500e26362dfc3fbf064f4f1174b5be31e2e17cf6e7d140a7453903e6c9fae347fd7ced4c10ab4536f5a35d98b15ae6dda9",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T19:42:11+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c408e951-89a0-42f3-8075-a5e4dd3f9bfa",
+          "name": "Europa-SystemVM-1448-network-20261026",
+          "templatetype": "SYSTEM",
+          "checksum": "cdf33817e74d35eac560a46dcc80b0fa95cc2a14074ec89249a6099fd902dbdf",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-26T01:42:55+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "a567da21-34bb-4989-95f6-22e7a88fbaef",
+          "name": "Windows-Server-2025-x86-64-Cloud-Image.qcow2",
+          "templatetype": "USER",
+          "checksum": "c2d4108fc68d010f14e0196375f9b6bd1bd984cea6d436f978211a4cfcca04098ca8e214395f0a825d15c2cb32d2779e41b135331e493bde6dd3a8e071a368a6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-26T18:17:29+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "d5b4c21d-aae5-46ab-9c01-57f8833b6af6",
+          "name": "Europa-SystemVM-1450-nfs-posix-20261027",
+          "templatetype": "SYSTEM",
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d",
+          "isready": false,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T08:01:57+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "ee2be8d7-6b18-417b-b2a7-a52c7bc14758",
+          "name": "Europa-SystemVM-1450-nfs-posix-sha256",
+          "templatetype": "SYSTEM",
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T09:02:22+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "dc9b8417-2ed3-4709-a880-75d9890014f8",
+          "name": "Europa-SystemVM-1450-deferred-posix-r4",
+          "templatetype": "SYSTEM",
+          "checksum": "4d91e34ab34fe10120f3568ddf62eb9a6063647620d2471c5b9c900aed4b5c74",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T11:21:52+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "001babbd-3064-4806-9b99-58819da17eb2",
+          "name": "Europa-SystemVM-1451-nfs-idmapping-20261027",
+          "templatetype": "SYSTEM",
+          "checksum": "0f27d55427f1e2851578572076c04de685278dda4ee3e8b6ccce83b9ceb71371",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T14:41:20+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "97e5d8ff-4c4d-4524-9bb1-543020957f7c",
+          "name": "Europa-SystemVM-1451-bootstrap-20261028-r4",
+          "templatetype": "SYSTEM",
+          "checksum": "8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-28T11:00:21+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "8754cfc3-811c-4309-95ec-c8aaf66854c8",
+          "name": "Europa-SystemVM-1452-posix-20261028-r1",
+          "templatetype": "SYSTEM",
+          "checksum": "fe1f7582726a764c77ab25111f85c017407ed32ac2dfa5c41b7cd387890805b1",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-28T20:41:02+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "c4c9bb14-2279-4332-b794-e388159d11a7",
+          "name": "Europa-SystemVM-1453-inheritance-20261029-r1",
+          "templatetype": "SYSTEM",
+          "checksum": "b9a511a9ef6f76cb7525e53bb257f75e6ba08c5e99950bda537647ae2d35ce32",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-29T20:27:21+0900",
+          "isdynamicallyscalable": true
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "owned-template-ready-before",
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "owned-template-ready-before",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "owned-template-ready-before",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "storage-template-purpose-filter",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "storage-template-purpose-filter",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "storage-template-purpose-filter",
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "storage-template-purpose-filter",
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 47,
+      "templates": [
+        {
+          "id": "6a8ad0f8-ccf0-429d-a1eb-d7fa2f6ec669",
+          "name": "systemvmtemplate-x86_64-kvm-Europa-202609091134",
+          "templatetype": "SYSTEM",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-01T16:29:31+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "ad371aa1-504d-41ef-8de8-bc99eef9594c",
+          "name": "Rocky9",
+          "templatetype": "USER",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-01T16:38:38+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "e07d9ce2-92ef-43d5-95bd-38c7a95c026b",
+          "name": "Windows Server 2025 x86_64 Base Image",
+          "templatetype": "USER",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-07T14:10:21+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "3eacdc88-f0e8-40af-9a01-073670449bfb",
+          "name": "Europa-SystemVM-248653b58920-20261021",
+          "templatetype": "SYSTEM",
+          "checksum": "1e6454e9d3d7e614fe5630183522a9209f5bdf5e2677bf388b3e1924993057c6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-21T03:58:50+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c16a3592-dbab-49ae-8006-5230b4a73898",
+          "name": "Europa-SystemVM-1442-15ea52315437-20261022",
+          "templatetype": "SYSTEM",
+          "checksum": "aa9e627b137bd7b5313cbfb073b4f48490f15fa5df59f7665d07ee2d6143cff7",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-22T01:17:45+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c83b4e03-272a-4c51-a4a0-cf93cd758501",
+          "name": "Europa-SystemVM-1443-b3dbcd8c3790-20261022",
+          "templatetype": "SYSTEM",
+          "checksum": "cd52372ab4d8821c1b809be7b9b052e020ba83e4469dcbf03dcd51d71cfa8648fcac138f0b993d37f05da5a4e7e52eae312e2d46a15473a419c9314657b2a1e6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-22T11:29:06+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "2a8fa5b1-faac-4576-a2cd-14c1938bebd8",
+          "name": "Europa-SystemVM-1443-static-cf5351e05570-20261023",
+          "templatetype": "SYSTEM",
+          "checksum": "073914a1fe8bcc31dc450489c4e4ddcbe5803a718b1ea84d3514bfe2db17ee2234c269971f39ada80ad3c9ecef7eadc175216c69fe118f584555556573a0ca5d",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-23T02:53:59+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "f6ae443d-9965-4f86-bd22-043c94dbcae6",
+          "name": "Europa-SystemVM-1443-observation-3214dfed5c93-20261023",
+          "templatetype": "SYSTEM",
+          "checksum": "8a11cc9d3f41dd33c155f0e8237f03d50965fd84cf4401f7562b19f964203c67ab5a4e086a8c90ce6daa37dbc9c9ebb2cf4d3d796772d02d7295da78d551c46b",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-23T12:50:09+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "3854fd59-b92b-4f72-a6e3-f64296345c0a",
+          "name": "Europa-SystemVM-1444-config-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "4198580a5f892fba7ceda951e329e0d261d3d996d4773947b1381e397490e1b6718108953af781e966639356304e75f5dff38b979394491c027102698a1fa74a",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T14:54:44+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c0dea1a6-14f8-441d-a308-0f1571d22931",
+          "name": "Europa-SystemVM-1444-nvme-identity-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "66d553dd0f0061e7b5b479ed8d113afd50213105095f8ceeba257149ea1879d3dd3e47e7666cc9c91126b229f2061282b9e2a2ca6660f53bcfcf3b5867028420",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T16:11:26+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "9d08b23b-4b06-4f24-9588-6bccbbbafe1f",
+          "name": "Europa-SystemVM-1445-preflight-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "19fc97a0cc38a842e9f7ed8769bec3500e26362dfc3fbf064f4f1174b5be31e2e17cf6e7d140a7453903e6c9fae347fd7ced4c10ab4536f5a35d98b15ae6dda9",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T19:42:11+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c408e951-89a0-42f3-8075-a5e4dd3f9bfa",
+          "name": "Europa-SystemVM-1448-network-20261026",
+          "templatetype": "SYSTEM",
+          "checksum": "cdf33817e74d35eac560a46dcc80b0fa95cc2a14074ec89249a6099fd902dbdf",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-26T01:42:55+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "a567da21-34bb-4989-95f6-22e7a88fbaef",
+          "name": "Windows-Server-2025-x86-64-Cloud-Image.qcow2",
+          "templatetype": "USER",
+          "checksum": "c2d4108fc68d010f14e0196375f9b6bd1bd984cea6d436f978211a4cfcca04098ca8e214395f0a825d15c2cb32d2779e41b135331e493bde6dd3a8e071a368a6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-26T18:17:29+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "d5b4c21d-aae5-46ab-9c01-57f8833b6af6",
+          "name": "Europa-SystemVM-1450-nfs-posix-20261027",
+          "templatetype": "SYSTEM",
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d",
+          "isready": false,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T08:01:57+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "ee2be8d7-6b18-417b-b2a7-a52c7bc14758",
+          "name": "Europa-SystemVM-1450-nfs-posix-sha256",
+          "templatetype": "SYSTEM",
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T09:02:22+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "dc9b8417-2ed3-4709-a880-75d9890014f8",
+          "name": "Europa-SystemVM-1450-deferred-posix-r4",
+          "templatetype": "SYSTEM",
+          "checksum": "4d91e34ab34fe10120f3568ddf62eb9a6063647620d2471c5b9c900aed4b5c74",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T11:21:52+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "001babbd-3064-4806-9b99-58819da17eb2",
+          "name": "Europa-SystemVM-1451-nfs-idmapping-20261027",
+          "templatetype": "SYSTEM",
+          "checksum": "0f27d55427f1e2851578572076c04de685278dda4ee3e8b6ccce83b9ceb71371",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T14:41:20+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "97e5d8ff-4c4d-4524-9bb1-543020957f7c",
+          "name": "Europa-SystemVM-1451-bootstrap-20261028-r4",
+          "templatetype": "SYSTEM",
+          "checksum": "8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-28T11:00:21+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "8754cfc3-811c-4309-95ec-c8aaf66854c8",
+          "name": "Europa-SystemVM-1452-posix-20261028-r1",
+          "templatetype": "SYSTEM",
+          "checksum": "fe1f7582726a764c77ab25111f85c017407ed32ac2dfa5c41b7cd387890805b1",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-28T20:41:02+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "c4c9bb14-2279-4332-b794-e388159d11a7",
+          "name": "Europa-SystemVM-1453-inheritance-20261029-r1",
+          "templatetype": "SYSTEM",
+          "checksum": "b9a511a9ef6f76cb7525e53bb257f75e6ba08c5e99950bda537647ae2d35ce32",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-29T20:27:21+0900",
+          "isdynamicallyscalable": true
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "storage-template-purpose-filter",
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 47,
+      "templates": [
+        {
+          "id": "6a8ad0f8-ccf0-429d-a1eb-d7fa2f6ec669",
+          "name": "systemvmtemplate-x86_64-kvm-Europa-202609091134",
+          "templatetype": "SYSTEM",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-01T16:29:31+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "ad371aa1-504d-41ef-8de8-bc99eef9594c",
+          "name": "Rocky9",
+          "templatetype": "USER",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-01T16:38:38+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "e07d9ce2-92ef-43d5-95bd-38c7a95c026b",
+          "name": "Windows Server 2025 x86_64 Base Image",
+          "templatetype": "USER",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-07T14:10:21+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "3eacdc88-f0e8-40af-9a01-073670449bfb",
+          "name": "Europa-SystemVM-248653b58920-20261021",
+          "templatetype": "SYSTEM",
+          "checksum": "1e6454e9d3d7e614fe5630183522a9209f5bdf5e2677bf388b3e1924993057c6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-21T03:58:50+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c16a3592-dbab-49ae-8006-5230b4a73898",
+          "name": "Europa-SystemVM-1442-15ea52315437-20261022",
+          "templatetype": "SYSTEM",
+          "checksum": "aa9e627b137bd7b5313cbfb073b4f48490f15fa5df59f7665d07ee2d6143cff7",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-22T01:17:45+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c83b4e03-272a-4c51-a4a0-cf93cd758501",
+          "name": "Europa-SystemVM-1443-b3dbcd8c3790-20261022",
+          "templatetype": "SYSTEM",
+          "checksum": "cd52372ab4d8821c1b809be7b9b052e020ba83e4469dcbf03dcd51d71cfa8648fcac138f0b993d37f05da5a4e7e52eae312e2d46a15473a419c9314657b2a1e6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-22T11:29:06+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "2a8fa5b1-faac-4576-a2cd-14c1938bebd8",
+          "name": "Europa-SystemVM-1443-static-cf5351e05570-20261023",
+          "templatetype": "SYSTEM",
+          "checksum": "073914a1fe8bcc31dc450489c4e4ddcbe5803a718b1ea84d3514bfe2db17ee2234c269971f39ada80ad3c9ecef7eadc175216c69fe118f584555556573a0ca5d",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-23T02:53:59+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "f6ae443d-9965-4f86-bd22-043c94dbcae6",
+          "name": "Europa-SystemVM-1443-observation-3214dfed5c93-20261023",
+          "templatetype": "SYSTEM",
+          "checksum": "8a11cc9d3f41dd33c155f0e8237f03d50965fd84cf4401f7562b19f964203c67ab5a4e086a8c90ce6daa37dbc9c9ebb2cf4d3d796772d02d7295da78d551c46b",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-23T12:50:09+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "3854fd59-b92b-4f72-a6e3-f64296345c0a",
+          "name": "Europa-SystemVM-1444-config-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "4198580a5f892fba7ceda951e329e0d261d3d996d4773947b1381e397490e1b6718108953af781e966639356304e75f5dff38b979394491c027102698a1fa74a",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T14:54:44+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c0dea1a6-14f8-441d-a308-0f1571d22931",
+          "name": "Europa-SystemVM-1444-nvme-identity-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "66d553dd0f0061e7b5b479ed8d113afd50213105095f8ceeba257149ea1879d3dd3e47e7666cc9c91126b229f2061282b9e2a2ca6660f53bcfcf3b5867028420",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T16:11:26+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "9d08b23b-4b06-4f24-9588-6bccbbbafe1f",
+          "name": "Europa-SystemVM-1445-preflight-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "19fc97a0cc38a842e9f7ed8769bec3500e26362dfc3fbf064f4f1174b5be31e2e17cf6e7d140a7453903e6c9fae347fd7ced4c10ab4536f5a35d98b15ae6dda9",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T19:42:11+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c408e951-89a0-42f3-8075-a5e4dd3f9bfa",
+          "name": "Europa-SystemVM-1448-network-20261026",
+          "templatetype": "SYSTEM",
+          "checksum": "cdf33817e74d35eac560a46dcc80b0fa95cc2a14074ec89249a6099fd902dbdf",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-26T01:42:55+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "a567da21-34bb-4989-95f6-22e7a88fbaef",
+          "name": "Windows-Server-2025-x86-64-Cloud-Image.qcow2",
+          "templatetype": "USER",
+          "checksum": "c2d4108fc68d010f14e0196375f9b6bd1bd984cea6d436f978211a4cfcca04098ca8e214395f0a825d15c2cb32d2779e41b135331e493bde6dd3a8e071a368a6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-26T18:17:29+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "d5b4c21d-aae5-46ab-9c01-57f8833b6af6",
+          "name": "Europa-SystemVM-1450-nfs-posix-20261027",
+          "templatetype": "SYSTEM",
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d",
+          "isready": false,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T08:01:57+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "ee2be8d7-6b18-417b-b2a7-a52c7bc14758",
+          "name": "Europa-SystemVM-1450-nfs-posix-sha256",
+          "templatetype": "SYSTEM",
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T09:02:22+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "dc9b8417-2ed3-4709-a880-75d9890014f8",
+          "name": "Europa-SystemVM-1450-deferred-posix-r4",
+          "templatetype": "SYSTEM",
+          "checksum": "4d91e34ab34fe10120f3568ddf62eb9a6063647620d2471c5b9c900aed4b5c74",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T11:21:52+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "001babbd-3064-4806-9b99-58819da17eb2",
+          "name": "Europa-SystemVM-1451-nfs-idmapping-20261027",
+          "templatetype": "SYSTEM",
+          "checksum": "0f27d55427f1e2851578572076c04de685278dda4ee3e8b6ccce83b9ceb71371",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T14:41:20+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "97e5d8ff-4c4d-4524-9bb1-543020957f7c",
+          "name": "Europa-SystemVM-1451-bootstrap-20261028-r4",
+          "templatetype": "SYSTEM",
+          "checksum": "8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-28T11:00:21+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "8754cfc3-811c-4309-95ec-c8aaf66854c8",
+          "name": "Europa-SystemVM-1452-posix-20261028-r1",
+          "templatetype": "SYSTEM",
+          "checksum": "fe1f7582726a764c77ab25111f85c017407ed32ac2dfa5c41b7cd387890805b1",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-28T20:41:02+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "c4c9bb14-2279-4332-b794-e388159d11a7",
+          "name": "Europa-SystemVM-1453-inheritance-20261029-r1",
+          "templatetype": "SYSTEM",
+          "checksum": "b9a511a9ef6f76cb7525e53bb257f75e6ba08c5e99950bda537647ae2d35ce32",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-29T20:27:21+0900",
+          "isdynamicallyscalable": true
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "storage-template-purpose-filter",
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 47,
+      "templates": [
+        {
+          "id": "6a8ad0f8-ccf0-429d-a1eb-d7fa2f6ec669",
+          "name": "systemvmtemplate-x86_64-kvm-Europa-202609091134",
+          "templatetype": "SYSTEM",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-01T16:29:31+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "ad371aa1-504d-41ef-8de8-bc99eef9594c",
+          "name": "Rocky9",
+          "templatetype": "USER",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-01T16:38:38+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "e07d9ce2-92ef-43d5-95bd-38c7a95c026b",
+          "name": "Windows Server 2025 x86_64 Base Image",
+          "templatetype": "USER",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-07T14:10:21+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "3eacdc88-f0e8-40af-9a01-073670449bfb",
+          "name": "Europa-SystemVM-248653b58920-20261021",
+          "templatetype": "SYSTEM",
+          "checksum": "1e6454e9d3d7e614fe5630183522a9209f5bdf5e2677bf388b3e1924993057c6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-21T03:58:50+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c16a3592-dbab-49ae-8006-5230b4a73898",
+          "name": "Europa-SystemVM-1442-15ea52315437-20261022",
+          "templatetype": "SYSTEM",
+          "checksum": "aa9e627b137bd7b5313cbfb073b4f48490f15fa5df59f7665d07ee2d6143cff7",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-22T01:17:45+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c83b4e03-272a-4c51-a4a0-cf93cd758501",
+          "name": "Europa-SystemVM-1443-b3dbcd8c3790-20261022",
+          "templatetype": "SYSTEM",
+          "checksum": "cd52372ab4d8821c1b809be7b9b052e020ba83e4469dcbf03dcd51d71cfa8648fcac138f0b993d37f05da5a4e7e52eae312e2d46a15473a419c9314657b2a1e6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-22T11:29:06+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "2a8fa5b1-faac-4576-a2cd-14c1938bebd8",
+          "name": "Europa-SystemVM-1443-static-cf5351e05570-20261023",
+          "templatetype": "SYSTEM",
+          "checksum": "073914a1fe8bcc31dc450489c4e4ddcbe5803a718b1ea84d3514bfe2db17ee2234c269971f39ada80ad3c9ecef7eadc175216c69fe118f584555556573a0ca5d",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-23T02:53:59+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "f6ae443d-9965-4f86-bd22-043c94dbcae6",
+          "name": "Europa-SystemVM-1443-observation-3214dfed5c93-20261023",
+          "templatetype": "SYSTEM",
+          "checksum": "8a11cc9d3f41dd33c155f0e8237f03d50965fd84cf4401f7562b19f964203c67ab5a4e086a8c90ce6daa37dbc9c9ebb2cf4d3d796772d02d7295da78d551c46b",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-23T12:50:09+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "3854fd59-b92b-4f72-a6e3-f64296345c0a",
+          "name": "Europa-SystemVM-1444-config-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "4198580a5f892fba7ceda951e329e0d261d3d996d4773947b1381e397490e1b6718108953af781e966639356304e75f5dff38b979394491c027102698a1fa74a",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T14:54:44+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c0dea1a6-14f8-441d-a308-0f1571d22931",
+          "name": "Europa-SystemVM-1444-nvme-identity-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "66d553dd0f0061e7b5b479ed8d113afd50213105095f8ceeba257149ea1879d3dd3e47e7666cc9c91126b229f2061282b9e2a2ca6660f53bcfcf3b5867028420",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T16:11:26+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "9d08b23b-4b06-4f24-9588-6bccbbbafe1f",
+          "name": "Europa-SystemVM-1445-preflight-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "19fc97a0cc38a842e9f7ed8769bec3500e26362dfc3fbf064f4f1174b5be31e2e17cf6e7d140a7453903e6c9fae347fd7ced4c10ab4536f5a35d98b15ae6dda9",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T19:42:11+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c408e951-89a0-42f3-8075-a5e4dd3f9bfa",
+          "name": "Europa-SystemVM-1448-network-20261026",
+          "templatetype": "SYSTEM",
+          "checksum": "cdf33817e74d35eac560a46dcc80b0fa95cc2a14074ec89249a6099fd902dbdf",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-26T01:42:55+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "a567da21-34bb-4989-95f6-22e7a88fbaef",
+          "name": "Windows-Server-2025-x86-64-Cloud-Image.qcow2",
+          "templatetype": "USER",
+          "checksum": "c2d4108fc68d010f14e0196375f9b6bd1bd984cea6d436f978211a4cfcca04098ca8e214395f0a825d15c2cb32d2779e41b135331e493bde6dd3a8e071a368a6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-26T18:17:29+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "d5b4c21d-aae5-46ab-9c01-57f8833b6af6",
+          "name": "Europa-SystemVM-1450-nfs-posix-20261027",
+          "templatetype": "SYSTEM",
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d",
+          "isready": false,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T08:01:57+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "ee2be8d7-6b18-417b-b2a7-a52c7bc14758",
+          "name": "Europa-SystemVM-1450-nfs-posix-sha256",
+          "templatetype": "SYSTEM",
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T09:02:22+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "dc9b8417-2ed3-4709-a880-75d9890014f8",
+          "name": "Europa-SystemVM-1450-deferred-posix-r4",
+          "templatetype": "SYSTEM",
+          "checksum": "4d91e34ab34fe10120f3568ddf62eb9a6063647620d2471c5b9c900aed4b5c74",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T11:21:52+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "001babbd-3064-4806-9b99-58819da17eb2",
+          "name": "Europa-SystemVM-1451-nfs-idmapping-20261027",
+          "templatetype": "SYSTEM",
+          "checksum": "0f27d55427f1e2851578572076c04de685278dda4ee3e8b6ccce83b9ceb71371",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T14:41:20+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "97e5d8ff-4c4d-4524-9bb1-543020957f7c",
+          "name": "Europa-SystemVM-1451-bootstrap-20261028-r4",
+          "templatetype": "SYSTEM",
+          "checksum": "8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-28T11:00:21+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "8754cfc3-811c-4309-95ec-c8aaf66854c8",
+          "name": "Europa-SystemVM-1452-posix-20261028-r1",
+          "templatetype": "SYSTEM",
+          "checksum": "fe1f7582726a764c77ab25111f85c017407ed32ac2dfa5c41b7cd387890805b1",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-28T20:41:02+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "c4c9bb14-2279-4332-b794-e388159d11a7",
+          "name": "Europa-SystemVM-1453-inheritance-20261029-r1",
+          "templatetype": "SYSTEM",
+          "checksum": "b9a511a9ef6f76cb7525e53bb257f75e6ba08c5e99950bda537647ae2d35ce32",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-29T20:27:21+0900",
+          "isdynamicallyscalable": true
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "before-storage-runtime-catalog",
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 47,
+      "templates": [
+        {
+          "id": "6a8ad0f8-ccf0-429d-a1eb-d7fa2f6ec669",
+          "name": "systemvmtemplate-x86_64-kvm-Europa-202609091134",
+          "templatetype": "SYSTEM",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-01T16:29:31+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "ad371aa1-504d-41ef-8de8-bc99eef9594c",
+          "name": "Rocky9",
+          "templatetype": "USER",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-01T16:38:38+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "e07d9ce2-92ef-43d5-95bd-38c7a95c026b",
+          "name": "Windows Server 2025 x86_64 Base Image",
+          "templatetype": "USER",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-07T14:10:21+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "3eacdc88-f0e8-40af-9a01-073670449bfb",
+          "name": "Europa-SystemVM-248653b58920-20261021",
+          "templatetype": "SYSTEM",
+          "checksum": "1e6454e9d3d7e614fe5630183522a9209f5bdf5e2677bf388b3e1924993057c6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-21T03:58:50+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c16a3592-dbab-49ae-8006-5230b4a73898",
+          "name": "Europa-SystemVM-1442-15ea52315437-20261022",
+          "templatetype": "SYSTEM",
+          "checksum": "aa9e627b137bd7b5313cbfb073b4f48490f15fa5df59f7665d07ee2d6143cff7",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-22T01:17:45+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c83b4e03-272a-4c51-a4a0-cf93cd758501",
+          "name": "Europa-SystemVM-1443-b3dbcd8c3790-20261022",
+          "templatetype": "SYSTEM",
+          "checksum": "cd52372ab4d8821c1b809be7b9b052e020ba83e4469dcbf03dcd51d71cfa8648fcac138f0b993d37f05da5a4e7e52eae312e2d46a15473a419c9314657b2a1e6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-22T11:29:06+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "2a8fa5b1-faac-4576-a2cd-14c1938bebd8",
+          "name": "Europa-SystemVM-1443-static-cf5351e05570-20261023",
+          "templatetype": "SYSTEM",
+          "checksum": "073914a1fe8bcc31dc450489c4e4ddcbe5803a718b1ea84d3514bfe2db17ee2234c269971f39ada80ad3c9ecef7eadc175216c69fe118f584555556573a0ca5d",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-23T02:53:59+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "f6ae443d-9965-4f86-bd22-043c94dbcae6",
+          "name": "Europa-SystemVM-1443-observation-3214dfed5c93-20261023",
+          "templatetype": "SYSTEM",
+          "checksum": "8a11cc9d3f41dd33c155f0e8237f03d50965fd84cf4401f7562b19f964203c67ab5a4e086a8c90ce6daa37dbc9c9ebb2cf4d3d796772d02d7295da78d551c46b",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-23T12:50:09+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "3854fd59-b92b-4f72-a6e3-f64296345c0a",
+          "name": "Europa-SystemVM-1444-config-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "4198580a5f892fba7ceda951e329e0d261d3d996d4773947b1381e397490e1b6718108953af781e966639356304e75f5dff38b979394491c027102698a1fa74a",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T14:54:44+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c0dea1a6-14f8-441d-a308-0f1571d22931",
+          "name": "Europa-SystemVM-1444-nvme-identity-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "66d553dd0f0061e7b5b479ed8d113afd50213105095f8ceeba257149ea1879d3dd3e47e7666cc9c91126b229f2061282b9e2a2ca6660f53bcfcf3b5867028420",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T16:11:26+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "9d08b23b-4b06-4f24-9588-6bccbbbafe1f",
+          "name": "Europa-SystemVM-1445-preflight-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "19fc97a0cc38a842e9f7ed8769bec3500e26362dfc3fbf064f4f1174b5be31e2e17cf6e7d140a7453903e6c9fae347fd7ced4c10ab4536f5a35d98b15ae6dda9",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T19:42:11+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c408e951-89a0-42f3-8075-a5e4dd3f9bfa",
+          "name": "Europa-SystemVM-1448-network-20261026",
+          "templatetype": "SYSTEM",
+          "checksum": "cdf33817e74d35eac560a46dcc80b0fa95cc2a14074ec89249a6099fd902dbdf",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-26T01:42:55+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "a567da21-34bb-4989-95f6-22e7a88fbaef",
+          "name": "Windows-Server-2025-x86-64-Cloud-Image.qcow2",
+          "templatetype": "USER",
+          "checksum": "c2d4108fc68d010f14e0196375f9b6bd1bd984cea6d436f978211a4cfcca04098ca8e214395f0a825d15c2cb32d2779e41b135331e493bde6dd3a8e071a368a6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-26T18:17:29+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "d5b4c21d-aae5-46ab-9c01-57f8833b6af6",
+          "name": "Europa-SystemVM-1450-nfs-posix-20261027",
+          "templatetype": "SYSTEM",
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d",
+          "isready": false,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T08:01:57+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "ee2be8d7-6b18-417b-b2a7-a52c7bc14758",
+          "name": "Europa-SystemVM-1450-nfs-posix-sha256",
+          "templatetype": "SYSTEM",
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T09:02:22+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "dc9b8417-2ed3-4709-a880-75d9890014f8",
+          "name": "Europa-SystemVM-1450-deferred-posix-r4",
+          "templatetype": "SYSTEM",
+          "checksum": "4d91e34ab34fe10120f3568ddf62eb9a6063647620d2471c5b9c900aed4b5c74",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T11:21:52+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "001babbd-3064-4806-9b99-58819da17eb2",
+          "name": "Europa-SystemVM-1451-nfs-idmapping-20261027",
+          "templatetype": "SYSTEM",
+          "checksum": "0f27d55427f1e2851578572076c04de685278dda4ee3e8b6ccce83b9ceb71371",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T14:41:20+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "97e5d8ff-4c4d-4524-9bb1-543020957f7c",
+          "name": "Europa-SystemVM-1451-bootstrap-20261028-r4",
+          "templatetype": "SYSTEM",
+          "checksum": "8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-28T11:00:21+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "8754cfc3-811c-4309-95ec-c8aaf66854c8",
+          "name": "Europa-SystemVM-1452-posix-20261028-r1",
+          "templatetype": "SYSTEM",
+          "checksum": "fe1f7582726a764c77ab25111f85c017407ed32ac2dfa5c41b7cd387890805b1",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-28T20:41:02+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "c4c9bb14-2279-4332-b794-e388159d11a7",
+          "name": "Europa-SystemVM-1453-inheritance-20261029-r1",
+          "templatetype": "SYSTEM",
+          "checksum": "b9a511a9ef6f76cb7525e53bb257f75e6ba08c5e99950bda537647ae2d35ce32",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-29T20:27:21+0900",
+          "isdynamicallyscalable": true
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "before-storage-runtime-catalog",
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 47,
+      "templates": [
+        {
+          "id": "6a8ad0f8-ccf0-429d-a1eb-d7fa2f6ec669",
+          "name": "systemvmtemplate-x86_64-kvm-Europa-202609091134",
+          "templatetype": "SYSTEM",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-01T16:29:31+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "ad371aa1-504d-41ef-8de8-bc99eef9594c",
+          "name": "Rocky9",
+          "templatetype": "USER",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-01T16:38:38+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "e07d9ce2-92ef-43d5-95bd-38c7a95c026b",
+          "name": "Windows Server 2025 x86_64 Base Image",
+          "templatetype": "USER",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-07T14:10:21+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "3eacdc88-f0e8-40af-9a01-073670449bfb",
+          "name": "Europa-SystemVM-248653b58920-20261021",
+          "templatetype": "SYSTEM",
+          "checksum": "1e6454e9d3d7e614fe5630183522a9209f5bdf5e2677bf388b3e1924993057c6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-21T03:58:50+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c16a3592-dbab-49ae-8006-5230b4a73898",
+          "name": "Europa-SystemVM-1442-15ea52315437-20261022",
+          "templatetype": "SYSTEM",
+          "checksum": "aa9e627b137bd7b5313cbfb073b4f48490f15fa5df59f7665d07ee2d6143cff7",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-22T01:17:45+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c83b4e03-272a-4c51-a4a0-cf93cd758501",
+          "name": "Europa-SystemVM-1443-b3dbcd8c3790-20261022",
+          "templatetype": "SYSTEM",
+          "checksum": "cd52372ab4d8821c1b809be7b9b052e020ba83e4469dcbf03dcd51d71cfa8648fcac138f0b993d37f05da5a4e7e52eae312e2d46a15473a419c9314657b2a1e6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-22T11:29:06+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "2a8fa5b1-faac-4576-a2cd-14c1938bebd8",
+          "name": "Europa-SystemVM-1443-static-cf5351e05570-20261023",
+          "templatetype": "SYSTEM",
+          "checksum": "073914a1fe8bcc31dc450489c4e4ddcbe5803a718b1ea84d3514bfe2db17ee2234c269971f39ada80ad3c9ecef7eadc175216c69fe118f584555556573a0ca5d",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-23T02:53:59+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "f6ae443d-9965-4f86-bd22-043c94dbcae6",
+          "name": "Europa-SystemVM-1443-observation-3214dfed5c93-20261023",
+          "templatetype": "SYSTEM",
+          "checksum": "8a11cc9d3f41dd33c155f0e8237f03d50965fd84cf4401f7562b19f964203c67ab5a4e086a8c90ce6daa37dbc9c9ebb2cf4d3d796772d02d7295da78d551c46b",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-23T12:50:09+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "3854fd59-b92b-4f72-a6e3-f64296345c0a",
+          "name": "Europa-SystemVM-1444-config-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "4198580a5f892fba7ceda951e329e0d261d3d996d4773947b1381e397490e1b6718108953af781e966639356304e75f5dff38b979394491c027102698a1fa74a",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T14:54:44+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c0dea1a6-14f8-441d-a308-0f1571d22931",
+          "name": "Europa-SystemVM-1444-nvme-identity-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "66d553dd0f0061e7b5b479ed8d113afd50213105095f8ceeba257149ea1879d3dd3e47e7666cc9c91126b229f2061282b9e2a2ca6660f53bcfcf3b5867028420",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T16:11:26+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "9d08b23b-4b06-4f24-9588-6bccbbbafe1f",
+          "name": "Europa-SystemVM-1445-preflight-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "19fc97a0cc38a842e9f7ed8769bec3500e26362dfc3fbf064f4f1174b5be31e2e17cf6e7d140a7453903e6c9fae347fd7ced4c10ab4536f5a35d98b15ae6dda9",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T19:42:11+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c408e951-89a0-42f3-8075-a5e4dd3f9bfa",
+          "name": "Europa-SystemVM-1448-network-20261026",
+          "templatetype": "SYSTEM",
+          "checksum": "cdf33817e74d35eac560a46dcc80b0fa95cc2a14074ec89249a6099fd902dbdf",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-26T01:42:55+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "a567da21-34bb-4989-95f6-22e7a88fbaef",
+          "name": "Windows-Server-2025-x86-64-Cloud-Image.qcow2",
+          "templatetype": "USER",
+          "checksum": "c2d4108fc68d010f14e0196375f9b6bd1bd984cea6d436f978211a4cfcca04098ca8e214395f0a825d15c2cb32d2779e41b135331e493bde6dd3a8e071a368a6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-26T18:17:29+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "d5b4c21d-aae5-46ab-9c01-57f8833b6af6",
+          "name": "Europa-SystemVM-1450-nfs-posix-20261027",
+          "templatetype": "SYSTEM",
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d",
+          "isready": false,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T08:01:57+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "ee2be8d7-6b18-417b-b2a7-a52c7bc14758",
+          "name": "Europa-SystemVM-1450-nfs-posix-sha256",
+          "templatetype": "SYSTEM",
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T09:02:22+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "dc9b8417-2ed3-4709-a880-75d9890014f8",
+          "name": "Europa-SystemVM-1450-deferred-posix-r4",
+          "templatetype": "SYSTEM",
+          "checksum": "4d91e34ab34fe10120f3568ddf62eb9a6063647620d2471c5b9c900aed4b5c74",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T11:21:52+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "001babbd-3064-4806-9b99-58819da17eb2",
+          "name": "Europa-SystemVM-1451-nfs-idmapping-20261027",
+          "templatetype": "SYSTEM",
+          "checksum": "0f27d55427f1e2851578572076c04de685278dda4ee3e8b6ccce83b9ceb71371",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T14:41:20+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "97e5d8ff-4c4d-4524-9bb1-543020957f7c",
+          "name": "Europa-SystemVM-1451-bootstrap-20261028-r4",
+          "templatetype": "SYSTEM",
+          "checksum": "8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-28T11:00:21+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "8754cfc3-811c-4309-95ec-c8aaf66854c8",
+          "name": "Europa-SystemVM-1452-posix-20261028-r1",
+          "templatetype": "SYSTEM",
+          "checksum": "fe1f7582726a764c77ab25111f85c017407ed32ac2dfa5c41b7cd387890805b1",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-28T20:41:02+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "c4c9bb14-2279-4332-b794-e388159d11a7",
+          "name": "Europa-SystemVM-1453-inheritance-20261029-r1",
+          "templatetype": "SYSTEM",
+          "checksum": "b9a511a9ef6f76cb7525e53bb257f75e6ba08c5e99950bda537647ae2d35ce32",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-29T20:27:21+0900",
+          "isdynamicallyscalable": true
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "before-storage-runtime-catalog",
+    "command": "listTemplates",
+    "params": {
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 47,
+      "templates": [
+        {
+          "id": "6a8ad0f8-ccf0-429d-a1eb-d7fa2f6ec669",
+          "name": "systemvmtemplate-x86_64-kvm-Europa-202609091134",
+          "templatetype": "SYSTEM",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-01T16:29:31+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "ad371aa1-504d-41ef-8de8-bc99eef9594c",
+          "name": "Rocky9",
+          "templatetype": "USER",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-01T16:38:38+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "e07d9ce2-92ef-43d5-95bd-38c7a95c026b",
+          "name": "Windows Server 2025 x86_64 Base Image",
+          "templatetype": "USER",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-07T14:10:21+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "3eacdc88-f0e8-40af-9a01-073670449bfb",
+          "name": "Europa-SystemVM-248653b58920-20261021",
+          "templatetype": "SYSTEM",
+          "checksum": "1e6454e9d3d7e614fe5630183522a9209f5bdf5e2677bf388b3e1924993057c6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-21T03:58:50+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c16a3592-dbab-49ae-8006-5230b4a73898",
+          "name": "Europa-SystemVM-1442-15ea52315437-20261022",
+          "templatetype": "SYSTEM",
+          "checksum": "aa9e627b137bd7b5313cbfb073b4f48490f15fa5df59f7665d07ee2d6143cff7",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-22T01:17:45+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c83b4e03-272a-4c51-a4a0-cf93cd758501",
+          "name": "Europa-SystemVM-1443-b3dbcd8c3790-20261022",
+          "templatetype": "SYSTEM",
+          "checksum": "cd52372ab4d8821c1b809be7b9b052e020ba83e4469dcbf03dcd51d71cfa8648fcac138f0b993d37f05da5a4e7e52eae312e2d46a15473a419c9314657b2a1e6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-22T11:29:06+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "2a8fa5b1-faac-4576-a2cd-14c1938bebd8",
+          "name": "Europa-SystemVM-1443-static-cf5351e05570-20261023",
+          "templatetype": "SYSTEM",
+          "checksum": "073914a1fe8bcc31dc450489c4e4ddcbe5803a718b1ea84d3514bfe2db17ee2234c269971f39ada80ad3c9ecef7eadc175216c69fe118f584555556573a0ca5d",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-23T02:53:59+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "f6ae443d-9965-4f86-bd22-043c94dbcae6",
+          "name": "Europa-SystemVM-1443-observation-3214dfed5c93-20261023",
+          "templatetype": "SYSTEM",
+          "checksum": "8a11cc9d3f41dd33c155f0e8237f03d50965fd84cf4401f7562b19f964203c67ab5a4e086a8c90ce6daa37dbc9c9ebb2cf4d3d796772d02d7295da78d551c46b",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-23T12:50:09+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "3854fd59-b92b-4f72-a6e3-f64296345c0a",
+          "name": "Europa-SystemVM-1444-config-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "4198580a5f892fba7ceda951e329e0d261d3d996d4773947b1381e397490e1b6718108953af781e966639356304e75f5dff38b979394491c027102698a1fa74a",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T14:54:44+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c0dea1a6-14f8-441d-a308-0f1571d22931",
+          "name": "Europa-SystemVM-1444-nvme-identity-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "66d553dd0f0061e7b5b479ed8d113afd50213105095f8ceeba257149ea1879d3dd3e47e7666cc9c91126b229f2061282b9e2a2ca6660f53bcfcf3b5867028420",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T16:11:26+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "9d08b23b-4b06-4f24-9588-6bccbbbafe1f",
+          "name": "Europa-SystemVM-1445-preflight-20261024",
+          "templatetype": "SYSTEM",
+          "checksum": "19fc97a0cc38a842e9f7ed8769bec3500e26362dfc3fbf064f4f1174b5be31e2e17cf6e7d140a7453903e6c9fae347fd7ced4c10ab4536f5a35d98b15ae6dda9",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-24T19:42:11+0900",
+          "isdynamicallyscalable": false
+        },
+        {
+          "id": "c408e951-89a0-42f3-8075-a5e4dd3f9bfa",
+          "name": "Europa-SystemVM-1448-network-20261026",
+          "templatetype": "SYSTEM",
+          "checksum": "cdf33817e74d35eac560a46dcc80b0fa95cc2a14074ec89249a6099fd902dbdf",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-26T01:42:55+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "a567da21-34bb-4989-95f6-22e7a88fbaef",
+          "name": "Windows-Server-2025-x86-64-Cloud-Image.qcow2",
+          "templatetype": "USER",
+          "checksum": "c2d4108fc68d010f14e0196375f9b6bd1bd984cea6d436f978211a4cfcca04098ca8e214395f0a825d15c2cb32d2779e41b135331e493bde6dd3a8e071a368a6",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-26T18:17:29+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "d5b4c21d-aae5-46ab-9c01-57f8833b6af6",
+          "name": "Europa-SystemVM-1450-nfs-posix-20261027",
+          "templatetype": "SYSTEM",
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d",
+          "isready": false,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T08:01:57+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "ee2be8d7-6b18-417b-b2a7-a52c7bc14758",
+          "name": "Europa-SystemVM-1450-nfs-posix-sha256",
+          "templatetype": "SYSTEM",
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T09:02:22+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "dc9b8417-2ed3-4709-a880-75d9890014f8",
+          "name": "Europa-SystemVM-1450-deferred-posix-r4",
+          "templatetype": "SYSTEM",
+          "checksum": "4d91e34ab34fe10120f3568ddf62eb9a6063647620d2471c5b9c900aed4b5c74",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T11:21:52+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "001babbd-3064-4806-9b99-58819da17eb2",
+          "name": "Europa-SystemVM-1451-nfs-idmapping-20261027",
+          "templatetype": "SYSTEM",
+          "checksum": "0f27d55427f1e2851578572076c04de685278dda4ee3e8b6ccce83b9ceb71371",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-27T14:41:20+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "97e5d8ff-4c4d-4524-9bb1-543020957f7c",
+          "name": "Europa-SystemVM-1451-bootstrap-20261028-r4",
+          "templatetype": "SYSTEM",
+          "checksum": "8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-28T11:00:21+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "8754cfc3-811c-4309-95ec-c8aaf66854c8",
+          "name": "Europa-SystemVM-1452-posix-20261028-r1",
+          "templatetype": "SYSTEM",
+          "checksum": "fe1f7582726a764c77ab25111f85c017407ed32ac2dfa5c41b7cd387890805b1",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-28T20:41:02+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "c4c9bb14-2279-4332-b794-e388159d11a7",
+          "name": "Europa-SystemVM-1453-inheritance-20261029-r1",
+          "templatetype": "SYSTEM",
+          "checksum": "b9a511a9ef6f76cb7525e53bb257f75e6ba08c5e99950bda537647ae2d35ce32",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-10-29T20:27:21+0900",
+          "isdynamicallyscalable": true
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "before-storage-runtime-catalog",
+    "command": "listTemplates",
+    "params": {
+      "templatetype": "SHAREDFS",
+      "templatefilter": "all",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 4,
+      "templates": [
+        {
+          "id": "56fd5f0d-d7c2-4e72-8a60-dcba3171dba3",
+          "name": "epic1438-1464-compute-r2",
+          "templatetype": "SHAREDFS",
+          "checksum": "d0d799b908a9af6f0bf9b69e9a4b6ce0bb1539f3a737f313a2a82ccbf665f3c3155461a5f5efc6fb851cb3db7ecf7eaa2c2b89fd3b55ce4ca00f9cfc71cea2b3",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-11-09T15:07:59+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "8629e9e2-2fd7-45f7-97e4-874a8f7098c2",
+          "name": "Europa-SharedFS-1465-posixacl6-20261110",
+          "templatetype": "SHAREDFS",
+          "checksum": "b59ebbfc4eadac541e4d64f65728ce705a3b15d5e672d15d84da094e19be51d1ed92d104baaadd83308e2429b136e7c833118cf21391b212d2732e852f7a739e",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-11-10T09:55:16+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "35fa8b86-943e-44b7-8a5c-ffc2bb825550",
+          "name": "Epic1438-SharedFS-regular-20261111",
+          "templatetype": "SHAREDFS",
+          "checksum": "0f39ed25874f8d64ab1de13e8ab5fb212d8b6700d31b4cbb7b6491a70c6d736f",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-11-11T22:51:54+0900",
+          "isdynamicallyscalable": true
+        },
+        {
+          "id": "e0dd091f-82ae-4a32-a19d-d7d95f0d950d",
+          "name": "Europa-SharedFS-8ad2d1e-20261112",
+          "templatetype": "SHAREDFS",
+          "checksum": "bbe9182cb97643dae6cd4466d8463bf775cc8f25e03cbff44c0ecee6effae708",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-11-12T23:15:47+0900",
+          "isdynamicallyscalable": true
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "before-storage-runtime-catalog",
+    "command": "listTemplates",
+    "params": {
+      "id": "e0dd091f-82ae-4a32-a19d-d7d95f0d950d",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0dd091f-82ae-4a32-a19d-d7d95f0d950d",
+          "name": "Europa-SharedFS-8ad2d1e-20261112",
+          "templatetype": "SHAREDFS",
+          "checksum": "bbe9182cb97643dae6cd4466d8463bf775cc8f25e03cbff44c0ecee6effae708",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-11-12T23:15:47+0900",
+          "isdynamicallyscalable": true
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "before-storage-runtime-catalog",
+    "command": "listTemplates",
+    "params": {
+      "id": "e0dd091f-82ae-4a32-a19d-d7d95f0d950d",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0dd091f-82ae-4a32-a19d-d7d95f0d950d",
+          "name": "Europa-SharedFS-8ad2d1e-20261112",
+          "templatetype": "SHAREDFS",
+          "checksum": "bbe9182cb97643dae6cd4466d8463bf775cc8f25e03cbff44c0ecee6effae708",
+          "isready": true,
+          "sshkeyenabled": false,
+          "requireshvm": true,
+          "forcks": false,
+          "created": "2026-11-12T23:15:47+0900",
+          "isdynamicallyscalable": true
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "before-storage-runtime-catalog",
+    "command": "listStorageServiceRuntimeBundles",
+    "params": {
+      "page": "1",
+      "pagesize": "10",
+      "purpose": "catalog"
+    },
+    "http": 200,
+    "result": {
+      "count": 24,
+      "templates": [],
+      "bundles": [
+        {
+          "id": "81275620-9d5e-4544-a569-f26dc5241891",
+          "version": "1466.smb-ad-names.2",
+          "state": "PUBLISHED",
+          "validationstatus": "VERIFIED",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "ffee2633-b031-43a1-a063-1aacb61050f9",
+          "version": "1465.directory-acl.6",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "ef8bbedd-b4a7-40c4-a38f-962a6b90fb4b",
+          "version": "1465.directory-acl.5",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "203490ac-fb24-4810-a863-387a7a8b53e8",
+          "version": "1465.directory-acl.4",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "c99100a7-6918-43c8-b9ea-d260cc63bdc4",
+          "version": "1465.directory-acl.3",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "cfb809c8-0cc5-4e89-9b63-17913f18ff24",
+          "version": "1465.directory-acl.2",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "f871d21a-3a22-46d5-87e4-3dda116be088",
+          "version": "1465.directory-acl.1",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "87034747-76b0-4d27-b65b-7717cdc875bb",
+          "version": "1462.iscsiid.1",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "0d4e5e68-0ceb-4ea9-bce3-e012716fc00c",
+          "version": "1462.iscsiwp.1",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "14931636-819a-4c3f-8606-afeb2fe91d5d",
+          "version": "1462.nfsreceipt.1",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        }
+      ]
+    }
+  },
+  {
+    "label": "before-management-catalog",
+    "command": "listStorageServiceRuntimeBundles",
+    "params": {
+      "page": "1",
+      "pagesize": "10",
+      "purpose": "catalog"
+    },
+    "http": 200,
+    "result": {
+      "count": 24,
+      "templates": [],
+      "bundles": [
+        {
+          "id": "81275620-9d5e-4544-a569-f26dc5241891",
+          "version": "1466.smb-ad-names.2",
+          "state": "PUBLISHED",
+          "validationstatus": "VERIFIED",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "ffee2633-b031-43a1-a063-1aacb61050f9",
+          "version": "1465.directory-acl.6",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "ef8bbedd-b4a7-40c4-a38f-962a6b90fb4b",
+          "version": "1465.directory-acl.5",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "203490ac-fb24-4810-a863-387a7a8b53e8",
+          "version": "1465.directory-acl.4",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "c99100a7-6918-43c8-b9ea-d260cc63bdc4",
+          "version": "1465.directory-acl.3",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "cfb809c8-0cc5-4e89-9b63-17913f18ff24",
+          "version": "1465.directory-acl.2",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "f871d21a-3a22-46d5-87e4-3dda116be088",
+          "version": "1465.directory-acl.1",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "87034747-76b0-4d27-b65b-7717cdc875bb",
+          "version": "1462.iscsiid.1",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "0d4e5e68-0ceb-4ea9-bce3-e012716fc00c",
+          "version": "1462.iscsiwp.1",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "14931636-819a-4c3f-8606-afeb2fe91d5d",
+          "version": "1462.nfsreceipt.1",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        }
+      ]
+    }
+  },
+  {
+    "label": "owned-template-vnf-edit",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "owned-template-vnf-edit",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "owned-template-vnf-edit",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "owned-template-vnf-edit",
+    "command": "updateTemplate",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+      "templatetype": "VNF",
+      "arch": "x86_64",
+      "sshkeyenabled": "true",
+      "requireshvm": "false"
+    },
+    "http": 200,
+    "result": {
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "VNF",
+          "isready": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "owned-template-vnf-edit",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "VNF",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "owned-template-vnf-edit",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "VNF",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "deployed-vnf-tab",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "VNF",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "deployed-vnf-tab",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "VNF",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "hidden-runtime-fallback",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "VNF",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "hidden-runtime-fallback",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "VNF",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "vnf-to-user-fallback",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "VNF",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "vnf-to-user-fallback",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "VNF",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "vnf-to-user-fallback",
+    "command": "updateTemplate",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+      "templatetype": "USER",
+      "arch": "x86_64",
+      "sshkeyenabled": "true",
+      "requireshvm": "false"
+    },
+    "http": 200,
+    "result": {
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "isready": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "vnf-to-user-fallback",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "vnf-to-user-fallback",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "templatefilter": "executable"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "vnf-to-user-fallback",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "templatefilter": "all"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909",
+          "isready": true,
+          "sshkeyenabled": true,
+          "requireshvm": false,
+          "forcks": false,
+          "created": "2026-11-13T16:27:10+0900",
+          "isdynamicallyscalable": false,
+          "url": "http://10.10.13.10:8080/client/qa-template-t05-20261113/qa-t05-full-url-abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789.qcow2"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "tab-Zone",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true,
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "tab-Zone",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true,
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "tab-설정",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true,
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "tab-이벤트",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true,
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "tab-이벤트",
+    "command": "listEvents",
+    "params": {
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 3,
+      "templates": [],
+      "bundles": []
+    }
+  },
+  {
+    "label": "tab-코멘트",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true,
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "tab-코멘트",
+    "command": "listAnnotations",
+    "params": {
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "templates": [],
+      "bundles": []
+    }
+  },
+  {
+    "label": "tab-reads-completed",
+    "command": "listAnnotations",
+    "params": {
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "templates": [],
+      "bundles": []
+    }
+  },
+  {
+    "label": "sharedfs-runtime-refresh",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true,
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "sharedfs-runtime-refresh",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true,
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "sharedfs-runtime-refresh",
+    "command": "listEvents",
+    "params": {
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 3,
+      "templates": [],
+      "bundles": []
+    }
+  },
+  {
+    "label": "sharedfs-runtime-refresh",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true,
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "sharedfs-runtime-refresh",
+    "command": "listAnnotations",
+    "params": {
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "templates": [],
+      "bundles": []
+    }
+  },
+  {
+    "label": "sharedfs-runtime-refresh",
+    "command": "listTemplates",
+    "params": {
+      "id": "e0dd091f-82ae-4a32-a19d-d7d95f0d950d"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0dd091f-82ae-4a32-a19d-d7d95f0d950d",
+          "name": "Europa-SharedFS-8ad2d1e-20261112",
+          "templatetype": "SHAREDFS",
+          "crossZones": false,
+          "isready": true,
+          "checksum": "bbe9182cb97643dae6cd4466d8463bf775cc8f25e03cbff44c0ecee6effae708"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "sharedfs-runtime-refresh",
+    "command": "listTemplates",
+    "params": {
+      "id": "e0dd091f-82ae-4a32-a19d-d7d95f0d950d"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "e0dd091f-82ae-4a32-a19d-d7d95f0d950d",
+          "name": "Europa-SharedFS-8ad2d1e-20261112",
+          "templatetype": "SHAREDFS",
+          "crossZones": false,
+          "isready": true,
+          "checksum": "bbe9182cb97643dae6cd4466d8463bf775cc8f25e03cbff44c0ecee6effae708"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "sharedfs-runtime-refresh",
+    "command": "listStorageServiceRuntimeBundles",
+    "params": {
+      "purpose": "catalog",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 24,
+      "templates": [],
+      "bundles": [
+        {
+          "id": "81275620-9d5e-4544-a569-f26dc5241891",
+          "state": "PUBLISHED",
+          "validationstatus": "VERIFIED",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "ffee2633-b031-43a1-a063-1aacb61050f9",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "ef8bbedd-b4a7-40c4-a38f-962a6b90fb4b",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "203490ac-fb24-4810-a863-387a7a8b53e8",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "c99100a7-6918-43c8-b9ea-d260cc63bdc4",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "cfb809c8-0cc5-4e89-9b63-17913f18ff24",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "f871d21a-3a22-46d5-87e4-3dda116be088",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "87034747-76b0-4d27-b65b-7717cdc875bb",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "0d4e5e68-0ceb-4ea9-bce3-e012716fc00c",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "14931636-819a-4c3f-8606-afeb2fe91d5d",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        }
+      ]
+    }
+  },
+  {
+    "label": "sharedfs-runtime-refresh",
+    "command": "listStorageServiceRuntimeBundles",
+    "params": {
+      "purpose": "catalog",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 24,
+      "templates": [],
+      "bundles": [
+        {
+          "id": "81275620-9d5e-4544-a569-f26dc5241891",
+          "state": "PUBLISHED",
+          "validationstatus": "VERIFIED",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "ffee2633-b031-43a1-a063-1aacb61050f9",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "ef8bbedd-b4a7-40c4-a38f-962a6b90fb4b",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "203490ac-fb24-4810-a863-387a7a8b53e8",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "c99100a7-6918-43c8-b9ea-d260cc63bdc4",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "cfb809c8-0cc5-4e89-9b63-17913f18ff24",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "f871d21a-3a22-46d5-87e4-3dda116be088",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "87034747-76b0-4d27-b65b-7717cdc875bb",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "0d4e5e68-0ceb-4ea9-bce3-e012716fc00c",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "14931636-819a-4c3f-8606-afeb2fe91d5d",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        }
+      ]
+    }
+  },
+  {
+    "label": "sharedfs-runtime-page2",
+    "command": "listStorageServiceRuntimeBundles",
+    "params": {
+      "purpose": "catalog",
+      "page": "2",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 24,
+      "templates": [],
+      "bundles": [
+        {
+          "id": "c3e80daa-5e39-453e-af26-2edb34f417c1",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "8cc8d1e3-9e17-4e76-94e0-b091e1c2b08c",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "f4a91137-0a1c-492c-b37f-9f72c9f16604",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "3c168743-be3f-4f8d-a00f-2dc2b74e05c1",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "740bc8ba-77ca-4642-a388-d7304f5f8a85",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "8b1f543d-e792-4adf-b566-d292f46efd0a",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "8c47615a-9e20-42b7-b40b-c60dc9ba04ee",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "0b4e9ce7-b94c-40d6-b981-f8b2bd492ab9",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "ef8339a6-0568-42f7-85b0-c833e79f9780",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "0e352bb4-aa4e-495e-b386-36f281d93035",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        }
+      ]
+    }
+  },
+  {
+    "label": "management-catalog-preserved",
+    "command": "listStorageServiceRuntimeBundles",
+    "params": {
+      "purpose": "catalog",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 24,
+      "templates": [],
+      "bundles": [
+        {
+          "id": "81275620-9d5e-4544-a569-f26dc5241891",
+          "state": "PUBLISHED",
+          "validationstatus": "VERIFIED",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "ffee2633-b031-43a1-a063-1aacb61050f9",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "ef8bbedd-b4a7-40c4-a38f-962a6b90fb4b",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "203490ac-fb24-4810-a863-387a7a8b53e8",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "c99100a7-6918-43c8-b9ea-d260cc63bdc4",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "cfb809c8-0cc5-4e89-9b63-17913f18ff24",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "f871d21a-3a22-46d5-87e4-3dda116be088",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "87034747-76b0-4d27-b65b-7717cdc875bb",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "0d4e5e68-0ceb-4ea9-bce3-e012716fc00c",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "14931636-819a-4c3f-8606-afeb2fe91d5d",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        }
+      ]
+    }
+  },
+  {
+    "label": "management-catalog-preserved",
+    "command": "listStorageServiceRuntimeBundles",
+    "params": {
+      "purpose": "catalog",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 24,
+      "templates": [],
+      "bundles": [
+        {
+          "id": "81275620-9d5e-4544-a569-f26dc5241891",
+          "state": "PUBLISHED",
+          "validationstatus": "VERIFIED",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "ffee2633-b031-43a1-a063-1aacb61050f9",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "ef8bbedd-b4a7-40c4-a38f-962a6b90fb4b",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "203490ac-fb24-4810-a863-387a7a8b53e8",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "c99100a7-6918-43c8-b9ea-d260cc63bdc4",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "cfb809c8-0cc5-4e89-9b63-17913f18ff24",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "f871d21a-3a22-46d5-87e4-3dda116be088",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "87034747-76b0-4d27-b65b-7717cdc875bb",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "0d4e5e68-0ceb-4ea9-bce3-e012716fc00c",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        },
+        {
+          "id": "14931636-819a-4c3f-8606-afeb2fe91d5d",
+          "state": "PUBLISHED",
+          "validationstatus": "UNKNOWN",
+          "profileid": "storage-runtime-abi1-schema1-layout2-control3"
+        }
+      ]
+    }
+  },
+  {
+    "label": "qa-cleanup-delete",
+    "command": "listTemplates",
+    "params": {
+      "id": "ee2be8d7-6b18-417b-b2a7-a52c7bc14758"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ee2be8d7-6b18-417b-b2a7-a52c7bc14758",
+          "name": "Europa-SystemVM-1450-nfs-posix-sha256",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "qa-cleanup-delete",
+    "command": "listTemplates",
+    "params": {
+      "id": "ee2be8d7-6b18-417b-b2a7-a52c7bc14758"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ee2be8d7-6b18-417b-b2a7-a52c7bc14758",
+          "name": "Europa-SystemVM-1450-nfs-posix-sha256",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "qa-cleanup-delete",
+    "command": "listTemplates",
+    "params": {
+      "id": "ee2be8d7-6b18-417b-b2a7-a52c7bc14758"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ee2be8d7-6b18-417b-b2a7-a52c7bc14758",
+          "name": "Europa-SystemVM-1450-nfs-posix-sha256",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "qa-cleanup-delete",
+    "command": "listTemplates",
+    "params": {
+      "id": "ee2be8d7-6b18-417b-b2a7-a52c7bc14758"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ee2be8d7-6b18-417b-b2a7-a52c7bc14758",
+          "name": "Europa-SystemVM-1450-nfs-posix-sha256",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "qa-cleanup-delete",
+    "command": "listTemplates",
+    "params": {
+      "id": "ad371aa1-504d-41ef-8de8-bc99eef9594c"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "ad371aa1-504d-41ef-8de8-bc99eef9594c",
+          "name": "Rocky9",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "qa-cleanup-delete",
+    "command": "listAnnotations",
+    "params": {},
+    "http": 200,
+    "result": {
+      "templates": [],
+      "bundles": []
+    }
+  },
+  {
+    "label": "qa-cleanup-delete",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true,
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "qa-cleanup-delete",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true,
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "qa-cleanup-delete",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true,
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "qa-cleanup-delete",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true,
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "qa-cleanup-delete",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true,
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "qa-cleanup-delete",
+    "command": "deleteTemplate",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+    },
+    "http": 200,
+    "result": {
+      "jobid": "ea45ccce-531b-4564-836f-bbe391f51ce2",
+      "templates": [],
+      "bundles": []
+    }
+  },
+  {
+    "label": "qa-cleanup-delete",
+    "command": "queryAsyncJobResult",
+    "params": {},
+    "http": 200,
+    "result": {
+      "jobid": "ea45ccce-531b-4564-836f-bbe391f51ce2",
+      "jobstatus": 0,
+      "templates": [],
+      "bundles": []
+    }
+  },
+  {
+    "label": "qa-cleanup-delete",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "count": 1,
+      "templates": [
+        {
+          "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+          "name": "qa-t05-20261113-긴이름-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-상세에서-전체-이름을-줄바꿈해-표시하고-UUID와-URL-및-체크섬은-복사로-확인",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": false,
+          "checksum": "db0fb0265046dadb77d98e6a5149e3bfda6a2aea2c16e1644d3ea4ccd99fa168cf50ecd70536b1ef1099043ed1e25f3bdc742d1950b9fca394b9af91e736d909"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "qa-cleanup-zero",
+    "command": "queryAsyncJobResult",
+    "params": {},
+    "http": 200,
+    "result": {
+      "jobid": "ea45ccce-531b-4564-836f-bbe391f51ce2",
+      "jobstatus": 1,
+      "success": true,
+      "templates": [],
+      "bundles": []
+    }
+  },
+  {
+    "label": "qa-cleanup-zero",
+    "command": "listTemplates",
+    "params": {
+      "id": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+      "page": "1",
+      "pagesize": "10"
+    },
+    "http": 200,
+    "result": {
+      "templates": [],
+      "bundles": []
+    }
+  },
+  {
+    "label": "qa-cleanup-zero",
+    "command": "listTemplates",
+    "params": {
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 46,
+      "templates": [
+        {
+          "id": "6a8ad0f8-ccf0-429d-a1eb-d7fa2f6ec669",
+          "name": "systemvmtemplate-x86_64-kvm-Europa-202609091134",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true
+        },
+        {
+          "id": "ad371aa1-504d-41ef-8de8-bc99eef9594c",
+          "name": "Rocky9",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true
+        },
+        {
+          "id": "e07d9ce2-92ef-43d5-95bd-38c7a95c026b",
+          "name": "Windows Server 2025 x86_64 Base Image",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true
+        },
+        {
+          "id": "3eacdc88-f0e8-40af-9a01-073670449bfb",
+          "name": "Europa-SystemVM-248653b58920-20261021",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "1e6454e9d3d7e614fe5630183522a9209f5bdf5e2677bf388b3e1924993057c6"
+        },
+        {
+          "id": "c16a3592-dbab-49ae-8006-5230b4a73898",
+          "name": "Europa-SystemVM-1442-15ea52315437-20261022",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "aa9e627b137bd7b5313cbfb073b4f48490f15fa5df59f7665d07ee2d6143cff7"
+        },
+        {
+          "id": "c83b4e03-272a-4c51-a4a0-cf93cd758501",
+          "name": "Europa-SystemVM-1443-b3dbcd8c3790-20261022",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "cd52372ab4d8821c1b809be7b9b052e020ba83e4469dcbf03dcd51d71cfa8648fcac138f0b993d37f05da5a4e7e52eae312e2d46a15473a419c9314657b2a1e6"
+        },
+        {
+          "id": "2a8fa5b1-faac-4576-a2cd-14c1938bebd8",
+          "name": "Europa-SystemVM-1443-static-cf5351e05570-20261023",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "073914a1fe8bcc31dc450489c4e4ddcbe5803a718b1ea84d3514bfe2db17ee2234c269971f39ada80ad3c9ecef7eadc175216c69fe118f584555556573a0ca5d"
+        },
+        {
+          "id": "f6ae443d-9965-4f86-bd22-043c94dbcae6",
+          "name": "Europa-SystemVM-1443-observation-3214dfed5c93-20261023",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "8a11cc9d3f41dd33c155f0e8237f03d50965fd84cf4401f7562b19f964203c67ab5a4e086a8c90ce6daa37dbc9c9ebb2cf4d3d796772d02d7295da78d551c46b"
+        },
+        {
+          "id": "3854fd59-b92b-4f72-a6e3-f64296345c0a",
+          "name": "Europa-SystemVM-1444-config-20261024",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "4198580a5f892fba7ceda951e329e0d261d3d996d4773947b1381e397490e1b6718108953af781e966639356304e75f5dff38b979394491c027102698a1fa74a"
+        },
+        {
+          "id": "c0dea1a6-14f8-441d-a308-0f1571d22931",
+          "name": "Europa-SystemVM-1444-nvme-identity-20261024",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "66d553dd0f0061e7b5b479ed8d113afd50213105095f8ceeba257149ea1879d3dd3e47e7666cc9c91126b229f2061282b9e2a2ca6660f53bcfcf3b5867028420"
+        },
+        {
+          "id": "9d08b23b-4b06-4f24-9588-6bccbbbafe1f",
+          "name": "Europa-SystemVM-1445-preflight-20261024",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "19fc97a0cc38a842e9f7ed8769bec3500e26362dfc3fbf064f4f1174b5be31e2e17cf6e7d140a7453903e6c9fae347fd7ced4c10ab4536f5a35d98b15ae6dda9"
+        },
+        {
+          "id": "c408e951-89a0-42f3-8075-a5e4dd3f9bfa",
+          "name": "Europa-SystemVM-1448-network-20261026",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "cdf33817e74d35eac560a46dcc80b0fa95cc2a14074ec89249a6099fd902dbdf"
+        },
+        {
+          "id": "a567da21-34bb-4989-95f6-22e7a88fbaef",
+          "name": "Windows-Server-2025-x86-64-Cloud-Image.qcow2",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true,
+          "checksum": "c2d4108fc68d010f14e0196375f9b6bd1bd984cea6d436f978211a4cfcca04098ca8e214395f0a825d15c2cb32d2779e41b135331e493bde6dd3a8e071a368a6"
+        },
+        {
+          "id": "d5b4c21d-aae5-46ab-9c01-57f8833b6af6",
+          "name": "Europa-SystemVM-1450-nfs-posix-20261027",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": false,
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d"
+        },
+        {
+          "id": "ee2be8d7-6b18-417b-b2a7-a52c7bc14758",
+          "name": "Europa-SystemVM-1450-nfs-posix-sha256",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d"
+        },
+        {
+          "id": "dc9b8417-2ed3-4709-a880-75d9890014f8",
+          "name": "Europa-SystemVM-1450-deferred-posix-r4",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "4d91e34ab34fe10120f3568ddf62eb9a6063647620d2471c5b9c900aed4b5c74"
+        },
+        {
+          "id": "001babbd-3064-4806-9b99-58819da17eb2",
+          "name": "Europa-SystemVM-1451-nfs-idmapping-20261027",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "0f27d55427f1e2851578572076c04de685278dda4ee3e8b6ccce83b9ceb71371"
+        },
+        {
+          "id": "97e5d8ff-4c4d-4524-9bb1-543020957f7c",
+          "name": "Europa-SystemVM-1451-bootstrap-20261028-r4",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5"
+        },
+        {
+          "id": "8754cfc3-811c-4309-95ec-c8aaf66854c8",
+          "name": "Europa-SystemVM-1452-posix-20261028-r1",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "fe1f7582726a764c77ab25111f85c017407ed32ac2dfa5c41b7cd387890805b1"
+        },
+        {
+          "id": "c4c9bb14-2279-4332-b794-e388159d11a7",
+          "name": "Europa-SystemVM-1453-inheritance-20261029-r1",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "b9a511a9ef6f76cb7525e53bb257f75e6ba08c5e99950bda537647ae2d35ce32"
+        }
+      ],
+      "bundles": []
+    }
+  },
+  {
+    "label": "qa-cleanup-zero",
+    "command": "listTemplates",
+    "params": {
+      "page": "1",
+      "pagesize": "20",
+      "keyword": "qa-t05-"
+    },
+    "http": 200,
+    "result": {
+      "templates": [],
+      "bundles": []
+    }
+  },
+  {
+    "label": "cleanup-total-restored",
+    "command": "listTemplates",
+    "params": {
+      "page": "1",
+      "pagesize": "20"
+    },
+    "http": 200,
+    "result": {
+      "count": 46,
+      "templates": [
+        {
+          "id": "6a8ad0f8-ccf0-429d-a1eb-d7fa2f6ec669",
+          "name": "systemvmtemplate-x86_64-kvm-Europa-202609091134",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true
+        },
+        {
+          "id": "ad371aa1-504d-41ef-8de8-bc99eef9594c",
+          "name": "Rocky9",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true
+        },
+        {
+          "id": "e07d9ce2-92ef-43d5-95bd-38c7a95c026b",
+          "name": "Windows Server 2025 x86_64 Base Image",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true
+        },
+        {
+          "id": "3eacdc88-f0e8-40af-9a01-073670449bfb",
+          "name": "Europa-SystemVM-248653b58920-20261021",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "1e6454e9d3d7e614fe5630183522a9209f5bdf5e2677bf388b3e1924993057c6"
+        },
+        {
+          "id": "c16a3592-dbab-49ae-8006-5230b4a73898",
+          "name": "Europa-SystemVM-1442-15ea52315437-20261022",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "aa9e627b137bd7b5313cbfb073b4f48490f15fa5df59f7665d07ee2d6143cff7"
+        },
+        {
+          "id": "c83b4e03-272a-4c51-a4a0-cf93cd758501",
+          "name": "Europa-SystemVM-1443-b3dbcd8c3790-20261022",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "cd52372ab4d8821c1b809be7b9b052e020ba83e4469dcbf03dcd51d71cfa8648fcac138f0b993d37f05da5a4e7e52eae312e2d46a15473a419c9314657b2a1e6"
+        },
+        {
+          "id": "2a8fa5b1-faac-4576-a2cd-14c1938bebd8",
+          "name": "Europa-SystemVM-1443-static-cf5351e05570-20261023",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "073914a1fe8bcc31dc450489c4e4ddcbe5803a718b1ea84d3514bfe2db17ee2234c269971f39ada80ad3c9ecef7eadc175216c69fe118f584555556573a0ca5d"
+        },
+        {
+          "id": "f6ae443d-9965-4f86-bd22-043c94dbcae6",
+          "name": "Europa-SystemVM-1443-observation-3214dfed5c93-20261023",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "8a11cc9d3f41dd33c155f0e8237f03d50965fd84cf4401f7562b19f964203c67ab5a4e086a8c90ce6daa37dbc9c9ebb2cf4d3d796772d02d7295da78d551c46b"
+        },
+        {
+          "id": "3854fd59-b92b-4f72-a6e3-f64296345c0a",
+          "name": "Europa-SystemVM-1444-config-20261024",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "4198580a5f892fba7ceda951e329e0d261d3d996d4773947b1381e397490e1b6718108953af781e966639356304e75f5dff38b979394491c027102698a1fa74a"
+        },
+        {
+          "id": "c0dea1a6-14f8-441d-a308-0f1571d22931",
+          "name": "Europa-SystemVM-1444-nvme-identity-20261024",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "66d553dd0f0061e7b5b479ed8d113afd50213105095f8ceeba257149ea1879d3dd3e47e7666cc9c91126b229f2061282b9e2a2ca6660f53bcfcf3b5867028420"
+        },
+        {
+          "id": "9d08b23b-4b06-4f24-9588-6bccbbbafe1f",
+          "name": "Europa-SystemVM-1445-preflight-20261024",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "19fc97a0cc38a842e9f7ed8769bec3500e26362dfc3fbf064f4f1174b5be31e2e17cf6e7d140a7453903e6c9fae347fd7ced4c10ab4536f5a35d98b15ae6dda9"
+        },
+        {
+          "id": "c408e951-89a0-42f3-8075-a5e4dd3f9bfa",
+          "name": "Europa-SystemVM-1448-network-20261026",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "cdf33817e74d35eac560a46dcc80b0fa95cc2a14074ec89249a6099fd902dbdf"
+        },
+        {
+          "id": "a567da21-34bb-4989-95f6-22e7a88fbaef",
+          "name": "Windows-Server-2025-x86-64-Cloud-Image.qcow2",
+          "templatetype": "USER",
+          "crossZones": false,
+          "isready": true,
+          "checksum": "c2d4108fc68d010f14e0196375f9b6bd1bd984cea6d436f978211a4cfcca04098ca8e214395f0a825d15c2cb32d2779e41b135331e493bde6dd3a8e071a368a6"
+        },
+        {
+          "id": "d5b4c21d-aae5-46ab-9c01-57f8833b6af6",
+          "name": "Europa-SystemVM-1450-nfs-posix-20261027",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": false,
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d"
+        },
+        {
+          "id": "ee2be8d7-6b18-417b-b2a7-a52c7bc14758",
+          "name": "Europa-SystemVM-1450-nfs-posix-sha256",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d"
+        },
+        {
+          "id": "dc9b8417-2ed3-4709-a880-75d9890014f8",
+          "name": "Europa-SystemVM-1450-deferred-posix-r4",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "4d91e34ab34fe10120f3568ddf62eb9a6063647620d2471c5b9c900aed4b5c74"
+        },
+        {
+          "id": "001babbd-3064-4806-9b99-58819da17eb2",
+          "name": "Europa-SystemVM-1451-nfs-idmapping-20261027",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "0f27d55427f1e2851578572076c04de685278dda4ee3e8b6ccce83b9ceb71371"
+        },
+        {
+          "id": "97e5d8ff-4c4d-4524-9bb1-543020957f7c",
+          "name": "Europa-SystemVM-1451-bootstrap-20261028-r4",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5"
+        },
+        {
+          "id": "8754cfc3-811c-4309-95ec-c8aaf66854c8",
+          "name": "Europa-SystemVM-1452-posix-20261028-r1",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "fe1f7582726a764c77ab25111f85c017407ed32ac2dfa5c41b7cd387890805b1"
+        },
+        {
+          "id": "c4c9bb14-2279-4332-b794-e388159d11a7",
+          "name": "Europa-SystemVM-1453-inheritance-20261029-r1",
+          "templatetype": "SYSTEM",
+          "crossZones": true,
+          "isready": true,
+          "checksum": "b9a511a9ef6f76cb7525e53bb257f75e6ba08c5e99950bda537647ae2d35ce32"
+        }
+      ],
+      "bundles": []
+    }
+  }
+]

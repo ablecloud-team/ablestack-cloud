@@ -17,13 +17,15 @@
 
 <template>
   <div class="form" v-ctrl-enter="submitData">
+    <a-alert v-if="validationError" type="error" show-icon role="alert" :message="validationError" />
     <div v-if="loading" class="loading">
       <loading-outlined />
     </div>
 
     <div class="form__item">
-      <p class="form__label">{{ $t('label.operation') }}</p>
+      <label class="form__label" :for="formId+'-operation'">{{ $t('label.operation') }}</label>
       <a-select
+        :id="formId+'-operation'"
         v-model:value="selectedOperation"
         :defaultValue="'add'"
         @change="fetchData"
@@ -41,11 +43,12 @@
 
     <template v-if="selectedOperation !== 'reset'">
       <div class="form__item">
-        <p class="form__label">
+        <label class="form__label" :for="formId+'-sharewith'">
           <span class="required">*</span>
           {{ $t('label.sharewith') }}
-        </p>
+        </label>
         <a-select
+          :id="formId+'-sharewith'"
           v-model:value="selectedShareWith"
           :defaultValue="'Account'"
           @change="fetchData"
@@ -61,13 +64,14 @@
 
       <template v-if="selectedShareWith === 'Account'">
         <div class="form__item">
-          <p class="form__label">
+          <label class="form__label" :for="formId+'-accounts'">
             {{ $t('label.account') }}
-          </p>
+          </label>
           <div v-if="showAccountSelect">
             <a-select
+              :id="formId+'-accounts'"
               mode="multiple"
-              placeholder="Select Accounts"
+              :placeholder="$t('label.select.accounts')"
               v-model:value="selectedAccounts"
               @change="handleChange"
               style="width: 100%"
@@ -86,17 +90,18 @@
             </a-select>
           </div>
           <div v-else>
-            <a-input v-model:value="selectedAccountsList" :placeholder="$t('label.comma.separated.list.description')"></a-input>
+            <a-input :id="formId+'-accounts'" v-model:value="selectedAccountsList" :placeholder="$t('message.template.permissions.account.names')"></a-input>
           </div>
         </div>
       </template>
 
       <template v-else>
         <div class="form__item">
-          <p class="form__label">
+          <label class="form__label" :for="formId+'-projects'">
             {{ $t('label.project') }}
-          </p>
+          </label>
           <a-select
+            :id="formId+'-projects'"
             mode="multiple"
             :placeholder="$t('label.select.projects')"
             v-model:value="selectedProjects"
@@ -107,7 +112,7 @@
             :filterOption="(input, option) => {
               return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }" >
-            <a-select-option v-for="project in projectsList" :key="project.name" :label="project.name">
+            <a-select-option v-for="project in projectsList" :key="project.id" :value="project.id" :label="project.name">
               <span>
                 <resource-icon v-if="project.icon" :image="project.icon.base64image" size="1x" style="margin-right: 5px"/>
                 <project-outlined v-else style="margin-right: 5px" />
@@ -128,6 +133,7 @@
 <script>
 import { getAPI, postAPI } from '@/api'
 import ResourceIcon from '@/components/view/ResourceIcon'
+let formSequence = 0
 
 export default {
   name: 'UpdateTemplateIsoPermissions',
@@ -143,6 +149,7 @@ export default {
   inject: ['parentFetchData'],
   data () {
     return {
+      formId: 'image-permissions-' + (++formSequence),
       projects: [],
       accounts: [],
       permittedAccounts: [],
@@ -154,6 +161,7 @@ export default {
       selectedShareWith: 'Account',
       accountError: false,
       projectError: false,
+      validationError: '',
       showAccountSelect: true,
       loading: false,
       isImageTypeIso: false
@@ -169,7 +177,7 @@ export default {
         ) : this.accounts
     },
     projectsList () {
-      return this.projects > 0 ? this.projects
+      return this.projects.length > 0 ? this.projects
         .filter(p =>
           this.selectedOperation === 'add'
             ? !this.permittedProjects.includes(p.id)
@@ -195,58 +203,51 @@ export default {
         this.selectedProjects = []
         this.fetchProjects()
       }
+      this.validationError = ''
       this.showAccountSelect = this.$store.getters.features.allowuserviewalldomainaccounts || !(this.$store.getters.userInfo.roletype === 'User')
     },
     fetchAccounts () {
       this.loading = true
-      getAPI('listAccounts', {
+      return getAPI('listAccounts', {
         domainid: this.resource.domainid,
         showicon: true
       }).then(response => {
-        this.accounts = response.listaccountsresponse.account.filter(account => account.name !== this.resource.account)
+        this.accounts = (response.listaccountsresponse?.account || []).filter(account => account.name !== this.resource.account)
       }).finally(e => {
         this.loading = false
       })
     },
     fetchProjects () {
-      getAPI('listProjects', {
+      return getAPI('listProjects', {
         details: 'min',
         showicon: true,
         listall: true
       }).then(response => {
-        this.projects = response.listprojectsresponse.project
+        this.projects = response.listprojectsresponse?.project || []
       }).finally(e => {
         this.loading = false
       })
     },
     fetchTemplatePermissions () {
       this.loading = true
-      getAPI('listTemplatePermissions', {
+      return getAPI('listTemplatePermissions', {
         id: this.resource.id
       }).then(response => {
-        const permission = response.listtemplatepermissionsresponse.templatepermission
-        if (permission && permission.account) {
-          this.permittedAccounts = permission.account
-        }
-        if (permission && permission.projectids) {
-          this.permittedProjects = permission.projectids
-        }
+        const permission = response.listtemplatepermissionsresponse?.templatepermission || {}
+        this.permittedAccounts = Array.isArray(permission.account) ? permission.account : []
+        this.permittedProjects = Array.isArray(permission.projectids) ? permission.projectids : []
       }).finally(e => {
         this.loading = false
       })
     },
     fetchIsoPermissions () {
       this.loading = true
-      getAPI('listIsoPermissions', {
+      return getAPI('listIsoPermissions', {
         id: this.resource.id
       }).then(response => {
-        const permission = response.listtemplatepermissionsresponse.templatepermission
-        if (permission && permission.account) {
-          this.permittedAccounts = permission.account
-        }
-        if (permission && permission.projectids) {
-          this.permittedProjects = permission.projectids
-        }
+        const permission = response.listisopermissionsresponse?.templatepermission || {}
+        this.permittedAccounts = Array.isArray(permission.account) ? permission.account : []
+        this.permittedProjects = Array.isArray(permission.projectids) ? permission.projectids : []
       }).finally(e => {
         this.loading = false
       })
@@ -270,23 +271,25 @@ export default {
       if (this.selectedShareWith === 'Account') {
         variableKey = 'accounts'
         if (this.showAccountSelect) {
-          variableValue = this.selectedAccounts.map(account => account).join(',')
+          variableValue = [...new Set(this.selectedAccounts)].join(',')
         } else {
-          variableValue = this.selectedAccountsList
+          variableValue = [...new Set(this.selectedAccountsList.split(',').map(name => name.trim()).filter(Boolean))].join(',')
         }
       } else {
         variableKey = 'projectids'
-        variableValue = this.projects.filter(p => this.selectedProjects.includes(p.name)).map(p => p.id).join(',')
+        variableValue = [...new Set(this.selectedProjects)].join(',')
+      }
+      this.validationError = ''
+      if (this.selectedOperation !== 'reset' && !variableValue) {
+        this.validationError = this.$t('message.template.permissions.target.required')
+        return
       }
       this.loading = true
       const apiName = this.isImageTypeIso ? 'updateIsoPermissions' : 'updateTemplatePermissions'
       const resourceType = this.isImageTypeIso ? 'ISO' : 'template'
       postAPI(apiName, {
-        [variableKey]: variableValue,
+        ...(this.selectedOperation !== 'reset' ? { [variableKey]: variableValue } : {}),
         id: this.resource.id,
-        ispublic: this.resource.isPublic,
-        isextractable: this.resource.isExtractable,
-        featured: this.resource.featured,
         op: this.selectedOperation.toLowerCase()
       }).then(response => {
         this.$notification.success({

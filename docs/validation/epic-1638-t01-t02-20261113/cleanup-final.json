@@ -1,0 +1,17 @@
+{
+  "fixtureDirectoryRemoved": true,
+  "slowHelperPortClosed": true,
+  "onlyOwnedHelperSignalled": true,
+  "moldPid2234509Preserved": true,
+  "all27AssetsMatch": true,
+  "protected": {
+    "config.json": true,
+    "WEB-INF/web.xml": true
+  },
+  "httpIndex": {
+    "status": 200,
+    "sha256": "a0ce5b28478232e8521c3236e114efd1dbc09daaead459c69f899c75ccc4734f"
+  },
+  "rollbackBackupRetained": true,
+  "cleanupScope": "three UI test templates plus named helper PID and one fixture file; no backend restart or DB mutation"
+}

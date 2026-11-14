@@ -1,0 +1,50 @@
+{
+  "canonicalBase": "0edd20dcc9218312b3da533582f03e11535c5eb8",
+  "previousHead": "3173fb2bc0d8e5c55e2f3a06cc9ddd2a9ab3e43e",
+  "implementationHead": "7096f6fc95e223732d1bcabced9a741e76630990",
+  "runtimeUiBaseline": "460b33770cb071d869f61c2aac0d81773890ebc3",
+  "buildDirectory": "/root/work/.build-epic1638-t03-t04-20261113/ui",
+  "method": "existing scoped T01-T06 archive plus only T07 git diff",
+  "changedInputs": [
+    "ui/public/locales/en.json",
+    "ui/public/locales/ko_KR.json",
+    "ui/src/components/view/ResourceView.vue",
+    "ui/src/utils/templateVnfSettings.js",
+    "ui/src/views/image/TemplateVnfSettings.vue",
+    "ui/tests/unit/views/image/TemplateVnfSettings.spec.js"
+  ],
+  "inputHashes": {
+    "ui/public/locales/en.json": "f2323506f8fba3737c8c14a448efacd638c36d113287e5bf19fb1af3dbc54343",
+    "ui/public/locales/ko_KR.json": "9ae5c0421576000897ca89e154080821e4d3bbbf546c557c78ca4d25d7941829",
+    "ui/src/components/view/ResourceView.vue": "5fbd55a840b16d56f089bdbf2f9f9d1f18bcf705bee754001ae31dec6d52b32b",
+    "ui/src/utils/templateVnfSettings.js": "60cf1cf0ba11f71fa0dba38c399cee5a5242b557f2b85ed355804305af4d419c",
+    "ui/src/views/image/TemplateVnfSettings.vue": "f0642fd6cdc5e36663c365502371eae25654f80cd57188f3b64f8c26466971fd",
+    "ui/tests/unit/views/image/TemplateVnfSettings.spec.js": "50a30762ade4c6f83c0851169246d4354146aab4cb39fe7304849b3245debc9d"
+  },
+  "excludedUpstreamPaths": [
+    "ui/src/components/view/ResourceTags.vue",
+    "ui/src/components/view/AnnotationsTab.vue",
+    "ui/src/utils/resourceTags.js"
+  ],
+  "excludedPathsPreserved": true,
+  "backendSourceHead": "3de46e65491a7b4b24486b896e65afd2d52d0bae",
+  "moveCorrection": "Preserve required flags; block crossing required/optional NIC boundary",
+  "publicLocaleCorrection": {
+    "sourceHead": "519b10825d7b417074db0953fe34e5ed70271d38",
+    "reason": "VNF setting edit title translation",
+    "files": {
+      "en": {
+        "previous": "f24d2ab2b8a5cae2bcc16f9b5fe1973794d982df12cf69e6855a3cedaec8ece7",
+        "sha256": "0b7e10a1aec77cf9bbef898fe2d1d3ddc525cf2ebe6b0f0148bf078f96bcaf3a"
+      },
+      "ko_KR": {
+        "previous": "030a579b16ac25dae6fcd1f1f1e18737e9901a7c967770a5bc5f53e167f45fae",
+        "sha256": "9f8d123ffa44955a3066cd2c94d5ff954f86be0faeb8ce00889ee3d4c88d0289"
+      }
+    },
+    "includedInFinalBuild": true
+  },
+  "correctiveFollowup": "NIC validation remains within its editor; cancellation clears the validation message",
+  "ownerDomainCorrection": "Resolve both domain IDs via listDomains.path; listUsers does not provide domainpath",
+  "alertCompatibilityCorrection": "Render retry in supported Ant Design description slot, verified with real Alert and Button"
+}

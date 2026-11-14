@@ -1,0 +1,111 @@
+{
+  "date": "2026-11-13",
+  "scope": "local prototype only; no Mold API writes or deployment",
+  "cases": [
+    {
+      "id": "list-status",
+      "status": "PASS"
+    },
+    {
+      "id": "enum-non-link",
+      "status": "PASS"
+    },
+    {
+      "id": "error-detail-and-cause",
+      "status": "PASS"
+    },
+    {
+      "id": "arch-initial-x86_64",
+      "status": "PASS"
+    },
+    {
+      "id": "edit-description-and-false",
+      "status": "PASS"
+    },
+    {
+      "id": "prepare-accepted-versus-observed",
+      "status": "PASS"
+    },
+    {
+      "id": "delete-source-state-preserved",
+      "status": "PASS"
+    },
+    {
+      "id": "delete-result-retained",
+      "status": "PASS"
+    },
+    {
+      "id": "vnf-key-whitelist",
+      "status": "PASS"
+    },
+    {
+      "id": "vnf-secret-field-mask-no-secret-entered",
+      "status": "PASS"
+    },
+    {
+      "id": "vnf-valid-vendor-save",
+      "status": "PASS"
+    },
+    {
+      "id": "copy-no-target-disabled",
+      "status": "PASS"
+    },
+    {
+      "id": "local-upload-checksum-cks-options",
+      "status": "PASS"
+    },
+    {
+      "id": "local-filechooser",
+      "status": "PASS"
+    },
+    {
+      "id": "url-checksum-invalid-preserves-input",
+      "status": "PASS"
+    },
+    {
+      "id": "register-accepted-not-ready",
+      "status": "PASS"
+    },
+    {
+      "id": "keyword-search",
+      "status": "PASS"
+    },
+    {
+      "id": "advanced-isready-false",
+      "status": "PASS"
+    },
+    {
+      "id": "escape-restores-focus",
+      "status": "PASS"
+    },
+    {
+      "id": "themes-light-dark",
+      "status": "PASS"
+    },
+    {
+      "id": "detail-layout-320-390-1024-1680",
+      "status": "PASS"
+    }
+  ],
+  "filechooserNote": "Sandbox preview filechooser events were not observed. The ordinary standalone mockup subsequently selected the existing QA fixture through the supported chooser and completed the required-file form acceptance flow. No direct file assignment or browser policy bypass was used. This prototype performs no Cloud upload/network transfer.",
+  "layout": {
+    "width320": {
+      "documentWidth": 273,
+      "overflow": false,
+      "width": 273
+    },
+    "width1024": {
+      "documentWidth": 977,
+      "overflow": false,
+      "width": 977
+    },
+    "ddOverflow390": false
+  },
+  "runtimeErrors": [],
+  "productImplementationChanged": false,
+  "standaloneMobile": {
+    "width": 390,
+    "documentWidth": 375,
+    "checksumScreenshot": "mock-mobile-checksum-dark.jpg"
+  }
+}

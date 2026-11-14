@@ -1,0 +1,1005 @@
+[
+  {
+    "kind": "template",
+    "id": "a6a1deb0-1665-43fb-9549-2864ec9e1f1b",
+    "states": [
+      "작업 성공",
+      "성공 1 · 실패 0 · 알 수 없음 0 · 진행 중 0"
+    ],
+    "events": [
+      {
+        "command": "deleteTemplate",
+        "method": "POST",
+        "targetId": "a6a1deb0-1665-43fb-9549-2864ec9e1f1b",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "9109c894-ef2c-4e74-9c95-66358957721c"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "9109c894-ef2c-4e74-9c95-66358957721c",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobStatus": 0
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "9109c894-ef2c-4e74-9c95-66358957721c",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null,
+        "jobStatus": 1
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "a6a1deb0-1665-43fb-9549-2864ec9e1f1b",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "kind": "template",
+    "id": "ecda0b6f-f540-40d3-8723-3f9014d71e31",
+    "states": [
+      "작업 성공",
+      "성공 1 · 실패 0 · 알 수 없음 0 · 진행 중 0"
+    ],
+    "events": [
+      {
+        "command": "deleteTemplate",
+        "method": "POST",
+        "targetId": "ecda0b6f-f540-40d3-8723-3f9014d71e31",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "c5114ac2-f195-45f3-b22f-743fb7b9ed6b"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "c5114ac2-f195-45f3-b22f-743fb7b9ed6b",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobStatus": 0
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "c5114ac2-f195-45f3-b22f-743fb7b9ed6b",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null,
+        "jobStatus": 1
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "ecda0b6f-f540-40d3-8723-3f9014d71e31",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "kind": "template",
+    "id": "fb1e6629-1609-4e2a-8c87-08aae94b123a",
+    "states": [
+      "작업 성공",
+      "성공 1 · 실패 0 · 알 수 없음 0 · 진행 중 0"
+    ],
+    "events": [
+      {
+        "command": "deleteTemplate",
+        "method": "POST",
+        "targetId": "fb1e6629-1609-4e2a-8c87-08aae94b123a",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "2718df58-4bf6-4183-b664-dfe4edc9db02"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "2718df58-4bf6-4183-b664-dfe4edc9db02",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobStatus": 0
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "2718df58-4bf6-4183-b664-dfe4edc9db02",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null,
+        "jobStatus": 1
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "fb1e6629-1609-4e2a-8c87-08aae94b123a",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "kind": "template",
+    "id": "70a203fc-e480-4909-998b-d9bca7283916",
+    "states": [
+      "작업 성공",
+      "성공 1 · 실패 0 · 알 수 없음 0 · 진행 중 0"
+    ],
+    "events": [
+      {
+        "command": "deleteTemplate",
+        "method": "POST",
+        "targetId": "70a203fc-e480-4909-998b-d9bca7283916",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "eb372231-d732-4a2b-9369-a8f1040da74e"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "eb372231-d732-4a2b-9369-a8f1040da74e",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobStatus": 0
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "eb372231-d732-4a2b-9369-a8f1040da74e",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null,
+        "jobStatus": 1
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "70a203fc-e480-4909-998b-d9bca7283916",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "kind": "template",
+    "id": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+    "states": [
+      "작업 성공",
+      "성공 1 · 실패 0 · 알 수 없음 0 · 진행 중 0"
+    ],
+    "events": [
+      {
+        "command": "deleteTemplate",
+        "method": "POST",
+        "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "de37ef86-8a7a-44ea-82c7-b96fe7aff646"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "de37ef86-8a7a-44ea-82c7-b96fe7aff646",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobStatus": 0
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "de37ef86-8a7a-44ea-82c7-b96fe7aff646",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null,
+        "jobStatus": 1
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "59dc1a00-a570-4323-8ce4-402c87c5fd2a",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "kind": "template",
+    "id": "ab828b12-7909-4c0b-aaa7-8cdc07978c84",
+    "states": [
+      "작업 성공",
+      "성공 1 · 실패 0 · 알 수 없음 0 · 진행 중 0"
+    ],
+    "events": [
+      {
+        "command": "deleteTemplate",
+        "method": "POST",
+        "targetId": "ab828b12-7909-4c0b-aaa7-8cdc07978c84",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "e1632c2f-b367-42e2-82b7-65b86658cf90"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "e1632c2f-b367-42e2-82b7-65b86658cf90",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobStatus": 0
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "e1632c2f-b367-42e2-82b7-65b86658cf90",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null,
+        "jobStatus": 1
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "ab828b12-7909-4c0b-aaa7-8cdc07978c84",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "kind": "template",
+    "id": "ad9b844f-2fdd-4502-acde-486caf9334c0",
+    "states": [
+      "작업 성공",
+      "성공 1 · 실패 0 · 알 수 없음 0 · 진행 중 0"
+    ],
+    "events": [
+      {
+        "command": "deleteTemplate",
+        "method": "POST",
+        "targetId": "ad9b844f-2fdd-4502-acde-486caf9334c0",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "7250679b-1907-406d-ab51-8a1a268f2c3d"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "7250679b-1907-406d-ab51-8a1a268f2c3d",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobStatus": 0
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "7250679b-1907-406d-ab51-8a1a268f2c3d",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null,
+        "jobStatus": 1
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "ad9b844f-2fdd-4502-acde-486caf9334c0",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "kind": "template",
+    "id": "cab5b9f8-d0bb-4c7d-99d6-6faed419026b",
+    "states": [
+      "작업 성공",
+      "성공 1 · 실패 0 · 알 수 없음 0 · 진행 중 0"
+    ],
+    "events": [
+      {
+        "command": "deleteTemplate",
+        "method": "POST",
+        "targetId": "cab5b9f8-d0bb-4c7d-99d6-6faed419026b",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "3a665323-7b20-4672-916b-729a4498cffc"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "3a665323-7b20-4672-916b-729a4498cffc",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobStatus": 0
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "3a665323-7b20-4672-916b-729a4498cffc",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null,
+        "jobStatus": 1
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "cab5b9f8-d0bb-4c7d-99d6-6faed419026b",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "kind": "template",
+    "id": "9ed853d1-f196-44a4-8c69-99d53f61a87b",
+    "states": [
+      "작업 성공",
+      "성공 1 · 실패 0 · 알 수 없음 0 · 진행 중 0"
+    ],
+    "events": [
+      {
+        "command": "deleteTemplate",
+        "method": "POST",
+        "targetId": "9ed853d1-f196-44a4-8c69-99d53f61a87b",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "a531d48b-0a0a-43b9-b05d-5ac7acceb0a0"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "a531d48b-0a0a-43b9-b05d-5ac7acceb0a0",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobStatus": 0
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "a531d48b-0a0a-43b9-b05d-5ac7acceb0a0",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null,
+        "jobStatus": 1
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "9ed853d1-f196-44a4-8c69-99d53f61a87b",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "kind": "template",
+    "id": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+    "states": [
+      "작업 성공",
+      "성공 1 · 실패 0 · 알 수 없음 0 · 진행 중 0"
+    ],
+    "events": [
+      {
+        "command": "deleteTemplate",
+        "method": "POST",
+        "targetId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "809ee575-268f-4489-a2b0-f49754b454a5"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "809ee575-268f-4489-a2b0-f49754b454a5",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobStatus": 0
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "809ee575-268f-4489-a2b0-f49754b454a5",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null,
+        "jobStatus": 1
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "ef2eeeda-28b7-4bf9-8b13-1fc427d15bc0",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "kind": "template",
+    "id": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+    "states": [
+      "작업 성공",
+      "성공 1 · 실패 0 · 알 수 없음 0 · 진행 중 0"
+    ],
+    "events": [
+      {
+        "command": "deleteTemplate",
+        "method": "POST",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "9fdfc3e5-48e4-45d7-97a5-f624083f3a9d"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "9fdfc3e5-48e4-45d7-97a5-f624083f3a9d",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobStatus": 0
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "jobId": "9fdfc3e5-48e4-45d7-97a5-f624083f3a9d",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null,
+        "jobStatus": 1
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": "b27269d3-c6e8-4128-bdaa-335171f4bc67",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": "all",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "kind": "network",
+    "id": "7145e763-1e4f-4a00-9d0f-35261e003ca9",
+    "events": [
+      {
+        "command": "deleteNetwork",
+        "method": "POST",
+        "targetId": "7145e763-1e4f-4a00-9d0f-35261e003ca9",
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "3ed5f7ac-60fa-4c04-8a83-602f7d161dcc"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "jobId": "3ed5f7ac-60fa-4c04-8a83-602f7d161dcc",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobStatus": 0
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "jobId": "3ed5f7ac-60fa-4c04-8a83-602f7d161dcc",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null,
+        "jobStatus": 1
+      },
+      {
+        "command": "listVolumes",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listSnapshots",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listTemplates",
+        "method": "GET",
+        "targetId": null,
+        "projectId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "filter": "self",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null
+      }
+    ]
+  },
+  {
+    "kind": "network",
+    "id": "d4066cf9-923e-4f65-aeb9-7eadc62c57f9",
+    "events": [
+      {
+        "command": "deleteNetwork",
+        "method": "POST",
+        "targetId": "d4066cf9-923e-4f65-aeb9-7eadc62c57f9",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "9aef2e2d-f2c5-476e-bac2-cd0a14435f10"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "jobId": "9aef2e2d-f2c5-476e-bac2-cd0a14435f10",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobStatus": 0
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "jobId": "9aef2e2d-f2c5-476e-bac2-cd0a14435f10",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null,
+        "jobStatus": 1
+      }
+    ],
+    "note": "existing network UI required result-only retry after pending job scope warning; no duplicate delete submitted"
+  },
+  {
+    "kind": "network",
+    "id": "9c742eef-8dbd-448d-acf4-5f2e8b5cf28d",
+    "events": [
+      {
+        "command": "deleteNetwork",
+        "method": "POST",
+        "targetId": "9c742eef-8dbd-448d-acf4-5f2e8b5cf28d",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "25fa1baf-8acc-4988-9f4e-7fc80ac6c641"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "jobId": "25fa1baf-8acc-4988-9f4e-7fc80ac6c641",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobStatus": 0
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "jobId": "25fa1baf-8acc-4988-9f4e-7fc80ac6c641",
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null,
+        "jobStatus": 1
+      }
+    ]
+  },
+  {
+    "kind": "project",
+    "id": "8053037d-11c0-4da6-85c0-85794e15324e",
+    "events": [
+      {
+        "command": "deleteProject",
+        "method": "POST",
+        "targetId": "8053037d-11c0-4da6-85c0-85794e15324e",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "e10bb7cc-82bf-40d9-a0ff-dc069139db8d"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "e10bb7cc-82bf-40d9-a0ff-dc069139db8d",
+        "jobStatus": 0
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null,
+        "jobId": "e10bb7cc-82bf-40d9-a0ff-dc069139db8d",
+        "jobStatus": 1
+      }
+    ]
+  },
+  {
+    "kind": "domain-subtree",
+    "id": "fd3eb21e-eb2b-479a-b849-db86f3a67275",
+    "accountNames": [
+      "qa-t08-da",
+      "qa-t08-da-a",
+      "qa-t08-a",
+      "qa-t08-b",
+      "qa-t08-n",
+      "qa-t08-v",
+      "qa-t08-c"
+    ],
+    "events": [
+      {
+        "command": "deleteDomain",
+        "method": "POST",
+        "targetId": "fd3eb21e-eb2b-479a-b849-db86f3a67275",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "73589298-2b67-4d73-b9b3-b42e6268ccd9"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "73589298-2b67-4d73-b9b3-b42e6268ccd9",
+        "jobStatus": 0
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null,
+        "jobId": "73589298-2b67-4d73-b9b3-b42e6268ccd9",
+        "jobStatus": 1
+      },
+      {
+        "command": "listDomains",
+        "method": "GET",
+        "targetId": "fd3eb21e-eb2b-479a-b849-db86f3a67275",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 431,
+        "errorCode": 431,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listDomains",
+        "method": "GET",
+        "targetId": "47178e2f-bd56-11f1-b573-002481560363",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "kind": "domain-subtree",
+    "id": "d0a96ad0-299f-49d8-af1f-e054aa3bcd61",
+    "accountNames": [
+      "qa-t08-o"
+    ],
+    "events": [
+      {
+        "command": "deleteDomain",
+        "method": "POST",
+        "targetId": "d0a96ad0-299f-49d8-af1f-e054aa3bcd61",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "68839278-4113-404a-a83f-7429aaa53a23"
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": null,
+        "jobId": "68839278-4113-404a-a83f-7429aaa53a23",
+        "jobStatus": 0
+      },
+      {
+        "command": "queryAsyncJobResult",
+        "method": "GET",
+        "targetId": null,
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": true,
+        "count": null,
+        "jobId": "68839278-4113-404a-a83f-7429aaa53a23",
+        "jobStatus": 1
+      },
+      {
+        "command": "listDomains",
+        "method": "GET",
+        "targetId": "d0a96ad0-299f-49d8-af1f-e054aa3bcd61",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 431,
+        "errorCode": 431,
+        "success": null,
+        "count": null
+      },
+      {
+        "command": "listDomains",
+        "method": "GET",
+        "targetId": "47178e2f-bd56-11f1-b573-002481560363",
+        "projectId": null,
+        "filter": null,
+        "httpStatus": 200,
+        "errorCode": null,
+        "success": null,
+        "count": 1
+      }
+    ]
+  }
+]

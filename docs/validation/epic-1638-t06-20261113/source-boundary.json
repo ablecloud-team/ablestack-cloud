@@ -1,0 +1,36 @@
+{
+  "canonicalBase": "0edd20dcc9218312b3da533582f03e11535c5eb8",
+  "implementationHead": "241d79387dae71dea09ccd3547ad25ec6726364e",
+  "previousFeatureHead": "430490570639f83c1a76a62e0bf5241b825c79d2",
+  "previousUiHead": "8f631d4095104abb9b2d3bb367da32517e47fd27",
+  "runtimeUiBaseline": "460b33770cb071d869f61c2aac0d81773890ebc3",
+  "method": "existing scoped T01-T05 archive plus only T06 git diff, checked before apply",
+  "buildDirectory": "/root/work/.build-epic1638-t03-t04-20261113/ui",
+  "changedInputs": [
+    "ui/public/locales/en.json",
+    "ui/public/locales/ko_KR.json",
+    "ui/src/components/view/ResourceView.vue",
+    "ui/src/utils/templateZoneOperations.js",
+    "ui/src/views/AutogenView.vue",
+    "ui/src/views/image/TemplateZoneOperations.vue",
+    "ui/src/views/image/TemplateZones.vue",
+    "ui/tests/unit/views/image/TemplateZoneOperations.spec.js"
+  ],
+  "inputHashes": {
+    "ui/public/locales/en.json": "ff40804c4de89214c041f092d8f7c0f6c616e4b34bab903930b58ec8e9938d14",
+    "ui/public/locales/ko_KR.json": "4a7ba5bfa9579ad3dd54b84f175b6fe40e2356e4bb1cf528fa935f8fbd99fbfe",
+    "ui/src/components/view/ResourceView.vue": "9a7d1543bb07eb43bd100b2c59ce4151ac6f54ac1c0016afef61f3c12b6a256d",
+    "ui/src/utils/templateZoneOperations.js": "2cd34b9da21581c3f59ed4f34e05b98a80ebe0c2a324b1a4bfaa8dcb58f2a7c7",
+    "ui/src/views/AutogenView.vue": "66039ccc6c860de882cc4c214eb909f213382307bcacb88ebe99bdcad5cf0afd",
+    "ui/src/views/image/TemplateZoneOperations.vue": "017c10020225e7c9c7a52cebac3737da836758d5d4794e0e2a6b996a130b0250",
+    "ui/src/views/image/TemplateZones.vue": "d6736c6122971c624472ee7cb9dd445def62df00d373e32401ee71f400350470",
+    "ui/tests/unit/views/image/TemplateZoneOperations.spec.js": "0e70cbf269b3d0d9d12f3991ae953557ffebf6b63ed50e013f57ba7020d73d8c"
+  },
+  "excludedUpstreamPaths": [
+    "ui/src/components/view/ResourceTags.vue",
+    "ui/src/components/view/AnnotationsTab.vue",
+    "ui/src/utils/resourceTags.js"
+  ],
+  "excludedPathsPreserved": true,
+  "correctiveFollowup": "Registered alert renders empty-copy-target reason; all operation semantics unchanged"
+}

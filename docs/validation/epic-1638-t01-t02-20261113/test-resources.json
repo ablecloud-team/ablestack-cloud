@@ -1,0 +1,20 @@
+{
+  "cluster": "13",
+  "templates": [
+    {
+      "name": "qa-p1-failed-20261113",
+      "id": "437b838b-5543-48e5-8367-899ef4c802da",
+      "result": "404 failure"
+    },
+    {
+      "name": "qa-p1-local-ready-20261113",
+      "id": "113a7b18-5863-49f5-8bad-9b3e68cff550",
+      "result": "local upload ready"
+    },
+    {
+      "name": "qa-p1-slow-20261113",
+      "id": "98f39a29-deb0-4815-951d-642ef84a541e",
+      "result": "accepted then No route to host"
+    }
+  ]
+}

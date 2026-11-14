@@ -1,0 +1,90 @@
+{
+  "implementationHead": "ab5b5a93c65579ad0535ea984b31d89036aee357",
+  "featureChecks": {
+    "uiSuites": 27,
+    "uiTests": 434,
+    "deployedClassAclTests": 14,
+    "deployedClassAsyncContextTests": 3,
+    "productionBuild": "PASS",
+    "markdownlint": "PASS",
+    "gitleaks": "PASS"
+  },
+  "license": {
+    "run": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/43570128536",
+    "status": "FAILURE",
+    "unapproved": 4077,
+    "changedSourceLicenses": {
+      "server/src/main/java/com/cloud/acl/DomainChecker.java": "AL",
+      "server/src/main/java/com/cloud/api/ApiDispatcher.java": "AL",
+      "server/src/test/java/com/cloud/acl/DomainCheckerTemplatePermissionTest.java": "AL",
+      "server/src/test/java/com/cloud/api/ApiDispatcherProjectContextTest.java": "AL",
+      "ui/public/locales/en.json": "EXCLUDED_JSON",
+      "ui/public/locales/ko_KR.json": "EXCLUDED_JSON",
+      "ui/src/components/header/ProjectMenu.vue": "AL",
+      "ui/src/components/view/ImageDeployInstanceButton.vue": "AL",
+      "ui/src/utils/templateSearch.js": "AL",
+      "ui/src/utils/templateVnfSettings.js": "AL",
+      "ui/src/views/AutogenView.vue": "AL",
+      "ui/src/views/image/TemplateVnfSettings.vue": "AL",
+      "ui/src/views/image/TemplateZoneOperations.vue": "AL",
+      "ui/src/views/image/TemplateZones.vue": "AL",
+      "ui/src/views/image/UpdateTemplate.vue": "AL",
+      "ui/src/views/image/UpdateTemplateIsoPermissions.vue": "AL",
+      "ui/tests/unit/components/view/ImageDeployInstanceButton.spec.js": "AL",
+      "ui/tests/unit/utils/templateSearch.spec.js": "AL",
+      "ui/tests/unit/views/AutogenTemplateRead.spec.js": "AL",
+      "ui/tests/unit/views/image/TemplateAvailabilityRead.spec.js": "AL",
+      "ui/tests/unit/views/image/TemplateForms.spec.js": "AL",
+      "ui/tests/unit/views/image/TemplatePermissions.spec.js": "AL",
+      "ui/tests/unit/views/image/TemplateVnfSettings.spec.js": "AL",
+      "ui/tests/unit/views/image/TemplateZoneOperations.spec.js": "AL"
+    },
+    "AL": 22,
+    "excludedJson": 2,
+    "debtIssue": 926
+  },
+  "lintLatestImplementationRun": {
+    "conclusion": "failure",
+    "status": "completed",
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/43570128643",
+    "debtIssue": 1044,
+    "T08ChangedPathsInFailureDiagnostics": [],
+    "failureHooks": [
+      "oxipng",
+      "license insertion baseline files",
+      "executable scripts",
+      "broken symlinks",
+      "EOF",
+      "BOM",
+      "mixed line ending",
+      "trailing whitespace",
+      "codespell",
+      "flake8",
+      "markdownlint"
+    ]
+  },
+  "lastCompletedComparableLint": {
+    "run": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/43562366906",
+    "status": "FAILURE",
+    "baselineHooks": [
+      "BOM",
+      "mixed line endings",
+      "trailing whitespace",
+      "codespell",
+      "flake8",
+      "markdownlint"
+    ],
+    "T08ChangedPathsInFailureDiagnostics": [],
+    "debtIssue": 1044
+  },
+  "mergeConflict": {
+    "run": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/43570128522",
+    "status": "SUCCESS"
+  },
+  "debtIssuesRemainOpen": [
+    926,
+    1044
+  ],
+  "repositoryWideCiGreen": false,
+  "fullMavenClaimed": false
+}

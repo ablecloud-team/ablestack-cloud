@@ -1,0 +1,20 @@
+{
+  "backup": "/var/tmp/epic1638-t06-backend-backup-e89512pj",
+  "originalJarSha256": "341d2e120fd575c2fe6104ac4cab540c2cd4378e972859a3a0c0f8d0d417b85d",
+  "patchedJarSha256": "2f2aa2f44c8c51ce4402d0b1e496853e70efa187809e8854a200c9db334a3dab",
+  "changedEntries": [
+    "org/apache/cloudstack/api/command/admin/template/PrepareTemplateCmd.class",
+    "com/cloud/api/query/dao/TemplateJoinDaoImpl.class",
+    "com/cloud/template/TemplateManagerImpl.class"
+  ],
+  "addedEntries": [
+    "com/cloud/template/TemplatePreparationValidation.class"
+  ],
+  "allOtherEntriesIdentical": true,
+  "oldPid": "2323824",
+  "newPid": "2352863",
+  "active": "active",
+  "databaseChanged": false,
+  "hostAgentsChanged": false,
+  "systemVmsChanged": false
+}

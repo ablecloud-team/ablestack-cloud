@@ -1,0 +1,12 @@
+{
+  "phase": "after-volume-template",
+  "sourceVolumeId": "dff588a0-1aa9-46d7-a297-0dbeab41721c",
+  "logicalBytes": 117440512,
+  "originalLogicalSha256": "6929b434340d837cbc1517eac0dfd3149b80446f46bb715c1e1efc415854815c",
+  "formatUnchanged": true,
+  "logicalSizeUnchanged": true,
+  "compareExitCode": 0,
+  "logicalContentsIdentical": true,
+  "allocationLayoutComparison": false,
+  "output": "Images are identical."
+}

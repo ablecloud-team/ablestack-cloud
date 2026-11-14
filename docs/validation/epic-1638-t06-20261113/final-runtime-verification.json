@@ -1,0 +1,12 @@
+{
+  "runtimeAssetsVerified": 975,
+  "assetMismatches": [],
+  "protectedPreserved": true,
+  "indexSha256": "519581b0826e2236a92a91eab34ea759c8bea044f0ec871357dc1ad2577594b8",
+  "backendJarSha256": "2f2aa2f44c8c51ce4402d0b1e496853e70efa187809e8854a200c9db334a3dab",
+  "moldPid": "2352863",
+  "moldPidPreservedSinceBackendDeploy": true,
+  "moldActive": "active",
+  "fixtureRemoved": true,
+  "operational423SourcePreserved": true
+}

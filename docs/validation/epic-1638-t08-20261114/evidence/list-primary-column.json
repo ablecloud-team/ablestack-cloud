@@ -1,0 +1,17 @@
+[
+  {
+    "html": "<!----><span data-v-140b9d34=\"\" style=\"min-width: 120px;\"><quickview actions=\"[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]\" resource=\"[object Object]\" enabled=\"true\" data-v-140b9d34=\"\" style=\"margin-left: 5px;\"></quickview><!----><span data-v-140b9d34=\"\" style=\"margin-right: 5px;\"><!----><svg class=\"svg-inline--fa fa-debian fa-xl\" aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fab\" data-icon=\"",
+    "text": "systemvmtemplate-x86_64-kvm-Europa-202609091134",
+    "width": 400
+  },
+  {
+    "html": "<!----><span class=\"list-state-with-flatten\" data-v-140b9d34=\"\"><div class=\"template-availability template-availability--compact template-availability--single-line\" title=\"사용 가능\n조회 Zone: 13-Zone\" data-v-8b41e77c=\"\" data-v-140b9d34=\"\"><span class=\"ant-badge ant-badge-status ant-badge-not-a-wrapper\" data-v-8b41e77c=\"\"><span class=\"ant-badge-status-dot ant-badge-status-success\"></span><span class=\"ant-badge-status-text\">사용 가능</span></span><!----><!-",
+    "text": "사용 가능",
+    "width": 140
+  },
+  {
+    "html": "<!---->Debian GNU/Linux 12 (64-bit)<!---->",
+    "text": "Debian GNU/Linux 12 (64-bit)",
+    "width": 180
+  }
+]

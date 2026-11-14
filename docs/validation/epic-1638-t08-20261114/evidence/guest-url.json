@@ -1,0 +1,14 @@
+{
+  "case": "url",
+  "host": "10.10.13.2",
+  "vmId": "5304dae8-a66c-4ac5-a464-41f0fac4450a",
+  "os": "0.6.3",
+  "kernel": "Linux 5.15.0-117-generic x86_64",
+  "marker": "qa-t08-source-20261114",
+  "markerSha256": "42cb6197ed874d1ed24c70c0a42e46ffeeca40b2b43c35a97035ffab92c1c5e6",
+  "markerCreated": true,
+  "fixtureMetadataSourcesAdjusted": true,
+  "sourceHashMatches": true,
+  "consoleDisplayPrepared": true,
+  "credentialSaved": false
+}

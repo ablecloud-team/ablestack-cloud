@@ -17,11 +17,13 @@
 
 <template>
   <span class="header-notice-opener">
+    <label v-if="!isDisabled" :for="projectSelectorId" class="project-accessible-label">{{ $t('label.project') }}</label>
     <infinite-scroll-select
       v-if="!isDisabled"
       v-model:value="selectedProjectId"
       :disabled="loading"
       :aria-busy="loading"
+      :id="projectSelectorId"
       class="project-select"
       :dropdownMatchSelectWidth="false"
       :dropdownStyle="{ width: 'min(420px, calc(100vw - 24px))' }"
@@ -40,6 +42,7 @@ import InfiniteScrollSelect from '@/components/widgets/InfiniteScrollSelect'
 import eventBus from '@/config/eventBus'
 import { sourceToken } from '@/utils/request'
 
+let projectMenuSequence = 0
 export default {
   name: 'ProjectMenu',
   components: {
@@ -47,6 +50,7 @@ export default {
   },
   data () {
     return {
+      projectSelectorId: 'project-selector-' + (++projectMenuSequence),
       selectedProjectId: null,
       loading: false,
       timestamp: new Date().getTime()
@@ -147,4 +151,8 @@ export default {
   right: 1px;
   margin-top: -5px;
 }
+</style>
+
+<style scoped>
+.project-accessible-label { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 </style>

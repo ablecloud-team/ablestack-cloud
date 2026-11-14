@@ -1,0 +1,6 @@
+{
+  "head": "7096f6fc95e223732d1bcabced9a741e76630990",
+  "returnCode": 0,
+  "seconds": 676.4,
+  "nodeOptions": "--openssl-legacy-provider --max-old-space-size=6144"
+}

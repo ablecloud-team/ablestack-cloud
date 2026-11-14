@@ -1,0 +1,41 @@
+{
+  "uiUnit": {
+    "suites": 22,
+    "tests": 342,
+    "passed": true
+  },
+  "runtimeBuildInputTests": {
+    "suites": 2,
+    "tests": 43,
+    "passed": true
+  },
+  "eslintPassed": true,
+  "productionBuild": {
+    "head": "8f631d4095104abb9b2d3bb367da32517e47fd27",
+    "returnCode": 0,
+    "seconds": 679.0
+  },
+  "clipboard": {
+    "result": "PASS",
+    "verifiedBy": "user",
+    "statement": "체크섬 클립보드 복사/붙여넣기 직접 확인했고 이상 없음",
+    "automatedOsClipboardVerificationClaimed": false
+  },
+  "liveUi": {
+    "matrixCases": 6,
+    "allPassed": true,
+    "typeRows": 1,
+    "userAndSystemRuntimeHidden": true,
+    "vnfConditionalTabAndFallbackPassed": true,
+    "sharedfsAndManagementCatalogPassed": true,
+    "sharedVmIsoVolumeLabelsPreserved": true
+  },
+  "cleanup": {
+    "templateId": "09a88b6b-12de-4541-abc1-b5392bc55d66",
+    "jobid": "ea45ccce-531b-4564-836f-bbe391f51ce2",
+    "jobstatus": 1,
+    "success": true,
+    "qaRemaining": 0,
+    "totalTemplates": 46
+  }
+}
