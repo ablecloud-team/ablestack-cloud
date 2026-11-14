@@ -27,8 +27,9 @@ jest.mock('@/utils/request', () => ({ axios: { post: jest.fn() } }))
 jest.mock('@/utils/ssvmProbe', () => ({ probeSsvmCert: jest.fn() }))
 const metadata = Object.fromEntries(['arch', 'checksum', 'sshkeyenabled', 'requireshvm', 'forcks', 'ispublic'].map(key => [key, { description: key }]))
 const context = (C, extra = {}) => {
-  const c = { ...C.data.call({ action: { currentAction: { icon: 'plus-outlined' } } }), apiParams: metadata, resource: { id: 'image', name: 'original', arch: 'x86_64', hypervisor: 'KVM', passwordenabled: false, sshkeyenabled: false, requireshvm: true, forcks: false }, $t: key => key, $emit: jest.fn(), $refs: {}, $nextTick: fn => fn(), $message: { success: jest.fn(), warning: jest.fn() }, $notification: { info: jest.fn() }, $notifyError: jest.fn(), handleRemoveFields: form => ({ ...form }), ...extra }
+  const c = { ...C.data.call({ action: { currentAction: { icon: 'plus-outlined' } } }), apiParams: metadata, resource: { id: 'image', name: 'original', arch: 'x86_64', hypervisor: 'KVM', passwordenabled: false, sshkeyenabled: false, requireshvm: true, forcks: false }, $store: { getters: { userInfo: { id: 'admin', roletype: 'Admin', account: 'admin', domainid: 'root' }, project: {}, apis: { registerTemplate: {}, getUploadParamsForTemplate: {}, updateTemplate: {}, getSharedFileSystemComputeStatus: {} } } }, $t: key => key, $emit: jest.fn(), $refs: {}, $nextTick: fn => fn(), $message: { success: jest.fn(), warning: jest.fn() }, $notification: { info: jest.fn() }, $notifyError: jest.fn(), handleRemoveFields: form => ({ ...form }), ...extra }
   Object.entries(C.methods).forEach(([key, fn]) => { c[key] = fn.bind(c) })
+  for (const name of ['typeContext', 'allowedTemplateTypes', 'isSharedFsRegistration', 'permittedTemplateTypes']) if (C.computed[name]) Object.defineProperty(c, name, { get: () => C.computed[name].call(c) })
   c.initForm()
   c.formRef.value = { validate: jest.fn().mockResolvedValue(), scrollToField: jest.fn() }
   return c
@@ -102,4 +103,20 @@ test('normal owner edit reads details without the admin-only filter', async () =
   getAPI.mockResolvedValue({ listtemplatesresponse: { template: [{ id: 'image', details: { rootDiskController: 'virtio' } }] } })
   await c.fetchDetails(); await Promise.resolve()
   expect(getAPI.mock.calls[0][1]).toEqual({ id: 'image', templatefilter: 'executable' })
+})
+
+test('local upload cannot request unsupported SHAREDFS upload parameters even if the model is forced', async () => {
+  const c = context(Register, { currentForm: 'Upload' }); c.form.templatetype = 'SHAREDFS'; await c.handleSubmit(); expect(getAPI).not.toHaveBeenCalled(); expect(postAPI).not.toHaveBeenCalled(); expect(c.submitError).toContain('sharedfs.upload')
+})
+test('edit cannot convert a USER template or change an existing SHAREDFS profile', async () => {
+  const c = context(Template, { isAdmin: true }); c.resource.templatetype = 'USER'; c.form.templatetype = 'SHAREDFS'; await c.handleSubmit(); expect(postAPI).not.toHaveBeenCalled(); expect(c.submitError).toContain('new.registration')
+  c.resource.templatetype = 'SHAREDFS'; c.form.templatetype = 'USER'; await c.handleSubmit(); expect(postAPI).not.toHaveBeenCalled(); expect(c.submitError).toContain('immutable')
+  c.form.templatetype = 'SHAREDFS'; c.form.arch = 'aarch64'; await c.handleSubmit(); expect(postAPI).not.toHaveBeenCalled(); expect(c.submitError).toContain('immutable')
+})
+test('selecting supported SHAREDFS visibly pins the required downloaded private image profile', () => {
+  const c = context(Register); c.form.templatetype = 'SHAREDFS'; c.form.groupenabled = ['ispublic', 'isfeatured', 'isextractable', 'sshkeyenabled']; c.form.directdownload = true; c.onTemplateTypeChange(); expect(c.form).toMatchObject({ arch: 'x86_64', format: 'QCOW2', directdownload: false }); expect(c.form.groupenabled).toEqual(['sshkeyenabled', 'isdynamicallyscalable'])
+})
+
+test('a SHAREDFS Zone refresh restores pinned KVM fields instead of leaving disabled empty controls', async () => {
+  const c = context(Register); c.form.templatetype = 'SHAREDFS'; c.rootDisk.opts = []; c.fetchFormat = jest.fn(); c.fetchRootDisk = jest.fn(); c.fetchNicAdapterTypes = jest.fn(); c.fetchKeyboardType = jest.fn(); getAPI.mockResolvedValue({ listhypervisorsresponse: { hypervisor: [{ name: 'KVM' }] } }); c.fetchHyperVisor({ zoneid: 'zone' }); await new Promise(resolve => setTimeout(resolve, 0)); expect(c.form.hypervisor).toBe(0); expect(c.form.templatetype).toBe('SHAREDFS'); expect(c.form.format).toBe('QCOW2'); expect(c.form.arch).toBe('x86_64')
 })

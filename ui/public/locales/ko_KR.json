@@ -11608,5 +11608,17 @@
   "message.template.settings.changed": "설정이 다른 곳에서 변경됐습니다. 새로 조회한 뒤 다시 시도하세요.",
   "message.template.settings.failed": "설정을 저장하지 못했습니다. 입력 내용을 확인한 뒤 다시 시도하세요.",
   "message.template.settings.unknown": "저장 결과를 확인하지 못했습니다. 새로고침으로 결과를 확인하세요.",
-  "message.template.settings.not.applied": "설정이 적용되지 않았습니다. 입력 내용을 확인한 뒤 다시 저장할 수 있습니다."
+  "message.template.settings.not.applied": "설정이 적용되지 않았습니다. 입력 내용을 확인한 뒤 다시 저장할 수 있습니다.",
+  "label.template.type.select": "템플릿 유형 선택",
+  "message.template.type.help": "유형에 따라 지원하는 등록 방식과 이미지 조건이 다릅니다. 사용할 수 없는 유형의 사유를 확인하세요.",
+  "message.template.type.invalid": "현재 등록 방식과 권한에서 지원하지 않는 템플릿 유형입니다.",
+  "message.template.type.sharedfs.root": "Root 관리자 전용",
+  "message.template.type.sharedfs.unsupported": "현재 API에서 지원하지 않음",
+  "message.template.type.sharedfs.personal": "기본 보기에서 등록",
+  "message.template.type.sharedfs.owner": "Root 관리자 소유로 등록",
+  "message.template.type.sharedfs.kvm": "KVM을 먼저 선택",
+  "message.template.type.sharedfs.zone": "전체 Zone 대신 특정 Zone 선택",
+  "message.template.type.sharedfs.upload": "URL 등록으로 지원",
+  "message.template.type.sharedfs.new.registration": "신규 URL 등록 필요",
+  "message.template.type.sharedfs.immutable": "SHAREDFS의 유형과 이미지 아키텍처는 변경할 수 없습니다."
 }

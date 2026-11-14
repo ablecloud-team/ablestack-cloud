@@ -20,7 +20,7 @@
     <div class="template-tab-toolbar">
       <a-button :loading="fetchLoading" :disabled="operationActive" @click="fetchData"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
       <a-button v-if="'deleteTemplate' in $store.getters.apis && isActionsOnTemplatePermitted" danger :disabled="operationActive || !selectedRowKeys.length" @click="bulkActionConfirmation"><template #icon><delete-outlined /></template>{{ $t('label.action.bulk.delete.templates') }}</a-button>
-      <span v-if="selectedRowKeys.length" role="status">{{ $t('label.template.selected.count', {count:selectedRowKeys.length}) }}</span>
+      <span class="zone-selection-status" role="status" :aria-hidden="!selectedRowKeys.length" :style="{visibility:selectedRowKeys.length?'visible':'hidden'}">{{ $t('label.template.selected.count', {count:selectedRowKeys.length}) }}</span>
     </div>
     <a-alert v-if="listRefreshFailed" type="warning" show-icon :message="$t('message.list.refresh.stale')" />
     <a-table

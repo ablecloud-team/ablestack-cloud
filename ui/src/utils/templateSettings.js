@@ -33,14 +33,14 @@ export function templateSettingsParams (resource, action, name, value) {
   name = String(name || '').trim()
   if (!name || (action !== 'delete' && !String(value ?? '').trim())) throw new Error('required')
   if (templateSettingRestriction(resource, name)) throw new Error('readonly')
-  const details = { ...(resource.details || {}) }
-  const exists = Object.prototype.hasOwnProperty.call(details, name)
+  const details = new Map(Object.entries(resource.details || {}))
+  const exists = details.has(name)
   if ((action === 'add' && exists) || (action !== 'add' && !exists)) throw new Error(action === 'add' ? 'duplicate' : 'changed')
-  if (action === 'delete') delete details[name]
-  else details[name] = value
+  if (action === 'delete') details.delete(name)
+  else details.set(name, value)
   // updateTemplate replaces the map. Preserve every unrelated entry, including
   // unchanged read-only values; only a genuinely empty map may use cleanup.
-  return Object.keys(details).length
-    ? Object.fromEntries([['id', resource.id], ...Object.entries(details).map(([key, val]) => ['details[0].' + key, val])])
+  return details.size
+    ? Object.fromEntries([['id', resource.id], ...Array.from(details).map(([key, val]) => ['details[0].' + key, val])])
     : { id: resource.id, cleanupdetails: true }
 }

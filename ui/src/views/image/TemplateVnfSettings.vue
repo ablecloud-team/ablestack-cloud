@@ -26,15 +26,17 @@
         <a-input-search v-model:value="nicSearch" :placeholder="$t('label.template.vnf.nic.search')" @change="nicPage=1" />
       </div>
       <a-table size="small" :loading="loading" :columns="columns" :data-source="visibleNics" :pagination="false" :row-key="record=>record.deviceid" :scroll="{x:850}">
-        <template #required="{record}">{{ $t(record.required?'label.yes':'label.no') }}</template>
-        <template #management="{record}">{{ $t(record.management?'label.yes':'label.no') }}</template>
-        <template #bodyCell="{column,record}"><a-tooltip v-if="['name','description'].includes(column.key)" :title="record[column.key]"><span class="template-cell-value">{{ record[column.key] || '—' }}</span></a-tooltip></template>
-        <template #actions="{record}"><div v-if="canWrite" class="template-row-actions">
+        <template #bodyCell="{column,record}">
+          <span v-if="['required','management'].includes(column.key)">{{ $t(record[column.key]?'label.yes':'label.no') }}</span>
+          <a-tooltip v-else-if="['name','description'].includes(column.key)" :title="record[column.key]"><span class="template-cell-value">{{ record[column.key] || '—' }}</span></a-tooltip>
+          <template v-else-if="column.key==='actions'"><div v-if="canWrite" class="template-row-actions">
           <a-button type="link" size="small" :disabled="updateBusy || editorOpen" @click="onShowEditVnfNic(record,$event)">{{ $t('label.edit') }}</a-button>
           <tooltip-button :tooltip="$t(nicSearch?'message.template.vnf.move.filtered':canMove(record,-1)?'label.move.up.row':'message.vnf.nic.move.boundary')" icon="caret-up-outlined" :disabled="updateBusy || editorOpen || !canMove(record,-1)" @onClick="moveVnfNicUp(record)" />
           <tooltip-button :tooltip="$t(nicSearch?'message.template.vnf.move.filtered':canMove(record,1)?'label.move.down.row':'message.vnf.nic.move.boundary')" icon="caret-down-outlined" :disabled="updateBusy || editorOpen || !canMove(record,1)" @onClick="moveVnfNicDown(record)" />
           <a-popconfirm :title="$t('message.vnf.nic.delete.confirm',{name:record.name,id:record.deviceid})" :disabled="updateBusy || editorOpen" :ok-text="$t('label.yes')" :cancel-text="$t('label.no')" @confirm="deleteVnfNic(record)"><tooltip-button :tooltip="$t('label.vnf.nic.delete')" icon="delete-outlined" :danger="true" :disabled="updateBusy || editorOpen" /></a-popconfirm>
         </div></template>
+          <span v-else>{{ record[column.key] }}</span>
+        </template>
       </a-table>
       <div class="template-tab-pagination"><a-pagination v-model:current="nicPage" v-model:page-size="nicPageSize" :total="filteredNics.length" show-size-changer :page-size-options="['10','20','50']" /></div>
     </section>
@@ -143,7 +145,7 @@ export default {
     }
   },
   created () {
-    this.columns = ['deviceid', 'name', 'required', 'management', 'description', 'actions'].map(key => ({ key, dataIndex: key, title: this.$t({ deviceid: 'label.deviceid', name: 'label.name', required: 'label.required', management: 'label.vnf.nic.management', description: 'label.description', actions: 'label.action' }[key]), ...(['required', 'management', 'actions'].includes(key) ? { slots: { customRender: key } } : {}), ...({ deviceid: 80, name: 180, required: 90, management: 100, description: 220, actions: 200 }[key] ? { width: { deviceid: 80, name: 180, required: 90, management: 100, description: 220, actions: 200 }[key] } : {}) }))
+    this.columns = ['deviceid', 'name', 'required', 'management', 'description', 'actions'].map(key => ({ key, dataIndex: key, title: this.$t({ deviceid: 'label.deviceid', name: 'label.name', required: 'label.required', management: 'label.vnf.nic.management', description: 'label.description', actions: 'label.action' }[key]), ...({ deviceid: 80, name: 180, required: 90, management: 100, description: 220, actions: 200 }[key] ? { width: { deviceid: 80, name: 180, required: 90, management: 100, description: 220, actions: 200 }[key] } : {}) }))
     this.initForm(); this.loadOptions()
   },
   beforeUnmount () { this.invalidate() },

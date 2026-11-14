@@ -160,9 +160,9 @@
           </template>
           <a-switch v-model:checked="form.forcks" />
         </a-form-item>
-        <a-form-item name="templatetype" ref="templatetype" v-if="isAdmin">
+        <a-form-item name="templatetype" ref="templatetype" v-if="isAdmin" :extra="resource.templatetype==='SHAREDFS' ? $t('message.template.type.sharedfs.immutable') : undefined">
           <template #label>
-            <tooltip-label :title="$t('label.templatetype')" :tooltip="apiParams.templatetype.description"/>
+            <tooltip-label :title="$t('label.templatetype')" :tooltip="$t('message.template.type.help')"/>
           </template>
           <span v-if="selectedTemplateType ==='SYSTEM'">
             <a-alert type="warning">
@@ -179,10 +179,11 @@
               return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }"
             v-model:value="form.templatetype"
-            :placeholder="apiParams.templatetype.description"
+            :placeholder="$t('label.template.type.select')"
+            :disabled="resource.templatetype==='SHAREDFS'"
             @change="val => { selectedTemplateType = val }">
-            <a-select-option v-for="opt in templatetypes" :key="opt.id" :label="opt.name || opt.description">
-              {{ opt.name || opt.description }}
+            <a-select-option v-for="opt in permittedTemplateTypes" :key="opt.id" :label="opt.name" :disabled="opt.disabled">
+              <a-tooltip :title="opt.reason ? $t(opt.reason) : undefined"><span>{{ opt.name }}<span v-if="opt.reason"> · {{ $t(opt.reason) }}</span></span></a-tooltip>
             </a-select-option>
           </a-select>
         </a-form-item>
@@ -209,6 +210,7 @@ v-if="apiParams.arch">
               return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }"
             v-model:value="form.arch"
+            :disabled="resource.templatetype==='SHAREDFS'"
             :placeholder="apiParams.arch.description">
             <a-select-option v-for="opt in architectureTypes.opts" :key="opt.id" :label="opt.name || opt.description">
               {{ opt.name || opt.description }}
@@ -229,6 +231,7 @@ v-if="apiParams.arch">
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
+import { templateTypeOptions, templateTypeError } from '@/utils/templateTypePolicy'
 import { readTemplateResource } from '@/utils/templateSearch'
 import { getAPI, postAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -248,7 +251,6 @@ export default {
   },
   data () {
     return {
-      templatetypes: [],
       emptyAllowedFields: ['templatetag'],
       rootDisk: {},
       nicAdapterType: {},
@@ -271,6 +273,8 @@ export default {
   },
   mounted () { this.$nextTick(() => { const input = this.$refs.content?.querySelector('input:not([disabled])'); if (input) input.focus() }) },
   computed: {
+    typeContext () { return { operation: 'update', sourceType: this.resource.templatetype, hypervisor: this.resource.hypervisor, user: this.$store.getters.userInfo, apis: this.$store.getters.apis, project: this.$store.getters.project } },
+    permittedTemplateTypes () { return templateTypeOptions(this.typeContext) },
     canLinkUserData () { return ['listUserData', 'linkUserDataToTemplate'].every(api => api in this.$store.getters.apis) },
     blocksNavigation () { return this.loading }
   },
@@ -281,7 +285,6 @@ export default {
   },
   created () {
     this.initForm()
-    this.templatetypes = this.$fetchTemplateTypes(this.resource.hypervisor)
     this.rootDisk.loading = false
     this.rootDisk.opts = []
     this.nicAdapterType.loading = false
@@ -522,6 +525,8 @@ export default {
         this.loading = false
         return
       }
+      const policyError = templateTypeError(this.typeContext, this.form.templatetype) || (this.resource.templatetype === 'SHAREDFS' && this.form.arch && this.form.arch !== this.resource.arch ? 'message.template.type.sharedfs.immutable' : '')
+      if (policyError) { this.submitError = this.$t(policyError); this.loading = false; this.$nextTick(() => { const alert = this.$refs.error?.$el; if (alert) { alert.scrollIntoView({ block: 'nearest' }); alert.focus({ preventScroll: true }) } }); return }
       const values = toRaw(this.form)
       const params = { id: this.resource.id }
       if (this.details) Object.keys(this.details).forEach(detail => { params['details[0].' + detail] = this.details[detail] })

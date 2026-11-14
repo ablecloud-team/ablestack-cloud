@@ -11600,5 +11600,17 @@
   "message.template.settings.changed": "Settings changed elsewhere. Refresh before trying again.",
   "message.template.settings.failed": "Could not save the setting. Review the input and try again.",
   "message.template.settings.unknown": "The save result is unknown. Refresh to check the result.",
-  "message.template.settings.not.applied": "The setting was not applied. Review the input before saving again."
+  "message.template.settings.not.applied": "The setting was not applied. Review the input before saving again.",
+  "label.template.type.select": "Select template type",
+  "message.template.type.help": "Supported registration methods and image requirements depend on the type. Check the reason for unavailable types.",
+  "message.template.type.invalid": "This template type is unavailable for the current operation and permissions.",
+  "message.template.type.sharedfs.root": "Root administrator only",
+  "message.template.type.sharedfs.unsupported": "Unsupported by the current API",
+  "message.template.type.sharedfs.personal": "Register in the default view",
+  "message.template.type.sharedfs.owner": "Register under a Root administrator",
+  "message.template.type.sharedfs.kvm": "Select KVM first",
+  "message.template.type.sharedfs.zone": "Select specific Zones instead of all Zones",
+  "message.template.type.sharedfs.upload": "Use URL registration",
+  "message.template.type.sharedfs.new.registration": "Requires new URL registration",
+  "message.template.type.sharedfs.immutable": "The SHAREDFS type and image architecture cannot be changed."
 }

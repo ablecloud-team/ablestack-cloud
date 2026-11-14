@@ -97,7 +97,7 @@ export default {
     restriction (name) { return templateSettingRestriction(this.source, name) },
     editable (name) { return this.canWrite && this.loaded && !this.readError && !this.optionsFailed && !this.busy && !this.dialog && !this.restriction(name) },
     invalidate () { this.epoch++; this.source = {}; this.options = {}; this.loaded = false; this.fetching = false; this.busy = false; this.dialog = ''; this.draftName = this.draftValue = this.dialogError = ''; this.unknownOutcome = false; this.submittedParams = null; this.trigger = null; this.search = ''; this.page = 1 },
-    async read () { const json = await readTemplateResource(getAPI, { id: this.resource.id }, this.$store.getters); const row = json.listtemplatesresponse?.template?.find(r => r.id === this.resource.id); if (!row) throw new Error('missing'); return { ...row, details: { ...(row.details || {}) } } },
+    async read () { const scope = this.scope; const id = this.resource.id; const json = await readTemplateResource(getAPI, { id }, this.$store.getters, () => scope === this.scope); const row = json.listtemplatesresponse?.template?.find(r => r.id === this.resource.id); if (!row) throw new Error('missing'); return { ...row, details: { ...(row.details || {}) } } },
     async refresh () {
       if (this.fetching || this.busy || this.dialog || !this.resource.id) return
       const epoch = ++this.epoch; const scope = this.scope; this.fetching = true; this.readError = ''
@@ -122,7 +122,7 @@ export default {
         const json = await postAPI('updateTemplate', params, { preserveOnFailure: true, timeout: 30000 }); if (!current()) return
         const row = json.updatetemplateresponse?.template
         if (!row || row.id !== this.resource.id) { this.unknownOutcome = true; this.dialogError = 'message.template.settings.unknown'; return }
-        this.source = { ...row, details: { ...(row.details || {}) } }; this.loaded = true; this.busy = false; this.close(); this.$emit('refresh')
+        this.source = { ...this.source, ...row, details: { ...(row.details || {}) } }; this.loaded = true; this.busy = false; this.close(); this.$emit('refresh')
       } catch (e) { if (current()) { this.unknownOutcome = !!this.submittedParams && (!e.response || Number(e.response.status) >= 500); this.dialogError = this.unknownOutcome ? 'message.template.settings.unknown' : 'message.template.settings.failed' } } finally { if (current()) this.busy = false }
     },
     async checkOutcome () {

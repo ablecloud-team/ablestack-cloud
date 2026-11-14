@@ -21,8 +21,8 @@ import { postAPI } from '@/api'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 const deferred = () => { let release; const promise = new Promise(resolve => { release = resolve }); return { promise, resolve: release } }
 const context = C => {
-  const c = { resource: { id: 'image-uuid', name: 'image', account: 'admin', domainid: 'domain', userdataid: 'old', userdatapolicy: 'ALLOWOVERRIDE' }, form: { name: 'retained' }, formRef: { value: { validate: jest.fn(() => Promise.resolve()), scrollToField: jest.fn() } }, detailsFields: [], emptyAllowedFields: [], canLinkUserData: true, userDataSelectionReady: true, loading: false, userdataid: 'new', userdatapolicy: 'APPEND', $refs: {}, $nextTick: fn => fn(), $emit: jest.fn(), $t: key => key, $message: { success: jest.fn() }, isValidValueForKey: () => true }
-  Object.entries(C.methods).forEach(([key, fn]) => { c[key] = fn.bind(c) }); return c
+  const c = { resource: { id: 'image-uuid', name: 'image', account: 'admin', domainid: 'domain', userdataid: 'old', userdatapolicy: 'ALLOWOVERRIDE' }, form: { name: 'retained' }, formRef: { value: { validate: jest.fn(() => Promise.resolve()), scrollToField: jest.fn() } }, detailsFields: [], emptyAllowedFields: [], canLinkUserData: true, userDataSelectionReady: true, loading: false, userdataid: 'new', userdatapolicy: 'APPEND', $store: { getters: { userInfo: { id: 'admin', roletype: 'Admin', account: 'admin', domainid: 'domain' }, project: {}, apis: { updateTemplate: {} } } }, $refs: {}, $nextTick: fn => fn(), $emit: jest.fn(), $t: key => key, $message: { success: jest.fn() }, isValidValueForKey: () => true }
+  Object.entries(C.methods).forEach(([key, fn]) => { c[key] = fn.bind(c) }); if (C.computed?.typeContext)Object.defineProperty(c, 'typeContext', { get: () => C.computed.typeContext.call(c) }); return c
 }
 beforeEach(() => { jest.clearAllMocks(); postAPI.mockReset() })
 describe.each([[Template, 'updateTemplate'], [ISO, 'updateIso']])('%s user-data linkage', (C, api) => {
