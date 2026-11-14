@@ -1,0 +1,23 @@
+{
+  "requests": [
+    {
+      "params": {
+        "command": "restartVPC",
+        "response": "json",
+        "id": "023d7c27-a68e-4eec-9e57-7f8cc620c92b",
+        "cleanup": "true",
+        "makeredundant": "true",
+        "livepatch": "false",
+        "customjobid": "228709f0-2286-4d17-9c4f-d3d14474e5bd"
+      },
+      "http": 200,
+      "body": {
+        "restartvpcresponse": {
+          "jobid": "228709f0-2286-4d17-9c4f-d3d14474e5bd"
+        }
+      }
+    }
+  ],
+  "cursor": 13340,
+  "gaps": false
+}

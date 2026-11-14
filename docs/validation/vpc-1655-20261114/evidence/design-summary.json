@@ -1,0 +1,38 @@
+{
+  "31": {
+    "beforeUiPostCount": 2,
+    "beforeUiFinalJobs": [
+      1,
+      2
+    ],
+    "designRestartCalls": 6,
+    "designSuccessfulJobs": 6,
+    "rolePositiveRestartCalls": 1,
+    "foreignRoleRestartRejected": 1,
+    "foreignRoleLookupEmpty": 1,
+    "designAndRoleCalls": 9,
+    "actualConversionRouters": [
+      "510452ed-2462-47b1-9575-7800fa9516a9",
+      "841701f7-f648-47bf-ae5c-b571b9d3c46f"
+    ],
+    "convertedOfferingId": "c92622b0-692f-4d0e-a948-6db0f6ec6159"
+  },
+  "32": {
+    "beforeUiPostCount": 2,
+    "beforeUiFinalJobs": [
+      1,
+      1
+    ],
+    "designRestartCalls": 6,
+    "designSuccessfulJobs": 6,
+    "rolePositiveRestartCalls": 1,
+    "foreignRoleRestartRejected": 1,
+    "foreignRoleLookupEmpty": 1,
+    "designAndRoleCalls": 9,
+    "actualConversionRouters": [
+      "181aa712-3343-42d6-9724-c8c742419bb9",
+      "0039e6c6-290b-4431-95d7-87c3f7770984"
+    ],
+    "convertedOfferingId": "0f0ab89c-f3e9-4578-add9-3cb2530c70b6"
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "license": {
+    "conclusion": "failure",
+    "headSha": "281e9758c04137f42475ca3742acf34f3f0ba339",
+    "status": "completed",
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/43563830851",
+    "relevantLines": [
+      "4079 Unknown Licenses",
+      "  AL    ui/src/utils/vpcRestart.js",
+      "  AL    ui/src/config/section/network.js",
+      "  AL    ui/src/views/AutogenView.vue",
+      "  AL    ui/src/views/network/RestartVpc.vue",
+      "  AL    ui/tests/unit/utils/vpcRestart.spec.js",
+      "  AL    ui/tests/unit/views/network/RestartVpc.spec.js",
+      "  AL    docs/validation/vpc-1655-20261114/DESIGN.ko.md"
+    ]
+  },
+  "conflict": {
+    "conclusion": "success",
+    "headSha": "281e9758c04137f42475ca3742acf34f3f0ba339",
+    "status": "completed",
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/43563830885"
+  },
+  "lint": {
+    "conclusion": "failure",
+    "headSha": "281e9758c04137f42475ca3742acf34f3f0ba339",
+    "status": "completed",
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/43563830839",
+    "failedHooks": [
+      "oxipng",
+      "insert-license",
+      "check-shebang-scripts-are-executable",
+      "check-symlinks",
+      "end-of-file-fixer",
+      "fix-byte-order-marker",
+      "mixed-line-ending",
+      "trailing-whitespace",
+      "codespell",
+      "flake8",
+      "markdownlint"
+    ],
+    "restartVueInLicenseHook": true
+  },
+  "priorInterruptedBuilds": {
+    "initial-7142": {
+      "source": "7142c37347cf2bf3e3e6fa0b7a10264bdf0c3e89",
+      "exit": -15,
+      "seconds": 708.5,
+      "node": "v20.20.2",
+      "npm": "10.8.2",
+      "nodeOptions": "--openssl-legacy-provider --max-old-space-size=8192",
+      "sourceUiClean": true,
+      "fullCloudBuild": false,
+      "changedFiles": {
+        "ui/public/locales/en.json": "565a91327076d44582fed669bfdcacae605ff4e4741b864cfd700231acf61877",
+        "ui/public/locales/ko_KR.json": "63b1fe05b13fb659d13c066730ffb4c15d76a7ea91a43c656f016436a9783fe0",
+        "ui/src/config/section/network.js": "9d02cab3b800ed73fdab6b21f9f98bd19a710808855a5a2332ba2f3df4449270",
+        "ui/src/utils/vpcRestart.js": "e2c7ca95c7b585dd63493b132d5e5cd7704619ae1bb743379382163120dbfe13",
+        "ui/src/views/AutogenView.vue": "6b05f15f8f64ad51cf57ab3eda59e027f202745d25ae7113b80fc956f60dfe90",
+        "ui/src/views/network/RestartVpc.vue": "b9e902f418111500f7ddb2c87c8d66985ba036ea40a1b73b52840fbf9d39630b",
+        "ui/tests/unit/utils/vpcRestart.spec.js": "2c5ee586bb62a38eb0a939a2e57cf0be6020251ee9c6394b158822db7a0f9847",
+        "ui/tests/unit/views/network/RestartVpc.spec.js": "3ebf3267d9b9921bd44a0e2e38d473b70609fa79793ce4c3ddbc5e2306b7c9e3"
+      },
+      "lockfileSha256": "23379939285231d360907e8d7242206efd5359654b9903614788040680133ffc"
+    },
+    "initial-1ec": {
+      "source": "1ec052df7defc830d1bc3f560daa5257469ba7bb",
+      "exit": -15,
+      "seconds": 557.0,
+      "node": "v20.20.2",
+      "npm": "10.8.2",
+      "nodeOptions": "--openssl-legacy-provider --max-old-space-size=8192",
+      "sourceUiClean": true,
+      "fullCloudBuild": false,
+      "changedFiles": {
+        "ui/public/locales/en.json": "565a91327076d44582fed669bfdcacae605ff4e4741b864cfd700231acf61877",
+        "ui/public/locales/ko_KR.json": "63b1fe05b13fb659d13c066730ffb4c15d76a7ea91a43c656f016436a9783fe0",
+        "ui/src/config/section/network.js": "9d02cab3b800ed73fdab6b21f9f98bd19a710808855a5a2332ba2f3df4449270",
+        "ui/src/utils/vpcRestart.js": "e2c7ca95c7b585dd63493b132d5e5cd7704619ae1bb743379382163120dbfe13",
+        "ui/src/views/AutogenView.vue": "6b05f15f8f64ad51cf57ab3eda59e027f202745d25ae7113b80fc956f60dfe90",
+        "ui/src/views/network/RestartVpc.vue": "c7479b126e13a536ee6800e6c7852ea51e050ddd5a7f967fd229f5660350cf5d",
+        "ui/tests/unit/utils/vpcRestart.spec.js": "2c5ee586bb62a38eb0a939a2e57cf0be6020251ee9c6394b158822db7a0f9847",
+        "ui/tests/unit/views/network/RestartVpc.spec.js": "919d06f9781fad20765cd803aa477a9fd86e275877ec740707b748f6617b7717"
+      },
+      "lockfileSha256": "23379939285231d360907e8d7242206efd5359654b9903614788040680133ffc"
+    }
+  }
+}

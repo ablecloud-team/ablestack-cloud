@@ -1,0 +1,12 @@
+{
+  "markdownlint": "0.45.0 passed",
+  "codespell": "2.4.2 passed",
+  "gitDiffCheck": "passed",
+  "utf8LfJsonValidation": true,
+  "secretMatches": 0,
+  "sensitiveCredentialKeys": 0,
+  "textFilesScanned": 88,
+  "styleRowsPassed": 12,
+  "preservationKindsPerCluster": 12,
+  "source": "281e9758c04137f42475ca3742acf34f3f0ba339"
+}

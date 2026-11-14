@@ -1,0 +1,878 @@
+[
+  {
+    "cluster": 31,
+    "theme": "light",
+    "width": 1280,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgb(234, 244, 255)",
+          "box": {
+            "bottom": 234,
+            "clientHeight": 60,
+            "clientWidth": 890,
+            "height": 62,
+            "right": 1081,
+            "scrollHeight": 60,
+            "scrollTop": 0,
+            "scrollWidth": 890,
+            "width": 892,
+            "x": 189,
+            "y": 172
+          },
+          "color": "rgb(11, 59, 102)",
+          "text": "최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오."
+        }
+      ],
+      "body": {
+        "bottom": 800,
+        "clientHeight": 710,
+        "clientWidth": 948,
+        "height": 710,
+        "right": 1119,
+        "scrollHeight": 744,
+        "scrollTop": 0,
+        "scrollWidth": 948,
+        "width": 958,
+        "x": 161,
+        "y": 90
+      },
+      "content": {
+        "bottom": 866,
+        "clientHeight": 830,
+        "clientWidth": 958,
+        "height": 832,
+        "right": 1120,
+        "scrollHeight": 830,
+        "scrollTop": 0,
+        "scrollWidth": 958,
+        "width": 960,
+        "x": 160,
+        "y": 34
+      },
+      "dark": false,
+      "footer": {
+        "bottom": 865,
+        "clientHeight": 64,
+        "clientWidth": 958,
+        "height": 65,
+        "right": 1119,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 958,
+        "width": 958,
+        "x": 161,
+        "y": 800
+      },
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    },
+    "pass": true,
+    "screenshot": "31-light-1280.jpg"
+  },
+  {
+    "cluster": 31,
+    "theme": "light",
+    "width": 768,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgb(234, 244, 255)",
+          "box": {
+            "bottom": 256,
+            "clientHeight": 60,
+            "clientWidth": 650,
+            "height": 62,
+            "right": 705,
+            "scrollHeight": 60,
+            "scrollTop": 0,
+            "scrollWidth": 650,
+            "width": 652,
+            "x": 53,
+            "y": 194
+          },
+          "color": "rgb(11, 59, 102)",
+          "text": "최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오."
+        }
+      ],
+      "body": {
+        "bottom": 800,
+        "clientHeight": 710,
+        "clientWidth": 708,
+        "height": 710,
+        "right": 743,
+        "scrollHeight": 898,
+        "scrollTop": 0,
+        "scrollWidth": 708,
+        "width": 718,
+        "x": 25,
+        "y": 90
+      },
+      "content": {
+        "bottom": 866,
+        "clientHeight": 830,
+        "clientWidth": 718,
+        "height": 832,
+        "right": 744,
+        "scrollHeight": 830,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 720,
+        "x": 24,
+        "y": 34
+      },
+      "dark": false,
+      "footer": {
+        "bottom": 865,
+        "clientHeight": 64,
+        "clientWidth": 718,
+        "height": 65,
+        "right": 743,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 718,
+        "x": 25,
+        "y": 800
+      },
+      "viewport": {
+        "height": 900,
+        "width": 768
+      }
+    },
+    "pass": true,
+    "screenshot": "31-light-768.jpg"
+  },
+  {
+    "cluster": 31,
+    "theme": "light",
+    "width": 360,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgb(234, 244, 255)",
+          "box": {
+            "bottom": 336,
+            "clientHeight": 126,
+            "clientWidth": 290,
+            "height": 128,
+            "right": 321,
+            "scrollHeight": 126,
+            "scrollTop": 0,
+            "scrollWidth": 290,
+            "width": 292,
+            "x": 29,
+            "y": 208
+          },
+          "color": "rgb(11, 59, 102)",
+          "text": "최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오."
+        }
+      ],
+      "body": {
+        "bottom": 822,
+        "clientHeight": 754,
+        "clientWidth": 324,
+        "height": 754,
+        "right": 347,
+        "scrollHeight": 1490,
+        "scrollTop": 0,
+        "scrollWidth": 324,
+        "width": 334,
+        "x": 13,
+        "y": 68
+      },
+      "content": {
+        "bottom": 888,
+        "clientHeight": 874,
+        "clientWidth": 334,
+        "height": 876,
+        "right": 348,
+        "scrollHeight": 874,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 336,
+        "x": 12,
+        "y": 12
+      },
+      "dark": false,
+      "footer": {
+        "bottom": 887,
+        "clientHeight": 64,
+        "clientWidth": 334,
+        "height": 65,
+        "right": 347,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 334,
+        "x": 13,
+        "y": 822
+      },
+      "viewport": {
+        "height": 900,
+        "width": 360
+      }
+    },
+    "pass": true,
+    "screenshot": "31-light-360.jpg"
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "width": 1280,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgb(234, 244, 255)",
+          "box": {
+            "bottom": 234,
+            "clientHeight": 60,
+            "clientWidth": 890,
+            "height": 62,
+            "right": 1081,
+            "scrollHeight": 60,
+            "scrollTop": 0,
+            "scrollWidth": 890,
+            "width": 892,
+            "x": 189,
+            "y": 172
+          },
+          "color": "rgb(11, 59, 102)",
+          "text": "최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오."
+        }
+      ],
+      "body": {
+        "bottom": 800,
+        "clientHeight": 710,
+        "clientWidth": 948,
+        "height": 710,
+        "right": 1119,
+        "scrollHeight": 744,
+        "scrollTop": 0,
+        "scrollWidth": 948,
+        "width": 958,
+        "x": 161,
+        "y": 90
+      },
+      "content": {
+        "bottom": 866,
+        "clientHeight": 830,
+        "clientWidth": 958,
+        "height": 832,
+        "right": 1120,
+        "scrollHeight": 830,
+        "scrollTop": 0,
+        "scrollWidth": 958,
+        "width": 960,
+        "x": 160,
+        "y": 34
+      },
+      "dark": false,
+      "footer": {
+        "bottom": 865,
+        "clientHeight": 64,
+        "clientWidth": 958,
+        "height": 65,
+        "right": 1119,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 958,
+        "width": 958,
+        "x": 161,
+        "y": 800
+      },
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    },
+    "pass": true,
+    "screenshot": "32-light-1280.jpg"
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "width": 768,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgb(234, 244, 255)",
+          "box": {
+            "bottom": 256,
+            "clientHeight": 60,
+            "clientWidth": 650,
+            "height": 62,
+            "right": 705,
+            "scrollHeight": 60,
+            "scrollTop": 0,
+            "scrollWidth": 650,
+            "width": 652,
+            "x": 53,
+            "y": 194
+          },
+          "color": "rgb(11, 59, 102)",
+          "text": "최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오."
+        }
+      ],
+      "body": {
+        "bottom": 800,
+        "clientHeight": 710,
+        "clientWidth": 708,
+        "height": 710,
+        "right": 743,
+        "scrollHeight": 898,
+        "scrollTop": 0,
+        "scrollWidth": 708,
+        "width": 718,
+        "x": 25,
+        "y": 90
+      },
+      "content": {
+        "bottom": 866,
+        "clientHeight": 830,
+        "clientWidth": 718,
+        "height": 832,
+        "right": 744,
+        "scrollHeight": 830,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 720,
+        "x": 24,
+        "y": 34
+      },
+      "dark": false,
+      "footer": {
+        "bottom": 865,
+        "clientHeight": 64,
+        "clientWidth": 718,
+        "height": 65,
+        "right": 743,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 718,
+        "x": 25,
+        "y": 800
+      },
+      "viewport": {
+        "height": 900,
+        "width": 768
+      }
+    },
+    "pass": true,
+    "screenshot": "32-light-768.jpg"
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "width": 360,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgb(234, 244, 255)",
+          "box": {
+            "bottom": 336,
+            "clientHeight": 126,
+            "clientWidth": 290,
+            "height": 128,
+            "right": 321,
+            "scrollHeight": 126,
+            "scrollTop": 0,
+            "scrollWidth": 290,
+            "width": 292,
+            "x": 29,
+            "y": 208
+          },
+          "color": "rgb(11, 59, 102)",
+          "text": "최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오."
+        }
+      ],
+      "body": {
+        "bottom": 822,
+        "clientHeight": 754,
+        "clientWidth": 324,
+        "height": 754,
+        "right": 347,
+        "scrollHeight": 1534,
+        "scrollTop": 0,
+        "scrollWidth": 324,
+        "width": 334,
+        "x": 13,
+        "y": 68
+      },
+      "content": {
+        "bottom": 888,
+        "clientHeight": 874,
+        "clientWidth": 334,
+        "height": 876,
+        "right": 348,
+        "scrollHeight": 874,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 336,
+        "x": 12,
+        "y": 12
+      },
+      "dark": false,
+      "footer": {
+        "bottom": 887,
+        "clientHeight": 64,
+        "clientWidth": 334,
+        "height": 65,
+        "right": 347,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 334,
+        "x": 13,
+        "y": 822
+      },
+      "viewport": {
+        "height": 900,
+        "width": 360
+      }
+    },
+    "pass": true,
+    "screenshot": "32-light-360.jpg"
+  },
+  {
+    "cluster": 31,
+    "theme": "dark",
+    "width": 1280,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgba(24, 144, 255, 0.14)",
+          "box": {
+            "bottom": 234,
+            "clientHeight": 60,
+            "clientWidth": 890,
+            "height": 62,
+            "right": 1081,
+            "scrollHeight": 60,
+            "scrollTop": 0,
+            "scrollWidth": 890,
+            "width": 892,
+            "x": 189,
+            "y": 172
+          },
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오."
+        }
+      ],
+      "body": {
+        "bottom": 800,
+        "clientHeight": 710,
+        "clientWidth": 948,
+        "height": 710,
+        "right": 1119,
+        "scrollHeight": 744,
+        "scrollTop": 0,
+        "scrollWidth": 948,
+        "width": 958,
+        "x": 161,
+        "y": 90
+      },
+      "content": {
+        "bottom": 866,
+        "clientHeight": 830,
+        "clientWidth": 958,
+        "height": 832,
+        "right": 1120,
+        "scrollHeight": 830,
+        "scrollTop": 0,
+        "scrollWidth": 958,
+        "width": 960,
+        "x": 160,
+        "y": 34
+      },
+      "dark": true,
+      "footer": {
+        "bottom": 865,
+        "clientHeight": 64,
+        "clientWidth": 958,
+        "height": 65,
+        "right": 1119,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 958,
+        "width": 958,
+        "x": 161,
+        "y": 800
+      },
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    },
+    "pass": true,
+    "screenshot": "31-dark-1280.jpg"
+  },
+  {
+    "cluster": 31,
+    "theme": "dark",
+    "width": 768,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgba(24, 144, 255, 0.14)",
+          "box": {
+            "bottom": 256,
+            "clientHeight": 60,
+            "clientWidth": 650,
+            "height": 62,
+            "right": 705,
+            "scrollHeight": 60,
+            "scrollTop": 0,
+            "scrollWidth": 650,
+            "width": 652,
+            "x": 53,
+            "y": 194
+          },
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오."
+        }
+      ],
+      "body": {
+        "bottom": 800,
+        "clientHeight": 710,
+        "clientWidth": 708,
+        "height": 710,
+        "right": 743,
+        "scrollHeight": 898,
+        "scrollTop": 0,
+        "scrollWidth": 708,
+        "width": 718,
+        "x": 25,
+        "y": 90
+      },
+      "content": {
+        "bottom": 866,
+        "clientHeight": 830,
+        "clientWidth": 718,
+        "height": 832,
+        "right": 744,
+        "scrollHeight": 830,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 720,
+        "x": 24,
+        "y": 34
+      },
+      "dark": true,
+      "footer": {
+        "bottom": 865,
+        "clientHeight": 64,
+        "clientWidth": 718,
+        "height": 65,
+        "right": 743,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 718,
+        "x": 25,
+        "y": 800
+      },
+      "viewport": {
+        "height": 900,
+        "width": 768
+      }
+    },
+    "pass": true,
+    "screenshot": "31-dark-768.jpg"
+  },
+  {
+    "cluster": 31,
+    "theme": "dark",
+    "width": 360,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgba(24, 144, 255, 0.14)",
+          "box": {
+            "bottom": 336,
+            "clientHeight": 126,
+            "clientWidth": 290,
+            "height": 128,
+            "right": 321,
+            "scrollHeight": 126,
+            "scrollTop": 0,
+            "scrollWidth": 290,
+            "width": 292,
+            "x": 29,
+            "y": 208
+          },
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오."
+        }
+      ],
+      "body": {
+        "bottom": 822,
+        "clientHeight": 754,
+        "clientWidth": 324,
+        "height": 754,
+        "right": 347,
+        "scrollHeight": 1490,
+        "scrollTop": 0,
+        "scrollWidth": 324,
+        "width": 334,
+        "x": 13,
+        "y": 68
+      },
+      "content": {
+        "bottom": 888,
+        "clientHeight": 874,
+        "clientWidth": 334,
+        "height": 876,
+        "right": 348,
+        "scrollHeight": 874,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 336,
+        "x": 12,
+        "y": 12
+      },
+      "dark": true,
+      "footer": {
+        "bottom": 887,
+        "clientHeight": 64,
+        "clientWidth": 334,
+        "height": 65,
+        "right": 347,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 334,
+        "x": 13,
+        "y": 822
+      },
+      "viewport": {
+        "height": 900,
+        "width": 360
+      }
+    },
+    "pass": true,
+    "screenshot": "31-dark-360.jpg"
+  },
+  {
+    "cluster": 32,
+    "theme": "dark",
+    "width": 1280,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgba(24, 144, 255, 0.14)",
+          "box": {
+            "bottom": 236.5995330810547,
+            "clientHeight": 60,
+            "clientWidth": 890,
+            "height": 61.034912109375,
+            "right": 1078.1669921875,
+            "scrollHeight": 60,
+            "scrollTop": 0,
+            "scrollWidth": 890,
+            "width": 878.1151123046875,
+            "x": 200.0518798828125,
+            "y": 175.5646209716797
+          },
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오."
+        }
+      ],
+      "body": {
+        "bottom": 793.7891540527344,
+        "clientHeight": 710,
+        "clientWidth": 948,
+        "height": 698.9481201171875,
+        "right": 1115.575439453125,
+        "scrollHeight": 744,
+        "scrollTop": 0,
+        "scrollWidth": 948,
+        "width": 943.0877075195312,
+        "x": 172.48773193359375,
+        "y": 94.84103393554688
+      },
+      "content": {
+        "bottom": 858.7618103027344,
+        "clientHeight": 830,
+        "clientWidth": 958,
+        "height": 819.049072265625,
+        "right": 1116.559814453125,
+        "scrollHeight": 830,
+        "scrollTop": 0,
+        "scrollWidth": 958,
+        "width": 945.0565185546876,
+        "x": 171.5032958984375,
+        "y": 39.712738037109375
+      },
+      "dark": true,
+      "footer": {
+        "bottom": 857.77734375,
+        "clientHeight": 64,
+        "clientWidth": 958,
+        "height": 63.9881591796875,
+        "right": 1115.575439453125,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 958,
+        "width": 943.0877075195312,
+        "x": 172.48773193359375,
+        "y": 793.7891845703125
+      },
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    },
+    "pass": true,
+    "screenshot": "32-dark-1280.jpg"
+  },
+  {
+    "cluster": 32,
+    "theme": "dark",
+    "width": 768,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgba(24, 144, 255, 0.14)",
+          "box": {
+            "bottom": 256,
+            "clientHeight": 60,
+            "clientWidth": 650,
+            "height": 62,
+            "right": 705,
+            "scrollHeight": 60,
+            "scrollTop": 0,
+            "scrollWidth": 650,
+            "width": 652,
+            "x": 53,
+            "y": 194
+          },
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오."
+        }
+      ],
+      "body": {
+        "bottom": 800,
+        "clientHeight": 710,
+        "clientWidth": 708,
+        "height": 710,
+        "right": 743,
+        "scrollHeight": 898,
+        "scrollTop": 0,
+        "scrollWidth": 708,
+        "width": 718,
+        "x": 25,
+        "y": 90
+      },
+      "content": {
+        "bottom": 866,
+        "clientHeight": 830,
+        "clientWidth": 718,
+        "height": 832,
+        "right": 744,
+        "scrollHeight": 830,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 720,
+        "x": 24,
+        "y": 34
+      },
+      "dark": true,
+      "footer": {
+        "bottom": 865,
+        "clientHeight": 64,
+        "clientWidth": 718,
+        "height": 65,
+        "right": 743,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 718,
+        "x": 25,
+        "y": 800
+      },
+      "viewport": {
+        "height": 900,
+        "width": 768
+      }
+    },
+    "pass": true,
+    "screenshot": "32-dark-768.jpg"
+  },
+  {
+    "cluster": 32,
+    "theme": "dark",
+    "width": 360,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgba(24, 144, 255, 0.14)",
+          "box": {
+            "bottom": 336,
+            "clientHeight": 126,
+            "clientWidth": 290,
+            "height": 128,
+            "right": 321,
+            "scrollHeight": 126,
+            "scrollTop": 0,
+            "scrollWidth": 290,
+            "width": 292,
+            "x": 29,
+            "y": 208
+          },
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오."
+        }
+      ],
+      "body": {
+        "bottom": 822,
+        "clientHeight": 754,
+        "clientWidth": 324,
+        "height": 754,
+        "right": 347,
+        "scrollHeight": 1534,
+        "scrollTop": 0,
+        "scrollWidth": 324,
+        "width": 334,
+        "x": 13,
+        "y": 68
+      },
+      "content": {
+        "bottom": 888,
+        "clientHeight": 874,
+        "clientWidth": 334,
+        "height": 876,
+        "right": 348,
+        "scrollHeight": 874,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 336,
+        "x": 12,
+        "y": 12
+      },
+      "dark": true,
+      "footer": {
+        "bottom": 887,
+        "clientHeight": 64,
+        "clientWidth": 334,
+        "height": 65,
+        "right": 347,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 334,
+        "x": 13,
+        "y": 822
+      },
+      "viewport": {
+        "height": 900,
+        "width": 360
+      }
+    },
+    "pass": true,
+    "screenshot": "32-dark-360.jpg"
+  }
+]

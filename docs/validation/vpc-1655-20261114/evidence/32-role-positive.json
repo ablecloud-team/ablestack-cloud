@@ -1,0 +1,212 @@
+{
+  "params": {
+    "id": "277703d6-dbf1-4142-9cc6-b00f824e5a12",
+    "customjobid": "d51c8bd6-fae8-4427-8145-61eceb69a5bf",
+    "cleanup": "false",
+    "makeredundant": "false",
+    "livepatch": "false",
+    "projectid": "99e5ad38-c8a3-4691-a401-603cb67faff0"
+  },
+  "receipt": {
+    "jobid": "d51c8bd6-fae8-4427-8145-61eceb69a5bf"
+  },
+  "job": {
+    "accountid": "e473cb5d-f2c6-4b23-9751-a82761656e9c",
+    "account": "qa-vpc1655-20261114-32-user",
+    "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+    "domainpath": "ROOT",
+    "userid": "8d4d4cb5-4ce3-4a58-862a-56faf89a8d05",
+    "cmd": "org.apache.cloudstack.api.command.user.vpc.RestartVPCCmd",
+    "jobprocstatus": 0,
+    "jobresultcode": 0,
+    "jobresulttype": "object",
+    "jobresult": {
+      "success": true
+    },
+    "jobinstancetype": "Vpc",
+    "created": "2026-11-14T14:45:37+0900",
+    "completed": "2026-11-14T14:46:13+0900",
+    "jobid": "d51c8bd6-fae8-4427-8145-61eceb69a5bf",
+    "jobstatus": 1
+  },
+  "current": [
+    {
+      "id": "277703d6-dbf1-4142-9cc6-b00f824e5a12",
+      "name": "qa-vpc1655-20261114-32-role-vpc",
+      "displaytext": "VPC restart role scope",
+      "state": "Enabled",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "zonename": "Zone",
+      "service": [
+        {
+          "name": "Dns",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "NetworkACL",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "PortForwarding",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Dhcp",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "UserData",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Vpn",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "StaticNat",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Lb",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            },
+            {
+              "name": "InternalLbVm"
+            }
+          ]
+        },
+        {
+          "name": "SourceNat",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        }
+      ],
+      "cidr": "10.243.32.0/24",
+      "vpcofferingid": "a77c3f64-5bb4-4b69-9811-5cc09a231c43",
+      "vpcofferingname": "Default VPC offering",
+      "vpcofferingconservemode": false,
+      "created": "2026-11-14T14:22:09+0900",
+      "projectid": "99e5ad38-c8a3-4691-a401-603cb67faff0",
+      "project": "qa-vpc1655-20261114-32-project",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "network": [],
+      "restartrequired": false,
+      "networkdomain": "cs10dcloud.internal",
+      "tags": [],
+      "distributedvpcrouter": false,
+      "regionlevelvpc": false,
+      "redundantvpcrouter": false,
+      "publicmtu": 1500,
+      "hasannotations": false
+    }
+  ],
+  "routersAdminOracle": [
+    {
+      "id": "e197d48d-4b4c-40a4-93f9-338a61d398bb",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "zonename": "Zone",
+      "dns1": "8.8.8.8",
+      "gateway": "10.10.0.1",
+      "name": "r-544-VM",
+      "podid": "6c4b9931-7684-4ba0-bcd6-9d8e97fd6cad",
+      "podname": "Pod",
+      "hostid": "05bc1189-abf8-4ec3-9ef5-02558863b628",
+      "hostname": "ablecube32-3",
+      "hostcontrolstate": "Enabled",
+      "hypervisor": "KVM",
+      "linklocalip": "169.254.84.139",
+      "linklocalmacaddress": "0e:00:a9:fe:54:8b",
+      "linklocalnetmask": "255.255.0.0",
+      "linklocalnetworkid": "4e4e496a-96c5-40ae-9445-2a3b1d3ecff8",
+      "publicip": "10.10.32.170",
+      "publicmacaddress": "1e:01:e0:00:00:4a",
+      "publicnetmask": "255.255.0.0",
+      "publicnetworkid": "4216b0b3-d054-46ab-88dd-9d025a1f3eb5",
+      "templateid": "bc7298e5-a2cc-4627-8c55-7e74ed6e108c",
+      "templatename": "SystemVM-gn1569-full-20261111-KVM",
+      "created": "2026-11-14T14:45:37+0900",
+      "state": "Running",
+      "projectid": "99e5ad38-c8a3-4691-a401-603cb67faff0",
+      "project": "qa-vpc1655-20261114-32-project",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "serviceofferingid": "c4176ed2-9166-468e-97f7-50bfc5d33fb3",
+      "serviceofferingname": "System Offering For Software Router",
+      "isredundantrouter": false,
+      "redundantstate": "UNKNOWN",
+      "version": "4.23.0.0",
+      "scriptsversion": "6e6a28998ad471b0e89e31525d1b769f4c784445664d73e7101e8610fb357fa6161b9cd6ca92edc82428b84c10c39e622f69d65349585aa1f45b1ba694af7169",
+      "vpcid": "277703d6-dbf1-4142-9cc6-b00f824e5a12",
+      "vpcname": "qa-vpc1655-20261114-32-role-vpc",
+      "role": "VIRTUAL_ROUTER",
+      "nic": [
+        {
+          "id": "e2dc84f0-c35b-4dfc-840e-96ca1509dcaf",
+          "networkid": "4e4e496a-96c5-40ae-9445-2a3b1d3ecff8",
+          "netmask": "255.255.0.0",
+          "gateway": "169.254.0.1",
+          "ipaddress": "169.254.84.139",
+          "traffictype": "Control",
+          "isdefault": false,
+          "macaddress": "0e:00:a9:fe:54:8b",
+          "enabled": true
+        },
+        {
+          "id": "db5274af-3b90-4919-9214-f2e2c496005d",
+          "networkid": "4216b0b3-d054-46ab-88dd-9d025a1f3eb5",
+          "netmask": "255.255.0.0",
+          "gateway": "10.10.0.1",
+          "ipaddress": "10.10.32.170",
+          "isolationuri": "vlan://untagged",
+          "broadcasturi": "vlan://untagged",
+          "traffictype": "Public",
+          "isdefault": true,
+          "macaddress": "1e:01:e0:00:00:4a",
+          "mtu": 1500,
+          "enabled": true
+        }
+      ],
+      "requiresupgrade": false,
+      "healthchecksfailed": false,
+      "softwareversion": "4.23.0.0",
+      "arch": "x86_64",
+      "hasannotations": false
+    }
+  ]
+}

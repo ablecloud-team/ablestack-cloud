@@ -1,0 +1,28 @@
+[
+  {
+    "command": "listVPCs",
+    "params": {
+      "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64"
+    },
+    "response": {
+      "listvpcsresponse": {}
+    }
+  },
+  {
+    "command": "restartVPC",
+    "params": {
+      "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+      "cleanup": "false",
+      "livepatch": "false",
+      "makeredundant": "false"
+    },
+    "response": {
+      "restartvpcresponse": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Caller does not have permission to operate with provided resource."
+      }
+    }
+  }
+]

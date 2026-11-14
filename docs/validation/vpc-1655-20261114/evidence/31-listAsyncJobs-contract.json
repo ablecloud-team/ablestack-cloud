@@ -1,0 +1,197 @@
+{
+  "count": 1,
+  "api": [
+    {
+      "name": "listAsyncJobs",
+      "description": "Lists all pending asynchronous jobs for the Account.",
+      "isasync": false,
+      "related": "queryAsyncJobResult,rotateKMSKey",
+      "params": [
+        {
+          "name": "resourcetype",
+          "description": "the type of the resource associated with the job",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.22.1"
+        },
+        {
+          "name": "account",
+          "description": "List resources by Account. Must be used with the domainId parameter.",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "listall",
+          "description": "If set to false, list only resources belonging to the command's caller; if set to true - list resources that the caller is authorized to see. Default value is false. Resources dedicated to a project are listed only if using the projectid parameter.",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "domainid",
+          "description": "List only resources belonging to the domain specified",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "createDomain,listDomainChildren,listDomains,listDomains,moveDomain"
+        },
+        {
+          "name": "includecompleted",
+          "description": "Include completed jobs for an explicitly specified resourceid and resourcetype. Account access restrictions still apply.",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "managementserverid",
+          "description": "The id of the management server",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "since": "4.19",
+          "related": "listManagementServers"
+        },
+        {
+          "name": "pagesize",
+          "description": "",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "isrecursive",
+          "description": "Defaults to false, but if true, lists all resources from the parent specified by the domainId till leaves.",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "startdate",
+          "description": "The start date of the async job (use format \"yyyy-MM-dd'T'HH:mm:ss'+'SSSS\")",
+          "type": "date",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "page",
+          "description": "",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "keyword",
+          "description": "List by keyword",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "resourceid",
+          "description": "the ID of the resource associated with the job",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.22.1"
+        }
+      ],
+      "response": [
+        {
+          "name": "jobinstanceid",
+          "description": "The unique ID of the Instance/entity object related to the job",
+          "type": "string"
+        },
+        {
+          "name": "domainpath",
+          "description": "The domain that executed the async command",
+          "type": "string"
+        },
+        {
+          "name": "created",
+          "description": "The created date of the job",
+          "type": "date"
+        },
+        {},
+        {
+          "name": "account",
+          "description": "The Account that executed the async command",
+          "type": "string"
+        },
+        {
+          "name": "jobresultcode",
+          "description": "The result code for the job",
+          "type": "integer"
+        },
+        {},
+        {
+          "name": "managementservername",
+          "description": "the management server name of the host",
+          "type": "string"
+        },
+        {
+          "name": "jobstatus",
+          "description": "The current status of the latest async job acting on this object",
+          "type": "integer"
+        },
+        {
+          "name": "jobresult",
+          "description": "The result reason",
+          "type": "responseobject"
+        },
+        {
+          "name": "jobid",
+          "description": "The UUID of the latest async job acting on this object",
+          "type": "string"
+        },
+        {
+          "name": "jobinstancetype",
+          "description": "The Instance/entity object related to the job",
+          "type": "string"
+        },
+        {
+          "name": "userid",
+          "description": "The User that executed the async command",
+          "type": "string"
+        },
+        {
+          "name": "domainid",
+          "description": "The domain ID that executed the async command",
+          "type": "string"
+        },
+        {
+          "name": "cmd",
+          "description": "The async command executed",
+          "type": "string"
+        },
+        {
+          "name": "jobprocstatus",
+          "description": "The progress information of the PENDING job",
+          "type": "integer"
+        },
+        {
+          "name": "jobresulttype",
+          "description": "The result type",
+          "type": "string"
+        },
+        {
+          "name": "accountid",
+          "description": "The Account ID that executed the async command",
+          "type": "string"
+        },
+        {
+          "name": "managementserverid",
+          "description": "The MSID of the management server on which the job is running",
+          "type": "string"
+        },
+        {
+          "name": "completed",
+          "description": "The completed date of the job",
+          "type": "date"
+        }
+      ],
+      "httprequesttype": "GET"
+    }
+  ]
+}

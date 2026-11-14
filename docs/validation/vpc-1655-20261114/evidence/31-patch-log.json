@@ -1,0 +1,7 @@
+{
+  "jobid": "a6d1f314-5604-48e0-97ad-751424d6903c",
+  "lines": [
+    "2026-11-14 14:12:46,543 INFO  [c.c.s.ManagementServerImpl] (API-Job-Executor-101:[ctx-c785038a, job-22227, ctx-74cc3488]) (logid:a6d1f314) Successfully patched system VM r-1060-VM",
+    "2026-11-14 14:12:46,544 INFO  [o.a.c.e.o.NetworkOrchestrator] (API-Job-Executor-101:[ctx-c785038a, job-22227, ctx-74cc3488]) (logid:a6d1f314) Successfully patched router VM instance {\"id\":1060,\"instanceName\":\"r-1060-VM\",\"state\":\"Running\",\"type\":\"DomainRouter\",\"uuid\":\"dc533c28-eb80-41fa-ac5d-c2c2bfbcac0c\"}"
+  ]
+}
