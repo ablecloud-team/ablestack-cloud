@@ -111,7 +111,7 @@
           type="dashed"
           style="width: 100%"
           :disabled="!('createPrivateGateway' in $store.getters.apis)"
-          @click="() => handleOpenModals('privateGateways')">
+          @click="gatewayCreate = true">
           <template #icon><plus-circle-outlined /></template>
           {{ $t('label.add.private.gateway') }}
         </a-button>
@@ -148,110 +148,6 @@
           </template>
         </a-pagination>
 
-        <a-modal
-          :visible="modals.gateway"
-          :title="$t('label.add.new.gateway')"
-          :maskClosable="false"
-          :closable="true"
-          :footer="null"
-          @cancel="modals.gateway = false">
-          <a-spin :spinning="modals.gatewayLoading" v-ctrl-enter="handleGatewayFormSubmit">
-            <p>{{ $t('message.add.new.gateway.to.vpc') }}</p>
-            <a-form
-              layout="vertical"
-              @finish="handleGatewayFormSubmit"
-              :ref="formRef"
-              :model="form"
-              :rules="rules"
-             >
-              <a-form-item :label="$t('label.physicalnetworkid')" ref="physicalnetwork" name="physicalnetwork" v-if="this.isAdmin()">
-                <a-select
-                  v-model:value="form.physicalnetwork"
-                  v-focus="true"
-                  showSearch
-                  optionFilterProp="label"
-                  :filterOption="(input, option) => {
-                    return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }" >
-                  <a-select-option v-for="item in physicalnetworks" :key="item.id" :value="item.id" :label="item.name">
-                    {{ item.name }}
-                  </a-select-option>
-                </a-select>
-              </a-form-item>
-              <a-form-item :label="$t('label.vlan')" ref="vlan" name="vlan" v-if="this.isAdmin()">
-                <a-input
-                  :placeholder="placeholders.vlan"
-                  v-model:value="form.vlan"
-                ></a-input>
-              </a-form-item>
-              <a-form-item
-                ref="bypassvlanoverlapcheck"
-                name="bypassvlanoverlapcheck"
-                :label="$t('label.bypassvlanoverlapcheck')"
-                v-if="this.isAdmin()">
-                <a-checkbox
-                  v-model:checked="form.bypassvlanoverlapcheck"
-                ></a-checkbox>
-              </a-form-item>
-              <a-form-item :label="$t('label.associatednetwork')" ref="associatednetworkid" name="associatednetworkid">
-                <a-select
-                  v-model:value="form.associatednetworkid"
-                  showSearch
-                  optionFilterProp="label"
-                  :filterOption="(input, option) => {
-                    return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }" >
-                  <a-select-option v-for="(opt, optIndex) in this.associatedNetworks" :key="optIndex" :label="opt.name || opt.description" :value="opt.id">
-                    <span>
-                      <resource-icon v-if="opt && opt.icon" :image="opt.icon.base64image" size="1x" style="margin-right: 5px"/>
-                      <user-outlined style="margin-right: 5px" />
-                      {{ opt.name || opt.description }}
-                    </span>
-                  </a-select-option>
-                </a-select>
-              </a-form-item>
-              <a-form-item :label="$t('label.publicip')" ref="ipaddress" name="ipaddress">
-                <a-input
-                  :placeholder="placeholders.ipaddress"
-                  v-model:value="form.ipaddress"
-                ></a-input>
-              </a-form-item>
-              <a-form-item :label="$t('label.gateway')" ref="gateway" name="gateway">
-                <a-input
-                  :placeholder="placeholders.gateway"
-                  v-model:value="form.gateway"
-                ></a-input>
-              </a-form-item>
-              <a-form-item :label="$t('label.netmask')" ref="netmask" name="netmask">
-                <a-input
-                  :placeholder="placeholders.netmask"
-                  v-model:value="form.netmask"
-                ></a-input>
-              </a-form-item>
-              <a-form-item :label="$t('label.sourcenat')" ref="nat" name="nat">
-                <a-checkbox v-model:checked="form.nat"></a-checkbox>
-              </a-form-item>
-              <a-form-item :label="$t('label.aclid')" ref="acl" name="acl">
-                <a-select
-                  v-model:value="form.acl"
-                  showSearch
-                  optionFilterProp="label"
-                  :filterOption="(input, option) => {
-                    return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }" >
-                  <a-select-option v-for="item in networkAcls" :key="item.id" :value="item.id" :label="`${item.name} ${item.description}`">
-                    <span><strong>{{ item.name }}</strong> ({{ item.description }})</span>
-                  </a-select-option>
-                </a-select>
-              </a-form-item>
-
-              <div :span="24" class="action-button">
-                <a-button @click="modals.gateway = false">{{ $t('label.cancel') }}</a-button>
-                <a-button type="primary" @click="handleGatewayFormSubmit">{{ $t('label.ok') }}</a-button>
-              </div>
-            </a-form>
-          </a-spin>
-        </a-modal>
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.vpn.gateway')" key="vpngw" v-if="'listVpnGateways' in $store.getters.apis">
         <a-button
@@ -344,6 +240,7 @@
         </AnnotationsTab>
       </a-tab-pane>
     </a-tabs>
+    <PrivateGatewayCreate v-if="gatewayCreate" :resource="resource" @cancel="gatewayCreate = false" @success="fetchPrivateGateways" />
     <VpcVpnCreate v-if="vpnCreate" :kind="vpnCreate" :resource="resource" @cancel="vpnCreate = ''" @success="onVpnCreated" />
   </a-spin>
 </template>
@@ -367,6 +264,7 @@ import StaticRoutesTab from './StaticRoutesTab'
 import RunCustomAction from '@/views/extension/RunCustomAction'
 import VpnPsk from '@/components/network/VpnPsk'
 import VpcVpnCreate from './VpcVpnCreate'
+import PrivateGatewayCreate from './PrivateGatewayCreate'
 import { vpcVpnContext, vpcVpnOwner } from '@/utils/vpcVpn'
 
 export default {
@@ -375,6 +273,7 @@ export default {
   components: {
     VpnPsk,
     VpcVpnCreate,
+    PrivateGatewayCreate,
     BgpPeersTab,
     DetailsTab,
     Status,
@@ -402,23 +301,14 @@ export default {
     return {
       fetchLoading: false,
       privateGateways: [],
-      associatedNetworks: [],
       vpnGateways: [],
       vpnCreate: '',
+      gatewayCreate: false,
       vpnConnections: [],
       networkAcls: [],
       modals: {
-        gateway: false,
-        gatewayLoading: false,
         networkAcl: false
       },
-      placeholders: {
-        vlan: null,
-        ipaddress: null,
-        gateway: null,
-        netmask: null
-      },
-      physicalnetworks: [],
       privateGatewaysColumns: [
         {
           key: 'ipaddress',
@@ -519,6 +409,7 @@ export default {
     },
     handleChangeTab (e) {
       this.vpnCreate = ''
+      this.gatewayCreate = false
       this.currentTab = e
       this.page = 1
       this.pageSize = 10
@@ -578,13 +469,6 @@ export default {
         if (!this.isListRequestCurrent('fetchPrivateGateways', request)) return
         this.privateGateways = json.listprivategatewaysresponse?.privategateway || []
         this.itemCounts.privateGateways = json.listprivategatewaysresponse?.count || 0
-
-        if (!request.loaded) {
-          getAPI('listNetworks', { domainid: this.resource.domainid, account: this.resource.account, listall: true, networkfilter: 'Account' }).then(result => {
-            if (!this.isListRequestCurrent('fetchPrivateGateways', request)) return
-            this.associatedNetworks = (result.listnetworksresponse?.network || []).filter(n => n.type === 'Isolated' || n.type === 'L2')
-          }).catch(error => this.$notifyError(error))
-        }
       }).catch(error => {
         if (!this.isListRequestCurrent('fetchPrivateGateways', request)) return
         request.failed = true
@@ -633,7 +517,6 @@ export default {
         if (!this.isListRequestCurrent('fetchAclList', request)) return
         this.networkAcls = json.listnetworkacllistsresponse?.networkacllist || []
         this.itemCounts.networkAcls = json.listnetworkacllistsresponse?.count || 0
-        if (this.modals.gateway && !request.loaded) this.form.acl = this.networkAcls[0]?.id
       }).catch(error => {
         if (!this.isListRequestCurrent('fetchAclList', request)) return
         request.failed = true
@@ -641,23 +524,6 @@ export default {
         if (!request.loaded) this.$notifyError(error)
       }).finally(() => {
         if (this.isListRequestCurrent('fetchAclList', request)) this.fetchLoading = false
-      })
-    },
-    fetchPhysicalNetworks () {
-      this.modals.gatewayLoading = true
-      if (!this.isAdmin()) {
-        this.modals.gatewayLoading = false
-        return
-      }
-      getAPI('listPhysicalNetworks', { zoneid: this.resource.zoneid }).then(json => {
-        this.physicalnetworks = json.listphysicalnetworksresponse.physicalnetwork
-        if (this.modals.gateway === true) {
-          this.form.physicalnetwork = this.physicalnetworks[0].id
-        }
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.modals.gatewayLoading = false
       })
     },
     onVpnCreated () {
@@ -669,25 +535,6 @@ export default {
       this.initForm()
 
       switch (e) {
-        case 'privateGateways':
-          if (this.isAdmin()) {
-            this.rules = {
-              ipaddress: [{ required: true, message: this.$t('label.required') }],
-              gateway: [{ required: true, message: this.$t('label.required') }],
-              netmask: [{ required: true, message: this.$t('label.required') }]
-            }
-          } else {
-            this.rules = {
-              ipaddress: [{ required: true, message: this.$t('label.required') }],
-              gateway: [{ required: true, message: this.$t('label.required') }],
-              netmask: [{ required: true, message: this.$t('label.required') }],
-              associatednetworkid: [{ required: true, message: this.$t('label.required') }]
-            }
-          }
-          this.modals.gateway = true
-          this.fetchAclList()
-          this.fetchPhysicalNetworks()
-          break
         case 'networkAcl':
           this.rules = {
             name: [{ required: true, message: this.$t('label.required') }]
@@ -695,65 +542,6 @@ export default {
           this.modals.networkAcl = true
           break
       }
-    },
-    handleGatewayFormSubmit () {
-      if (this.modals.gatewayLoading) return
-      this.modals.gatewayLoading = true
-
-      this.formRef.value.validate().then(() => {
-        const data = toRaw(this.form)
-
-        const params = {
-          sourcenatsupported: data.nat,
-          physicalnetworkid: data.physicalnetwork,
-          vpcid: this.resource.id,
-          ipaddress: data.ipaddress,
-          gateway: data.gateway,
-          netmask: data.netmask,
-          aclid: data.acl
-        }
-        if (data.bypassvlanoverlapcheck) {
-          params.bypassvlanoverlapcheck = data.bypassvlanoverlapcheck
-        }
-        if (data.vlan && String(data.vlan).length > 0) {
-          params.vlan = data.vlan
-        }
-        if (data.associatednetworkid) {
-          params.associatednetworkid = data.associatednetworkid
-        }
-
-        postAPI('createPrivateGateway', params).then(response => {
-          this.$pollJob({
-            jobId: response.createprivategatewayresponse.jobid,
-            title: this.$t('message.success.add.private.gateway'),
-            description: this.resource.id,
-            successMethod: () => {
-              this.modals.gateway = false
-              this.handleFetchData()
-            },
-            errorMessage: this.$t('message.add.private.gateway.failed'),
-            errorMethod: () => {
-              this.modals.gateway = false
-              this.handleFetchData()
-            },
-            loadingMessage: this.$t('message.add.private.gateway.processing'),
-            catchMessage: this.$t('error.fetching.async.job.result'),
-            catchMethod: () => {
-              this.modals.gateway = false
-              this.handleFetchData()
-            }
-          })
-        }).catch(error => {
-          this.$notifyError(error)
-        }).finally(() => {
-          this.modals.gatewayLoading = false
-          this.modals.gateway = false
-          this.handleFetchData()
-        })
-      }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
-        this.modals.gatewayLoading = false
-      })
     },
     handleNetworkAclFormSubmit () {
       if (this.fetchLoading) return
