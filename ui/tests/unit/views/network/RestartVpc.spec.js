@@ -108,7 +108,7 @@ test('uncertain first target stops the rest; re-open restores receipt then retri
 test('a failed conversion can safely finish the already applied default offering transition', async () => {
   const w = await mount([a]); w.vm.changeOption('makeredundant', true)
   query.mockImplementation(id => { vpcs.a.redundantvpcrouter = true; vpcs.a.vpcofferingid = 'r'; return { jobid: id, cmd: 'RestartVPCCmd', jobstatus: 2, jobresult: { errortext: 'Router start failed after conversion' } } })
-  await w.vm.run(); expect(w.vm.failedIds).toEqual(['a'])
+  await w.vm.run(); expect(w.vm.failedIds).toEqual(['a']); expect(w.vm.rows[0].vpc).toMatchObject({ vpcofferingid: 'r', redundantvpcrouter: true })
   query.mockImplementation(id => ({ jobid: id, cmd: 'RestartVPCCmd', jobstatus: 1, jobresult: { success: true } }))
   await w.vm.run(w.vm.failedIds); expect(w.vm.succeeded).toBe(1); expect(postAPI).toHaveBeenCalledTimes(2)
 })
@@ -151,4 +151,10 @@ test('Ctrl+Enter shares guarded submit path, and successful close clears complet
 test('closing an unsubmitted blocked selection permits a new reviewed action', async () => {
   const w = await mount(); vpcs.b.state = 'Inactive'; await w.vm.run(); const key = w.vm.entryKey; w.vm.close()
   expect(sessionStorage.getItem(key)).toBeNull(); expect(postAPI).not.toHaveBeenCalled()
+})
+test('preflight reads have bounded timeouts and a failed job keeps its terminal status if fresh lookup fails', async () => {
+  const w = await mount([a])
+  expect(getAPI.mock.calls.filter(c => c[0] !== 'queryAsyncJobResult').every(c => c[2].timeout === 15000 && c[2].preserveOnFailure)).toBe(true)
+  query.mockImplementation(id => { finalFailure = true; return { jobid: id, cmd: 'RestartVPCCmd', jobstatus: 2, jobresult: { errortext: 'Backend restart failed' } } })
+  await w.vm.run(); expect(w.vm.failedIds).toEqual(['a']); expect(w.vm.rows[0].error).toContain('Backend restart failed'); expect(w.vm.rows[0].error).toContain('message.vpc.restart.lookup')
 })

@@ -138,7 +138,8 @@ export default {
       if (this.options.cleanup || this.options.makeredundant) this.options.livepatch = false
       this.persist()
     },
-    async collection (api, field, p) { return networkCollection(getAPI, api, field, { ...p, ignoreproject: true }) },
+    read (api, params, options = {}) { return getAPI(api, params, { ...options, preserveOnFailure: true, backgroundJob: true, timeout: 15000 }) },
+    async collection (api, field, p) { return networkCollection(this.read, api, field, { ...p, ignoreproject: true }) },
     async readTarget (row) {
       const p = { listall: true, ...(row.original.projectid ? { projectid: row.original.projectid } : {}) }
       const vpcs = await this.collection('listVPCs', 'vpc', { ...p, id: row.id })
@@ -148,7 +149,7 @@ export default {
         this.collection('listVPCOfferings', 'vpcoffering', { listall: true }),
         'listNetworks' in apis ? this.collection('listNetworks', 'network', { ...p, vpcid: row.id }) : null,
         'listRouters' in apis ? this.collection('listRouters', 'router', { ...p, vpcid: row.id }) : null,
-        networkCollection(getAPI, 'listAsyncJobs', 'asyncjobs', { ...p, ignoreproject: true, ...(vpc.projectid ? {} : { account: vpc.account, domainid: vpc.domainid }) }, 'jobid')
+        networkCollection(this.read, 'listAsyncJobs', 'asyncjobs', { ...p, ignoreproject: true, ...(vpc.projectid ? {} : { account: vpc.account, domainid: vpc.domainid }) }, 'jobid')
       ])
       const offering = offerings.find(o => o.id === vpc.vpcofferingid)
       if (!offering || networks?.some(n => n.vpcid !== row.id) || routers?.some(r => r.vpcid !== row.id)) throw new Error(this.$t('message.vpc.restart.lookup'))
@@ -183,7 +184,12 @@ export default {
       try {
         const job = await this.tracker.track(row.jobId, {}, true)
         if (!this.active(token)) return
-        if (job.jobstatus === 2) { this.result(row, 'failed', [job.jobresultcode, job.jobresult?.errortext || this.$t('message.request.failed')].filter(Boolean).join(': ')); return }
+        if (job.jobstatus === 2) {
+          let failure = [job.jobresultcode, job.jobresult?.errortext || this.$t('message.request.failed')].filter(Boolean).join(': ')
+          try { const current = await this.readTarget(row); if (this.active(token)) Object.assign(row, current) } catch (_) { failure += ' · ' + this.$t('message.vpc.restart.lookup') }
+          if (this.active(token)) this.result(row, 'failed', failure)
+          return
+        }
         if (job.jobstatus !== 1 || job.jobresult?.success !== true) throw new Error(this.$t('message.vpc.restart.unknown'))
         const data = await this.readTarget(row)
         if (!this.active(token)) return
