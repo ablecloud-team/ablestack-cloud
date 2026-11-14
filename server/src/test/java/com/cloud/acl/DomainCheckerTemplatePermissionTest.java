@@ -18,6 +18,8 @@ package com.cloud.acl;
 
 import org.apache.cloudstack.acl.SecurityChecker.AccessType;
 import org.junit.Before;
+import org.junit.After;
+import org.apache.cloudstack.context.CallContext;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -25,10 +27,12 @@ import static org.mockito.Mockito.when;
 
 import com.cloud.exception.PermissionDeniedException;
 import com.cloud.projects.ProjectManager;
+import com.cloud.projects.Project;
 import com.cloud.storage.LaunchPermissionVO;
 import com.cloud.storage.dao.LaunchPermissionDao;
 import com.cloud.template.VirtualMachineTemplate;
 import com.cloud.user.Account;
+import com.cloud.user.User;
 import com.cloud.user.AccountService;
 import com.cloud.user.AccountVO;
 import com.cloud.user.dao.AccountDao;
@@ -57,6 +61,10 @@ public class DomainCheckerTemplatePermissionTest {
         when(template.getAccountId()).thenReturn(2L);
         when(checker._accountDao.findById(2L)).thenReturn(owner);
         when(checker._launchPermissionDao.findByTemplateAndAccount(3L, 1L)).thenReturn(mock(LaunchPermissionVO.class));
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(1L);
+        when(user.getAccountId()).thenReturn(1L);
+        CallContext.register(user, caller);
     }
 
     @Test
@@ -105,4 +113,63 @@ public class DomainCheckerTemplatePermissionTest {
         when(template.isPublicTemplate()).thenReturn(true);
         checker.checkAccess(caller, template, AccessType.OperateEntry);
     }
+
+    @After
+    public void cleanupContext() {
+        CallContext.unregisterAll();
+    }
+
+    private Project sharedProject(boolean member, boolean granted) {
+        Project project = mock(Project.class);
+        when(project.getProjectAccountId()).thenReturn(20L);
+        CallContext.current().setProject(project);
+        when(checker._launchPermissionDao.findByTemplateAndAccount(3L, 1L)).thenReturn(null);
+        when(checker._projectMgr.canAccessProjectAccount(caller, 20L)).thenReturn(member);
+        when(checker._launchPermissionDao.findByTemplateAndAccount(3L, 20L)).thenReturn(granted ? mock(LaunchPermissionVO.class) : null);
+        return project;
+    }
+
+    @Test
+    public void projectLaunchGrantAllowsMemberReadAndUseOnlyInSelectedContext() {
+        sharedProject(true, true);
+        assertTrue(checker.checkAccess(caller, template, AccessType.UseEntry));
+        assertTrue(checker.checkAccess(caller, template, AccessType.ListEntry));
+        assertTrue(checker.checkAccess(caller, template, null));
+    }
+
+    @Test(expected = PermissionDeniedException.class)
+    public void projectGrantDoesNotAuthorizeNonmember() {
+        sharedProject(false, true);
+        checker.checkAccess(caller, template, AccessType.UseEntry);
+    }
+
+    @Test(expected = PermissionDeniedException.class)
+    public void projectGrantDoesNotLeakIntoPersonalContext() {
+        sharedProject(true, true);
+        CallContext.current().setProject(null);
+        checker.checkAccess(caller, template, AccessType.UseEntry);
+    }
+
+    @Test(expected = PermissionDeniedException.class)
+    public void projectGrantDoesNotLeakIntoAnotherProject() {
+        sharedProject(true, true);
+        Project other = mock(Project.class);
+        when(other.getProjectAccountId()).thenReturn(21L);
+        when(checker._projectMgr.canAccessProjectAccount(caller, 21L)).thenReturn(true);
+        CallContext.current().setProject(other);
+        checker.checkAccess(caller, template, AccessType.UseEntry);
+    }
+
+    @Test(expected = PermissionDeniedException.class)
+    public void revokedProjectGrantIsDeniedWhileMembershipRemains() {
+        sharedProject(true, false);
+        checker.checkAccess(caller, template, AccessType.UseEntry);
+    }
+
+    @Test(expected = PermissionDeniedException.class)
+    public void projectLaunchGrantCannotModifyAnotherOwnersImage() {
+        sharedProject(true, true);
+        checker.checkAccess(caller, template, AccessType.OperateEntry);
+    }
+
 }

@@ -199,6 +199,12 @@ public class DomainChecker extends AdapterBase implements SecurityChecker {
                 // since the current account is not the owner of the template, check the launch permissions table to see if the
                 // account can launch a VM from this template
                 LaunchPermissionVO permission = _launchPermissionDao.findByTemplateAndAccount(template.getId(), caller.getId());
+                if (permission == null && (accessType == null || accessType == AccessType.UseEntry || accessType == AccessType.ListEntry)) {
+                    Project selectedProject = CallContext.current().getProject();
+                    if (selectedProject != null && _projectMgr.canAccessProjectAccount(caller, selectedProject.getProjectAccountId())) {
+                        permission = _launchPermissionDao.findByTemplateAndAccount(template.getId(), selectedProject.getProjectAccountId());
+                    }
+                }
                 if (permission == null) {
                     throw new PermissionDeniedException(String.format("Account %s does not have permission to launch instances from template %s", caller, template));
                 }
