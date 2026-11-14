@@ -51,6 +51,7 @@ size="small"
     <MoldDialog
 class="vnf-template-nic-dialog"
 size="md"
+form-actions
 focus-guard
 :visible="showAddVnfNic || showEditVnfNic"
 :title="$t(showEditVnfNic ? 'label.vnf.nic.edit' : 'label.vnf.nic.add')"
@@ -94,6 +95,7 @@ destroy-on-close
     <MoldDialog
 class="vnf-template-detail-dialog"
 size="md"
+form-actions
 focus-guard
 :visible="showAddVnfDetail || showEditDetail"
 :title="$t(showEditDetail ? 'label.edit.setting' : 'label.vnf.detail.add')"
