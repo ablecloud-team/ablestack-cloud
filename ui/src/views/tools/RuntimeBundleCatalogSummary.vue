@@ -28,7 +28,7 @@
         <router-link v-if="column.key === 'version'" :to="'/runtimebundle/' + record.id">{{ record.version }}</router-link>
       </template>
     </a-table>
-    <div class="template-tab-pagination"><a-pagination :current="page" :page-size="10" :total="total" @change="changePage" /></div>
+    <div class="template-tab-pagination catalog-pagination"><a-pagination :current="page" :page-size="10" :total="total" @change="changePage" /></div>
   </div>
 </template>
 <script>
@@ -67,7 +67,7 @@ export default {
 </script>
 <style scoped lang="less">
 .catalog-summary { min-width: 0; overflow-wrap: anywhere; }
-.catalog-toolbar { display:flex; margin-bottom:16px !important; }
+.catalog-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:20px; }
 .ant-alert { margin-bottom:16px; }
-.ant-pagination { margin-top:16px; }
+.catalog-pagination { display:flex; justify-content:flex-end; margin-top:20px; }
 </style>

@@ -58,6 +58,7 @@
         </keep-alive>
         <a-tabs
           v-else
+          :class="{'template-main-tabs':$route.meta?.name==='template'}"
           :style="{ width: '100%', marginTop: resourceTabPosition === 'top' ? '-12px' : '0' }"
           :tabPosition="resourceTabPosition"
           :animated="false"

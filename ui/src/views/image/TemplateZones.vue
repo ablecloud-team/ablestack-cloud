@@ -19,8 +19,7 @@
   <div class="template-zones">
     <div class="template-tab-toolbar">
       <a-button :loading="fetchLoading" :disabled="operationActive" @click="fetchData"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
-      <a-button v-if="'deleteTemplate' in $store.getters.apis && isActionsOnTemplatePermitted" danger :disabled="operationActive || !selectedRowKeys.length" @click="bulkActionConfirmation"><template #icon><delete-outlined /></template>{{ $t('label.action.bulk.delete.templates') }}</a-button>
-      <span class="zone-selection-status" role="status" :aria-hidden="!selectedRowKeys.length" :style="{visibility:selectedRowKeys.length?'visible':'hidden'}">{{ $t('label.template.selected.count', {count:selectedRowKeys.length}) }}</span>
+      <a-button v-if="'deleteTemplate' in $store.getters.apis && isActionsOnTemplatePermitted" danger :disabled="operationActive || !selectedRowKeys.length" @click="bulkActionConfirmation"><template #icon><delete-outlined /></template>{{ $t('label.action.bulk.delete.templates') }} <span class="zone-selection-count" aria-live="polite">({{ selectedRowKeys.length }})</span></a-button>
     </div>
     <a-alert v-if="listRefreshFailed" type="warning" show-icon :message="$t('message.list.refresh.stale')" />
     <a-table
@@ -29,7 +28,7 @@ size="small"
 :columns="columns"
 :data-source="dataSource"
 :pagination="false"
-:scroll="{x:850}"
+:scroll="{x:800}"
 :row-selection="{selectedRowKeys,onChange:onSelectChange}"
 :row-key="record=>record.zoneid"
 :expand-row-by-click="true"
@@ -38,7 +37,7 @@ size="small"
         <template v-if="column.key==='zonename'"><a-tooltip :title="record.zonename"><span class="template-cell-value"><resource-icon v-if="record.zoneicon?.base64image" :image="record.zoneicon.base64image" size="1x" /><global-outlined v-else /> {{ record.zonename }}</span></a-tooltip></template>
         <template-availability v-else-if="column.dataIndex==='status'" :record="record" compact single-line :show-scope="false" />
         <span v-else-if="column.key==='isready'">{{ $t(record.isready===true?'label.yes':record.isready===false?'label.no':'label.unknown') }}</span>
-        <span v-else-if="column.key==='created'" class="zone-created">{{ record.created ? $toLocaleDate(record.created) : '—' }}</span>
+        <a-tooltip v-else-if="column.key==='created'" :title="record.created ? $toLocaleDate(record.created) : '—'"><span class="template-cell-value zone-created">{{ record.created ? $toLocaleDate(record.created) : '—' }}</span></a-tooltip>
         <div v-else-if="column.key==='actions'" class="template-row-actions zone-row-actions" @click.stop>
           <tooltip-button v-if="'deployVirtualMachine' in $store.getters.apis" :disabled="!record.isready || operationActive" :tooltip="$t('label.vm.add')" icon="rocket-outlined" @onClick="onAddInstance(record)" />
           <template v-if="isActionsOnTemplatePermitted">
@@ -171,7 +170,7 @@ export default {
         key: 'created',
         title: this.$t('label.created'),
         dataIndex: 'created',
-        width: 180
+        width: 168
       },
       {
         title: this.$t('label.status'),
@@ -188,7 +187,7 @@ export default {
         key: 'actions',
         title: '',
         dataIndex: 'actions',
-        width: 180
+        width: 176
       }
     ]
     this.imageStoreInnerColumns = [
