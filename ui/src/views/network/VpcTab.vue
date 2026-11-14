@@ -254,7 +254,7 @@ focus-guard
 </template>
 
 <script>
-import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialog from '@/components/network/VpcDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import VpcActionContext from '@/components/network/VpcActionContext'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'

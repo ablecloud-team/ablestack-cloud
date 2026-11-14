@@ -124,7 +124,7 @@ option-filter-prop="label"
 
 <script>
 import { getAPI, postAPI } from '@/api'
-import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialog from '@/components/network/VpcDialog'
 import { getNetmaskFromCidr } from '@/utils/network'
 import { networkError } from '@/utils/networkLifecycle'
 import { readDiagnosticList } from '@/utils/networkOfferingDiagnostics'

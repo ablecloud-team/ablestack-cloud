@@ -30,7 +30,7 @@
         </template>
       </template>
     </a-table>
-    <MoldDialog v-if="createVisible" size="md" form-actions focus-guard :title="$t('label.add.route')" @cancel="closeCreate">
+    <MoldDialog :visible="createVisible" size="md" form-actions focus-guard :title="$t('label.add.route')" @cancel="closeCreate">
       <VpcActionContext :resources="[resource]" />
       <a-alert v-if="routeError" type="error" show-icon :message="routeError" class="route-notice" />
       <a-form layout="vertical" @finish="handleAdd" v-ctrl-enter="handleAdd">
@@ -39,14 +39,14 @@
         <MoldDialogActions :busy="routeSubmitting"><a-button @click="closeCreate">{{ $t('label.cancel') }}</a-button><a-button type="primary" :loading="routeSubmitting" @click="handleAdd">{{ $t('label.add.route') }}</a-button></MoldDialogActions>
       </a-form>
     </MoldDialog>
-    <MoldDialog v-if="tagsModalVisible" size="md" form-actions focus-guard :title="$t('label.edit.tags')" @cancel="closeTags">
+    <MoldDialog :visible="tagsModalVisible" size="md" form-actions focus-guard :title="$t('label.edit.tags')" @cancel="closeTags">
       <VpcActionContext :resources="[resource]" />
-      <p class="route-identity">{{ selectedRule.cidr }} · {{ selectedRule.id }}</p>
+      <p class="route-identity">{{ selectedRule?.cidr }} · {{ selectedRule?.id }}</p>
       <a-alert v-if="tagError" type="error" show-icon :message="tagError" class="route-notice" />
       <a-spin :spinning="tagsLoading">
         <a-form :ref="formRef" :model="form" :rules="rules" class="route-tags-form" @finish="handleAddTag" v-ctrl-enter="handleAddTag">
-          <a-form-item name="key" ref="key" :label="$t('label.key')"><a-input v-focus="true" v-model:value="form.key" :disabled="tagsLoading" /></a-form-item>
-          <a-form-item name="value" ref="value" :label="$t('label.value')"><a-input v-model:value="form.value" :disabled="tagsLoading" /></a-form-item>
+          <a-form-item name="key" ref="key" :label="$t('label.key')"><a-input ref="tagKeyInput" v-focus="true" v-model:value="form.key" :disabled="tagsLoading" /></a-form-item>
+          <a-form-item name="value" ref="value" :label="$t('label.value')"><a-input ref="tagValueInput" v-model:value="form.value" :disabled="tagsLoading" /></a-form-item>
           <a-button type="primary" :disabled="tagsLoading || !('createTags' in $store.getters.apis)" @click="handleAddTag">{{ $t('label.add') }}</a-button>
         </a-form>
         <a-divider />
@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialog from '@/components/network/VpcDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import VpcActionContext from '@/components/network/VpcActionContext'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
@@ -297,15 +297,22 @@ export default {
         return this.saveTag('createTags', toRaw(this.form))
       } catch (error) {
         this.tagsLoading = false
-        if (error.errorFields?.length) this.formRef.value.scrollToField(error.errorFields[0].name)
+        if (error.errorFields?.length) {
+          this.formRef.value.scrollToField(error.errorFields[0].name)
+          const field = error.errorFields[0].name[0] === 'value' ? 'tagValueInput' : 'tagKeyInput'
+          this.$nextTick(() => { if (this.tagsModalVisible && this.$refs[field]?.focus) this.$refs[field].focus() })
+        }
       }
     },
     openTagsModal (route) {
       this.initForm()
       this.tags = []
       this.selectedRule = route
-      this.fetchTags(this.selectedRule)
       this.tagsModalVisible = true
+      const scope = this.routeContext
+      this.fetchTags(this.selectedRule).then(() => this.$nextTick(() => {
+        if (scope === this.routeContext && this.tagsModalVisible && this.$refs.tagKeyInput?.focus) this.$refs.tagKeyInput.focus()
+      }))
     }
   }
 }

@@ -21,6 +21,7 @@ import Routes from '@/views/network/StaticRoutesTab'
 import VpcTab from '@/views/network/VpcTab'
 import Breadcrumb from '@/components/widgets/Breadcrumb'
 import ResourceView from '@/components/view/ResourceView'
+import AutogenView from '@/views/AutogenView'
 import Context from '@/components/network/VpcActionContext'
 import { getAPI, postAPI } from '@/api'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
@@ -28,6 +29,7 @@ const wrappers = []
 const resource = { id: 'vpc-1', name: '긴 한글 VPC 대상', account: 'owner', domainid: 'domain', zoneid: 'zone' }
 const slot = { render () { return h('div', this.$slots.default?.()) } }
 const form = { setup (_, { expose, slots }) { expose({ validate: () => Promise.resolve(), scrollToField: jest.fn() }); return () => h('form', slots.default?.()) } }
+const input = { props: ['value'], setup (props, { expose }) { expose({ focus: jest.fn() }); return () => h('input', { value: props.value }) } }
 let poll, getters, route, router
 beforeEach(() => {
   jest.clearAllMocks()
@@ -39,7 +41,7 @@ beforeEach(() => {
 })
 afterEach(() => { wrappers.splice(0).forEach(w => w.unmount()) })
 async function open (component = Routes) {
-  const w = shallowMount(component, { props: { resource }, global: { mocks: { $t: k => k, $store: { getters, state: { user: {}, app: { device: 'desktop' } } }, $route: route, $router: router, $pollJob: poll, $notifyError: jest.fn() }, stubs: { ASpin: slot, ATabs: slot, ATabPane: slot, AForm: form, MoldDialog: slot, MoldDialogActions: slot, RouterLink: true } } })
+  const w = shallowMount(component, { props: { resource }, global: { mocks: { $t: k => k, $store: { getters, state: { user: {}, app: { device: 'desktop' } } }, $route: route, $router: router, $pollJob: poll, $notifyError: jest.fn() }, stubs: { ASpin: slot, ATabs: slot, ATabPane: slot, AForm: form, AFormItem: slot, AInput: input, MoldDialog: slot, MoldDialogActions: slot, RouterLink: true } } })
   wrappers.push(w); await flushPromises(); return w
 }
 test('route form rejects empty input locally, then sends exactly once while pending', async () => {
@@ -88,6 +90,11 @@ test('late tag lookup cannot replace the selected route after context change', a
   const w = await open(); let resolvePending; getAPI.mockImplementation(() => new Promise(resolve => { resolvePending = resolve })); w.vm.openTagsModal({ id: 'old' }); getters.project = { id: 'new' }; await flushPromises()
   resolvePending({ listtagsresponse: { tag: [{ key: 'old', value: 'old' }] } }); await flushPromises(); expect(w.vm.tags).toEqual([]); expect(w.vm.tagsModalVisible).toBe(false)
 })
+test('tag lookup focuses the enabled key field and validation moves to the first invalid field', async () => {
+  const w = await open(); w.vm.openTagsModal({ id: 'route' }); await flushPromises(); expect(w.vm.$refs.tagKeyInput.focus).toHaveBeenCalledTimes(1)
+  w.vm.formRef.value = { validate: () => Promise.reject(Object.assign(new Error('required'), { errorFields: [{ name: ['value'] }] })), scrollToField: jest.fn() }
+  await w.vm.handleAddTag(); await flushPromises(); expect(w.vm.$refs.tagValueInput.focus).toHaveBeenCalledTimes(1); expect(postAPI).not.toHaveBeenCalled()
+})
 test('tag submit stays busy until the job finishes and preserves draft after HTTP rejection', async () => {
   const w = await open(); w.vm.selectedRule = { id: 'route' }; w.vm.formRef.value = { validate: () => Promise.resolve() }; Object.assign(w.vm.form, { key: 'purpose', value: 'draft' })
   postAPI.mockResolvedValue({ createtagsresponse: { jobid: 'tag-job' } }); await w.vm.handleAddTag(); await w.vm.handleAddTag()
@@ -129,4 +136,15 @@ test('private gateway breadcrumb returns to its parent VPC gateway tab and updat
 test('dialog context keeps long UUID/name/project ownership visible as text', () => {
   const w = shallowMount(Context, { props: { resources: [{ ...resource, projectid: 'project', project: '프로젝트', domainpath: 'ROOT/자식', name: '<script>long</script>', vpcid: 'parent' }] }, global: { mocks: { $t: k => k }, stubs: { RouterLink: { props: ['to'], render () { return h('a', { href: this.to.path }, this.$slots.default?.()) } } } } }); wrappers.push(w)
   expect(w.text()).toContain('<script>long</script>'); expect(w.text()).toContain('프로젝트'); expect(w.text()).toContain('ROOT/자식'); expect(w.find('script').exists()).toBe(false); expect(w.find('a').attributes('href')).toBe('/vpc/parent')
+})
+test.each(['same action', 'new action', 'new scope'])('generic VPC rejection preserves the active dialog context: %s', async mode => {
+  const action = { api: 'updateVPC', label: 'label.edit', params: [{ name: 'id' }, { name: 'name', type: 'string' }], defaultArgs: {} }
+  let scope = 'original'; let rejectPending
+  const context = { currentAction: action, formRef: { value: { validate: () => Promise.resolve() } }, form: { name: 'preserved name' }, resource, isVpcUi: true, vpcActionError: 'current message', $route: route, selectedItems: [], projectView: false, listScope: () => scope, getDataIdentifier: params => params.id, $notifyError: jest.fn(), $t: key => key, postSnapshotAwareAction: jest.fn(() => new Promise((resolve, reject) => { rejectPending = reject })) }
+  AutogenView.methods.execSubmit.call(context, { preventDefault: jest.fn() }); await flushPromises()
+  expect(context.postSnapshotAwareAction).toHaveBeenCalledWith(action, { id: 'vpc-1', name: 'preserved name' })
+  if (mode === 'new action') context.currentAction = { ...action }
+  if (mode === 'new scope') scope = 'different'
+  rejectPending({ response: { data: { errorresponse: { errortext: 'late rejection' } } } }); await flushPromises()
+  expect(context.vpcActionError).toBe(mode === 'same action' ? 'late rejection' : 'current message'); expect(context.form.name).toBe('preserved name'); expect(context.actionLoading).toBe(false)
 })

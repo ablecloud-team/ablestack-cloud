@@ -71,7 +71,7 @@ under the License.
 import { v4 as uuid } from 'uuid'
 import { getAPI, postAPI } from '@/api'
 import eventBus from '@/config/eventBus'
-import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialog from '@/components/network/VpcDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import OwnershipSelection from '@/views/compute/wizard/OwnershipSelection'
 import { networkCollection } from '@/utils/networkLifecycle'

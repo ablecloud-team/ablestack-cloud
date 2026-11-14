@@ -59,7 +59,7 @@ under the License.
 import { v4 as uuid } from 'uuid'
 import { getAPI, postAPI } from '@/api'
 import eventBus from '@/config/eventBus'
-import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialog from '@/components/network/VpcDialog'
 import { createJobTracker } from '@/utils/jobTracker'
 import { vpcVpnApis, vpcVpnContext, vpcVpnOwner, vpcVpnIps, vpcVpnSameOwner } from '@/utils/vpcVpn'
 

@@ -196,7 +196,7 @@
       />
       <keep-alive :max="(isStorageUi || isPolicyUi || isObjectStorageUi) ? 1 : undefined" v-else-if="currentAction.component && (!currentAction.invokedAsGroupAction || ['destroyVirtualMachine', 'deleteBackup', 'destroySharedFileSystem'].includes(currentAction.api))">
         <component
-          :is="currentAction.fixedFormFooter ? 'SharedFSFormDialog' : standardActionDialog ? 'MoldDialog' : 'a-modal'"
+          :is="currentAction.fixedFormFooter ? 'SharedFSFormDialog' : isVpcUi ? 'VpcDialog' : standardActionDialog ? 'MoldDialog' : 'a-modal'"
           :size="currentAction.standardDialogSize || (isVpcUi || isObjectStorageUi ? 'md' : isStorageUi ? storageDialogSize(currentAction.api) : undefined)"
           class="mold-dialog"
           :class="{ 'object-storage-dialog': isObjectStorageUi, 'autoscale-dialog': $route.meta?.name === 'autoscalevmgroup', 'storage-standard-dialog': standardActionDialog, 'vpc-standard-dialog': isVpcUi, 'snapshot-standard-dialog': currentAction.snapshotStandardDialog, 'sharedfs-standard-dialog': $route.meta?.name === 'sharedfs' }"
@@ -226,7 +226,7 @@
               <question-circle-outlined />
             </a>
           </template>
-          <VpcActionContext v-if="isVpcUi && resource.id" :resources="[resource]" />
+          <VpcActionContext v-if="isVpcUi && resource.id && !currentAction.listView" :resources="[resource]" />
           <keep-alive :max="(isStorageUi || isPolicyUi || isObjectStorageUi) ? 1 : undefined">
             <component
               :key="(isStorageUi || isPolicyUi || isObjectStorageUi) ? storageActionGeneration : undefined"
@@ -482,7 +482,7 @@
         <br />
       </component>
       <component
-        :is="(isVpcUi || isStorageUi || isBucketGroupDelete || isGuestNetworkDelete) ? 'MoldDialog' : 'a-modal'"
+        :is="isVpcUi ? 'VpcDialog' : (isStorageUi || isBucketGroupDelete || isGuestNetworkDelete) ? 'MoldDialog' : 'a-modal'"
         :size="(isVpcUi || isStorageUi || isBucketGroupDelete || isGuestNetworkDelete) ? 'md' : undefined"
         class="mold-dialog"
         :class="{ 'storage-standard-dialog': isStorageUi || isBucketGroupDelete || isGuestNetworkDelete, 'vpc-standard-dialog': isVpcUi, 'object-storage-dialog': isBucketGroupDelete, 'autoscale-dialog': $route.meta?.name === 'autoscalevmgroup' }"
@@ -512,7 +512,7 @@
             <question-circle-outlined />
           </a>
         </template>
-        <VpcActionContext v-if="isVpcUi" :resources="currentAction.invokedAsGroupAction ? selectedItems : [resource]" />
+        <VpcActionContext v-if="isVpcUi && !currentAction.listView" :resources="currentAction.invokedAsGroupAction ? selectedItems : [resource]" />
         <a-alert v-if="isVpcUi && vpcActionError" type="error" show-icon :message="vpcActionError" style="margin-bottom: 16px" />
         <a-spin
           :spinning="actionLoading"
@@ -984,6 +984,7 @@ import Breadcrumb from '@/components/widgets/Breadcrumb'
 import { documentationUrl } from '@/utils/cniFileImport'
 import ListView from '@/components/view/ListView'
 import ResourceView from '@/components/view/ResourceView'
+import VpcDialog from '@/components/network/VpcDialog'
 import VpcActionContext from '@/components/network/VpcActionContext'
 import MoldDialog from '@/components/view/MoldDialog'
 import NetworkOperationPolicy from '@/components/view/NetworkOperationPolicy'
@@ -1021,6 +1022,7 @@ export default {
     Breadcrumb,
     MoldDialog,
     VpcActionContext,
+    VpcDialog,
     ResourceView,
     ListView,
     ActionButton,
@@ -3360,7 +3362,7 @@ export default {
           }
 
           if (!isVmGroupAction(action.api)) console.log(error)
-          if (this.isVpcUi) this.vpcActionError = Object.values(error.response?.data || {}).find(value => value?.errortext)?.errortext || error.message || this.$t('error.fetching.data')
+          if (this.isVpcUi && this.currentAction === action && actionScope === this.listScope()) this.vpcActionError = Object.values(error.response?.data || {}).find(value => value?.errortext)?.errortext || error.message || this.$t('error.fetching.data')
           eventBus.emit('update-resource-state', { selectedItems: this.selectedItems, resource: this.getDataIdentifier(params), state: 'failed' })
           if (isVmGroupAction(action.api)) this.notifyVmGroupError(error)
           else this.$notifyError(error)

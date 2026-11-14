@@ -112,7 +112,7 @@ focus-guard
 import { v4 as uuid } from 'uuid'
 import { getAPI, postAPI } from '@/api'
 import eventBus from '@/config/eventBus'
-import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialog from '@/components/network/VpcDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { createJobTracker } from '@/utils/jobTracker'
 import { vpcMigrationVisible, vpcMigrationIdentity, vpcMigrationReason, readVpcMigrationContext, vpcMigrationTargets, vpcTierMigrationTargets, buildVpcMigrationPlan, diagnoseVpcMigrationPlan, vpcMigrationParams, vpcMigrationPlanFingerprint, validVpcMigrationJob, vpcMigrationPreservation, vpcMigrationFingerprint, vpcMigrationSucceeded } from '@/utils/vpcMigration'
