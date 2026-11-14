@@ -19,6 +19,7 @@ under the License.
 <template>
   <MoldDialog :visible="!closed" :title="$t('label.add.new.gateway')" size="md" focus-guard :closable="!busy" :keyboard="!busy" @cancel="close">
     <div class="gateway-target"><strong>{{ resource.name }}</strong><span>{{ resource.id }}</span><span>{{ resource.project || resource.account }} · {{ resource.zonename }}</span></div>
+    <a-alert type="info" show-icon :message="$t('message.vpc.create.gateway.offering.policy')" />
     <a-alert v-if="!allowed" type="warning" show-icon :message="$t('message.private.gateway.context')" role="alert" />
     <a-alert v-if="error" type="error" show-icon :message="$t('message.private.gateway.failed')" :description="error" role="alert" />
     <a-alert v-if="jobId || lastJobId" :type="busy ? 'info' : 'warning'" show-icon :message="$t('message.private.gateway.' + (busy ? 'pending' : jobId ? 'unknown' : 'failed.job'))" role="status">

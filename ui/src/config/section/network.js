@@ -355,6 +355,7 @@ export default {
           show: isZoneCreated,
           listView: true,
           popup: true,
+          selfManagedDialog: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/network/CreateVpc.vue')))
         },
         {

@@ -72,6 +72,7 @@ test.each(['Admin', 'User'])('%s sends one explicit ACL and only allowed connect
   const { w } = await open(role); fill(w); w.vm.draft.acl = 'allow'; await w.vm.submit()
   expect(postAPI).toHaveBeenCalledTimes(1); expect(w.emitted('success')).toHaveLength(1); expect(w.emitted('cancel')).toHaveLength(1); expect(submitted.aclid).toBe('allow')
   expect(submitted).toMatchObject({ account: 'owner', domainid: 'domain', ignoreproject: true })
+  expect(submitted).not.toHaveProperty('networkofferingid')
   expect(submitted).not.toHaveProperty(role === 'Admin' ? 'associatednetworkid' : 'vlan')
   expect(getAPI).toHaveBeenCalledWith('listPrivateGateways', expect.objectContaining({ id: 'gateway-1', vpcid: 'vpc' }), expect.any(Object)); expect(sessionStorage.getItem(w.vm.entryKey)).toBeNull()
 })

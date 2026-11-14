@@ -1,540 +1,261 @@
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements. See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership. The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied. See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
 <template>
-  <div class="form-layout" v-ctrl-enter="handleSubmit">
-    <a-spin :spinning="loading">
-      <a-form
-        :ref="formRef"
-        :model="form"
-        :rules="rules"
-        layout="vertical"
-       >
-        <a-form-item name="name" ref="name">
-          <template #label>
-            <tooltip-label :title="$t('label.name')" :tooltip="apiParams.name.description"/>
-          </template>
-          <a-input
-            v-model:value="form.name"
-            :placeholder="apiParams.name.description"
-            v-focus="true"/>
-        </a-form-item>
-        <a-form-item name="displaytext" ref="displaytext">
-          <template #label>
-            <tooltip-label :title="$t('label.displaytext')" :tooltip="apiParams.displaytext.description"/>
-          </template>
-          <a-input
-            v-model:value="form.displaytext"
-            :placeholder="apiParams.displaytext.description"/>
-        </a-form-item>
-        <a-form-item name="zoneid" ref="zoneid">
-          <template #label>
-            <tooltip-label :title="$t('label.zoneid')" :tooltip="apiParams.zoneid.description"/>
-          </template>
-          <a-select
-            :loading="loadingZone"
-            v-model:value="form.zoneid"
-            @change="val => changeZone(val)"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
-            <a-select-option v-for="zone in zones" :key="zone.id" :label="zone.name">
-              <span>
-                <resource-icon v-if="zone.icon" :image="zone.icon.base64image" size="1x" style="margin-right: 5px"/>
-                <global-outlined v-else style="margin-right: 5px" />
-                {{ zone.name }}
-              </span>
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <ownership-selection v-if="isAdminOrDomainAdmin()" @fetch-owner="fetchOwnerOptions"/>
-        <a-form-item name="cidr" ref="cidr" v-if="selectedVpcOffering && (selectedVpcOffering.networkmode !== 'ROUTED' || isAdmin())">
-          <template #label>
-            <tooltip-label :title="$t('label.cidr')" :tooltip="apiParams.cidr.description"/>
-          </template>
-          <a-input
-            v-model:value="form.cidr"
-            :placeholder="apiParams.cidr.description"/>
-        </a-form-item>
-        <a-form-item
-          v-if="selectedVpcOfferingHavingRoutedNetworkMode"
-          ref="cidrsize"
-          name="cidrsize">
-          <template #label>
-            <tooltip-label :title="$t('label.cidrsize')" :tooltip="apiParams.cidrsize.description"/>
-          </template>
-          <a-input
-            v-model:value="form.cidrsize"
-            :placeholder="apiParams.cidrsize.description"/>
-        </a-form-item>
-        <a-form-item name="networkdomain" ref="networkdomain">
-          <template #label>
-            <tooltip-label :title="$t('label.networkdomain')" :tooltip="apiParams.networkdomain.description"/>
-          </template>
-          <a-input
-            v-model:value="form.networkdomain"
-            :placeholder="apiParams.networkdomain.description"/>
-        </a-form-item>
-        <a-form-item name="vpcofferingid" ref="vpcofferingid">
-          <template #label>
-            <tooltip-label :title="$t('label.vpcofferingid')" :tooltip="apiParams.vpcofferingid.description"/>
-          </template>
-          <a-select
-            :loading="loadingOffering"
-            v-model:value="form.vpcofferingid"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }"
-            @change="handleVpcOfferingChange" >
-            <a-select-option :value="offering.id" v-for="offering in vpcOfferings" :key="offering.id" :label="offering.name">
-              {{ offering.name }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item ref="asnumber" name="asnumber" v-if="isASNumberRequired()">
-          <template #label>
-            <tooltip-label :title="$t('label.asnumber')" :tooltip="apiParams.asnumber.description"/>
-          </template>
-          <a-select
-            v-model:value="form.asnumber"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }"
-            :loading="asNumberLoading"
-            :placeholder="apiParams.asnumber.description"
-            @change="val => { handleASNumberChange(val) }">
-            <a-select-option v-for="(opt, optIndex) in asNumbersZone" :key="optIndex" :label="opt.asnumber">
-              {{ opt.asnumber }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <div v-if="setMTU">
-          <a-form-item
-            ref="publicmtu"
-            name="publicmtu">
-            <template #label>
-              <tooltip-label :title="$t('label.publicmtu')" :tooltip="apiParams.publicmtu.description"/>
-            </template>
-            <a-input-number
-              style="width: 100%;"
-              v-model:value="form.publicmtu"
-              :placeholder="apiParams.publicmtu.description"
-              @change="updateMtu()"/>
-              <div style="color: red" v-if="errorPublicMtu" v-html="errorPublicMtu"></div>
-          </a-form-item>
-        </div>
-        <div v-if="isNsxNetwork">
-          <a-form-item name="userouteripresolver" ref="userouteripresolver">
-            <template #label>
-              <tooltip-label :title="$t('label.use.router.ip.resolver')" :tooltip="apiParams.userouteripresolver.description"/>
-            </template>
-            <a-switch v-model:checked="useRouterIpResolver" />
-          </a-form-item>
-        </div>
-        <a-row :gutter="12" v-if="selectedVpcOfferingSupportsDns && !useRouterIpResolver">
-          <a-col :md="12" :lg="12">
-            <a-form-item v-if="'dns1' in apiParams" name="dns1" ref="dns1">
-              <template #label>
-                <tooltip-label :title="$t('label.dns1')" :tooltip="apiParams.dns1.description"/>
-              </template>
-              <a-input
-                v-model:value="form.dns1"
-                :placeholder="apiParams.dns1.description"/>
-            </a-form-item>
-          </a-col>
-          <a-col :md="12" :lg="12">
-            <a-form-item v-if="'dns2' in apiParams" name="dns2" ref="dns2">
-              <template #label>
-                <tooltip-label :title="$t('label.dns2')" :tooltip="apiParams.dns2.description"/>
-              </template>
-              <a-input
-                v-model:value="form.dns2"
-                :placeholder="apiParams.dns2.description"/>
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-row :gutter="12" v-if="selectedVpcOfferingSupportsDns">
-          <a-col :md="12" :lg="12">
-            <a-form-item v-if="selectedVpcOffering && selectedVpcOffering.internetprotocol === 'DualStack' && 'ip6dns1' in apiParams" name="ip6dns1" ref="ip6dns1">
-              <template #label>
-                <tooltip-label :title="$t('label.ip6dns1')" :tooltip="apiParams.ip6dns1.description"/>
-              </template>
-              <a-input
-                v-model:value="form.ip6dns1"
-                :placeholder="apiParams.ip6dns1.description"/>
-            </a-form-item>
-          </a-col>
-          <a-col :md="12" :lg="12">
-            <a-form-item v-if="selectedVpcOffering && selectedVpcOffering.internetprotocol === 'DualStack' && 'ip6dns2' in apiParams" name="ip6dns2" ref="ip6dns2">
-              <template #label>
-                <tooltip-label :title="$t('label.ip6dns2')" :tooltip="apiParams.ip6dns2.description"/>
-              </template>
-              <a-input
-                v-model:value="form.ip6dns2"
-                :placeholder="apiParams.ip6dns2.description"/>
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-form-item v-if="selectedNetworkOfferingSupportsSourceNat && !isNsxNetwork" name="sourcenatipaddress" ref="sourcenatipaddress">
-          <template #label>
-            <tooltip-label :title="$t('label.routerip')" :tooltip="apiParams.sourcenatipaddress?.description"/>
-          </template>
-          <a-input
-            v-model:value="form.sourcenatipaddress"
-            :placeholder="apiParams.sourcenatipaddress?.description"/>
-        </a-form-item>
-        <a-form-item name="keepMacAddressOnPublicNic" ref="keepMacAddressOnPublicNic" v-if="isAdmin()">
-          <template #label>
-            <tooltip-label
-              :title="$t('label.keep.mac.address.on.public.nic')"
-              :tooltip="apiParams.keepmacaddressonpublicnic?.description"
-            />
-          </template>
-          <a-switch v-model:checked="form.keepMacAddressOnPublicNic" />
-        </a-form-item>
-        <a-form-item name="start" ref="start">
-          <template #label>
-            <tooltip-label :title="$t('label.start')" :tooltip="apiParams.start.description"/>
-          </template>
-          <a-switch v-model:checked="form.start" />
-        </a-form-item>
-      </a-form>
-      <div :span="24" class="action-button">
-        <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-        <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-      </div>
-    </a-spin>
-  </div>
+  <MoldDialog
+    class="vpc-create-dialog"
+    size="md"
+    form-actions
+    focus-guard
+    :title="$t('label.add.vpc')"
+    :closable="!submitting"
+    :keyboard="!submitting"
+    @cancel="closeAction">
+    <a-alert v-if="error" type="error" show-icon :message="error" role="alert" />
+    <template v-if="pending">
+      <a-alert type="warning" show-icon :message="$t('message.vpc.create.receipt')" role="status" />
+      <div class="vpc-create-target"><strong>{{ pending.params.name }}</strong><span>{{ pending.params.zoneid }} · {{ pending.params.vpcofferingid }}</span><span>{{ pending.params.projectid || pending.params.account }} · {{ pending.params.domainid || '—' }}</span><span>{{ $t('label.job.id') }}: {{ pending.id }}</span></div>
+    </template>
+    <a-form v-else ref="formRef" :model="form" :rules="rules" layout="vertical" @keydown.ctrl.enter.prevent.stop="handleSubmit">
+      <div class="vpc-create-toolbar"><span role="status">{{ $t('message.vpc.create.' + (loadingZones || loadingOffering ? 'loading' : loadReason || 'review')) }}</span><a-button :loading="loadingZones || loadingOffering" :disabled="submitting || loadingZones || loadingOffering" @click="reload">{{ $t('label.retry') }}</a-button></div>
+      <a-alert v-if="loadReason" type="warning" show-icon :message="$t('message.vpc.create.' + loadReason)" role="alert" />
+      <a-form-item name="name" :label="$t('label.name')"><a-input v-model:value="form.name" :disabled="submitting" :aria-label="$t('label.name')" /></a-form-item>
+      <a-form-item name="displaytext" :label="$t('label.displaytext')"><a-input v-model:value="form.displaytext" :disabled="submitting" :aria-label="$t('label.displaytext')" /></a-form-item>
+      <a-form-item name="zoneid" :label="$t('label.zoneid')">
+        <a-select :value="form.zoneid || undefined" :loading="loadingZones" :disabled="submitting || loadingZones || !permitted" :aria-label="$t('label.zoneid')" show-search option-filter-prop="label" @change="changeZone"><a-select-option v-for="z in zones" :key="z.id" :value="z.id" :label="z.name">{{ z.name }}</a-select-option></a-select>
+      </a-form-item>
+      <OwnershipSelection v-if="selectOwner" embedded safe-scope :disabled="submitting" @fetch-owner="fetchOwnerOptions" />
+      <p v-else class="vpc-create-help">{{ $t('label.account') }}: {{ activeProject ? ($store.getters.project?.name || activeProject) : $store.getters.userInfo?.account }}</p>
+      <a-form-item name="vpcofferingid" :label="$t('label.vpcoffering')">
+        <a-select :value="form.vpcofferingid || undefined" :loading="loadingOffering" :disabled="submitting || loadingOffering || !loaded" :aria-label="$t('label.vpcoffering')" show-search option-filter-prop="label" @change="handleVpcOfferingChange"><a-select-option v-for="r in offeringRows" :key="r.offering.id" :value="r.offering.id" :label="r.offering.name" :disabled="!!r.reason">{{ r.offering.name }}{{ r.reason ? ' · ' + $t('message.vpc.create.reason.' + r.reason) : '' }}</a-select-option></a-select>
+      </a-form-item>
+      <details v-if="unavailable.length" class="vpc-create-help"><summary>{{ $t('label.vpc.create.unavailable') }} ({{ unavailable.length }})</summary><ul><li v-for="r in unavailable" :key="r.offering.id">{{ r.offering.name }}: {{ $t('message.vpc.create.reason.' + r.reason) }}<span v-for="(issue, i) in r.diagnostic.issues" :key="i"> · {{ issue.service }} / {{ issue.provider }}: {{ $t('message.network.diagnostics.' + issue.reason) }}</span></li></ul></details>
+      <template v-if="choice">
+        <div class="vpc-create-target"><strong>{{ choice.offering.name }}</strong><span>{{ choice.offering.id }}</span><span>{{ choice.offering.internetprotocol || 'IPv4' }} · {{ mode }} / {{ routing }} · {{ choice.offering.state }}</span><span>{{ services }}</span></div>
+        <a-alert :type="choice.diagnostic.status === 'ready' && !choice.unverified ? 'success' : 'warning'" show-icon :message="$t('message.vpc.create.diagnostic.' + (choice.unverified ? 'advanced' : choice.diagnostic.status))" :description="choice.diagnostic.network ? choice.diagnostic.network.name + ' · ' + choice.diagnostic.network.id : undefined" />
+        <p class="vpc-create-help">{{ $t('message.network.diagnostics.configuration.only') }}</p>
+        <a-form-item v-if="!fields.routed || admin" name="cidr" :label="$t('label.cidr')"><a-input v-model:value="form.cidr" :disabled="submitting" :aria-label="$t('label.cidr')" /></a-form-item>
+        <a-form-item v-if="fields.routed" name="cidrsize" :label="$t('label.cidrsize')"><a-input-number v-model:value="form.cidrsize" :disabled="submitting" :min="1" :max="32" :aria-label="$t('label.cidrsize')" /></a-form-item>
+        <a-form-item name="networkdomain" :label="$t('label.networkdomain')"><a-input v-model:value="form.networkdomain" :disabled="submitting" :aria-label="$t('label.networkdomain')" /></a-form-item>
+        <a-form-item v-if="fields.asNumber" name="asnumber" :label="$t('label.asnumber')"><a-select :value="form.asnumber" :loading="asLoading" :disabled="submitting || asLoading" :aria-label="$t('label.asnumber')" show-search option-filter-prop="label" @change="value => form.asnumber = value"><a-select-option v-for="a in asNumbers" :key="a.id" :value="Number(a.asnumber)" :label="String(a.asnumber)">{{ a.asnumber }}</a-select-option></a-select><p v-if="!asLoading && !asNumbers.length" class="vpc-create-help" role="alert">{{ $t('message.vpc.create.as.empty') }}</p></a-form-item>
+        <a-form-item v-if="fields.mtu" name="publicmtu" :label="$t('label.publicmtu')"><a-input-number v-model:value="form.publicmtu" :disabled="submitting" :min="68" :max="Number(zone.routerpublicinterfacemaxmtu || 1500)" :aria-label="$t('label.publicmtu')" /></a-form-item>
+        <a-form-item v-if="fields.resolver" :label="$t('label.use.router.ip.resolver')"><a-switch :checked="!!form.userouteripresolver" :disabled="submitting" :aria-label="$t('label.use.router.ip.resolver')" @change="changeResolver" /></a-form-item>
+        <a-row v-if="fields.dns && !form.userouteripresolver" :gutter="16"><a-col v-for="k in ['dns1', 'dns2']" :key="k" :xs="24" :sm="12"><a-form-item :name="k" :label="$t('label.' + k)"><a-input v-model:value="form[k]" :disabled="submitting" :aria-label="$t('label.' + k)" /></a-form-item></a-col></a-row>
+        <a-row v-if="fields.dns && fields.ipv6" :gutter="16"><a-col v-for="k in ['ip6dns1', 'ip6dns2']" :key="k" :xs="24" :sm="12"><a-form-item v-if="apiParams[k]" :name="k" :label="$t('label.' + k)"><a-input v-model:value="form[k]" :disabled="submitting" :aria-label="$t('label.' + k)" /></a-form-item></a-col></a-row>
+        <a-form-item v-if="fields.sourceNat" name="sourcenatipaddress" :label="$t('label.routerip')"><a-input v-model:value="form.sourcenatipaddress" :disabled="submitting" :aria-label="$t('label.routerip')" /></a-form-item>
+        <a-form-item v-if="fields.mac" :label="$t('label.keep.mac.address.on.public.nic')"><a-switch v-model:checked="form.keepmacaddressonpublicnic" :disabled="submitting" :aria-label="$t('label.keep.mac.address.on.public.nic')" /></a-form-item>
+        <a-form-item :label="$t('label.start')"><a-switch v-model:checked="form.start" :disabled="submitting" :aria-label="$t('label.start')" /></a-form-item>
+        <a-alert v-if="routing === 'Dynamic'" type="info" show-icon :message="$t('message.vpc.create.bgp.policy')" />
+        <a-checkbox v-if="choice.unverified" v-model:checked="advancedAcknowledged" :disabled="submitting">{{ $t('message.vpc.create.advanced.ack') }}</a-checkbox>
+      </template>
+    </a-form>
+    <MoldDialogActions :busy="submitting" @keydown.ctrl.enter.prevent.stop="handleSubmit"><a-button :disabled="submitting" @click="closeAction">{{ $t('label.cancel') }}</a-button><a-button v-if="pending" type="primary" :loading="submitting" :disabled="submitting || storageError || !permitted" @click="recheck">{{ $t('label.network.restart.recheck') }}</a-button><a-button v-else type="primary" :loading="submitting" :disabled="!canSubmit" @click="handleSubmit">{{ $t('label.ok') }}</a-button></MoldDialogActions>
+  </MoldDialog>
 </template>
 <script>
-import { ref, reactive, toRaw } from 'vue'
+import { v4 as uuid } from 'uuid'
 import { getAPI, postAPI } from '@/api'
-import { isAdmin, isAdminOrDomainAdmin } from '@/role'
-import { isValidIPv4Cidr } from '@/utils/util.js'
-import ResourceIcon from '@/components/view/ResourceIcon'
-import TooltipLabel from '@/components/widgets/TooltipLabel'
-import OwnershipSelection from '@/views/compute/wizard/OwnershipSelection.vue'
+import eventBus from '@/config/eventBus'
+import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
+import OwnershipSelection from '@/views/compute/wizard/OwnershipSelection'
+import { networkCollection } from '@/utils/networkLifecycle'
+import { isValidIPv4Cidr } from '@/utils/util'
+import { vpcCreateApis, vpcCreateZoneAllowed, vpcCreateFields, vpcCreateMode, vpcCreateRouting, vpcCreateOfferingFingerprint, vpcCreateDiagnosticFingerprint, vpcCreateZoneFingerprint, resetVpcCreateFields, readVpcCreateChoices, readVpcCreateAsNumbers, buildVpcCreateParams } from '@/utils/vpcCreate'
 
 export default {
   name: 'CreateVpc',
-  components: {
-    OwnershipSelection,
-    ResourceIcon,
-    TooltipLabel
-  },
-  data () {
-    return {
-      loading: false,
-      loadingZone: false,
-      selectedZone: {},
-      loadingOffering: false,
-      setMTU: false,
-      zoneid: '',
-      zones: [],
-      vpcOfferings: [],
-      publicMtuMax: 1500,
-      minMTU: 68,
-      errorPublicMtu: '',
-      selectedVpcOffering: {},
-      isNsxNetwork: false,
-      asNumberLoading: false,
-      asNumbersZone: [],
-      selectedAsNumber: 0,
-      useRouterIpResolver: false
-    }
-  },
-  beforeCreate () {
-    this.apiParams = this.$getApiParams('createVPC')
-  },
-  created () {
-    this.initForm()
-    this.fetchData()
-    console.log(this.setMTU)
-  },
+  inheritAttrs: false,
+  components: { MoldDialog, MoldDialogActions, OwnershipSelection },
+  emits: ['close-action', 'refresh-data'],
+  data: () => ({ form: { name: '', displaytext: '', start: true, keepmacaddressonpublicnic: true }, owner: null, ownerReady: false, zones: [], offeringRows: [], asNumbers: [], loadingZones: false, loadingOffering: false, asLoading: false, submitting: false, loaded: false, loadReason: '', error: '', advancedAcknowledged: false, requestEpoch: 0, asEpoch: 0, zoneEpoch: 0, origin: '', entryKey: '', pending: null, storageError: false, disposed: false, closed: false }),
   computed: {
-    selectedVpcOfferingSupportsDns () {
-      if (this.selectedVpcOffering) {
-        const services = this.selectedVpcOffering?.service || []
-        const dnsServices = services.filter(service => service.name === 'Dns')
-        return dnsServices && dnsServices.length === 1
-      }
-      return false
-    },
-    selectedNetworkOfferingSupportsSourceNat () {
-      if (this.selectedVpcOffering) {
-        const services = this.selectedVpcOffering?.service || []
-        const sourcenatService = services.filter(service => service.name === 'SourceNat')
-        return sourcenatService && sourcenatService.length === 1
-      }
-      return false
-    },
-    selectedVpcOfferingHavingRoutedNetworkMode () {
-      return this.selectedVpcOffering && this.selectedVpcOffering.networkmode === 'ROUTED'
+    admin () { return this.$store.getters.userInfo?.roletype === 'Admin' },
+    activeProject () { const id = this.$store.getters.project?.id; return id && String(id) !== '0' ? id : '' },
+    selectOwner () { return ['Admin', 'DomainAdmin'].includes(this.$store.getters.userInfo?.roletype) && !this.activeProject },
+    apiParams () { return Object.fromEntries((this.$store.getters.apis?.createVPC?.params || []).map(p => [p.name, p])) },
+    permitted () { return vpcCreateApis.every(a => this.$store.getters.apis?.[a]) },
+    securityScope () { const g = this.$store.getters; const u = g.userInfo || {}; return JSON.stringify([this.$route.fullPath, u.id, u.roleid, u.roletype, this.$store.state?.user?.token, g.project?.id, [...vpcCreateApis, 'listProjects', 'listASNumbers', 'listPhysicalNetworks', 'listTrafficTypes', 'listNetworkServiceProviders', 'listVirtualRouterElements'].map(a => !!g.apis?.[a]), (g.apis?.createVPC?.params || []).map(p => p.name).sort()]) },
+    contextScope () { return JSON.stringify([this.securityScope, this.owner, this.ownerReady, this.form.zoneid]) },
+    storageKey () { const u = this.$store.getters.userInfo || {}; return 'vpc-create-receipt:v1:' + JSON.stringify([u.id, u.roleid, u.roletype, this.activeProject]) },
+    zone () { return this.zones.find(z => z.id === this.form.zoneid) },
+    choice () { return this.offeringRows.find(r => r.offering.id === this.form.vpcofferingid && !r.reason) },
+    fields () { return vpcCreateFields(this.choice?.offering, this.zone, this.$store.getters) },
+    mode () { return vpcCreateMode(this.choice?.offering) },
+    routing () { return vpcCreateRouting(this.choice?.offering) },
+    unavailable () { return this.offeringRows.filter(r => r.reason) },
+    services () { return (this.choice?.offering.service || []).map(s => s.name + ': ' + (s.provider || []).map(p => p.name).join(', ')).join('; ') },
+    canSubmit () { return this.current() && this.permitted && this.ownerReady && this.loaded && !!this.choice && !this.loadReason && !this.pending && !this.storageError && !this.loadingZones && !this.loadingOffering && !this.asLoading && !this.submitting && (!this.fields.asNumber || this.asNumbers.some(a => Number(a.asnumber) === Number(this.form.asnumber))) && (!this.choice.unverified || this.advancedAcknowledged) },
+    rules () {
+      const required = [{ required: true, message: this.$t('message.error.required.input') }]
+      const cidr = { validator: (rule, value) => this.fields.routed && !value ? Promise.resolve() : isValidIPv4Cidr(rule, value) }
+      return { name: required, zoneid: required, vpcofferingid: required, cidr: this.fields.routed ? [cidr] : [...required, cidr], displaytext: this.apiParams.displaytext?.required ? required : [] }
     }
   },
+  watch: { securityScope: { flush: 'sync', handler () { this.invalidate() } } },
+  created () {
+    this.origin = this.securityScope; this.entryKey = this.storageKey
+    try {
+      const record = JSON.parse(sessionStorage.getItem(this.entryKey) || 'null')
+      if (record) {
+        if (record.version !== 1 || !record.id || !record.params?.name || record.userId !== this.$store.getters.userInfo.id) throw new Error('Invalid receipt')
+        this.pending = record
+      }
+    } catch (_) { this.storageError = true; this.error = this.$t('message.vpc.create.storage') }
+    eventBus.on('project-switch-start', this.invalidate)
+    if (!this.pending) this.reload()
+  },
+  beforeUnmount () { this.disposed = true; ++this.requestEpoch; ++this.zoneEpoch; ++this.asEpoch; eventBus.off('project-switch-start', this.invalidate) },
   methods: {
-    isAdminOrDomainAdmin,
-    initForm () {
-      this.formRef = ref()
-      this.form = reactive({
-        start: true,
-        keepMacAddressOnPublicNic: true
-      })
-      this.rules = reactive({
-        name: [{ required: true, message: this.$t('message.error.required.input') }],
-        zoneid: [{ required: true, message: this.$t('label.required') }],
-        cidr: [{ required: true, message: this.$t('message.error.required.input'), validator: isValidIPv4Cidr }],
-        vpcofferingid: [{ required: true, message: this.$t('label.required') }]
-      })
+    current () { return !this.closed && !this.disposed && this.origin === this.securityScope },
+    invalidate () { if (this.closed) return; this.closed = true; ++this.requestEpoch; ++this.asEpoch; ++this.zoneEpoch; this.$emit('close-action') },
+    closeAction () { if (!this.submitting) this.invalidate() },
+    read (api, params, options = {}) { return getAPI(api, params, { ...options, preserveOnFailure: true, backgroundJob: true, timeout: 15000 }) },
+    text (e) { const d = Object.values(e?.response?.data || {}).find(x => x?.errorcode); const message = d?.errortext || e?.message || this.$t('message.request.failed'); return message.startsWith('message.vpc.create.') ? this.$t(message) : [d?.errorcode, message].filter(Boolean).join(': ') },
+    reason (e) { const d = Object.values(e?.response?.data || {}).find(x => x?.errorcode); return e?.response?.status === 403 || [401, 531].includes(d?.errorcode) ? 'permission' : 'lookup' },
+    clearChoices (full = false) {
+      ++this.requestEpoch; ++this.asEpoch; this.form.vpcofferingid = undefined; this.offeringRows = []; this.asNumbers = []; this.loaded = false; this.loadingOffering = false; this.asLoading = false; this.advancedAcknowledged = false
+      resetVpcCreateFields(this.form, null, null, this.zone, this.$store.getters, full)
     },
-    isASNumberRequired () {
-      return !this.isObjectEmpty(this.selectedVpcOffering) && this.selectedVpcOffering.specifyasnumber && this.selectedVpcOffering?.routingmode.toLowerCase() === 'dynamic'
-    },
-    isObjectEmpty (obj) {
-      return !(obj !== null && obj !== undefined && Object.keys(obj).length > 0 && obj.constructor === Object)
-    },
-    async fetchData () {
-      this.fetchZones()
-    },
-    isAdmin () {
-      return isAdmin()
-    },
-    fetchPublicMtuForZone () {
-      getAPI('listConfigurations', {
-        name: 'vr.public.interface.mtu',
-        zoneid: this.form.zoneid
-      }).then(json => {
-        this.publicMtuMax = json?.listconfigurationsresponse?.configuration[0]?.value || 1500
-      })
-    },
-    fetchZones () {
-      this.loadingZone = true
-      getAPI('listZones', { showicon: true }).then((response) => {
-        const listZones = response.listzonesresponse.zone || []
-        this.zones = listZones.filter(zone => !zone.securitygroupsenabled)
-        this.form.zoneid = ''
-        if (this.zones.length > 0) {
-          this.form.zoneid = this.zones[0].id
-          this.changeZone(this.form.zoneid)
-        }
-      }).finally(() => {
-        this.loadingZone = false
-      })
-    },
-    changeZone (value) {
-      this.form.zoneid = value
-      if (this.form.zoneid === '') {
-        this.form.vpcofferingid = ''
-        return
+    async reload () {
+      if (!this.current() || this.submitting || this.pending || this.loadingZones || this.loadingOffering) return
+      if (!this.permitted) { this.loadReason = 'permission'; return }
+      if (!this.storageError) this.error = ''
+      if (!this.selectOwner) {
+        this.ownerReady = false
+        if (this.activeProject) {
+          if (!this.$store.getters.apis?.listProjects) { this.loadReason = 'permission'; return }
+          try {
+            const rows = await networkCollection(this.read, 'listProjects', 'project', { id: this.activeProject, listall: true, ignoreproject: true })
+            if (!this.current()) return
+            if (rows.length !== 1 || rows[0].id !== this.activeProject || !rows[0].domainid || rows[0].state !== 'Active') throw new Error('message.vpc.create.owner')
+            this.owner = { projectid: rows[0].id, domainid: rows[0].domainid }
+          } catch (e) { if (this.current()) { this.clearChoices(true); this.loadReason = 'owner'; this.error = this.text(e) } return }
+        } else this.owner = { account: this.$store.getters.userInfo.account, domainid: this.$store.getters.userInfo.domainid }
+        this.ownerReady = !!this.owner?.domainid
       }
-      for (var zone of this.zones) {
-        if (zone.id === value) {
-          this.setMTU = zone?.allowuserspecifyvrmtu || false
-          this.publicMtuMax = zone?.routerpublicinterfacemaxmtu || 1500
-          this.isNsxNetwork = zone?.isnsxenabled || false
-          this.selectedZone = zone
-        }
-      }
-      this.fetchOfferings()
-      if (this.isASNumberRequired()) {
-        this.fetchZoneASNumbers()
-      }
+      const epoch = ++this.zoneEpoch; this.loadingZones = true; this.clearChoices(true)
+      try {
+        const rows = await networkCollection(this.read, 'listZones', 'zone', { showicon: true, ignoreproject: true })
+        if (!this.current() || epoch !== this.zoneEpoch) return
+        this.zones = rows.filter(z => vpcCreateZoneAllowed(z, this.$store.getters))
+        const selected = this.zones.find(z => z.id === this.form.zoneid) || this.zones[0]
+        this.form.zoneid = selected?.id
+        if (!selected) this.loadReason = rows.length ? 'zone' : 'zones.empty'
+        else await this.fetchOfferings()
+      } catch (e) { if (this.current() && epoch === this.zoneEpoch) { this.zones = []; this.form.zoneid = undefined; this.loadReason = this.reason(e); this.error = this.text(e) } } finally { if (this.current() && epoch === this.zoneEpoch) this.loadingZones = false }
     },
-    fetchZoneASNumbers () {
-      const params = {}
-      this.asNumberLoading = true
-      params.zoneid = this.selectedZone.id
-      params.isallocated = false
-      getAPI('listASNumbers', params).then(json => {
-        this.asNumbersZone = json.listasnumbersresponse.asnumber
-        this.asNumberLoading = false
-      })
+    async changeZone (id) { if (this.submitting || this.pending) return; this.form.zoneid = id; this.clearChoices(true); await this.fetchOfferings() },
+    async fetchOwnerOptions (o) {
+      if (!this.current() || this.submitting || this.pending) return
+      const next = o.ready ? o.selectedAccountType === 'Project' ? { projectid: o.selectedProject, domainid: o.selectedDomain } : { account: o.selectedAccount, domainid: o.selectedDomain } : null
+      if (this.ownerReady === !!o.ready && JSON.stringify(this.owner) === JSON.stringify(next)) return
+      this.owner = next; this.ownerReady = !!o.ready; this.clearChoices(true)
+      if (!this.ownerReady) { this.loadReason = 'owner'; return }
+      if (this.zone) await this.fetchOfferings()
     },
-    fetchOfferings () {
-      this.loadingOffering = true
-      getAPI('listVPCOfferings', { zoneid: this.form.zoneid, state: 'Enabled' }).then((response) => {
-        this.vpcOfferings = response.listvpcofferingsresponse.vpcoffering
-        this.vpcOfferings = this.vpcOfferings.filter(offering => offering.fornsx === this.selectedZone.isnsxenabled)
-        if (!this.selectedZone.routedmodeenabled) {
-          this.vpcOfferings = this.vpcOfferings.filter(offering => offering.networkmode !== 'ROUTED')
-        }
-        this.form.vpcofferingid = this.vpcOfferings[0].id || ''
-        this.selectedVpcOffering = this.vpcOfferings[0] || {}
-      }).finally(() => {
-        this.loadingOffering = false
-        if (this.vpcOfferings.length > 0) {
-          this.form.vpcofferingid = 0
-          this.handleVpcOfferingChange(this.vpcOfferings[0].id)
-        }
-      })
+    async fetchOfferings () {
+      if (!this.current() || !this.permitted || !this.zone || !this.ownerReady) { this.loadReason = !this.permitted ? 'permission' : !this.ownerReady ? 'owner' : 'zone'; return }
+      const scope = this.contextScope; this.clearChoices(); const epoch = this.requestEpoch; this.loadingOffering = true; this.loadReason = ''; if (!this.storageError) this.error = ''
+      try {
+        const result = await readVpcCreateChoices(this.read, this.$store.getters, this.owner, this.zone)
+        if (!this.current() || epoch !== this.requestEpoch || scope !== this.contextScope) return
+        this.offeringRows = result.rows; this.loaded = true; this.loadReason = result.reason
+        await this.handleVpcOfferingChange(result.rows.find(r => !r.reason)?.offering.id)
+      } catch (e) { if (this.current() && epoch === this.requestEpoch && scope === this.contextScope) { this.loadReason = this.reason(e); this.error = this.text(e); this.loaded = false } } finally { if (this.current() && epoch === this.requestEpoch && scope === this.contextScope) this.loadingOffering = false }
     },
-    fetchOwnerOptions (OwnerOptions) {
-      this.owner = {
-        projectid: null,
-        domainid: this.$store.getters.userInfo.domainid,
-        account: this.$store.getters.userInfo.account
-      }
-      if (OwnerOptions.selectedAccountType === 'Account') {
-        if (!OwnerOptions.selectedAccount) {
-          return
-        }
-        this.owner.account = OwnerOptions.selectedAccount
-        this.owner.domainid = OwnerOptions.selectedDomain
-        this.owner.projectid = null
-      } else if (OwnerOptions.selectedAccountType === 'Project') {
-        if (!OwnerOptions.selectedProject) {
-          return
-        }
-        this.owner.account = null
-        this.owner.domainid = null
-        this.owner.projectid = OwnerOptions.selectedProject
-      }
+    async handleVpcOfferingChange (id) {
+      if (this.submitting || this.pending) return
+      const previous = this.choice?.offering; this.form.vpcofferingid = this.offeringRows.some(r => r.offering.id === id && !r.reason) ? id : undefined
+      resetVpcCreateFields(this.form, previous, this.choice?.offering, this.zone, this.$store.getters)
+      this.advancedAcknowledged = false; this.asNumbers = []; const epoch = ++this.asEpoch; this.asLoading = false
+      if (!this.fields.asNumber) return
+      const scope = this.contextScope; const selected = this.form.vpcofferingid; this.asLoading = true
+      try {
+        const rows = await readVpcCreateAsNumbers(this.read, this.zone.id)
+        if (!this.current() || epoch !== this.asEpoch || scope !== this.contextScope || selected !== this.form.vpcofferingid) return
+        this.asNumbers = rows
+      } catch (e) { if (this.current() && epoch === this.asEpoch && scope === this.contextScope) this.error = this.text(e) } finally { if (this.current() && epoch === this.asEpoch && scope === this.contextScope) this.asLoading = false }
     },
-    handleVpcOfferingChange (value) {
-      this.selectedVpcOffering = {}
-      if (!value) {
-        this.updateCidrRule()
-        return
-      }
-      for (var offering of this.vpcOfferings) {
-        if (offering.id === value) {
-          this.selectedVpcOffering = offering
-          this.form.vpcofferingid = offering.id
-          if (this.isASNumberRequired()) {
-            this.fetchZoneASNumbers()
-          }
-          break
-        }
-      }
-      this.updateCidrRule()
+    changeResolver (value) { if (this.submitting) return; this.form.userouteripresolver = value; resetVpcCreateFields(this.form, this.choice?.offering, this.choice?.offering, this.zone, this.$store.getters) },
+    removeReceipt () { try { sessionStorage.removeItem(this.entryKey); return true } catch (_) { this.storageError = true; this.error = this.$t('message.vpc.create.storage'); return false } },
+    attachJob (id) {
+      if (!this.current()) return
+      if (!this.removeReceipt()) return
+      this.$pollJob({ jobId: id, title: this.$t('label.add.vpc'), description: this.$t('message.success.add.vpc'), loadingMessage: this.$t('message.vpc.create.accepted'), catchMessage: this.$t('error.fetching.async.job.result') })
+      this.$emit('refresh-data'); this.invalidate()
     },
-    updateCidrRule () {
-      if (!this.selectedVpcOfferingHavingRoutedNetworkMode) {
-        this.rules.cidr = [{ required: true, message: this.$t('message.error.required.input') }, { validator: isValidIPv4Cidr }]
-      } else {
-        delete this.rules.cidr
-      }
+    async recheck () {
+      if (!this.current() || !this.pending || this.submitting || this.storageError || !this.permitted) return
+      this.submitting = true; this.error = ''
+      try {
+        const record = this.pending; const result = (await this.read('queryAsyncJobResult', { jobid: record.id, ignoreproject: true }))?.queryasyncjobresultresponse
+        if (!this.current()) return
+        if (result?.jobid !== record.id || result.userid !== record.userId || !/CreateVPCCmd(?:ByAdmin)?$/.test(result.cmd || '') || ![0, 1, 2].includes(result.jobstatus)) throw new Error('message.vpc.create.receipt')
+        this.attachJob(record.id)
+      } catch (e) { if (this.current()) this.error = this.text(e) } finally { if (this.current()) this.submitting = false }
     },
-    handleASNumberChange (selectedIndex) {
-      this.selectedAsNumber = this.asNumbersZone[selectedIndex].asnumber
-      this.form.asnumber = this.selectedAsNumber
-    },
-    closeAction () {
-      this.$emit('close-action')
-    },
-    updateMtu () {
-      if (this.form.publicmtu > this.publicMtuMax) {
-        this.errorPublicMtu = `${this.$t('message.error.mtu.public.max.exceed').replace('%x', this.publicMtuMax)}`
-        this.form.publicmtu = this.publicMtuMax
-      } else if (this.form.publicmtu < this.minMTU) {
-        this.errorPublicMtu = `${this.$t('message.error.mtu.below.min').replace('%x', this.minMTU)}`
-        this.form.publicmtu = this.minMTU
-      } else {
-        this.errorPublicMtu = ''
-      }
-    },
-    handleSubmit (e) {
-      e.preventDefault()
-      if (this.loading) return
-      this.formRef.value.validate().then(() => {
-        const values = toRaw(this.form)
-        const params = {}
-        if (this.owner?.account) {
-          params.account = this.owner.account
-          params.domainid = this.owner.domainid
-        } else if (this.owner?.projectid) {
-          params.domainid = this.owner.domainid
-          params.projectid = this.owner.projectid
+    async handleSubmit (e) {
+      if (e?.preventDefault) e.preventDefault()
+      if (this.pending) return this.recheck()
+      if (!this.canSubmit) return
+      const scope = this.contextScope; const id = this.form.vpcofferingid; const previous = this.choice; const oldZone = vpcCreateZoneFingerprint(this.zone); this.submitting = true; this.error = ''
+      try {
+        await this.$refs.formRef.validate()
+        const zones = await networkCollection(this.read, 'listZones', 'zone', { id: this.zone.id, ignoreproject: true })
+        if (!this.current() || scope !== this.contextScope || id !== this.form.vpcofferingid) return
+        const zone = zones.find(z => z.id === this.form.zoneid)
+        if (!zone || oldZone !== vpcCreateZoneFingerprint(zone)) throw new Error('message.vpc.create.changed')
+        const latest = await readVpcCreateChoices(this.read, this.$store.getters, this.owner, zone)
+        const choice = latest.rows.find(r => r.offering.id === id && !r.reason)
+        if (!this.current() || scope !== this.contextScope || id !== this.form.vpcofferingid) return
+        if (!choice || vpcCreateOfferingFingerprint(previous.offering) !== vpcCreateOfferingFingerprint(choice.offering) || vpcCreateDiagnosticFingerprint(previous.diagnostic) !== vpcCreateDiagnosticFingerprint(choice.diagnostic)) throw new Error('message.vpc.create.changed')
+        const asNumbers = this.fields.asNumber ? await readVpcCreateAsNumbers(this.read, zone.id) : []
+        if (!this.current() || scope !== this.contextScope || id !== this.form.vpcofferingid) return
+        const params = buildVpcCreateParams(this.form, this.owner, zone, choice.offering, this.$store.getters, asNumbers)
+        const record = { version: 1, id: uuid(), params, userId: this.$store.getters.userInfo.id }
+        try { sessionStorage.setItem(this.entryKey, JSON.stringify(record)) } catch (_) { this.storageError = true; throw new Error('message.vpc.create.storage') }
+        this.pending = record
+        let response
+        try { response = await postAPI('createVPC', { ...params, customjobid: record.id }, { preserveOnFailure: true, backgroundJob: true, timeout: 15000 }) } catch (err) {
+          if (!this.current()) return
+          const code = err?.response?.status
+          if (code >= 400 && code < 500 && Object.values(err.response.data || {}).some(r => r?.errorcode)) { if (this.removeReceipt()) this.pending = null }
+          throw err
         }
-        for (const key in values) {
-          const input = values[key]
-          if (input === '' || input === null || input === undefined) {
-            continue
-          }
-          if (key === 'keepMacAddressOnPublicNic') {
-            params.keepmacaddressonpublicnic = input
-          } else {
-            params[key] = input
-          }
-        }
-        if (this.selectedVpcOffering.networkmode === 'ROUTED') {
-          if ((values.cidr === undefined || values.cidr === '') && (values.cidrsize === undefined || values.cidrsize === '')) {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.error.cidr.or.cidrsize')
-            })
-            return
-          }
-        } else {
-          if (values.cidr === undefined || values.cidr === '') {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.error.cidr')
-            })
-            return
-          }
-        }
-        if ('asnumber' in values && this.isASNumberRequired()) {
-          params.asnumber = values.asnumber
-        }
-        if (this.useRouterIpResolver) {
-          params.userouteripresolver = true
-        }
-        this.loading = true
-        const title = this.$t('label.add.vpc')
-        const description = this.$t('message.success.add.vpc')
-        postAPI('createVPC', params).then(json => {
-          const jobId = json.createvpcresponse.jobid
-          if (jobId) {
-            this.$pollJob({
-              jobId,
-              title,
-              description,
-              loadingMessage: `${title} ${this.$t('label.in.progress')}`,
-              catchMessage: this.$t('error.fetching.async.job.result')
-            })
-          }
-          this.closeAction()
-        }).catch(error => {
-          this.$notifyError(error)
-        }).finally(() => {
-          this.loading = false
-        })
-      }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
-      })
+        if (!this.current()) return
+        if (response?.createvpcresponse?.jobid !== record.id) throw new Error('message.vpc.create.receipt')
+        this.attachJob(record.id)
+      } catch (err) {
+        if (!this.current()) return
+        if (err?.errorFields) { if (this.$refs.formRef?.scrollToField) this.$refs.formRef.scrollToField(err.errorFields[0]?.name) } else { this.error = this.text(err); if (err?.message === 'message.vpc.create.changed') { this.loaded = false; this.loadReason = 'changed' } }
+      } finally { if (this.current()) this.submitting = false }
     }
   }
 }
 </script>
-<style lang="scss" scoped>
-.form-layout {
-  width: 80vw;
-  @media (min-width: 700px) {
-    width: 600px;
-  }
-}
-
-.form {
-  margin: 10px 0;
-}
+<style scoped>
+.vpc-create-dialog { color: var(--ui-text); font-size: 14px; }
+.vpc-create-target { display: flex; flex-direction: column; gap: 6px; padding: 12px; margin: 16px 0; border: 1px solid var(--ui-border); border-radius: 4px; overflow-wrap: anywhere; }
+.vpc-create-target span, .vpc-create-help { color: var(--ui-text-secondary); overflow-wrap: anywhere; }
+.vpc-create-help { margin: 12px 0; }
+.vpc-create-help ul { padding-left: 20px; }
+.vpc-create-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+.vpc-create-dialog :deep(.ant-select), .vpc-create-dialog :deep(.ant-input-number) { width: 100%; min-width: 0; }
+.vpc-create-dialog :deep(.ant-alert) { margin: 12px 0; overflow-wrap: anywhere; }
 </style>
