@@ -229,6 +229,7 @@ v-if="apiParams.arch">
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
+import { readTemplateResource } from '@/utils/templateSearch'
 import { getAPI, postAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import MoldDialog from '@/components/view/MoldDialog'
@@ -494,9 +495,8 @@ export default {
     fetchDetails () {
       const params = {}
       params.id = this.resource.id
-      params.templatefilter = 'all'
 
-      getAPI('listTemplates', params).then(response => {
+      readTemplateResource(getAPI, params, this.$store.getters).then(response => {
         if (response?.listtemplatesresponse?.template?.length > 0) {
           this.details = response.listtemplatesresponse.template[0].details
           if (this.details) {

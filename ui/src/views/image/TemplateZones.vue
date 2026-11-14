@@ -174,6 +174,7 @@ import TemplateAvailability from '@/components/widgets/TemplateAvailability'
 import { templateObservationContext } from '@/utils/templateAvailability'
 
 import { ref, reactive } from 'vue'
+import { readTemplateResource } from '@/utils/templateSearch'
 import { getAPI } from '@/api'
 import OsLogo from '@/components/widgets/OsLogo'
 import ResourceIcon from '@/components/view/ResourceIcon'
@@ -343,7 +344,6 @@ export default {
       const listRequest = this.listRequestToken('fetchData')
       const params = {}
       params.id = this.resource.id
-      params.templatefilter = 'executable'
       params.listall = true
       params.page = this.page
       params.pagesize = this.pageSize
@@ -354,7 +354,7 @@ export default {
         this.fetchZoneData()
         this.fetchOsCategoryId()
       }
-      return getAPI('listTemplates', params, { preserveOnFailure: true, timeout: 20000 }).then(json => {
+      return readTemplateResource(getAPI, params, this.$store.getters, () => this.isListRequestCurrent('fetchData', listRequest) && context === this.templateScope).then(json => {
         if (!this.isListRequestCurrent('fetchData', listRequest) || context !== this.templateScope) return
         this.dataSource = []
         this.itemCount = 0

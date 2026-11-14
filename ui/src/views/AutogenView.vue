@@ -958,7 +958,7 @@
 
 <script>
 import { templateObservationContext } from '@/utils/templateAvailability'
-import { templateListQuery, templateSearchQuery, templateSearchError, templateRequestParams, templateOwner, templateListLocation, templateFilterMismatch } from '@/utils/templateSearch'
+import { templateListQuery, templateSearchQuery, templateSearchError, templateRequestParams, readTemplateResource, templateOwner, templateListLocation, templateFilterMismatch } from '@/utils/templateSearch'
 import { guestNetworkRoute, networkSearchQuery, readNetworkPage, networkListLocation } from '@/utils/guestNetworkSearch'
 import { networkTabRoute, networkTabRouteKey } from '@/utils/networkTabs'
 import BucketStoreFilter from '@/components/view/BucketStoreFilter'
@@ -2270,12 +2270,12 @@ export default {
         params = sshKeyPairVmParams(params, this.$route.query)
       }
       const templateQuery = this.$route.meta?.name === 'template'
-      if (templateQuery) params = templateRequestParams(params, this.dataView)
+      if (templateQuery) params = templateRequestParams(params, this.dataView, this.$store.getters)
       const cniQuery = ['cniconfiguration', 'affinitygroup', 'guestnetwork'].includes(this.$route.meta?.name)
       const snapshotDetail = snapshotDetailRoute(this.$route)
       const policyDetail = policyDetailRoute(this.$route)
       if (guestNetworkRoute(this.$route)) { delete params.sortkey; delete params.sortorder }
-      const response = policyDetail ? Promise.resolve().then(() => readPolicyDetail(getAPI, this.$route, this.$store.getters.project, () => version === this.listRequestVersion && scope === this.listScope())) : snapshotDetail ? Promise.resolve().then(() => readSnapshotDetail(getAPI, snapshotDetailParams(this.$route, this.$store.getters.project), this.$store.getters, () => version === this.listRequestVersion && scope === this.listScope())) : vmGroups || sshDetail || templateQuery || cniQuery || this.isObjectStorageUi || storageUiRoute(this.$route) || snapshotListRoute(this.$route) || snapshotPolicyListRoute(this.$route) ? getAPI(requestApi, params, { preserveOnFailure: true, timeout: 20000 }) : callAPI(requestApi, params)
+      const response = templateQuery && this.dataView ? readTemplateResource(getAPI, params, this.$store.getters, () => version === this.listRequestVersion && scope === this.listScope()) : policyDetail ? Promise.resolve().then(() => readPolicyDetail(getAPI, this.$route, this.$store.getters.project, () => version === this.listRequestVersion && scope === this.listScope())) : snapshotDetail ? Promise.resolve().then(() => readSnapshotDetail(getAPI, snapshotDetailParams(this.$route, this.$store.getters.project), this.$store.getters, () => version === this.listRequestVersion && scope === this.listScope())) : vmGroups || sshDetail || templateQuery || cniQuery || this.isObjectStorageUi || storageUiRoute(this.$route) || snapshotListRoute(this.$route) || snapshotPolicyListRoute(this.$route) ? getAPI(requestApi, params, { preserveOnFailure: true, timeout: 20000 }) : callAPI(requestApi, params)
       const request = response.then(async json => {
         if (templateOperationHeld()) return
         if (version !== this.listRequestVersion || scope !== this.listScope()) return

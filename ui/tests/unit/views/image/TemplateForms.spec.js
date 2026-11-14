@@ -96,3 +96,10 @@ test.each([['plus-outlined', 'Create', 'registerTemplate'], ['cloud-upload-outli
 
 test.each([['x86_64', { label: 'Intel/AMD 64 bits (x86_64)' }], ['aarch64', { label: 'ARM 64 bits (aarch64)' }], ['s390x', { label: 'IBM Z 64 bits (s390x)' }], ['user', { label: 'USER' }], ['x86_64', { value: 'x86_64' }]])('option search %s uses current Vue option properties', (input, option) => expect(templateOptionMatches(input, option)).toBe(true))
 test('option search safely rejects missing properties without crashing the selector', () => { expect(templateOptionMatches('x86_64', undefined)).toBe(false); expect(templateOptionMatches('x86_64', { children: [] })).toBe(false) })
+
+test('normal owner edit reads details without the admin-only filter', async () => {
+  const c = context(Template, { $store: { getters: { userInfo: { roletype: 'User' }, project: {} } } })
+  getAPI.mockResolvedValue({ listtemplatesresponse: { template: [{ id: 'image', details: { rootDiskController: 'virtio' } }] } })
+  await c.fetchDetails(); await Promise.resolve()
+  expect(getAPI.mock.calls[0][1]).toEqual({ id: 'image', templatefilter: 'executable' })
+})

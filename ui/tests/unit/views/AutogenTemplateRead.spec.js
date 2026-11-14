@@ -100,3 +100,32 @@ test('owner change clears selection and query and invalidates outstanding reads'
 test('server ignoring a filter never presents broad results as matching', async () => {
   listRoute({ isready: 'false' }); getAPI.mockResolvedValue(reply([{ id, isready: true }])); await ctx.fetchData(); expect(ctx.templateFilterError).toBe('message.template.search.ignored'); expect(ctx.items).toEqual([]); expect(ctx.itemCount).toBe(0)
 })
+
+test.each(['User', undefined])('normal or unknown role reads own/public and shared detail without admin filter: %s', async roletype => {
+  store.getters.userInfo.roletype = roletype
+  getAPI.mockResolvedValueOnce(reply([])).mockResolvedValueOnce(reply([{ id, name: 'Shared image' }]))
+  await ctx.fetchData()
+  expect(getAPI.mock.calls.map(call => call[1].templatefilter)).toEqual(['executable', 'shared'])
+  expect(ctx.resource.name).toBe('Shared image')
+})
+test('normal owner can read a failed non-ready image without inheriting ready list filters', async () => {
+  store.getters.userInfo.roletype = 'User'
+  getAPI.mockResolvedValueOnce(reply([{ id, isready: false, status: 'DOWNLOAD_ERROR' }]))
+  await ctx.fetchData()
+  expect(getAPI.mock.calls[0][1]).toEqual({ id, templatefilter: 'executable' })
+  expect(ctx.resource.isready).toBe(false)
+})
+test('shared fallback preserves project scope and cannot continue after context changes', async () => {
+  store.getters.userInfo.roletype = 'User'; store.getters.project = { id: other }
+  getAPI.mockResolvedValueOnce(reply([])).mockResolvedValueOnce(reply([{ id }]))
+  await ctx.fetchData()
+  expect(getAPI.mock.calls.map(call => call[1].projectid)).toEqual([other, other])
+  getAPI.mockClear(); let done; getAPI.mockImplementationOnce(() => new Promise(resolve => { done = resolve }))
+  const old = ctx.fetchData(); store.getters.project = {}; done(reply([])); await old
+  expect(getAPI).toHaveBeenCalledTimes(1)
+})
+test('normal user authorization errors are not hidden by shared fallback', async () => {
+  store.getters.userInfo.roletype = 'User'; getAPI.mockRejectedValueOnce({ response: { status: 431 } })
+  await ctx.fetchData()
+  expect(getAPI).toHaveBeenCalledTimes(1); expect(ctx.templateDetailError).toBe('message.template.detail.unavailable')
+})

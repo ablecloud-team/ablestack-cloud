@@ -35,7 +35,7 @@ test('UUID and exact boolean filters are validated before API; unsupported is ex
   expect(templateSearchError({ forcks: 'false' }, {})).toBe('message.template.search.unsupported')
 })
 test('detail reads never inherit list filters/page or return metadata', () => {
-  expect(templateRequestParams({ id, name: 'restrictive', isready: false, forcks: true, templatereturn: '{}', templateowner: 'owner', page: 3 }, true)).toEqual({ id, templatefilter: 'all' })
+  expect(templateRequestParams({ id, name: 'restrictive', isready: false, forcks: true, templatereturn: '{}', templateowner: 'owner', page: 3 }, true, getters)).toEqual({ id, templatefilter: 'all' })
   expect(templateRequestParams({ templatefilter: 'all', isready: false, q: 'search', keyword: 'search', filter: 'all' })).toMatchObject({ templatefilter: 'all', isready: 'false', keyword: 'search', listall: true }); expect(templateRequestParams({ q: 'x' })).not.toHaveProperty('q')
 })
 test('detail comments and breadcrumb retain only validated list context for same owner', () => {

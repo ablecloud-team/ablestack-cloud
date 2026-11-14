@@ -67,3 +67,14 @@ test('parent accepts only the current authorized read context', () => {
   vm.$store.getters.project = { id: other }; vm.templateZoneObservation = null
   ResourceView.methods.acceptTemplateObservation.call(vm, observation); expect(vm.templateZoneObservation).toBeNull()
 })
+
+test('normal recipient Zone read falls back to real shared scope while preserving project and paging', async () => {
+  const vm = context(); vm.$store.getters.userInfo.roletype = 'User'; vm.$store.getters.project = { id: other }
+  getAPI.mockResolvedValueOnce({ listtemplatesresponse: {} }).mockResolvedValueOnce(result)
+  await TemplateZones.methods.fetchData.call(vm)
+  expect(getAPI.mock.calls.map(call => call[1])).toEqual([
+    { id, templatefilter: 'executable', listall: true, page: 1, pagesize: 10, projectid: other },
+    { id, templatefilter: 'shared', listall: true, page: 1, pagesize: 10, projectid: other }
+  ])
+  expect(vm.dataSource).toHaveLength(1)
+})

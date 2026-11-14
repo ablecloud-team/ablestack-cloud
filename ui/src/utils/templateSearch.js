@@ -48,8 +48,19 @@ export function templateSearchError (query, apiParams = {}) {
   }
   return ''
 }
-export function templateRequestParams (params, detail = false) {
-  if (detail) return { id: params.id, templatefilter: 'all', ...(params.projectid ? { projectid: params.projectid } : {}), ...(params.showicon ? { showicon: params.showicon } : {}) }
+export function templateReadFilter (getters = {}) {
+  return ['Admin', 'DomainAdmin', 'ResourceAdmin'].includes(getters.userInfo?.roletype) ? 'all' : 'executable'
+}
+export async function readTemplateResource (request, params, getters = {}, current = () => true) {
+  const options = { preserveOnFailure: true, timeout: 20000 }
+  const projectid = params.projectid || (getters.project?.id ? (getters.listAllProjects ? '-1' : getters.project.id) : '')
+  const scoped = { ...params, ...(projectid ? { projectid } : {}), templatefilter: templateReadFilter(getters) }
+  const result = await request('listTemplates', scoped, options)
+  if (!current() || scoped.templatefilter === 'all' || result?.listtemplatesresponse?.template?.length) return result
+  return request('listTemplates', { ...scoped, templatefilter: 'shared' }, options)
+}
+export function templateRequestParams (params, detail = false, getters = {}) {
+  if (detail) return { id: params.id, templatefilter: templateReadFilter(getters), ...(params.projectid ? { projectid: params.projectid } : {}), ...(params.showicon ? { showicon: params.showicon } : {}) }
   const result = { listall: true, showunique: 'true', ...templateListQuery(params) }
   delete result.filter; delete result.q
   return result
