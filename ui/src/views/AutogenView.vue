@@ -840,7 +840,7 @@
         </a-spin>
         <template #footer>
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-          <a-button type="primary" @click="handleSubmit" :disabled="isSubmitDisabled" :loading="actionLoading" :danger="isVpcUi && currentAction.api.startsWith('delete')" ref="submit">{{ $t(isVpcUi ? currentAction.label : 'label.ok') }}</a-button>
+          <a-button type="primary" @click="handleSubmit" :disabled="isSubmitDisabled" :loading="actionLoading" :danger="isVpcUi && currentAction.api?.startsWith('delete')" ref="submit">{{ $t(isVpcUi ? currentAction.label : 'label.ok') }}</a-button>
         </template>
       </component>
     </div>

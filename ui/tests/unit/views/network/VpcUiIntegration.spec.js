@@ -16,7 +16,9 @@
 // under the License.
 
 import { shallowMount, flushPromises } from '@vue/test-utils'
-import { h, reactive } from 'vue'
+import { h, reactive, compile } from 'vue'
+import fs from 'fs'
+import path from 'path'
 import Routes from '@/views/network/StaticRoutesTab'
 import VpcTab from '@/views/network/VpcTab'
 import Breadcrumb from '@/components/widgets/Breadcrumb'
@@ -40,6 +42,15 @@ beforeEach(() => {
   getAPI.mockImplementation(api => Promise.resolve({ [api.toLowerCase() + 'response']: {} }))
 })
 afterEach(() => { wrappers.splice(0).forEach(w => w.unmount()) })
+
+test.each([{}, { api: 'deleteVPC', label: 'label.delete' }])('actual generic footer can render an inactive VPC action without an API: %j', action => {
+  const source = fs.readFileSync(path.resolve(__dirname, '../../../../src/views/AutogenView.vue'), 'utf8')
+  const footer = source.match(/<template #footer>\s*(<a-button[^]*?)<\/template>/)[1]
+  const w = shallowMount({ render: compile('<div>' + footer + '</div>'), data: () => ({ currentAction: action, isVpcUi: true, isSubmitDisabled: false, actionLoading: false }), methods: { handleSubmit: jest.fn(), handleCancel: jest.fn() } }, { global: { mocks: { $t: key => key || '' }, stubs: { AButton: { props: ['danger'], render () { return h('button', { 'data-danger': this.danger }, this.$slots.default?.()) } } } } })
+  wrappers.push(w)
+  expect(w.findAll('button')).toHaveLength(2)
+  expect(w.findAll('button')[1].attributes('data-danger')).toBe(action.api ? 'true' : undefined)
+})
 async function open (component = Routes) {
   const w = shallowMount(component, { props: { resource }, global: { mocks: { $t: k => k, $store: { getters, state: { user: {}, app: { device: 'desktop' } } }, $route: route, $router: router, $pollJob: poll, $notifyError: jest.fn() }, stubs: { ASpin: slot, ATabs: slot, ATabPane: slot, AForm: form, AFormItem: slot, AInput: input, MoldDialog: slot, MoldDialogActions: slot, RouterLink: true } } })
   wrappers.push(w); await flushPromises(); return w
