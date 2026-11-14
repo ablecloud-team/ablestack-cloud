@@ -27,3 +27,21 @@ export function primaryPreparationState (rows, zoneid, poolid, templateid) {
   if (!targets.some(row => row.downloadState === 'DOWNLOADED') && targets.some(row => ['DOWNLOAD_ERROR', 'UPLOAD_ERROR', 'ABANDONED', 'LIMIT_REACHED'].includes(row.downloadState))) return 'failed'
   return 'running'
 }
+
+export function templateStorePresentation (row) {
+  const raw = String(row.downloadState || '').toUpperCase()
+  const states = {
+    DOWNLOADED: ['success', 'label.template.store.ready'],
+    DOWNLOAD_IN_PROGRESS: ['processing', 'label.template.store.progress'],
+    UPLOADING: ['processing', 'label.template.store.progress'],
+    NOT_DOWNLOADED: ['default', 'label.template.store.waiting'],
+    DOWNLOAD_ERROR: ['error', 'label.template.store.failed'],
+    UPLOAD_ERROR: ['error', 'label.template.store.failed'],
+    ABANDONED: ['error', 'label.template.store.failed'],
+    LIMIT_REACHED: ['error', 'label.template.store.failed']
+  }
+  const [badge, label] = states[raw] || ['default', 'label.unknown']
+  const value = row.downloadPercent
+  const n = value === null || value === undefined || value === '' ? NaN : Number(value)
+  return { badge, label, percent: Number.isFinite(n) && n >= 0 && n <= 100 ? n : null }
+}

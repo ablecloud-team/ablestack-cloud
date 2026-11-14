@@ -52,12 +52,13 @@
             :resource="resource"
             :loading="loading"
             :tab="tabs[0].name"
-            @refresh="(['buckets', 'objectstore'].includes($route.meta.name) || ($route.meta.name === 'template' && tabs[0].name === 'vnf.settings')) && $emit('refresh')"
+            @refresh="(['buckets', 'objectstore'].includes($route.meta.name) || ($route.meta.name === 'template' && ['vnf.settings','settings'].includes(tabs[0].name))) && $emit('refresh')"
             v-on="$route.meta?.name === 'template' && tabs[0].name === 'zones' ? { 'availability-observed': acceptTemplateObservation, 'operation-retained': value => $emit('template-operation-retained',value), 'refresh-parent': () => $emit('refresh') } : {}"
             @wide-layout-change="onWideLayoutChange" />
         </keep-alive>
         <a-tabs
           v-else
+          :class="{'template-main-tabs':$route.meta?.name==='template'}"
           :style="{ width: '100%', marginTop: resourceTabPosition === 'top' ? '-12px' : '0' }"
           :tabPosition="resourceTabPosition"
           :animated="false"
@@ -77,7 +78,7 @@
                   :loading="loading && !(quietRefresh && tab.name === 'details' && resource.id && resource.id === $route.params?.id)"
                   :tab="activeTab"
                   @change-resource="$emit('change-resource', $event)"
-                  @refresh="(['buckets', 'objectstore'].includes($route.meta.name) || ($route.meta.name === 'template' && tab.name === 'vnf.settings')) && $emit('refresh')"
+                  @refresh="(['buckets', 'objectstore'].includes($route.meta.name) || ($route.meta.name === 'template' && ['vnf.settings','settings'].includes(tab.name))) && $emit('refresh')"
                   v-on="$route.meta?.name === 'template' && tab.name === 'zones' ? { 'availability-observed': acceptTemplateObservation, 'operation-retained': value => $emit('template-operation-retained',value), 'refresh-parent': () => $emit('refresh') } : {}"
             @wide-layout-change="onWideLayoutChange" />
               </keep-alive>
@@ -90,6 +91,7 @@
 </template>
 
 <script>
+import '@/style/components/view/template-tabs.less'
 import { networkTabRoute, uniqueTabs, selectedNetworkTab } from '@/utils/networkTabs'
 import { conditionalGuestTab, guestFeatureStatus } from '@/utils/conditionalGuestNetwork'
 import DetailsTab from '@/components/view/DetailsTab'

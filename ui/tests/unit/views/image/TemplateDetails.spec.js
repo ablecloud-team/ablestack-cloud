@@ -143,3 +143,14 @@ test('unmount or deactivation suppresses late catalog failures', async () => {
   const pending = c.load(); Catalog.deactivated.call(c); fail(new Error('gone')); await pending
   expect(c.$notifyError).not.toHaveBeenCalled(); expect(c.error).toBe(''); expect(c.busy).toBe(false)
 })
+
+test('conditional extension tabs follow settings and retain stable deep-link keys', () => {
+  store.getters.apis = { listStorageServiceRuntimeBundles: {}, updateVnfTemplate: {}, listEvents: {} }
+  const visible = type => config.tabs.filter(tab => !tab.show || tab.show({ templatetype: type })).map(tab => tab.name)
+  expect(visible('USER')).toEqual(['details', 'zones', 'settings', 'events', 'comments'])
+  expect(visible('VNF')).toEqual(['details', 'zones', 'settings', 'vnf.settings', 'events', 'comments'])
+  expect(visible('SHAREDFS')).toEqual(['details', 'zones', 'settings', 'runtime.catalog', 'events', 'comments'])
+  expect(runtimeTab.label()).toBe('runtime.bundle.tab')
+  delete store.getters.apis.listStorageServiceRuntimeBundles
+  expect(visible('SHAREDFS')).not.toContain('runtime.catalog')
+})

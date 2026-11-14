@@ -17,18 +17,18 @@
 
 <template>
   <div v-if="eligible" class="catalog-summary">
-    <a-space class="catalog-toolbar" wrap>
+    <div class="template-tab-toolbar catalog-toolbar">
       <router-link to="/runtimebundle"><a-button type="primary">{{ $t('label.runtime.catalog') }}</a-button></router-link>
       <a-button :loading="busy" @click="load"><ReloadOutlined />{{ $t('label.refresh') }}</a-button>
-    </a-space>
-    <a-alert type="info" show-icon :message="$t('message.runtime.catalog.shared')" :description="$t('message.runtime.catalog.context.unknown')" />
+    </div>
+    <p class="catalog-scope"><a-tooltip :title="$t('message.runtime.catalog.context.unknown')"><info-circle-outlined /> {{ $t('message.template.runtime.scope') }}</a-tooltip></p>
     <a-alert v-if="error" type="error" show-icon :message="error" />
     <a-table :columns="columns" :data-source="rows" row-key="id" size="small" :pagination="false" :scroll="{ x: 650 }">
       <template #bodyCell="{ column, record }">
         <router-link v-if="column.key === 'version'" :to="'/runtimebundle/' + record.id">{{ record.version }}</router-link>
       </template>
     </a-table>
-    <a-pagination :current="page" :page-size="10" :total="total" @change="changePage" />
+    <div class="template-tab-pagination catalog-pagination"><a-pagination :current="page" :page-size="10" :total="total" @change="changePage" /></div>
   </div>
 </template>
 <script>
@@ -67,7 +67,7 @@ export default {
 </script>
 <style scoped lang="less">
 .catalog-summary { min-width: 0; overflow-wrap: anywhere; }
-.catalog-toolbar { display:flex; margin-bottom:16px !important; }
+.catalog-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:20px; }
 .ant-alert { margin-bottom:16px; }
-.ant-pagination { margin-top:16px; }
+.catalog-pagination { display:flex; justify-content:flex-end; margin-top:20px; }
 </style>

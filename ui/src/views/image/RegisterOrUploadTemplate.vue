@@ -17,8 +17,8 @@
 
 <template>
   <MoldDialog size="md" form-actions focus-guard :title="$t(currentForm === 'Create' ? 'label.action.register.template' : 'label.upload.template.from.local')" :closable="!blocksNavigation" :keyboard="!blocksNavigation" @cancel="closeAction">
-  <div class="template-form-content" @keyup.ctrl.enter="handleSubmit">
-    <a-alert v-if="submitError" type="error" show-icon role="alert" :message="submitError" />
+  <div class="template-form-content" :class="{ 'sharedfs-profile-form': isSharedFsRegistration }" @keyup.ctrl.enter="handleSubmit">
+    <a-alert ref="typeError" tabindex="-1" v-if="submitError" type="error" show-icon role="alert" :message="submitError" />
     <div v-if="linkFailed">
       <a-alert type="warning" show-icon :message="$t('message.userdata.image.partial')" :description="acceptedTemplateId" />
       <MoldDialogActions :busy="submitting">
@@ -120,7 +120,7 @@
               }"
               :placeholder="apiParams.zoneids.description"
               @change="handlerSelectZone">
-              <a-select-option v-for="opt in zones.opts" :key="opt.id" :label="opt.name || opt.description">
+              <a-select-option v-for="opt in zones.opts" :key="opt.id" :label="opt.name || opt.description" :disabled="isSharedFsRegistration && (opt.id===$t('label.all.zone') || String(opt.id)==='-1')">
                 <span>
                   <resource-icon v-if="opt.icon" :image="opt.icon.base64image" size="1x" style="margin-right: 5px"/>
                   <global-outlined v-else style="margin-right: 5px" />
@@ -157,7 +157,7 @@
             </a-select>
           </a-form-item>
         </div>
-        <a-form-item name="domainid" ref="domainid" v-if="'listDomains' in $store.getters.apis">
+        <a-form-item name="domainid" ref="domainid" v-if="!isSharedFsRegistration && 'listDomains' in $store.getters.apis">
           <template #label>
             <tooltip-label :title="$t('label.domainid')" :tooltip="apiParams.domainid.description"/>
           </template>
@@ -180,7 +180,7 @@
             </a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item name="account" ref="account" v-if="domainid">
+        <a-form-item name="account" ref="account" v-if="domainid && !isSharedFsRegistration">
           <template #label>
             <tooltip-label :title="$t('label.account')" :tooltip="apiParams.account.description"/>
           </template>
@@ -198,6 +198,7 @@
             </a-select-option>
           </a-select>
         </a-form-item>
+        <a-form-item v-if="isSharedFsRegistration" :label="$t('label.account')"><a-input :value="$store.getters.userInfo.account" readonly /></a-form-item>
         <a-row :gutter="12">
           <a-col :md="24" :lg="12">
             <a-form-item ref="hypervisor" name="hypervisor">
@@ -206,6 +207,7 @@
               </template>
               <a-select
                 v-model:value="form.hypervisor"
+                :disabled="isSharedFsRegistration"
                 :loading="hyperVisor.loading"
                 :placeholder="apiParams.hypervisor.description"
                 @change="handlerSelectHyperVisor"
@@ -227,6 +229,7 @@
               </template>
               <a-select
                 v-model:value="form.format"
+                :disabled="isSharedFsRegistration"
                 :placeholder="apiParams.format.description"
                 @change="val => { selectedFormat = val }"
                 showSearch
@@ -277,7 +280,7 @@
         </a-form-item>
         <a-form-item ref="directdownload" name="directdownload" v-if="(hyperKVMShow || hyperCustomShow) && currentForm === 'Create' && supportsParam('directdownload')">
           <template #label><tooltip-label :title="$t('label.directdownload')" :tooltip="apiParams.directdownload.description" /></template>
-          <a-switch v-model:checked="form.directdownload" @change="handleChangeDirect" />
+          <a-switch v-model:checked="form.directdownload" :disabled="isSharedFsRegistration" @change="handleChangeDirect" />
         </a-form-item>
         <a-form-item ref="checksum" name="checksum" v-if="supportsParam('checksum')" :extra="$t('message.template.checksum.help')">
           <template #label><tooltip-label :title="$t('label.checksum')" :tooltip="$t('message.template.checksum.help')" /></template>
@@ -377,16 +380,17 @@
           name="templatetype"
           ref="templatetype">
           <template #label>
-            <tooltip-label :title="$t('label.templatetype')" :tooltip="apiParams.templatetype.description"/>
+            <tooltip-label :title="$t('label.templatetype')" :tooltip="$t('message.template.type.help')"/>
           </template>
           <a-select
             showSearch
             optionFilterProp="label"
             :filterOption="templateOptionMatches"
             v-model:value="form.templatetype"
-            :placeholder="apiParams.templatetype.description">
-            <a-select-option v-for="opt in templateTypes.opts" :key="opt.id" :label="opt.name || opt.description">
-              {{ opt.name || opt.description }}
+            :placeholder="$t('label.template.type.select')"
+            @change="onTemplateTypeChange">
+            <a-select-option v-for="opt in allowedTemplateTypes" :key="opt.id" :label="opt.name" :disabled="opt.disabled">
+              <a-tooltip :title="opt.reason ? $t(opt.reason) : undefined"><span>{{ opt.name }}<span v-if="opt.reason"> · {{ $t(opt.reason) }}</span></span></a-tooltip>
             </a-select-option>
           </a-select>
         </a-form-item>
@@ -401,6 +405,7 @@
             optionFilterProp="label"
             :filterOption="templateOptionMatches"
             v-model:value="form.arch"
+            :disabled="isSharedFsRegistration"
             :placeholder="apiParams.arch.description">
             <a-select-option v-for="opt in architectureTypes.opts" :key="opt.id" :label="opt.name || opt.description">
               {{ opt.name || opt.description }}
@@ -467,7 +472,7 @@
               >
                 <a-row>
                   <a-col :span="12">
-                    <a-checkbox value="isextractable">
+                    <a-checkbox value="isextractable" :disabled="isSharedFsRegistration">
                       {{ $t('label.isextractable') }}
                     </a-checkbox>
                   </a-col>
@@ -477,7 +482,7 @@
                     </a-checkbox>
                   </a-col>
                   <a-col :span="12">
-                    <a-checkbox value="isdynamicallyscalable">
+                    <a-checkbox value="isdynamicallyscalable" :disabled="isSharedFsRegistration">
                       {{ $t('label.isdynamicallyscalable') }}
                     </a-checkbox>
                   </a-col>
@@ -490,12 +495,12 @@
                     </a-checkbox>
                   </a-col>
                   <a-col :span="12" v-if="isAdminRole">
-                    <a-checkbox value="isfeatured">
+                    <a-checkbox value="isfeatured" :disabled="isSharedFsRegistration">
                       {{ $t('label.isfeatured') }}
                     </a-checkbox>
                   </a-col>
                   <a-col :span="12" v-if="isAdminRole || $store.getters.features.userpublictemplateenabled">
-                    <a-checkbox value="ispublic">
+                    <a-checkbox value="ispublic" :disabled="isSharedFsRegistration">
                       {{ $t('label.ispublic') }}
                     </a-checkbox>
                   </a-col>
@@ -531,6 +536,7 @@ import TooltipLabel from '@/components/widgets/TooltipLabel'
 import DetailsInput from '@/components/widgets/DetailsInput'
 import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
+import { templateTypeOptions, templateTypeError, sharedFsRegistrationParams } from '@/utils/templateTypePolicy'
 import { templateDetailLocation } from '@/utils/templateSearch'
 import { validTemplateChecksum, templateOptionMatches } from '@/utils/templateForm'
 
@@ -612,6 +618,9 @@ export default {
     this.fetchData()
   },
   computed: {
+    typeContext () { return { operation: this.currentForm === 'Create' ? 'register' : 'upload', hypervisor: this.hyperVisor.opts?.[this.form.hypervisor]?.name, user: this.$store.getters.userInfo, apis: this.$store.getters.apis, project: this.$store.getters.project, zones: this.currentForm === 'Create' ? (this.form.zoneids || []) : [this.form.zoneid].filter(Boolean), allZoneValue: this.$t('label.all.zone'), ownerDomainId: this.form.domainid, ownerAccount: this.form.account, apiParams: this.apiParams } },
+    allowedTemplateTypes () { return templateTypeOptions(this.typeContext) },
+    isSharedFsRegistration () { return this.currentForm === 'Create' && this.form.templatetype === 'SHAREDFS' },
     canLinkUserData () { return ['listUserData', 'linkUserDataToTemplate'].every(api => api in this.$store.getters.apis) },
     blocksNavigation () { return this.submitting || this.uploading || this.loading },
     isAdminRole () {
@@ -627,6 +636,11 @@ export default {
   },
   methods: {
     templateOptionMatches,
+    onTemplateTypeChange () {
+      if (!this.isSharedFsRegistration) return
+      this.form.arch = 'x86_64'; this.form.format = 'QCOW2'; this.selectedFormat = 'QCOW2'; this.form.directdownload = false; this.allowDirectDownload = false
+      this.form.groupenabled = [...new Set((this.form.groupenabled || []).filter(k => !['ispublic', 'isfeatured', 'isextractable'].includes(k)).concat('isdynamicallyscalable'))]
+    },
     supportsParam (name) { return !!this.apiParams[name] },
     initForm () {
       this.formRef = ref()
@@ -657,7 +671,7 @@ export default {
       this.fetchCustomHypervisorName()
       this.fetchZone()
       this.fetchOsTypes()
-      this.templateTypes.opts = this.$fetchTemplateTypes()
+      this.templateTypes.opts = []
       this.architectureTypes.opts = this.$fetchCpuArchitectureTypes()
       this.fetchUserData()
       this.fetchUserdataPolicy()
@@ -830,6 +844,11 @@ export default {
           listhyperVisors = listhyperVisors.filter(hv => hv.name !== 'External')
         }
         this.hyperVisor.opts = listhyperVisors
+        if (this.isSharedFsRegistration) {
+          const index = listhyperVisors.findIndex(item => item.name === 'KVM')
+          this.form.hypervisor = index >= 0 ? index : undefined
+          if (index >= 0) this.handlerSelectHyperVisor(index)
+        }
       }).finally(() => {
         this.hyperVisor.loading = false
       })
@@ -1133,12 +1152,10 @@ export default {
       this.fetchRootDisk(hyperVisor)
       this.fetchNicAdapterTypes()
       this.fetchKeyboardType()
-      this.templateTypes.opts = this.$fetchTemplateTypes(hyperVisor)
-      if (this.form.templatetype && !this.templateTypes.opts.find(opt => opt.id === this.form.templatetype)) {
-        this.form.templatetype = undefined
-      }
+      // Keep an invalid selection visible; submission policy requires an explicit choice.
 
       this.form.rootDiskControllerType = this.rootDisk.opts.length > 0 ? 'osdefault' : ''
+      if (this.isSharedFsRegistration) this.onTemplateTypeChange()
     },
     onExternalDetailsEnabledChange (val) {
       if (val || !this.form.externaldetails) {
@@ -1218,7 +1235,7 @@ export default {
         else delete params[key]
       }
       if (!this.supportsParam('checksum') || !params.checksum) delete params.checksum
-      return params
+      return this.isSharedFsRegistration ? sharedFsRegistrationParams(params, this.apiParams) : params
     },
     async handleSubmit (e) {
       if (e?.preventDefault) e.preventDefault()
@@ -1227,6 +1244,8 @@ export default {
       this.submitError = ''
       try {
         await this.formRef.value.validate()
+        const policyError = templateTypeError(this.typeContext, this.form.templatetype)
+        if (policyError) { this.submitError = this.$t(policyError); this.$nextTick(() => { const alert = this.$refs.typeError?.$el; if (alert) { alert.scrollIntoView({ block: 'nearest' }); alert.focus({ preventScroll: true }) } }); return }
         const params = this.registrationParams()
         if (this.currentForm === 'Create') {
           const json = await postAPI('registerTemplate', params, { preserveOnFailure: true })
@@ -1334,4 +1353,6 @@ export default {
 <style scoped lang="less">
   .template-form-content { min-width: 0; }
   .template-form-content :deep(.ant-alert) { margin-bottom: 16px; }
+  .template-form-content.sharedfs-profile-form :deep(.ant-checkbox-disabled + span),
+  .template-form-content.sharedfs-profile-form :deep(.ant-select-disabled .ant-select-selection-item) { color: var(--ui-text-secondary); }
 </style>

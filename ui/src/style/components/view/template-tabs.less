@@ -1,0 +1,36 @@
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements. See NOTICE for ownership information.
+// Licensed under the Apache License, Version 2.0; http://www.apache.org/licenses/LICENSE-2.0
+// Distributed on an AS IS BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND.
+.template-resource {
+  // Match the notice-line spacing and minimum rail width used by VM InstanceTab.
+  .template-main-tabs { margin-top:22px !important; }
+  .template-main-tabs.ant-tabs-left > .ant-tabs-nav { min-width:100px; }
+  .template-tab-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:20px; min-height:32px; }
+  .template-tab-toolbar > .ant-btn { flex-shrink:0; }
+  .template-tab-toolbar .ant-input-search { width:260px; max-width:100%; margin-left:auto; }
+  .template-tab-pagination { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:12px; margin-top:20px; }
+  .template-row-actions { display:flex; align-items:center; gap:8px; white-space:nowrap; }
+  .template-cell-value { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .template-tab-section + .template-tab-section { margin-top:24px; }
+  .template-tab-section-title { margin:0 0 12px; font-size:14px; font-weight:600; color:var(--ui-text-primary); }
+  .template-zone-storage { padding:12px; margin:8px 0; background:var(--ui-bg-surface); border:1px solid var(--ui-border); border-radius:4px; }
+  .template-zones .ant-table-container, .template-zones .ant-table-content, .template-zones th, .template-zones td { border-color:var(--ui-border) !important; }
+  .template-zones .ant-table-thead > tr > th { background:var(--ui-bg-elevated) !important; color:var(--ui-text-primary); }
+  .template-zones .ant-table-tbody > tr > td, .template-zones .ant-table-expanded-row > td { background:var(--ui-bg-surface); color:var(--ui-text-secondary); }
+  .template-zones .ant-table-row-selected > td { background:var(--ui-bg-selected) !important; }
+  .template-zones .ant-table-tbody > tr:hover > td { background:var(--ui-bg-hover) !important; }
+  .template-zones .ant-table-row-selected:hover > td { background:var(--ui-bg-selected) !important; }
+  .template-zones .ant-table-row-expand-icon { color:var(--ui-text-secondary); border-color:var(--ui-border); background:var(--ui-bg-input); }
+  .template-zones .zone-selection-count { display:inline-block; width:5ch; text-align:center; }
+  .template-zones .zone-created, .template-zones .zone-row-actions { white-space:nowrap; }
+  .template-zone-storage .ant-progress-text { color:var(--ui-text-secondary); }
+  .template-settings-tab .ant-alert, .vnf-settings .ant-alert { margin-bottom:16px; }
+}
+.template-dialog-context { display:grid; grid-template-columns:auto minmax(0,1fr); gap:8px 16px; dt { font-weight:600; } dd { margin:0; overflow-wrap:anywhere; } }
+
+.template-settings-dialog {
+  .ant-descriptions-view, .ant-descriptions-row, .ant-descriptions-item-label, .ant-descriptions-item-content { border-color:var(--ui-border) !important; }
+  .ant-descriptions-item-label { background:var(--ui-bg-elevated); color:var(--ui-text-secondary); }
+  .ant-descriptions-item-content { background:var(--ui-bg-surface); color:var(--ui-text-primary); overflow-wrap:anywhere; }
+}

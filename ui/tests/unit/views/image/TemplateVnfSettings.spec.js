@@ -196,3 +196,8 @@ test.each([['optionsError', 'loadOptions']])('real Ant Design alert renders the 
   await flushPromises(); const retry = jest.spyOn(w.vm, method).mockResolvedValue(); await w.setData({ [field]: true })
   const button = w.get('.ant-alert-description button'); expect(button.text()).toBe('label.retry'); await button.trigger('click'); expect(retry).toHaveBeenCalledTimes(1); w.unmount()
 })
+
+test('secret values never act as search text and filtering cannot reorder hidden NICs', async () => {
+  const c = detailContext([['password', 'hidden-unit-value'], ['version', 'plain']]); c.detailSearch = 'hidden-unit-value'; expect(c.filteredDetails).toEqual([]); c.detailSearch = 'password'; expect(c.filteredDetails).toHaveLength(1)
+  c.vnfNics = [original, { ...optional, required: true }]; c.nicSearch = 'Data'; expect(c.visibleNics).toHaveLength(1); await c.moveVnfNicUp(c.vnfNics[1]); expect(postAPI).not.toHaveBeenCalled()
+})

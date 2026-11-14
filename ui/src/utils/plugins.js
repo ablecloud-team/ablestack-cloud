@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { templateTypeOptions } from '@/utils/templateTypePolicy'
 import { clearStorageSnapshotOperations, pauseSnapshotOperations, snapshotSecurityReplaced } from '@/utils/storageSnapshotOperations'
 import { clearIsoOperations } from '@/utils/vmIsoActions'
 import { clearBackupInstanceCreations } from '@/utils/backupInstanceCreation'
@@ -511,21 +512,8 @@ export const cpuArchitectureUtilPlugin = {
 
 export const imagesUtilPlugin = {
   install (app) {
-    app.config.globalProperties.$fetchTemplateTypes = function (hypervisor) {
-      const baseTypes = ['USER']
-      if (hypervisor === 'External') {
-        return baseTypes.map(type => ({ id: type, name: type, description: type }))
-      }
-      baseTypes.push('VNF')
-      const adminTypes = ['SYSTEM', 'BUILTIN', 'ROUTING']
-      if (hypervisor === 'KVM' && store.getters.apis.getSharedFileSystemComputeStatus) {
-        adminTypes.push('SHAREDFS')
-      }
-      const types = [...baseTypes]
-      if (store.getters.userInfo?.roletype === 'Admin') {
-        types.push(...adminTypes)
-      }
-      return types.map(type => ({ id: type, name: type, description: type }))
+    app.config.globalProperties.$fetchTemplateTypes = function (hypervisor, context = {}) {
+      return templateTypeOptions({ hypervisor, user: store.getters.userInfo, apis: store.getters.apis, project: store.getters.project, ...context })
     }
   }
 }
