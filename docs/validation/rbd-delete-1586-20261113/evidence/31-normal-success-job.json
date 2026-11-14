@@ -1,0 +1,20 @@
+{
+  "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+  "account": "admin",
+  "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+  "domainpath": "ROOT",
+  "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+  "cmd": "org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd",
+  "jobprocstatus": 0,
+  "jobresultcode": 0,
+  "jobresulttype": "object",
+  "jobresult": {
+    "success": true
+  },
+  "jobinstancetype": "Network",
+  "jobinstanceid": "7b9b2206-35b7-4d20-83a1-4ff815935bba",
+  "created": "2026-11-13T13:15:07+0900",
+  "completed": "2026-11-13T13:15:13+0900",
+  "jobid": "9b6a413b-129b-4d71-add7-0b3dd6f00130",
+  "jobstatus": 1
+}

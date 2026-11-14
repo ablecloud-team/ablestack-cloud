@@ -1,0 +1,98 @@
+{
+  "cluster": 32,
+  "case": "watch1",
+  "phase": "before",
+  "network": "c1ad9108-087f-48ce-beae-946557a3ed23",
+  "hostAddress": "10.10.32.3",
+  "rows": [
+    {
+      "path": "d7b3c3cc-44ba-4189-82bb-b0fc9b324ee6",
+      "hostId": 3,
+      "vmState": "Running",
+      "instance": "r-530-VM",
+      "poolPath": "rbd",
+      "poolType": "RBD",
+      "poolUuid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+      "routerId": 530,
+      "volumeId": 933,
+      "vmRemoved": null,
+      "routerUuid": "1f8bc211-78f5-47db-97b5-d167f9081eae",
+      "volumeUuid": "d7b3c3cc-44ba-4189-82bb-b0fc9b324ee6",
+      "poolAddress": "scvm1,scvm2,scvm3",
+      "volumeState": "Ready",
+      "volumeRemoved": null
+    },
+    {
+      "vmId": 530,
+      "nicId": 971,
+      "state": "Implemented",
+      "nicUuid": "3f86fa7f-8ecd-482a-bd70-1212a1928da1",
+      "removed": null,
+      "nicState": "Reserved",
+      "nicRemoved": null,
+      "networkUuid": "c1ad9108-087f-48ce-beae-946557a3ed23"
+    }
+  ],
+  "runtime": {
+    "host": {
+      "exit": 0,
+      "out": "ablecube32-3\n",
+      "error": ""
+    },
+    "domain": {
+      "exit": 0,
+      "out": "Id:             311\nName:           r-530-VM\nUUID:           1f8bc211-78f5-47db-97b5-d167f9081eae\nOS Type:        hvm\nState:          running\nCPU(s):         1\nCPU time:       27.2s\nMax memory:     524288 KiB\nUsed memory:    524288 KiB\nPersistent:     no\nAutostart:      disable\nAutostart Once: disable\nManaged save:   no\nSecurity model: none\nSecurity DOI:   0\nMessages:       tainted: custom monitor control commands issued\n                tainted: running with undesirable elevated privileges\n                tainted: custom guest agent control commands issued\n                tainted: use of deprecated configuration settings\n                deprecated configuration: machine type 'pc-i440fx-rhel7.6.0'\n\n",
+      "error": ""
+    },
+    "diskXml": {
+      "exit": 0,
+      "out": " Type    Device   Target   Source\n------------------------------------------------------------------------------\n block   disk     sda      /dev/rbd/rbd/d7b3c3cc-44ba-4189-82bb-b0fc9b324ee6\n file    cdrom    hdc      -\n\n",
+      "error": ""
+    },
+    "poolXml": {
+      "exit": 0,
+      "out": "<pool type='rbd'>\n  <name>91cae554-3fce-3f93-89d1-cefaf9bf8122</name>\n  <uuid>91cae554-3fce-3f93-89d1-cefaf9bf8122</uuid>\n  <capacity unit='bytes'>28805682954240</capacity>\n  <allocation unit='bytes'>1303754802382</allocation>\n  <available unit='bytes'>27485758066688</available>\n  <source>\n    <host name='scvm1'/>\n    <host name='scvm2'/>\n    <host name='scvm3'/>\n    <name>rbd</name>\n    <auth type='ceph' username='admin'>\n      <secret uuid='91cae554-3fce-3f93-89d1-cefaf9bf8122'/>\n    </auth>\n  </source>\n</pool>\n\n",
+      "error": ""
+    },
+    "libvirtVolumeInfo": {
+      "exit": 0,
+      "out": "Name:           d7b3c3cc-44ba-4189-82bb-b0fc9b324ee6\nType:           network\nCapacity:       4.88 GiB\nAllocation:     4.88 GiB\n\n",
+      "error": ""
+    },
+    "libvirtVolumeXml": {
+      "exit": 0,
+      "out": "<volume type='network'>\n  <name>d7b3c3cc-44ba-4189-82bb-b0fc9b324ee6</name>\n  <key>rbd/d7b3c3cc-44ba-4189-82bb-b0fc9b324ee6</key>\n  <capacity unit='bytes'>5242880000</capacity>\n  <allocation unit='bytes'>5242880000</allocation>\n  <target>\n    <path>rbd/d7b3c3cc-44ba-4189-82bb-b0fc9b324ee6</path>\n    <format type='raw'/>\n  </target>\n</volume>\n\n",
+      "error": ""
+    },
+    "info": {
+      "exit": 0,
+      "out": "{\"name\":\"d7b3c3cc-44ba-4189-82bb-b0fc9b324ee6\",\"id\":\"d3b43117ac66d0\",\"size\":5242880000,\"objects\":1250,\"order\":22,\"object_size\":4194304,\"snapshot_count\":0,\"block_name_prefix\":\"rbd_data.d3b43117ac66d0\",\"format\":2,\"features\":[\"layering\",\"exclusive-lock\",\"object-map\",\"fast-diff\",\"deep-flatten\"],\"op_features\":[],\"flags\":[],\"create_timestamp\":\"Fri Nov 13 13:14:13 2026\",\"access_timestamp\":\"Fri Nov 13 13:14:13 2026\",\"modify_timestamp\":\"Fri Nov 13 13:14:13 2026\",\"parent\":{\"pool\":\"rbd\",\"pool_namespace\":\"\",\"image\":\"bc7298e5-a2cc-4627-8c55-7e74ed6e108c\",\"id\":\"bd15cc8e9914e5\",\"snapshot\":\"cloudstack-base-snap\",\"trash\":false,\"overlap\":5242880000}}\n",
+      "error": ""
+    },
+    "status": {
+      "exit": 0,
+      "out": "{\"watchers\":[{\"address\":\"100.100.32.3:0/3070346375\",\"client\":1154850,\"cookie\":18446462598732851962}]}\n",
+      "error": ""
+    },
+    "snapshots": {
+      "exit": 0,
+      "out": "[]\n",
+      "error": ""
+    },
+    "children": {
+      "exit": 0,
+      "out": "[]\n",
+      "error": ""
+    },
+    "locks": {
+      "exit": 0,
+      "out": "[{\"id\":\"auto 18446462598732851962\",\"locker\":\"client.1154850\",\"address\":\"100.100.32.3:0/3070346375\"}]\n",
+      "error": ""
+    },
+    "clusterFsid": {
+      "exit": 0,
+      "out": "47c73ef8-b237-11f1-aafa-002481547a21\n",
+      "error": ""
+    }
+  }
+}

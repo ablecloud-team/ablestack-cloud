@@ -1,0 +1,26 @@
+{
+  "process": {
+    "pid": 738198,
+    "child": 738240,
+    "header": "rbd_header.d34709b0535fa3",
+    "image": "024c4c9f-aef2-43ba-b6f5-702041278276"
+  },
+  "status": {
+    "watchers": [
+      {
+        "address": "100.100.32.3:0/1925051077",
+        "client": 47402627,
+        "cookie": 94319406023360
+      },
+      {
+        "address": "100.100.32.3:0/3070346375",
+        "client": 1154850,
+        "cookie": 18446462598732851964
+      }
+    ]
+  },
+  "root": "/run/qa-i1586-impl-watch2-41278276",
+  "readOnlyMetadataWatch": true,
+  "noDiskWrites": true,
+  "noKernelMapping": true
+}

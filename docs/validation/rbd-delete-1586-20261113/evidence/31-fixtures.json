@@ -1,0 +1,24 @@
+{
+  "prefix": "qa-i1586-31-impl-20261113",
+  "project": {
+    "id": "59614883-4085-4a76-99da-b8a1e3a78eed",
+    "name": "qa-gn1569-31-shared-reg"
+  },
+  "networks": {
+    "normal": {
+      "id": "7b9b2206-35b7-4d20-83a1-4ff815935bba",
+      "name": "qa-i1586-31-impl-20261113-normal",
+      "router": {
+        "id": "c19e63c6-2bca-42f9-908c-be38882573d4",
+        "name": "r-1054-VM",
+        "hostid": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+        "hostname": "ablecube31-2",
+        "state": "Running",
+        "linklocalip": "169.254.48.179",
+        "networkid": null,
+        "serviceofferingid": "314ccb87-0e40-4438-9d1f-474c52e4e609"
+      }
+    }
+  },
+  "offering": "3942535e-5c21-42e4-a10a-4c7bfea3792b"
+}

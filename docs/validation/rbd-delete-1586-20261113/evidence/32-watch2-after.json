@@ -1,0 +1,98 @@
+{
+  "cluster": 32,
+  "case": "watch2",
+  "phase": "after",
+  "network": "261353c1-4cdb-42aa-bf43-34353bebb897",
+  "hostAddress": "10.10.32.3",
+  "rows": [
+    {
+      "path": "024c4c9f-aef2-43ba-b6f5-702041278276",
+      "hostId": null,
+      "vmState": "Destroyed",
+      "instance": "r-531-VM",
+      "poolPath": "rbd",
+      "poolType": "RBD",
+      "poolUuid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+      "routerId": 531,
+      "volumeId": 934,
+      "vmRemoved": "2026-11-13 04:19:23.000000",
+      "routerUuid": "36d672d8-7713-40b8-8a58-8e2654e5c61b",
+      "volumeUuid": "024c4c9f-aef2-43ba-b6f5-702041278276",
+      "poolAddress": "scvm1,scvm2,scvm3",
+      "volumeState": "Expunged",
+      "volumeRemoved": "2026-11-13 04:19:23.000000"
+    },
+    {
+      "vmId": 531,
+      "nicId": 974,
+      "state": "Destroy",
+      "nicUuid": "f8aad64e-fa30-40bf-8316-c85ac372f41c",
+      "removed": "2026-11-13 04:19:23.000000",
+      "nicState": "Deallocating",
+      "nicRemoved": "2026-11-13 04:18:52.000000",
+      "networkUuid": "261353c1-4cdb-42aa-bf43-34353bebb897"
+    }
+  ],
+  "runtime": {
+    "host": {
+      "exit": 0,
+      "out": "ablecube32-3\n",
+      "error": ""
+    },
+    "domain": {
+      "exit": 1,
+      "out": "\n",
+      "error": "error: failed to get domain 'r-531-VM'\n"
+    },
+    "diskXml": {
+      "exit": 1,
+      "out": "\n",
+      "error": "error: failed to get domain 'r-531-VM'\n"
+    },
+    "poolXml": {
+      "exit": 0,
+      "out": "<pool type='rbd'>\n  <name>91cae554-3fce-3f93-89d1-cefaf9bf8122</name>\n  <uuid>91cae554-3fce-3f93-89d1-cefaf9bf8122</uuid>\n  <capacity unit='bytes'>28805682954240</capacity>\n  <allocation unit='bytes'>1293258945742</allocation>\n  <available unit='bytes'>27496220151808</available>\n  <source>\n    <host name='scvm1'/>\n    <host name='scvm2'/>\n    <host name='scvm3'/>\n    <name>rbd</name>\n    <auth type='ceph' username='admin'>\n      <secret uuid='91cae554-3fce-3f93-89d1-cefaf9bf8122'/>\n    </auth>\n  </source>\n</pool>\n\n",
+      "error": ""
+    },
+    "libvirtVolumeInfo": {
+      "exit": 1,
+      "out": "\n",
+      "error": "error: failed to get vol '024c4c9f-aef2-43ba-b6f5-702041278276'\nerror: Storage volume not found: no storage vol with matching path '024c4c9f-aef2-43ba-b6f5-702041278276'\n"
+    },
+    "libvirtVolumeXml": {
+      "exit": 1,
+      "out": "\n",
+      "error": "error: failed to get vol '024c4c9f-aef2-43ba-b6f5-702041278276'\nerror: Storage volume not found: no storage vol with matching path '024c4c9f-aef2-43ba-b6f5-702041278276'\n"
+    },
+    "info": {
+      "exit": 2,
+      "out": "",
+      "error": "rbd: error opening image 024c4c9f-aef2-43ba-b6f5-702041278276: (2) No such file or directory\n"
+    },
+    "status": {
+      "exit": 2,
+      "out": "",
+      "error": "rbd: error opening image 024c4c9f-aef2-43ba-b6f5-702041278276: (2) No such file or directory\n"
+    },
+    "snapshots": {
+      "exit": 2,
+      "out": "",
+      "error": "rbd: error opening image 024c4c9f-aef2-43ba-b6f5-702041278276: (2) No such file or directory\n"
+    },
+    "children": {
+      "exit": 2,
+      "out": "",
+      "error": "rbd: error opening image 024c4c9f-aef2-43ba-b6f5-702041278276: (2) No such file or directory\n"
+    },
+    "locks": {
+      "exit": 2,
+      "out": "",
+      "error": "rbd: error opening image 024c4c9f-aef2-43ba-b6f5-702041278276: (2) No such file or directory\n"
+    },
+    "clusterFsid": {
+      "exit": 0,
+      "out": "47c73ef8-b237-11f1-aafa-002481547a21\n",
+      "error": ""
+    }
+  }
+}

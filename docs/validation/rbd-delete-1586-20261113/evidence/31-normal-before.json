@@ -1,0 +1,72 @@
+{
+  "cluster": 31,
+  "case": "normal",
+  "phase": "before",
+  "network": "7b9b2206-35b7-4d20-83a1-4ff815935bba",
+  "hostAddress": "10.10.31.2",
+  "rows": [
+    {
+      "path": "cac8ef1c-080a-474d-b642-75bf9b1f8904",
+      "hostId": 4,
+      "vmState": "Running",
+      "instance": "r-1054-VM",
+      "poolPath": "/mnt/glue-gfs",
+      "poolType": "SharedMountPoint",
+      "poolUuid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+      "routerId": 1054,
+      "volumeId": 1502,
+      "vmRemoved": null,
+      "routerUuid": "c19e63c6-2bca-42f9-908c-be38882573d4",
+      "volumeUuid": "cac8ef1c-080a-474d-b642-75bf9b1f8904",
+      "poolAddress": "localhost",
+      "volumeState": "Ready",
+      "volumeRemoved": null
+    },
+    {
+      "vmId": 1054,
+      "nicId": 1640,
+      "state": "Implemented",
+      "nicUuid": "01fa82e3-c97c-48c5-b089-de1d90fd5205",
+      "removed": null,
+      "nicState": "Reserved",
+      "nicRemoved": null,
+      "networkUuid": "7b9b2206-35b7-4d20-83a1-4ff815935bba"
+    }
+  ],
+  "runtime": {
+    "host": {
+      "exit": 0,
+      "out": "ablecube31-2\n",
+      "error": ""
+    },
+    "domain": {
+      "exit": 0,
+      "out": "Id:             419\nName:           r-1054-VM\nUUID:           c19e63c6-2bca-42f9-908c-be38882573d4\nOS Type:        hvm\nState:          running\nCPU(s):         1\nCPU time:       23.7s\nMax memory:     524288 KiB\nUsed memory:    524288 KiB\nPersistent:     no\nAutostart:      disable\nAutostart Once: disable\nManaged save:   no\nSecurity model: none\nSecurity DOI:   0\nMessages:       tainted: custom monitor control commands issued\n                tainted: running with undesirable elevated privileges\n                tainted: custom guest agent control commands issued\n                tainted: use of deprecated configuration settings\n                deprecated configuration: machine type 'pc-i440fx-rhel7.6.0'\n\n",
+      "error": ""
+    },
+    "diskXml": {
+      "exit": 0,
+      "out": " Type   Device   Target   Source\n------------------------------------------------------------------------------\n file   disk     sda      /mnt/glue-gfs/cac8ef1c-080a-474d-b642-75bf9b1f8904\n file   cdrom    hdc      -\n\n",
+      "error": ""
+    },
+    "poolXml": {
+      "exit": 0,
+      "out": "<pool type='dir'>\n  <name>1842fb9f-02e0-4da9-b082-422c5a184de0</name>\n  <uuid>1842fb9f-02e0-4da9-b082-422c5a184de0</uuid>\n  <capacity unit='bytes'>23998409687040</capacity>\n  <allocation unit='bytes'>4075054182400</allocation>\n  <available unit='bytes'>19923355504640</available>\n  <source>\n  </source>\n  <target>\n    <path>/mnt/glue-gfs</path>\n    <permissions>\n      <mode>0755</mode>\n      <owner>0</owner>\n      <group>0</group>\n      <label>system_u:object_r:unlabeled_t:s0</label>\n    </permissions>\n  </target>\n</pool>\n\n",
+      "error": ""
+    },
+    "libvirtVolumeInfo": {
+      "exit": 0,
+      "out": "Name:           cac8ef1c-080a-474d-b642-75bf9b1f8904\nType:           file\nCapacity:       4.88 GiB\nAllocation:     208.36 MiB\n\n",
+      "error": ""
+    },
+    "libvirtVolumeXml": {
+      "exit": 0,
+      "out": "<volume type='file'>\n  <name>cac8ef1c-080a-474d-b642-75bf9b1f8904</name>\n  <key>/mnt/glue-gfs/cac8ef1c-080a-474d-b642-75bf9b1f8904</key>\n  <capacity unit='bytes'>5242880000</capacity>\n  <allocation unit='bytes'>218480640</allocation>\n  <physical unit='bytes'>218103808</physical>\n  <target>\n    <path>/mnt/glue-gfs/cac8ef1c-080a-474d-b642-75bf9b1f8904</path>\n    <format type='qcow2'/>\n    <permissions>\n      <mode>0644</mode>\n      <owner>0</owner>\n      <group>0</group>\n      <label>system_u:object_r:unlabeled_t:s0</label>\n    </permissions>\n    <timestamps>\n      <atime>1794543161.237185634</atime>\n      <mtime>1794543263.243961665</mtime>\n      <ctime>1794543263.243961665</ctime>\n      <btime>0</btime>\n    </timestamps>\n    <compat>1.1</compat>\n    <clusterSize unit='B'>65536</clusterSize>\n    <features/>\n  </target>\n  <backingStore>\n    <path>/mnt/glue-gfs/78f1d144-d065-4193-a169-18934f49b530</path>\n    <format type='qcow2'/>\n    <permissions>\n      <mode>0644</mode>\n      <owner>0</owner>\n      <group>0</group>\n      <label>system_u:object_r:unlabeled_t:s0</label>\n    </permissions>\n    <timestamps>\n      <atime>1794397010.470834422</atime>\n      <mtime>1794397011.252821610</mtime>\n      <ctime>1794397011.252821610</ctime>\n      <btime>0</btime>\n    </timestamps>\n  </backingStore>\n</volume>\n\n",
+      "error": ""
+    },
+    "physicalFile": {
+      "exists": true,
+      "path": "/mnt/glue-gfs/cac8ef1c-080a-474d-b642-75bf9b1f8904"
+    }
+  }
+}
