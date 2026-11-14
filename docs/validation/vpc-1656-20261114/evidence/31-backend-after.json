@@ -1,0 +1,25 @@
+{
+  "source": "487f254e868104509de6c380ab4a137a624ac7cb",
+  "pidBefore": "1851838",
+  "pidAfter": "2108521",
+  "http": 200,
+  "protectedUnchanged": true,
+  "changes": {
+    "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar": {
+      "changedEntries": [
+        "org/apache/cloudstack/api/response/VpcOfferingResponse.class",
+        "com/cloud/api/query/dao/VpcOfferingJoinDaoImpl.class"
+      ],
+      "entrySha256": {
+        "org/apache/cloudstack/api/response/VpcOfferingResponse.class": "f5d92de87058c2919d4ea5f5f7d64ba61923783b47e77edd2fb69d3c468a41db",
+        "com/cloud/api/query/dao/VpcOfferingJoinDaoImpl.class": "e189049af67dbd0911aa7d0049ec236ce48476ec48067993f8897fed0a2a506b"
+      },
+      "beforeJarSha256": "a9bb46116112cf3bd6c0e8e8d820d8f45fb361aa1a291bfc095fe38295642777",
+      "afterJarSha256": "0d084f8c75724ab7c8341ed89fa681234f8a246a14b188f44cfadb05198f64f9",
+      "otherEntriesUnchanged": true
+    }
+  },
+  "otherJarChanges": [],
+  "logLinkageErrors": 0,
+  "appendedLogSha256": "fcf3eada2fdcd976178245e3773b49e175cc4bac051dee4d2f33b221d68ccac0"
+}

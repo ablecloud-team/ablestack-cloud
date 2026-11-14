@@ -1,0 +1,42 @@
+[
+  {
+    "api": "cloneVPCOffering",
+    "id": "c6be69b0-056e-454f-8449-c10f505da76d",
+    "name": "qa-vpc1656-20261114-32-offering-a"
+  },
+  {
+    "api": "cloneVPCOffering",
+    "id": "863e3a60-588a-4da4-832c-547bf896f464",
+    "name": "qa-vpc1656-20261114-32-offering-b"
+  },
+  {
+    "api": "cloneNetworkOffering",
+    "id": "d9fd0c60-570a-4f86-810f-f32ed24520fe",
+    "name": "qa-vpc1656-20261114-32-tier-offering-a"
+  },
+  {
+    "api": "cloneNetworkOffering",
+    "id": "c2991000-dc80-4a16-8994-572b31aa885f",
+    "name": "qa-vpc1656-20261114-32-tier-offering-b"
+  },
+  {
+    "api": "cloneNetworkOffering",
+    "id": "b2a2f472-03b9-4ba1-aced-4b4f30847ea9",
+    "name": "qa-vpc1656-20261114-32-tier-incompatible"
+  },
+  {
+    "api": "createVPC",
+    "id": "26b38d88-38ba-4fa1-b201-32528412b209",
+    "name": "qa-vpc1656-20261114-32-design"
+  },
+  {
+    "api": "createNetwork",
+    "id": "744d33b3-0dda-4e98-ab24-5ae291388d3e",
+    "name": "qa-vpc1656-20261114-32-tier-1"
+  },
+  {
+    "api": "createNetwork",
+    "id": "5d4aad3d-f75a-48d3-90c9-8f244f9e6bc0",
+    "name": "qa-vpc1656-20261114-32-tier-2"
+  }
+]

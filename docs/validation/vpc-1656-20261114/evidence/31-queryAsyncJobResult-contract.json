@@ -1,0 +1,132 @@
+{
+  "count": 1,
+  "api": [
+    {
+      "name": "queryAsyncJobResult",
+      "description": "Retrieves the current status of asynchronous job.",
+      "isasync": false,
+      "related": "",
+      "params": [
+        {
+          "name": "jobid",
+          "description": "The ID of the asynchronous job",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "queryAsyncJobResult"
+        },
+        {
+          "name": "resourceid",
+          "description": "the ID of the resource associated with the job",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.22.1"
+        },
+        {
+          "name": "resourcetype",
+          "description": "the type of the resource associated with the job",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.22.1"
+        }
+      ],
+      "response": [
+        {
+          "name": "created",
+          "description": "The created date of the job",
+          "type": "date"
+        },
+        {
+          "name": "domainid",
+          "description": "The domain ID that executed the async command",
+          "type": "string"
+        },
+        {
+          "name": "userid",
+          "description": "The User that executed the async command",
+          "type": "string"
+        },
+        {},
+        {
+          "name": "jobid",
+          "description": "The UUID of the latest async job acting on this object",
+          "type": "string"
+        },
+        {
+          "name": "jobresulttype",
+          "description": "The result type",
+          "type": "string"
+        },
+        {
+          "name": "jobstatus",
+          "description": "The current status of the latest async job acting on this object",
+          "type": "integer"
+        },
+        {
+          "name": "account",
+          "description": "The Account that executed the async command",
+          "type": "string"
+        },
+        {
+          "name": "cmd",
+          "description": "The async command executed",
+          "type": "string"
+        },
+        {
+          "name": "jobresultcode",
+          "description": "The result code for the job",
+          "type": "integer"
+        },
+        {
+          "name": "completed",
+          "description": "The completed date of the job",
+          "type": "date"
+        },
+        {
+          "name": "managementserverid",
+          "description": "The MSID of the management server on which the job is running",
+          "type": "string"
+        },
+        {
+          "name": "jobinstancetype",
+          "description": "The Instance/entity object related to the job",
+          "type": "string"
+        },
+        {
+          "name": "jobresult",
+          "description": "The result reason",
+          "type": "responseobject"
+        },
+        {
+          "name": "accountid",
+          "description": "The Account ID that executed the async command",
+          "type": "string"
+        },
+        {
+          "name": "domainpath",
+          "description": "The domain that executed the async command",
+          "type": "string"
+        },
+        {
+          "name": "managementservername",
+          "description": "the management server name of the host",
+          "type": "string"
+        },
+        {
+          "name": "jobinstanceid",
+          "description": "The unique ID of the Instance/entity object related to the job",
+          "type": "string"
+        },
+        {
+          "name": "jobprocstatus",
+          "description": "The progress information of the PENDING job",
+          "type": "integer"
+        },
+        {}
+      ],
+      "httprequesttype": "GET"
+    }
+  ]
+}

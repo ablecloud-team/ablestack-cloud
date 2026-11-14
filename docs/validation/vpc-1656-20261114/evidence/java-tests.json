@@ -1,0 +1,23 @@
+{
+  "source": "487f254e868104509de6c380ab4a137a624ac7cb",
+  "tests": [
+    {
+      "name": "com.cloud.network.NetworkMigrationRequestTest",
+      "tests": 17,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.cloud.api.query.dao.VpcOfferingJoinDaoImplTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "apiBuildSuccess": true,
+  "serverBuildSuccess": true,
+  "apiTestsSkipped": true,
+  "fullCloudBuild": false
+}

@@ -1,0 +1,38 @@
+{
+  "source": "95305daaed94c67d92501245ee98b3a7e69fee4f",
+  "backendSource": "487f254e868104509de6c380ab4a137a624ac7cb",
+  "designMigrationJobs": 16,
+  "designSuccess": 9,
+  "designExpectedFailure": 7,
+  "roleCases": 6,
+  "actualUiJobs": 7,
+  "actualUiSuccess": 6,
+  "actualUiExpectedFailure": 1,
+  "styleCombinations": 12,
+  "mobileLowerScreenshots": 4,
+  "mobilePopups": 4,
+  "screenshots": 35,
+  "fullCloudBuild": false,
+  "cleanup": {
+    "31": {
+      "deleteAccount": 1,
+      "deleteNetwork": 3,
+      "deleteNetworkOffering": 4,
+      "deleteVPC": 2,
+      "deleteVPCOffering": 2,
+      "destroyVirtualMachine": 1
+    },
+    "32": {
+      "deleteAccount": 1,
+      "deleteNetwork": 3,
+      "deleteNetworkOffering": 5,
+      "deleteProject": 1,
+      "deleteVPC": 2,
+      "deleteVPCOffering": 3,
+      "destroyVirtualMachine": 1
+    }
+  },
+  "preservedResourceKinds": 12,
+  "serviceArrayOrderingNormalized": true,
+  "newIssues": 0
+}

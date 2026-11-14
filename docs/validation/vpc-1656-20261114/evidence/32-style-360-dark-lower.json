@@ -1,0 +1,53 @@
+{
+  "body": {
+    "bottom": 722,
+    "clientHeight": 654,
+    "clientWidth": 324,
+    "height": 654,
+    "right": 347,
+    "scrollHeight": 2975,
+    "scrollTop": 2321,
+    "scrollWidth": 324,
+    "width": 334,
+    "x": 13,
+    "y": 68
+  },
+  "content": {
+    "bottom": 788,
+    "clientHeight": 774,
+    "clientWidth": 334,
+    "height": 776,
+    "right": 348,
+    "scrollHeight": 774,
+    "scrollTop": 0,
+    "scrollWidth": 334,
+    "width": 336,
+    "x": 12,
+    "y": 12
+  },
+  "dark": true,
+  "dialogClass": "ant-modal-wrap mold-dialog-standard-wrap ant-modal-centered",
+  "footer": {
+    "bottom": 787,
+    "clientHeight": 64,
+    "clientWidth": 334,
+    "height": 65,
+    "right": 347,
+    "scrollHeight": 64,
+    "scrollTop": 0,
+    "scrollWidth": 334,
+    "width": 334,
+    "x": 13,
+    "y": 722
+  },
+  "style": {
+    "background": "rgb(34, 40, 47)",
+    "color": "rgb(240, 243, 246)",
+    "font": "14px"
+  },
+  "text": "VPC 마이그레이션\n\n관리자 전용 VPC 전환입니다. VPC 오퍼링과 모든 Tier의 매핑을 함께 검토하십시오. 라우터·Tier·연결된 VM의 NIC를 전환하며 연결이 끊길 수 있습니다. 일부 실패 시 이전 자원이 남고 자동 역전환하지 않습니다.\n\n검토 중\n업데이트\n현재 설정과 서비스\n이름\tqa-vpc1656-20261114-32-design · 26b38d88-38ba-4fa1-b201-32528412b209\n계정\tadmin · ROOT\nZone\tZone\nCIDR / DNS\t10.245.32.0/24 · — · —\nVPC 오퍼링\tqa-vpc1656-20261114-32-offering-a · c6be69b0-056e-454f-8449-c10f505da76d\n서비스·제공자\tDhcp: VpcVirtualRouter; UserData: VpcVirtualRouter; NetworkACL: VpcVirtualRouter; Lb: VpcVirtualRouter, InternalLbVm; SourceNat: VpcVirtualRouter; PortForwarding: VpcVirtualRouter; Vpn: VpcVirtualRouter; StaticNat: VpcVirtualRouter; Dns: VpcVirtualRouter\n마이그레이션 대상 오퍼링\nVPC 오퍼링\nqa-vpc1656-20261114-32-offering-b · 863e3a60-588a-4da4-832c-547bf896f464\n\nDhcp: VpcVirtualRouter; UserData: VpcVirtualRouter; NetworkACL: VpcVirtualRouter; Lb: VpcVirtualRouter, InternalLbVm; SourceNat: VpcVirtualRouter; PortForwarding: VpcVirtualRouter; Vpn: VpcVirtualRouter; StaticNat: VpcVirtualRouter; Dns: VpcVirtualRouter · IPv4 / NATTED\n\nTier 매핑 (2)\n\n모든 Tier를 명시적으로 매핑해야 합니다. 새 VPC로 옮기려면 미완료 Tier에 현재와 다른 오퍼링이 필요합니다. 완료된 Tier의 매핑은 재개 시 변경할 수 없습니다.\n\nqa-vpc1656-20261114-32-tier-2\n\n5d4aad3d-f75a-48d3-90c9-8f244f9e6bc0 · Allocated · 10.245.32.128/25 · 10.245.32.129\n\nqa-vpc1656-20261114-32-tier-offering-a · Physical Network 1\n\nDhcp: VpcVirtualRouter; UserData: VpcVirtualRouter; NetworkACL: VpcVirtualRouter; Lb: VpcVirtualRouter; SourceNat: VpcVirtualRouter; PortForwarding: VpcVirtualRouter; Vpn: VpcVirtualRouter; StaticNat: VpcVirtualRouter; Dns: VpcVirtualRouter\n\n네트워크 오퍼링\nqa-vpc1656-20261114-32-tier-offering-b · Physical Network 1\n\nc2991000-dc80-4a16-8994-572b31aa885f · f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b · 같은 물리망 · 오퍼링 전환 · 10000 Mbps\n\nqa-vpc1656-20261114-32-tier-1\n\n744d33b3-0dda-4e98-ab24-5ae291388d3e · Implemented · 10.245.32.0/25 · 10.245.32.1\n\nqa-vpc1656-20261114-32-tier-offering-a · Physical Network 1\n\nDhcp: VpcVirtualRouter; UserData: VpcVirtualRouter; NetworkACL: VpcVirtualRouter; Lb: VpcVirtualRouter; SourceNat: VpcVirtualRouter; PortForwarding: VpcVirtualRouter; Vpn: VpcVirtualRouter; StaticNat: VpcVirtualRouter; Dns: VpcVirtualRouter\n\n네트워크 오퍼링\nqa-vpc1656-20261114-32-tier-offering-b · Physical Network 1\n\nc2991000-dc80-4a16-8994-572b31aa885f · f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b · 같은 물리망 · 오퍼링 전환 · 10000 Mbps\n\n모든 Tier의 물리망·제공자 확인 완료\n\n연결된 VM / NIC\n\n가상 라우터: r-549-VM · Running\n\nPublic IP 주소: 10.10.32.166 · Allocated\n\n이름\t상태\tIP 주소\tTier 매핑\n\n \n\t\n \n\t\n \n\t\n \n\nqa-vpc1656-20261114-32-vm\tRunning\t10.245.32.126\tqa-vpc1656-20261114-32-tier-1\n\n이 화면은 IPv4/NATTED·단일 VPC 라우터와 동일 서비스·제공자·주소 계약의 Tier만 지원합니다. 같은 물리망에서는 오퍼링을 전환하고 다른 물리망은 Guest/VLAN·제공자 준비가 확인돼야 합니다. 외부 제공자·이중화·IPv6·동적 라우팅·게이트웨이/VPN/정적 경로가 있는 전환은 제공하지 않습니다. 최종 지원 여부는 서버가 검증합니다.\n\n전체 Tier 매핑과 서비스·물리망, 연결 중단 및 부분 실패 시 재개 조건을 확인했습니다.\n닫기\n마이그레이션 시작",
+  "viewport": {
+    "height": 800,
+    "width": 360
+  }
+}

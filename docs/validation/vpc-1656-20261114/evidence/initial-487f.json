@@ -1,0 +1,87 @@
+{
+  "build-result.json": {
+    "source": "487f254e868104509de6c380ab4a137a624ac7cb",
+    "exit": 0,
+    "seconds": 691.7,
+    "node": "v20.20.2",
+    "npm": "10.8.2",
+    "nodeOptions": "--openssl-legacy-provider --max-old-space-size=8192",
+    "sourceUiClean": true,
+    "fullCloudBuild": false,
+    "changedFiles": {
+      "ui/public/locales/en.json": "304043f7525e946f470c1c619d689f0f0b4b7fcee03f60020a72388239528e41",
+      "ui/public/locales/ko_KR.json": "0cab9b1c4ab891b66d0e7fd2ec16f9a5dc42bce62c7fed5e7dcfeee00f3cfa0b",
+      "ui/src/config/section/network.js": "1844ed76a53a8a3791b11476372006266d7e2f43f28f844d2a3d43f0847e223e",
+      "ui/src/utils/vpcMigration.js": "7d753c2115afcdcff68df684a7455231965a81265358d39be7565b063674c008",
+      "ui/src/views/network/MigrateVpc.vue": "480c2a9dfe2fda4b7b8ff47a726bc651120ba0d41385f03d76fe39c5cb133211",
+      "ui/tests/fixtures/vpcMigration.js": "65c3047c21809dc1a40e73dcadcd3b156faac6313aaadfd16d105054e62b2b78",
+      "ui/tests/unit/utils/vpcMigration.spec.js": "7ba2b02c63ca42695f4e5f7d6d0a7ff7f5083c7a23ff9ec01e324110c331adfb",
+      "ui/tests/unit/views/network/MigrateVpc.spec.js": "f83af48525a9fa6e911e9cc595bedfe53f5a663a34ea1d1fc506fb0d033716fe"
+    },
+    "lockfileSha256": "23379939285231d360907e8d7242206efd5359654b9903614788040680133ffc",
+    "indexSha256": "33f34637c452f61b7104d511d32ad665ff1282049104c6e4fd5ce7bbc1a11990",
+    "appBundles": [
+      "js/app.85684581.js"
+    ],
+    "markers": {
+      "vpc-migration:v1:": [
+        "js/chunk-44acd6ba.7d8d4589.js"
+      ],
+      "message.vpc.migration.impact": [
+        "js/chunk-44acd6ba.7d8d4589.js"
+      ],
+      "vpc-restart:v1:": [
+        "js/chunk-56783d16.dcb2b2ce.js"
+      ],
+      "message.vpc.restart.results": [
+        "js/chunk-56783d16.dcb2b2ce.js"
+      ],
+      "vpc-private-gateway:v1:": [
+        "js/chunk-294a0c2f.70079a24.js"
+      ],
+      "message.private.gateway.no.resubmit": [
+        "js/chunk-294a0c2f.70079a24.js"
+      ],
+      "vpc.offering.operation.v1:": [
+        "js/chunk-18c5d0ca.036fbf9b.js"
+      ],
+      "message.vpc.offering.operation.no.resubmit": [
+        "js/chunk-18c5d0ca.036fbf9b.js"
+      ],
+      "message.success.clone.vpc.offering": [
+        "js/chunk-18c5d0ca.036fbf9b.js"
+      ],
+      "blockingLoadingState": [
+        "js/chunk-339f49ae.fd3fdd7c.js"
+      ],
+      "fetchSyncProgress": [
+        "js/chunk-339f49ae.fd3fdd7c.js"
+      ],
+      "extractJobId": [
+        "js/chunk-339f49ae.fd3fdd7c.js"
+      ]
+    }
+  },
+  "31-deployment.json": {
+    "static_files": 695,
+    "static_bytes": 31416363,
+    "hash_mismatches": [],
+    "index_sha256": "33f34637c452f61b7104d511d32ad665ff1282049104c6e4fd5ce7bbc1a11990",
+    "protected_unchanged": true,
+    "http": 200,
+    "disk_free_after": 146817716224,
+    "remote_stage": "/dev/shm/vpc1656-20261114-163844",
+    "backup_sha256": "c05ef6d4fd3a266edc1eee2f61ef2667c9d818cef6f442e2eba5fa3887f66f0d"
+  },
+  "32-deployment.json": {
+    "static_files": 695,
+    "static_bytes": 31416363,
+    "hash_mismatches": [],
+    "index_sha256": "33f34637c452f61b7104d511d32ad665ff1282049104c6e4fd5ce7bbc1a11990",
+    "protected_unchanged": true,
+    "http": 200,
+    "disk_free_after": 28336496640,
+    "remote_stage": "/var/tmp/vpc1656-20261114-163844",
+    "backup_sha256": "98bc230a3af006612b53f2b77ea4db61b232930f758443ada2516a86f911bf39"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "source": "487f254e868104509de6c380ab4a137a624ac7cb",
+  "sourceFiles": {
+    "api/src/main/java/org/apache/cloudstack/api/response/VpcOfferingResponse.java": "77dd64222aee3f63651930081f92cde31b62a7599d1f61885b32afbfa0f63037",
+    "server/src/main/java/com/cloud/api/query/dao/VpcOfferingJoinDaoImpl.java": "cded8b2a7f3f77fb6e39298d648d58cc8b0ff466942d77c0f568f47cf59fd875",
+    "server/src/test/java/com/cloud/api/query/dao/VpcOfferingJoinDaoImplTest.java": "f395b1484318d9e9c77520582c7f4d304bd80b44932bc2dfae70682d1dd68582"
+  },
+  "entries": {
+    "api": {
+      "path": "org/apache/cloudstack/api/response/VpcOfferingResponse.class",
+      "sha256": "f5d92de87058c2919d4ea5f5f7d64ba61923783b47e77edd2fb69d3c468a41db",
+      "builtJarSha256": "da879ed0f5cb3b9035a2e68c4a96155c7bc76a7900045fa1a809f2aadf7a19d7"
+    },
+    "server": {
+      "path": "com/cloud/api/query/dao/VpcOfferingJoinDaoImpl.class",
+      "sha256": "e189049af67dbd0911aa7d0049ec236ce48476ec48067993f8897fed0a2a506b",
+      "builtJarSha256": "20ba061af4c2b86eeb008c2ba3424af07d91456fb7a9fa75afc3fca1fd0ae204"
+    }
+  }
+}

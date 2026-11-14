@@ -1,0 +1,8 @@
+{
+  "run": 43573060866,
+  "summaryLines": [
+    "build\tRAT licence checks\t2026-11-14T07:53:19.7750375Z [INFO] Rat check: Summary over all files. Unapproved: 4079, unknown: 4079, generated: 0, approved: 15434 licenses.",
+    "build\tRAT licence checks\t2026-11-14T07:53:19.7772683Z [ERROR] Failed to execute goal org.apache.rat:apache-rat-plugin:0.12:check (default-cli) on project cloudstack: Too many files with unapproved license: 4079 See RAT report in: /home/runner/work/ablestack-cloud/ablestack-cloud/target/rat.txt -> [Help 1]"
+  ],
+  "artifacts": []
+}

@@ -1,0 +1,47 @@
+{
+  "headRefOid": "95305daaed94c67d92501245ee98b3a7e69fee4f",
+  "isDraft": true,
+  "statusCheckRollup": [
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-11-14T07:53:29Z",
+      "conclusion": "FAILURE",
+      "detailsUrl": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/43573060866/job/132381371444",
+      "name": "build",
+      "startedAt": "2026-11-14T07:51:47Z",
+      "status": "COMPLETED",
+      "workflowName": "License Check"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-11-14T08:06:08Z",
+      "conclusion": "FAILURE",
+      "detailsUrl": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/43573060868/job/132381371343",
+      "name": "Run pre-commit",
+      "startedAt": "2026-11-14T07:51:47Z",
+      "status": "COMPLETED",
+      "workflowName": "Lint"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-11-14T07:51:45Z",
+      "conclusion": "CANCELLED",
+      "detailsUrl": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/43573057852/job/132381364318",
+      "name": "triage",
+      "startedAt": "2026-11-14T07:51:43Z",
+      "status": "COMPLETED",
+      "workflowName": "PR Merge Conflict Check"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-11-14T07:51:53Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/ablecloud-team/ablestack-cloud/actions/runs/43573060858/job/132381373237",
+      "name": "triage",
+      "startedAt": "2026-11-14T07:51:48Z",
+      "status": "COMPLETED",
+      "workflowName": "PR Merge Conflict Check"
+    }
+  ],
+  "url": "https://github.com/ablecloud-team/ablestack-cloud/pull/1660"
+}

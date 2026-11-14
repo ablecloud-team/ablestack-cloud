@@ -1,0 +1,331 @@
+{
+  "listVPCs": {
+    "beforeCount": 2,
+    "afterCount": 2,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": [
+      {
+        "id": "876d40cb-64e6-42a8-a5d4-1122c7c0f1b8",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "2c41c280-c915-4952-ab59-a527bf248c94",
+        "field": "service",
+        "canonicalValuesEqual": true
+      }
+    ]
+  },
+  "listPrivateGateways": {
+    "beforeCount": 0,
+    "afterCount": 0,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  },
+  "listStaticRoutes": {
+    "beforeCount": 0,
+    "afterCount": 0,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  },
+  "listNetworks": {
+    "beforeCount": 31,
+    "afterCount": 31,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": [
+      {
+        "id": "79f125f2-8411-48ce-a96a-4a815f39d164",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "b18b4600-6f42-4827-bbba-253a2cfed320",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "ea344bee-6633-41df-861e-c2eaf66fa5c9",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "957281d8-692d-4761-9adb-a3f5567b40d7",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "1a3d2a69-b66a-4afa-9fb2-c40a87a754db",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "0fa6be3d-2c14-437c-9e88-bb3bacae74e6",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "710d2c0d-1992-40c8-8846-1478110be4e6",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "87601b32-f211-4609-819f-6d0f4810b788",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "b056b626-fe5e-4b75-ba17-78e421162dd7",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "2de83b57-a297-4bae-868e-cd31d1292f12",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "ad1a8462-ed3d-46f6-894e-e630f0484c13",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "56afc870-edf9-4251-bde5-bcdf6b77fa12",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "4734b8f0-06e5-43c3-8263-fe2ab9f493bd",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "4a5ac294-90e7-418c-9755-b17f4a9b78f3",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "b92b3567-2b70-47db-8c62-89bec746b5fd",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "e2ebdb86-75f7-498e-bfac-82d1796af5e2",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "baed64d8-dc13-4868-a53c-f86b2d663297",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "a037eecd-629e-446b-b0c4-f56674d99e0c",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "aab34179-3277-4948-8409-8e32b658ecc4",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "b55e3a03-25f0-4790-b576-71d736b5995b",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "41f095bf-79b7-422e-9eb3-29946b948467",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "2bc57a4a-89ed-46c0-afb4-5d1c2faee549",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "b3e7c062-c074-43cf-8374-0a3f74368874",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "ba4d479d-304a-4adf-8a80-aa042ebb2a93",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "6a09e40c-0585-4e08-bc3c-c5003f178cd9",
+        "field": "service",
+        "canonicalValuesEqual": true
+      }
+    ]
+  },
+  "listNetworkACLLists": {
+    "beforeCount": 4,
+    "afterCount": 4,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  },
+  "listPhysicalNetworks": {
+    "beforeCount": 2,
+    "afterCount": 2,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  },
+  "listZones": {
+    "beforeCount": 1,
+    "afterCount": 1,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  },
+  "listVPCOfferings": {
+    "beforeCount": 7,
+    "afterCount": 7,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [
+      {
+        "id": "49767c4b-61bd-4535-9957-af9908e220f1",
+        "field": "redundantvpcrouter",
+        "value": false
+      },
+      {
+        "id": "c92622b0-692f-4d0e-a948-6db0f6ec6159",
+        "field": "redundantvpcrouter",
+        "value": true
+      },
+      {
+        "id": "99610eae-9728-4741-879d-303372ce954a",
+        "field": "redundantvpcrouter",
+        "value": false
+      },
+      {
+        "id": "b6e0f549-a4f8-4f6f-8453-4d1c5c3bc941",
+        "field": "redundantvpcrouter",
+        "value": false
+      },
+      {
+        "id": "7f586547-1949-44bd-8dc1-0a8d9fdaf177",
+        "field": "redundantvpcrouter",
+        "value": false
+      },
+      {
+        "id": "d64a752e-71cd-4844-bc51-9a3937b14a3b",
+        "field": "redundantvpcrouter",
+        "value": false
+      },
+      {
+        "id": "c7e7e72b-1123-4a42-b909-2f9d986e3c65",
+        "field": "redundantvpcrouter",
+        "value": false
+      }
+    ],
+    "nonSemanticServiceArrayOrdering": [
+      {
+        "id": "49767c4b-61bd-4535-9957-af9908e220f1",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "c92622b0-692f-4d0e-a948-6db0f6ec6159",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "99610eae-9728-4741-879d-303372ce954a",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "b6e0f549-a4f8-4f6f-8453-4d1c5c3bc941",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "7f586547-1949-44bd-8dc1-0a8d9fdaf177",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "d64a752e-71cd-4844-bc51-9a3937b14a3b",
+        "field": "service",
+        "canonicalValuesEqual": true
+      },
+      {
+        "id": "c7e7e72b-1123-4a42-b909-2f9d986e3c65",
+        "field": "service",
+        "canonicalValuesEqual": true
+      }
+    ]
+  },
+  "listRouters": {
+    "beforeCount": 20,
+    "afterCount": 20,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  },
+  "listVirtualMachines": {
+    "beforeCount": 132,
+    "afterCount": 132,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  },
+  "listAccounts": {
+    "beforeCount": 26,
+    "afterCount": 26,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  },
+  "listProjects": {
+    "beforeCount": 7,
+    "afterCount": 7,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": [],
+    "expectedReadOnlyApiAddition": [],
+    "nonSemanticServiceArrayOrdering": []
+  }
+}

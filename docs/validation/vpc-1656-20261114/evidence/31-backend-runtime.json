@@ -1,0 +1,72 @@
+{
+  "offeringMetadata": [
+    {
+      "id": "49767c4b-61bd-4535-9957-af9908e220f1",
+      "name": "Default VPC offering",
+      "redundantvpcrouter": false,
+      "state": "Enabled"
+    },
+    {
+      "id": "99610eae-9728-4741-879d-303372ce954a",
+      "name": "Default VPC  offering with Netscaler",
+      "redundantvpcrouter": false,
+      "state": "Enabled"
+    },
+    {
+      "id": "c92622b0-692f-4d0e-a948-6db0f6ec6159",
+      "name": "Redundant VPC offering",
+      "redundantvpcrouter": true,
+      "state": "Enabled"
+    },
+    {
+      "id": "7f586547-1949-44bd-8dc1-0a8d9fdaf177",
+      "name": "VPC offering with NSX - NAT Mode",
+      "redundantvpcrouter": false,
+      "state": "Enabled"
+    },
+    {
+      "id": "b6e0f549-a4f8-4f6f-8453-4d1c5c3bc941",
+      "name": "VPC offering with NSX - Route Mode",
+      "redundantvpcrouter": false,
+      "state": "Enabled"
+    },
+    {
+      "id": "c7e7e72b-1123-4a42-b909-2f9d986e3c65",
+      "name": "VPC offering with Netris - Route Mode",
+      "redundantvpcrouter": false,
+      "state": "Enabled"
+    },
+    {
+      "id": "d64a752e-71cd-4844-bc51-9a3937b14a3b",
+      "name": "VPC offering with Netris - NAT Mode",
+      "redundantvpcrouter": false,
+      "state": "Enabled"
+    },
+    {
+      "id": "6b452026-a7a6-4624-a68f-5f346ca1adb1",
+      "name": "qa-vpc1656-20261114-31-offering-a",
+      "redundantvpcrouter": false,
+      "state": "Enabled"
+    },
+    {
+      "id": "1ed37215-f102-4055-b3a9-23699127942b",
+      "name": "qa-vpc1656-20261114-31-offering-b",
+      "redundantvpcrouter": false,
+      "state": "Enabled"
+    }
+  ],
+  "rootResourceCount": {
+    "before": {
+      "networktotal": 4,
+      "vpctotal": 0
+    },
+    "current": {
+      "networktotal": 6,
+      "vpctotal": 1
+    },
+    "expectedOwnedDelta": {
+      "networktotal": 2,
+      "vpctotal": 1
+    }
+  }
+}

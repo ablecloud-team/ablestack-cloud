@@ -1,0 +1,36 @@
+{
+  "url": "http://10.10.31.10:8080/client/#/vpc",
+  "dialogs": 0,
+  "held": "listVPCs owner fixture response",
+  "navigation": "address change to VPC list before held response released",
+  "text": "/VPC업데이트\n프로젝트\nVPC 추가\n\t\n\t\n이름\n\t\n상태\n\t\n설명\n\t\nCIDR\n\t\n계정\n\t\n도메인\n\t\nZone\n\t\n\n\n\n데이터 없음\n\n전체 0 개 항목 중 0-0 표시\n1\n20 / 쪽",
+  "trace": {
+    "posts": [
+      {
+        "command": "migrateVPC",
+        "response": "json",
+        "vpcid": "a0d25e8e-8fc2-4e10-81ce-91ecad4759eb",
+        "vpcofferingid": "1ed37215-f102-4055-b3a9-23699127942b",
+        "resume": "false",
+        "customjobid": "b6493703-b924-4a5f-be5a-caa6abe63523",
+        "tiernetworkofferings[0].networkid": "20d729ab-1d58-438e-8b3a-0337cb2be418",
+        "tiernetworkofferings[0].networkofferingid": "6203df30-2906-40ef-b7f8-e060c274c962",
+        "tiernetworkofferings[1].networkid": "5c18e0c2-d360-460d-bd63-b6bb7d30f98c",
+        "tiernetworkofferings[1].networkofferingid": "6203df30-2906-40ef-b7f8-e060c274c962"
+      },
+      {
+        "command": "migrateVPC",
+        "response": "json",
+        "vpcid": "a0d25e8e-8fc2-4e10-81ce-91ecad4759eb",
+        "vpcofferingid": "6b452026-a7a6-4624-a68f-5f346ca1adb1",
+        "resume": "true",
+        "customjobid": "e95aafb1-587e-4bb0-b505-e0583fea86a0",
+        "tiernetworkofferings[0].networkid": "5c18e0c2-d360-460d-bd63-b6bb7d30f98c",
+        "tiernetworkofferings[0].networkofferingid": "45858812-0037-40dc-92ad-76309e090a70",
+        "tiernetworkofferings[1].networkid": "20d729ab-1d58-438e-8b3a-0337cb2be418",
+        "tiernetworkofferings[1].networkofferingid": "45858812-0037-40dc-92ad-76309e090a70"
+      }
+    ],
+    "requests": 491
+  }
+}
