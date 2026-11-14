@@ -31,6 +31,7 @@ import { migrationVisible } from '@/utils/networkMigration'
 import { networkBusy } from '@/utils/networkLifecycle'
 import { canReadNetworkPermissions } from '@/utils/networkPermissions'
 import { vpcRestartParams, vpcRestartReason } from '@/utils/vpcRestart'
+import { vpcMigrationVisible } from '@/utils/vpcMigration'
 
 const activeFastCloneStatuses = ['pending', 'running']
 const fastCloneOperationBlockedLabel = 'message.sharedmountpoint.clone.flatten.in.progress'
@@ -393,6 +394,16 @@ export default {
           },
           component: shallowRef(defineAsyncComponent(() => import('@/views/network/RestartVpc.vue'))),
           groupMap: (selection, values) => selection.map(id => vpcRestartParams(id, values))
+        },
+        {
+          api: 'migrateVPC',
+          icon: 'swap-outlined',
+          label: 'label.vpc.migration',
+          dataView: true,
+          popup: true,
+          selfManagedDialog: true,
+          show: record => vpcMigrationVisible(record, store.getters),
+          component: shallowRef(defineAsyncComponent(() => import('@/views/network/MigrateVpc.vue')))
         },
         {
           api: 'deleteVPC',
