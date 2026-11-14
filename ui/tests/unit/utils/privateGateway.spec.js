@@ -19,8 +19,8 @@ import { gatewayIp, gatewayMask, gatewayInCidr, gatewayNetworks, gatewayAcls, ga
 const resource = { id: 'vpc', account: 'owner', domainid: 'domain', zoneid: 'zone' }
 const draft = { mode: 'vlan', physicalnetwork: 'physical', vlan: '123', ipaddress: '10.1.1.2', gateway: '10.1.1.1', netmask: '255.255.255.0', acl: 'deny', nat: false, bypass: false }
 const state = { physical: [{ id: 'physical', zoneid: 'zone' }], networks: [], acls: [{ id: 'deny', name: 'default_deny' }], gateways: [] }
-test.each(['999.18.31.2', '10.1.2', '10.-1.2.3', '1.2.3.4.5', '::1', 'abc'])('rejects malformed IPv4 %s', value => expect(gatewayIp(value)).toBeNull())
-test.each(['255.0.255.0', '0.0.0.0', '255.255.255.256'])('rejects invalid mask %s', value => expect(gatewayMask(value)).toBe(false))
+test.each(['999.18.31.2', '10.1.2', '10.-1.2.3', '1.2.3.4.5', '::1', 'abc', '010.1.1.2'])('rejects malformed IPv4 %s', value => expect(gatewayIp(value)).toBeNull())
+test.each(['255.0.255.0', '0.0.0.0', '255.255.255.256', '255.255.255.000'])('rejects invalid mask %s', value => expect(gatewayMask(value)).toBe(false))
 test.each(['255.255.255.0', '255.255.255.255', '128.0.0.0'])('retains API valid mask %s', value => expect(gatewayMask(value)).toBe(true))
 test.each(['123', 'vlan://123', 'untagged', 'lswitch://network-identifier', '9999'])('retains accepted VLAN/URI %s without imposing an unproved range restriction', value => expect(validGatewayVlan(value)).toBe(true))
 test.each(['', '123-456', 'vxlan://123', 'bad value'])('rejects unsupported connection format %s', value => expect(validGatewayVlan(value)).toBe(false))

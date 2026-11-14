@@ -20,7 +20,9 @@ export const gatewayOwner = r => r.projectid ? { projectid: r.projectid } : { ac
 export const sameGatewayOwner = (row, r) => (row.projectid || '') === (r.projectid || '') && (r.projectid ? true : row.account === r.account && row.domainid === r.domainid)
 export const gatewayIp = text => {
   if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(text || '')) return null
-  const octets = text.split('.').map(Number)
+  const parts = text.split('.')
+  if (parts.some(part => part.length > 1 && part[0] === '0')) return null
+  const octets = parts.map(Number)
   if (octets.some(n => n > 255)) return null
   return octets.reduce((n, octet) => n * 256 + octet, 0) >>> 0
 }
