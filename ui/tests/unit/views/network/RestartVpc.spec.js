@@ -112,6 +112,18 @@ test('a failed conversion can safely finish the already applied default offering
   query.mockImplementation(id => ({ jobid: id, cmd: 'RestartVPCCmd', jobstatus: 1, jobresult: { success: true } }))
   await w.vm.run(w.vm.failedIds); expect(w.vm.succeeded).toBe(1); expect(postAPI).toHaveBeenCalledTimes(2)
 })
+test('navigation while the first job runs restores the remaining target as unsubmitted and retryable', async () => {
+  const w = await mount(); let release
+  query.mockImplementation(() => new Promise(resolve => { release = resolve }))
+  const running = w.vm.run(); await flushPromises(); const firstJob = w.vm.rows[0].jobId
+  route.fullPath = '/vpc/other'; await flushPromises()
+  release({ jobid: firstJob, cmd: 'RestartVPCCmd', userid: 'u', jobstatus: 1, jobresult: { success: true } }); await running; w.unmount()
+  const reopened = await mount()
+  expect(reopened.vm.rows[0].status).toBe('unknown'); expect(reopened.vm.failedIds).toEqual(['b']); expect(reopened.vm.rows[1].history).toEqual([])
+  query.mockImplementation(id => ({ jobid: id, cmd: 'RestartVPCCmd', userid: 'u', jobstatus: 1, jobresult: { success: true } }))
+  await reopened.vm.recheck(reopened.vm.rows[0]); await reopened.vm.run(reopened.vm.failedIds)
+  expect(postAPI.mock.calls.map(c => c[1].id)).toEqual(['a', 'b']); expect(reopened.vm.succeeded).toBe(2)
+})
 test('a changed offering or owner is never accepted as conversion recovery', async () => {
   const w = await mount([a]); w.vm.changeOption('makeredundant', true); vpcs.a.vpcofferingid = 'unrelated'; await w.vm.run(); expect(postAPI).not.toHaveBeenCalled()
 })

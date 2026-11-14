@@ -92,7 +92,11 @@ export default {
       const saved = JSON.parse(sessionStorage.getItem(this.entryKey) || 'null')
       if (saved?.rows?.length === this.rows.length && saved.rows.every(r => this.rows.some(x => x.id === r.id))) {
         this.options = { ...this.options, ...saved.options }; this.started = !!saved.started
-        this.rows = this.rows.map(r => ({ ...r, ...saved.rows.find(x => x.id === r.id), status: ['submitting', 'running'].includes(saved.rows.find(x => x.id === r.id).status) ? 'unknown' : saved.rows.find(x => x.id === r.id).status }))
+        this.rows = this.rows.map(row => {
+          const restored = saved.rows.find(r => r.id === row.id)
+          const unsubmitted = this.started && restored.status === 'idle'
+          return { ...row, ...restored, status: unsubmitted ? 'failed' : ['submitting', 'running'].includes(restored.status) ? 'unknown' : restored.status, ...(unsubmitted ? { error: this.$t('message.vpc.restart.batch.wait') } : {}) }
+        })
       }
     } catch (_) { this.storageError = true; this.error = this.$t('message.vpc.restart.storage') }
     this.tracker = createJobTracker({
