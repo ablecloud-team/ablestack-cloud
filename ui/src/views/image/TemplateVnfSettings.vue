@@ -25,7 +25,15 @@
         <a-button :disabled="updateBusy || editorOpen" :loading="loading" @click="refreshView"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
         <a-input-search v-model:value="nicSearch" :placeholder="$t('label.template.vnf.nic.search')" @change="nicPage=1" />
       </div>
-      <a-table size="small" :loading="loading" :columns="columns" :data-source="visibleNics" :pagination="false" :row-key="record=>record.deviceid" :scroll="{x:850}">
+      <a-table
+table-layout="fixed"
+size="small"
+:loading="loading"
+:columns="columns"
+:data-source="visibleNics"
+:pagination="false"
+:row-key="record=>record.deviceid"
+:scroll="{x:850}">
         <template #bodyCell="{column,record}">
           <span v-if="['required','management'].includes(column.key)">{{ $t(record[column.key]?'label.yes':'label.no') }}</span>
           <a-tooltip v-else-if="['name','description'].includes(column.key)" :title="record[column.key]"><span class="template-cell-value">{{ record[column.key] || '—' }}</span></a-tooltip>
@@ -71,7 +79,7 @@ destroy-on-close
         <a-button :disabled="updateBusy || editorOpen" :loading="loading" @click="refreshView"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
         <a-input-search v-model:value="detailSearch" :placeholder="$t('label.template.vnf.detail.search')" @change="detailPage=1" />
       </div>
-      <a-table size="small" :columns="detailColumns" :data-source="visibleDetails" :pagination="false" row-key="name" :scroll="{x:650}">
+      <a-table table-layout="fixed" size="small" :columns="detailColumns" :data-source="visibleDetails" :pagination="false" row-key="name" :scroll="{x:650}">
         <template #bodyCell="{column,record}">
           <a-tooltip v-if="column.key==='name'" :title="record.name"><span class="template-cell-value">{{ record.name }}</span></a-tooltip>
           <a-tooltip v-else-if="column.key==='value'" :title="getDisplayValue(record.name,record.value)"><span class="template-cell-value">{{ getDisplayValue(record.name,record.value) }}</span></a-tooltip>

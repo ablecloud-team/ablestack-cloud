@@ -73,3 +73,18 @@ test.each([undefined, '', ' , ', 'protected'])('add opens without treating an em
   const c = context(); c.source.readonlydetails = readonlydetails; c.open('add', null)
   expect(c.dialog).toBe('add'); expect(c.draftName).toBe(''); expect(postAPI).not.toHaveBeenCalled()
 })
+
+test('deleting the final row of a later page returns to the last populated page', () => {
+  const c = context(); c.page = 2; c.source.details = Object.fromEntries(Array.from({ length: 10 }, (_, i) => ['key' + i, 'value']))
+  Settings.watch['rows.length'].call(c)
+  expect(c.page).toBe(1); expect(c.visibleRows).toHaveLength(10)
+  c.source.details = {}; Settings.watch['rows.length'].call(c); expect(c.page).toBe(1); expect(c.visibleRows).toEqual([])
+})
+test('multi-video replacement retains all device RAM pairs and unrelated metadata, refuses protected replacements', () => {
+  const original = { ...copy(), details: { ...resource.details, 'video.hardware': 'vga', 'video.ram': '8192', 'video.hardware4': 'vga', 'video.ram4': '8192' } }
+  const params = templateSettingsParams(original, 'add', 'video.hardware', 'virtio', 2)
+  expect(params).toEqual({ id: 'template', 'details[0].first': 'one', 'details[0].protected': 'keep', 'details[0].video.hardware': 'virtio', 'details[0].video.ram': '16384', 'details[0].video.hardware2': 'virtio', 'details[0].video.ram2': '16384' })
+  expect(original.details['video.hardware4']).toBe('vga')
+  expect(() => templateSettingsParams({ ...original, readonlydetails: 'video.ram4' }, 'add', 'video.hardware', 'virtio', 2)).toThrow('readonly')
+  for (const count of [0, 5, 1.5, null]) expect(() => templateSettingsParams(original, 'add', 'video.hardware', 'virtio', count)).toThrow('count')
+})

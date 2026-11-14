@@ -23,7 +23,15 @@
       <a-input-search v-model:value="search" :placeholder="$t('label.vmsettings.search')" @change="page = 1" />
     </div>
     <a-alert v-if="readError || optionsFailed" type="warning" show-icon :message="$t(readError || 'message.template.settings.options.failed')" />
-    <a-table size="small" :columns="columns" :data-source="visibleRows" :loading="fetching && !loaded" :pagination="false" row-key="name" :scroll="{x:700}">
+    <a-table
+table-layout="fixed"
+size="small"
+:columns="columns"
+:data-source="visibleRows"
+:loading="fetching && !loaded"
+:pagination="false"
+row-key="name"
+:scroll="{x:700}">
       <template #emptyText>{{ $t(readError ? 'error.fetching.data' : search ? 'message.template.settings.no.results' : 'label.no.data') }}</template>
       <template #bodyCell="{column,record}">
         <a-tooltip v-if="['name','value'].includes(column.key)" :title="record[column.key]"><span class="template-cell-value">{{ record[column.key] }}</span></a-tooltip>
@@ -55,6 +63,11 @@ form-actions
       <a-form v-if="['add','edit'].includes(dialog)" layout="vertical" @keydown.ctrl.enter.stop.prevent="save">
         <a-form-item :label="$t('label.name')" html-for="template-setting-name" required><a-auto-complete v-if="dialog==='add'" id="template-setting-name" v-model:value="draftName" :options="keyOptions" :disabled="busy" :filter-option="filterOption" /><a-input v-else id="template-setting-name" :value="draftName" readonly /></a-form-item>
         <a-form-item :label="$t('label.value')" html-for="template-setting-value" required><a-auto-complete id="template-setting-value" v-model:value="draftValue" :options="valueOptions" :disabled="busy" :filter-option="filterOption" /></a-form-item>
+        <template v-if="dialog==='add' && draftName==='video.hardware'">
+          <a-form-item :label="$t('label.vmsettings.videoCount')" html-for="template-setting-video-count"><a-input-number id="template-setting-video-count" v-model:value="videoCount" :min="1" :max="4" :precision="0" :disabled="busy" /></a-form-item>
+          <a-alert type="warning" show-icon :message="$t('label.vmsettings.videoWarning')" />
+          <div v-for="i in previewCount" :key="i">video.hardware{{ i>1?i:'' }} = {{ draftValue || '—' }} · video.ram{{ i>1?i:'' }} = 16384</div>
+        </template>
       </a-form>
       <a-descriptions v-else :column="1" bordered size="small"><a-descriptions-item :label="$t('label.name')">{{ draftName }}</a-descriptions-item><a-descriptions-item :label="$t('label.value')">{{ draftValue }}</a-descriptions-item></a-descriptions>
       <a-alert v-if="dialog==='delete'" type="warning" show-icon :message="$t('label.delete.setting') + ': ' + draftName" />
@@ -77,7 +90,7 @@ export default {
   components: { MoldDialog, MoldDialogActions },
   props: { resource: { type: Object, required: true }, loading: Boolean },
   emits: ['refresh'],
-  data () { return { source: {}, options: {}, loaded: false, fetching: false, readError: '', optionsFailed: false, busy: false, dialog: '', draftName: '', draftValue: '', dialogError: '', unknownOutcome: false, submittedParams: null, baseline: '', search: '', page: 1, pageSize: 10, epoch: 0, trigger: null } },
+  data () { return { source: {}, options: {}, loaded: false, fetching: false, readError: '', optionsFailed: false, busy: false, dialog: '', draftName: '', draftValue: '', videoCount: 1, dialogError: '', unknownOutcome: false, submittedParams: null, baseline: '', search: '', page: 1, pageSize: 10, epoch: 0, trigger: null } },
   computed: {
     scope () { const g = this.$store.getters; return JSON.stringify([this.resource.id, g.userInfo?.id, g.userInfo?.roleid, g.userInfo?.roletype, g.project?.id, g.listAllProjects, this.$store.state?.user?.token, Object.keys(g.apis || {}).sort()]) },
     canWrite () { return templateSettingsCanWrite(this.source.id ? this.source : this.resource, this.$store.getters) },
@@ -85,9 +98,10 @@ export default {
     rows () { const q = this.search.toLowerCase(); return Object.entries(this.source.details || {}).map(([name, value]) => ({ name, value: String(value) })).filter(r => [r.name, r.value].some(v => v.toLowerCase().includes(q))).sort((a, b) => a.name.localeCompare(b.name)) },
     visibleRows () { return this.rows.slice((this.page - 1) * this.pageSize, this.page * this.pageSize) },
     keyOptions () { return Object.keys(this.options).map(value => ({ value })).filter(o => !this.restriction(o.value)) },
+    previewCount () { return Number.isInteger(this.videoCount) ? Math.max(0, Math.min(4, this.videoCount)) : 0 },
     valueOptions () { const v = this.options[this.draftName]; return (Array.isArray(v) ? v : v == null ? [] : [v]).map(value => ({ value: String(value) })) }
   },
-  watch: { scope () { this.invalidate(); this.refresh() }, pageSize () { this.page = 1 } },
+  watch: { 'rows.length' () { this.page = Math.min(this.page, Math.max(1, Math.ceil(this.rows.length / this.pageSize))) }, scope () { this.invalidate(); this.refresh() }, pageSize () { this.page = 1 } },
   created () { this.refresh() },
   activated () { this.refresh() },
   deactivated () { this.invalidate() },
@@ -109,11 +123,11 @@ export default {
         }
       } catch (e) { if (epoch === this.epoch && scope === this.scope) this.readError = 'error.fetching.data' } finally { if (epoch === this.epoch && scope === this.scope) this.fetching = false }
     },
-    open (kind, row, event) { if (this.busy || this.dialog || !this.loaded || (kind !== 'details' && (!this.canWrite || this.readError || this.optionsFailed || this.restriction(row?.name || '')))) return; this.trigger = event?.currentTarget || (this.trigger?.isConnected ? this.trigger : document.activeElement); this.dialog = kind; this.draftName = row?.name || ''; this.draftValue = row?.value || ''; this.baseline = templateSettingsFingerprint(this.source); this.dialogError = ''; this.unknownOutcome = false; this.submittedParams = null },
+    open (kind, row, event) { if (this.busy || this.dialog || !this.loaded || (kind !== 'details' && (!this.canWrite || this.readError || this.optionsFailed || this.restriction(row?.name || '')))) return; this.trigger = event?.currentTarget || (this.trigger?.isConnected ? this.trigger : document.activeElement); this.dialog = kind; this.draftName = row?.name || ''; this.draftValue = row?.value || ''; this.videoCount = 1; this.baseline = templateSettingsFingerprint(this.source); this.dialogError = ''; this.unknownOutcome = false; this.submittedParams = null },
     close () { if (this.busy) return; const target = this.trigger; const scope = this.scope; this.dialog = ''; this.draftName = this.draftValue = this.dialogError = ''; this.unknownOutcome = false; this.submittedParams = null; this.trigger = null; this.$nextTick(() => { if (scope === this.scope && target?.isConnected && !target.disabled && target.getClientRects().length)target.focus({ preventScroll: true }) }) },
     async save () {
       if (this.busy || !this.canWrite || !this.dialog || this.dialog === 'details' || this.unknownOutcome || this.readError || this.optionsFailed) return
-      let params; try { params = templateSettingsParams(this.source, this.dialog, this.draftName, this.draftValue) } catch (e) { this.dialogError = 'message.template.settings.' + e.message; return }
+      let params; try { params = templateSettingsParams(this.source, this.dialog, this.draftName, this.draftValue, this.videoCount) } catch (e) { this.dialogError = e.message === 'count' ? 'message.video.hardware.count.error' : 'message.template.settings.' + e.message; return }
       const epoch = this.epoch; const scope = this.scope; const current = () => epoch === this.epoch && scope === this.scope; this.busy = true; this.dialogError = ''
       try {
         const latest = await this.read(); if (!current()) return

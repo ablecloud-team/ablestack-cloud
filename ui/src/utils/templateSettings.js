@@ -29,14 +29,21 @@ export function templateSettingRestriction (resource, name) {
 export function templateSettingsFingerprint (resource) {
   return JSON.stringify([resource.readonlydetails || '', Object.entries(resource.details || {}).sort(([a], [b]) => a.localeCompare(b))])
 }
-export function templateSettingsParams (resource, action, name, value) {
+export function templateSettingsParams (resource, action, name, value, count = 1) {
   name = String(name || '').trim()
   if (!name || (action !== 'delete' && !String(value ?? '').trim())) throw new Error('required')
   if (templateSettingRestriction(resource, name)) throw new Error('readonly')
   const details = new Map(Object.entries(resource.details || {}))
   const exists = details.has(name)
-  if ((action === 'add' && exists) || (action !== 'add' && !exists)) throw new Error(action === 'add' ? 'duplicate' : 'changed')
-  if (action === 'delete') details.delete(name)
+  if ((action === 'add' && name !== 'video.hardware' && exists) || (action !== 'add' && !exists)) throw new Error(action === 'add' ? 'duplicate' : 'changed')
+  if (action === 'add' && name === 'video.hardware') {
+    if (!Number.isInteger(count) || count < 1 || count > 4) throw new Error('count')
+    const oldKeys = [...details.keys()].filter(key => /^video\.(hardware|ram)\d*$/.test(key))
+    const newKeys = Array.from({ length: count }, (_, i) => [i ? 'video.hardware' + (i + 1) : 'video.hardware', i ? 'video.ram' + (i + 1) : 'video.ram']).flat()
+    if ([...oldKeys, ...newKeys].some(key => templateSettingRestriction(resource, key))) throw new Error('readonly')
+    oldKeys.forEach(key => details.delete(key))
+    newKeys.forEach(key => details.set(key, key.startsWith('video.hardware') ? value : '16384'))
+  } else if (action === 'delete') details.delete(name)
   else details.set(name, value)
   // updateTemplate replaces the map. Preserve every unrelated entry, including
   // unchanged read-only values; only a genuinely empty map may use cleanup.
