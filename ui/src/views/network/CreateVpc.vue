@@ -235,7 +235,11 @@ export default {
         try { response = await postAPI('createVPC', { ...params, customjobid: record.id }, { preserveOnFailure: true, backgroundJob: true, timeout: 15000 }) } catch (err) {
           if (!this.current()) return
           const code = err?.response?.status
-          if (code >= 400 && code < 500 && Object.values(err.response.data || {}).some(r => r?.errorcode)) { if (this.removeReceipt()) this.pending = null }
+          const rejected = err?.response?.data?.createvpcresponse
+          // Mold returns HTTP 530 for synchronous create failures such as an
+          // unavailable Source NAT IP. No async job has been accepted then.
+          const createRejected = code === 530 && rejected?.errorcode === 530 && !rejected.jobid
+          if (createRejected || (code >= 400 && code < 500 && Object.values(err.response.data || {}).some(r => r?.errorcode))) { if (this.removeReceipt()) this.pending = null }
           throw err
         }
         if (!this.current()) return

@@ -119,6 +119,16 @@ test('lost receipt survives reopen, stores no credentials, and rechecks the same
   expect(sessionStorage.getItem(key)).not.toMatch(/password|sessionkey|token/); w.unmount(); ({ w } = await open()); expect(w.vm.pending.id).toBe(id)
   await w.vm.handleSubmit(); expect(postAPI).toHaveBeenCalledTimes(1); expect(poll).toHaveBeenCalledWith(expect.objectContaining({ jobId: id })); expect(sessionStorage.getItem(key)).toBeNull()
 })
+test('Mold synchronous 530 with no accepted job keeps Source NAT input and permits explicit corrected retry', async () => {
+  const { w } = await open(); fill(w); w.vm.form.sourcenatipaddress = '10.253.31.9'
+  postAPI.mockRejectedValueOnce({ response: { status: 530, data: { createvpcresponse: { errorcode: 530, cserrorcode: 4250, errortext: 'new source NAT address cannot be acquired' } } } }); await w.vm.handleSubmit()
+  expect(w.vm.pending).toBeNull(); expect(w.vm.form.sourcenatipaddress).toBe('10.253.31.9'); expect(w.vm.form.cidr).toBe('10.9.0.0/24'); expect(w.vm.closed).toBe(false)
+  w.vm.form.sourcenatipaddress = ''; await w.vm.handleSubmit(); expect(postAPI).toHaveBeenCalledTimes(2); expect(poll).toHaveBeenCalledTimes(1)
+})
+test('a proxy 503 stays unconfirmed and never enables creation replay', async () => {
+  const { w } = await open(); fill(w); postAPI.mockRejectedValueOnce({ response: { status: 503, data: { errorresponse: { errorcode: 503, errortext: 'proxy unavailable' } } } }); await w.vm.handleSubmit()
+  expect(w.vm.pending).not.toBeNull(); failure = 'queryAsyncJobResult'; await w.vm.handleSubmit(); expect(postAPI).toHaveBeenCalledTimes(1); expect(poll).not.toHaveBeenCalled(); expect(w.vm.pending).not.toBeNull()
+})
 test.each(['cmd', 'userid', 'jobid'])('a mismatched recovered %s is never attached to this creation', async key => {
   const { w } = await open(); fill(w); postAPI.mockRejectedValueOnce(Error('connection lost')); await w.vm.handleSubmit()
   override = (a, p) => a === 'queryAsyncJobResult' ? Promise.resolve({ queryasyncjobresultresponse: { jobid: p.jobid, userid: 'u', cmd: 'CreateVPCCmdByAdmin', jobstatus: 1, [key]: 'foreign' } }) : undefined
