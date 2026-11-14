@@ -28,7 +28,7 @@ const resource = { id: 'template', name: 'image', hypervisor: 'KVM', format: 'QC
 const row = { id: 'template', zoneid: 'zone', zonename: 'Zone', isready: true, status: 'Download Complete', created: '2026-11-13T00:00:00Z', downloaddetails: [] }
 const pool = { id: 'pool', name: 'Pool', zoneid: 'zone', state: 'Up', hypervisor: 'KVM', type: 'SharedMountPoint', managed: false }
 function context () {
-  const c = { ...Ops.data(), resource: { ...resource }, context: 'scope', permitted: true, $store: { getters: { apis: { deleteTemplate: {}, copyTemplate: {}, prepareTemplate: {}, listStoragePools: {} }, userInfo: { id: 'user', roletype: 'Admin' } } }, $route: { path: '/template/template', query: {}, meta: { name: 'template' } }, $router: { push: jest.fn() }, $emit: jest.fn(), $t: k => k }
+  const c = { ...Ops.data(), resource: { ...resource }, context: 'scope', permitted: true, $store: { getters: { apis: { deleteTemplate: {}, copyTemplate: {}, prepareTemplate: {}, listStoragePools: {} }, userInfo: { id: 'user', roletype: 'Admin' } } }, $route: { path: '/template/template', query: {}, meta: { name: 'template' } }, $router: { push: jest.fn() }, $emit: jest.fn(), $nextTick: fn => fn(), $t: k => k }
   for (const [k, v] of Object.entries(Ops.methods))c[k] = v.bind(c)
   for (const [k, v] of Object.entries(Ops.computed))Object.defineProperty(c, k, { get: () => v.call(c) })
   return c
@@ -89,4 +89,19 @@ test('empty copy target reason is rendered through the registered alert componen
   const w = shallowMount(Ops, { props: { resource, context: 'scope', permitted: true }, global: { mocks: { $t: k => k, $toLocaleDate: x => x, $store: { getters: { apis: { copyTemplate: {} }, userInfo: { roletype: 'Admin' } } } }, stubs: { 'mold-dialog': { render () { return h('div', this.$slots.default()) } }, 'a-alert': { props: ['message'], template: '<p>{{ message }}</p>' }, 'mold-dialog-actions': { template: '<div><slot /></div>' } } } })
   await w.vm.open('copy', [row]); await flushPromises()
   expect(w.text()).toContain('message.template.zone.copy.empty'); expect(w.vm.canSubmit).toBe(false); w.unmount()
+})
+
+test('closing a Zone dialog restores its trigger after it is enabled again', async () => {
+  const trigger = document.createElement('button'); document.body.appendChild(trigger); trigger.focus()
+  jest.spyOn(trigger, 'getClientRects').mockReturnValue([{}])
+  const c = context(); c.$emit.mockImplementation((name, value) => { if (name === 'retained') trigger.disabled = value.active })
+  getAPI.mockResolvedValueOnce({ listzonesresponse: { zone: [] } })
+  await c.open('copy', [row]); expect(trigger.disabled).toBe(true); c.close()
+  expect(trigger.disabled).toBe(false); expect(document.activeElement).toBe(trigger); trigger.remove()
+})
+test('closing cannot focus a disconnected or changed-scope trigger', async () => {
+  const trigger = document.createElement('button'); document.body.appendChild(trigger); trigger.focus()
+  jest.spyOn(trigger, 'getClientRects').mockReturnValue([{}]); const focus = jest.spyOn(trigger, 'focus')
+  const c = context(); await c.open('delete', [row]); c.context = 'other-scope'; c.close()
+  expect(focus).not.toHaveBeenCalled(); trigger.remove()
 })

@@ -67,7 +67,7 @@ export default {
   components: { MoldDialog, MoldDialogActions, TemplateAvailability },
   props: { resource: { type: Object, required: true }, context: { type: String, required: true }, permitted: Boolean },
   emits: ['retained', 'refresh', 'refresh-parent', 'closed'],
-  data () { return { visible: false, kind: 'delete', phase: 'confirm', rows: [], forced: false, busy: false, error: '', destinations: [], pools: [], selectedZones: [], poolid: undefined, optionsLoading: false, epoch: 0, operationContext: '' } },
+  data () { return { visible: false, kind: 'delete', phase: 'confirm', rows: [], forced: false, busy: false, error: '', destinations: [], pools: [], selectedZones: [], poolid: undefined, optionsLoading: false, epoch: 0, operationContext: '', returnFocus: null } },
   computed: {
     eligiblePools () { return this.pools.filter(p => preparePoolEligible(p, this.rows[0]?.zoneid)) },
     canSubmit () {
@@ -87,9 +87,12 @@ export default {
   methods: {
     count (state) { return this.rows.filter(r => r.operationState === state).length },
     current (epoch) { return this.visible && epoch === this.epoch && this.operationContext === this.context },
-    invalidate () { this.epoch++; this.visible = false; this.busy = false; this.$emit('retained', { active: false, context: this.operationContext }) },
+    invalidate () { this.returnFocus = null; this.epoch++; this.visible = false; this.busy = false; this.$emit('retained', { active: false, context: this.operationContext }) },
     async open (kind, records) {
       if (this.busy || !this.permitted || !records.length || records.some(r => !r.zoneid || !(r.id || this.resource.id))) return
+      const active = document.activeElement
+      const label = this.$t('label.' + (kind === 'copy' ? 'action.copy.template' : kind === 'prepare' ? 'template.zone.prepare' : 'action.delete.template'))
+      this.returnFocus = active && active !== document.body ? active : Array.from(this.$parent?.$el?.querySelectorAll?.('button[aria-label]') || []).find(button => button.getAttribute('aria-label') === label && button.closest('tr')?.getAttribute('data-row-key') === records[0].zoneid)
       this.epoch++; this.kind = kind; this.phase = 'confirm'; this.rows = records.map(r => operationSnapshot(r, this.resource)); this.forced = false; this.optionsLoading = false; this.error = ''; this.selectedZones = []; this.poolid = undefined; this.destinations = []; this.pools = []; this.operationContext = this.context; this.visible = true
       this.$emit('retained', { active: true, context: this.operationContext })
       const epoch = this.epoch
@@ -157,8 +160,15 @@ export default {
     close () {
       if (this.busy) return
       const back = this.phase === 'result' && this.kind === 'delete'
+      const target = this.returnFocus; const scope = this.operationContext
       this.invalidate(); this.$emit('closed')
-      if (back) this.$router.push(templateListLocation(this.$route, this.$store.getters)); else { this.$emit('refresh'); this.$emit('refresh-parent') }
+      if (back) this.$router.push(templateListLocation(this.$route, this.$store.getters)); else {
+        this.$emit('refresh'); this.$emit('refresh-parent')
+        this.$nextTick(() => {
+          if (this.visible || scope !== this.context || !target?.isConnected || target.disabled || !target.getClientRects().length) return
+          target.focus({ preventScroll: true })
+        })
+      }
     }
   }
 }
