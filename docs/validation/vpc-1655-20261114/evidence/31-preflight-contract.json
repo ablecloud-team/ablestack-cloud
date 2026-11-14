@@ -1,0 +1,28 @@
+[
+  {
+    "actor": "admin",
+    "vpcid": "023d7c27-a68e-4eec-9e57-7f8cc620c92b",
+    "scope": {},
+    "jobOwnerScope": {
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    "currentVpcMatched": true,
+    "offeringMatched": true,
+    "networkCount": 1,
+    "pendingVpcJobs": 0
+  },
+  {
+    "actor": "role",
+    "vpcid": "1505513d-be48-4f06-9fb5-7ad4e6f2f85f",
+    "scope": {},
+    "jobOwnerScope": {
+      "account": "qa-vpc1655-20261114-31-user",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    "currentVpcMatched": true,
+    "offeringMatched": true,
+    "networkCount": 0,
+    "pendingVpcJobs": 0
+  }
+]

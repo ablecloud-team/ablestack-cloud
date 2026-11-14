@@ -1,0 +1,878 @@
+[
+  {
+    "cluster": 31,
+    "theme": "light",
+    "width": 1280,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgb(255, 241, 240)",
+          "box": {
+            "bottom": 287.140625,
+            "clientHeight": 81,
+            "clientWidth": 650,
+            "height": 83.140625,
+            "right": 961,
+            "scrollHeight": 81,
+            "scrollTop": 0,
+            "scrollWidth": 650,
+            "width": 652,
+            "x": 309,
+            "y": 204
+          },
+          "color": "rgb(112, 27, 27)",
+          "text": "사설 게이트웨이 작업을 완료하지 못했습니다. 입력을 보존했습니다.\n431: Invalid format for the ip address parameter"
+        }
+      ],
+      "body": {
+        "bottom": 800,
+        "clientHeight": 710,
+        "clientWidth": 708,
+        "height": 710,
+        "right": 999,
+        "scrollHeight": 1033,
+        "scrollTop": 0,
+        "scrollWidth": 708,
+        "width": 718,
+        "x": 281,
+        "y": 90
+      },
+      "content": {
+        "bottom": 866,
+        "clientHeight": 830,
+        "clientWidth": 718,
+        "height": 832,
+        "right": 1000,
+        "scrollHeight": 830,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 720,
+        "x": 280,
+        "y": 34
+      },
+      "dark": false,
+      "footer": {
+        "bottom": 865,
+        "clientHeight": 64,
+        "clientWidth": 718,
+        "height": 65,
+        "right": 999,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 718,
+        "x": 281,
+        "y": 800
+      },
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    },
+    "pass": true,
+    "screenshot": "31-light-1280.jpg"
+  },
+  {
+    "cluster": 31,
+    "theme": "light",
+    "width": 768,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgb(255, 241, 240)",
+          "box": {
+            "bottom": 287.140625,
+            "clientHeight": 81,
+            "clientWidth": 650,
+            "height": 83.140625,
+            "right": 705,
+            "scrollHeight": 81,
+            "scrollTop": 0,
+            "scrollWidth": 650,
+            "width": 652,
+            "x": 53,
+            "y": 204
+          },
+          "color": "rgb(112, 27, 27)",
+          "text": "사설 게이트웨이 작업을 완료하지 못했습니다. 입력을 보존했습니다.\n431: Invalid format for the ip address parameter"
+        }
+      ],
+      "body": {
+        "bottom": 800,
+        "clientHeight": 710,
+        "clientWidth": 708,
+        "height": 710,
+        "right": 743,
+        "scrollHeight": 1033,
+        "scrollTop": 0,
+        "scrollWidth": 708,
+        "width": 718,
+        "x": 25,
+        "y": 90
+      },
+      "content": {
+        "bottom": 866,
+        "clientHeight": 830,
+        "clientWidth": 718,
+        "height": 832,
+        "right": 744,
+        "scrollHeight": 830,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 720,
+        "x": 24,
+        "y": 34
+      },
+      "dark": false,
+      "footer": {
+        "bottom": 865,
+        "clientHeight": 64,
+        "clientWidth": 718,
+        "height": 65,
+        "right": 743,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 718,
+        "x": 25,
+        "y": 800
+      },
+      "viewport": {
+        "height": 900,
+        "width": 768
+      }
+    },
+    "pass": true,
+    "screenshot": "31-light-768.jpg"
+  },
+  {
+    "cluster": 31,
+    "theme": "light",
+    "width": 360,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgb(255, 241, 240)",
+          "box": {
+            "bottom": 329.421875,
+            "clientHeight": 153,
+            "clientWidth": 290,
+            "height": 155.421875,
+            "right": 321,
+            "scrollHeight": 153,
+            "scrollTop": 0,
+            "scrollWidth": 290,
+            "width": 292,
+            "x": 29,
+            "y": 174
+          },
+          "color": "rgb(112, 27, 27)",
+          "text": "사설 게이트웨이 작업을 완료하지 못했습니다. 입력을 보존했습니다.\n431: Invalid format for the ip address parameter"
+        }
+      ],
+      "body": {
+        "bottom": 822,
+        "clientHeight": 754,
+        "clientWidth": 324,
+        "height": 754,
+        "right": 347,
+        "scrollHeight": 1175,
+        "scrollTop": 0,
+        "scrollWidth": 324,
+        "width": 334,
+        "x": 13,
+        "y": 68
+      },
+      "content": {
+        "bottom": 888,
+        "clientHeight": 874,
+        "clientWidth": 334,
+        "height": 876,
+        "right": 348,
+        "scrollHeight": 874,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 336,
+        "x": 12,
+        "y": 12
+      },
+      "dark": false,
+      "footer": {
+        "bottom": 887,
+        "clientHeight": 64,
+        "clientWidth": 334,
+        "height": 65,
+        "right": 347,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 334,
+        "x": 13,
+        "y": 822
+      },
+      "viewport": {
+        "height": 900,
+        "width": 360
+      }
+    },
+    "pass": true,
+    "screenshot": "31-light-360.jpg"
+  },
+  {
+    "cluster": 31,
+    "theme": "dark",
+    "width": 1280,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgba(255, 77, 79, 0.14)",
+          "box": {
+            "bottom": 287.140625,
+            "clientHeight": 81,
+            "clientWidth": 650,
+            "height": 83.140625,
+            "right": 961,
+            "scrollHeight": 81,
+            "scrollTop": 0,
+            "scrollWidth": 650,
+            "width": 652,
+            "x": 309,
+            "y": 204
+          },
+          "color": "rgb(255, 210, 210)",
+          "text": "사설 게이트웨이 작업을 완료하지 못했습니다. 입력을 보존했습니다.\n431: Invalid format for the ip address parameter"
+        }
+      ],
+      "body": {
+        "bottom": 800,
+        "clientHeight": 710,
+        "clientWidth": 708,
+        "height": 710,
+        "right": 999,
+        "scrollHeight": 1033,
+        "scrollTop": 0,
+        "scrollWidth": 708,
+        "width": 718,
+        "x": 281,
+        "y": 90
+      },
+      "content": {
+        "bottom": 866,
+        "clientHeight": 830,
+        "clientWidth": 718,
+        "height": 832,
+        "right": 1000,
+        "scrollHeight": 830,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 720,
+        "x": 280,
+        "y": 34
+      },
+      "dark": true,
+      "footer": {
+        "bottom": 865,
+        "clientHeight": 64,
+        "clientWidth": 718,
+        "height": 65,
+        "right": 999,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 718,
+        "x": 281,
+        "y": 800
+      },
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    },
+    "pass": true,
+    "screenshot": "31-dark-1280.jpg"
+  },
+  {
+    "cluster": 31,
+    "theme": "dark",
+    "width": 768,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgba(255, 77, 79, 0.14)",
+          "box": {
+            "bottom": 287.140625,
+            "clientHeight": 81,
+            "clientWidth": 650,
+            "height": 83.140625,
+            "right": 705,
+            "scrollHeight": 81,
+            "scrollTop": 0,
+            "scrollWidth": 650,
+            "width": 652,
+            "x": 53,
+            "y": 204
+          },
+          "color": "rgb(255, 210, 210)",
+          "text": "사설 게이트웨이 작업을 완료하지 못했습니다. 입력을 보존했습니다.\n431: Invalid format for the ip address parameter"
+        }
+      ],
+      "body": {
+        "bottom": 800,
+        "clientHeight": 710,
+        "clientWidth": 708,
+        "height": 710,
+        "right": 743,
+        "scrollHeight": 1033,
+        "scrollTop": 0,
+        "scrollWidth": 708,
+        "width": 718,
+        "x": 25,
+        "y": 90
+      },
+      "content": {
+        "bottom": 866,
+        "clientHeight": 830,
+        "clientWidth": 718,
+        "height": 832,
+        "right": 744,
+        "scrollHeight": 830,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 720,
+        "x": 24,
+        "y": 34
+      },
+      "dark": true,
+      "footer": {
+        "bottom": 865,
+        "clientHeight": 64,
+        "clientWidth": 718,
+        "height": 65,
+        "right": 743,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 718,
+        "x": 25,
+        "y": 800
+      },
+      "viewport": {
+        "height": 900,
+        "width": 768
+      }
+    },
+    "pass": true,
+    "screenshot": "31-dark-768.jpg"
+  },
+  {
+    "cluster": 31,
+    "theme": "dark",
+    "width": 360,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgba(255, 77, 79, 0.14)",
+          "box": {
+            "bottom": 329.421875,
+            "clientHeight": 153,
+            "clientWidth": 290,
+            "height": 155.421875,
+            "right": 321,
+            "scrollHeight": 153,
+            "scrollTop": 0,
+            "scrollWidth": 290,
+            "width": 292,
+            "x": 29,
+            "y": 174
+          },
+          "color": "rgb(255, 210, 210)",
+          "text": "사설 게이트웨이 작업을 완료하지 못했습니다. 입력을 보존했습니다.\n431: Invalid format for the ip address parameter"
+        }
+      ],
+      "body": {
+        "bottom": 822,
+        "clientHeight": 754,
+        "clientWidth": 324,
+        "height": 754,
+        "right": 347,
+        "scrollHeight": 1175,
+        "scrollTop": 0,
+        "scrollWidth": 324,
+        "width": 334,
+        "x": 13,
+        "y": 68
+      },
+      "content": {
+        "bottom": 888,
+        "clientHeight": 874,
+        "clientWidth": 334,
+        "height": 876,
+        "right": 348,
+        "scrollHeight": 874,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 336,
+        "x": 12,
+        "y": 12
+      },
+      "dark": true,
+      "footer": {
+        "bottom": 887,
+        "clientHeight": 64,
+        "clientWidth": 334,
+        "height": 65,
+        "right": 347,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 334,
+        "x": 13,
+        "y": 822
+      },
+      "viewport": {
+        "height": 900,
+        "width": 360
+      }
+    },
+    "pass": true,
+    "screenshot": "31-dark-360.jpg"
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "width": 1280,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgb(255, 241, 240)",
+          "box": {
+            "bottom": 287.140625,
+            "clientHeight": 81,
+            "clientWidth": 650,
+            "height": 83.140625,
+            "right": 961,
+            "scrollHeight": 81,
+            "scrollTop": 0,
+            "scrollWidth": 650,
+            "width": 652,
+            "x": 309,
+            "y": 204
+          },
+          "color": "rgb(112, 27, 27)",
+          "text": "사설 게이트웨이 작업을 완료하지 못했습니다. 입력을 보존했습니다.\n431: Invalid format for the ip address parameter"
+        }
+      ],
+      "body": {
+        "bottom": 800,
+        "clientHeight": 710,
+        "clientWidth": 708,
+        "height": 710,
+        "right": 999,
+        "scrollHeight": 1033,
+        "scrollTop": 0,
+        "scrollWidth": 708,
+        "width": 718,
+        "x": 281,
+        "y": 90
+      },
+      "content": {
+        "bottom": 866,
+        "clientHeight": 830,
+        "clientWidth": 718,
+        "height": 832,
+        "right": 1000,
+        "scrollHeight": 830,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 720,
+        "x": 280,
+        "y": 34
+      },
+      "dark": false,
+      "footer": {
+        "bottom": 865,
+        "clientHeight": 64,
+        "clientWidth": 718,
+        "height": 65,
+        "right": 999,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 718,
+        "x": 281,
+        "y": 800
+      },
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    },
+    "pass": true,
+    "screenshot": "32-light-1280.jpg"
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "width": 768,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgb(255, 241, 240)",
+          "box": {
+            "bottom": 287.140625,
+            "clientHeight": 81,
+            "clientWidth": 650,
+            "height": 83.140625,
+            "right": 705,
+            "scrollHeight": 81,
+            "scrollTop": 0,
+            "scrollWidth": 650,
+            "width": 652,
+            "x": 53,
+            "y": 204
+          },
+          "color": "rgb(112, 27, 27)",
+          "text": "사설 게이트웨이 작업을 완료하지 못했습니다. 입력을 보존했습니다.\n431: Invalid format for the ip address parameter"
+        }
+      ],
+      "body": {
+        "bottom": 800,
+        "clientHeight": 710,
+        "clientWidth": 708,
+        "height": 710,
+        "right": 743,
+        "scrollHeight": 1033,
+        "scrollTop": 0,
+        "scrollWidth": 708,
+        "width": 718,
+        "x": 25,
+        "y": 90
+      },
+      "content": {
+        "bottom": 866,
+        "clientHeight": 830,
+        "clientWidth": 718,
+        "height": 832,
+        "right": 744,
+        "scrollHeight": 830,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 720,
+        "x": 24,
+        "y": 34
+      },
+      "dark": false,
+      "footer": {
+        "bottom": 865,
+        "clientHeight": 64,
+        "clientWidth": 718,
+        "height": 65,
+        "right": 743,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 718,
+        "x": 25,
+        "y": 800
+      },
+      "viewport": {
+        "height": 900,
+        "width": 768
+      }
+    },
+    "pass": true,
+    "screenshot": "32-light-768.jpg"
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "width": 360,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgb(255, 241, 240)",
+          "box": {
+            "bottom": 329.421875,
+            "clientHeight": 153,
+            "clientWidth": 290,
+            "height": 155.421875,
+            "right": 321,
+            "scrollHeight": 153,
+            "scrollTop": 0,
+            "scrollWidth": 290,
+            "width": 292,
+            "x": 29,
+            "y": 174
+          },
+          "color": "rgb(112, 27, 27)",
+          "text": "사설 게이트웨이 작업을 완료하지 못했습니다. 입력을 보존했습니다.\n431: Invalid format for the ip address parameter"
+        }
+      ],
+      "body": {
+        "bottom": 822,
+        "clientHeight": 754,
+        "clientWidth": 324,
+        "height": 754,
+        "right": 347,
+        "scrollHeight": 1175,
+        "scrollTop": 0,
+        "scrollWidth": 324,
+        "width": 334,
+        "x": 13,
+        "y": 68
+      },
+      "content": {
+        "bottom": 888,
+        "clientHeight": 874,
+        "clientWidth": 334,
+        "height": 876,
+        "right": 348,
+        "scrollHeight": 874,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 336,
+        "x": 12,
+        "y": 12
+      },
+      "dark": false,
+      "footer": {
+        "bottom": 887,
+        "clientHeight": 64,
+        "clientWidth": 334,
+        "height": 65,
+        "right": 347,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 334,
+        "x": 13,
+        "y": 822
+      },
+      "viewport": {
+        "height": 900,
+        "width": 360
+      }
+    },
+    "pass": true,
+    "screenshot": "32-light-360.jpg"
+  },
+  {
+    "cluster": 32,
+    "theme": "dark",
+    "width": 1280,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgba(255, 77, 79, 0.14)",
+          "box": {
+            "bottom": 287.140625,
+            "clientHeight": 81,
+            "clientWidth": 650,
+            "height": 83.140625,
+            "right": 961,
+            "scrollHeight": 81,
+            "scrollTop": 0,
+            "scrollWidth": 650,
+            "width": 652,
+            "x": 309,
+            "y": 204
+          },
+          "color": "rgb(255, 210, 210)",
+          "text": "사설 게이트웨이 작업을 완료하지 못했습니다. 입력을 보존했습니다.\n431: Invalid format for the ip address parameter"
+        }
+      ],
+      "body": {
+        "bottom": 800,
+        "clientHeight": 710,
+        "clientWidth": 708,
+        "height": 710,
+        "right": 999,
+        "scrollHeight": 1033,
+        "scrollTop": 0,
+        "scrollWidth": 708,
+        "width": 718,
+        "x": 281,
+        "y": 90
+      },
+      "content": {
+        "bottom": 866,
+        "clientHeight": 830,
+        "clientWidth": 718,
+        "height": 832,
+        "right": 1000,
+        "scrollHeight": 830,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 720,
+        "x": 280,
+        "y": 34
+      },
+      "dark": true,
+      "footer": {
+        "bottom": 865,
+        "clientHeight": 64,
+        "clientWidth": 718,
+        "height": 65,
+        "right": 999,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 718,
+        "x": 281,
+        "y": 800
+      },
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    },
+    "pass": true,
+    "screenshot": "32-dark-1280.jpg"
+  },
+  {
+    "cluster": 32,
+    "theme": "dark",
+    "width": 768,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgba(255, 77, 79, 0.14)",
+          "box": {
+            "bottom": 287.140625,
+            "clientHeight": 81,
+            "clientWidth": 650,
+            "height": 83.140625,
+            "right": 705,
+            "scrollHeight": 81,
+            "scrollTop": 0,
+            "scrollWidth": 650,
+            "width": 652,
+            "x": 53,
+            "y": 204
+          },
+          "color": "rgb(255, 210, 210)",
+          "text": "사설 게이트웨이 작업을 완료하지 못했습니다. 입력을 보존했습니다.\n431: Invalid format for the ip address parameter"
+        }
+      ],
+      "body": {
+        "bottom": 800,
+        "clientHeight": 710,
+        "clientWidth": 708,
+        "height": 710,
+        "right": 743,
+        "scrollHeight": 1033,
+        "scrollTop": 0,
+        "scrollWidth": 708,
+        "width": 718,
+        "x": 25,
+        "y": 90
+      },
+      "content": {
+        "bottom": 866,
+        "clientHeight": 830,
+        "clientWidth": 718,
+        "height": 832,
+        "right": 744,
+        "scrollHeight": 830,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 720,
+        "x": 24,
+        "y": 34
+      },
+      "dark": true,
+      "footer": {
+        "bottom": 865,
+        "clientHeight": 64,
+        "clientWidth": 718,
+        "height": 65,
+        "right": 743,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 718,
+        "width": 718,
+        "x": 25,
+        "y": 800
+      },
+      "viewport": {
+        "height": 900,
+        "width": 768
+      }
+    },
+    "pass": true,
+    "screenshot": "32-dark-768.jpg"
+  },
+  {
+    "cluster": 32,
+    "theme": "dark",
+    "width": 360,
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgba(255, 77, 79, 0.14)",
+          "box": {
+            "bottom": 329.421875,
+            "clientHeight": 153,
+            "clientWidth": 290,
+            "height": 155.421875,
+            "right": 321,
+            "scrollHeight": 153,
+            "scrollTop": 0,
+            "scrollWidth": 290,
+            "width": 292,
+            "x": 29,
+            "y": 174
+          },
+          "color": "rgb(255, 210, 210)",
+          "text": "사설 게이트웨이 작업을 완료하지 못했습니다. 입력을 보존했습니다.\n431: Invalid format for the ip address parameter"
+        }
+      ],
+      "body": {
+        "bottom": 822,
+        "clientHeight": 754,
+        "clientWidth": 324,
+        "height": 754,
+        "right": 347,
+        "scrollHeight": 1175,
+        "scrollTop": 0,
+        "scrollWidth": 324,
+        "width": 334,
+        "x": 13,
+        "y": 68
+      },
+      "content": {
+        "bottom": 888,
+        "clientHeight": 874,
+        "clientWidth": 334,
+        "height": 876,
+        "right": 348,
+        "scrollHeight": 874,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 336,
+        "x": 12,
+        "y": 12
+      },
+      "dark": true,
+      "footer": {
+        "bottom": 887,
+        "clientHeight": 64,
+        "clientWidth": 334,
+        "height": 65,
+        "right": 347,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 334,
+        "x": 13,
+        "y": 822
+      },
+      "viewport": {
+        "height": 900,
+        "width": 360
+      }
+    },
+    "pass": true,
+    "screenshot": "32-dark-360.jpg"
+  }
+]

@@ -1,0 +1,273 @@
+{
+  "deduplicatedPostCount": 9,
+  "httpRejected": 1,
+  "serverJobSuccess": 8,
+  "cases": [
+    {
+      "case": "bulk-livepatch-keyboard-success",
+      "customjobid": "e066d149-a93b-481c-b3c3-693ec0a20568"
+    },
+    {
+      "case": "bulk-livepatch-keyboard-success",
+      "customjobid": "3f3847e0-f93e-4acc-94c0-f5f3bb234cd3"
+    },
+    {
+      "case": "single-make-redundant-success",
+      "customjobid": "228709f0-2286-4d17-9c4f-d3d14474e5bd"
+    },
+    {
+      "case": "partial-http431-retained",
+      "customjobid": "fbf10f04-4fdc-4956-8abb-0b56799698e0"
+    },
+    {
+      "case": "partial-http431-retained",
+      "customjobid": "c3b908af-e046-4dd8-ac0e-454fb25a3e2e"
+    },
+    {
+      "case": "failed-only-retry-success",
+      "customjobid": "ee97905b-5fc5-407d-9b61-dcdba91a9eba"
+    },
+    {
+      "case": "late-context-recheck-no-duplicate",
+      "customjobid": "22217af9-cc57-411f-8877-a3249f888f39"
+    },
+    {
+      "case": "late-context-unsubmitted-resume-success",
+      "customjobid": "22217af9-cc57-411f-8877-a3249f888f39"
+    },
+    {
+      "case": "late-context-unsubmitted-resume-success",
+      "customjobid": "8050db4f-85a9-456f-98f9-f91cb4571180"
+    },
+    {
+      "case": "normal-user-owned-vpc-success",
+      "customjobid": "9ecb85b3-61e6-492b-aa29-68c8e0c9da14"
+    }
+  ],
+  "results": [
+    {
+      "id": "d3f3a187-6029-4c78-a76b-6f2b3f55b689",
+      "http": 200,
+      "job": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.vpc.RestartVPCCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "success": true
+        },
+        "jobinstancetype": "Vpc",
+        "created": "2026-11-14T15:09:29+0900",
+        "completed": "2026-11-14T15:10:04+0900",
+        "jobid": "e066d149-a93b-481c-b3c3-693ec0a20568",
+        "jobstatus": 1
+      }
+    },
+    {
+      "id": "023d7c27-a68e-4eec-9e57-7f8cc620c92b",
+      "http": 200,
+      "job": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.vpc.RestartVPCCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "success": true
+        },
+        "jobinstancetype": "Vpc",
+        "created": "2026-11-14T15:10:06+0900",
+        "completed": "2026-11-14T15:10:23+0900",
+        "jobid": "3f3847e0-f93e-4acc-94c0-f5f3bb234cd3",
+        "jobstatus": 1
+      }
+    },
+    {
+      "id": "023d7c27-a68e-4eec-9e57-7f8cc620c92b",
+      "http": 200,
+      "job": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.vpc.RestartVPCCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "success": true
+        },
+        "jobinstancetype": "Vpc",
+        "created": "2026-11-14T15:11:41+0900",
+        "completed": "2026-11-14T15:12:52+0900",
+        "jobid": "228709f0-2286-4d17-9c4f-d3d14474e5bd",
+        "jobstatus": 1
+      }
+    },
+    {
+      "id": "d3f3a187-6029-4c78-a76b-6f2b3f55b689",
+      "http": 200,
+      "job": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.vpc.RestartVPCCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "success": true
+        },
+        "jobinstancetype": "Vpc",
+        "created": "2026-11-14T15:14:55+0900",
+        "completed": "2026-11-14T15:14:55+0900",
+        "jobid": "fbf10f04-4fdc-4956-8abb-0b56799698e0",
+        "jobstatus": 1
+      }
+    },
+    {
+      "customjobid": "c3b908af-e046-4dd8-ac0e-454fb25a3e2e",
+      "id": "023d7c27-a68e-4eec-9e57-7f8cc620c92b",
+      "http": 431,
+      "serverJobExpected": false
+    },
+    {
+      "id": "023d7c27-a68e-4eec-9e57-7f8cc620c92b",
+      "http": 200,
+      "job": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.vpc.RestartVPCCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "success": true
+        },
+        "jobinstancetype": "Vpc",
+        "created": "2026-11-14T15:19:59+0900",
+        "completed": "2026-11-14T15:19:59+0900",
+        "jobid": "ee97905b-5fc5-407d-9b61-dcdba91a9eba",
+        "jobstatus": 1
+      }
+    },
+    {
+      "id": "d3f3a187-6029-4c78-a76b-6f2b3f55b689",
+      "http": 200,
+      "job": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.vpc.RestartVPCCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "success": true
+        },
+        "jobinstancetype": "Vpc",
+        "created": "2026-11-14T15:21:56+0900",
+        "completed": "2026-11-14T15:21:56+0900",
+        "jobid": "22217af9-cc57-411f-8877-a3249f888f39",
+        "jobstatus": 1
+      }
+    },
+    {
+      "id": "023d7c27-a68e-4eec-9e57-7f8cc620c92b",
+      "http": 200,
+      "job": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.vpc.RestartVPCCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "success": true
+        },
+        "jobinstancetype": "Vpc",
+        "created": "2026-11-14T15:22:38+0900",
+        "completed": "2026-11-14T15:22:38+0900",
+        "jobid": "8050db4f-85a9-456f-98f9-f91cb4571180",
+        "jobstatus": 1
+      }
+    },
+    {
+      "id": "1505513d-be48-4f06-9fb5-7ad4e6f2f85f",
+      "http": 200,
+      "job": {
+        "accountid": "9c4c17e7-bb00-4100-bb10-6dab66c4908e",
+        "account": "qa-vpc1655-20261114-31-user",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a295d2ce-e33d-4545-909c-45004196a719",
+        "cmd": "org.apache.cloudstack.api.command.user.vpc.RestartVPCCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "success": true
+        },
+        "jobinstancetype": "Vpc",
+        "created": "2026-11-14T15:24:08+0900",
+        "completed": "2026-11-14T15:24:08+0900",
+        "jobid": "9ecb85b3-61e6-492b-aa29-68c8e0c9da14",
+        "jobstatus": 1
+      }
+    }
+  ],
+  "captureGaps": [
+    {
+      "case": "bulk-livepatch-keyboard-success",
+      "gaps": false
+    },
+    {
+      "case": "single-make-redundant-success",
+      "gaps": false
+    },
+    {
+      "case": "mixed-deleted-target-preflight",
+      "gaps": false
+    },
+    {
+      "case": "partial-http431-retained",
+      "gaps": false
+    },
+    {
+      "case": "failed-only-retry-success",
+      "gaps": false
+    },
+    {
+      "case": "late-context-recheck-no-duplicate",
+      "gaps": false
+    },
+    {
+      "case": "late-context-unsubmitted-resume-success",
+      "gaps": false
+    },
+    {
+      "case": "normal-user-owned-vpc-success",
+      "gaps": false
+    }
+  ]
+}

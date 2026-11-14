@@ -1,0 +1,107 @@
+[
+  {
+    "kind": "tier",
+    "id": "6efb3322-db98-40a3-95ed-a663c5a3550d",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "kind": "tier",
+    "id": "cfbad7b9-dc3d-41a0-8710-c268e2f13f7c",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "kind": "vpc",
+    "id": "f36d1cc3-8405-4e3c-9113-9c270e9d2e68",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "kind": "vpc",
+    "id": "62c835b2-e3bd-4a79-ac0e-f539f1e0e93e",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "kind": "vpc",
+    "id": "608047a1-4cd9-4afd-a3f5-cd15b88f35a0",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "kind": "offering",
+    "id": "56e39e38-abd5-460f-851a-8ae5d2182a71",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "kind": "offering",
+    "id": "f6f38fd0-605b-4747-b3ac-0220c861034a",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "kind": "offering",
+    "id": "ab932ed7-e75a-4c7f-ad35-f69e94e94467",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "kind": "offering",
+    "id": "4f76da36-5de5-4bbd-9aea-6358f8abd73f",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "kind": "offering",
+    "id": "eecd24dd-4b50-405e-bb98-2b6f609704be",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "kind": "offering",
+    "id": "c024c77c-3287-4cb1-889a-862befaead3d",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "kind": "offering",
+    "id": "85285a9d-5de9-4411-8fcc-2c3d6fb5a695",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "kind": "offering",
+    "id": "6ac9094a-1007-4227-b4cc-f76260863008",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "kind": "offering",
+    "id": "87596fed-87ab-4041-97ce-fc5ad5f8f7ea",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "kind": "offering",
+    "id": "7ce5f703-769b-40e9-b881-0cca6152f6ea",
+    "result": {
+      "success": true
+    }
+  }
+]

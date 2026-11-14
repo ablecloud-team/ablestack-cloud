@@ -17,7 +17,9 @@
 
 <template>
   <div class="form-layout" v-ctrl-enter="handleSubmit">
+    <VpcOfferingOperationStatus :operation="offeringOperation" @recheck="recheckOfferingOperation" @confirm="finishOfferingOperation" />
     <a-spin :spinning="loading">
+      <fieldset class="offering-fields" :disabled="offeringBlocked || loading" :inert="offeringBlocked || loading || undefined">
       <a-alert
         v-if="resource"
         type="info"
@@ -28,11 +30,17 @@
               <strong>{{ $t('message.clone.offering.from') }}: {{ resource.name }}</strong>
             </div>
             <div style="display: block; font-size: 12px;">
-              {{ $t('message.clone.offering.edit.hint') }}
+              {{ $t('message.clone.vpc.offering.inheritance') }}
             </div>
           </div>
         </template>
       </a-alert>
+      <a-descriptions class="clone-inheritance" :column="1" size="small" bordered>
+        <a-descriptions-item :label="$t('label.conservemode')">
+          {{ sourceConserveMode === undefined ? $t('label.clone.vpc.inherit') : $t(sourceConserveMode ? 'label.enabled' : 'label.disabled') }}
+          <span class="inheritance-hint">{{ $t('message.clone.vpc.conserve') }}</span>
+        </a-descriptions-item>
+      </a-descriptions>
       <a-form
         :ref="formRef"
         :model="form"
@@ -157,7 +165,7 @@
             </a-radio-button>
           </a-radio-group>
         </a-form-item>
-        <a-form-item>
+        <a-form-item name="serviceproviders" ref="serviceproviders" :autoLink="false">
           <template #label>
             <tooltip-label :title="$t('label.supportedservices')" :tooltip="apiParams.supportedservices ? apiParams.supportedservices.description : ''"/>
           </template>
@@ -166,28 +174,50 @@
             <a-list v-else itemLayout="horizontal" :dataSource="supportedServices">
               <template #renderItem="{ item }">
                 <a-list-item>
-                  <CheckBoxSelectPair
-                    :key="`${item.name}-${item.selectedProvider || 'none'}`"
-                    :resourceKey="item.name"
-                    :checkBoxLabel="item.description"
-                    :forExternalNetProvider="form.provider === 'NSX' || form.provider === 'Netris'"
-                    :defaultCheckBoxValue="item.defaultChecked"
-                    :defaultSelectValue="item.selectedProvider"
-                    :selectOptions="item.provider"
-                    @handle-checkselectpair-change="handleSupportedServiceChange"/>
+                  <a-row class="vpc-service-provider" :gutter="12">
+                    <a-col :xs="24" :sm="9">
+                      <a-checkbox
+                        :id="'vpc-clone-service-' + resource.id + '-' + item.name"
+                        :checked="!!selectedServiceProviderMap[item.name]"
+                        :disabled="form.provider === 'NSX' || form.provider === 'Netris'"
+                        @change="event => handleSupportedServiceChange(item.name, event.target.checked, item.selectedProviders)">
+                        {{ item.description }}
+                      </a-checkbox>
+                    </a-col>
+                    <a-col :xs="24" :sm="15">
+                      <label
+                        v-if="selectedServiceProviderMap[item.name]"
+                        class="provider-label"
+                        :for="'vpc-clone-provider-' + resource.id + '-' + item.name">
+                        {{ item.description }} {{ $t('label.provider') }}
+                      </label>
+                      <a-select
+                        v-if="selectedServiceProviderMap[item.name]"
+                        :id="'vpc-clone-provider-' + resource.id + '-' + item.name"
+                        :aria-label="item.description + ' ' + $t('label.provider')"
+                        :mode="item.name === 'Lb' || item.selectedProviders.length > 1 ? 'multiple' : undefined"
+                        :value="item.name === 'Lb' || item.selectedProviders.length > 1 ? item.selectedProviders : item.selectedProviders[0]"
+                        :disabled="item.preserveOnly || form.provider === 'NSX' || form.provider === 'Netris'"
+                        @change="value => handleSupportedServiceChange(item.name, true, value)">
+                        <a-select-option v-for="provider in item.provider" :key="provider.name" :value="provider.name">
+                          {{ provider.name }}
+                        </a-select-option>
+                      </a-select>
+                    </a-col>
+                  </a-row>
                 </a-list-item>
               </template>
             </a-list>
           </div>
         </a-form-item>
         <a-form-item name="regionlevelvpc" ref="regionlevelvpc" :label="$t('label.service.connectivity.regionlevelvpccapabilitycheckbox')" v-if="connectivityServiceChecked">
-          <a-switch v-model:checked="form.regionlevelvpc" />
+          <a-select v-model:value="form.regionlevelvpc" :options="capabilityOptions" />
         </a-form-item>
         <a-form-item name="distributedrouter" ref="distributedrouter" :label="$t('label.service.connectivity.distributedroutercapabilitycheckbox')" v-if="connectivityServiceChecked">
-          <a-switch v-model:checked="form.distributedrouter" />
+          <a-select v-model:value="form.distributedrouter" :options="capabilityOptions" />
         </a-form-item>
-        <a-form-item name="redundantrouter" ref="redundantrouter" :label="$t('label.redundantrouter')" v-if="sourceNatServiceChecked">
-          <a-switch v-model:checked="form.redundantrouter" />
+        <a-form-item name="redundantrouter" ref="redundantrouter" :label="$t('label.redundantrouter')" v-if="sourceNatServiceChecked || selectedServiceProviderMap.Gateway">
+          <a-select v-model:value="form.redundantrouter" :options="capabilityOptions" />
         </a-form-item>
         <a-form-item name="serviceofferingid" ref="serviceofferingid">
           <a-alert v-if="!isVpcVirtualRouterForAtLeastOneService" type="warning" style="margin-bottom: 10px">
@@ -206,14 +236,15 @@
               return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }"
             :loading="serviceOfferingLoading"
-            :placeholder="apiParams.serviceofferingid.description">
+            :placeholder="$t('label.clone.vpc.inherit')">
             <a-select-option v-for="(opt) in serviceOfferings" :key="opt.id" :label="opt.name || opt.description">
               {{ opt.name || opt.description }}
             </a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item name="ispublic" ref="ispublic" :label="$t('label.ispublic')" v-if="isAdmin()">
-          <a-switch v-model:checked="form.ispublic" @change="val => { isPublic = val }" />
+          <a-switch v-model:checked="form.ispublic" :disabled="sourceDomainIds.length > 0" @change="val => { isPublic = val }" />
+          <span v-if="sourceDomainIds.length" class="inheritance-hint">{{ $t('message.clone.vpc.scope.inherit') }}</span>
         </a-form-item>
         <a-form-item name="domainid" ref="domainid" v-if="!isPublic">
           <template #label>
@@ -229,7 +260,7 @@
             }"
             :loading="domainLoading"
             :placeholder="apiParams.domainid.description">
-            <a-select-option v-for="(opt, optIndex) in domains" :key="optIndex" :label="opt.path || opt.name || opt.description">
+            <a-select-option v-for="opt in domains" :key="opt.id" :value="opt.id" :label="opt.path || opt.name || opt.description">
               <span>
                 <resource-icon v-if="opt && opt.icon" :image="opt.icon.base64image" size="1x" style="margin-right: 5px"/>
                 <block-outlined v-else style="margin-right: 5px" />
@@ -253,7 +284,7 @@
             }"
             :loading="zoneLoading"
             :placeholder="apiParams.zoneid.description">
-            <a-select-option v-for="(opt, optIndex) in zones" :key="optIndex" :label="opt.name || opt.description">
+            <a-select-option v-for="opt in zones" :key="opt.id || 'all'" :value="opt.id || 'all'" :disabled="!opt.id && sourceZoneIds.length > 0" :label="opt.name || opt.description">
               <span>
                 <resource-icon v-if="opt.icon" :image="opt.icon.base64image" size="1x" style="margin-right: 5px"/>
                 <global-outlined v-else style="margin-right: 5px"/>
@@ -262,39 +293,44 @@
             </a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item name="enable" ref="enable" v-if="apiParams.enable">
+        <a-form-item name="enable" ref="enable" v-if="apiParams.enable && form.enable !== undefined">
           <template #label>
             <tooltip-label :title="$t('label.enable.vpc.offering')" :tooltip="apiParams.enable.description"/>
           </template>
           <a-switch v-model:checked="form.enable" />
         </a-form-item>
       </a-form>
-      <div :span="24" class="action-button">
+      </fieldset>
+      <MoldDialogActions :busy="loading || offeringBusy" @keyup.ctrl.enter="handleSubmit">
         <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-        <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-      </div>
+        <a-button :loading="loading || offeringBusy" :disabled="offeringBlocked" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+      </MoldDialogActions>
     </a-spin>
   </div>
 </template>
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { getAPI, postAPI } from '@/api'
+import { getAPI } from '@/api'
 import { isAdmin } from '@/role'
 import { mixinForm } from '@/utils/mixin'
-import CheckBoxSelectPair from '@/components/CheckBoxSelectPair'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
+import VpcOfferingOperationStatus from './VpcOfferingOperationStatus'
+import { vpcOfferingOperationMixin } from '@/utils/vpcOfferingOperationMixin'
 import { BlockOutlined, GlobalOutlined } from '@ant-design/icons-vue'
-import { buildVpcServiceCapabilityParams } from '@/composables/useServiceCapabilityParams'
+import { cloneBoolean, cloneScopeIds, vpcCloneDefaults, buildVpcCloneCapabilityParams, mixedVpcCloneCapabilities } from '@/utils/vpcOfferingClone'
+import { providerNames, vpcServiceProviderMap, vpcProviderChoices, buildVpcCloneProviderParams } from '@/utils/vpcOfferingProviders'
 
 export default {
   name: 'CloneVpcOffering',
-  mixins: [mixinForm],
+  mixins: [mixinForm, vpcOfferingOperationMixin],
   components: {
-    CheckBoxSelectPair,
     ResourceIcon,
     TooltipLabel,
+    MoldDialogActions,
+    VpcOfferingOperationStatus,
     BlockOutlined,
     GlobalOutlined
   },
@@ -320,6 +356,7 @@ export default {
       supportedServices: [],
       supportedServiceLoading: false,
       servicesReady: false,
+      serviceFetchId: 0,
       serviceOfferings: [],
       serviceOfferingLoading: false,
       isVpcVirtualRouterForAtLeastOneService: false,
@@ -359,6 +396,24 @@ export default {
       }
     }
   },
+  computed: {
+    sourceConserveMode () { return cloneBoolean(this.resource.conservemode) },
+    sourceDomainIds () { return cloneScopeIds(this.resource.domainid) },
+    sourceZoneIds () { return cloneScopeIds(this.resource.zoneid) },
+    capabilityOptions () {
+      return [
+        { value: 'inherit', label: this.$t('label.clone.vpc.inherit') },
+        { value: 'true', label: this.$t('label.enabled') },
+        { value: 'false', label: this.$t('label.disabled') }
+      ]
+    }
+  },
+  watch: {
+    'resource.id' () {
+      this.initForm()
+      this.fetchData()
+    }
+  },
   beforeCreate () {
     this.apiParams = this.$getApiParams('cloneVPCOffering')
   },
@@ -377,28 +432,46 @@ export default {
     initForm () {
       this.formRef = ref()
       this.form = reactive({
-        regionlevelvpc: true,
-        distributedrouter: true,
-        ispublic: this.isPublic,
-        internetprotocol: this.internetProtocolValue,
         nsxsupportlb: true,
-        routingmode: 'static',
-        domainid: [],
-        zoneid: []
+        ...vpcCloneDefaults(this.resource)
       })
       this.rules = reactive({
         name: [{ required: true, message: this.$t('message.error.name') }],
+        serviceproviders: [{
+          validator: async () => {
+            if (!Object.keys(this.selectedServiceProviderMap).length || Object.values(this.selectedServiceProviderMap).some(providers => !providers.length)) {
+              return Promise.reject(this.$t('message.error.select'))
+            }
+            if (mixedVpcCloneCapabilities(this.form, this.selectedServiceProviderMap)) {
+              return Promise.reject(this.$t('message.clone.vpc.capabilities.explicit'))
+            }
+          }
+        }],
         domainid: [{ type: 'array', required: true, message: this.$t('message.error.select') }],
         zoneid: [{
           type: 'array',
           validator: async (rule, value) => {
-            if (value && value.length > 1 && value.indexOf(0) !== -1) {
+            if (this.sourceZoneIds.length && (!value?.length || value.includes('all'))) {
+              return Promise.reject(this.$t('message.clone.vpc.scope.inherit'))
+            }
+            if (value && value.length > 1 && value.includes('all')) {
               return Promise.reject(this.$t('message.error.zone.combined'))
             }
             return Promise.resolve()
           }
         }]
       })
+      this.domains = []
+      this.zones = [{ id: null, name: this.$t('label.all.zone') }]
+      this.supportedServices = []
+      this.serviceOfferings = []
+      this.provider = ''
+      this.networkmode = this.form.networkmode || ''
+      this.routingMode = this.form.routingmode || 'static'
+      this.internetProtocolValue = this.form.internetprotocol
+      this.isPublic = this.form.ispublic
+      this.networkmodes = [{ name: 'NATTED' }, { name: 'ROUTED' }]
+      this.populateFormFromResource()
     },
     fetchData () {
       this.fetchDomainData()
@@ -425,7 +498,7 @@ export default {
         const value = json?.listconfigurationsresponse?.configuration?.[0].value || null
         this.routedNetworkEnabled = value === 'true'
         if (!this.routedNetworkEnabled) {
-          this.networkmodes.pop()
+          this.networkmodes = this.networkmodes.filter(mode => mode.name !== 'ROUTED')
         }
       })
     },
@@ -437,7 +510,7 @@ export default {
       this.domainLoading = true
       getAPI('listDomains', params).then(json => {
         const listDomains = json.listdomainsresponse.domain
-        this.domains = this.domains.concat(listDomains)
+        this.domains = listDomains || []
       }).finally(() => {
         this.domainLoading = false
       })
@@ -449,7 +522,7 @@ export default {
       getAPI('listZones', params).then(json => {
         const listZones = json.listzonesresponse.zone
         if (listZones) {
-          this.zones = this.zones.concat(listZones)
+          this.zones = [{ id: null, name: this.$t('label.all.zone') }, ...listZones]
         }
       }).finally(() => {
         this.zoneLoading = false
@@ -457,7 +530,9 @@ export default {
     },
     fetchSupportedServiceData () {
       this.supportedServiceLoading = true
+      const requestId = ++this.serviceFetchId
       getAPI('listSupportedNetworkServices', {}).then(json => {
+        if (requestId !== this.serviceFetchId) return
         const networkServices = json.listsupportednetworkservicesresponse.networkservice || []
 
         let services = []
@@ -487,12 +562,15 @@ export default {
           services[i].description = services[i].name
         }
 
-        this.supportedServices = services
+        const previous = this.supportedServices
+        const sourceServices = (this.resource.service || []).filter(service => this.networkmode !== 'ROUTED' || !['SourceNat', 'StaticNat', 'Lb', 'PortForwarding', 'Vpn'].includes(service.name))
+        this.supportedServices = vpcProviderChoices(services, sourceServices).map(service => ({
+          ...service,
+          selectedProviders: [...(this.selectedServiceProviderMap[service.name] || previous.find(item => item.name === service.name)?.selectedProviders || service.selectedProviders)]
+        }))
         this.supportedServiceLoading = false
-
-        this.$nextTick(() => {
-          this.populateFormFromResource()
-        })
+        this.servicesReady = true
+        this.checkVpcVirtualRouterForServices()
       })
     },
     buildNsxServices (networkServices) {
@@ -536,125 +614,19 @@ export default {
       ]
     },
     populateFormFromResource () {
-      if (!this.resource) return
-
       const r = this.resource
       this.form.name = r.name + ' - Clone'
       this.form.displaytext = r.displaytext || r.name
-
-      if (r.internetprotocol) {
-        this.form.internetprotocol = r.internetprotocol.toLowerCase()
-        this.internetProtocolValue = r.internetprotocol.toLowerCase()
-      }
-
-      if (r.service && Array.isArray(r.service)) {
-        const networkAclService = r.service.find(svc => svc.name === 'NetworkACL')
-        if (networkAclService && networkAclService.provider && networkAclService.provider.length > 0) {
-          const providerName = networkAclService.provider[0].name
-          if (providerName === 'Nsx') {
-            this.provider = 'NSX'
-            this.form.provider = 'NSX'
-          } else if (providerName === 'Netris') {
-            this.provider = 'Netris'
-            this.form.provider = 'Netris'
-          }
-        }
-      }
-
-      if (r.networkmode) {
-        this.networkmode = r.networkmode
-        this.form.networkmode = r.networkmode
-      }
-
-      if (r.routingmode) {
-        this.routingMode = r.routingmode
-        this.form.routingmode = r.routingmode
-      }
-
-      if (r.serviceofferingid) {
-        this.form.serviceofferingid = r.serviceofferingid
-      }
-
-      if (r.service && Array.isArray(r.service)) {
-        const sourceServiceMap = {}
-        r.service.forEach(svc => {
-          if (svc.provider && svc.provider.length > 0) {
-            const providerName = svc.provider[0].name
-            sourceServiceMap[svc.name] = providerName
-          }
-        })
-
-        this.serviceProviderMap = sourceServiceMap
-
-        const updatedServices = this.supportedServices.map(svc => {
-          const serviceCopy = { ...svc, provider: [...svc.provider] }
-
-          if (sourceServiceMap[serviceCopy.name]) {
-            const providerName = sourceServiceMap[serviceCopy.name]
-            const providerIndex = serviceCopy.provider.findIndex(p => p.name === providerName)
-
-            if (providerIndex > 0) {
-              const targetProvider = serviceCopy.provider[providerIndex]
-              serviceCopy.provider.splice(providerIndex, 1)
-              serviceCopy.provider.unshift(targetProvider)
-            }
-
-            serviceCopy.defaultChecked = true
-            serviceCopy.selectedProvider = providerName
-            this.selectedServiceProviderMap[serviceCopy.name] = providerName
-          } else {
-            serviceCopy.defaultChecked = false
-            serviceCopy.selectedProvider = null
-          }
-          return serviceCopy
-        })
-
-        this.supportedServices = updatedServices
-
-        this.connectivityServiceChecked = Boolean(this.selectedServiceProviderMap.Connectivity)
-        this.sourceNatServiceChecked = Boolean(this.selectedServiceProviderMap.SourceNat)
-
-        this.$nextTick(() => {
-          this.servicesReady = true
-          this.$nextTick(() => {
-            this.checkVpcVirtualRouterForServices()
-          })
-        })
-      }
-
-      if (r.service && Array.isArray(r.service)) {
-        const connectivityService = r.service.find(svc => svc.name === 'Connectivity')
-        if (connectivityService && connectivityService.capability) {
-          const regionLevelCapability = connectivityService.capability.find(cap => cap.name === 'RegionLevelVpc')
-          if (regionLevelCapability) {
-            this.form.regionlevelvpc = regionLevelCapability.value === 'true'
-          }
-          const distributedRouterCapability = connectivityService.capability.find(cap => cap.name === 'DistributedRouter')
-          if (distributedRouterCapability) {
-            this.form.distributedrouter = distributedRouterCapability.value === 'true'
-          }
-        }
-
-        const sourceNatService = r.service.find(svc => svc.name === 'SourceNat')
-        if (sourceNatService && sourceNatService.capability) {
-          const redundantRouterCapability = sourceNatService.capability.find(cap => cap.name === 'RedundantRouter')
-          if (redundantRouterCapability) {
-            this.form.redundantrouter = redundantRouterCapability.value === 'true'
-          }
-        }
-
-        const gatewayService = r.service.find(svc => svc.name === 'Gateway')
-        if (gatewayService && gatewayService.capability) {
-          const redundantRouterCapability = gatewayService.capability.find(cap => cap.name === 'RedundantRouter')
-          if (redundantRouterCapability) {
-            this.form.redundantrouter = redundantRouterCapability.value === 'true'
-          }
-        }
-      }
-
-      if (this.provider === 'NSX') {
-        this.form.nsxsupportlb = Boolean(this.serviceProviderMap.Lb)
-      }
+      const providerName = r.service?.find(service => service.name === 'NetworkACL')?.provider?.[0]?.name
+      this.provider = providerName === 'Nsx' ? 'NSX' : providerName === 'Netris' ? 'Netris' : ''
+      this.form.provider = this.provider
+      this.serviceProviderMap = vpcServiceProviderMap(r.service || [])
+      this.selectedServiceProviderMap = vpcServiceProviderMap(r.service || [])
+      this.supportedServices = vpcProviderChoices(this.buildDefaultServices([]), r.service || [])
+      this.connectivityServiceChecked = Boolean(this.selectedServiceProviderMap.Connectivity)
+      this.sourceNatServiceChecked = Boolean(this.selectedServiceProviderMap.SourceNat)
+      this.form.nsxsupportlb = Boolean(this.selectedServiceProviderMap.Lb)
+      this.checkVpcVirtualRouterForServices()
     },
     async handleProviderChange (value) {
       this.provider = value
@@ -681,13 +653,14 @@ export default {
       }
     },
     handleSupportedServiceChange (service, checked, provider) {
+      const item = this.supportedServices.find(item => item.name === service)
+      const providers = providerNames(provider)
+      if (checked && !providers.length && !this.selectedServiceProviderMap[service] && item?.provider.length) {
+        providers.push(item.provider[0].name)
+      }
       if (checked) {
-        const correctProvider = this.serviceProviderMap[service]
-        if (correctProvider && provider !== correctProvider) {
-          this.selectedServiceProviderMap[service] = correctProvider
-        } else {
-          this.selectedServiceProviderMap[service] = provider
-        }
+        if (item) item.selectedProviders = [...providers]
+        this.selectedServiceProviderMap[service] = [...providers]
       } else {
         delete this.selectedServiceProviderMap[service]
       }
@@ -703,19 +676,24 @@ export default {
     },
     checkVpcVirtualRouterForServices () {
       this.isVpcVirtualRouterForAtLeastOneService = false
-      const providers = Object.values(this.selectedServiceProviderMap)
+      const providers = Object.values(this.selectedServiceProviderMap).flat()
       for (const provider of providers) {
         if (provider === 'VpcVirtualRouter') {
           this.isVpcVirtualRouterForAtLeastOneService = true
           break
         }
       }
-      if (this.isVpcVirtualRouterForAtLeastOneService && this.serviceOfferings.length === 0) {
+      if (this.isVpcVirtualRouterForAtLeastOneService && this.serviceOfferings.length === 0 && !this.serviceOfferingLoading) {
         this.fetchServiceOfferingData()
       }
     },
     handleForNetworkModeChange (networkMode) {
       this.networkmode = networkMode
+      this.form.networkmode = networkMode
+      if (networkMode === 'ROUTED') {
+        for (const service of ['SourceNat', 'StaticNat', 'Lb', 'PortForwarding', 'Vpn']) delete this.selectedServiceProviderMap[service]
+        this.sourceNatServiceChecked = false
+      }
       this.fetchSupportedServiceData()
     },
     fetchServiceOfferingData () {
@@ -725,17 +703,19 @@ export default {
       this.serviceOfferingLoading = true
       getAPI('listServiceOfferings', params).then(json => {
         const listServiceOfferings = json.listserviceofferingsresponse.serviceoffering
-        this.serviceOfferings = this.serviceOfferings.concat(listServiceOfferings)
+        this.serviceOfferings = listServiceOfferings || []
       }).finally(() => {
         this.serviceOfferingLoading = false
       })
     },
     handleSubmit (e) {
-      if (e) {
-        e.preventDefault()
-      }
-      if (this.loading) return
+      if (typeof e?.preventDefault === 'function') e.preventDefault()
+      if (this.loading || this.offeringBlocked) return
+      this.loading = true
+      const context = this.offeringContext
+      const version = this.offeringContextVersion
       this.formRef.value.validate().then(() => {
+        if (this.offeringDisposed || context !== this.offeringContext || version !== this.offeringContextVersion) return
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
         const params = {
@@ -746,33 +726,9 @@ export default {
           params.displaytext = values.displaytext
         }
 
-        if (values.ispublic !== true) {
-          const domainIndexes = values.domainid
-          let domainId = null
-          if (domainIndexes && domainIndexes.length > 0) {
-            const domainIds = []
-            for (let i = 0; i < domainIndexes.length; i++) {
-              domainIds.push(this.domains[domainIndexes[i]].id)
-            }
-            domainId = domainIds.join(',')
-          }
-          if (domainId) {
-            params.domainid = domainId
-          }
-        }
-
-        const zoneIndexes = values.zoneid
-        let zoneId = null
-        if (zoneIndexes && zoneIndexes.length > 0) {
-          const zoneIds = []
-          for (let j = 0; j < zoneIndexes.length; j++) {
-            zoneIds.push(this.zones[zoneIndexes[j]].id)
-          }
-          zoneId = zoneIds.join(',')
-        }
-        if (zoneId) {
-          params.zoneid = zoneId
-        }
+        if (values.ispublic !== true && values.domainid?.length) params.domainid = values.domainid.join(',')
+        if (values.zoneid?.length && !values.zoneid.includes('all')) params.zoneid = values.zoneid.join(',')
+        if (this.sourceConserveMode !== undefined) params.conservemode = this.sourceConserveMode
 
         if (values.internetprotocol) {
           params.internetprotocol = values.internetprotocol
@@ -800,36 +756,19 @@ export default {
           params.routingmode = values.routingmode
         }
 
-        if (this.selectedServiceProviderMap != null) {
-          const supportedServices = Object.keys(this.selectedServiceProviderMap)
-          if (!forNsx && !forNetris) {
-            params.supportedservices = supportedServices.join(',')
-          }
-          for (const k in supportedServices) {
-            params['serviceProviderList[' + k + '].service'] = supportedServices[k]
-            params['serviceProviderList[' + k + '].provider'] = this.selectedServiceProviderMap[supportedServices[k]]
-          }
-          buildVpcServiceCapabilityParams(params, values, this.selectedServiceProviderMap, this.isVpcVirtualRouterForAtLeastOneService)
-        } else {
-          params.supportedservices = ''
-        }
+        buildVpcCloneProviderParams(params, this.selectedServiceProviderMap, this.serviceProviderMap, forNsx || forNetris)
+        buildVpcCloneCapabilityParams(params, values, this.selectedServiceProviderMap, this.isVpcVirtualRouterForAtLeastOneService)
 
         if (values.enable !== undefined) {
           params.enable = values.enable
         }
 
-        this.loading = true
-        postAPI('cloneVPCOffering', params).then(json => {
-          this.$message.success(`${this.$t('message.success.clone.vpc.offering')} ${values.name}`)
-          this.$emit('refresh-data')
-          this.closeAction()
-        }).catch(error => {
-          this.$notifyError(error)
-        }).finally(() => {
-          this.loading = false
-        })
+        return this.submitOfferingOperation('cloneVPCOffering', params)
       }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
+        if (!this.offeringDisposed && context === this.offeringContext && version === this.offeringContextVersion) {
+          this.loading = false
+          if (error.errorFields?.length) this.formRef.value.scrollToField(error.errorFields[0].name)
+        }
       })
     },
     closeAction () {
@@ -841,15 +780,34 @@ export default {
 
 <style scoped lang="scss">
   .form-layout {
-    width: 80vw;
-
-    @media (min-width: 800px) {
-      width: 500px;
-    }
+    width: 100%;
+    min-width: 0;
   }
+
+  .clone-inheritance { margin-bottom: 16px; }
+  .offering-fields { border: 0; padding: 0; margin: 0; min-width: 0; }
+  .inheritance-hint { display: block; margin-top: 4px; color: inherit; opacity: 0.8; }
 
   .supported-services-container {
     height: 250px;
     overflow: auto;
+  }
+
+  .vpc-service-provider {
+    width: 100%;
+    align-items: center;
+
+    .ant-select { width: 100%; }
+    .provider-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
   }
 </style>

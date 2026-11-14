@@ -1,0 +1,36 @@
+[
+  {
+    "params": {
+      "vpcid": "e7bdf187-7060-4033-a3a6-f9970eb2c295",
+      "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+      "vlan": "3891",
+      "ipaddress": "010.246.31.2",
+      "gateway": "10.246.31.1",
+      "netmask": "255.255.255.0",
+      "customjobid": "267525e1-3820-4c78-9acf-3425d1871756"
+    },
+    "receipt": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "Invalid format for the ip address parameter"
+    }
+  },
+  {
+    "params": {
+      "vpcid": "e7bdf187-7060-4033-a3a6-f9970eb2c295",
+      "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+      "vlan": "3891",
+      "ipaddress": "10.246.31.2",
+      "gateway": "10.246.31.1",
+      "netmask": "255.255.255.000",
+      "customjobid": "2471e415-b764-4711-9be5-0b20dc5a9626"
+    },
+    "receipt": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "Invalid netmask"
+    }
+  }
+]

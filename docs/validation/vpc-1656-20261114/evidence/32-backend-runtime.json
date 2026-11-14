@@ -1,0 +1,78 @@
+{
+  "offeringMetadata": [
+    {
+      "id": "a77c3f64-5bb4-4b69-9811-5cc09a231c43",
+      "name": "Default VPC offering",
+      "redundantvpcrouter": false,
+      "state": "Enabled"
+    },
+    {
+      "id": "b6a82d84-e551-49bb-8e68-863ce4b93857",
+      "name": "Default VPC  offering with Netscaler",
+      "redundantvpcrouter": false,
+      "state": "Enabled"
+    },
+    {
+      "id": "0f0ab89c-f3e9-4578-add9-3cb2530c70b6",
+      "name": "Redundant VPC offering",
+      "redundantvpcrouter": true,
+      "state": "Enabled"
+    },
+    {
+      "id": "062da246-7720-4aa0-9093-26cbb81a7998",
+      "name": "VPC offering with NSX - NAT Mode",
+      "redundantvpcrouter": false,
+      "state": "Enabled"
+    },
+    {
+      "id": "1fcd95e1-a7a3-436c-8324-df7e28db6a02",
+      "name": "VPC offering with NSX - Route Mode",
+      "redundantvpcrouter": false,
+      "state": "Enabled"
+    },
+    {
+      "id": "c99ba194-03d3-439c-a068-4d28700bad7d",
+      "name": "VPC offering with Netris - Route Mode",
+      "redundantvpcrouter": false,
+      "state": "Enabled"
+    },
+    {
+      "id": "81cc317e-bf4b-4831-83b4-74820cef14aa",
+      "name": "VPC offering with Netris - NAT Mode",
+      "redundantvpcrouter": false,
+      "state": "Enabled"
+    },
+    {
+      "id": "c6be69b0-056e-454f-8449-c10f505da76d",
+      "name": "qa-vpc1656-20261114-32-offering-a",
+      "redundantvpcrouter": false,
+      "state": "Enabled"
+    },
+    {
+      "id": "863e3a60-588a-4da4-832c-547bf896f464",
+      "name": "qa-vpc1656-20261114-32-offering-b",
+      "redundantvpcrouter": false,
+      "state": "Enabled"
+    },
+    {
+      "id": "ba339676-56a5-40cc-acae-a2c89980b0be",
+      "name": "qa-vpc1656-20261114-32-offering-novpn",
+      "redundantvpcrouter": false,
+      "state": "Enabled"
+    }
+  ],
+  "rootResourceCount": {
+    "before": {
+      "networktotal": 3,
+      "vpctotal": 0
+    },
+    "current": {
+      "networktotal": 5,
+      "vpctotal": 1
+    },
+    "expectedOwnedDelta": {
+      "networktotal": 2,
+      "vpctotal": 1
+    }
+  }
+}

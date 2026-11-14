@@ -1,0 +1,234 @@
+[
+  {
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "a77c3f64-5bb4-4b69-9811-5cc09a231c43",
+      "name": "qa-vpc1652-20261113-32-before",
+      "displaytext": "Default VPC offering",
+      "internetprotocol": "ipv4"
+    }
+  },
+  {
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "c43030eb-5c42-409f-beae-93bba51322c5",
+      "name": "qa-vpc1652-20261113-32-ui-enabled-untouched",
+      "displaytext": "qa-vpc1652-20261113-32-source-enabled",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "conservemode": "true",
+      "internetprotocol": "ipv4",
+      "networkmode": "NATTED",
+      "enable": "true"
+    }
+  },
+  {
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "c43030eb-5c42-409f-beae-93bba51322c5",
+      "name": "qa-vpc1652-20261113-32-ui-enabled-on",
+      "displaytext": "qa-vpc1652-20261113-32-source-enabled",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "conservemode": "true",
+      "internetprotocol": "ipv4",
+      "networkmode": "NATTED",
+      "supportedservices": "Dns,NetworkACL,PortForwarding,Dhcp,UserData,Vpn,StaticNat,Lb,SourceNat",
+      "serviceProviderList[0].service": "Dns",
+      "serviceProviderList[0].provider": "VpcVirtualRouter",
+      "serviceProviderList[1].service": "NetworkACL",
+      "serviceProviderList[1].provider": "VpcVirtualRouter",
+      "serviceProviderList[2].service": "PortForwarding",
+      "serviceProviderList[2].provider": "VpcVirtualRouter",
+      "serviceProviderList[3].service": "Dhcp",
+      "serviceProviderList[3].provider": "VpcVirtualRouter",
+      "serviceProviderList[4].service": "UserData",
+      "serviceProviderList[4].provider": "VpcVirtualRouter",
+      "serviceProviderList[5].service": "Vpn",
+      "serviceProviderList[5].provider": "VpcVirtualRouter",
+      "serviceProviderList[6].service": "StaticNat",
+      "serviceProviderList[6].provider": "VpcVirtualRouter",
+      "serviceProviderList[7].service": "Lb",
+      "serviceProviderList[7].provider": "VpcVirtualRouter",
+      "serviceProviderList[8].service": "SourceNat",
+      "serviceProviderList[8].provider": "VpcVirtualRouter",
+      "serviceofferingid": "a730fa10-b44b-42e4-a0fb-11e8b413f4ce",
+      "enable": "true"
+    }
+  },
+  {
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "c43030eb-5c42-409f-beae-93bba51322c5",
+      "name": "qa-vpc1652-20261113-32-ui-enabled-off",
+      "displaytext": "qa-vpc1652-20261113-32-source-enabled",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "conservemode": "true",
+      "internetprotocol": "ipv4",
+      "networkmode": "NATTED",
+      "enable": "false"
+    }
+  },
+  {
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "c43030eb-5c42-409f-beae-93bba51322c5",
+      "name": "qa-vpc1652-20261113-32-ui-enabled-on-off",
+      "displaytext": "qa-vpc1652-20261113-32-source-enabled",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "conservemode": "true",
+      "internetprotocol": "ipv4",
+      "networkmode": "NATTED",
+      "enable": "false"
+    }
+  },
+  {
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "d5e2d7fa-0c54-4a6c-be61-11aedf51987b",
+      "name": "qa-vpc1652-20261113-32-ui-disabled-untouched",
+      "displaytext": "qa-vpc1652-20261113-32-source-disabled",
+      "conservemode": "false",
+      "internetprotocol": "ipv4",
+      "networkmode": "NATTED",
+      "enable": "false"
+    }
+  },
+  {
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "d5e2d7fa-0c54-4a6c-be61-11aedf51987b",
+      "name": "qa-vpc1652-20261113-32-ui-disabled-on",
+      "displaytext": "qa-vpc1652-20261113-32-source-disabled",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "conservemode": "false",
+      "internetprotocol": "ipv4",
+      "networkmode": "NATTED",
+      "enable": "true"
+    }
+  },
+  {
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "d5e2d7fa-0c54-4a6c-be61-11aedf51987b",
+      "name": "qa-vpc1652-20261113-32-ui-disabled-off",
+      "displaytext": "qa-vpc1652-20261113-32-source-disabled",
+      "conservemode": "false",
+      "internetprotocol": "ipv4",
+      "networkmode": "NATTED",
+      "enable": "false"
+    }
+  },
+  {
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "d5e2d7fa-0c54-4a6c-be61-11aedf51987b",
+      "name": "qa-vpc1652-20261113-32-ui-disabled-on-off",
+      "displaytext": "qa-vpc1652-20261113-32-source-disabled",
+      "conservemode": "false",
+      "internetprotocol": "ipv4",
+      "networkmode": "NATTED",
+      "supportedservices": "Dns,NetworkACL,PortForwarding,Dhcp,UserData,Vpn,StaticNat,Lb,SourceNat",
+      "serviceProviderList[0].service": "Dns",
+      "serviceProviderList[0].provider": "VpcVirtualRouter",
+      "serviceProviderList[1].service": "NetworkACL",
+      "serviceProviderList[1].provider": "VpcVirtualRouter",
+      "serviceProviderList[2].service": "PortForwarding",
+      "serviceProviderList[2].provider": "VpcVirtualRouter",
+      "serviceProviderList[3].service": "Dhcp",
+      "serviceProviderList[3].provider": "VpcVirtualRouter",
+      "serviceProviderList[4].service": "UserData",
+      "serviceProviderList[4].provider": "VpcVirtualRouter",
+      "serviceProviderList[5].service": "Vpn",
+      "serviceProviderList[5].provider": "VpcVirtualRouter",
+      "serviceProviderList[6].service": "StaticNat",
+      "serviceProviderList[6].provider": "VpcVirtualRouter",
+      "serviceProviderList[7].service": "Lb",
+      "serviceProviderList[7].provider": "InternalLbVm",
+      "serviceProviderList[8].service": "SourceNat",
+      "serviceProviderList[8].provider": "VpcVirtualRouter",
+      "enable": "false"
+    }
+  },
+  {
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "d5e2d7fa-0c54-4a6c-be61-11aedf51987b",
+      "name": "qa-vpc1652-20261113-32-ui-retry",
+      "displaytext": "qa-vpc1652-20261113-32-source-disabled",
+      "conservemode": "false",
+      "internetprotocol": "ipv4",
+      "networkmode": "NATTED",
+      "enable": "false"
+    }
+  },
+  {
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "d5e2d7fa-0c54-4a6c-be61-11aedf51987b",
+      "name": "qa-vpc1652-20261113-32-ui-retry",
+      "displaytext": "qa-vpc1652-20261113-32-source-disabled",
+      "conservemode": "false",
+      "internetprotocol": "ipv4",
+      "networkmode": "NATTED",
+      "enable": "false"
+    }
+  },
+  {
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "0f0ab89c-f3e9-4578-add9-3cb2530c70b6",
+      "name": "qa-vpc1652-20261113-32-ui-cap-true",
+      "displaytext": "Redundant VPC offering",
+      "conservemode": "false",
+      "internetprotocol": "ipv4",
+      "serviceCapabilityList[0].service": "SourceNat",
+      "serviceCapabilityList[0].capabilitytype": "RedundantRouter",
+      "serviceCapabilityList[0].capabilityvalue": "true",
+      "enable": "false"
+    }
+  },
+  {
+    "method": "POST",
+    "params": {
+      "command": "cloneVPCOffering",
+      "response": "json",
+      "sourceofferingid": "0f0ab89c-f3e9-4578-add9-3cb2530c70b6",
+      "name": "qa-vpc1652-20261113-32-ui-cap-false",
+      "displaytext": "Redundant VPC offering",
+      "conservemode": "false",
+      "internetprotocol": "ipv4",
+      "serviceCapabilityList[0].service": "SourceNat",
+      "serviceCapabilityList[0].capabilitytype": "RedundantRouter",
+      "serviceCapabilityList[0].capabilityvalue": "false",
+      "enable": "false"
+    }
+  }
+]

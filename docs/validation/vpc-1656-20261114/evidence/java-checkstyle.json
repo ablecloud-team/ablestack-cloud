@@ -1,0 +1,18 @@
+{
+  "changedJavaFiles": [
+    {
+      "file": "/home/ablecloud/work/dhslove/cloud-epic-1650/api/src/main/java/org/apache/cloudstack/api/response/VpcOfferingResponse.java",
+      "violations": []
+    },
+    {
+      "file": "/home/ablecloud/work/dhslove/cloud-epic-1650/server/src/main/java/com/cloud/api/query/dao/VpcOfferingJoinDaoImpl.java",
+      "violations": []
+    },
+    {
+      "file": "/home/ablecloud/work/dhslove/cloud-epic-1650/server/src/test/java/com/cloud/api/query/dao/VpcOfferingJoinDaoImplTest.java",
+      "violations": []
+    }
+  ],
+  "passed": true,
+  "fullApiCheckstyleBaselineErrors": 46
+}

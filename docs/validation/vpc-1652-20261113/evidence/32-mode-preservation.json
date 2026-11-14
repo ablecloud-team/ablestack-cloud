@@ -1,0 +1,28 @@
+{
+  "phase": "ROUTED",
+  "controls": {
+    "description": "qa-vpc1652-20261113-32-source-enabled",
+    "enable": "false",
+    "name": "qa-vpc1652-20261113-32-ui-enabled-off",
+    "providers": {
+      "Dhcp": [
+        "VpcVirtualRouter"
+      ],
+      "Dns": [
+        "VpcVirtualRouter"
+      ],
+      "NetworkACL": [
+        "VpcVirtualRouter"
+      ],
+      "UserData": [
+        "VpcVirtualRouter"
+      ]
+    },
+    "public": "false",
+    "publicDisabled": true,
+    "scripts": [
+      "http://10.10.32.10:8080/client/js/app.e894c035.js"
+    ],
+    "summary": "절약 모드\t활성화\n읽기 전용: 원본 설정을 복제본에도 명시적으로 보존합니다."
+  }
+}

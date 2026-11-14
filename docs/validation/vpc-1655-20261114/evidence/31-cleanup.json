@@ -1,0 +1,59 @@
+[
+  {
+    "command": "deleteVPC",
+    "id": "987577e1-11b7-479e-81bc-98912579ea43",
+    "result": {
+      "success": true
+    },
+    "success": true,
+    "phase": "owned stale selection UI preflight test"
+  },
+  {
+    "command": "deleteNetwork",
+    "id": "9410035c-8491-4ebb-baf3-feb1b43168ea",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteNetwork",
+    "id": "56a2e2d2-708d-4b85-b1be-357e066c3e60",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPC",
+    "id": "1505513d-be48-4f06-9fb5-7ad4e6f2f85f",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPC",
+    "id": "d3f3a187-6029-4c78-a76b-6f2b3f55b689",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPC",
+    "id": "023d7c27-a68e-4eec-9e57-7f8cc620c92b",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "9c4c17e7-bb00-4100-bb10-6dab66c4908e",
+    "result": {
+      "success": true
+    },
+    "success": true
+  }
+]

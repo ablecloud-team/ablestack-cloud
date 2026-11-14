@@ -62,6 +62,10 @@ public class VpcOfferingResponse extends BaseResponse {
     @Param(description = "Indicates if the VPC offering supports distributed router for one-hop forwarding", since = "4.4")
     private Boolean supportsDistributedRouter;
 
+    @SerializedName(ApiConstants.REDUNDANT_VPC_ROUTER)
+    @Param(description = "True if the offering uses redundant VPC routers")
+    private Boolean redundantVpcRouter;
+
     @SerializedName((ApiConstants.SUPPORTS_REGION_LEVEL_VPC))
     @Param(description = "Indicated if the offering can support region level VPC", since = "4.4")
     private Boolean supportsRegionLevelVpc;
@@ -136,6 +140,10 @@ public class VpcOfferingResponse extends BaseResponse {
 
     public void setSupportsDistributedRouter(Boolean supportsDistributedRouter) {
         this.supportsDistributedRouter = supportsDistributedRouter;
+    }
+
+    public void setRedundantVpcRouter(Boolean redundantVpcRouter) {
+        this.redundantVpcRouter = redundantVpcRouter;
     }
 
     public void setSupportsRegionLevelVpc(Boolean supports) {

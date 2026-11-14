@@ -1,0 +1,67 @@
+{
+  "count": 1,
+  "api": [
+    {
+      "name": "restartVPC",
+      "description": "Restarts a VPC",
+      "isasync": true,
+      "params": [
+        {
+          "name": "cleanup",
+          "description": "Should we cleanup the old Network elements",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "id",
+          "description": "The ID of the VPC",
+          "type": "uuid",
+          "length": 255,
+          "required": true,
+          "related": "createVPC,listVPCs,updateVPC"
+        },
+        {
+          "name": "makeredundant",
+          "description": "Turn a single VPC into a redundant one.",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "livepatch",
+          "description": "Live patches the router software before restarting it. This parameter will only work when 'cleanup' is false.",
+          "type": "boolean",
+          "length": 255,
+          "required": false,
+          "since": "4.17.0"
+        }
+      ],
+      "response": [
+        {
+          "name": "jobid",
+          "description": "The UUID of the latest async job acting on this object",
+          "type": "string"
+        },
+        {
+          "name": "jobstatus",
+          "description": "The current status of the latest async job acting on this object",
+          "type": "integer"
+        },
+        {
+          "name": "success",
+          "description": "True if operation is executed successfully",
+          "type": "boolean"
+        },
+        {},
+        {
+          "name": "displaytext",
+          "description": "Any text associated with the success or failure",
+          "type": "string"
+        },
+        {}
+      ],
+      "httprequesttype": "POST"
+    }
+  ]
+}

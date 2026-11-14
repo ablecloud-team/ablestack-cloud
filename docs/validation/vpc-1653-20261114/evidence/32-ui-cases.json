@@ -1,0 +1,2129 @@
+[
+  {
+    "case": "create-delayed",
+    "name": "qa-vpc1653-20261114-32-ui-create-delayed",
+    "command": "createVPCOffering",
+    "expectedEnable": true,
+    "attempts": [
+      {
+        "requestId": "1c483da1-455d-473a-a04e-ba0e5e9777a3",
+        "expected": "success",
+        "httpStatus": 200
+      }
+    ],
+    "sourceCommit": "f698b0191965af5e030a328fdc7a5dffe3f86491",
+    "before": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.9af5df9e.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "확인"
+        }
+      ],
+      "description": "비동기 완료 검증 32",
+      "dialog": true,
+      "enable": "true",
+      "fieldLocked": false,
+      "name": "qa-vpc1653-20261114-32-ui-create-delayed",
+      "services": [
+        {
+          "checked": true,
+          "text": "Vpn\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dhcp\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nVpcVirtualRouter\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        },
+        {
+          "checked": false,
+          "text": "CustomAction"
+        }
+      ],
+      "status": ""
+    },
+    "pending": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.9af5df9e.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "확인"
+        }
+      ],
+      "description": "비동기 완료 검증 32",
+      "dialog": true,
+      "enable": "true",
+      "fieldLocked": true,
+      "name": "qa-vpc1653-20261114-32-ui-create-delayed",
+      "services": [
+        {
+          "checked": true,
+          "text": "Vpn\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dhcp\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        },
+        {
+          "checked": false,
+          "text": "CustomAction"
+        }
+      ],
+      "status": "VPC 오퍼링 작업이 진행 중입니다.\n이름: qa-vpc1653-20261114-32-ui-create-delayed\n작업 ID: 1c483da1-455d-473a-a04e-ba0e5e9777a3"
+    },
+    "noPrematureSuccess": true,
+    "duplicateSubmitBlocked": true,
+    "koreanSuccess": true,
+    "expectedConserve": false
+  },
+  {
+    "case": "clone-delayed",
+    "name": "qa-vpc1653-20261114-32-ui-clone-delayed",
+    "command": "cloneVPCOffering",
+    "expectedEnable": false,
+    "attempts": [
+      {
+        "requestId": "04b24cbd-9b6f-4b35-b065-cee45ca2f04c",
+        "expected": "success",
+        "httpStatus": 200
+      }
+    ],
+    "sourceCommit": "f698b0191965af5e030a328fdc7a5dffe3f86491",
+    "before": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.9af5df9e.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "확인"
+        }
+      ],
+      "description": "Default VPC offering",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": false,
+      "footerLocked": false,
+      "name": "qa-vpc1653-20261114-32-ui-clone-delayed",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": ""
+    },
+    "pending": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.9af5df9e.js"
+      ],
+      "buttons": [
+        {
+          "disabled": true,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "확인"
+        }
+      ],
+      "description": "Default VPC offering",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": true,
+      "footerLocked": true,
+      "name": "qa-vpc1653-20261114-32-ui-clone-delayed",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": "VPC 오퍼링 작업이 진행 중입니다.\n이름: qa-vpc1653-20261114-32-ui-clone-delayed\n원본 오퍼링 ID: a77c3f64-5bb4-4b69-9811-5cc09a231c43\n작업 ID: 04b24cbd-9b6f-4b35-b065-cee45ca2f04c"
+    },
+    "noPrematureSuccess": true,
+    "duplicateSubmitBlocked": true,
+    "koreanSuccess": true,
+    "expectedConserve": false
+  },
+  {
+    "case": "query-recheck",
+    "name": "qa-vpc1653-20261114-32-ui-query-recheck",
+    "command": "cloneVPCOffering",
+    "expectedEnable": false,
+    "attempts": [
+      {
+        "requestId": "4d6a6587-4a8f-45e1-94a6-b8e530e6ad53",
+        "expected": "success",
+        "httpStatus": 200
+      }
+    ],
+    "sourceCommit": "f698b0191965af5e030a328fdc7a5dffe3f86491",
+    "before": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.9af5df9e.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "확인"
+        }
+      ],
+      "description": "Default VPC offering",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": false,
+      "footerLocked": false,
+      "name": "qa-vpc1653-20261114-32-ui-query-recheck",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": ""
+    },
+    "unknown": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.9af5df9e.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "확인"
+        }
+      ],
+      "description": "Default VPC offering",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": true,
+      "footerLocked": false,
+      "name": "qa-vpc1653-20261114-32-ui-query-recheck",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": "최종 결과를 확인하지 못했습니다.\n이름: qa-vpc1653-20261114-32-ui-query-recheck\n원본 오퍼링 ID: a77c3f64-5bb4-4b69-9811-5cc09a231c43\n작업 ID: 4d6a6587-4a8f-45e1-94a6-b8e530e6ad53\n최종 결과를 확인하지 못했습니다.\n결과가 확정될 때까지 새 생성 요청을 보내지 않습니다. 창을 닫아도 요청과 입력을 보존합니다.\n작업 결과 다시 확인"
+    },
+    "queryFailuresInjected": 3,
+    "recheckWithoutResubmission": true,
+    "expectedConserve": false
+  },
+  {
+    "case": "result-recheck",
+    "name": "qa-vpc1653-20261114-32-ui-result-recheck",
+    "command": "cloneVPCOffering",
+    "expectedEnable": false,
+    "attempts": [
+      {
+        "requestId": "63983a43-e277-4200-89ab-0220e6924a7e",
+        "expected": "success",
+        "httpStatus": 200
+      }
+    ],
+    "sourceCommit": "f698b0191965af5e030a328fdc7a5dffe3f86491",
+    "before": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.9af5df9e.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "확인"
+        }
+      ],
+      "description": "Default VPC offering",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": false,
+      "footerLocked": false,
+      "name": "qa-vpc1653-20261114-32-ui-result-recheck",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": ""
+    },
+    "unknown": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.9af5df9e.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "확인"
+        }
+      ],
+      "description": "Default VPC offering",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": true,
+      "footerLocked": false,
+      "name": "qa-vpc1653-20261114-32-ui-result-recheck",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": "최종 결과를 확인하지 못했습니다.\n이름: qa-vpc1653-20261114-32-ui-result-recheck\n원본 오퍼링 ID: a77c3f64-5bb4-4b69-9811-5cc09a231c43\n작업 ID: 63983a43-e277-4200-89ab-0220e6924a7e\n작업은 성공했지만 생성된 오퍼링을 확인하지 못했습니다. 같은 작업의 결과를 다시 확인하세요.\n결과가 확정될 때까지 새 생성 요청을 보내지 않습니다. 창을 닫아도 요청과 입력을 보존합니다.\n작업 결과 다시 확인"
+    },
+    "resultId": "4cb9a4b5-d168-4ad2-b75e-7dcbdd823234",
+    "resultReadFailureInjected": true,
+    "recheckWithoutResubmission": true,
+    "expectedConserve": false
+  },
+  {
+    "case": "lost-receipt-reload",
+    "name": "qa-vpc1653-20261114-32-ui-lost-receipt",
+    "command": "cloneVPCOffering",
+    "expectedEnable": false,
+    "attempts": [
+      {
+        "requestId": "7270035f-2795-440c-b747-466732d3969e",
+        "expected": "success"
+      }
+    ],
+    "sourceCommit": "f698b0191965af5e030a328fdc7a5dffe3f86491",
+    "before": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.9af5df9e.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "확인"
+        }
+      ],
+      "description": "Default VPC offering",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": false,
+      "footerLocked": false,
+      "name": "qa-vpc1653-20261114-32-ui-lost-receipt",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": ""
+    },
+    "unknown": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.9af5df9e.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "확인"
+        }
+      ],
+      "description": "Default VPC offering",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": true,
+      "footerLocked": false,
+      "name": "qa-vpc1653-20261114-32-ui-lost-receipt",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": "최종 결과를 확인하지 못했습니다.\n이름: qa-vpc1653-20261114-32-ui-lost-receipt\n원본 오퍼링 ID: a77c3f64-5bb4-4b69-9811-5cc09a231c43\n작업 ID: 7270035f-2795-440c-b747-466732d3969e\n접수 결과가 미확정입니다. 요청 ID로 기존 작업을 다시 확인하세요.\n결과가 확정될 때까지 새 생성 요청을 보내지 않습니다. 창을 닫아도 요청과 입력을 보존합니다.\n작업 결과 다시 확인"
+    },
+    "requestId": "7270035f-2795-440c-b747-466732d3969e",
+    "serverResponseStatus": 200,
+    "restored": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.9af5df9e.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "확인"
+        }
+      ],
+      "description": "Default VPC offering",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": true,
+      "footerLocked": false,
+      "name": "qa-vpc1653-20261114-32-ui-lost-receipt",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": "최종 결과를 확인하지 못했습니다.\n이름: qa-vpc1653-20261114-32-ui-lost-receipt\n원본 오퍼링 ID: a77c3f64-5bb4-4b69-9811-5cc09a231c43\n작업 ID: 7270035f-2795-440c-b747-466732d3969e\n접수 결과가 미확정입니다. 요청 ID로 기존 작업을 다시 확인하세요.\n결과가 확정될 때까지 새 생성 요청을 보내지 않습니다. 창을 닫아도 요청과 입력을 보존합니다.\n작업 결과 다시 확인"
+    },
+    "reloadRecovered": true,
+    "recheckWithoutResubmission": true,
+    "expectedConserve": false
+  },
+  {
+    "case": "http-create-retry-keyboard",
+    "name": "qa-vpc1653-20261114-32-ui-http-create",
+    "command": "createVPCOffering",
+    "expectedEnable": false,
+    "attempts": [
+      {
+        "requestId": "d00d5a2c-4344-408d-88ab-1d892162637d",
+        "expected": "http-rejected",
+        "httpStatus": 431
+      },
+      {
+        "requestId": "7b2e1169-c261-4d5d-a630-e07573cfa416",
+        "expected": "success",
+        "httpStatus": 200
+      }
+    ],
+    "sourceCommit": "5b25092d8cec7a10d1e7ddf3c6c1f8890d750640",
+    "before": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.9af5df9e.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "확인"
+        }
+      ],
+      "description": "",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": false,
+      "footerLocked": false,
+      "name": "qa-vpc1653-20261114-32-ui-http-create",
+      "services": [
+        {
+          "checked": true,
+          "text": "Vpn\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dhcp\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nVpcVirtualRouter\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        },
+        {
+          "checked": false,
+          "text": "CustomAction"
+        }
+      ],
+      "status": ""
+    },
+    "rejected": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.9af5df9e.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "확인"
+        }
+      ],
+      "description": "",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": false,
+      "footerLocked": false,
+      "name": "qa-vpc1653-20261114-32-ui-http-create",
+      "services": [
+        {
+          "checked": true,
+          "text": "Vpn\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dhcp\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        },
+        {
+          "checked": false,
+          "text": "CustomAction"
+        }
+      ],
+      "status": "요청을 제출하지 못했습니다.\n이름: qa-vpc1653-20261114-32-ui-http-create\n요청 ID: d00d5a2c-4344-408d-88ab-1d892162637d\n431: Unable to execute API command createvpcoffering due to missing parameter name"
+    },
+    "requestId": "d00d5a2c-4344-408d-88ab-1d892162637d",
+    "mutation": "Removed name only from outgoing test POST",
+    "httpStatus": 431,
+    "firstSource": "f698b0191965af5e030a328fdc7a5dffe3f86491",
+    "finalRestored": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.ceda62e4.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "확인"
+        }
+      ],
+      "description": "",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": false,
+      "footerLocked": false,
+      "name": "qa-vpc1653-20261114-32-ui-http-create",
+      "services": [
+        {
+          "checked": true,
+          "text": "Vpn\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dhcp\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        },
+        {
+          "checked": false,
+          "text": "CustomAction"
+        }
+      ],
+      "status": "요청을 제출하지 못했습니다.\n이름: qa-vpc1653-20261114-32-ui-http-create\n요청 ID: d00d5a2c-4344-408d-88ab-1d892162637d\n431: Unable to execute API command createvpcoffering due to missing parameter name"
+    },
+    "pending": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.ceda62e4.js"
+      ],
+      "buttons": [
+        {
+          "disabled": true,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "확인"
+        }
+      ],
+      "description": "",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": true,
+      "footerLocked": true,
+      "name": "qa-vpc1653-20261114-32-ui-http-create",
+      "services": [
+        {
+          "checked": true,
+          "text": "Vpn\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dhcp\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        },
+        {
+          "checked": false,
+          "text": "CustomAction"
+        }
+      ],
+      "status": "VPC 오퍼링 작업이 진행 중입니다.\n이름: qa-vpc1653-20261114-32-ui-http-create\n작업 ID: 7b2e1169-c261-4d5d-a630-e07573cfa416"
+    },
+    "keyboardSubmitted": true,
+    "koreanSuccess": true,
+    "expectedConserve": false,
+    "attemptSources": [
+      "f698b0191965af5e030a328fdc7a5dffe3f86491",
+      "5b25092d8cec7a10d1e7ddf3c6c1f8890d750640"
+    ]
+  },
+  {
+    "case": "async-failure-retry-keyboard",
+    "name": "qa-vpc1653-20261114-32-ui-async-failure",
+    "command": "cloneVPCOffering",
+    "expectedEnable": false,
+    "attempts": [
+      {
+        "requestId": "ad1f3abc-317d-4f39-b25a-589c1e7d48f7",
+        "expected": "failed",
+        "httpStatus": 200
+      },
+      {
+        "requestId": "632050b4-d687-464e-99a6-426751a26b08",
+        "expected": "success",
+        "httpStatus": 200
+      }
+    ],
+    "sourceCommit": "5b25092d8cec7a10d1e7ddf3c6c1f8890d750640",
+    "before": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.ceda62e4.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "확인"
+        }
+      ],
+      "description": "Redundant VPC offering",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": false,
+      "footerLocked": false,
+      "name": "qa-vpc1653-20261114-32-ui-async-failure",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": ""
+    },
+    "failed": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.ceda62e4.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "확인"
+        }
+      ],
+      "description": "Redundant VPC offering",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": false,
+      "footerLocked": false,
+      "name": "qa-vpc1653-20261114-32-ui-async-failure",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": "VPC 오퍼링 작업이 실패했습니다.\n이름: qa-vpc1653-20261114-32-ui-async-failure\n원본 오퍼링 ID: 0f0ab89c-f3e9-4578-add9-3cb2530c70b6\n작업 ID: ad1f3abc-317d-4f39-b25a-589c1e7d48f7\n530: class java.lang.String cannot be cast to class java.util.HashMap (java.lang.String and java.util.HashMap are in module java.base of loader 'bootstrap')"
+    },
+    "source": "5b25092d8cec7a10d1e7ddf3c6c1f8890d750640",
+    "keyboardSubmittedFailure": true,
+    "realServerJobFailure": true,
+    "restored": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.ceda62e4.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "확인"
+        }
+      ],
+      "description": "Redundant VPC offering",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": false,
+      "footerLocked": false,
+      "name": "qa-vpc1653-20261114-32-ui-async-failure",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": "VPC 오퍼링 작업이 실패했습니다.\n이름: qa-vpc1653-20261114-32-ui-async-failure\n원본 오퍼링 ID: 0f0ab89c-f3e9-4578-add9-3cb2530c70b6\n작업 ID: ad1f3abc-317d-4f39-b25a-589c1e7d48f7\n530: class java.lang.String cannot be cast to class java.util.HashMap (java.lang.String and java.util.HashMap are in module java.base of loader 'bootstrap')"
+    },
+    "beforeRetry": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.ceda62e4.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "확인"
+        }
+      ],
+      "description": "Redundant VPC offering",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": false,
+      "footerLocked": false,
+      "name": "qa-vpc1653-20261114-32-ui-async-failure",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": "VPC 오퍼링 작업이 실패했습니다.\n이름: qa-vpc1653-20261114-32-ui-async-failure\n원본 오퍼링 ID: 0f0ab89c-f3e9-4578-add9-3cb2530c70b6\n작업 ID: ad1f3abc-317d-4f39-b25a-589c1e7d48f7\n530: class java.lang.String cannot be cast to class java.util.HashMap (java.lang.String and java.util.HashMap are in module java.base of loader 'bootstrap')"
+    },
+    "pending": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.ceda62e4.js"
+      ],
+      "buttons": [
+        {
+          "disabled": true,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "확인"
+        }
+      ],
+      "description": "Redundant VPC offering",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": true,
+      "footerLocked": true,
+      "name": "qa-vpc1653-20261114-32-ui-async-failure",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": "VPC 오퍼링 작업이 진행 중입니다.\n이름: qa-vpc1653-20261114-32-ui-async-failure\n원본 오퍼링 ID: 0f0ab89c-f3e9-4578-add9-3cb2530c70b6\n작업 ID: 632050b4-d687-464e-99a6-426751a26b08"
+    },
+    "keyboardSubmittedSuccess": true,
+    "koreanSuccess": true,
+    "expectedConserve": false
+  },
+  {
+    "case": "late-success-protected",
+    "name": "qa-vpc1653-20261114-32-ui-late-success",
+    "command": "cloneVPCOffering",
+    "expectedEnable": false,
+    "attempts": [
+      {
+        "requestId": "42931e1b-35c0-4d4b-a7d2-a09a40add03a",
+        "expected": "success",
+        "httpStatus": 200
+      }
+    ],
+    "sourceCommit": "5b25092d8cec7a10d1e7ddf3c6c1f8890d750640",
+    "before": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.ceda62e4.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "확인"
+        }
+      ],
+      "description": "Default VPC offering",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": false,
+      "footerLocked": false,
+      "name": "qa-vpc1653-20261114-32-ui-late-success",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": ""
+    },
+    "newContextBefore": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.ceda62e4.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "확인"
+        }
+      ],
+      "description": "Redundant VPC offering",
+      "dialog": true,
+      "enable": "true",
+      "fieldLocked": false,
+      "footerLocked": false,
+      "name": "Redundant VPC offering - Clone",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": ""
+    },
+    "newContextAfter": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.ceda62e4.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "확인"
+        }
+      ],
+      "description": "Redundant VPC offering",
+      "dialog": true,
+      "enable": "true",
+      "fieldLocked": false,
+      "footerLocked": false,
+      "name": "Redundant VPC offering - Clone",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": ""
+    },
+    "lateResultVerified": true,
+    "explicitCompletionConfirmed": true,
+    "expectedConserve": false
+  },
+  {
+    "case": "late-failure-protected",
+    "name": "qa-vpc1653-20261114-32-ui-late-failure",
+    "command": "cloneVPCOffering",
+    "expectedEnable": false,
+    "attempts": [
+      {
+        "requestId": "2fdbb03a-a06f-43ce-9fe6-188a38d3d755",
+        "expected": "failed",
+        "httpStatus": 200
+      },
+      {
+        "requestId": "d7ba8fa8-2cf5-4ea3-9e93-a8357d75219d",
+        "expected": "success",
+        "httpStatus": 200
+      }
+    ],
+    "sourceCommit": "5b25092d8cec7a10d1e7ddf3c6c1f8890d750640",
+    "before": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.ceda62e4.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "확인"
+        }
+      ],
+      "description": "Redundant VPC offering",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": false,
+      "footerLocked": false,
+      "name": "qa-vpc1653-20261114-32-ui-late-failure",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": ""
+    },
+    "newContextBefore": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.ceda62e4.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "확인"
+        }
+      ],
+      "description": "Default VPC offering",
+      "dialog": true,
+      "enable": "true",
+      "fieldLocked": false,
+      "footerLocked": false,
+      "name": "Default VPC offering - Clone",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": ""
+    },
+    "newContextAfter": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.ceda62e4.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "확인"
+        }
+      ],
+      "description": "Default VPC offering",
+      "dialog": true,
+      "enable": "true",
+      "fieldLocked": false,
+      "footerLocked": false,
+      "name": "Default VPC offering - Clone",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": ""
+    },
+    "requestId": "2fdbb03a-a06f-43ce-9fe6-188a38d3d755",
+    "lateFailureDelivered": true,
+    "canceled": 0,
+    "restored": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.ceda62e4.js"
+      ],
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "확인"
+        }
+      ],
+      "description": "Redundant VPC offering",
+      "dialog": true,
+      "enable": "false",
+      "fieldLocked": false,
+      "footerLocked": false,
+      "name": "qa-vpc1653-20261114-32-ui-late-failure",
+      "services": [
+        {
+          "checked": true,
+          "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Firewall"
+        },
+        {
+          "checked": true,
+          "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+        },
+        {
+          "checked": false,
+          "text": "Gateway"
+        },
+        {
+          "checked": true,
+          "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": true,
+          "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+        },
+        {
+          "checked": false,
+          "text": "Connectivity"
+        }
+      ],
+      "status": "VPC 오퍼링 작업이 실패했습니다.\n이름: qa-vpc1653-20261114-32-ui-late-failure\n원본 오퍼링 ID: 0f0ab89c-f3e9-4578-add9-3cb2530c70b6\n작업 ID: 2fdbb03a-a06f-43ce-9fe6-188a38d3d755\n530: class java.lang.String cannot be cast to class java.util.HashMap (java.lang.String and java.util.HashMap are in module java.base of loader 'bootstrap')"
+    },
+    "retrySucceeded": true,
+    "expectedConserve": false
+  }
+]

@@ -1,0 +1,209 @@
+{
+  "params": {
+    "id": "1505513d-be48-4f06-9fb5-7ad4e6f2f85f",
+    "customjobid": "187fd32f-20cf-4019-9aa0-d17067a4ff20",
+    "cleanup": "false",
+    "makeredundant": "false",
+    "livepatch": "false"
+  },
+  "receipt": {
+    "jobid": "187fd32f-20cf-4019-9aa0-d17067a4ff20"
+  },
+  "job": {
+    "accountid": "9c4c17e7-bb00-4100-bb10-6dab66c4908e",
+    "account": "qa-vpc1655-20261114-31-user",
+    "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+    "domainpath": "ROOT",
+    "userid": "a295d2ce-e33d-4545-909c-45004196a719",
+    "cmd": "org.apache.cloudstack.api.command.user.vpc.RestartVPCCmd",
+    "jobprocstatus": 0,
+    "jobresultcode": 0,
+    "jobresulttype": "object",
+    "jobresult": {
+      "success": true
+    },
+    "jobinstancetype": "Vpc",
+    "created": "2026-11-14T14:45:37+0900",
+    "completed": "2026-11-14T14:46:00+0900",
+    "jobid": "187fd32f-20cf-4019-9aa0-d17067a4ff20",
+    "jobstatus": 1
+  },
+  "current": [
+    {
+      "id": "1505513d-be48-4f06-9fb5-7ad4e6f2f85f",
+      "name": "qa-vpc1655-20261114-31-role-vpc",
+      "displaytext": "VPC restart role scope",
+      "state": "Enabled",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "zonename": "Zone",
+      "service": [
+        {
+          "name": "Dns",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "NetworkACL",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "PortForwarding",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Dhcp",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "UserData",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Vpn",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "StaticNat",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Lb",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            },
+            {
+              "name": "InternalLbVm"
+            }
+          ]
+        },
+        {
+          "name": "SourceNat",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        }
+      ],
+      "cidr": "10.243.31.0/24",
+      "vpcofferingid": "49767c4b-61bd-4535-9957-af9908e220f1",
+      "vpcofferingname": "Default VPC offering",
+      "vpcofferingconservemode": false,
+      "created": "2026-11-14T14:22:03+0900",
+      "account": "qa-vpc1655-20261114-31-user",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "network": [],
+      "restartrequired": false,
+      "networkdomain": "cs1c8cloud.internal",
+      "tags": [],
+      "distributedvpcrouter": false,
+      "regionlevelvpc": false,
+      "redundantvpcrouter": false,
+      "publicmtu": 1500,
+      "hasannotations": false
+    }
+  ],
+  "routersAdminOracle": [
+    {
+      "id": "3fc416c9-b74e-42ff-b28f-b4d1ea73e72e",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "zonename": "Zone",
+      "dns1": "8.8.8.8",
+      "gateway": "10.10.0.1",
+      "name": "r-1065-VM",
+      "podid": "2a9760c6-795d-48fc-bca1-77037c541279",
+      "podname": "Pod",
+      "hostid": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+      "hostname": "ablecube31-2",
+      "hostcontrolstate": "Enabled",
+      "hypervisor": "KVM",
+      "linklocalip": "169.254.230.4",
+      "linklocalmacaddress": "0e:00:a9:fe:e6:04",
+      "linklocalnetmask": "255.255.0.0",
+      "linklocalnetworkid": "9c160a81-c6f7-4c41-a683-15d7f8b5979f",
+      "publicip": "10.10.31.110",
+      "publicmacaddress": "1e:1f:92:00:00:0f",
+      "publicnetmask": "255.255.0.0",
+      "publicnetworkid": "8689dcfa-5d81-40d3-8db3-103be4a01d71",
+      "templateid": "78f1d144-d065-4193-a169-18934f49b530",
+      "templatename": "SystemVM-gn1569-full-20261111-KVM",
+      "created": "2026-11-14T14:45:37+0900",
+      "state": "Running",
+      "account": "qa-vpc1655-20261114-31-user",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "serviceofferingid": "314ccb87-0e40-4438-9d1f-474c52e4e609",
+      "serviceofferingname": "System Offering For Software Router",
+      "isredundantrouter": false,
+      "redundantstate": "UNKNOWN",
+      "version": "4.23.0.0",
+      "scriptsversion": "6e6a28998ad471b0e89e31525d1b769f4c784445664d73e7101e8610fb357fa6161b9cd6ca92edc82428b84c10c39e622f69d65349585aa1f45b1ba694af7169",
+      "vpcid": "1505513d-be48-4f06-9fb5-7ad4e6f2f85f",
+      "vpcname": "qa-vpc1655-20261114-31-role-vpc",
+      "role": "VIRTUAL_ROUTER",
+      "nic": [
+        {
+          "id": "7b415ded-1422-452f-843e-56e7d73117b1",
+          "networkid": "9c160a81-c6f7-4c41-a683-15d7f8b5979f",
+          "netmask": "255.255.0.0",
+          "gateway": "169.254.0.1",
+          "ipaddress": "169.254.230.4",
+          "traffictype": "Control",
+          "isdefault": false,
+          "macaddress": "0e:00:a9:fe:e6:04",
+          "enabled": true
+        },
+        {
+          "id": "cd34e2a5-aafa-4f2a-a529-a492ac32244e",
+          "networkid": "8689dcfa-5d81-40d3-8db3-103be4a01d71",
+          "netmask": "255.255.0.0",
+          "gateway": "10.10.0.1",
+          "ipaddress": "10.10.31.110",
+          "isolationuri": "vlan://untagged",
+          "broadcasturi": "vlan://untagged",
+          "traffictype": "Public",
+          "isdefault": true,
+          "macaddress": "1e:1f:92:00:00:0f",
+          "mtu": 1500,
+          "enabled": true
+        }
+      ],
+      "requiresupgrade": false,
+      "healthchecksfailed": false,
+      "softwareversion": "4.23.0.0",
+      "arch": "x86_64",
+      "hasannotations": false
+    }
+  ]
+}

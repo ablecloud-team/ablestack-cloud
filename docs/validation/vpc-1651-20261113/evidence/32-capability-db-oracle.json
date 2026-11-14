@@ -1,0 +1,138 @@
+{
+  "readOnly": true,
+  "rows": [
+    {
+      "id": "a77c3f64-5bb4-4b69-9811-5cc09a231c43",
+      "name": "Default VPC offering",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    {
+      "id": "b6a82d84-e551-49bb-8e68-863ce4b93857",
+      "name": "Default VPC  offering with Netscaler",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    {
+      "id": "0f0ab89c-f3e9-4578-add9-3cb2530c70b6",
+      "name": "Redundant VPC offering",
+      "redundantRouter": true,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    {
+      "id": "d2e351ab-feff-4ee2-b2d9-34eeb3857c09",
+      "name": "qa-vpc1651-20261113-32-api-inherit",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    {
+      "id": "22c65362-73de-4415-9c61-049e84d56b96",
+      "name": "qa-vpc1651-20261113-32-api-explicit-both",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    {
+      "id": "54eb1e65-52eb-40e0-a30e-c9336d1d8fed",
+      "name": "qa-vpc1651-20261113-32-api-public-only",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    {
+      "id": "0ac0de89-b41b-4624-8916-e0719025084a",
+      "name": "qa-vpc1651-20261113-32-api-internal-only",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    {
+      "id": "f294f11b-9c15-4892-a8f9-3da51ffaca6a",
+      "name": "qa-vpc1651-20261113-32-api-redundant-inherit",
+      "redundantRouter": true,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    {
+      "id": "1095a13a-8a14-493c-9709-e98138eb64f9",
+      "name": "qa-vpc1651-20261113-32-api-redundant-explicit",
+      "redundantRouter": true,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    {
+      "id": "3db07f99-0f63-46f4-8ada-f71b98f2beaa",
+      "name": "qa-vpc1651-20261113-32-ui-both",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    {
+      "id": "aa1d2559-e5fc-41eb-8c7f-74bc20c12b3f",
+      "name": "qa-vpc1651-20261113-32-ui-toggle",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    {
+      "id": "7a2630d0-7202-429b-a7b0-681af2588555",
+      "name": "qa-vpc1651-20261113-32-ui-public",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    {
+      "id": "b48be77a-40b3-42dc-9668-b5d8a507a543",
+      "name": "qa-vpc1651-20261113-32-ui-internal",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    {
+      "id": "6564be9c-060e-4527-bfc2-4e89596b309e",
+      "name": "qa-vpc1651-20261113-32-ui-drop-vpn",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    {
+      "id": "c9f080d8-df27-4248-b091-4b1419e2d23d",
+      "name": "qa-vpc1651-20261113-32-ui-redundant",
+      "redundantRouter": true,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    {
+      "id": "6c296468-45fe-4b86-85d7-334e0aa839ce",
+      "name": "qa-vpc1651-20261113-32-ui-netscaler",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    {
+      "id": "94e79592-ab99-497d-96c7-a8f1222d6725",
+      "name": "qa-vpc1651-20261113-32-ui-single",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    {
+      "id": "f883debf-b122-402e-b6a4-3163b267785d",
+      "name": "qa-vpc1651-20261113-32-ui-final",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    },
+    {
+      "id": "a51c6419-68dd-4c98-b15b-7fb0592be876",
+      "name": "qa-vpc1651-20261113-32-ui-final-both",
+      "redundantRouter": false,
+      "distributedRouter": false,
+      "regionLevelVpc": false
+    }
+  ]
+}

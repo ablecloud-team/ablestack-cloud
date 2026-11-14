@@ -1,0 +1,58 @@
+{
+  "errors": [
+    "Invalid format for the ip address parameter"
+  ],
+  "fields": [
+    {
+      "checked": false,
+      "id": "form_item_physicalnetwork",
+      "value": ""
+    },
+    {
+      "checked": false,
+      "id": "form_item_vlan",
+      "value": "3832"
+    },
+    {
+      "checked": false,
+      "id": "form_item_bypassvlanoverlapcheck",
+      "value": "on"
+    },
+    {
+      "checked": false,
+      "id": "form_item_associatednetworkid",
+      "value": ""
+    },
+    {
+      "checked": false,
+      "id": "form_item_ipaddress",
+      "value": "999.18.32.2"
+    },
+    {
+      "checked": false,
+      "id": "form_item_gateway",
+      "value": "10.246.32.1"
+    },
+    {
+      "checked": false,
+      "id": "form_item_netmask",
+      "value": "255.255.255.0"
+    },
+    {
+      "checked": false,
+      "id": "form_item_nat",
+      "value": "on"
+    },
+    {
+      "checked": false,
+      "id": "form_item_acl",
+      "value": ""
+    }
+  ],
+  "open": true,
+  "selections": [
+    "Physical Network 1",
+    "default_allow (Default Network ACL Allow All)"
+  ],
+  "text": "새 게이트웨이 추가하기현재 VPC에 새로운 게이트웨이를 추가하기 위한 정보를 지정해 주십시오.물리 네트워크Physical Network 1VLAN/VNIVLAN ID/범위 중복 우회연결된 네트워크Public IP 주소게이트웨이넷마스크Source NATACLdefault_allow (Default Network ACL Allow All)취소확인"
+}

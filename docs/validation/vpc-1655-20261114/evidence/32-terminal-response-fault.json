@@ -1,0 +1,47 @@
+{
+  "method": "Browser response injection only; actual server jobstatus=1",
+  "jobid": "2c100d9f-3901-43e2-bda0-bd3aa1701365",
+  "actual": {
+    "queryasyncjobresultresponse": {
+      "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domainpath": "ROOT",
+      "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+      "cmd": "org.apache.cloudstack.api.command.user.vpc.RestartVPCCmd",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "success": true
+      },
+      "jobinstancetype": "Vpc",
+      "created": "2026-11-14T15:22:43+0900",
+      "completed": "2026-11-14T15:22:43+0900",
+      "jobid": "2c100d9f-3901-43e2-bda0-bd3aa1701365",
+      "jobstatus": 1
+    }
+  },
+  "injected": {
+    "queryasyncjobresultresponse": {
+      "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domainpath": "ROOT",
+      "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+      "cmd": "org.apache.cloudstack.api.command.user.vpc.RestartVPCCmd",
+      "jobprocstatus": 0,
+      "jobresultcode": 530,
+      "jobresulttype": "object",
+      "jobresult": {
+        "errorcode": 530,
+        "errortext": "Controlled UI terminal failure validation #1655"
+      },
+      "jobinstancetype": "Vpc",
+      "created": "2026-11-14T15:22:43+0900",
+      "completed": "2026-11-14T15:22:43+0900",
+      "jobid": "2c100d9f-3901-43e2-bda0-bd3aa1701365",
+      "jobstatus": 2
+    }
+  }
+}

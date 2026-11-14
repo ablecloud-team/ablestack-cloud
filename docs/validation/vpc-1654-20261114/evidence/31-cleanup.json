@@ -1,0 +1,128 @@
+[
+  {
+    "command": "deletePrivateGateway",
+    "params": {
+      "id": "1d8a46b2-91f4-4c01-981a-2341c33b08e8"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deletePrivateGateway",
+    "params": {
+      "id": "3100c94c-e4dd-4105-b952-35af3bd4e740"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deletePrivateGateway",
+    "params": {
+      "id": "3895ca9b-cd73-4966-b595-d6bad9a221ae"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deletePrivateGateway",
+    "params": {
+      "id": "9398c4a0-c6c4-4070-a5ed-34afec4f2255"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deletePrivateGateway",
+    "params": {
+      "id": "960e96f8-c0e6-43a5-b77a-dbe4e1b4bde7"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteNetworkACLList",
+    "params": {
+      "id": "1e477d5a-b7fd-40c6-aeef-cf62ef484309"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteNetwork",
+    "params": {
+      "id": "820043bf-5edc-4654-bd83-0a5819d76ecf"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteNetwork",
+    "params": {
+      "id": "7a3d14a1-f6ac-4b5d-84e4-bde754113623"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteNetwork",
+    "params": {
+      "id": "de489982-5823-4397-8040-63f01a187141"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteVPC",
+    "params": {
+      "id": "99a15cdf-ea6f-4161-9ba1-41762bbd9b4e"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteVPC",
+    "params": {
+      "id": "e5f6fd3a-cff8-487b-8d8a-084a1837843b"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteVPC",
+    "params": {
+      "id": "e7bdf187-7060-4033-a3a6-f9970eb2c295"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteProject",
+    "params": {
+      "id": "9a3cff7e-e0e6-4157-b370-f857fee66a64"
+    },
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteAccount",
+    "params": {
+      "id": "b1f02ed6-af20-469e-90c2-3cb87a6c0787"
+    },
+    "result": {
+      "success": true
+    }
+  }
+]

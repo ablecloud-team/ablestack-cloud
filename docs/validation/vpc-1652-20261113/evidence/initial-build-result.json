@@ -1,0 +1,39 @@
+{
+  "source": "21da0d56225b146744399d3d8653ac5134689935",
+  "exit": 0,
+  "seconds": 691.3,
+  "node": "v20.20.2",
+  "npm": "10.8.2",
+  "nodeOptions": "--openssl-legacy-provider --max-old-space-size=8192",
+  "sourceUiClean": true,
+  "fullCloudBuild": false,
+  "changedFiles": {
+    "ui/src/views/offering/CloneVpcOffering.vue": "d3b3baa92074865473fd3fe850220fefaf68eaf2a474e0ed9e69416a1675cba8",
+    "ui/src/utils/vpcOfferingClone.js": "f65f2862b0fe2c2903a4b389d8d4e22b78ef02ee44124de3766353a758d0fa98",
+    "ui/tests/unit/views/offering/CloneVpcOfferingState.spec.js": "7f7fc5e93cacea94cb5d8223f1baa986436e86cd01b91694650412e79c52fba4",
+    "ui/public/locales/en.json": "1b0ea5a1a03a0a6dcd758dad96f00ef3c1000be9c5f7ff1df042063b309135c7",
+    "ui/public/locales/ko_KR.json": "d1d6f550aa9fbd635bda983ea1cc12312a37c744fe2cd1818df4cec860643960"
+  },
+  "lockfileSha256": "23379939285231d360907e8d7242206efd5359654b9903614788040680133ffc",
+  "indexSha256": "69857eb7435681cab95a55be9eba674269636ed00b70edf66dd7b4c2f13716be",
+  "appBundles": [
+    "js/app.e894c035.js"
+  ],
+  "markers": {
+    "clone-inheritance": [
+      "js/chunk-72be1dcb.cbf16084.js"
+    ],
+    "message.clone.vpc.capabilities.explicit": [
+      "js/chunk-72be1dcb.cbf16084.js"
+    ],
+    "blockingLoadingState": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ],
+    "fetchSyncProgress": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ],
+    "extractJobId": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ]
+  }
+}

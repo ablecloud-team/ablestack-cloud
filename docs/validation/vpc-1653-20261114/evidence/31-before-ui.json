@@ -1,0 +1,17 @@
+{
+  "sourceCommit": "0df0a392ac4a62705dac194501a3954956f456f6",
+  "dialogClosed": true,
+  "receipt": [
+    {
+      "status": 200,
+      "body": {
+        "clonevpcofferingresponse": {
+          "id": "3",
+          "jobid": "50028cbb-4427-4ba7-9597-1753e9a29058"
+        }
+      }
+    }
+  ],
+  "toastCaptured": false,
+  "note": "Success toast expired before capture. Source closes and reports success on receipt; final job is checked independently."
+}

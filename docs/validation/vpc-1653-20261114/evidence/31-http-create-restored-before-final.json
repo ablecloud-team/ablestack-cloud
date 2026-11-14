@@ -1,0 +1,76 @@
+{
+  "sourceCommit": "f698b0191965af5e030a328fdc7a5dffe3f86491",
+  "restored": {
+    "app": [
+      "http://10.10.31.10:8080/client/js/app.9af5df9e.js"
+    ],
+    "buttons": [
+      {
+        "disabled": false,
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "text": "확인"
+      }
+    ],
+    "description": "",
+    "dialog": true,
+    "enable": "false",
+    "fieldLocked": false,
+    "footerLocked": false,
+    "name": "qa-vpc1653-20261114-31-ui-http-create",
+    "services": [
+      {
+        "checked": true,
+        "text": "Vpn\nVpcVirtualRouter"
+      },
+      {
+        "checked": true,
+        "text": "Dhcp\nVpcVirtualRouter"
+      },
+      {
+        "checked": true,
+        "text": "Dns\nVpcVirtualRouter"
+      },
+      {
+        "checked": false,
+        "text": "Firewall"
+      },
+      {
+        "checked": true,
+        "text": "Lb\nVpcVirtualRouter"
+      },
+      {
+        "checked": true,
+        "text": "UserData\nVpcVirtualRouter"
+      },
+      {
+        "checked": true,
+        "text": "SourceNat\nVpcVirtualRouter"
+      },
+      {
+        "checked": true,
+        "text": "StaticNat\nVpcVirtualRouter"
+      },
+      {
+        "checked": true,
+        "text": "PortForwarding\nVpcVirtualRouter"
+      },
+      {
+        "checked": true,
+        "text": "NetworkACL\nVpcVirtualRouter"
+      },
+      {
+        "checked": false,
+        "text": "Connectivity"
+      },
+      {
+        "checked": false,
+        "text": "CustomAction"
+      }
+    ],
+    "status": "요청을 제출하지 못했습니다.\n이름: qa-vpc1653-20261114-31-ui-http-create\n요청 ID: e6dfc454-99cb-44e5-a6f8-c65ae6b397bc\n431: Unable to execute API command createvpcoffering due to missing parameter name"
+  },
+  "serviceCount": 9
+}

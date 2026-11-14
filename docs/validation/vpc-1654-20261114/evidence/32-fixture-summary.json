@@ -1,0 +1,23 @@
+{
+  "vpc": {
+    "id": "1e2348bf-35c0-43a7-ab6c-5794df5e15d4",
+    "name": "qa-vpc1654-20261114-32-admin",
+    "account": "admin",
+    "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+    "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+    "cidr": "10.245.32.0/24",
+    "state": "Enabled"
+  },
+  "network": {
+    "id": "ebda2dd1-e879-4184-bae7-657ecf46f5a7",
+    "name": "qa-vpc1654-20261114-32-l2-admin",
+    "account": "admin",
+    "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+    "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+    "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+    "type": "L2",
+    "state": "Setup",
+    "broadcasturi": "vlan://3992"
+  },
+  "physical": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b"
+}

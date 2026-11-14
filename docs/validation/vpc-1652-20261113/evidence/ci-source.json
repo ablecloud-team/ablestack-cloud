@@ -1,0 +1,22 @@
+{
+  "source": "5e1d22312e2578e419abd81492bcb95e7f8d7fd9",
+  "license": {
+    "run": 43448695686,
+    "result": "FAILURE",
+    "unknownLicenses": 4079,
+    "changedSourceFiles": "AL",
+    "localeJson": "excluded by existing configuration"
+  },
+  "lint": {
+    "run": 43448695822,
+    "result": "FAILURE",
+    "scope": "global pre-commit",
+    "changedUiPathDiagnosticsAfterIdentityListing": 0,
+    "localChangedUiLint": "PASS"
+  },
+  "conflict": {
+    "run": 43448695691,
+    "result": "SUCCESS"
+  },
+  "fullCloudBuild": false
+}

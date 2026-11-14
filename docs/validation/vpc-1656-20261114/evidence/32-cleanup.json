@@ -1,0 +1,137 @@
+[
+  {
+    "command": "destroyVirtualMachine",
+    "id": "fa24a447-752d-4d24-a690-a3bc3e95467c",
+    "result": {
+      "virtualmachine": {
+        "volumemutationblockedreason": "",
+        "securitygroup": [],
+        "nic": [],
+        "affinitygroup": [],
+        "deleteprotection": false,
+        "tags": []
+      }
+    },
+    "success": true
+  },
+  {
+    "command": "deleteNetwork",
+    "id": "ab4faf69-ca6f-4c9c-913c-de95071f7693",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteNetwork",
+    "id": "5d4aad3d-f75a-48d3-90c9-8f244f9e6bc0",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteNetwork",
+    "id": "744d33b3-0dda-4e98-ab24-5ae291388d3e",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPC",
+    "id": "3bd23dea-5cff-4e15-9639-e3208cac29bc",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPC",
+    "id": "26b38d88-38ba-4fa1-b201-32528412b209",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteNetworkOffering",
+    "id": "4130862d-d2b6-42a9-8793-05492b2d18a5",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteNetworkOffering",
+    "id": "94b07d3c-2a19-4e45-ad68-1c613fbf65ad",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteNetworkOffering",
+    "id": "b2a2f472-03b9-4ba1-aced-4b4f30847ea9",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteNetworkOffering",
+    "id": "c2991000-dc80-4a16-8994-572b31aa885f",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteNetworkOffering",
+    "id": "d9fd0c60-570a-4f86-810f-f32ed24520fe",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPCOffering",
+    "id": "ba339676-56a5-40cc-acae-a2c89980b0be",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPCOffering",
+    "id": "863e3a60-588a-4da4-832c-547bf896f464",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPCOffering",
+    "id": "c6be69b0-056e-454f-8449-c10f505da76d",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteProject",
+    "id": "6d4115c6-45d2-4371-af2f-4b2fcc50ca91",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "487a777c-4838-4b79-9c75-61a298ab31b8",
+    "result": {
+      "success": true
+    },
+    "success": true
+  }
+]

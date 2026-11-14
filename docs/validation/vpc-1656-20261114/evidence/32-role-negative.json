@@ -1,0 +1,43 @@
+[
+  {
+    "command": "migrateVPC",
+    "params": {
+      "vpcid": "3bd23dea-5cff-4e15-9639-e3208cac29bc",
+      "vpcofferingid": "863e3a60-588a-4da4-832c-547bf896f464",
+      "resume": "false"
+    },
+    "response": {
+      "errorresponse": {
+        "uuidList": [],
+        "errorcode": 432,
+        "cserrorcode": 9999,
+        "errortext": "The API [migrateVPC] does not exist or is not available for the account qa-vpc1656-20261114-32-user."
+      }
+    }
+  },
+  {
+    "command": "migrateVPC",
+    "params": {
+      "vpcid": "26b38d88-38ba-4fa1-b201-32528412b209",
+      "vpcofferingid": "863e3a60-588a-4da4-832c-547bf896f464",
+      "resume": "false"
+    },
+    "response": {
+      "errorresponse": {
+        "uuidList": [],
+        "errorcode": 432,
+        "cserrorcode": 9999,
+        "errortext": "The API [migrateVPC] does not exist or is not available for the account qa-vpc1656-20261114-32-user."
+      }
+    }
+  },
+  {
+    "command": "listVPCs",
+    "params": {
+      "id": "26b38d88-38ba-4fa1-b201-32528412b209"
+    },
+    "response": {
+      "listvpcsresponse": {}
+    }
+  }
+]

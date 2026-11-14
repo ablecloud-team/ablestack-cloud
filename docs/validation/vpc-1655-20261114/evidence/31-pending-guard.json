@@ -1,0 +1,55 @@
+{
+  "buttons": [
+    {
+      "disabled": true,
+      "label": "네트워크 요소 재생성",
+      "text": ""
+    },
+    {
+      "disabled": true,
+      "label": "라우터 이중화 전환",
+      "text": ""
+    },
+    {
+      "disabled": true,
+      "label": "Live Patch",
+      "text": ""
+    },
+    {
+      "disabled": true,
+      "label": null,
+      "text": "닫기"
+    }
+  ],
+  "open": true,
+  "rows": [
+    {
+      "id": "d3f3a187-6029-4c78-a76b-6f2b3f55b689",
+      "status": "running",
+      "text": "qa-vpc1655-20261114-31-b\nd3f3a187-6029-4c78-a76b-6f2b3f55b689\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n진행 중\n시도 1 · 진행 중\n작업: e066d149-a93b-481c-b3c3-693ec0a20568"
+    },
+    {
+      "id": "023d7c27-a68e-4eec-9e57-7f8cc620c92b",
+      "status": "idle",
+      "text": "qa-vpc1655-20261114-31-a\n023d7c27-a68e-4eec-9e57-7f8cc620c92b\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n대기"
+    }
+  ],
+  "switches": [
+    {
+      "checked": "false",
+      "disabled": true,
+      "label": "네트워크 요소 재생성"
+    },
+    {
+      "checked": "false",
+      "disabled": true,
+      "label": "라우터 이중화 전환"
+    },
+    {
+      "checked": "true",
+      "disabled": true,
+      "label": "Live Patch"
+    }
+  ],
+  "text": "VPC 재시작\n\n선택한 VPC의 네트워크 요소와 라우터를 순서대로 재시작합니다. 연결이 끊길 수 있습니다. 정리는 라우터를 교체하며, 이중화 전환은 서버의 기본 Redundant VPC offering으로 변경합니다. 실행 대상·소유자·제공자와 옵션을 확인하십시오.\n\n최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오.\n네트워크 요소 재생성\n라우터 이중화 전환\nLive Patch\n\n모든 대상에서 지원하는 옵션만 선택할 수 있습니다. 이중화 전환은 정리를 함께 사용합니다. 정리·이중화와 Live Patch는 함께 사용할 수 없습니다. Live Patch에는 조회 가능한 실행 중 라우터와 Tier가 필요하며 실제 패치 적용 여부는 서버 처리 결과에 따릅니다.\n\n전체 2 · 완료 0 · 실패 0\nqa-vpc1655-20261114-31-b\nd3f3a187-6029-4c78-a76b-6f2b3f55b689\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n진행 중\n시도 1 · 진행 중\n작업: e066d149-a93b-481c-b3c3-693ec0a20568\nqa-vpc1655-20261114-31-a\n023d7c27-a68e-4eec-9e57-7f8cc620c92b\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n대기\n닫기"
+}

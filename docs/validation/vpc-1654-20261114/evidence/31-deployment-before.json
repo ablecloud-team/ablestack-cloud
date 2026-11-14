@@ -1,0 +1,18 @@
+{
+  "protected": {
+    "server_files": {
+      "WEB-INF/web.xml": "04772d62c28054b1947a84e7b83f2f7c0ab343dc457f0b5e730a631d2ef08c25"
+    },
+    "runtime_files": {
+      "config.json": "b7de5f6a1f7a3a17310ee7d34ca801bb316fc6f841039f865fbabf154cd59a13",
+      "cloud-image-templates.json": "63e1a3c3556e678b4a6298046e68328febc2a37e3f5b05dcce0b5abd62c43b74"
+    },
+    "large_file": null,
+    "management_jar": "a9bb46116112cf3bd6c0e8e8d820d8f45fb361aa1a291bfc095fe38295642777",
+    "mold_pid": "1851838"
+  },
+  "index_sha256": "9fe57c9c76686340e7d2f223e3761259ac56cbaf90f72b38097b7d857e006cb6",
+  "http": 200,
+  "backup_bytes": 6420341,
+  "disk_free": 146384961536
+}

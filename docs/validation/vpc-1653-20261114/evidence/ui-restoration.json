@@ -1,0 +1,32 @@
+[
+  {
+    "cluster": 31,
+    "app": "http://10.10.31.10:8080/client/js/app.ceda62e4.js",
+    "bodyClass": "",
+    "dialogs": 0,
+    "header": "qa-gn1569-31-shared-reg\n생성\nAC\nadmin cloud",
+    "viewport": {
+      "height": 841,
+      "width": 1680
+    },
+    "deviceOverrideRemoved": true,
+    "cacheRestored": true,
+    "fetchCleared": true,
+    "networkOnline": true
+  },
+  {
+    "cluster": 32,
+    "app": "http://10.10.32.10:8080/client/js/app.ceda62e4.js",
+    "bodyClass": "",
+    "dialogs": 0,
+    "header": "cf5ec6b5-b522-4c18-ab90-a395012607c1\nqa-gn1569-32-shared-reg\n생성\nAC\nadmin cloud",
+    "viewport": {
+      "height": 841,
+      "width": 1680
+    },
+    "deviceOverrideRemoved": true,
+    "cacheRestored": true,
+    "fetchCleared": true,
+    "networkOnline": true
+  }
+]

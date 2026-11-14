@@ -1,0 +1,21 @@
+{
+  "original": {
+    "command": "restartVPC",
+    "response": "json",
+    "id": "023d7c27-a68e-4eec-9e57-7f8cc620c92b",
+    "cleanup": "false",
+    "makeredundant": "false",
+    "livepatch": "false",
+    "customjobid": "c3b908af-e046-4dd8-ac0e-454fb25a3e2e"
+  },
+  "wire": {
+    "command": "restartVPC",
+    "response": "json",
+    "id": "invalid-vpc-1655",
+    "cleanup": "false",
+    "makeredundant": "false",
+    "livepatch": "false",
+    "customjobid": "c3b908af-e046-4dd8-ac0e-454fb25a3e2e"
+  },
+  "method": "Only the second POST target ID is changed in transit; actual server rejection is retained."
+}

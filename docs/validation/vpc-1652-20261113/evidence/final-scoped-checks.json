@@ -1,0 +1,15 @@
+{
+  "markdownlintVersion": "0.45.0",
+  "markdownlintOwnMarkdown": "PASS",
+  "codespellVersion": "2.4.2",
+  "codespellOwnEvidenceDirectory": "PASS",
+  "jsonParse": "PASS",
+  "credentialScan": "PASS",
+  "utf8Lf": "PASS",
+  "unrelatedFtctlFileSha256": [
+    "60c9af5221e998a05588537dd60bb96b82e82a30903f0e0760031c75bc7ae694",
+    "c90e8c8f76ffcfe9de93012dcffa918cf521876f5d1adf41800db3503327aa93",
+    "75472de2fd75bbf20493cd1bfbbefe4d648a639665f982decf9edf7fe4f58b07"
+  ],
+  "unrelatedFtctlFileHashesPreserved": true
+}

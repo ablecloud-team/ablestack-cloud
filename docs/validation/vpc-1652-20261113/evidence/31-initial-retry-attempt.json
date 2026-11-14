@@ -1,0 +1,99 @@
+{
+  "result": "No offering created; global transport error cleared authentication",
+  "attempts": [
+    {
+      "case": "retry",
+      "source": "disabled",
+      "name": "qa-vpc1652-20261113-31-ui-retry",
+      "initial": {
+        "controls": {
+          "capability": "원본 유지",
+          "description": "qa-vpc1652-20261113-31-source-disabled",
+          "enable": "false",
+          "name": "qa-vpc1652-20261113-31-source-disabled - Clone",
+          "providers": {
+            "Dhcp": [
+              "VpcVirtualRouter"
+            ],
+            "Dns": [
+              "VpcVirtualRouter"
+            ],
+            "Lb": [
+              "VpcVirtualRouter",
+              "InternalLbVm"
+            ],
+            "NetworkACL": [
+              "VpcVirtualRouter"
+            ],
+            "PortForwarding": [
+              "VpcVirtualRouter"
+            ],
+            "SourceNat": [
+              "VpcVirtualRouter"
+            ],
+            "StaticNat": [
+              "VpcVirtualRouter"
+            ],
+            "UserData": [
+              "VpcVirtualRouter"
+            ],
+            "Vpn": [
+              "VpcVirtualRouter"
+            ]
+          },
+          "public": "true",
+          "publicDisabled": false,
+          "scripts": [
+            "http://10.10.31.10:8080/client/js/app.e894c035.js"
+          ],
+          "summary": "절약 모드\t비활성화\n읽기 전용: 원본 설정을 복제본에도 명시적으로 보존합니다."
+        }
+      },
+      "expected": {
+        "enable": false,
+        "offlineRetry": true
+      },
+      "controls": {
+        "capability": "원본 유지",
+        "description": "qa-vpc1652-20261113-31-source-disabled",
+        "enable": "false",
+        "name": "qa-vpc1652-20261113-31-ui-retry",
+        "providers": {
+          "Dhcp": [
+            "VpcVirtualRouter"
+          ],
+          "Dns": [
+            "VpcVirtualRouter"
+          ],
+          "Lb": [
+            "VpcVirtualRouter",
+            "InternalLbVm"
+          ],
+          "NetworkACL": [
+            "VpcVirtualRouter"
+          ],
+          "PortForwarding": [
+            "VpcVirtualRouter"
+          ],
+          "SourceNat": [
+            "VpcVirtualRouter"
+          ],
+          "StaticNat": [
+            "VpcVirtualRouter"
+          ],
+          "UserData": [
+            "VpcVirtualRouter"
+          ],
+          "Vpn": [
+            "VpcVirtualRouter"
+          ]
+        },
+        "scripts": [
+          "http://10.10.31.10:8080/client/js/app.e894c035.js"
+        ],
+        "summary": "절약 모드\t비활성화\n읽기 전용: 원본 설정을 복제본에도 명시적으로 보존합니다."
+      },
+      "sourceCommit": "21da0d56225b146744399d3d8653ac5134689935"
+    }
+  ]
+}

@@ -1,0 +1,542 @@
+[
+  {
+    "cluster": 31,
+    "theme": "light",
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgb(234, 244, 255)",
+          "box": {
+            "bottom": 336,
+            "clientHeight": 126,
+            "clientWidth": 290,
+            "height": 128,
+            "right": 321,
+            "scrollHeight": 126,
+            "scrollTop": 0,
+            "scrollWidth": 290,
+            "width": 292,
+            "x": 29,
+            "y": 208
+          },
+          "color": "rgb(11, 59, 102)",
+          "text": "최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오."
+        }
+      ],
+      "body": {
+        "bottom": 822,
+        "clientHeight": 754,
+        "clientWidth": 324,
+        "height": 754,
+        "right": 347,
+        "scrollHeight": 1490,
+        "scrollTop": 0,
+        "scrollWidth": 324,
+        "width": 334,
+        "x": 13,
+        "y": 68
+      },
+      "content": {
+        "bottom": 888,
+        "clientHeight": 874,
+        "clientWidth": 334,
+        "height": 876,
+        "right": 348,
+        "scrollHeight": 874,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 336,
+        "x": 12,
+        "y": 12
+      },
+      "dark": false,
+      "footer": {
+        "bottom": 887,
+        "clientHeight": 64,
+        "clientWidth": 334,
+        "height": 65,
+        "right": 347,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 334,
+        "x": 13,
+        "y": 822
+      },
+      "viewport": {
+        "height": 900,
+        "width": 360
+      }
+    },
+    "ui": {
+      "buttons": [
+        {
+          "disabled": false,
+          "label": "Close",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "네트워크 요소 재생성",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "라우터 이중화 전환",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "Live Patch",
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "닫기"
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "실패 항목 재시도 (1)"
+        }
+      ],
+      "open": true,
+      "rows": [
+        {
+          "id": "d3f3a187-6029-4c78-a76b-6f2b3f55b689",
+          "status": "success",
+          "text": "qa-vpc1655-20261114-31-b\nd3f3a187-6029-4c78-a76b-6f2b3f55b689\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: fbf10f04-4fdc-4956-8abb-0b56799698e0"
+        },
+        {
+          "id": "023d7c27-a68e-4eec-9e57-7f8cc620c92b",
+          "status": "failed",
+          "text": "qa-vpc1655-20261114-31-a\n023d7c27-a68e-4eec-9e57-7f8cc620c92b\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n실패\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n시도 1 · 실패\n작업: c3b908af-e046-4dd8-ac0e-454fb25a3e2e\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class."
+        }
+      ],
+      "switches": [
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "네트워크 요소 재생성"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "라우터 이중화 전환"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "Live Patch"
+        }
+      ],
+      "text": "VPC 재시작\n\n선택한 VPC의 네트워크 요소와 라우터를 순서대로 재시작합니다. 연결이 끊길 수 있습니다. 정리는 라우터를 교체하며, 이중화 전환은 서버의 기본 Redundant VPC offering으로 변경합니다. 실행 대상·소유자·제공자와 옵션을 확인하십시오.\n\n최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오.\n네트워크 요소 재생성\n라우터 이중화 전환\nLive Patch\n\n모든 대상에서 지원하는 옵션만 선택할 수 있습니다. 이중화 전환은 정리를 함께 사용합니다. 정리·이중화와 Live Patch는 함께 사용할 수 없습니다. Live Patch에는 조회 가능한 실행 중 라우터와 Tier가 필요하며 실제 패치 적용 여부는 서버 처리 결과에 따릅니다.\n\n전체 2 · 완료 1 · 실패 1\nqa-vpc1655-20261114-31-b\nd3f3a187-6029-4c78-a76b-6f2b3f55b689\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: fbf10f04-4fdc-4956-8abb-0b56799698e0\nqa-vpc1655-20261114-31-a\n023d7c27-a68e-4eec-9e57-7f8cc620c92b\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n실패\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n시도 1 · 실패\n작업: c3b908af-e046-4dd8-ac0e-454fb25a3e2e\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n닫기\n실패 항목 재시도 (1)"
+    }
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgb(234, 244, 255)",
+          "box": {
+            "bottom": 336,
+            "clientHeight": 126,
+            "clientWidth": 290,
+            "height": 128,
+            "right": 321,
+            "scrollHeight": 126,
+            "scrollTop": 0,
+            "scrollWidth": 290,
+            "width": 292,
+            "x": 29,
+            "y": 208
+          },
+          "color": "rgb(11, 59, 102)",
+          "text": "최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오."
+        }
+      ],
+      "body": {
+        "bottom": 822,
+        "clientHeight": 754,
+        "clientWidth": 324,
+        "height": 754,
+        "right": 347,
+        "scrollHeight": 1534,
+        "scrollTop": 0,
+        "scrollWidth": 324,
+        "width": 334,
+        "x": 13,
+        "y": 68
+      },
+      "content": {
+        "bottom": 888,
+        "clientHeight": 874,
+        "clientWidth": 334,
+        "height": 876,
+        "right": 348,
+        "scrollHeight": 874,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 336,
+        "x": 12,
+        "y": 12
+      },
+      "dark": false,
+      "footer": {
+        "bottom": 887,
+        "clientHeight": 64,
+        "clientWidth": 334,
+        "height": 65,
+        "right": 347,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 334,
+        "x": 13,
+        "y": 822
+      },
+      "viewport": {
+        "height": 900,
+        "width": 360
+      }
+    },
+    "ui": {
+      "buttons": [
+        {
+          "disabled": false,
+          "label": "Close",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "네트워크 요소 재생성",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "라우터 이중화 전환",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "Live Patch",
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "닫기"
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "실패 항목 재시도 (1)"
+        }
+      ],
+      "open": true,
+      "rows": [
+        {
+          "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+          "status": "success",
+          "text": "qa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: 9952d66f-6190-4d21-861f-7078ea87f530"
+        },
+        {
+          "id": "41265b76-27a3-47b9-8a38-233cac5da113",
+          "status": "failed",
+          "text": "qa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n실패\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n시도 1 · 실패\n작업: 49a554d7-970c-4532-a868-bc8e84f44efc\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class."
+        }
+      ],
+      "switches": [
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "네트워크 요소 재생성"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "라우터 이중화 전환"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "Live Patch"
+        }
+      ],
+      "text": "VPC 재시작\n\n선택한 VPC의 네트워크 요소와 라우터를 순서대로 재시작합니다. 연결이 끊길 수 있습니다. 정리는 라우터를 교체하며, 이중화 전환은 서버의 기본 Redundant VPC offering으로 변경합니다. 실행 대상·소유자·제공자와 옵션을 확인하십시오.\n\n최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오.\n네트워크 요소 재생성\n라우터 이중화 전환\nLive Patch\n\n모든 대상에서 지원하는 옵션만 선택할 수 있습니다. 이중화 전환은 정리를 함께 사용합니다. 정리·이중화와 Live Patch는 함께 사용할 수 없습니다. Live Patch에는 조회 가능한 실행 중 라우터와 Tier가 필요하며 실제 패치 적용 여부는 서버 처리 결과에 따릅니다.\n\n전체 2 · 완료 1 · 실패 1\nqa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: 9952d66f-6190-4d21-861f-7078ea87f530\nqa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n실패\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n시도 1 · 실패\n작업: 49a554d7-970c-4532-a868-bc8e84f44efc\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n닫기\n실패 항목 재시도 (1)"
+    }
+  },
+  {
+    "cluster": 31,
+    "theme": "dark",
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgba(24, 144, 255, 0.14)",
+          "box": {
+            "bottom": 336,
+            "clientHeight": 126,
+            "clientWidth": 290,
+            "height": 128,
+            "right": 321,
+            "scrollHeight": 126,
+            "scrollTop": 0,
+            "scrollWidth": 290,
+            "width": 292,
+            "x": 29,
+            "y": 208
+          },
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오."
+        }
+      ],
+      "body": {
+        "bottom": 822,
+        "clientHeight": 754,
+        "clientWidth": 324,
+        "height": 754,
+        "right": 347,
+        "scrollHeight": 1490,
+        "scrollTop": 0,
+        "scrollWidth": 324,
+        "width": 334,
+        "x": 13,
+        "y": 68
+      },
+      "content": {
+        "bottom": 888,
+        "clientHeight": 874,
+        "clientWidth": 334,
+        "height": 876,
+        "right": 348,
+        "scrollHeight": 874,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 336,
+        "x": 12,
+        "y": 12
+      },
+      "dark": true,
+      "footer": {
+        "bottom": 887,
+        "clientHeight": 64,
+        "clientWidth": 334,
+        "height": 65,
+        "right": 347,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 334,
+        "x": 13,
+        "y": 822
+      },
+      "viewport": {
+        "height": 900,
+        "width": 360
+      }
+    },
+    "ui": {
+      "buttons": [
+        {
+          "disabled": false,
+          "label": "Close",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "네트워크 요소 재생성",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "라우터 이중화 전환",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "Live Patch",
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "닫기"
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "실패 항목 재시도 (1)"
+        }
+      ],
+      "open": true,
+      "rows": [
+        {
+          "id": "d3f3a187-6029-4c78-a76b-6f2b3f55b689",
+          "status": "success",
+          "text": "qa-vpc1655-20261114-31-b\nd3f3a187-6029-4c78-a76b-6f2b3f55b689\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: fbf10f04-4fdc-4956-8abb-0b56799698e0"
+        },
+        {
+          "id": "023d7c27-a68e-4eec-9e57-7f8cc620c92b",
+          "status": "failed",
+          "text": "qa-vpc1655-20261114-31-a\n023d7c27-a68e-4eec-9e57-7f8cc620c92b\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n실패\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n시도 1 · 실패\n작업: c3b908af-e046-4dd8-ac0e-454fb25a3e2e\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class."
+        }
+      ],
+      "switches": [
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "네트워크 요소 재생성"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "라우터 이중화 전환"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "Live Patch"
+        }
+      ],
+      "text": "VPC 재시작\n\n선택한 VPC의 네트워크 요소와 라우터를 순서대로 재시작합니다. 연결이 끊길 수 있습니다. 정리는 라우터를 교체하며, 이중화 전환은 서버의 기본 Redundant VPC offering으로 변경합니다. 실행 대상·소유자·제공자와 옵션을 확인하십시오.\n\n최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오.\n네트워크 요소 재생성\n라우터 이중화 전환\nLive Patch\n\n모든 대상에서 지원하는 옵션만 선택할 수 있습니다. 이중화 전환은 정리를 함께 사용합니다. 정리·이중화와 Live Patch는 함께 사용할 수 없습니다. Live Patch에는 조회 가능한 실행 중 라우터와 Tier가 필요하며 실제 패치 적용 여부는 서버 처리 결과에 따릅니다.\n\n전체 2 · 완료 1 · 실패 1\nqa-vpc1655-20261114-31-b\nd3f3a187-6029-4c78-a76b-6f2b3f55b689\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: fbf10f04-4fdc-4956-8abb-0b56799698e0\nqa-vpc1655-20261114-31-a\n023d7c27-a68e-4eec-9e57-7f8cc620c92b\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n실패\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n시도 1 · 실패\n작업: c3b908af-e046-4dd8-ac0e-454fb25a3e2e\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n닫기\n실패 항목 재시도 (1)"
+    }
+  },
+  {
+    "cluster": 32,
+    "theme": "dark",
+    "metrics": {
+      "alerts": [
+        {
+          "background": "rgba(24, 144, 255, 0.14)",
+          "box": {
+            "bottom": 336,
+            "clientHeight": 126,
+            "clientWidth": 290,
+            "height": 128,
+            "right": 321,
+            "scrollHeight": 126,
+            "scrollTop": 0,
+            "scrollWidth": 290,
+            "width": 292,
+            "x": 29,
+            "y": 208
+          },
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오."
+        }
+      ],
+      "body": {
+        "bottom": 822,
+        "clientHeight": 754,
+        "clientWidth": 324,
+        "height": 754,
+        "right": 347,
+        "scrollHeight": 1534,
+        "scrollTop": 0,
+        "scrollWidth": 324,
+        "width": 334,
+        "x": 13,
+        "y": 68
+      },
+      "content": {
+        "bottom": 888,
+        "clientHeight": 874,
+        "clientWidth": 334,
+        "height": 876,
+        "right": 348,
+        "scrollHeight": 874,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 336,
+        "x": 12,
+        "y": 12
+      },
+      "dark": true,
+      "footer": {
+        "bottom": 887,
+        "clientHeight": 64,
+        "clientWidth": 334,
+        "height": 65,
+        "right": 347,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "scrollWidth": 334,
+        "width": 334,
+        "x": 13,
+        "y": 822
+      },
+      "viewport": {
+        "height": 900,
+        "width": 360
+      }
+    },
+    "ui": {
+      "buttons": [
+        {
+          "disabled": false,
+          "label": "Close",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "네트워크 요소 재생성",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "라우터 이중화 전환",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "Live Patch",
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "닫기"
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "실패 항목 재시도 (1)"
+        }
+      ],
+      "open": true,
+      "rows": [
+        {
+          "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+          "status": "success",
+          "text": "qa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: 9952d66f-6190-4d21-861f-7078ea87f530"
+        },
+        {
+          "id": "41265b76-27a3-47b9-8a38-233cac5da113",
+          "status": "failed",
+          "text": "qa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n실패\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n시도 1 · 실패\n작업: 49a554d7-970c-4532-a868-bc8e84f44efc\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class."
+        }
+      ],
+      "switches": [
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "네트워크 요소 재생성"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "라우터 이중화 전환"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "Live Patch"
+        }
+      ],
+      "text": "VPC 재시작\n\n선택한 VPC의 네트워크 요소와 라우터를 순서대로 재시작합니다. 연결이 끊길 수 있습니다. 정리는 라우터를 교체하며, 이중화 전환은 서버의 기본 Redundant VPC offering으로 변경합니다. 실행 대상·소유자·제공자와 옵션을 확인하십시오.\n\n최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오.\n네트워크 요소 재생성\n라우터 이중화 전환\nLive Patch\n\n모든 대상에서 지원하는 옵션만 선택할 수 있습니다. 이중화 전환은 정리를 함께 사용합니다. 정리·이중화와 Live Patch는 함께 사용할 수 없습니다. Live Patch에는 조회 가능한 실행 중 라우터와 Tier가 필요하며 실제 패치 적용 여부는 서버 처리 결과에 따릅니다.\n\n전체 2 · 완료 1 · 실패 1\nqa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: 9952d66f-6190-4d21-861f-7078ea87f530\nqa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n실패\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n시도 1 · 실패\n작업: 49a554d7-970c-4532-a868-bc8e84f44efc\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n닫기\n실패 항목 재시도 (1)"
+    }
+  }
+]

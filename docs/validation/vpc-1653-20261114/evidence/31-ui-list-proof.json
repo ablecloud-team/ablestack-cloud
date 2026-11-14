@@ -1,0 +1,51 @@
+{
+  "rows": [
+    {
+      "href": "#/vpcoffering/748a5f7a-c3b7-4eb0-ad80-ec75f020d06e",
+      "name": "qa-vpc1653-20261114-31-ui-create-delayed",
+      "state": "정상"
+    },
+    {
+      "href": "#/vpcoffering/24b9a701-748c-4d36-9ef7-eca925929f6f",
+      "name": "qa-vpc1653-20261114-31-ui-clone-delayed",
+      "state": "비활성화"
+    },
+    {
+      "href": "#/vpcoffering/15eb84d2-6516-4819-a7d1-b28ee107969e",
+      "name": "qa-vpc1653-20261114-31-ui-query-recheck",
+      "state": "비활성화"
+    },
+    {
+      "href": "#/vpcoffering/884fe404-559c-4135-a1af-6c0ae05f2bc1",
+      "name": "qa-vpc1653-20261114-31-ui-result-recheck",
+      "state": "비활성화"
+    },
+    {
+      "href": "#/vpcoffering/22188efb-7b39-428c-ba4c-0d8a5445fe5b",
+      "name": "qa-vpc1653-20261114-31-ui-lost-receipt",
+      "state": "비활성화"
+    },
+    {
+      "href": "#/vpcoffering/e222b045-0cfd-40bc-9aa0-a802808abaa9",
+      "name": "qa-vpc1653-20261114-31-ui-http-create",
+      "state": "비활성화"
+    },
+    {
+      "href": "#/vpcoffering/c65d03d3-3ab7-43ac-b90a-6c2406cf0594",
+      "name": "qa-vpc1653-20261114-31-ui-async-failure",
+      "state": "비활성화"
+    },
+    {
+      "href": "#/vpcoffering/bf5edd99-a98e-407c-8c45-e4d2f99e5bcf",
+      "name": "qa-vpc1653-20261114-31-ui-late-success",
+      "state": "비활성화"
+    },
+    {
+      "href": "#/vpcoffering/d176f1cd-fded-45fa-b826-5931351741f4",
+      "name": "qa-vpc1653-20261114-31-ui-late-failure",
+      "state": "비활성화"
+    }
+  ],
+  "allMatch": true,
+  "sourceCommit": "5b25092d8cec7a10d1e7ddf3c6c1f8890d750640"
+}

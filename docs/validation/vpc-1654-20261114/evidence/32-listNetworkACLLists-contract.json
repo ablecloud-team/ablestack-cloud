@@ -1,0 +1,155 @@
+{
+  "count": 1,
+  "api": [
+    {
+      "name": "listNetworkACLLists",
+      "description": "Lists all network ACLs",
+      "isasync": false,
+      "related": "createNetworkACLList",
+      "params": [
+        {
+          "name": "fordisplay",
+          "description": "List resources by display flag; only ROOT admin is eligible to pass this parameter",
+          "type": "boolean",
+          "length": 255,
+          "required": false,
+          "since": "4.4"
+        },
+        {
+          "name": "account",
+          "description": "List resources by Account. Must be used with the domainId parameter.",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "name",
+          "description": "List network ACLs by specified name",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "vpcid",
+          "description": "List network ACLs by VPC ID",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "listVPCs,createVPC,listVPCs,updateVPC"
+        },
+        {
+          "name": "projectid",
+          "description": "List objects by project; if projectid=-1 lists All Instances",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": ""
+        },
+        {
+          "name": "networkid",
+          "description": "List network ACLs by network ID",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "createNetwork,createNetwork,updateNetwork,listNetworks,migrateNetwork"
+        },
+        {
+          "name": "keyword",
+          "description": "List by keyword",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "id",
+          "description": "Lists network ACL with the specified ID.",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "listNetworkACLLists,createNetworkACLList"
+        },
+        {
+          "name": "isrecursive",
+          "description": "Defaults to false, but if true, lists all resources from the parent specified by the domainId till leaves.",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "page",
+          "description": "",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "domainid",
+          "description": "List only resources belonging to the domain specified",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "listDomains"
+        },
+        {
+          "name": "listall",
+          "description": "If set to false, list only resources belonging to the command's caller; if set to true - list resources that the caller is authorized to see. Default value is false. Resources dedicated to a project are listed only if using the projectid parameter.",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "pagesize",
+          "description": "",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        }
+      ],
+      "response": [
+        {},
+        {
+          "name": "name",
+          "description": "The Name of the ACL",
+          "type": "string"
+        },
+        {
+          "name": "fordisplay",
+          "description": "Is ACL for display to the regular user",
+          "type": "boolean"
+        },
+        {
+          "name": "vpcname",
+          "description": "Name of the VPC this ACL is associated with",
+          "type": "string"
+        },
+        {
+          "name": "jobstatus",
+          "description": "The current status of the latest async job acting on this object",
+          "type": "integer"
+        },
+        {
+          "name": "jobid",
+          "description": "The UUID of the latest async job acting on this object",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "description": "Description of the ACL",
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "description": "The ID of the ACL",
+          "type": "string"
+        },
+        {},
+        {
+          "name": "vpcid",
+          "description": "Id of the VPC this ACL is associated with",
+          "type": "string"
+        }
+      ],
+      "httprequesttype": "GET"
+    }
+  ]
+}

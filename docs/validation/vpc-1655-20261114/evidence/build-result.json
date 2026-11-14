@@ -1,0 +1,57 @@
+{
+  "source": "281e9758c04137f42475ca3742acf34f3f0ba339",
+  "exit": 0,
+  "seconds": 690.9,
+  "node": "v20.20.2",
+  "npm": "10.8.2",
+  "nodeOptions": "--openssl-legacy-provider --max-old-space-size=8192",
+  "sourceUiClean": true,
+  "fullCloudBuild": false,
+  "changedFiles": {
+    "ui/public/locales/en.json": "565a91327076d44582fed669bfdcacae605ff4e4741b864cfd700231acf61877",
+    "ui/public/locales/ko_KR.json": "63b1fe05b13fb659d13c066730ffb4c15d76a7ea91a43c656f016436a9783fe0",
+    "ui/src/config/section/network.js": "9d02cab3b800ed73fdab6b21f9f98bd19a710808855a5a2332ba2f3df4449270",
+    "ui/src/utils/vpcRestart.js": "e2c7ca95c7b585dd63493b132d5e5cd7704619ae1bb743379382163120dbfe13",
+    "ui/src/views/AutogenView.vue": "6b05f15f8f64ad51cf57ab3eda59e027f202745d25ae7113b80fc956f60dfe90",
+    "ui/src/views/network/RestartVpc.vue": "ea08e452b94e3edc8c894bd4282c5ba6d26b08c14222895f79c9efdf27911a55",
+    "ui/tests/unit/utils/vpcRestart.spec.js": "2c5ee586bb62a38eb0a939a2e57cf0be6020251ee9c6394b158822db7a0f9847",
+    "ui/tests/unit/views/network/RestartVpc.spec.js": "d83885f8964a189c89cbab3cf7329ba10ed90349b3c32e06b88a8a75c1789c5e"
+  },
+  "lockfileSha256": "23379939285231d360907e8d7242206efd5359654b9903614788040680133ffc",
+  "indexSha256": "14294ac7f457c716953b651b6b5528d565f112ba8508afe94b308eb79e48a012",
+  "appBundles": [
+    "js/app.d82fbbd2.js"
+  ],
+  "markers": {
+    "vpc-restart:v1:": [
+      "js/chunk-56783d16.dcb2b2ce.js"
+    ],
+    "message.vpc.restart.results": [
+      "js/chunk-56783d16.dcb2b2ce.js"
+    ],
+    "vpc-private-gateway:v1:": [
+      "js/chunk-294a0c2f.70079a24.js"
+    ],
+    "message.private.gateway.no.resubmit": [
+      "js/chunk-294a0c2f.70079a24.js"
+    ],
+    "vpc.offering.operation.v1:": [
+      "js/chunk-18c5d0ca.036fbf9b.js"
+    ],
+    "message.vpc.offering.operation.no.resubmit": [
+      "js/chunk-18c5d0ca.036fbf9b.js"
+    ],
+    "message.success.clone.vpc.offering": [
+      "js/chunk-18c5d0ca.036fbf9b.js"
+    ],
+    "blockingLoadingState": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ],
+    "fetchSyncProgress": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ],
+    "extractJobId": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ]
+  }
+}

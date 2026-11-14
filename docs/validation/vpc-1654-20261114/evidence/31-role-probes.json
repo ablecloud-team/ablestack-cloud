@@ -1,0 +1,342 @@
+[
+  {
+    "case": "user-owner-success",
+    "params": {
+      "vpcid": "e5f6fd3a-cff8-487b-8d8a-084a1837843b",
+      "associatednetworkid": "7a3d14a1-f6ac-4b5d-84e4-bde754113623",
+      "ipaddress": "10.250.31.2",
+      "gateway": "10.250.31.1",
+      "netmask": "255.255.255.0",
+      "aclid": "8cc93567-b253-11f1-a895-0024814c313f",
+      "customjobid": "5adf28fd-11a2-4a5b-8d5f-1d4b9369c433",
+      "ignoreproject": true
+    },
+    "receipt": {
+      "id": "61a4a6be-a957-44fe-baeb-ccc4d80d4da6",
+      "jobid": "5adf28fd-11a2-4a5b-8d5f-1d4b9369c433"
+    },
+    "polls": [
+      {
+        "accountid": "b1f02ed6-af20-469e-90c2-3cb87a6c0787",
+        "account": "qa-vpc1654-20261114-31-user",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "3d4c3457-1a72-4654-a40f-7f19f7d0c3ac",
+        "cmd": "org.apache.cloudstack.api.command.user.vpc.CreatePrivateGatewayCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobinstancetype": "PrivateGateway",
+        "jobinstanceid": "61a4a6be-a957-44fe-baeb-ccc4d80d4da6",
+        "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+        "managementservername": "ccvm-mngt",
+        "created": "2026-11-14T12:29:53+0900",
+        "jobid": "5adf28fd-11a2-4a5b-8d5f-1d4b9369c433",
+        "jobstatus": 0
+      },
+      {
+        "accountid": "b1f02ed6-af20-469e-90c2-3cb87a6c0787",
+        "account": "qa-vpc1654-20261114-31-user",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "3d4c3457-1a72-4654-a40f-7f19f7d0c3ac",
+        "cmd": "org.apache.cloudstack.api.command.user.vpc.CreatePrivateGatewayCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobinstancetype": "PrivateGateway",
+        "jobinstanceid": "61a4a6be-a957-44fe-baeb-ccc4d80d4da6",
+        "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+        "managementservername": "ccvm-mngt",
+        "created": "2026-11-14T12:29:53+0900",
+        "jobid": "5adf28fd-11a2-4a5b-8d5f-1d4b9369c433",
+        "jobstatus": 0
+      },
+      {
+        "accountid": "b1f02ed6-af20-469e-90c2-3cb87a6c0787",
+        "account": "qa-vpc1654-20261114-31-user",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "3d4c3457-1a72-4654-a40f-7f19f7d0c3ac",
+        "cmd": "org.apache.cloudstack.api.command.user.vpc.CreatePrivateGatewayCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobinstancetype": "PrivateGateway",
+        "jobinstanceid": "61a4a6be-a957-44fe-baeb-ccc4d80d4da6",
+        "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+        "managementservername": "ccvm-mngt",
+        "created": "2026-11-14T12:29:53+0900",
+        "jobid": "5adf28fd-11a2-4a5b-8d5f-1d4b9369c433",
+        "jobstatus": 0
+      },
+      {
+        "accountid": "b1f02ed6-af20-469e-90c2-3cb87a6c0787",
+        "account": "qa-vpc1654-20261114-31-user",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "3d4c3457-1a72-4654-a40f-7f19f7d0c3ac",
+        "cmd": "org.apache.cloudstack.api.command.user.vpc.CreatePrivateGatewayCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "privategateway": {
+            "id": "61a4a6be-a957-44fe-baeb-ccc4d80d4da6",
+            "gateway": "10.250.31.1",
+            "netmask": "255.255.255.0",
+            "ipaddress": "10.250.31.2",
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "vpcid": "e5f6fd3a-cff8-487b-8d8a-084a1837843b",
+            "vpcname": "qa-vpc1654-20261114-31-user-vpc",
+            "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+            "account": "qa-vpc1654-20261114-31-user",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "state": "Ready",
+            "sourcenatsupported": false,
+            "aclid": "8cc93567-b253-11f1-a895-0024814c313f",
+            "aclname": "default_deny",
+            "associatednetworkid": "7a3d14a1-f6ac-4b5d-84e4-bde754113623",
+            "associatednetwork": "qa-vpc1654-20261114-31-user-l2"
+          }
+        },
+        "jobinstancetype": "PrivateGateway",
+        "jobinstanceid": "61a4a6be-a957-44fe-baeb-ccc4d80d4da6",
+        "created": "2026-11-14T12:29:53+0900",
+        "completed": "2026-11-14T12:29:56+0900",
+        "jobid": "5adf28fd-11a2-4a5b-8d5f-1d4b9369c433",
+        "jobstatus": 1
+      }
+    ]
+  },
+  {
+    "case": "user-duplicate-associated",
+    "params": {
+      "vpcid": "e5f6fd3a-cff8-487b-8d8a-084a1837843b",
+      "associatednetworkid": "7a3d14a1-f6ac-4b5d-84e4-bde754113623",
+      "ipaddress": "10.250.31.2",
+      "gateway": "10.250.31.1",
+      "netmask": "255.255.255.0",
+      "aclid": "8cc93567-b253-11f1-a895-0024814c313f",
+      "customjobid": "9e60cb45-8787-45d5-ae29-a405ab906fe7",
+      "ignoreproject": true
+    },
+    "receipt": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "The startIp/endIp (10.250.31.2 - 10.250.31.2) overlaps with vpc private gateway vpc-qa-vpc1654-20261114-31-user-vpc-privateNetwork (10.250.31.2): "
+    },
+    "polls": []
+  },
+  {
+    "case": "user-foreign-vpc-denied",
+    "params": {
+      "vpcid": "e7bdf187-7060-4033-a3a6-f9970eb2c295",
+      "associatednetworkid": "7a3d14a1-f6ac-4b5d-84e4-bde754113623",
+      "ipaddress": "10.250.31.2",
+      "gateway": "10.250.31.1",
+      "netmask": "255.255.255.0",
+      "aclid": "8cc93567-b253-11f1-a895-0024814c313f",
+      "customjobid": "876ba0a2-1bfe-4356-af9e-38c88c291ee5",
+      "ignoreproject": true
+    },
+    "receipt": {
+      "uuidList": [],
+      "errorcode": 531,
+      "cserrorcode": 4365,
+      "errortext": "Caller does not have permission to operate with provided resource."
+    },
+    "polls": []
+  },
+  {
+    "case": "user-foreign-network-denied",
+    "params": {
+      "vpcid": "e5f6fd3a-cff8-487b-8d8a-084a1837843b",
+      "associatednetworkid": "de489982-5823-4397-8040-63f01a187141",
+      "ipaddress": "10.250.31.3",
+      "gateway": "10.250.31.1",
+      "netmask": "255.255.255.0",
+      "aclid": "8cc93567-b253-11f1-a895-0024814c313f",
+      "customjobid": "28241dfd-1e31-4d98-8447-2942e5ea47e1",
+      "ignoreproject": true
+    },
+    "receipt": {
+      "uuidList": [],
+      "errorcode": 531,
+      "cserrorcode": 4365,
+      "errortext": "Caller does not have permission to operate with provided resource."
+    },
+    "polls": []
+  },
+  {
+    "case": "user-admin-vlan-denied",
+    "params": {
+      "vpcid": "e5f6fd3a-cff8-487b-8d8a-084a1837843b",
+      "ipaddress": "10.250.31.2",
+      "gateway": "10.250.31.1",
+      "netmask": "255.255.255.0",
+      "aclid": "8cc93567-b253-11f1-a895-0024814c313f",
+      "vlan": "3881",
+      "customjobid": "f3286804-e206-4879-9dbe-8e6ab3acc286",
+      "ignoreproject": true
+    },
+    "receipt": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "One of vlanId and associatedNetworkId must be specified"
+    },
+    "polls": []
+  },
+  {
+    "case": "project-member-success",
+    "params": {
+      "projectid": "9a3cff7e-e0e6-4157-b370-f857fee66a64",
+      "vpcid": "99a15cdf-ea6f-4161-9ba1-41762bbd9b4e",
+      "associatednetworkid": "820043bf-5edc-4654-bd83-0a5819d76ecf",
+      "ipaddress": "10.251.31.2",
+      "gateway": "10.251.31.1",
+      "netmask": "255.255.255.0",
+      "aclid": "8cc93567-b253-11f1-a895-0024814c313f",
+      "customjobid": "b07999cf-a0ac-4547-bfbf-0b8e693b067c",
+      "ignoreproject": true
+    },
+    "receipt": {
+      "id": "c61dd769-b537-4288-aa24-663f3b86225c",
+      "jobid": "b07999cf-a0ac-4547-bfbf-0b8e693b067c"
+    },
+    "polls": [
+      {
+        "accountid": "b1f02ed6-af20-469e-90c2-3cb87a6c0787",
+        "account": "qa-vpc1654-20261114-31-user",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "3d4c3457-1a72-4654-a40f-7f19f7d0c3ac",
+        "cmd": "org.apache.cloudstack.api.command.user.vpc.CreatePrivateGatewayCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobinstancetype": "PrivateGateway",
+        "jobinstanceid": "c61dd769-b537-4288-aa24-663f3b86225c",
+        "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+        "managementservername": "ccvm-mngt",
+        "created": "2026-11-14T12:29:57+0900",
+        "jobid": "b07999cf-a0ac-4547-bfbf-0b8e693b067c",
+        "jobstatus": 0
+      },
+      {
+        "accountid": "b1f02ed6-af20-469e-90c2-3cb87a6c0787",
+        "account": "qa-vpc1654-20261114-31-user",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "3d4c3457-1a72-4654-a40f-7f19f7d0c3ac",
+        "cmd": "org.apache.cloudstack.api.command.user.vpc.CreatePrivateGatewayCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobinstancetype": "PrivateGateway",
+        "jobinstanceid": "c61dd769-b537-4288-aa24-663f3b86225c",
+        "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+        "managementservername": "ccvm-mngt",
+        "created": "2026-11-14T12:29:57+0900",
+        "jobid": "b07999cf-a0ac-4547-bfbf-0b8e693b067c",
+        "jobstatus": 0
+      },
+      {
+        "accountid": "b1f02ed6-af20-469e-90c2-3cb87a6c0787",
+        "account": "qa-vpc1654-20261114-31-user",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "3d4c3457-1a72-4654-a40f-7f19f7d0c3ac",
+        "cmd": "org.apache.cloudstack.api.command.user.vpc.CreatePrivateGatewayCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobinstancetype": "PrivateGateway",
+        "jobinstanceid": "c61dd769-b537-4288-aa24-663f3b86225c",
+        "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+        "managementservername": "ccvm-mngt",
+        "created": "2026-11-14T12:29:57+0900",
+        "jobid": "b07999cf-a0ac-4547-bfbf-0b8e693b067c",
+        "jobstatus": 0
+      },
+      {
+        "accountid": "b1f02ed6-af20-469e-90c2-3cb87a6c0787",
+        "account": "qa-vpc1654-20261114-31-user",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "3d4c3457-1a72-4654-a40f-7f19f7d0c3ac",
+        "cmd": "org.apache.cloudstack.api.command.user.vpc.CreatePrivateGatewayCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobinstancetype": "PrivateGateway",
+        "jobinstanceid": "c61dd769-b537-4288-aa24-663f3b86225c",
+        "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+        "managementservername": "ccvm-mngt",
+        "created": "2026-11-14T12:29:57+0900",
+        "jobid": "b07999cf-a0ac-4547-bfbf-0b8e693b067c",
+        "jobstatus": 0
+      },
+      {
+        "accountid": "b1f02ed6-af20-469e-90c2-3cb87a6c0787",
+        "account": "qa-vpc1654-20261114-31-user",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "3d4c3457-1a72-4654-a40f-7f19f7d0c3ac",
+        "cmd": "org.apache.cloudstack.api.command.user.vpc.CreatePrivateGatewayCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "privategateway": {
+            "id": "c61dd769-b537-4288-aa24-663f3b86225c",
+            "gateway": "10.251.31.1",
+            "netmask": "255.255.255.0",
+            "ipaddress": "10.251.31.2",
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "vpcid": "99a15cdf-ea6f-4161-9ba1-41762bbd9b4e",
+            "vpcname": "qa-vpc1654-20261114-31-project-vpc",
+            "physicalnetworkid": "51cdd7ed-ab33-419d-98fc-8e7eabea1194",
+            "account": "PrjAcct-qa-vpc1654-20261114-31-project-1",
+            "projectid": "9a3cff7e-e0e6-4157-b370-f857fee66a64",
+            "project": "qa-vpc1654-20261114-31-project",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "state": "Ready",
+            "sourcenatsupported": false,
+            "aclid": "8cc93567-b253-11f1-a895-0024814c313f",
+            "aclname": "default_deny",
+            "associatednetworkid": "820043bf-5edc-4654-bd83-0a5819d76ecf",
+            "associatednetwork": "qa-vpc1654-20261114-31-project-l2"
+          }
+        },
+        "jobinstancetype": "PrivateGateway",
+        "jobinstanceid": "c61dd769-b537-4288-aa24-663f3b86225c",
+        "created": "2026-11-14T12:29:57+0900",
+        "completed": "2026-11-14T12:30:00+0900",
+        "jobid": "b07999cf-a0ac-4547-bfbf-0b8e693b067c",
+        "jobstatus": 1
+      }
+    ]
+  },
+  {
+    "case": "wrong-vpc-acl-denied",
+    "params": {
+      "vpcid": "e7bdf187-7060-4033-a3a6-f9970eb2c295",
+      "associatednetworkid": "de489982-5823-4397-8040-63f01a187141",
+      "ipaddress": "10.252.31.2",
+      "gateway": "10.250.31.1",
+      "netmask": "255.255.255.0",
+      "aclid": "1e477d5a-b7fd-40c6-aeef-cf62ef484309",
+      "customjobid": "fdfa824f-369a-4874-b149-e74940d641ca",
+      "ignoreproject": true
+    },
+    "receipt": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "Private gateway and network acl are not in the same vpc."
+    },
+    "polls": []
+  }
+]

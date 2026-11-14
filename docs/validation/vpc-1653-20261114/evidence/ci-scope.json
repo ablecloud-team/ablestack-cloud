@@ -1,0 +1,68 @@
+{
+  "source": "5b25092d8cec7a10d1e7ddf3c6c1f8890d750640",
+  "lintRun": 43465080782,
+  "lintConclusion": "failure",
+  "changedUiPaths": [
+    "ui/public/locales/en.json",
+    "ui/public/locales/ko_KR.json",
+    "ui/src/config/section/offering.js",
+    "ui/src/utils/vpcOfferingOperationMixin.js",
+    "ui/src/utils/vpcOfferingOperations.js",
+    "ui/src/views/offering/AddVpcOffering.vue",
+    "ui/src/views/offering/CloneVpcOffering.vue",
+    "ui/src/views/offering/VpcOfferingOperationStatus.vue",
+    "ui/tests/unit/utils/vpcOfferingOperations.spec.js",
+    "ui/tests/unit/views/offering/CloneVpcOffering.spec.js",
+    "ui/tests/unit/views/offering/CloneVpcOfferingState.spec.js",
+    "ui/tests/unit/views/offering/VpcOfferingAsync.spec.js"
+  ],
+  "ownDiagnosticsAfterIdentityFileEnumeration": [
+    {
+      "hook": "insert-license Vue",
+      "file": "ui/src/views/offering/VpcOfferingOperationStatus.vue",
+      "result": "modified short header on source 5b25092"
+    }
+  ],
+  "hooks": [
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:03:19.6158642Z run oxipng...............................................................^[[41mFailed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:03:21.2176144Z run gitleaks.............................................................^[[42mPassed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:03:22.7802198Z add license for all cfg files............................................^[[42mPassed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:03:24.7788980Z add license for all Markdown files.......................................^[[41mFailed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:03:26.4667835Z add license for all properties files.....................................^[[41mFailed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:03:28.1432304Z add license for all Shell files..........................................^[[41mFailed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:03:29.8156198Z add license for all SQL files............................................^[[41mFailed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:03:31.5720490Z add license for all Vue files............................................^[[41mFailed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:03:33.2671128Z add license for all YAML files...........................................^[[41mFailed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:03:37.6008053Z check for case conflicts.................................................^[[42mPassed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:03:38.5876943Z check illegal windows names..........................(no files to check)^[[46;30mSkipped^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:03:40.6542260Z check for merge conflicts................................................^[[42mPassed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:03:42.4111436Z check that scripts with shebangs are executable..........................^[[41mFailed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:03:44.1247999Z check for broken symlinks................................................^[[41mFailed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:03:47.5209503Z check vcs permalinks.....................................................^[[42mPassed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:04:32.0088196Z detect destroyed symlinks................................................^[[42mPassed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:04:33.7580100Z detect aws credentials...................................................^[[42mPassed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:04:36.1783000Z detect private key.......................................................^[[42mPassed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:04:38.8772738Z fix end of files.........................................................^[[41mFailed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:04:40.9916922Z file contents sorter.....................................................^[[42mPassed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:04:43.5049088Z fix utf-8 byte order marker..............................................^[[41mFailed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:04:43.5364301Z forbid submodules....................................(no files to check)^[[46;30mSkipped^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:04:49.4340233Z mixed line ending........................................................^[[41mFailed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:04:52.5298757Z trim trailing whitespace.................................................^[[41mFailed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:05:18.3654499Z run codespell............................................................^[[41mFailed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:05:44.6860584Z flake8...................................................................^[[41mFailed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:05:56.0304819Z run markdownlint.........................................................^[[41mFailed^[[m",
+    "Run pre-commit\tRun pre-commit\t2026-11-13T17:05:58.4395864Z run yamllint.............................................................^[[42mPassed^[[m"
+  ],
+  "licenseRun": 43465080761,
+  "licenseConclusion": "failure",
+  "licenseUnknownBaseline": 4079,
+  "changedJsVueTestAL": 10,
+  "conflictRun": 43465080481,
+  "conflictConclusion": "success",
+  "correction": {
+    "source": "59e7d9b1e158b2f8f21fbe2a9e50d4122729b075",
+    "change": "repository Apache license template, comment only",
+    "runtimeSfcEqual": true,
+    "changedFileLint": "passed"
+  }
+}

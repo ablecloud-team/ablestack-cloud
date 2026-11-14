@@ -1,0 +1,18 @@
+{
+  "source": "59e7d9b1e158b2f8f21fbe2a9e50d4122729b075",
+  "runtimeBuildSource": "5b25092d8cec7a10d1e7ddf3c6c1f8890d750640",
+  "markdownlintVersion": "0.45.0",
+  "markdownlint": "passed using repository config, DESIGN.ko.md and README.ko.md",
+  "codespellVersion": "2.4.2",
+  "codespell": "passed for the two Markdown files using repository config",
+  "utf8ReplacementCharacters": 0,
+  "credentialKeyOrPasswordFindings": 0,
+  "screenshotCount": 69,
+  "originalFtctlHashes": {
+    "docs/ftctl/627-dr-dynamic-placement-and-transparent-worker-scheduling-design-20260903.md": "60c9af5221e998a05588537dd60bb96b82e82a30903f0e0760031c75bc7ae694",
+    "plugins/integrations/ftctl-service/src/main/java/com/cloud/ftctl/FtctlDrSiteAgentBrokerServiceImpl.java": "c90e8c8f76ffcfe9de93012dcffa918cf521876f5d1adf41800db3503327aa93",
+    "plugins/integrations/ftctl-service/src/test/java/com/cloud/ftctl/FtctlDrSiteAgentBrokerServiceImplTest.java": "75472de2fd75bbf20493cd1bfbbefe4d648a639665f982decf9edf7fe4f58b07"
+  },
+  "newIssuesCreated": 0,
+  "fullCloudBuild": false
+}

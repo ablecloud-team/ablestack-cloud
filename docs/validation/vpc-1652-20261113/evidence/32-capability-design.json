@@ -1,0 +1,208 @@
+[
+  {
+    "request": {
+      "sourceofferingid": "0f0ab89c-f3e9-4578-add9-3cb2530c70b6",
+      "name": "qa-vpc1652-20261113-32-api-cap-true",
+      "enable": "false",
+      "conservemode": "false",
+      "serviceCapabilityList[0].service": "SourceNat",
+      "serviceCapabilityList[0].capabilitytype": "RedundantRouter",
+      "serviceCapabilityList[0].capabilityvalue": "true"
+    },
+    "result": {
+      "id": "c3d837cf-5517-41cc-8b47-b118182277a8",
+      "name": "qa-vpc1652-20261113-32-api-cap-true",
+      "displaytext": "qa-vpc1652-20261113-32-api-cap-true",
+      "created": "2026-11-13T23:26:50+0900",
+      "isdefault": false,
+      "state": "Disabled",
+      "service": [
+        {
+          "name": "Dns",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "NetworkACL",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "PortForwarding",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Dhcp",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "UserData",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Vpn",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "StaticNat",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Lb",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            },
+            {
+              "name": "InternalLbVm"
+            }
+          ]
+        },
+        {
+          "name": "SourceNat",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        }
+      ],
+      "distributedvpcrouter": false,
+      "supportsregionLevelvpc": false,
+      "fornsx": false,
+      "internetprotocol": "IPv4",
+      "specifyasnumber": false,
+      "conservemode": false
+    },
+    "expectedRedundant": true
+  },
+  {
+    "request": {
+      "sourceofferingid": "0f0ab89c-f3e9-4578-add9-3cb2530c70b6",
+      "name": "qa-vpc1652-20261113-32-api-cap-false",
+      "enable": "false",
+      "conservemode": "false",
+      "serviceCapabilityList[0].service": "SourceNat",
+      "serviceCapabilityList[0].capabilitytype": "RedundantRouter",
+      "serviceCapabilityList[0].capabilityvalue": "false"
+    },
+    "result": {
+      "id": "578dd362-b46a-4572-8c21-acb8871e1e6a",
+      "name": "qa-vpc1652-20261113-32-api-cap-false",
+      "displaytext": "qa-vpc1652-20261113-32-api-cap-false",
+      "created": "2026-11-13T23:26:54+0900",
+      "isdefault": false,
+      "state": "Disabled",
+      "service": [
+        {
+          "name": "Dns",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "NetworkACL",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "PortForwarding",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Dhcp",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "UserData",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Vpn",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "StaticNat",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        },
+        {
+          "name": "Lb",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            },
+            {
+              "name": "InternalLbVm"
+            }
+          ]
+        },
+        {
+          "name": "SourceNat",
+          "provider": [
+            {
+              "name": "VpcVirtualRouter"
+            }
+          ]
+        }
+      ],
+      "distributedvpcrouter": false,
+      "supportsregionLevelvpc": false,
+      "fornsx": false,
+      "internetprotocol": "IPv4",
+      "specifyasnumber": false,
+      "conservemode": false
+    },
+    "expectedRedundant": false
+  }
+]

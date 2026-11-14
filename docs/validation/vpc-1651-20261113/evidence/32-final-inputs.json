@@ -1,0 +1,128 @@
+[
+  {
+    "id": "vpc-clone-service-7a2630d0-7202-429b-a7b0-681af2588555-Dhcp",
+    "labels": [
+      "Dhcp"
+    ]
+  },
+  {
+    "id": "vpc-clone-provider-7a2630d0-7202-429b-a7b0-681af2588555-Dhcp",
+    "labels": [
+      "Dhcp 제공자"
+    ]
+  },
+  {
+    "id": "vpc-clone-service-7a2630d0-7202-429b-a7b0-681af2588555-Dns",
+    "labels": [
+      "Dns"
+    ]
+  },
+  {
+    "id": "vpc-clone-provider-7a2630d0-7202-429b-a7b0-681af2588555-Dns",
+    "labels": [
+      "Dns 제공자"
+    ]
+  },
+  {
+    "id": "vpc-clone-service-7a2630d0-7202-429b-a7b0-681af2588555-Firewall",
+    "labels": [
+      "Firewall"
+    ]
+  },
+  {
+    "id": "vpc-clone-service-7a2630d0-7202-429b-a7b0-681af2588555-Lb",
+    "labels": [
+      "Lb"
+    ]
+  },
+  {
+    "id": "vpc-clone-provider-7a2630d0-7202-429b-a7b0-681af2588555-Lb",
+    "labels": [
+      "Lb 제공자"
+    ]
+  },
+  {
+    "id": "vpc-clone-service-7a2630d0-7202-429b-a7b0-681af2588555-Gateway",
+    "labels": [
+      "Gateway"
+    ]
+  },
+  {
+    "id": "vpc-clone-service-7a2630d0-7202-429b-a7b0-681af2588555-StaticNat",
+    "labels": [
+      "StaticNat"
+    ]
+  },
+  {
+    "id": "vpc-clone-provider-7a2630d0-7202-429b-a7b0-681af2588555-StaticNat",
+    "labels": [
+      "StaticNat 제공자"
+    ]
+  },
+  {
+    "id": "vpc-clone-service-7a2630d0-7202-429b-a7b0-681af2588555-SourceNat",
+    "labels": [
+      "SourceNat"
+    ]
+  },
+  {
+    "id": "vpc-clone-provider-7a2630d0-7202-429b-a7b0-681af2588555-SourceNat",
+    "labels": [
+      "SourceNat 제공자"
+    ]
+  },
+  {
+    "id": "vpc-clone-service-7a2630d0-7202-429b-a7b0-681af2588555-NetworkACL",
+    "labels": [
+      "NetworkACL"
+    ]
+  },
+  {
+    "id": "vpc-clone-provider-7a2630d0-7202-429b-a7b0-681af2588555-NetworkACL",
+    "labels": [
+      "NetworkACL 제공자"
+    ]
+  },
+  {
+    "id": "vpc-clone-service-7a2630d0-7202-429b-a7b0-681af2588555-PortForwarding",
+    "labels": [
+      "PortForwarding"
+    ]
+  },
+  {
+    "id": "vpc-clone-provider-7a2630d0-7202-429b-a7b0-681af2588555-PortForwarding",
+    "labels": [
+      "PortForwarding 제공자"
+    ]
+  },
+  {
+    "id": "vpc-clone-service-7a2630d0-7202-429b-a7b0-681af2588555-UserData",
+    "labels": [
+      "UserData"
+    ]
+  },
+  {
+    "id": "vpc-clone-provider-7a2630d0-7202-429b-a7b0-681af2588555-UserData",
+    "labels": [
+      "UserData 제공자"
+    ]
+  },
+  {
+    "id": "vpc-clone-service-7a2630d0-7202-429b-a7b0-681af2588555-Vpn",
+    "labels": [
+      "Vpn"
+    ]
+  },
+  {
+    "id": "vpc-clone-provider-7a2630d0-7202-429b-a7b0-681af2588555-Vpn",
+    "labels": [
+      "Vpn 제공자"
+    ]
+  },
+  {
+    "id": "vpc-clone-service-7a2630d0-7202-429b-a7b0-681af2588555-Connectivity",
+    "labels": [
+      "Connectivity"
+    ]
+  }
+]

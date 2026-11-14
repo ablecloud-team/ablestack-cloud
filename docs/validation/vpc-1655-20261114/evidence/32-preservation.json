@@ -1,0 +1,98 @@
+{
+  "listVPCs": {
+    "beforeCount": 1,
+    "afterCount": 1,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": []
+  },
+  "listPrivateGateways": {
+    "beforeCount": 0,
+    "afterCount": 0,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": []
+  },
+  "listStaticRoutes": {
+    "beforeCount": 0,
+    "afterCount": 0,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": []
+  },
+  "listNetworks": {
+    "beforeCount": 16,
+    "afterCount": 16,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": []
+  },
+  "listNetworkACLLists": {
+    "beforeCount": 2,
+    "afterCount": 2,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": []
+  },
+  "listPhysicalNetworks": {
+    "beforeCount": 2,
+    "afterCount": 2,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": []
+  },
+  "listZones": {
+    "beforeCount": 1,
+    "afterCount": 1,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": []
+  },
+  "listVPCOfferings": {
+    "beforeCount": 7,
+    "afterCount": 7,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": []
+  },
+  "listRouters": {
+    "beforeCount": 10,
+    "afterCount": 10,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": []
+  },
+  "listVirtualMachines": {
+    "beforeCount": 58,
+    "afterCount": 58,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": []
+  },
+  "listAccounts": {
+    "beforeCount": 22,
+    "afterCount": 22,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": []
+  },
+  "listProjects": {
+    "beforeCount": 5,
+    "afterCount": 5,
+    "idSetsMatch": true,
+    "added": [],
+    "missing": [],
+    "fieldDifferences": []
+  }
+}

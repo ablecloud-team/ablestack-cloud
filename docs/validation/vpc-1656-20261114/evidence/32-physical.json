@@ -1,0 +1,313 @@
+[
+  {
+    "network": {
+      "id": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+      "name": "Physical Network 1",
+      "broadcastdomainrange": "ZONE",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "zonename": "Zone",
+      "state": "Enabled",
+      "vlan": "101-200",
+      "isolationmethods": "VLAN"
+    },
+    "traffic": [
+      {
+        "id": "efc3e872-e0f5-4204-a67d-4a5c6d43ce15",
+        "traffictype": "Guest",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "kvmnetworklabel": "bridge0",
+        "isolationmethods": "VLAN"
+      },
+      {
+        "id": "2f3b9a84-f471-4cf7-bb5d-12ebd41e2400",
+        "traffictype": "Management",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "kvmnetworklabel": "bridge0",
+        "isolationmethods": "VLAN"
+      },
+      {
+        "id": "a3ac6c3b-6a79-40b4-bcce-d0b437f4858a",
+        "traffictype": "Public",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "kvmnetworklabel": "bridge0",
+        "isolationmethods": "VLAN"
+      },
+      {
+        "id": "5f7ae4b7-3c95-4afb-996c-e7b79a750b9c",
+        "traffictype": "Storage",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "kvmnetworklabel": "bridge0",
+        "isolationmethods": "VLAN"
+      }
+    ],
+    "providers": [
+      {
+        "name": "Nsx",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "state": "Enabled",
+        "id": "607104a5-0c59-4380-a6d7-35b8b1ce46dc",
+        "servicelist": [
+          "Dhcp",
+          "Dns",
+          "Firewall",
+          "Lb",
+          "SourceNat",
+          "StaticNat",
+          "PortForwarding",
+          "NetworkACL"
+        ],
+        "canenableindividualservice": true
+      },
+      {
+        "name": "ConfigDrive",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "state": "Enabled",
+        "id": "624ffe0e-b9c2-45f4-8193-86307a655476",
+        "servicelist": [
+          "Dhcp",
+          "Dns",
+          "UserData"
+        ],
+        "canenableindividualservice": true
+      },
+      {
+        "name": "Tungsten",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "state": "Disabled",
+        "id": "07506c65-7a43-40b8-981c-979062efe842",
+        "servicelist": [
+          "Dhcp",
+          "Dns",
+          "Firewall",
+          "Lb",
+          "SourceNat",
+          "StaticNat",
+          "PortForwarding",
+          "SecurityGroup"
+        ],
+        "canenableindividualservice": true
+      },
+      {
+        "name": "InternalLbVm",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "state": "Enabled",
+        "id": "917239e6-ef95-401f-bb87-ea7ebefdf29e",
+        "servicelist": [
+          "Lb"
+        ],
+        "canenableindividualservice": true
+      },
+      {
+        "name": "BaremetalPxeProvider",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "state": "Enabled",
+        "id": "0004de0d-ab84-460a-9e82-be46da3a8b97",
+        "servicelist": [],
+        "canenableindividualservice": false
+      },
+      {
+        "name": "VpcVirtualRouter",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "state": "Enabled",
+        "id": "e95e50f5-db1f-488c-ad41-b0780881d7f5",
+        "servicelist": [
+          "Vpn",
+          "Dhcp",
+          "Dns",
+          "Gateway",
+          "Lb",
+          "SourceNat",
+          "StaticNat",
+          "PortForwarding",
+          "NetworkACL",
+          "UserData"
+        ],
+        "canenableindividualservice": true
+      },
+      {
+        "name": "SecurityGroupProvider",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "state": "Disabled",
+        "id": "ad6750d1-e02f-46f3-8345-9c3b49871d1c",
+        "servicelist": [
+          "SecurityGroup"
+        ],
+        "canenableindividualservice": false
+      },
+      {
+        "name": "VirtualRouter",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "state": "Enabled",
+        "id": "88ef1eea-43fc-419a-8aa4-a3b4c518ba5a",
+        "servicelist": [
+          "Vpn",
+          "Dhcp",
+          "Dns",
+          "Gateway",
+          "Firewall",
+          "Lb",
+          "SourceNat",
+          "StaticNat",
+          "PortForwarding",
+          "UserData"
+        ],
+        "canenableindividualservice": true
+      }
+    ]
+  },
+  {
+    "network": {
+      "id": "189bf0ef-2f9f-4f25-83db-ecee2db0db7d",
+      "name": "qa-pvlan1599-32",
+      "broadcastdomainrange": "ZONE",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "zonename": "Zone",
+      "state": "Enabled",
+      "vlan": "3000-3030",
+      "tags": "qa-pvlan1599-32",
+      "isolationmethods": "VLAN"
+    },
+    "traffic": [
+      {
+        "id": "0abbc345-50ad-4b42-8591-15382d095392",
+        "traffictype": "Guest",
+        "physicalnetworkid": "189bf0ef-2f9f-4f25-83db-ecee2db0db7d",
+        "kvmnetworklabel": "qa-pvlan1599",
+        "isolationmethods": "VLAN"
+      }
+    ],
+    "providers": [
+      {
+        "name": "Netris",
+        "physicalnetworkid": "189bf0ef-2f9f-4f25-83db-ecee2db0db7d",
+        "state": "Enabled",
+        "id": "275817ba-04ed-46bb-a608-7b0b70f6644b",
+        "servicelist": [
+          "Dhcp",
+          "Dns",
+          "Gateway",
+          "Firewall",
+          "Lb",
+          "SourceNat",
+          "StaticNat",
+          "PortForwarding",
+          "NetworkACL"
+        ],
+        "canenableindividualservice": true
+      },
+      {
+        "name": "Nsx",
+        "physicalnetworkid": "189bf0ef-2f9f-4f25-83db-ecee2db0db7d",
+        "state": "Disabled",
+        "id": "56887a2c-16b1-4aa0-a70c-5c339902fc2d",
+        "servicelist": [
+          "Dhcp",
+          "Dns",
+          "Firewall",
+          "Lb",
+          "SourceNat",
+          "StaticNat",
+          "PortForwarding",
+          "NetworkACL"
+        ],
+        "canenableindividualservice": true
+      },
+      {
+        "name": "ConfigDrive",
+        "physicalnetworkid": "189bf0ef-2f9f-4f25-83db-ecee2db0db7d",
+        "state": "Enabled",
+        "id": "2a5352dc-c289-4b77-9213-11880b209ef7",
+        "servicelist": [
+          "Dhcp",
+          "Dns",
+          "UserData"
+        ],
+        "canenableindividualservice": true
+      },
+      {
+        "name": "Tungsten",
+        "physicalnetworkid": "189bf0ef-2f9f-4f25-83db-ecee2db0db7d",
+        "state": "Disabled",
+        "id": "ce2e45e1-e2ea-4134-9135-4a17c7b3b634",
+        "servicelist": [
+          "Dhcp",
+          "Dns",
+          "Firewall",
+          "Lb",
+          "SourceNat",
+          "StaticNat",
+          "PortForwarding",
+          "SecurityGroup"
+        ],
+        "canenableindividualservice": true
+      },
+      {
+        "name": "InternalLbVm",
+        "physicalnetworkid": "189bf0ef-2f9f-4f25-83db-ecee2db0db7d",
+        "state": "Disabled",
+        "id": "d695be4d-6141-4f15-99d6-ae7a42609cf3",
+        "servicelist": [
+          "Lb"
+        ],
+        "canenableindividualservice": true
+      },
+      {
+        "name": "BaremetalPxeProvider",
+        "physicalnetworkid": "189bf0ef-2f9f-4f25-83db-ecee2db0db7d",
+        "state": "Enabled",
+        "id": "319b661d-16f1-4625-b53d-e978d5f74d58",
+        "servicelist": [],
+        "canenableindividualservice": false
+      },
+      {
+        "name": "VpcVirtualRouter",
+        "physicalnetworkid": "189bf0ef-2f9f-4f25-83db-ecee2db0db7d",
+        "state": "Disabled",
+        "id": "06d36f0b-e97b-4182-a78a-807743bfd699",
+        "servicelist": [
+          "Vpn",
+          "Dhcp",
+          "Dns",
+          "Gateway",
+          "Firewall",
+          "Lb",
+          "SourceNat",
+          "StaticNat",
+          "PortForwarding",
+          "NetworkACL",
+          "UserData"
+        ],
+        "canenableindividualservice": true
+      },
+      {
+        "name": "SecurityGroupProvider",
+        "physicalnetworkid": "189bf0ef-2f9f-4f25-83db-ecee2db0db7d",
+        "state": "Disabled",
+        "id": "68487470-1725-49d0-9a87-2ef70864f229",
+        "servicelist": [
+          "SecurityGroup"
+        ],
+        "canenableindividualservice": false
+      },
+      {
+        "name": "VirtualRouter",
+        "physicalnetworkid": "189bf0ef-2f9f-4f25-83db-ecee2db0db7d",
+        "state": "Disabled",
+        "id": "640417a6-0406-4a33-9bb9-2dd1d1536cb6",
+        "servicelist": [
+          "Vpn",
+          "Dhcp",
+          "Dns",
+          "Gateway",
+          "Firewall",
+          "Lb",
+          "SourceNat",
+          "StaticNat",
+          "PortForwarding",
+          "UserData"
+        ],
+        "canenableindividualservice": true
+      }
+    ]
+  }
+]

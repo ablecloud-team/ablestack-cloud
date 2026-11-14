@@ -1,0 +1,67 @@
+[
+  {
+    "command": "deleteVPC",
+    "id": "932be93c-15c3-4ca2-85c3-f36bb725de73",
+    "result": {
+      "success": true
+    },
+    "success": true,
+    "phase": "owned stale selection UI preflight test"
+  },
+  {
+    "command": "deleteNetwork",
+    "id": "3fe84a36-47fd-49d4-8e3c-6162836e6900",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteNetwork",
+    "id": "7c1daa0e-dc38-42f4-86bd-8f116ab053d1",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPC",
+    "id": "277703d6-dbf1-4142-9cc6-b00f824e5a12",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPC",
+    "id": "41265b76-27a3-47b9-8a38-233cac5da113",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPC",
+    "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteProject",
+    "id": "99e5ad38-c8a3-4691-a401-603cb67faff0",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "e473cb5d-f2c6-4b23-9751-a82761656e9c",
+    "result": {
+      "success": true
+    },
+    "success": true
+  }
+]

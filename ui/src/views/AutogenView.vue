@@ -2599,6 +2599,13 @@ export default {
         this.showAction = true
         return
       }
+      if (action.api === 'restartVPC') {
+        const targets = isGroupAction ? this.selectedItems : [action.resource || this.resource]
+        if (!targets.length || !['restartVPC', 'listVPCs'].every(api => api in this.$store.getters.apis)) return
+        this.currentAction = { ...action, invokedAsGroupAction: !!isGroupAction, vpcRestartTargets: Object.freeze(targets.filter(Boolean).map(row => Object.freeze({ ...row }))) }
+        this.resource = targets[0]; this.showAction = true
+        return
+      }
       if (action.policyDeleteDialog) {
         const targets = isGroupAction ? this.selectedItems : [action.resource || this.resource]
         if (!canDeletePolicy(this.$store.getters.apis) || !targets.length || targets.some(p => !p?.id || !p.volumeid)) return

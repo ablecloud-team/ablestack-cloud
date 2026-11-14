@@ -1,0 +1,184 @@
+{
+  "listVPCs": {
+    "count": 1,
+    "ids": [
+      "b8d2a843-3310-46c3-9d64-aed4d5684721"
+    ]
+  },
+  "listPrivateGateways": {
+    "count": 0,
+    "ids": []
+  },
+  "listStaticRoutes": {
+    "count": 0,
+    "ids": []
+  },
+  "listNetworks": {
+    "count": 16,
+    "ids": [
+      "527ba086-5fc6-439a-9213-baf23107e08c",
+      "5b8c2866-4c7d-4fe0-93c3-b80d89a9dbc5",
+      "eb4285c4-9de2-4881-89c6-0f890e549ed5",
+      "5200fccc-e4f2-47a8-bcff-85e81ab057dd",
+      "56a62fc2-6bd4-48c4-ad94-bb3618e3d6f2",
+      "60a1d91a-c09a-45c4-9ef1-e6d042520327",
+      "a57a394e-71a6-4748-9fc3-9bcdc40ed3bd",
+      "28a009ed-333e-4968-8a8e-3f5b2f9ca667",
+      "3a0f7476-b0cb-467f-9f6b-c5c4e8654bc8",
+      "07f53267-063b-4975-ac47-5a5c10d57fb4",
+      "f889cc7d-02c5-490b-b256-a289b73ff824",
+      "5f206f2c-afcd-4291-8c77-1b7eaf387fde",
+      "560eca90-f51b-4cdd-ac51-0682a1ed2308",
+      "24bc7be2-9d53-43cd-9e7f-d4e74c7a9ba3",
+      "6400f908-4315-49db-a3e1-1fa58948c303",
+      "78aabc42-0648-49c9-9d39-4cd6b212ebe8"
+    ]
+  },
+  "listNetworkACLLists": {
+    "count": 2,
+    "ids": [
+      "3b64a0c2-b23b-11f1-990e-0024811f8935",
+      "3b63c03f-b23b-11f1-990e-0024811f8935"
+    ]
+  },
+  "listPhysicalNetworks": {
+    "count": 2,
+    "ids": [
+      "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+      "189bf0ef-2f9f-4f25-83db-ecee2db0db7d"
+    ]
+  },
+  "listZones": {
+    "count": 1,
+    "ids": [
+      "991d2f57-0f37-4445-b956-09773d064816"
+    ]
+  },
+  "listVPCOfferings": {
+    "count": 7,
+    "ids": [
+      "a77c3f64-5bb4-4b69-9811-5cc09a231c43",
+      "b6a82d84-e551-49bb-8e68-863ce4b93857",
+      "0f0ab89c-f3e9-4578-add9-3cb2530c70b6",
+      "062da246-7720-4aa0-9093-26cbb81a7998",
+      "1fcd95e1-a7a3-436c-8324-df7e28db6a02",
+      "c99ba194-03d3-439c-a068-4d28700bad7d",
+      "81cc317e-bf4b-4831-83b4-74820cef14aa"
+    ]
+  },
+  "listRouters": {
+    "count": 10,
+    "ids": [
+      "8f64c61a-94f5-44eb-9d4d-7ef3c5d11474",
+      "79090174-f142-4f80-9404-6ba46c6a80fd",
+      "df9b2dc6-e5b4-4600-9294-3fb8d5e43842",
+      "8262ae33-d485-4754-8a23-0e32eed52ea0",
+      "49d9ed63-02bc-45d1-a3ba-5168310af3f6",
+      "599c80fa-a5ad-45b1-b4e6-8f91bd1b4f99",
+      "6b0e66ba-9d2e-499a-988a-981c243c0853",
+      "e1903392-43aa-4fd9-a69c-86e172a3dc08",
+      "815c0909-a541-4aa2-8e83-2e33d3b4ac5a",
+      "78616af6-4ce9-4512-b119-04e719c8ce33"
+    ]
+  },
+  "listVirtualMachines": {
+    "count": 58,
+    "ids": [
+      "d76c74bc-c7cc-4793-9401-fb889e7b227b",
+      "814b573c-4713-4a21-82d6-b6990d6b6c80",
+      "efc95839-7394-402d-b6fb-951ba269499c",
+      "af949062-c901-4897-ba65-f69c0655979c",
+      "24358070-daf3-4396-b764-1427ebb18e9b",
+      "6090c295-1bef-4704-9c36-53aa003cf5ab",
+      "6e2adaa9-9a85-4c72-b4b2-c7ddab924fbe",
+      "d04fbf24-5094-42aa-91d2-fcc819cb3063",
+      "d77e1d17-2804-4d50-83bd-f6f0fecb85d0",
+      "8f892268-89dd-4294-899a-d91e6bcfc95d",
+      "cfc29141-8164-42f8-ac31-d0abe61edfe9",
+      "8185dc8f-757c-4fa2-b6f5-36ff991a894d",
+      "7db80258-f535-4669-b7aa-7f1b4fdc1322",
+      "5b77d90b-070b-4087-9f14-5f6a31238d70",
+      "83231e10-63f3-412a-94d0-55b0fe51d83f",
+      "97307bee-992f-47c8-b6ab-4b399d8bfaa4",
+      "4502b429-5662-4d95-a02b-61d65a3c95d7",
+      "ed3fe1e8-215d-4e67-877b-6ef6118c3133",
+      "d1a1337e-1da2-4fc8-bd50-226b5db1d47a",
+      "e400c8ba-123a-4f2c-92f1-6f1f2a1ec6af",
+      "5d455a66-bb2e-416a-abe8-9bb91af282ea",
+      "46757bcc-987a-4ced-953e-16694d4040e7",
+      "2031e251-fd4b-4f7b-8bc6-7a8c4fab3a36",
+      "63008885-b08f-4d89-a162-c11c72df7bd3",
+      "72f699ad-51ad-4de6-acf9-1a8d94888c3a",
+      "5870f38f-a68e-44b4-9016-30b604acc0ea",
+      "a77141f0-a23e-40d9-9c4b-6be33b139da8",
+      "e7a29afd-bca4-4baa-8085-2b06fc3b5338",
+      "85a5ef23-f276-4f67-9e4a-f82b3beeca26",
+      "a4e61fc8-ae73-4ed6-aad2-fed63f7896aa",
+      "2ef20a68-4ba7-40a5-a4ed-727f69ebef5e",
+      "afe0fa28-bf36-418c-a93f-654bb69115cd",
+      "3ecfb561-b374-40c8-925d-844e9a5ba9b4",
+      "752ece3c-3d54-42c6-b8e2-a06181b20946",
+      "06a15a87-21ad-467d-82e4-95db344fedc0",
+      "38ba8098-562a-4596-aa8c-557f8bc7b20e",
+      "42fa5f69-a98b-4c3a-ac68-e2eac582ab66",
+      "692145c3-07fb-40c0-aff5-2bde2776b7a2",
+      "7fe75646-6ba9-4bca-9f8c-f9399746173d",
+      "be04ea93-c0ce-4d98-a256-36bfb1e6ea5c",
+      "21d16fe1-6677-452b-ae9e-6544ba679a58",
+      "3fb1df28-1bf9-4e40-8991-54e547a13dc7",
+      "14635a86-3bc8-4a4e-bd35-485afe1f30b5",
+      "3ffff2f4-50d1-4fa9-976a-4a391a01758c",
+      "6f9bd71b-1745-48c5-9c88-cc0cccd9d1ff",
+      "2eec7586-9b6d-4e6e-95c7-c6cbc1d96668",
+      "1070e701-4c6e-4d69-a20f-ef009b70bce2",
+      "4714c3bc-5c8b-4807-a736-c33c439717ae",
+      "298dc25c-f455-4a15-898c-e66272966fae",
+      "a672ffa2-946a-40fb-8f86-522087309324",
+      "fa443b56-1e83-4a2c-8796-bcfbb922cc8f",
+      "23dbc3f4-4378-4fef-9420-959d724ae98e",
+      "ef8ecf84-8508-4bda-b69a-eb1e2914969f",
+      "604b6a30-ae4d-4378-9393-00f5b310fcdd",
+      "86b6540c-a9b1-49da-8f59-6be0c8a06ce2",
+      "c2773fe8-b7ca-4f0f-a0ed-c6d69f50fbcc",
+      "1c541e01-0c55-4138-8215-ac0382868ed8",
+      "cc5db1d0-74ca-479b-b0b5-bd2894fa94fa"
+    ]
+  },
+  "listAccounts": {
+    "count": 22,
+    "ids": [
+      "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+      "cefc42bc-560e-4d4e-aef9-9edfb78eacfb",
+      "6dd8872d-fe59-419d-90ea-38a4a0eac9f4",
+      "6af17fe6-212a-4c7f-8115-be2845f67153",
+      "22fd952e-7267-4f2e-aac8-e47796b20740",
+      "6af1b9e3-6326-43aa-945f-a442871f6960",
+      "c91c0443-aca0-45d8-b42c-86d03534c3c7",
+      "c4456d00-64a3-482e-848c-f9cf856b84c7",
+      "9917d3be-1272-450d-bc2f-53bfc37841ba",
+      "211bac39-becb-4211-8bd7-57faa8400e0d",
+      "8300e9d3-8c7a-4a01-b0b1-66eca8a708af",
+      "01a19128-3ec5-4352-a418-8de410136579",
+      "46020da1-0a88-4b12-84ef-cf434547e3d1",
+      "9bbb59bc-a5db-40ef-b5d6-e563645f11c4",
+      "b1f0e958-f4f9-4a8f-8307-71e6a686b693",
+      "2797b108-fea2-412d-bff9-edcaa69003f9",
+      "cd0a22a7-6047-47ba-a6bf-64bddbf70626",
+      "6131b815-dfec-4d53-aab3-f839f8d37670",
+      "779a7a93-34d1-42e2-b927-943fdf901214",
+      "4012e25d-2dd0-49df-aa6b-7300304e9947",
+      "0e311843-b238-4f1a-85f3-2f6b006fc4d7",
+      "4d782e35-959e-45d2-85f4-53190e6b12a5"
+    ]
+  },
+  "listProjects": {
+    "count": 5,
+    "ids": [
+      "a8c89140-8cd3-41c8-b799-ccd4f348af9d",
+      "5481b3bb-b5cb-4999-a1d8-fde5fcf64241",
+      "97f62088-fc46-4d21-acfa-fa47a2d137b1",
+      "f794c1da-2d1a-4918-92ca-ed192dcdb5df",
+      "cf5ec6b5-b522-4c18-ab90-a395012607c1"
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+  "account": "admin",
+  "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+  "domainpath": "ROOT",
+  "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+  "cmd": "org.apache.cloudstack.api.command.admin.vpc.CloneVPCOfferingCmd",
+  "jobprocstatus": 0,
+  "jobresultcode": 530,
+  "jobresulttype": "object",
+  "jobresult": {
+    "errorcode": 530,
+    "errortext": "class java.lang.String cannot be cast to class java.util.HashMap (java.lang.String and java.util.HashMap are in module java.base of loader 'bootstrap')"
+  },
+  "jobinstancetype": "None",
+  "created": "2026-11-13T16:37:55+0900",
+  "completed": "2026-11-13T16:37:55+0900",
+  "jobid": "91092dec-41fa-4991-b483-dd7030274eb1",
+  "jobstatus": 2
+}

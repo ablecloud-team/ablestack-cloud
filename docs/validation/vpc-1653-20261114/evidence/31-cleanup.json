@@ -1,0 +1,65 @@
+[
+  {
+    "id": "748a5f7a-c3b7-4eb0-ad80-ec75f020d06e",
+    "name": "qa-vpc1653-20261114-31-ui-create-delayed",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "24b9a701-748c-4d36-9ef7-eca925929f6f",
+    "name": "qa-vpc1653-20261114-31-ui-clone-delayed",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "15eb84d2-6516-4819-a7d1-b28ee107969e",
+    "name": "qa-vpc1653-20261114-31-ui-query-recheck",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "884fe404-559c-4135-a1af-6c0ae05f2bc1",
+    "name": "qa-vpc1653-20261114-31-ui-result-recheck",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "22188efb-7b39-428c-ba4c-0d8a5445fe5b",
+    "name": "qa-vpc1653-20261114-31-ui-lost-receipt",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "e222b045-0cfd-40bc-9aa0-a802808abaa9",
+    "name": "qa-vpc1653-20261114-31-ui-http-create",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "c65d03d3-3ab7-43ac-b90a-6c2406cf0594",
+    "name": "qa-vpc1653-20261114-31-ui-async-failure",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "bf5edd99-a98e-407c-8c45-e4d2f99e5bcf",
+    "name": "qa-vpc1653-20261114-31-ui-late-success",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "id": "d176f1cd-fded-45fa-b826-5931351741f4",
+    "name": "qa-vpc1653-20261114-31-ui-late-failure",
+    "result": {
+      "success": true
+    }
+  }
+]

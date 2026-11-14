@@ -1,0 +1,50 @@
+{
+  "source": "7a217b89f2f3b5c213ee7251ed6a65368b573837",
+  "exit": 0,
+  "seconds": 679.4,
+  "node": "v20.20.2",
+  "npm": "10.8.2",
+  "nodeOptions": "--openssl-legacy-provider --max-old-space-size=8192",
+  "sourceUiClean": true,
+  "fullCloudBuild": false,
+  "changedFiles": {
+    "ui/public/locales/en.json": "6565e87265519845a5a9939456b80721dcc3221c8083cf6c1f32e633bf42a116",
+    "ui/public/locales/ko_KR.json": "e1779b3eab3ae2ace52d8ac3feb8dc825df471a5beef0068f8dd87605b2a5e9f",
+    "ui/src/utils/privateGateway.js": "267de858e8afd4197776cc3e4eec2230303578e2ccf51264089bbde0c97d21f9",
+    "ui/src/views/network/PrivateGatewayCreate.vue": "c6342d4d2f71a0d05c10fc3da170b12e54a9468074649613b74e4d41f654c191",
+    "ui/src/views/network/VpcTab.vue": "f103b0dcc1943b67dc15a5490516384ded52bdb23a5e74be099c4b2cbcd6fe99",
+    "ui/tests/unit/utils/privateGateway.spec.js": "d022ae6ef5de161d0a6bf5874a19cfe0950c098f8fd67efddbeab9064c3d3ed0",
+    "ui/tests/unit/views/network/PrivateGatewayCreate.spec.js": "732901140a623dca2f52c17c0b926fdd6ad8100384d67da0b146e45ee5873f61"
+  },
+  "lockfileSha256": "23379939285231d360907e8d7242206efd5359654b9903614788040680133ffc",
+  "indexSha256": "c3ab7db3e093d812963c7dbda1e9368007091c1689a49561f9a891ad0c4c82a1",
+  "appBundles": [
+    "js/app.15446e4d.js"
+  ],
+  "markers": {
+    "vpc-private-gateway:v1:": [
+      "js/chunk-294a0c2f.70079a24.js"
+    ],
+    "message.private.gateway.no.resubmit": [
+      "js/chunk-294a0c2f.70079a24.js"
+    ],
+    "vpc.offering.operation.v1:": [
+      "js/chunk-18c5d0ca.036fbf9b.js"
+    ],
+    "message.vpc.offering.operation.no.resubmit": [
+      "js/chunk-18c5d0ca.036fbf9b.js"
+    ],
+    "message.success.clone.vpc.offering": [
+      "js/chunk-18c5d0ca.036fbf9b.js"
+    ],
+    "blockingLoadingState": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ],
+    "fetchSyncProgress": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ],
+    "extractJobId": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ]
+  }
+}

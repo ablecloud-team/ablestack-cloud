@@ -1,0 +1,27 @@
+{
+  "url": "http://10.10.32.10:8080/client/#/vpc/3bd23dea-5cff-4e15-9639-e3208cac29bc",
+  "text": "/VPC/qa-vpc1656-20261114-32-role-vpc업데이트\n작업\nqa-vpc1656-20261114-32-role-vpc\n상태\n정상\n아이디\n3bd23dea-5cff-4e15-9639-e3208cac29bc \n프로젝트\nqa-vpc1656-20261114-32-project\nVPC 오퍼링\nqa-vpc1656-20261114-32-offering-b\nZone\nZone\n도메인\nROOT\n생성일\n2026. 11. 14. 오전 7:52:54\n가상머신 보기\n태그\n태그 새로고침\n태그가 없습니다.\n새 태그\n상세\n네트워크\nPublic IP 주소\n네트워크 ACL\n사설 게이트웨이\nVPN 게이트웨이\nVPN 접속\nStatic 라우트\nVNF 기기\n이벤트\n코멘트\n이름\n\nqa-vpc1656-20261114-32-role-vpc\n아이디\n\n3bd23dea-5cff-4e15-9639-e3208cac29bc\n설명\n\nVPC-06 owner and project scope\nCIDR\n\n10.246.32.0/24\n네트워크 도메인\n\ncs10fcloud.internal\nRedundant VPC\n\nfalse\n재시작 필요\n\nfalse\nZone\n\nZone\n도메인\n\nROOT\nPublic 인터페이스 MTU\n\n1500",
+  "menu": [
+    "대시보드",
+    "가상머신용 네트워크",
+    "VPC",
+    "VNF 기기",
+    "Public IP 주소",
+    "사이트간 사설네트워크(VPN)",
+    "사이트 간 VPN 연결",
+    "네트워크 ACL",
+    "VPN 사용자",
+    "VPN 고객 게이트웨이",
+    "DNS 영역",
+    "DNS 서버",
+    "이벤트",
+    "프로젝트",
+    "계정",
+    "Zone",
+    "API 문서",
+    "VPC 재시작",
+    "편집",
+    "VPC 삭제"
+  ],
+  "migrationVisible": 0
+}

@@ -1,0 +1,16 @@
+{
+  "uiSource": "4865041676154736c3b17c69231f0380289fc8a6",
+  "apiDesignCases": 12,
+  "successfulUiClones": 20,
+  "finalSourceUiClones": 4,
+  "unitSuites": 4,
+  "unitTests": 65,
+  "candidateCombinations": 6,
+  "createdUiTiers": 4,
+  "runningTestVpcRouters": 2,
+  "finalStyleCombinations": 12,
+  "cleanup": "PASS; own resources absent; baseline selected UUIDs/fields preserved",
+  "sensitiveFieldScan": "PASS",
+  "rawInventories": "Excluded from publication; retained privately",
+  "fullCloudBuild": false
+}

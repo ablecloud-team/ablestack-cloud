@@ -1,0 +1,9 @@
+{
+  "jobid": "ac73853f-f937-485d-9d63-049d9cc9da32",
+  "vpcid": "a0d25e8e-8fc2-4e10-81ce-91ecad4759eb",
+  "tierId": "20d729ab-1d58-438e-8b3a-0337cb2be418",
+  "key": "tiernetworkofferings[0].networkofferingid",
+  "original": "45858812-0037-40dc-92ad-76309e090a70",
+  "injected": "26767d66-47f7-4a49-8ae4-7281199c341e",
+  "purpose": "actual server partial failure after first Tier migration"
+}

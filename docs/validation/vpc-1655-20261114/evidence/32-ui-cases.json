@@ -1,0 +1,1155 @@
+[
+  {
+    "case": "bulk-livepatch-keyboard-success",
+    "source": "281e9758c04137f42475ca3742acf34f3f0ba339",
+    "capture": {
+      "requests": [
+        {
+          "params": {
+            "command": "restartVPC",
+            "response": "json",
+            "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+            "cleanup": "false",
+            "makeredundant": "false",
+            "livepatch": "true",
+            "customjobid": "fac59f22-b2c1-4149-a29e-9df37a4ea625"
+          },
+          "http": 200,
+          "body": {
+            "restartvpcresponse": {
+              "jobid": "fac59f22-b2c1-4149-a29e-9df37a4ea625"
+            }
+          }
+        },
+        {
+          "params": {
+            "command": "restartVPC",
+            "response": "json",
+            "id": "41265b76-27a3-47b9-8a38-233cac5da113",
+            "cleanup": "false",
+            "makeredundant": "false",
+            "livepatch": "true",
+            "customjobid": "4dfa595f-a188-4fb7-ae7a-5c35b052997b"
+          },
+          "http": 200,
+          "body": {
+            "restartvpcresponse": {
+              "jobid": "4dfa595f-a188-4fb7-ae7a-5c35b052997b"
+            }
+          }
+        }
+      ],
+      "cursor": 14981,
+      "gaps": false
+    },
+    "ui": {
+      "buttons": [
+        {
+          "disabled": false,
+          "label": "Close",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "네트워크 요소 재생성",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "라우터 이중화 전환",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "Live Patch",
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "닫기"
+        }
+      ],
+      "open": true,
+      "rows": [
+        {
+          "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+          "status": "success",
+          "text": "qa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: fac59f22-b2c1-4149-a29e-9df37a4ea625"
+        },
+        {
+          "id": "41265b76-27a3-47b9-8a38-233cac5da113",
+          "status": "success",
+          "text": "qa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: 4dfa595f-a188-4fb7-ae7a-5c35b052997b"
+        }
+      ],
+      "switches": [
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "네트워크 요소 재생성"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "라우터 이중화 전환"
+        },
+        {
+          "checked": "true",
+          "disabled": true,
+          "label": "Live Patch"
+        }
+      ],
+      "text": "VPC 재시작\n\n선택한 VPC의 네트워크 요소와 라우터를 순서대로 재시작합니다. 연결이 끊길 수 있습니다. 정리는 라우터를 교체하며, 이중화 전환은 서버의 기본 Redundant VPC offering으로 변경합니다. 실행 대상·소유자·제공자와 옵션을 확인하십시오.\n\n최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오.\n네트워크 요소 재생성\n라우터 이중화 전환\nLive Patch\n\n모든 대상에서 지원하는 옵션만 선택할 수 있습니다. 이중화 전환은 정리를 함께 사용합니다. 정리·이중화와 Live Patch는 함께 사용할 수 없습니다. Live Patch에는 조회 가능한 실행 중 라우터와 Tier가 필요하며 실제 패치 적용 여부는 서버 처리 결과에 따릅니다.\n\n전체 2 · 완료 2 · 실패 0\nqa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: fac59f22-b2c1-4149-a29e-9df37a4ea625\nqa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: 4dfa595f-a188-4fb7-ae7a-5c35b052997b\n닫기"
+    },
+    "keyboard": "Actual Control+Enter on the Live Patch switch; pending controls disabled."
+  },
+  {
+    "case": "single-cleanup-success",
+    "source": "281e9758c04137f42475ca3742acf34f3f0ba339",
+    "capture": {
+      "requests": [
+        {
+          "params": {
+            "command": "restartVPC",
+            "response": "json",
+            "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+            "cleanup": "true",
+            "makeredundant": "false",
+            "livepatch": "false",
+            "customjobid": "f981f4bd-d98b-40c3-bd8c-9f1e02c77703"
+          },
+          "http": 200,
+          "body": {
+            "restartvpcresponse": {
+              "jobid": "f981f4bd-d98b-40c3-bd8c-9f1e02c77703"
+            }
+          }
+        }
+      ],
+      "cursor": 15638,
+      "gaps": false
+    },
+    "ui": {
+      "buttons": [
+        {
+          "disabled": false,
+          "label": "Close",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "네트워크 요소 재생성",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "라우터 이중화 전환",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "Live Patch",
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "닫기"
+        }
+      ],
+      "open": true,
+      "rows": [
+        {
+          "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+          "status": "success",
+          "text": "qa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: f981f4bd-d98b-40c3-bd8c-9f1e02c77703"
+        }
+      ],
+      "switches": [
+        {
+          "checked": "true",
+          "disabled": true,
+          "label": "네트워크 요소 재생성"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "라우터 이중화 전환"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "Live Patch"
+        }
+      ],
+      "text": "VPC 재시작\n\n선택한 VPC의 네트워크 요소와 라우터를 순서대로 재시작합니다. 연결이 끊길 수 있습니다. 정리는 라우터를 교체하며, 이중화 전환은 서버의 기본 Redundant VPC offering으로 변경합니다. 실행 대상·소유자·제공자와 옵션을 확인하십시오.\n\n최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오.\n네트워크 요소 재생성\n라우터 이중화 전환\nLive Patch\n\n모든 대상에서 지원하는 옵션만 선택할 수 있습니다. 이중화 전환은 정리를 함께 사용합니다. 정리·이중화와 Live Patch는 함께 사용할 수 없습니다. Live Patch에는 조회 가능한 실행 중 라우터와 Tier가 필요하며 실제 패치 적용 여부는 서버 처리 결과에 따릅니다.\n\n전체 1 · 완료 1 · 실패 0\nqa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: f981f4bd-d98b-40c3-bd8c-9f1e02c77703\n닫기"
+    },
+    "earlyCapture": {
+      "requests": [
+        {
+          "params": {
+            "command": "restartVPC",
+            "response": "json",
+            "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+            "cleanup": "true",
+            "makeredundant": "false",
+            "livepatch": "false",
+            "customjobid": "f981f4bd-d98b-40c3-bd8c-9f1e02c77703"
+          },
+          "http": 200,
+          "body": {
+            "restartvpcresponse": {
+              "jobid": "f981f4bd-d98b-40c3-bd8c-9f1e02c77703"
+            }
+          }
+        }
+      ],
+      "cursor": 15322,
+      "gaps": false
+    }
+  },
+  {
+    "case": "mixed-deleted-target-preflight",
+    "source": "281e9758c04137f42475ca3742acf34f3f0ba339",
+    "capture": {
+      "requests": [],
+      "cursor": 15853,
+      "gaps": false
+    },
+    "ui": {
+      "buttons": [
+        {
+          "disabled": false,
+          "label": "Close",
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "label": "네트워크 요소 재생성",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "라우터 이중화 전환",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "Live Patch",
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "대상 다시 확인"
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "닫기"
+        },
+        {
+          "disabled": true,
+          "label": null,
+          "text": "VPC 재시작"
+        }
+      ],
+      "open": true,
+      "rows": [
+        {
+          "id": "932be93c-15c3-4ca2-85c3-f36bb725de73",
+          "status": "idle",
+          "text": "qa-vpc1655-20261114-32-r\n932be93c-15c3-4ca2-85c3-f36bb725de73\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n대기\n선택한 VPC를 현재 권한에서 찾을 수 없습니다."
+        },
+        {
+          "id": "41265b76-27a3-47b9-8a38-233cac5da113",
+          "status": "idle",
+          "text": "qa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n대기"
+        }
+      ],
+      "switches": [
+        {
+          "checked": "false",
+          "disabled": false,
+          "label": "네트워크 요소 재생성"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "라우터 이중화 전환"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "Live Patch"
+        }
+      ],
+      "text": "VPC 재시작\n\n선택한 VPC의 네트워크 요소와 라우터를 순서대로 재시작합니다. 연결이 끊길 수 있습니다. 정리는 라우터를 교체하며, 이중화 전환은 서버의 기본 Redundant VPC offering으로 변경합니다. 실행 대상·소유자·제공자와 옵션을 확인하십시오.\n\n일부 대상의 실행 조건을 확인하지 못해 제출하지 않았습니다. 대상별 사유를 확인하고 다시 조회하십시오.\n네트워크 요소 재생성\n라우터 이중화 전환\nLive Patch\n\n모든 대상에서 지원하는 옵션만 선택할 수 있습니다. 이중화 전환은 정리를 함께 사용합니다. 정리·이중화와 Live Patch는 함께 사용할 수 없습니다. Live Patch에는 조회 가능한 실행 중 라우터와 Tier가 필요하며 실제 패치 적용 여부는 서버 처리 결과에 따릅니다.\n\n전체 2 · 완료 0 · 실패 0\n대상 다시 확인\nqa-vpc1655-20261114-32-r\n932be93c-15c3-4ca2-85c3-f36bb725de73\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n대기\n선택한 VPC를 현재 권한에서 찾을 수 없습니다.\nqa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n대기\n닫기\nVPC 재시작"
+    }
+  },
+  {
+    "case": "partial-http431-retained",
+    "source": "281e9758c04137f42475ca3742acf34f3f0ba339",
+    "capture": {
+      "requests": [
+        {
+          "params": {
+            "command": "restartVPC",
+            "response": "json",
+            "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+            "cleanup": "false",
+            "makeredundant": "false",
+            "livepatch": "false",
+            "customjobid": "9952d66f-6190-4d21-861f-7078ea87f530"
+          },
+          "http": 200,
+          "body": {
+            "restartvpcresponse": {
+              "jobid": "9952d66f-6190-4d21-861f-7078ea87f530"
+            }
+          }
+        },
+        {
+          "params": {
+            "command": "restartVPC",
+            "response": "json",
+            "id": "41265b76-27a3-47b9-8a38-233cac5da113",
+            "cleanup": "false",
+            "makeredundant": "false",
+            "livepatch": "false",
+            "customjobid": "49a554d7-970c-4532-a868-bc8e84f44efc"
+          },
+          "http": 431,
+          "body": {
+            "restartvpcresponse": {
+              "uuidList": [],
+              "errorcode": 431,
+              "cserrorcode": 9999,
+              "errortext": "Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class."
+            }
+          }
+        }
+      ],
+      "cursor": 16420,
+      "gaps": false
+    },
+    "ui": {
+      "buttons": [
+        {
+          "disabled": false,
+          "label": "Close",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "네트워크 요소 재생성",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "라우터 이중화 전환",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "Live Patch",
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "닫기"
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "실패 항목 재시도 (1)"
+        }
+      ],
+      "open": true,
+      "rows": [
+        {
+          "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+          "status": "success",
+          "text": "qa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: 9952d66f-6190-4d21-861f-7078ea87f530"
+        },
+        {
+          "id": "41265b76-27a3-47b9-8a38-233cac5da113",
+          "status": "failed",
+          "text": "qa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n실패\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n시도 1 · 실패\n작업: 49a554d7-970c-4532-a868-bc8e84f44efc\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class."
+        }
+      ],
+      "switches": [
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "네트워크 요소 재생성"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "라우터 이중화 전환"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "Live Patch"
+        }
+      ],
+      "text": "VPC 재시작\n\n선택한 VPC의 네트워크 요소와 라우터를 순서대로 재시작합니다. 연결이 끊길 수 있습니다. 정리는 라우터를 교체하며, 이중화 전환은 서버의 기본 Redundant VPC offering으로 변경합니다. 실행 대상·소유자·제공자와 옵션을 확인하십시오.\n\n최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오.\n네트워크 요소 재생성\n라우터 이중화 전환\nLive Patch\n\n모든 대상에서 지원하는 옵션만 선택할 수 있습니다. 이중화 전환은 정리를 함께 사용합니다. 정리·이중화와 Live Patch는 함께 사용할 수 없습니다. Live Patch에는 조회 가능한 실행 중 라우터와 Tier가 필요하며 실제 패치 적용 여부는 서버 처리 결과에 따릅니다.\n\n전체 2 · 완료 1 · 실패 1\nqa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: 9952d66f-6190-4d21-861f-7078ea87f530\nqa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n실패\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n시도 1 · 실패\n작업: 49a554d7-970c-4532-a868-bc8e84f44efc\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n닫기\n실패 항목 재시도 (1)"
+    },
+    "failedTarget": "41265b76-27a3-47b9-8a38-233cac5da113",
+    "faultFile": "32-partial-wire-fault.json"
+  },
+  {
+    "case": "failed-only-retry-success",
+    "source": "281e9758c04137f42475ca3742acf34f3f0ba339",
+    "capture": {
+      "requests": [
+        {
+          "params": {
+            "command": "restartVPC",
+            "response": "json",
+            "id": "41265b76-27a3-47b9-8a38-233cac5da113",
+            "cleanup": "false",
+            "makeredundant": "false",
+            "livepatch": "false",
+            "customjobid": "c5b7d4b0-5088-4492-9bee-11fee605739b"
+          },
+          "http": 200,
+          "body": {
+            "restartvpcresponse": {
+              "jobid": "c5b7d4b0-5088-4492-9bee-11fee605739b"
+            }
+          }
+        }
+      ],
+      "cursor": 17787,
+      "gaps": false
+    },
+    "ui": {
+      "buttons": [
+        {
+          "disabled": false,
+          "label": "Close",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "네트워크 요소 재생성",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "라우터 이중화 전환",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "Live Patch",
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "닫기"
+        }
+      ],
+      "open": true,
+      "rows": [
+        {
+          "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+          "status": "success",
+          "text": "qa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: 9952d66f-6190-4d21-861f-7078ea87f530"
+        },
+        {
+          "id": "41265b76-27a3-47b9-8a38-233cac5da113",
+          "status": "success",
+          "text": "qa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 실패\n작업: 49a554d7-970c-4532-a868-bc8e84f44efc\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n시도 2 · 완료\n작업: c5b7d4b0-5088-4492-9bee-11fee605739b"
+        }
+      ],
+      "switches": [
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "네트워크 요소 재생성"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "라우터 이중화 전환"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "Live Patch"
+        }
+      ],
+      "text": "VPC 재시작\n\n선택한 VPC의 네트워크 요소와 라우터를 순서대로 재시작합니다. 연결이 끊길 수 있습니다. 정리는 라우터를 교체하며, 이중화 전환은 서버의 기본 Redundant VPC offering으로 변경합니다. 실행 대상·소유자·제공자와 옵션을 확인하십시오.\n\n최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오.\n네트워크 요소 재생성\n라우터 이중화 전환\nLive Patch\n\n모든 대상에서 지원하는 옵션만 선택할 수 있습니다. 이중화 전환은 정리를 함께 사용합니다. 정리·이중화와 Live Patch는 함께 사용할 수 없습니다. Live Patch에는 조회 가능한 실행 중 라우터와 Tier가 필요하며 실제 패치 적용 여부는 서버 처리 결과에 따릅니다.\n\n전체 2 · 완료 2 · 실패 0\nqa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: 9952d66f-6190-4d21-861f-7078ea87f530\nqa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 실패\n작업: 49a554d7-970c-4532-a868-bc8e84f44efc\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n시도 2 · 완료\n작업: c5b7d4b0-5088-4492-9bee-11fee605739b\n닫기"
+    },
+    "before": {
+      "buttons": [
+        {
+          "disabled": true,
+          "label": "네트워크 요소 재생성",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "라우터 이중화 전환",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "Live Patch",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": null,
+          "text": "닫기"
+        },
+        {
+          "disabled": true,
+          "label": null,
+          "text": "실패 항목 재시도 (1)"
+        }
+      ],
+      "open": true,
+      "rows": [
+        {
+          "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+          "status": "success",
+          "text": "qa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · —\n완료\n시도 1 · 완료\n작업: 9952d66f-6190-4d21-861f-7078ea87f530"
+        },
+        {
+          "id": "41265b76-27a3-47b9-8a38-233cac5da113",
+          "status": "failed",
+          "text": "qa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · —\n실패\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n시도 1 · 실패\n작업: 49a554d7-970c-4532-a868-bc8e84f44efc\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class."
+        }
+      ],
+      "switches": [
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "네트워크 요소 재생성"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "라우터 이중화 전환"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "Live Patch"
+        }
+      ],
+      "text": "VPC 재시작\n\n선택한 VPC의 네트워크 요소와 라우터를 순서대로 재시작합니다. 연결이 끊길 수 있습니다. 정리는 라우터를 교체하며, 이중화 전환은 서버의 기본 Redundant VPC offering으로 변경합니다. 실행 대상·소유자·제공자와 옵션을 확인하십시오.\n\n최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오.\n네트워크 요소 재생성\n라우터 이중화 전환\nLive Patch\n\n모든 대상에서 지원하는 옵션만 선택할 수 있습니다. 이중화 전환은 정리를 함께 사용합니다. 정리·이중화와 Live Patch는 함께 사용할 수 없습니다. Live Patch에는 조회 가능한 실행 중 라우터와 Tier가 필요하며 실제 패치 적용 여부는 서버 처리 결과에 따릅니다.\n\n전체 2 · 완료 1 · 실패 1\nqa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · —\n완료\n시도 1 · 완료\n작업: 9952d66f-6190-4d21-861f-7078ea87f530\nqa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · —\n실패\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n시도 1 · 실패\n작업: 49a554d7-970c-4532-a868-bc8e84f44efc\n431: Unable to execute API command restartvpc due to invalid value. Invalid parameter id value=invalid-vpc-1655 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n닫기\n실패 항목 재시도 (1)"
+    }
+  },
+  {
+    "case": "unknown-stops-queue",
+    "source": "281e9758c04137f42475ca3742acf34f3f0ba339",
+    "capture": {
+      "requests": [
+        {
+          "params": {
+            "command": "restartVPC",
+            "response": "json",
+            "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+            "cleanup": "false",
+            "makeredundant": "false",
+            "livepatch": "false",
+            "customjobid": "041f90a0-11b3-41af-b7ee-b5f7ea678db4"
+          },
+          "http": 200,
+          "body": {
+            "restartvpcresponse": {
+              "jobid": "041f90a0-11b3-41af-b7ee-b5f7ea678db4"
+            }
+          }
+        }
+      ],
+      "cursor": 18096,
+      "gaps": false
+    },
+    "ui": {
+      "buttons": [
+        {
+          "disabled": false,
+          "label": "Close",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "네트워크 요소 재생성",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "라우터 이중화 전환",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "Live Patch",
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "작업 결과 다시 확인"
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "닫기"
+        },
+        {
+          "disabled": true,
+          "label": null,
+          "text": "실패 항목 재시도 (1)"
+        }
+      ],
+      "open": true,
+      "rows": [
+        {
+          "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+          "status": "unknown",
+          "text": "qa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n확인 필요\n최종 재시작 결과를 확인하지 못했습니다. 기존 작업 ID를 보존했으며 새 요청을 제출하지 않습니다. 같은 작업을 다시 조회하십시오.\n시도 1 · 확인 필요\n작업: 041f90a0-11b3-41af-b7ee-b5f7ea678db4\n최종 재시작 결과를 확인하지 못했습니다. 기존 작업 ID를 보존했으며 새 요청을 제출하지 않습니다. 같은 작업을 다시 조회하십시오.\n작업 결과 다시 확인"
+        },
+        {
+          "id": "41265b76-27a3-47b9-8a38-233cac5da113",
+          "status": "failed",
+          "text": "qa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n실패\n앞선 대상의 결과가 미확정이어서 아직 제출하지 않았습니다. 기존 작업 확인 후 실패·미실행 대상만 재시도하십시오."
+        }
+      ],
+      "switches": [
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "네트워크 요소 재생성"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "라우터 이중화 전환"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "Live Patch"
+        }
+      ],
+      "text": "VPC 재시작\n\n선택한 VPC의 네트워크 요소와 라우터를 순서대로 재시작합니다. 연결이 끊길 수 있습니다. 정리는 라우터를 교체하며, 이중화 전환은 서버의 기본 Redundant VPC offering으로 변경합니다. 실행 대상·소유자·제공자와 옵션을 확인하십시오.\n\n최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오.\n네트워크 요소 재생성\n라우터 이중화 전환\nLive Patch\n\n모든 대상에서 지원하는 옵션만 선택할 수 있습니다. 이중화 전환은 정리를 함께 사용합니다. 정리·이중화와 Live Patch는 함께 사용할 수 없습니다. Live Patch에는 조회 가능한 실행 중 라우터와 Tier가 필요하며 실제 패치 적용 여부는 서버 처리 결과에 따릅니다.\n\n전체 2 · 완료 0 · 실패 1\nqa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n확인 필요\n최종 재시작 결과를 확인하지 못했습니다. 기존 작업 ID를 보존했으며 새 요청을 제출하지 않습니다. 같은 작업을 다시 조회하십시오.\n시도 1 · 확인 필요\n작업: 041f90a0-11b3-41af-b7ee-b5f7ea678db4\n최종 재시작 결과를 확인하지 못했습니다. 기존 작업 ID를 보존했으며 새 요청을 제출하지 않습니다. 같은 작업을 다시 조회하십시오.\n작업 결과 다시 확인\nqa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n실패\n앞선 대상의 결과가 미확정이어서 아직 제출하지 않았습니다. 기존 작업 확인 후 실패·미실행 대상만 재시도하십시오.\n닫기\n실패 항목 재시도 (1)"
+    }
+  },
+  {
+    "case": "same-job-recheck-no-post",
+    "source": "281e9758c04137f42475ca3742acf34f3f0ba339",
+    "capture": {
+      "requests": [],
+      "cursor": 18250,
+      "gaps": false
+    },
+    "ui": {
+      "buttons": [
+        {
+          "disabled": false,
+          "label": "Close",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "네트워크 요소 재생성",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "라우터 이중화 전환",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "Live Patch",
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "닫기"
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "실패 항목 재시도 (1)"
+        }
+      ],
+      "open": true,
+      "rows": [
+        {
+          "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+          "status": "success",
+          "text": "qa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: 041f90a0-11b3-41af-b7ee-b5f7ea678db4"
+        },
+        {
+          "id": "41265b76-27a3-47b9-8a38-233cac5da113",
+          "status": "failed",
+          "text": "qa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n실패\n앞선 대상의 결과가 미확정이어서 아직 제출하지 않았습니다. 기존 작업 확인 후 실패·미실행 대상만 재시도하십시오."
+        }
+      ],
+      "switches": [
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "네트워크 요소 재생성"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "라우터 이중화 전환"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "Live Patch"
+        }
+      ],
+      "text": "VPC 재시작\n\n선택한 VPC의 네트워크 요소와 라우터를 순서대로 재시작합니다. 연결이 끊길 수 있습니다. 정리는 라우터를 교체하며, 이중화 전환은 서버의 기본 Redundant VPC offering으로 변경합니다. 실행 대상·소유자·제공자와 옵션을 확인하십시오.\n\n최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오.\n네트워크 요소 재생성\n라우터 이중화 전환\nLive Patch\n\n모든 대상에서 지원하는 옵션만 선택할 수 있습니다. 이중화 전환은 정리를 함께 사용합니다. 정리·이중화와 Live Patch는 함께 사용할 수 없습니다. Live Patch에는 조회 가능한 실행 중 라우터와 Tier가 필요하며 실제 패치 적용 여부는 서버 처리 결과에 따릅니다.\n\n전체 2 · 완료 1 · 실패 1\nqa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: 041f90a0-11b3-41af-b7ee-b5f7ea678db4\nqa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n실패\n앞선 대상의 결과가 미확정이어서 아직 제출하지 않았습니다. 기존 작업 확인 후 실패·미실행 대상만 재시도하십시오.\n닫기\n실패 항목 재시도 (1)"
+    },
+    "restored": {
+      "buttons": [
+        {
+          "disabled": true,
+          "label": "네트워크 요소 재생성",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "라우터 이중화 전환",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "Live Patch",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": null,
+          "text": "작업 결과 다시 확인"
+        },
+        {
+          "disabled": true,
+          "label": null,
+          "text": "닫기"
+        },
+        {
+          "disabled": true,
+          "label": null,
+          "text": "실패 항목 재시도 (1)"
+        }
+      ],
+      "open": true,
+      "rows": [
+        {
+          "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+          "status": "unknown",
+          "text": "qa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · —\n확인 필요\n최종 재시작 결과를 확인하지 못했습니다. 기존 작업 ID를 보존했으며 새 요청을 제출하지 않습니다. 같은 작업을 다시 조회하십시오.\n시도 1 · 확인 필요\n작업: 041f90a0-11b3-41af-b7ee-b5f7ea678db4\n최종 재시작 결과를 확인하지 못했습니다. 기존 작업 ID를 보존했으며 새 요청을 제출하지 않습니다. 같은 작업을 다시 조회하십시오.\n작업 결과 다시 확인"
+        },
+        {
+          "id": "41265b76-27a3-47b9-8a38-233cac5da113",
+          "status": "failed",
+          "text": "qa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · —\n실패\n앞선 대상의 결과가 미확정이어서 아직 제출하지 않았습니다. 기존 작업 확인 후 실패·미실행 대상만 재시도하십시오."
+        }
+      ],
+      "switches": [
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "네트워크 요소 재생성"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "라우터 이중화 전환"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "Live Patch"
+        }
+      ],
+      "text": "VPC 재시작\n\n선택한 VPC의 네트워크 요소와 라우터를 순서대로 재시작합니다. 연결이 끊길 수 있습니다. 정리는 라우터를 교체하며, 이중화 전환은 서버의 기본 Redundant VPC offering으로 변경합니다. 실행 대상·소유자·제공자와 옵션을 확인하십시오.\n\n최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오.\n네트워크 요소 재생성\n라우터 이중화 전환\nLive Patch\n\n모든 대상에서 지원하는 옵션만 선택할 수 있습니다. 이중화 전환은 정리를 함께 사용합니다. 정리·이중화와 Live Patch는 함께 사용할 수 없습니다. Live Patch에는 조회 가능한 실행 중 라우터와 Tier가 필요하며 실제 패치 적용 여부는 서버 처리 결과에 따릅니다.\n\n전체 2 · 완료 0 · 실패 1\nqa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · —\n확인 필요\n최종 재시작 결과를 확인하지 못했습니다. 기존 작업 ID를 보존했으며 새 요청을 제출하지 않습니다. 같은 작업을 다시 조회하십시오.\n시도 1 · 확인 필요\n작업: 041f90a0-11b3-41af-b7ee-b5f7ea678db4\n최종 재시작 결과를 확인하지 못했습니다. 기존 작업 ID를 보존했으며 새 요청을 제출하지 않습니다. 같은 작업을 다시 조회하십시오.\n작업 결과 다시 확인\nqa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · —\n실패\n앞선 대상의 결과가 미확정이어서 아직 제출하지 않았습니다. 기존 작업 확인 후 실패·미실행 대상만 재시도하십시오.\n닫기\n실패 항목 재시도 (1)"
+    }
+  },
+  {
+    "case": "unsubmitted-only-resume-success",
+    "source": "281e9758c04137f42475ca3742acf34f3f0ba339",
+    "capture": {
+      "requests": [
+        {
+          "params": {
+            "command": "restartVPC",
+            "response": "json",
+            "id": "41265b76-27a3-47b9-8a38-233cac5da113",
+            "cleanup": "false",
+            "makeredundant": "false",
+            "livepatch": "false",
+            "customjobid": "53cdfd4f-055c-43ea-b5bb-e715c6fc5a65"
+          },
+          "http": 200,
+          "body": {
+            "restartvpcresponse": {
+              "jobid": "53cdfd4f-055c-43ea-b5bb-e715c6fc5a65"
+            }
+          }
+        }
+      ],
+      "cursor": 18399,
+      "gaps": false
+    },
+    "ui": {
+      "buttons": [
+        {
+          "disabled": false,
+          "label": "Close",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "네트워크 요소 재생성",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "라우터 이중화 전환",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "Live Patch",
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "닫기"
+        }
+      ],
+      "open": true,
+      "rows": [
+        {
+          "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+          "status": "success",
+          "text": "qa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: 041f90a0-11b3-41af-b7ee-b5f7ea678db4"
+        },
+        {
+          "id": "41265b76-27a3-47b9-8a38-233cac5da113",
+          "status": "success",
+          "text": "qa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: 53cdfd4f-055c-43ea-b5bb-e715c6fc5a65"
+        }
+      ],
+      "switches": [
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "네트워크 요소 재생성"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "라우터 이중화 전환"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "Live Patch"
+        }
+      ],
+      "text": "VPC 재시작\n\n선택한 VPC의 네트워크 요소와 라우터를 순서대로 재시작합니다. 연결이 끊길 수 있습니다. 정리는 라우터를 교체하며, 이중화 전환은 서버의 기본 Redundant VPC offering으로 변경합니다. 실행 대상·소유자·제공자와 옵션을 확인하십시오.\n\n최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오.\n네트워크 요소 재생성\n라우터 이중화 전환\nLive Patch\n\n모든 대상에서 지원하는 옵션만 선택할 수 있습니다. 이중화 전환은 정리를 함께 사용합니다. 정리·이중화와 Live Patch는 함께 사용할 수 없습니다. Live Patch에는 조회 가능한 실행 중 라우터와 Tier가 필요하며 실제 패치 적용 여부는 서버 처리 결과에 따릅니다.\n\n전체 2 · 완료 2 · 실패 0\nqa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: 041f90a0-11b3-41af-b7ee-b5f7ea678db4\nqa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: 53cdfd4f-055c-43ea-b5bb-e715c6fc5a65\n닫기"
+    }
+  },
+  {
+    "case": "injected-terminal-partial-retained",
+    "source": "281e9758c04137f42475ca3742acf34f3f0ba339",
+    "capture": {
+      "requests": [
+        {
+          "params": {
+            "command": "restartVPC",
+            "response": "json",
+            "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+            "cleanup": "false",
+            "makeredundant": "false",
+            "livepatch": "false",
+            "customjobid": "2c100d9f-3901-43e2-bda0-bd3aa1701365"
+          },
+          "http": 200,
+          "body": {
+            "restartvpcresponse": {
+              "jobid": "2c100d9f-3901-43e2-bda0-bd3aa1701365"
+            }
+          }
+        },
+        {
+          "params": {
+            "command": "restartVPC",
+            "response": "json",
+            "id": "41265b76-27a3-47b9-8a38-233cac5da113",
+            "cleanup": "false",
+            "makeredundant": "false",
+            "livepatch": "false",
+            "customjobid": "e30d6699-66f9-42fb-98ea-8454ccabc769"
+          },
+          "http": 200,
+          "body": {
+            "restartvpcresponse": {
+              "jobid": "e30d6699-66f9-42fb-98ea-8454ccabc769"
+            }
+          }
+        }
+      ],
+      "cursor": 18868,
+      "gaps": false
+    },
+    "ui": {
+      "buttons": [
+        {
+          "disabled": false,
+          "label": "Close",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "네트워크 요소 재생성",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "라우터 이중화 전환",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "Live Patch",
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "닫기"
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "실패 항목 재시도 (1)"
+        }
+      ],
+      "open": true,
+      "rows": [
+        {
+          "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+          "status": "failed",
+          "text": "qa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n실패\n530: Controlled UI terminal failure validation #1655\n시도 1 · 실패\n작업: 2c100d9f-3901-43e2-bda0-bd3aa1701365\n530: Controlled UI terminal failure validation #1655"
+        },
+        {
+          "id": "41265b76-27a3-47b9-8a38-233cac5da113",
+          "status": "success",
+          "text": "qa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: e30d6699-66f9-42fb-98ea-8454ccabc769"
+        }
+      ],
+      "switches": [
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "네트워크 요소 재생성"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "라우터 이중화 전환"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "Live Patch"
+        }
+      ],
+      "text": "VPC 재시작\n\n선택한 VPC의 네트워크 요소와 라우터를 순서대로 재시작합니다. 연결이 끊길 수 있습니다. 정리는 라우터를 교체하며, 이중화 전환은 서버의 기본 Redundant VPC offering으로 변경합니다. 실행 대상·소유자·제공자와 옵션을 확인하십시오.\n\n최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오.\n네트워크 요소 재생성\n라우터 이중화 전환\nLive Patch\n\n모든 대상에서 지원하는 옵션만 선택할 수 있습니다. 이중화 전환은 정리를 함께 사용합니다. 정리·이중화와 Live Patch는 함께 사용할 수 없습니다. Live Patch에는 조회 가능한 실행 중 라우터와 Tier가 필요하며 실제 패치 적용 여부는 서버 처리 결과에 따릅니다.\n\n전체 2 · 완료 1 · 실패 1\nqa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n실패\n530: Controlled UI terminal failure validation #1655\n시도 1 · 실패\n작업: 2c100d9f-3901-43e2-bda0-bd3aa1701365\n530: Controlled UI terminal failure validation #1655\nqa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: e30d6699-66f9-42fb-98ea-8454ccabc769\n닫기\n실패 항목 재시도 (1)"
+    },
+    "injection": "Browser response injection only; actual server jobstatus=1"
+  },
+  {
+    "case": "injected-terminal-failed-only-retry-success",
+    "source": "281e9758c04137f42475ca3742acf34f3f0ba339",
+    "capture": {
+      "requests": [
+        {
+          "params": {
+            "command": "restartVPC",
+            "response": "json",
+            "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+            "cleanup": "false",
+            "makeredundant": "false",
+            "livepatch": "false",
+            "customjobid": "f25a91e3-97ce-4090-b351-8ea54a9f22e6"
+          },
+          "http": 200,
+          "body": {
+            "restartvpcresponse": {
+              "jobid": "f25a91e3-97ce-4090-b351-8ea54a9f22e6"
+            }
+          }
+        }
+      ],
+      "cursor": 19062,
+      "gaps": false
+    },
+    "ui": {
+      "buttons": [
+        {
+          "disabled": false,
+          "label": "Close",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "네트워크 요소 재생성",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "라우터 이중화 전환",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "Live Patch",
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "닫기"
+        }
+      ],
+      "open": true,
+      "rows": [
+        {
+          "id": "e1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64",
+          "status": "success",
+          "text": "qa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 실패\n작업: 2c100d9f-3901-43e2-bda0-bd3aa1701365\n530: Controlled UI terminal failure validation #1655\n시도 2 · 완료\n작업: f25a91e3-97ce-4090-b351-8ea54a9f22e6"
+        },
+        {
+          "id": "41265b76-27a3-47b9-8a38-233cac5da113",
+          "status": "success",
+          "text": "qa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: e30d6699-66f9-42fb-98ea-8454ccabc769"
+        }
+      ],
+      "switches": [
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "네트워크 요소 재생성"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "라우터 이중화 전환"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "Live Patch"
+        }
+      ],
+      "text": "VPC 재시작\n\n선택한 VPC의 네트워크 요소와 라우터를 순서대로 재시작합니다. 연결이 끊길 수 있습니다. 정리는 라우터를 교체하며, 이중화 전환은 서버의 기본 Redundant VPC offering으로 변경합니다. 실행 대상·소유자·제공자와 옵션을 확인하십시오.\n\n최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오.\n네트워크 요소 재생성\n라우터 이중화 전환\nLive Patch\n\n모든 대상에서 지원하는 옵션만 선택할 수 있습니다. 이중화 전환은 정리를 함께 사용합니다. 정리·이중화와 Live Patch는 함께 사용할 수 없습니다. Live Patch에는 조회 가능한 실행 중 라우터와 Tier가 필요하며 실제 패치 적용 여부는 서버 처리 결과에 따릅니다.\n\n전체 2 · 완료 2 · 실패 0\nqa-vpc1655-20261114-32-a\ne1f3b24b-2e1a-41e1-9a5a-ca2e6a730b64\nadmin · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 실패\n작업: 2c100d9f-3901-43e2-bda0-bd3aa1701365\n530: Controlled UI terminal failure validation #1655\n시도 2 · 완료\n작업: f25a91e3-97ce-4090-b351-8ea54a9f22e6\nqa-vpc1655-20261114-32-b\n41265b76-27a3-47b9-8a38-233cac5da113\nadmin · Zone\n이중화 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: e30d6699-66f9-42fb-98ea-8454ccabc769\n닫기"
+    }
+  },
+  {
+    "case": "normal-user-project-vpc-success",
+    "source": "281e9758c04137f42475ca3742acf34f3f0ba339",
+    "capture": {
+      "requests": [
+        {
+          "params": {
+            "command": "restartVPC",
+            "response": "json",
+            "id": "277703d6-dbf1-4142-9cc6-b00f824e5a12",
+            "cleanup": "false",
+            "makeredundant": "false",
+            "livepatch": "false",
+            "customjobid": "cd68273b-2469-428f-a1a4-e024e0ca03ce",
+            "projectid": "99e5ad38-c8a3-4691-a401-603cb67faff0"
+          },
+          "http": 200,
+          "body": {
+            "restartvpcresponse": {
+              "jobid": "cd68273b-2469-428f-a1a4-e024e0ca03ce"
+            }
+          }
+        }
+      ],
+      "cursor": 19915,
+      "gaps": false
+    },
+    "ui": {
+      "buttons": [
+        {
+          "disabled": false,
+          "label": "Close",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "네트워크 요소 재생성",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "라우터 이중화 전환",
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "label": "Live Patch",
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "label": null,
+          "text": "닫기"
+        }
+      ],
+      "open": true,
+      "rows": [
+        {
+          "id": "277703d6-dbf1-4142-9cc6-b00f824e5a12",
+          "status": "success",
+          "text": "qa-vpc1655-20261114-32-role-vpc\n277703d6-dbf1-4142-9cc6-b00f824e5a12\nqa-vpc1655-20261114-32-project · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: cd68273b-2469-428f-a1a4-e024e0ca03ce"
+        }
+      ],
+      "switches": [
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "네트워크 요소 재생성"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "라우터 이중화 전환"
+        },
+        {
+          "checked": "false",
+          "disabled": true,
+          "label": "Live Patch"
+        }
+      ],
+      "text": "VPC 재시작\n\n선택한 VPC의 네트워크 요소와 라우터를 순서대로 재시작합니다. 연결이 끊길 수 있습니다. 정리는 라우터를 교체하며, 이중화 전환은 서버의 기본 Redundant VPC offering으로 변경합니다. 실행 대상·소유자·제공자와 옵션을 확인하십시오.\n\n최종 작업과 현재 VPC·라우터 상태를 확인합니다. 성공한 대상은 다시 제출하지 않습니다. 실패한 대상만 같은 옵션으로 재시도하며, 결과가 미확정인 작업은 같은 작업 ID로 재조회하십시오.\n네트워크 요소 재생성\n라우터 이중화 전환\nLive Patch\n\n모든 대상에서 지원하는 옵션만 선택할 수 있습니다. 이중화 전환은 정리를 함께 사용합니다. 정리·이중화와 Live Patch는 함께 사용할 수 없습니다. Live Patch에는 조회 가능한 실행 중 라우터와 Tier가 필요하며 실제 패치 적용 여부는 서버 처리 결과에 따릅니다.\n\n전체 1 · 완료 1 · 실패 0\nqa-vpc1655-20261114-32-role-vpc\n277703d6-dbf1-4142-9cc6-b00f824e5a12\nqa-vpc1655-20261114-32-project · Zone\n단일 라우터 · 활성화 · VpcVirtualRouter, InternalLbVm\n완료\n시도 1 · 완료\n작업: cd68273b-2469-428f-a1a4-e024e0ca03ce\n닫기"
+    }
+  }
+]

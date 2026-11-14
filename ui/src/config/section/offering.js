@@ -616,6 +616,7 @@ export default {
         label: 'label.add.vpc.offering',
         listView: true,
         popup: true,
+        standardDialogSize: 'md',
         component: shallowRef(defineAsyncComponent(() => import('@/views/offering/AddVpcOffering.vue')))
       }, {
         api: 'updateVPCOffering',
@@ -669,6 +670,7 @@ export default {
         label: 'label.clone.vpc.offering',
         dataView: true,
         popup: true,
+        standardDialogSize: 'md',
         component: shallowRef(defineAsyncComponent(() => import('@/views/offering/CloneVpcOffering.vue')))
       }, {
         api: 'deleteVPCOffering',

@@ -1,0 +1,150 @@
+{
+  "id": "4130862d-d2b6-42a9-8793-05492b2d18a5",
+  "name": "qa-vpc1656-20261114-32-tier-unready-physical",
+  "displaytext": "VPC-06 unready provider diagnostic only",
+  "tags": "qa-pvlan1599-32",
+  "created": "2026-11-14T16:19:14+0900",
+  "traffictype": "Guest",
+  "isdefault": false,
+  "specifyvlan": false,
+  "conservemode": false,
+  "specifyipranges": false,
+  "availability": "Optional",
+  "networkrate": 10000,
+  "state": "Enabled",
+  "guestiptype": "Isolated",
+  "serviceofferingid": "c4176ed2-9166-468e-97f7-50bfc5d33fb3",
+  "service": [
+    {
+      "name": "Dns",
+      "provider": [
+        {
+          "name": "VpcVirtualRouter"
+        }
+      ]
+    },
+    {
+      "name": "NetworkACL",
+      "provider": [
+        {
+          "name": "VpcVirtualRouter"
+        }
+      ]
+    },
+    {
+      "name": "PortForwarding",
+      "provider": [
+        {
+          "name": "VpcVirtualRouter"
+        }
+      ]
+    },
+    {
+      "name": "Dhcp",
+      "provider": [
+        {
+          "name": "VpcVirtualRouter"
+        }
+      ]
+    },
+    {
+      "name": "UserData",
+      "provider": [
+        {
+          "name": "VpcVirtualRouter"
+        }
+      ]
+    },
+    {
+      "name": "Vpn",
+      "provider": [
+        {
+          "name": "VpcVirtualRouter"
+        }
+      ]
+    },
+    {
+      "name": "StaticNat",
+      "provider": [
+        {
+          "name": "VpcVirtualRouter"
+        }
+      ],
+      "capability": [
+        {
+          "name": "ElasticIp",
+          "value": "false",
+          "canchooseservicecapability": false
+        },
+        {
+          "name": "AssociatePublicIP",
+          "value": "false",
+          "canchooseservicecapability": false
+        }
+      ]
+    },
+    {
+      "name": "Lb",
+      "provider": [
+        {
+          "name": "VpcVirtualRouter"
+        }
+      ],
+      "capability": [
+        {
+          "name": "SupportedLBIsolation",
+          "value": "dedicated",
+          "canchooseservicecapability": false
+        },
+        {
+          "name": "ElasticLb",
+          "value": "false",
+          "canchooseservicecapability": false
+        },
+        {
+          "name": "InlineMode",
+          "value": "false",
+          "canchooseservicecapability": false
+        },
+        {
+          "name": "VmAutoScaling",
+          "value": "true",
+          "canchooseservicecapability": false
+        }
+      ]
+    },
+    {
+      "name": "SourceNat",
+      "provider": [
+        {
+          "name": "VpcVirtualRouter"
+        }
+      ],
+      "capability": [
+        {
+          "name": "SupportedSourceNatTypes",
+          "value": "peraccount",
+          "canchooseservicecapability": false
+        },
+        {
+          "name": "RedundantRouter",
+          "value": "false",
+          "canchooseservicecapability": false
+        }
+      ]
+    }
+  ],
+  "forvpc": true,
+  "fornsx": false,
+  "fortungsten": false,
+  "ispersistent": false,
+  "egressdefaultpolicy": false,
+  "maxconnections": 4096,
+  "keepaliveenabled": false,
+  "supportsstrechedl2subnet": false,
+  "supportspublicaccess": false,
+  "supportsinternallb": false,
+  "internetprotocol": "IPv4",
+  "specifyasnumber": false,
+  "hasannotations": false
+}

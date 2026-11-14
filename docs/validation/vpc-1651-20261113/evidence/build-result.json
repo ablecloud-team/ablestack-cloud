@@ -1,0 +1,38 @@
+{
+  "source": "4865041676154736c3b17c69231f0380289fc8a6",
+  "exit": 0,
+  "node": "v20.20.2",
+  "npm": "10.8.2",
+  "nodeOptions": "--openssl-legacy-provider --max-old-space-size=8192",
+  "seconds": 718.0,
+  "sourceUiClean": true,
+  "fullCloudBuild": false,
+  "indexSha256": "c60a5ef3fa6e04b8ca1c80cd96885b3d9f3b3ebef2c4356933e17098040b1fbe",
+  "appBundles": [
+    "js/app.2b740601.js"
+  ],
+  "markers": {
+    "vpc-service-provider": [
+      "js/chunk-3ff6c442.96fba806.js"
+    ],
+    "vpc-clone-provider-": [
+      "js/chunk-3ff6c442.96fba806.js"
+    ],
+    "blockingLoadingState": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ],
+    "fetchSyncProgress": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ],
+    "extractJobId": [
+      "js/chunk-339f49ae.fd3fdd7c.js"
+    ]
+  },
+  "changedFiles": {
+    "ui/src/config/section/offering.js": "27d67c21f9087d4581db618889028d08de63ef8c6c07a79ab1188abb13b589ac",
+    "ui/src/utils/vpcOfferingProviders.js": "fa2914b0fbadbc1006bafb13a9f1b829b5239a5432e100691f00587bbec47f5f",
+    "ui/src/views/offering/CloneVpcOffering.vue": "d4222c9242cfd54d97307401bd19a35bf79f69cf484f6c75be90d9c350ef9e90",
+    "ui/tests/unit/views/offering/CloneVpcOffering.spec.js": "6198c3d532aacbad1ab23c3bf754ad32e1abf8a0d90c7cfb28327e74b37d8090"
+  },
+  "lockfileSha256": "23379939285231d360907e8d7242206efd5359654b9903614788040680133ffc"
+}

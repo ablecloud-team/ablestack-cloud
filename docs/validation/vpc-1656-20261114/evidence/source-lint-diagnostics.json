@@ -1,0 +1,46 @@
+{
+  "run": 43573060868,
+  "failedHooks": [
+    "oxipng^[[m",
+    "insert-license^[[m",
+    "insert-license^[[m",
+    "insert-license^[[m",
+    "insert-license^[[m",
+    "insert-license^[[m",
+    "insert-license^[[m",
+    "check-shebang-scripts-are-executable^[[m",
+    "check-symlinks^[[m",
+    "end-of-file-fixer^[[m",
+    "fix-byte-order-marker^[[m",
+    "mixed-line-ending^[[m",
+    "trailing-whitespace^[[m",
+    "codespell^[[m",
+    "flake8^[[m",
+    "markdownlint^[[m"
+  ],
+  "changedFileMentions": {
+    "MigrateVpc.vue": [
+      "Run pre-commit\tRun pre-commit\t2026-11-14T07:53:46.3237174Z ui/src/views/network/MigrateVpc.vue",
+      "y.vue', 'docs/design/sharedfs-1464-online-compute-20261109/mockup/App.vue', 'docs/design/sharedfs-1461-preserve-20261105/mockup/App.vue', 'ui/src/views/network/MigrateVpc.vue', 'ui/src/views/compute/GuestNetworkTab.vue', 'ui/src/views/storage/SharedFSTab.vue', 'ui/src/components/view/MoldDialogActions.vue', 'ui/src/views/storage/Sto"
+    ],
+    "vpcMigration.js": [
+      "Run pre-commit\tRun pre-commit\t2026-11-14T07:53:46.3044913Z ui/src/utils/vpcMigration.js",
+      "Run pre-commit\tRun pre-commit\t2026-11-14T07:53:46.7104666Z ui/tests/fixtures/vpcMigration.js"
+    ],
+    "vpcMigration.spec.js": [
+      "Run pre-commit\tRun pre-commit\t2026-11-14T07:53:46.5539311Z ui/tests/unit/utils/vpcMigration.spec.js"
+    ],
+    "VpcOfferingResponse.java": [
+      "Run pre-commit\tRun pre-commit\t2026-11-14T07:53:47.0955017Z api/src/main/java/org/apache/cloudstack/api/response/VpcOfferingResponse.java"
+    ],
+    "VpcOfferingJoinDaoImpl.java": [
+      "Run pre-commit\tRun pre-commit\t2026-11-14T07:53:46.8634353Z server/src/main/java/com/cloud/api/query/dao/VpcOfferingJoinDaoImpl.java"
+    ],
+    "VpcOfferingJoinDaoImplTest.java": [
+      "Run pre-commit\tRun pre-commit\t2026-11-14T07:53:46.5865090Z server/src/test/java/com/cloud/api/query/dao/VpcOfferingJoinDaoImplTest.java"
+    ],
+    "vpc-1656-20261114/DESIGN": [
+      "Run pre-commit\tRun pre-commit\t2026-11-14T07:53:46.3677256Z docs/validation/vpc-1656-20261114/DESIGN.ko.md"
+    ]
+  }
+}

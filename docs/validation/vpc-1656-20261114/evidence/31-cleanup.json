@@ -1,0 +1,113 @@
+[
+  {
+    "command": "destroyVirtualMachine",
+    "id": "60b5b3d8-9ef8-4b8a-9b64-8423975b70f3",
+    "result": {
+      "virtualmachine": {
+        "volumemutationblockedreason": "",
+        "securitygroup": [],
+        "nic": [],
+        "affinitygroup": [],
+        "deleteprotection": false,
+        "tags": []
+      }
+    },
+    "success": true
+  },
+  {
+    "command": "deleteNetwork",
+    "id": "570d05bd-d120-4e02-bcfb-d081357b0392",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteNetwork",
+    "id": "20d729ab-1d58-438e-8b3a-0337cb2be418",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteNetwork",
+    "id": "5c18e0c2-d360-460d-bd63-b6bb7d30f98c",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPC",
+    "id": "f10ea4b1-f337-4dab-b133-276758b09118",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPC",
+    "id": "a0d25e8e-8fc2-4e10-81ce-91ecad4759eb",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteNetworkOffering",
+    "id": "2c3d4e15-48a5-4457-b893-dd9161392bf2",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteNetworkOffering",
+    "id": "26767d66-47f7-4a49-8ae4-7281199c341e",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteNetworkOffering",
+    "id": "6203df30-2906-40ef-b7f8-e060c274c962",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteNetworkOffering",
+    "id": "45858812-0037-40dc-92ad-76309e090a70",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPCOffering",
+    "id": "1ed37215-f102-4055-b3a9-23699127942b",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteVPCOffering",
+    "id": "6b452026-a7a6-4624-a68f-5f346ca1adb1",
+    "result": {
+      "success": true
+    },
+    "success": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "4bf322ca-38e4-4805-804b-33e1ef043c3e",
+    "result": {
+      "success": true
+    },
+    "success": true
+  }
+]

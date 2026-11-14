@@ -1,0 +1,80 @@
+{
+  "sourceCommit": "f698b0191965af5e030a328fdc7a5dffe3f86491",
+  "controls": {
+    "app": [
+      "http://10.10.32.10:8080/client/js/app.9af5df9e.js"
+    ],
+    "buttons": [
+      {
+        "disabled": false,
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "text": "확인"
+      }
+    ],
+    "description": "Default VPC offering",
+    "dialog": true,
+    "enable": "false",
+    "fieldLocked": false,
+    "footerLocked": false,
+    "name": "qa-vpc1653-20261114-32-ui-clone-delayed",
+    "services": [
+      {
+        "checked": true,
+        "text": "Dhcp\nDhcp 제공자\nVpcVirtualRouter"
+      },
+      {
+        "checked": true,
+        "text": "Dns\nDns 제공자\nVpcVirtualRouter"
+      },
+      {
+        "checked": false,
+        "text": "Firewall"
+      },
+      {
+        "checked": true,
+        "text": "Lb\nLb 제공자\nVpcVirtualRouter\nInternalLbVm"
+      },
+      {
+        "checked": false,
+        "text": "Gateway"
+      },
+      {
+        "checked": true,
+        "text": "StaticNat\nStaticNat 제공자\nVpcVirtualRouter"
+      },
+      {
+        "checked": true,
+        "text": "SourceNat\nSourceNat 제공자\nVpcVirtualRouter"
+      },
+      {
+        "checked": true,
+        "text": "NetworkACL\nNetworkACL 제공자\nVpcVirtualRouter"
+      },
+      {
+        "checked": true,
+        "text": "PortForwarding\nPortForwarding 제공자\nVpcVirtualRouter"
+      },
+      {
+        "checked": true,
+        "text": "UserData\nUserData 제공자\nVpcVirtualRouter"
+      },
+      {
+        "checked": true,
+        "text": "Vpn\nVpn 제공자\nVpcVirtualRouter"
+      },
+      {
+        "checked": false,
+        "text": "Connectivity"
+      }
+    ],
+    "status": ""
+  },
+  "focus": {
+    "tag": "BUTTON",
+    "text": "확인"
+  },
+  "postCount": 0
+}

@@ -1,0 +1,57 @@
+{
+  "errors": [
+    "Invalid format for the ip address parameter"
+  ],
+  "fields": [
+    {
+      "checked": false,
+      "id": "form_item_physicalnetwork",
+      "value": ""
+    },
+    {
+      "checked": false,
+      "id": "form_item_vlan",
+      "value": ""
+    },
+    {
+      "checked": false,
+      "id": "form_item_bypassvlanoverlapcheck",
+      "value": "on"
+    },
+    {
+      "checked": false,
+      "id": "form_item_associatednetworkid",
+      "value": ""
+    },
+    {
+      "checked": false,
+      "id": "form_item_ipaddress",
+      "value": ""
+    },
+    {
+      "checked": false,
+      "id": "form_item_gateway",
+      "value": ""
+    },
+    {
+      "checked": false,
+      "id": "form_item_netmask",
+      "value": ""
+    },
+    {
+      "checked": false,
+      "id": "form_item_nat",
+      "value": "on"
+    },
+    {
+      "checked": false,
+      "id": "form_item_acl",
+      "value": ""
+    }
+  ],
+  "open": true,
+  "selections": [
+    "Physical Network 1"
+  ],
+  "text": "새 게이트웨이 추가하기\n\n현재 VPC에 새로운 게이트웨이를 추가하기 위한 정보를 지정해 주십시오.\n\n물리 네트워크\nPhysical Network 1\nVLAN/VNI\nVLAN ID/범위 중복 우회\n연결된 네트워크\nPublic IP 주소\n게이트웨이\n넷마스크\nSource NAT\nACL\n취소확인"
+}

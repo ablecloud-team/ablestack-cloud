@@ -1,0 +1,30 @@
+{
+  "cursor": 805,
+  "gaps": false,
+  "requests": [
+    {
+      "requestId": "36436.1046",
+      "method": "POST",
+      "params": {
+        "command": "createPrivateGateway",
+        "response": "json",
+        "physicalnetworkid": "f9ed8d65-60ae-45c3-8ee0-e37e1b453b0b",
+        "vpcid": "1e2348bf-35c0-43a7-ab6c-5794df5e15d4",
+        "ipaddress": "999.18.32.2",
+        "gateway": "10.246.32.1",
+        "netmask": "255.255.255.0",
+        "aclid": "3b64a0c2-b23b-11f1-990e-0024811f8935",
+        "vlan": "3832"
+      },
+      "http": 431,
+      "response": {
+        "createprivategatewayresponse": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "Invalid format for the ip address parameter"
+        }
+      }
+    }
+  ]
+}

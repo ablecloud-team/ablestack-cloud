@@ -1,0 +1,16 @@
+{
+  "viewportStyleRowsPassed": 12,
+  "mobileScrollInputs": 4,
+  "cluster31": {
+    "lightAndDarkLongErrorVisuallyConfirmed": true,
+    "fixedFooterVisible": true
+  },
+  "cluster32": {
+    "lightAndDarkScreenshotPartialPaint": true,
+    "fullErrorAndHistoryPresentInDom": true,
+    "fixedFooterVisible": true,
+    "fullLongErrorVisualPassClaimed": false
+  },
+  "lowerMetricsTimingLimit": "All lower metrics were measured before wheel scroll settled and report scrollTop=0; use original images and this review rather than treating four scroll inputs as four complete visual passes.",
+  "productDefectEstablishedByPartialPaint": false
+}

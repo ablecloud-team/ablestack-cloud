@@ -1,0 +1,506 @@
+[
+  {
+    "cluster": 31,
+    "theme": "light",
+    "background": "rgb(255, 255, 255)",
+    "body": {
+      "clientWidth": 708,
+      "scrollWidth": 708
+    },
+    "chips": [
+      {
+        "clientWidth": 104,
+        "color": "rgb(31, 41, 55)",
+        "font": "14px",
+        "scrollWidth": 104,
+        "text": "VpcVirtualRouter"
+      },
+      {
+        "clientWidth": 82,
+        "color": "rgb(31, 41, 55)",
+        "font": "14px",
+        "scrollWidth": 82,
+        "text": "InternalLbVm"
+      }
+    ],
+    "dialog": {
+      "left": 280,
+      "right": 1000,
+      "width": 720
+    },
+    "height": 900,
+    "mobileMedia": false,
+    "services": {
+      "clientWidth": 642,
+      "scrollWidth": 642
+    },
+    "width": 1280,
+    "imageDimensions": {
+      "width": 1280,
+      "height": 900
+    },
+    "screenshot": "31-clone-light-1280.png"
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "background": "rgb(255, 255, 255)",
+    "body": {
+      "clientWidth": 708,
+      "scrollWidth": 708
+    },
+    "chips": [
+      {
+        "clientWidth": 104,
+        "color": "rgb(31, 41, 55)",
+        "font": "14px",
+        "scrollWidth": 104,
+        "text": "VpcVirtualRouter"
+      },
+      {
+        "clientWidth": 82,
+        "color": "rgb(31, 41, 55)",
+        "font": "14px",
+        "scrollWidth": 82,
+        "text": "InternalLbVm"
+      }
+    ],
+    "dialog": {
+      "left": 280,
+      "right": 1000,
+      "width": 720
+    },
+    "height": 900,
+    "mobileMedia": false,
+    "services": {
+      "clientWidth": 642,
+      "scrollWidth": 642
+    },
+    "width": 1280,
+    "imageDimensions": {
+      "width": 1280,
+      "height": 900
+    },
+    "screenshot": "32-clone-light-1280.png"
+  },
+  {
+    "cluster": 31,
+    "theme": "light",
+    "background": "rgb(255, 255, 255)",
+    "body": {
+      "clientWidth": 708,
+      "scrollWidth": 708
+    },
+    "chips": [
+      {
+        "clientWidth": 104,
+        "color": "rgb(31, 41, 55)",
+        "font": "14px",
+        "scrollWidth": 104,
+        "text": "VpcVirtualRouter"
+      },
+      {
+        "clientWidth": 82,
+        "color": "rgb(31, 41, 55)",
+        "font": "14px",
+        "scrollWidth": 82,
+        "text": "InternalLbVm"
+      }
+    ],
+    "dialog": {
+      "left": 24,
+      "right": 744,
+      "width": 720
+    },
+    "height": 900,
+    "mobileMedia": false,
+    "services": {
+      "clientWidth": 642,
+      "scrollWidth": 642
+    },
+    "width": 768,
+    "imageDimensions": {
+      "width": 768,
+      "height": 900
+    },
+    "screenshot": "31-clone-light-768.png"
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "background": "rgb(255, 255, 255)",
+    "body": {
+      "clientWidth": 708,
+      "scrollWidth": 708
+    },
+    "chips": [
+      {
+        "clientWidth": 104,
+        "color": "rgb(31, 41, 55)",
+        "font": "14px",
+        "scrollWidth": 104,
+        "text": "VpcVirtualRouter"
+      },
+      {
+        "clientWidth": 82,
+        "color": "rgb(31, 41, 55)",
+        "font": "14px",
+        "scrollWidth": 82,
+        "text": "InternalLbVm"
+      }
+    ],
+    "dialog": {
+      "left": 24,
+      "right": 744,
+      "width": 720
+    },
+    "height": 900,
+    "mobileMedia": false,
+    "services": {
+      "clientWidth": 642,
+      "scrollWidth": 642
+    },
+    "width": 768,
+    "imageDimensions": {
+      "width": 768,
+      "height": 900
+    },
+    "screenshot": "32-clone-light-768.png"
+  },
+  {
+    "cluster": 31,
+    "theme": "light",
+    "background": "rgb(255, 255, 255)",
+    "body": {
+      "clientWidth": 324,
+      "scrollWidth": 324
+    },
+    "chips": [
+      {
+        "clientWidth": 104,
+        "color": "rgb(31, 41, 55)",
+        "font": "14px",
+        "scrollWidth": 104,
+        "text": "VpcVirtualRouter"
+      },
+      {
+        "clientWidth": 82,
+        "color": "rgb(31, 41, 55)",
+        "font": "14px",
+        "scrollWidth": 82,
+        "text": "InternalLbVm"
+      }
+    ],
+    "dialog": {
+      "left": 12,
+      "right": 348,
+      "width": 336
+    },
+    "height": 800,
+    "mobileMedia": true,
+    "services": {
+      "clientWidth": 282,
+      "scrollWidth": 282
+    },
+    "width": 360,
+    "imageDimensions": {
+      "width": 360,
+      "height": 800
+    },
+    "screenshot": "31-clone-light-360.png"
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "background": "rgb(255, 255, 255)",
+    "body": {
+      "clientWidth": 324,
+      "scrollWidth": 324
+    },
+    "chips": [
+      {
+        "clientWidth": 104,
+        "color": "rgb(31, 41, 55)",
+        "font": "14px",
+        "scrollWidth": 104,
+        "text": "VpcVirtualRouter"
+      },
+      {
+        "clientWidth": 82,
+        "color": "rgb(31, 41, 55)",
+        "font": "14px",
+        "scrollWidth": 82,
+        "text": "InternalLbVm"
+      }
+    ],
+    "dialog": {
+      "left": 12,
+      "right": 348,
+      "width": 336
+    },
+    "height": 800,
+    "mobileMedia": true,
+    "services": {
+      "clientWidth": 282,
+      "scrollWidth": 282
+    },
+    "width": 360,
+    "imageDimensions": {
+      "width": 360,
+      "height": 800
+    },
+    "screenshot": "32-clone-light-360.png"
+  },
+  {
+    "cluster": 31,
+    "theme": "dark",
+    "background": "rgb(34, 40, 47)",
+    "body": {
+      "clientWidth": 708,
+      "scrollWidth": 708
+    },
+    "chips": [
+      {
+        "clientWidth": 104,
+        "color": "rgb(240, 243, 246)",
+        "font": "14px",
+        "scrollWidth": 104,
+        "text": "VpcVirtualRouter"
+      },
+      {
+        "clientWidth": 82,
+        "color": "rgb(240, 243, 246)",
+        "font": "14px",
+        "scrollWidth": 82,
+        "text": "InternalLbVm"
+      }
+    ],
+    "dialog": {
+      "left": 280,
+      "right": 1000,
+      "width": 720
+    },
+    "height": 900,
+    "mobileMedia": false,
+    "services": {
+      "clientWidth": 642,
+      "scrollWidth": 642
+    },
+    "width": 1280,
+    "imageDimensions": {
+      "width": 1280,
+      "height": 900
+    },
+    "screenshot": "31-clone-dark-1280.png"
+  },
+  {
+    "cluster": 32,
+    "theme": "dark",
+    "background": "rgb(34, 40, 47)",
+    "body": {
+      "clientWidth": 708,
+      "scrollWidth": 708
+    },
+    "chips": [
+      {
+        "clientWidth": 104,
+        "color": "rgb(240, 243, 246)",
+        "font": "14px",
+        "scrollWidth": 104,
+        "text": "VpcVirtualRouter"
+      },
+      {
+        "clientWidth": 82,
+        "color": "rgb(240, 243, 246)",
+        "font": "14px",
+        "scrollWidth": 82,
+        "text": "InternalLbVm"
+      }
+    ],
+    "dialog": {
+      "left": 280,
+      "right": 1000,
+      "width": 720
+    },
+    "height": 900,
+    "mobileMedia": false,
+    "services": {
+      "clientWidth": 642,
+      "scrollWidth": 642
+    },
+    "width": 1280,
+    "imageDimensions": {
+      "width": 1280,
+      "height": 900
+    },
+    "screenshot": "32-clone-dark-1280.png"
+  },
+  {
+    "cluster": 31,
+    "theme": "dark",
+    "background": "rgb(34, 40, 47)",
+    "body": {
+      "clientWidth": 708,
+      "scrollWidth": 708
+    },
+    "chips": [
+      {
+        "clientWidth": 104,
+        "color": "rgb(240, 243, 246)",
+        "font": "14px",
+        "scrollWidth": 104,
+        "text": "VpcVirtualRouter"
+      },
+      {
+        "clientWidth": 82,
+        "color": "rgb(240, 243, 246)",
+        "font": "14px",
+        "scrollWidth": 82,
+        "text": "InternalLbVm"
+      }
+    ],
+    "dialog": {
+      "left": 24,
+      "right": 744,
+      "width": 720
+    },
+    "height": 900,
+    "mobileMedia": false,
+    "services": {
+      "clientWidth": 642,
+      "scrollWidth": 642
+    },
+    "width": 768,
+    "imageDimensions": {
+      "width": 768,
+      "height": 900
+    },
+    "screenshot": "31-clone-dark-768.png"
+  },
+  {
+    "cluster": 32,
+    "theme": "dark",
+    "background": "rgb(34, 40, 47)",
+    "body": {
+      "clientWidth": 708,
+      "scrollWidth": 708
+    },
+    "chips": [
+      {
+        "clientWidth": 104,
+        "color": "rgb(240, 243, 246)",
+        "font": "14px",
+        "scrollWidth": 104,
+        "text": "VpcVirtualRouter"
+      },
+      {
+        "clientWidth": 82,
+        "color": "rgb(240, 243, 246)",
+        "font": "14px",
+        "scrollWidth": 82,
+        "text": "InternalLbVm"
+      }
+    ],
+    "dialog": {
+      "left": 24,
+      "right": 744,
+      "width": 720
+    },
+    "height": 900,
+    "mobileMedia": false,
+    "services": {
+      "clientWidth": 642,
+      "scrollWidth": 642
+    },
+    "width": 768,
+    "imageDimensions": {
+      "width": 768,
+      "height": 900
+    },
+    "screenshot": "32-clone-dark-768.png"
+  },
+  {
+    "cluster": 31,
+    "theme": "dark",
+    "background": "rgb(34, 40, 47)",
+    "body": {
+      "clientWidth": 324,
+      "scrollWidth": 324
+    },
+    "chips": [
+      {
+        "clientWidth": 104,
+        "color": "rgb(240, 243, 246)",
+        "font": "14px",
+        "scrollWidth": 104,
+        "text": "VpcVirtualRouter"
+      },
+      {
+        "clientWidth": 82,
+        "color": "rgb(240, 243, 246)",
+        "font": "14px",
+        "scrollWidth": 82,
+        "text": "InternalLbVm"
+      }
+    ],
+    "dialog": {
+      "left": 12,
+      "right": 348,
+      "width": 336
+    },
+    "height": 800,
+    "mobileMedia": true,
+    "services": {
+      "clientWidth": 282,
+      "scrollWidth": 282
+    },
+    "width": 360,
+    "imageDimensions": {
+      "width": 360,
+      "height": 800
+    },
+    "screenshot": "31-clone-dark-360.png"
+  },
+  {
+    "cluster": 32,
+    "theme": "dark",
+    "background": "rgb(34, 40, 47)",
+    "body": {
+      "clientWidth": 324,
+      "scrollWidth": 324
+    },
+    "chips": [
+      {
+        "clientWidth": 104,
+        "color": "rgb(240, 243, 246)",
+        "font": "14px",
+        "scrollWidth": 104,
+        "text": "VpcVirtualRouter"
+      },
+      {
+        "clientWidth": 82,
+        "color": "rgb(240, 243, 246)",
+        "font": "14px",
+        "scrollWidth": 82,
+        "text": "InternalLbVm"
+      }
+    ],
+    "dialog": {
+      "left": 12,
+      "right": 348,
+      "width": 336
+    },
+    "height": 800,
+    "mobileMedia": true,
+    "services": {
+      "clientWidth": 282,
+      "scrollWidth": 282
+    },
+    "width": 360,
+    "imageDimensions": {
+      "width": 360,
+      "height": 800
+    },
+    "screenshot": "32-clone-dark-360.png"
+  }
+]

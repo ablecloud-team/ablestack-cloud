@@ -30,6 +30,8 @@ import { restartableNetworkType, networkRestartParams } from '@/utils/networkRes
 import { migrationVisible } from '@/utils/networkMigration'
 import { networkBusy } from '@/utils/networkLifecycle'
 import { canReadNetworkPermissions } from '@/utils/networkPermissions'
+import { vpcRestartParams, vpcRestartReason } from '@/utils/vpcRestart'
+import { vpcMigrationVisible } from '@/utils/vpcMigration'
 
 const activeFastCloneStatuses = ['pending', 'running']
 const fastCloneOperationBlockedLabel = 'message.sharedmountpoint.clone.flatten.in.progress'
@@ -384,7 +386,24 @@ export default {
           },
           groupAction: true,
           popup: true,
-          groupMap: (selection, values) => { return selection.map(x => { return { id: x, cleanup: values.cleanup, makeredundant: values.makeredundant } }) }
+          selfManagedDialog: true,
+          disabled: (record, getters, selected) => (selected?.length ? selected : [record]).some(v => vpcRestartReason(v, getters)),
+          tooltip: (record, getters, selected) => {
+            const reason = (selected?.length ? selected : [record]).map(v => vpcRestartReason(v, getters)).find(Boolean)
+            return reason ? 'message.vpc.restart.reason.' + reason : ''
+          },
+          component: shallowRef(defineAsyncComponent(() => import('@/views/network/RestartVpc.vue'))),
+          groupMap: (selection, values) => selection.map(id => vpcRestartParams(id, values))
+        },
+        {
+          api: 'migrateVPC',
+          icon: 'swap-outlined',
+          label: 'label.vpc.migration',
+          dataView: true,
+          popup: true,
+          selfManagedDialog: true,
+          show: record => vpcMigrationVisible(record, store.getters),
+          component: shallowRef(defineAsyncComponent(() => import('@/views/network/MigrateVpc.vue')))
         },
         {
           api: 'deleteVPC',
