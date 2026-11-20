@@ -19,10 +19,9 @@
 
 package org.apache.cloudstack.backup;
 
-import com.cloud.agent.api.Command;
 import com.cloud.agent.api.LogLevel;
 
-public class AblestackDeleteBackupCommand extends Command {
+public class AblestackDeleteBackupCommand extends AblestackDataOperationCommand {
     private String backupPath;
     private String backupRepoType;
     private String backupRepoAddress;

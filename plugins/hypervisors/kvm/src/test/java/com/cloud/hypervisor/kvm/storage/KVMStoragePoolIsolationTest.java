@@ -17,6 +17,7 @@
 package com.cloud.hypervisor.kvm.storage;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -54,6 +55,42 @@ public class KVMStoragePoolIsolationTest {
         ReflectionTestUtils.setField(manager, "_storageMapper", Map.of("libvirt", adaptor));
         ReflectionTestUtils.setField(manager, "_haMonitor", mock(KVMHAMonitor.class));
         return manager;
+    }
+
+    @Test
+    public void registeredMonitoringPathRemainsAvailableWhileTheSamePoolIsBlocked() throws Exception {
+        StorageAdaptor adaptor = mock(StorageAdaptor.class);
+        KVMStoragePoolManager manager = manager(adaptor);
+        Map<String, StoragePoolInformation> registrations = new ConcurrentHashMap<>();
+        registrations.put("busy", new StoragePoolInformation("busy", "host", 0, "/gfs", null,
+                StoragePoolType.SharedMountPoint, Map.of(), true));
+        registrations.put("secondary", new StoragePoolInformation("secondary", "host", 0, "/secondary", null,
+                StoragePoolType.SharedMountPoint, Map.of(), false));
+        ReflectionTestUtils.setField(manager, "_storagePools", registrations);
+        CountDownLatch entered = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        when(adaptor.getStoragePool("busy", true)).thenAnswer(call -> {
+            entered.countDown();
+            assertTrue(release.await(10, TimeUnit.SECONDS));
+            return mock(KVMStoragePool.class);
+        });
+        ExecutorService workers = Executors.newFixedThreadPool(2);
+        try {
+            Future<?> blocked = workers.submit(() -> manager.getStoragePool(StoragePoolType.SharedMountPoint, "busy", true, false));
+            assertTrue(entered.await(2, TimeUnit.SECONDS));
+            assertEquals("/gfs", workers.submit(() -> manager.getRegisteredStoragePoolPath(
+                    StoragePoolType.SharedMountPoint, "busy")).get(1, TimeUnit.SECONDS));
+            assertNull(manager.getRegisteredStoragePoolPath(StoragePoolType.RBD, "busy"));
+            assertNull(manager.getRegisteredStoragePoolPath(StoragePoolType.SharedMountPoint, "secondary"));
+            assertNull(manager.getRegisteredStoragePoolPath(StoragePoolType.SharedMountPoint, "missing"));
+            assertNull(manager.getRegisteredStoragePoolPath(StoragePoolType.SharedMountPoint, null));
+            verify(adaptor, never()).getStoragePool("busy", false);
+            release.countDown();
+            blocked.get(2, TimeUnit.SECONDS);
+        } finally {
+            release.countDown();
+            workers.shutdownNow();
+        }
     }
 
     @Test

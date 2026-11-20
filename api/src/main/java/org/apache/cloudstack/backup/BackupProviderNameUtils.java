@@ -16,6 +16,8 @@
 // under the License.
 package org.apache.cloudstack.backup;
 
+import java.util.Arrays;
+
 public final class BackupProviderNameUtils {
     public static final String NAS = "nas";
     public static final String COMMVAULT = "commvault";
@@ -26,6 +28,11 @@ public final class BackupProviderNameUtils {
     public static final String ABLESTACK_VEEAM = "ablestack-veeam";
 
     private BackupProviderNameUtils() {
+    }
+
+    public static boolean isConfigured(final String providers, final String provider) {
+        return providers != null && provider != null && Arrays.stream(providers.split(","))
+                .map(String::trim).anyMatch(provider::equalsIgnoreCase);
     }
 
     public static boolean isNasFamily(final String providerName) {

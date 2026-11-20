@@ -19,14 +19,13 @@
 
 package org.apache.cloudstack.backup;
 
-import com.cloud.agent.api.Command;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AblestackNetBackupTakeBackupCommand extends Command {
+public class AblestackNetBackupTakeBackupCommand extends AblestackDataOperationCommand {
     private String vmName;
     private String volumeStagingManifest;
     private String volumeBackupStartPlan;
@@ -56,7 +55,6 @@ public class AblestackNetBackupTakeBackupCommand extends Command {
     private Map<String, String> parentCheckpointXmlChain;
     private List<String> backupFiles;
     private String policyId;
-    private boolean waitForCompletion = true;
     private Integer bandwidthLimitMbps;
 
     public AblestackNetBackupTakeBackupCommand(final String vmName, final String backupPath) {
@@ -183,14 +181,6 @@ public class AblestackNetBackupTakeBackupCommand extends Command {
 
     public void setPolicyId(final String policyId) {
         this.policyId = policyId;
-    }
-
-    public boolean isWaitForCompletion() {
-        return waitForCompletion;
-    }
-
-    public void setWaitForCompletion(final boolean waitForCompletion) {
-        this.waitForCompletion = waitForCompletion;
     }
 
     public Integer getBandwidthLimitMbps() {

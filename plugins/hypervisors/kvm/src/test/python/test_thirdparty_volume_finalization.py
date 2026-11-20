@@ -327,6 +327,23 @@ class ParentCheckpointCleanupTest(unittest.TestCase):
         self.assertEqual(self.parent_xml, self.plan["parentCheckpointXmlChain"]["/archived/parent.xml"])
         self.assertEqual({"ancestor", "current", "unrelated"}, set(self.bitmaps[0]))
 
+    def test_missing_older_checkpoint_xml_does_not_block_rebinding_the_current_baseline(self):
+        self.metadata = set()
+        plan = copy.deepcopy(self.plan)
+        plan["parentCheckpointName"] = "current"
+        # The current baseline is valid even when its retired parent's XML
+        # and libvirt registration no longer exist after a VM restart.
+        plan["parentCheckpointXmlChain"] = {"/archived/current.xml": self.current_xml}
+        self.expected_registration = "current"
+        labels = {str(Path(path).resolve()): label for path, label in zip(self.paths, ("sda", "sdb"))}
+        backup.redefine_parent_checkpoint(plan, "restarted-vm", self.job, labels)
+        self.assertEqual({"current"}, self.metadata)
+        registered = ET.fromstring((self.job / "parent-checkpoint.xml").read_text())
+        self.assertIsNone(registered.find("parent"))
+        self.assertEqual(["sda", "sdb"], [disk.get("name") for disk in registered.findall("./disks/disk")])
+        self.assertEqual(["current", "current"], [disk.get("bitmap") for disk in registered.findall("./disks/disk")])
+        self.assertEqual(self.current_xml, plan["parentCheckpointXmlChain"]["/archived/current.xml"])
+
     def test_shared_backing_parent_is_retained_for_live_and_offline_sources(self):
         self.backing_parent = True
         for self.offline in [False, True]:

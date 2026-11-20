@@ -69,7 +69,7 @@ print(json.dumps(value))
         script = r'''source "$TEST_COMMON"
 MOLD_LIST_VMS_API_METHOD=GET
 MOLD_QUERY_ASYNC_JOB_API_URL=http://mold.test/client/api
-NETBACKUP_STAGING_TIMEOUT=1
+NETBACKUP_STAGING_TIMEOUT=3
 NETBACKUP_STAGING_POLL_INTERVAL=0.02
 invoke_mold_api() { python3 "$TEST_ROOT/api.py" "$@"; }
 wait_for_vm_staging_complete i-2-1-VM 1 "$TEST_BACKUP"
@@ -139,10 +139,12 @@ wait_for_vm_staging_complete i-2-1-VM 1 "$TEST_BACKUP"
         result = self.wait([self.status(nested=True)])
         self.assertEqual(0, result.returncode, result.stderr)
 
-    def test_legacy_response_retains_marker_discovery_without_guessing_an_api_backup_id(self):
+    def test_missing_backup_uuid_rejects_even_an_existing_marker_without_waiting(self):
         self.marker()
         result = self.wait([], backup="")
-        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("Mold backup UUID is required", result.stderr)
+        self.assertNotIn("Timed out", result.stderr)
         self.assertFalse((self.root / "requests").exists())
 
     def test_exact_marker_wins_over_a_newer_point_and_clock_skew(self):
@@ -163,6 +165,38 @@ wait_for_vm_staging_complete i-2-1-VM 1 "$TEST_BACKUP"
         result = self.wait([self.status("COMPLETED", "BackedUp")])
         self.assertNotEqual(0, result.returncode)
         self.assertIn("without its expected bootstrap marker", result.stderr)
+
+    def test_parent_stops_the_cached_cohort_after_the_first_preparation_failure(self):
+        script = self.root / "netbackup-host-bpstart-notify.sh"
+        script.write_text((DIRECTORY / script.name).read_text())
+        common = self.root / "netbackup-host-common.sh"
+        common.write_text(r'''source "$TEST_COMMON"
+resolve_context() {
+  POLICY_NAME=parent-policy SCHEDULE_NAME=mold-vm-request CLIENT_NAME=host
+  SESSION_TIMESTAMP=1 BACKUP_ID=parent NETBACKUP_JOB_ID=1 BACKUP_TIME=point UNIX_BACKUP_TIME=1
+  CONTEXT_FILE="$TEST_ROOT/context" RUNTIME_FILE="$TEST_ROOT/runtime"
+}
+for name in supervise_netbackup_hook ensure_runtime_dirs cleanup_stale_transient_state \
+    cleanup_runtime_history load_policy_schedule_config acquire_lock sanity_checks \
+    mark_context_in_progress initialize_runtime_cache init_runtime_state \
+    prepare_parent_policy_staging cache_mold_virtual_machines write_state_file \
+    clear_context_in_progress sync; do
+  eval "$name() { :; }"
+done
+log() { :; }
+update_runtime_status() { printf '%s\n' "$1" >> "$TEST_ROOT/status"; }
+append_runtime_vm_result() { :; }
+list_target_vms() { printf 'vm-first\nvm-second\n'; }
+run_stage_vm_backup() {
+  printf '%s\n' "$1" >> "$TEST_ROOT/dispatched"
+  printf 'FAILED\tvm-id\tjob-id\t\tPrepared engine failed\n'
+  return 1
+}
+''')
+        result = subprocess.run(["bash", str(script)], env=self.env, text=True, capture_output=True, timeout=8)
+        self.assertNotEqual(0, result.returncode)
+        self.assertEqual(["vm-first"], (self.root / "dispatched").read_text().splitlines())
+        self.assertEqual("MOLD_BACKUP_FAILED_ALL", (self.root / "status").read_text().strip())
 
 
 if __name__ == "__main__":

@@ -239,6 +239,28 @@ raise SystemExit(runner.run_supervised(sys.argv[2],'policy__schedule__host','PRE
             self.assertEqual(0, runner.main(['request-stop', '--context', self.context, '--status', '150']))
         self.assertEqual('150', stop.call_args.args[-1])
 
+    def test_run_cli_uses_the_supplied_global_timeout_for_pre_and_post(self):
+        for phase in ('PRE', 'POST'):
+            with self.subTest(phase=phase), patch.dict(os.environ, STATE_ROOT=str(self.state), BACKUP_ID='backup'), \
+                    patch.object(runner, 'run_supervised', return_value=0) as run:
+                self.assertEqual(0, runner.main(['run', '--context', self.context, '--phase', phase,
+                    '--timeout', '172800', '--', str(self.helper), '--worker-option']))
+                self.assertEqual(172800, run.call_args.kwargs['timeout'])
+                self.assertEqual([str(self.helper), '--worker-option'], run.call_args.args[-1])
+
+    def test_run_cannot_silently_use_a_fixed_timeout_when_configuration_is_missing(self):
+        with patch.dict(os.environ, BACKUP_ID='backup'), patch.object(runner, 'run_supervised') as run:
+            self.assertEqual(1, runner.main(['run', '--context', self.context, '--', str(self.helper)]))
+            run.assert_not_called()
+
+    def test_invalid_cli_timeouts_never_launch_a_worker(self):
+        with patch.object(runner, 'run_supervised') as run:
+            for value in ('0', '-1', '1.5', 'invalid', '2147483648'):
+                with self.subTest(value=value), patch('sys.stderr'):
+                    with self.assertRaises(SystemExit):
+                        runner.main(['run', '--context', self.context, '--timeout', value, '--', str(self.helper)])
+            run.assert_not_called()
+
 
 if __name__ == '__main__':
     unittest.main()

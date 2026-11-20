@@ -18,7 +18,8 @@
 
 """Submit an exact staged artifact through a Host policy's User Backup schedule.
 
-An intent is durable before bpbackup runs. Recovery never invokes bpbackup again:
+An independent systemd worker writes an intent before bpbackup runs.
+Recovery never invokes bpbackup again after that external intent:
 Mold resolves the exact Job ID from its policy, Client, schedule and file list,
 then confirms that job's exact Catalog image before acknowledging the artifact.
 """
@@ -28,7 +29,9 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
+import sys
 import uuid
 
 from thirdparty_volume_backup import atomic
@@ -73,6 +76,11 @@ def submit(file, plan, recover_only=False):
         return saved["requestId"]
     if recover_only:
         raise RuntimeError("NetBackup submission receipt is unavailable; the request will not be resubmitted")
+    validate_source(file, plan)
+    return execute_submission(file, plan)
+
+
+def validate_source(file, plan):
     artifact = plan["artifact"]
     current = json.loads((file.parent / "volume-request.json").read_text())
     source = json.loads((file.parent / "volume-plan.json").read_text())
@@ -95,6 +103,12 @@ def submit(file, plan, recover_only=False):
         raise RuntimeError("NetBackup source pipeline is canceled or closed")
     if not BPBACKUP.is_file() or not os.access(BPBACKUP, os.X_OK):
         raise RuntimeError("NetBackup bpbackup is not installed or executable on the KVM Host")
+
+
+def execute_submission(file, plan):
+    artifact = plan["artifact"]
+    receipt = file.with_suffix(".receipt.json")
+    intent = file.with_suffix(".intent.json")
     control = CONTROL_ROOT / artifact["backupUuid"]
     control.mkdir(parents=True, mode=0o700, exist_ok=True)
     selections = control / (file.stem + ".selections")
@@ -127,15 +141,62 @@ def submit(file, plan, recover_only=False):
     return saved["requestId"]
 
 
+def dispatch(file, plan, recover_only=False):
+    validate(plan, file.parent)
+    if file.with_suffix(".intent.json").exists() or file.with_suffix(".receipt.json").exists():
+        return submit(file, plan, recover_only=True)
+    queued = file.with_suffix(".dispatch.json")
+    saved = {"version": 1, "plan": plan, "requestId": request_id(plan),
+             "unit": "ablestack-nb-submit-" + hashlib.sha256(request_id(plan).encode()).hexdigest()[:32]}
+    exists = queued.exists()
+    if exists and json.loads(queued.read_text()) != saved:
+        raise RuntimeError("NetBackup queued submission belongs to another artifact")
+    if recover_only and not exists:
+        raise RuntimeError("NetBackup submission receipt is unavailable; the request will not be resubmitted")
+    validate_source(file, plan)
+    systemd = shutil.which("systemd-run")
+    if not systemd:
+        raise RuntimeError("NetBackup submission requires systemd-run")
+    if not exists:
+        atomic(queued, saved)
+    try:
+        if exists:
+            result = subprocess.run(["systemctl", "show", saved["unit"], "--property=LoadState,ActiveState"],
+                                    capture_output=True, text=True, timeout=10, check=False)
+            properties = dict(line.split("=", 1) for line in (result.stdout or "").splitlines() if "=" in line)
+            if properties.get("LoadState") == "loaded":
+                if properties.get("ActiveState") not in {"active", "activating", "reloading"}:
+                    subprocess.run(["systemctl", "start", "--no-block", saved["unit"]],
+                                   capture_output=True, timeout=10, check=False)
+                return saved["requestId"]
+        # A separate service cgroup survives mold-agent restarts. The worker's
+        # lock and durable external intent still guarantee at-most-once bpbackup.
+        subprocess.run([systemd, "--quiet", "--unit=" + saved["unit"], "--property=Type=exec",
+                        "--property=RuntimeMaxSec=150", "--property=KillMode=control-group", "--",
+                        sys.executable, str(Path(__file__).resolve()), "--plan-file", str(file), "--submit-worker"],
+                       capture_output=True, timeout=15, check=False)
+    except (OSError, subprocess.TimeoutExpired):
+        # A lost D-Bus reply is not proof of rejection. Recovery may restart the
+        # queued worker only while no external intent exists, under the same lock.
+        pass
+    return saved["requestId"]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--plan-file", required=True)
     parser.add_argument("--recover-only", action="store_true")
+    parser.add_argument("--submit-worker", action="store_true")
     args = parser.parse_args()
     file = Path(args.plan_file)
     plan = json.loads(file.read_text())
+    # Reading an already durable outcome never needs to wait for the detached
+    # worker's client command to finish.
+    if not args.submit_worker and (file.with_suffix(".intent.json").exists() or file.with_suffix(".receipt.json").exists()):
+        print("ABLESTACK_REQUEST_ID=" + submit(file, plan, recover_only=True))
+        return
     with file.with_suffix(".lock").open("a") as lock:
-        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        fcntl.flock(lock, fcntl.LOCK_EX | (0 if args.submit_worker else fcntl.LOCK_NB))
         rejected = file.with_suffix(".rejected.json")
         if rejected.exists():
             saved = json.loads(rejected.read_text())
@@ -144,9 +205,15 @@ def main():
             print("ABLESTACK_NOT_SUBMITTED=" + json.dumps(saved))
             return
         try:
-            print("ABLESTACK_REQUEST_ID=" + submit(file, plan, args.recover_only))
+            if args.submit_worker and not file.with_suffix(".intent.json").exists():
+                queued = json.loads(file.with_suffix(".dispatch.json").read_text())
+                if queued.get("version") != 1 or queued.get("plan") != plan or queued.get("requestId") != request_id(plan):
+                    raise RuntimeError("NetBackup worker does not own this queued submission")
+            operation = submit if args.submit_worker else dispatch
+            print("ABLESTACK_REQUEST_ID=" + operation(file, plan, args.recover_only))
         except Exception as error:
-            if not args.recover_only and not file.with_suffix(".intent.json").exists():
+            if not args.recover_only and not file.with_suffix(".intent.json").exists() and (
+                    args.submit_worker or not file.with_suffix(".dispatch.json").exists()):
                 saved = {"plan": plan, "notSubmitted": True, "failure": str(error)}
                 atomic(rejected, saved)
                 print("ABLESTACK_NOT_SUBMITTED=" + json.dumps(saved))

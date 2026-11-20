@@ -61,6 +61,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertThrows;
@@ -152,7 +153,9 @@ public class AblestackNetBackupBackupModeTest {
         for (String id : List.of("volume-id", "metadata-id")) {
             netbackup.stubFor(get(urlEqualTo("/netbackup/catalog/images/" + id))
                     .willReturn(aResponse().withStatus(200).withBody(new JSONObject()
-                            .put("data", new JSONObject().put("id", id)).toString())));
+                            .put("data", new JSONObject().put("id", id).put("attributes", new JSONObject()
+                                    .put("backupStatus", 0).put("numCopies", 1).put("primaryCopy", 1)
+                                    .put("expiration", java.time.Instant.now().plusSeconds(3600).toString()))).toString())));
         }
     }
 
@@ -342,6 +345,29 @@ public class AblestackNetBackupBackupModeTest {
         assertEquals(2, manifest.getVolumes().get(0).chain.size());
     }
 
+    @Test public void expiredParentStillPresentInCatalogStartsAnIndependentFull() {
+        enabled();
+        BackupVO previous = parent();
+        when(backups.listByVmIdAndOffering(1L, 10L, 2L)).thenReturn(List.of(previous));
+        netbackup.stubFor(get(urlEqualTo("/netbackup/catalog/images/volume-id"))
+                .willReturn(aResponse().withStatus(200).withBody(new JSONObject().put("data", new JSONObject()
+                        .put("id", "volume-id").put("attributes", new JSONObject().put("backupStatus", 0)
+                                .put("numCopies", 1).put("primaryCopy", 1)
+                                .put("expiration", java.time.Instant.now().minusSeconds(60).toString()))).toString())));
+        assertFull(start(false), ".qcow2");
+    }
+
+    @Test public void unavailableRetentionCatalogDoesNotSelectFullOrRegisterAnIncremental() {
+        enabled();
+        BackupVO previous = parent();
+        when(backups.listByVmIdAndOffering(1L, 10L, 2L)).thenReturn(List.of(previous));
+        netbackup.stubFor(get(urlEqualTo("/netbackup/catalog/images/volume-id"))
+                .willReturn(aResponse().withStatus(503)));
+        assertThrows(CloudRuntimeException.class, () -> start(false));
+        verify(backups, never()).persist(any(BackupVO.class));
+        verify(jobs, never()).dispatchBackup(any(), any(), any(), any());
+    }
+
     @Test public void reachingTheChainLimitStartsANewFullWithoutParentReferences() {
         enabled();
         when(depot.getConfigStringValue("kvm.backup.chain.size", ConfigKey.Scope.Global, null)).thenReturn("1");
@@ -513,6 +539,56 @@ public class AblestackNetBackupBackupModeTest {
         when(depot.getConfigStringValue("kvm.incremental.backup", ConfigKey.Scope.Cluster, 40L)).thenReturn("true");
     }
 
+    @Test public void runningQcow2UsesIncrementalWithGlobalFalseAndClusterTrue() {
+        assertIncrementalWithGlobalDisabled(false, false);
+    }
+
+    @Test public void stoppedQcow2UsesIncrementalWithGlobalFalseAndClusterTrue() {
+        assertIncrementalWithGlobalDisabled(true, false);
+    }
+
+    @Test public void runningRbdUsesIncrementalWithGlobalFalseAndClusterTrue() {
+        assertIncrementalWithGlobalDisabled(false, true);
+    }
+
+    @Test public void stoppedRbdUsesIncrementalWithGlobalFalseAndClusterTrue() {
+        assertIncrementalWithGlobalDisabled(true, true);
+    }
+
+    private void assertIncrementalWithGlobalDisabled(boolean stopped, boolean rbd) {
+        Object originalGlobal = ReflectionTestUtils.getField(BackupManager.KvmIncrementalBackup, "_value");
+        try {
+            ReflectionTestUtils.setField(BackupManager.KvmIncrementalBackup, "_value", null);
+            when(depot.getConfigStringValue("kvm.incremental.backup", ConfigKey.Scope.Global, null)).thenReturn("false");
+            assertFalse(BackupManager.KvmIncrementalBackup.value());
+            enabled();
+            if (stopped) {
+                when(vm.getState()).thenReturn(VirtualMachine.State.Stopped);
+                when(vm.getHostId()).thenReturn(null);
+                when(vm.getLastHostId()).thenReturn(30L);
+            }
+            if (rbd) {
+                when(pool.getPoolType()).thenReturn(Storage.StoragePoolType.RBD);
+                when(poolTo.getPoolType()).thenReturn(Storage.StoragePoolType.RBD);
+            }
+            BackupVO previous = parent(rbd ? "RBD_DIFF" : "QCOW2");
+            previous.setHostId(30L);
+            when(backups.listByVmIdAndOffering(1L, 10L, 2L)).thenReturn(List.of(previous));
+
+            AblestackNetBackupTakeBackupCommand command = start(false);
+
+            assertEquals("INCREMENTAL", command.getBackupType());
+            assertEquals("previous-point", command.getParentCheckpointName());
+            assertEquals(previous.getExternalId(), command.getParentBackupPath());
+            ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(command.getVolumeStagingManifest());
+            assertEquals(previous.getUuid(), manifest.getParentBackupUuid());
+            assertEquals("INCREMENTAL", manifest.getBackupType());
+            verify(jobs, times(stopped ? 1 : 0)).validateHostPolicyBackupChain(eq(vm), eq(previous), eq(host), eq("source-policy"), any());
+        } finally {
+            ReflectionTestUtils.setField(BackupManager.KvmIncrementalBackup, "_value", originalGlobal);
+        }
+    }
+
     @Test public void hostPolicyBackupPassesQuiesceToTheVolumeCommandAndRetryDetails() {
         assertPolicyQuiesce(true);
     }
@@ -583,6 +659,29 @@ public class AblestackNetBackupBackupModeTest {
 
     private BackupVO parent() {
         return parent("QCOW2");
+    }
+
+    @Test public void changedPolicyStartsAnIndependentFullForAStoppedVmWithoutReusingItsOldChain() {
+        enabled();
+        when(vm.getState()).thenReturn(VirtualMachine.State.Stopped);
+        when(vm.getHostId()).thenReturn(null);
+        when(vm.getLastHostId()).thenReturn(30L);
+        BackupVO previous = parent();
+        previous.setHostId(30L);
+        previous.getDetails().put("netbackup.policy.name", "previous-policy");
+        when(backups.listByVmIdAndOffering(1L, 10L, 2L)).thenReturn(List.of(previous));
+        assertFull(start(false), ".qcow2");
+        assertEquals("previous-policy", previous.getDetail("netbackup.policy.name"));
+        verify(jobs, never()).validateHostPolicyBackupChain(any(), any(), any(), any(), any());
+    }
+
+    @Test public void changedPolicyStartsAnIndependentFullForARunningVmToo() {
+        enabled();
+        BackupVO previous = parent();
+        previous.getDetails().put("netbackup.policy.name", "previous-policy");
+        when(backups.listByVmIdAndOffering(1L, 10L, 2L)).thenReturn(List.of(previous));
+        assertFull(start(false), ".qcow2");
+        assertEquals("previous-policy", previous.getDetail("netbackup.policy.name"));
     }
 
     private BackupVO parent(String engine) {

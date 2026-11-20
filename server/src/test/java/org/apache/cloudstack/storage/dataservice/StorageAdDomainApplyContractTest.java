@@ -2,12 +2,19 @@
 // contributor license agreements. See NOTICE. Apache License, Version 2.0.
 // http://www.apache.org/licenses/LICENSE-2.0
 package org.apache.cloudstack.storage.dataservice;
-import com.google.gson.*;
-import java.nio.file.*;
-import java.util.*;
-import org.apache.cloudstack.api.response.*;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.UUID;
+import org.apache.cloudstack.api.response.StorageIdentityDomainResponse;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class StorageAdDomainApplyContractTest {
     static class Harness extends StorageServiceManagerImpl {

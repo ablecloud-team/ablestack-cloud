@@ -2,11 +2,17 @@
 // contributor license agreements. See NOTICE. Apache License, Version 2.0.
 // http://www.apache.org/licenses/LICENSE-2.0
 package org.apache.cloudstack.storage.dataservice;
-import com.google.gson.*;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.lang.reflect.Field;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import org.apache.cloudstack.api.command.user.storage.dataservice.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageSmbShareCmd;
+import org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageSmbShareCmd;
 import org.apache.cloudstack.api.response.StorageServiceConfigurationPreflightResponse;
 public class StorageSmbFileIdentityTest {
     private static void set(Object value,String name,Object item)throws Exception {Field f=value.getClass().getDeclaredField(name);f.setAccessible(true);f.set(value,item);}

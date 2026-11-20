@@ -38,7 +38,7 @@ public class RestoreBackupArtifactCmd extends BaseAsyncCmd implements AdminCmd {
     @Parameter(name = "provider", type = CommandType.STRING, required = true, description = "ablestack-netbackup or ablestack-veeam") private String provider;
     @Parameter(name = ApiConstants.EXTERNAL_ID, type = CommandType.STRING, required = true, description = "Exact metadata catalog artifact ID or original metadata selection") private String externalId;
     @Parameter(name = ApiConstants.JOB_ID, type = CommandType.STRING, required = true, description = "External metadata restore Job ID") private String jobId;
-    @Parameter(name = "proof", type = CommandType.STRING,
+    @Parameter(name = "proof", type = CommandType.STRING, length = 65536,
             description = "Verified external Job completion with destination hostName and startedAt/endedAt in epoch milliseconds") private String proof;
     @Parameter(name = "cleanupmetadataonly", type = CommandType.BOOLEAN,
             description = "Register metadata cleanup for an already submitted external restore; never start a VM restore") private Boolean cleanupMetadataOnly;

@@ -1,8 +1,11 @@
 // Licensed to the Apache Software Foundation (ASF) under one or more
 // contributor license agreements. See NOTICE. Apache License, Version 2.0.
 package org.apache.cloudstack.storage.dataservice;
-import java.util.*;
-import com.google.gson.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.cloud.user.Account;
 import com.cloud.user.User;
 import org.apache.cloudstack.context.CallContext;
@@ -11,12 +14,20 @@ import org.apache.cloudstack.acl.SecurityChecker.AccessType;
 import org.apache.cloudstack.api.BaseCmd;
 import com.cloud.api.dispatch.DispatchTask;
 import com.cloud.api.dispatch.ParamProcessWorker;
-import org.apache.cloudstack.api.command.user.storage.dataservice.*;
-import org.apache.cloudstack.storage.dataservice.dao.*;
-import org.junit.*;
+import org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageSmbServiceNameCmd;
+import org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageServiceProtocolDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageSmbServiceNameDao;
+import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class StorageSmbServiceNameRequestContractTest {
     private static class Input extends ParamProcessWorker {

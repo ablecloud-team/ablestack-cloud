@@ -535,6 +535,11 @@ if [ "$1" == "0" ] ; then
     /sbin/chkconfig --del cloudstack-agent > /dev/null 2>&1 || true
 fi
 
+%posttrans common
+if [ -f "/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/netbackup_runtime.py" ]; then
+    /usr/bin/python3 /usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/netbackup_runtime.py --install || :
+fi
+
 %pre agent
 
 # save old configs if they exist (for upgrade). Otherwise we may lose them
@@ -577,6 +582,10 @@ fi
 systemctl daemon-reload
 
 %posttrans agent
+# Refresh configured NetBackup runtime copies without restarting running jobs.
+if [ -f "/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/netbackup_runtime.py" ]; then
+    /usr/bin/python3 /usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/netbackup_runtime.py --install || :
+fi
 # Print help message
 if [ -f "/usr/share/cloudstack-common/scripts/installer/cloudstack-help-text" ];then
     sed -i "s,^ACS_VERSION=.*,ACS_VERSION=%{_maventag},g" /usr/share/cloudstack-common/scripts/installer/cloudstack-help-text

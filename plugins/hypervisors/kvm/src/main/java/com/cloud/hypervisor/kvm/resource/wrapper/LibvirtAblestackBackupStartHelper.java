@@ -69,6 +69,30 @@ final class LibvirtAblestackBackupStartHelper {
         }
     }
 
+    static void validateVolumeCommand(String[] command, Path file) {
+        if (command == null || java.util.Arrays.stream(command).anyMatch(java.util.Objects::isNull)) {
+            throw new CloudRuntimeException("Prepared volume backup requires the fenced Python engine");
+        }
+        int engine = 0;
+        if (command.length == 9) {
+            Path script = Path.of(command[6]);
+            if (!"python3".equals(command[0]) || !"--job-dir".equals(command[2])
+                    || !file.getParent().equals(Path.of(command[3])) || !"--".equals(command[4])
+                    || !script.resolveSibling("ablestack_backup_progress.py").equals(Path.of(command[1]))) {
+                throw new CloudRuntimeException("Backup progress supervisor differs from its prepared source job");
+            }
+            engine = 5;
+        } else if (command.length != 4) {
+            throw new CloudRuntimeException("Prepared volume backup requires the fenced Python engine");
+        }
+        Path script = Path.of(command[engine + 1]);
+        if (!"python3".equals(command[engine]) || !script.isAbsolute()
+                || !script.endsWith("thirdparty_volume_backup.py")
+                || !"--plan-file".equals(command[engine + 2]) || !file.equals(Path.of(command[engine + 3]))) {
+            throw new CloudRuntimeException("Prepared volume backup requires the fenced Python engine");
+        }
+    }
+
     static ThirdPartyBackupStart.Plan nasPlan(org.apache.cloudstack.backup.AblestackNasTakeBackupCommand command) {
         ThirdPartyBackupStart.Plan plan = new Gson().fromJson(command.getSourceStartPlan(), ThirdPartyBackupStart.Plan.class);
         validate(plan);
@@ -251,10 +275,7 @@ final class LibvirtAblestackBackupStartHelper {
                     if (!"PREPARED".equals(receipt.state)) { return new BackupAnswer(command, true, "The same backup start was already dispatched"); }
                     String[] scriptCommand = commandSupplier.get();
                     Path file = Path.of(AblestackBackupFrameworkUtils.ASYNC_BACKUP_JOB_ROOT, jobId, "volume-plan.json");
-                    if (scriptCommand == null || scriptCommand.length != 4 || !"python3".equals(scriptCommand[0])
-                            || !"--plan-file".equals(scriptCommand[2]) || !file.equals(Path.of(scriptCommand[3]))) {
-                        throw new CloudRuntimeException("Prepared volume backup requires the fenced Python engine");
-                    }
+                    validateVolumeCommand(scriptCommand, file);
                     JsonObject sourcePlan = new Gson().fromJson(Files.readString(file), JsonObject.class);
                     if (sourcePlan == null || !new Gson().toJsonTree(plan.manifest).equals(sourcePlan.get("manifest"))) {
                         throw new CloudRuntimeException("Prepared source manifest differs from the backup start plan");

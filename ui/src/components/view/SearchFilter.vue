@@ -231,6 +231,7 @@ export default {
       return (text.length <= length) ? text : (text.substring(0, length - 3) + '...')
     },
     retrieveFieldLabel (fieldName) {
+      if (this.apiName === 'listBackups' && fieldName === 'virtualmachineid') return this.$t('label.virtualmachinename')
       if (this.apiName === 'listPublicIpAddresses') return this.$t(publicIpPickerConfig(fieldName)?.label || (fieldName === 'fordisplay' ? 'label.public.ip.display' : 'label.' + fieldName))
       if (this.apiName === 'listVnfAppliances' && fieldName === 'name') return this.$t('label.vm.name')
       if (this.apiName === 'listIsos' && fieldName === 'isofilter') return this.$t('label.filterby')
@@ -268,6 +269,8 @@ export default {
       }
     },
     getStaticFieldValue (key, value) {
+      if (this.apiName === 'listBackupSchedule' && key === 'quiescevm') return this.$t(String(value) === 'true' ? 'label.yes' : 'label.no')
+      if (this.apiName === 'listBackupSchedule' && key === 'intervaltype' && ['HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY'].includes(String(value).toUpperCase())) return this.$t('label.' + String(value).toLowerCase())
       if (this.apiName === 'listIsos' && ['bootable', 'isready', 'ispublic'].includes(key)) return this.$t(String(value) === 'true' ? 'label.yes' : 'label.no')
       if (this.apiName === 'listIsos' && key === 'isofilter') return this.$t(this.$route?.meta?.filterLabels?.[value] || ('label.' + value))
       if (this.apiName === 'listNetworks' && key === 'forvpc') return this.$t(String(value) === 'true' ? 'label.yes' : 'label.no')
@@ -323,6 +326,16 @@ export default {
     },
     async getDynamicFieldValue (key, value) {
       let formattedValue = ''
+      if (['listBackups', 'listBackupSchedule'].includes(this.apiName) && key === 'virtualmachineid') {
+        if (!this.$store.getters.apis?.listVirtualMachines || !this.$isValidUuid(value)) return value
+        const query = this.$route.query || {}
+        const params = { id: value, listall: true }
+        for (const field of ['projectid', 'zoneid', 'domainid', 'account']) {
+          if (query[field]) params[field] = query[field]
+        }
+        const response = await getAPI('listVirtualMachines', params, { preserveOnFailure: true })
+        return response?.listvirtualmachinesresponse?.virtualmachine?.find(vm => vm.id === value)?.name || value
+      }
       if (this.apiName === 'listNetworks' && ['networkofferingid', 'physicalnetworkid'].includes(key)) {
         const { api, field } = networkPickerApi(key)
         if (!this.$store.state?.user?.token || !this.$store.getters.apis?.[api]) return value

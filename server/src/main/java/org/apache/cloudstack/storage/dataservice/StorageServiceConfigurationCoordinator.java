@@ -18,7 +18,6 @@ package org.apache.cloudstack.storage.dataservice;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;

@@ -138,6 +138,24 @@ public class ThirdPartyBackupRestoreInspectionTest {
         return ReflectionTestUtils.invokeMethod(service, "inspectLocked", backup, "RESTORE");
     }
 
+    @Test
+    public void backupInspectionReportsRetentionDeadlineAndApprovalReason() {
+        details.put(ThirdPartyBackupManifest.RETENTION_PROTECTION_KEY, gson.toJson(Map.of(
+                "state", "WAITING", "protectedUntil", "2026-11-26T05:29:10Z", "reason", "MPA ticket-1 is pending")));
+        BackupStagingInfoResponse info = ReflectionTestUtils.invokeMethod(service, "inspectLocked", backup, "BACKUP");
+        assertEquals("WAITING", info.retentionstate);
+        assertEquals("2026-11-26T05:29:10Z", info.retentionuntil);
+        assertEquals("MPA ticket-1 is pending", info.retentionreason);
+    }
+
+    @Test
+    public void unreadableRetentionDoesNotHideTheBackupInspection() {
+        details.put(ThirdPartyBackupManifest.RETENTION_PROTECTION_KEY, "null");
+        BackupStagingInfoResponse info = ReflectionTestUtils.invokeMethod(service, "inspectLocked", backup, "BACKUP");
+        assertEquals("UNKNOWN", info.retentionstate);
+        assertTrue(info.retentionreason.contains("cannot be read"));
+    }
+
     private void vmResult(String outcome, String phase, String cleanup) {
         ThirdPartyBackupRestore.VmResult result = new ThirdPartyBackupRestore.VmResult();
         result.jobId = plan.jobId;

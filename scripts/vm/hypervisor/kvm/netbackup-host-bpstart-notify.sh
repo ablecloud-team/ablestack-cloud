@@ -104,7 +104,8 @@ while IFS= read -r vm_name; do
     append_runtime_vm_result "${vm_name}" "FAILED" "${vm_id}" "${job_id}" "${backup_path}" "${error_text}"
     failed_count=$((failed_count + 1))
     log -ne "NetBackup pre-backup VM failed vm=${vm_name} vmId=${vm_id} jobId=${job_id} error=${error_text}"
-    continue
+    # A failed or unconfirmed preparation must not launch another VM from the cached cohort.
+    break
   fi
 done < <(list_target_vms)
 

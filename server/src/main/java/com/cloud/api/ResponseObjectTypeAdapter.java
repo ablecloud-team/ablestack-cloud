@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
 import org.apache.cloudstack.api.ResponseObject;
+import org.apache.cloudstack.api.response.CreateExternalBackupResponse;
 import org.apache.cloudstack.api.response.ExceptionResponse;
 import org.apache.cloudstack.api.response.SuccessResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -42,6 +43,12 @@ public class ResponseObjectTypeAdapter implements JsonSerializer<ResponseObject>
             obj.addProperty("success", ((SuccessResponse)responseObj).getSuccess());
             if (!StringUtils.isEmpty(((SuccessResponse) responseObj).getDisplayText())) {
                 obj.addProperty("details", ((SuccessResponse)responseObj).getDisplayText());
+            }
+            if (responseObj instanceof CreateExternalBackupResponse) {
+                String backupId = ((CreateExternalBackupResponse) responseObj).getBackupId();
+                if (backupId != null) {
+                    obj.addProperty("backupid", backupId);
+                }
             }
             return obj;
         } else if (responseObj instanceof ExceptionResponse) {

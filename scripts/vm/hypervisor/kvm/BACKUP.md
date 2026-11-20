@@ -35,6 +35,7 @@ under the License.
 - [백업 솔루션별 준비와 실행 순서](#백업-솔루션별-준비와-실행-순서)
 - [NetBackup VM별 스케줄 구성 시나리오](#netbackup-vm별-스케줄-구성-시나리오)
 - [NetBackup 백업 파일 만료 시 참고사항](#netbackup-백업-파일-만료-시-참고사항)
+- [NetBackup 논리 백업과 카탈로그 매칭 확인](#netbackup-논리-백업과-카탈로그-매칭-확인)
 - [Veeam 보존기간과 백업 삭제](#veeam-보존기간과-백업-삭제)
 - [Veeam 고정 Host 전송 Job의 정의와 검증](#veeam-고정-host-전송-job의-정의와-검증)
 - [Veeam 고정 Job 잠금과 소유 기록](#veeam-고정-job-잠금과-소유-기록)
@@ -44,6 +45,8 @@ under the License.
 - [Full 및 증분 백업 운영](#full-및-증분-백업-운영)
 - [작업 상태와 제어](#작업-상태와-제어)
 - [공통 잠금과 예약의 구현](#공통-잠금과-예약의-구현)
+- [백업 장애 대응](#백업-장애-대응)
+- [NetBackup 실패 시나리오 검증 기록](#netbackup-실패-시나리오-검증-기록)
 - [복원 절차](#복원-절차)
 - [임시 파일 정리와 실패한 백업 삭제](#임시-파일-정리와-실패한-백업-삭제)
 - [NetBackup 및 Veeam 서비스 운영](#netbackup-및-veeam-서비스-운영)
@@ -393,7 +396,9 @@ SelectedFiles는 사전구성이 출력하는 해당 Host·Job의 bootstrap 디�
 
 ## 볼륨별 스테이징과 VM 일시정지 옵션
 
-Commvault·NetBackup·Veeam의 `quiescevm`은 VM의 CPU를 정지하거나 백업 전송이 끝날 때까지 VM을 멈추는 기능이 아니다.
+이 절은 `ablestack-nas`, `ablestack-commvault`, `ablestack-netbackup`, `ablestack-veeam`에 적용한다.
+CloudStack 기본 `nas`, `kboss`와 VM 스냅샷의 동결 정책은 변경하지 않는다.
+`quiescevm`은 VM의 CPU를 정지하거나 백업 전송이 끝날 때까지 VM을 멈추는 기능이 아니다.
 QEMU Guest Agent로 게스트 파일시스템 쓰기를 잠시 동결하여 원본 볼륨의 복원 시점을 확보할 때 사용한다.
 볼륨별 스테이징으로 변경한 뒤에도 세 솔루션은 같은 원본 준비 엔진을 사용하므로 이 옵션은 유효하다.
 
@@ -401,17 +406,33 @@ QEMU Guest Agent로 게스트 파일시스템 쓰기를 잠시 동결하여 원�
 | --- | --- | --- |
 | RBD | 전체 대상 볼륨의 RBD 스냅샷을 순서대로 생성하는 구간 | 고정된 스냅샷에서 볼륨 하나씩 export/export-diff 후 외부 전송 |
 | 실행 중인 QCOW2 | 전체 대상 디스크를 포함한 libvirt `backup-begin` 구간 | pull 백업에서 볼륨 하나씩 추출 후 외부 전송 |
-| 정지한 QCOW2 또는 GFS2 RAW | 게스트 동결을 적용하지 않음 | 정지 상태의 원본을 백업 |
+| 정지한 RBD·QCOW2 또는 GFS2 RAW | 게스트 동결을 적용하지 않음 | 정지 상태의 원본 복원 시점을 확보한 뒤 백업 |
 
 순서는 `스테이징 입장·외부 부모 Job 종료 대기 → 동결 시도 → 전체 볼륨 복원 시점 확보 → 해제 → 볼륨별 추출·전송 → 메타데이터 전송`이다.
 볼륨마다 그 시점의 원본을 새로 캡처하는 방식이 아니며, 대기열이나 긴 외부 전송 동안 파일시스템을 계속 동결하지 않는다.
 스냅샷/backup-begin 오류가 발생해도 `finally`에서 자신이 요청한 동결의 해제를 시도하고,
 해제가 확인되지 않으면 소유 기록을 남겨 정리 시 다시 해제를 시도한다.
 
-**현재 동결은 최선 시도 방식이다.** Guest Agent가 없거나 동결 명령이 일반 오류로 실패하면 백업을 계속한다.
-따라서 옵션이 켜져 있고 백업이 성공했다는 사실만으로 파일시스템 동결 성공이나 DB 등 애플리케이션의 정합성을 보장할 수 없다.
-특히 RBD는 여러 이미지의 스냅샷을 순차 생성하므로 동결에 실패하면 볼륨 간 쓰기 시점도 달라질 수 있다.
-동결 성공 여부를 백업 결과에 별도로 표시하거나 동결 실패를 백업 실패로 처리하는 정책은 현재 구현되어 있지 않다.
+`quiescevm=false`이면 동결을 요청하지 않으며 Guest Agent 없이도 백업한다. 이 백업은 파일시스템 동결에 의한 정합성을 보장하지 않는다.
+`quiescevm=true`인 실행 VM은 **동결 성공이 필수**다. Guest Agent 미연결·미지원, 명령 오류·시간 초과,
+동결 파일시스템 수 0, 상태 확인 실패 시 백업을 실패 처리한다. 동결 없이 재시도하여 성공으로 바꾸지 않는다.
+이미 다른 작업이 동결한 상태이면 소유권을 취득하거나 임의로 해제하지 않고 백업을 중단한다.
+RBD도 옵션을 따르며, 전체 디스크의 접근·부모 스냅샷 검사를 먼저 마친 뒤 전체 스냅샷 생성 구간에만 동결한다.
+
+동결 요청 전에 작업 디렉터리에 소유 기록을 영속화한다. 명령 응답이 유실돼 실제 동결 여부가 불명확해도,
+자신이 요청한 동결의 상태를 확인하고 해제를 시도한다. 해제 명령의 종료 코드만으로 완료를 판정하지 않고
+`guest-fsfreeze-status=thawed`를 확인하며, 최대 세 번 재시도한다. 정상 종료·취소·오류 처리와 Agent의 작업 정리에도 같은 기준을 적용한다.
+해제가 확인되지 않으면 백업 전송·성공 처리·소유 기록 삭제를 허용하지 않는다. 이후 작업 정리에서 재시도하며,
+VM이 실제 종료됐거나 존재하지 않음이 확인된 경우에도 해제 기록을 정리할 수 있다.
+셸 작업은 Agent가 제공하는 `ABLESTACK_BACKUP_JOB_DIR`가 없거나 소유 기록을 영속화할 수 없으면 동결 전에 실패한다.
+강제 종료나 Host 장애는 `trap`만으로 처리할 수 없으므로 `guest-freeze.pending` 또는 `volume-engine.json`의
+`freezePending` 기록을 보존한다. 기록을 수동 삭제하지 않는다.
+
+전체 복원 시점을 확보한 뒤에도 해제 전에 동결 상태를 다시 확인한다. Windows VSS의 동결은 최대 10초로 제한되므로,
+RBD의 순차 스냅샷 도중 자동 해제가 감지되면 실패 처리하고 해당 복원 시점을 전송하지 않는다. 실제 Windows Guest Agent/VSS 조합에서 별도 복원 검증이 필요하다.
+공통 볼륨 엔진은 매니페스트의 `guestQuiesce`에 요청 여부와 `VERIFIED`, `NOT_REQUESTED`, `NOT_APPLICABLE`을 기록한다.
+NAS 완료 마커와 디렉터리 방식 RBD 메타데이터에는 `quiesce_requested`, `quiesce_state`를 기록한다.
+이 기록은 파일시스템 동결 검증 결과이며 DB 등 애플리케이션 정합성 보장을 의미하지 않는다.
 실행 중인 VM은 QEMU Guest Agent 설치·실행과 fsfreeze 지원을 확인하고, 중요한 애플리케이션은 해당 애플리케이션의 flush·정합성 확보 절차와 복원 검증을 함께 수행한다.
 
 NetBackup은 `backup.plugin.netbackup.vm.schedule.enabled=true`, Veeam은 `backup.plugin.ablestack-veeam.vm.schedule.enabled=true`일 때
@@ -423,8 +444,8 @@ Commvault의 Mold 스케줄은 저장된 값을 백업 명령에 전달한다.
 UI는 NetBackup·Veeam의 VM별 스케줄 화면에도 옵션과 위 모드 안내를 표시한다.
 스케줄 옵션은 모드가 `false`일 때에도 화면에서 자동으로 숨기지는 않는다.
 설정 변경은 새로 시작하는 백업부터 적용되며 기존 작업의 `volume-plan.json`은 변경하지 않는다.
-이번 변경을 적용할 때는 UI, 공통 API·관리 서버 모듈, NetBackup 플러그인을 함께 갱신하고 관리 서버를 재시작한다.
-공통 Host 엔진의 동결·해제 방식은 변경하지 않았다.
+동결 정책 변경은 Host 엔진·공통 안전 스크립트와 네 공급자의 스크립트, Agent의 해제 재확인 코드에 적용한다.
+진행 작업을 마친 뒤 백업 가능 Host의 Agent·스크립트를 함께 갱신하고, API 설명을 제공하는 관리 서버 모듈도 함께 갱신한다.
 
 ## 공통 스테이징 경로 변경
 
@@ -649,7 +670,7 @@ NetBackup의 [netbackup-host-config.py](netbackup-host-config.py), Veeam의 [vee
 아래 옵션 주의사항은 구성 도구를 실제로 재실행하는 경우에 적용한다.
 
 - `--vm-schedule-backup`과, `false`일 때의 include/exclude를 기존 운영 값으로 명시한다.
-- `--incremental-backup`도 현재 적용할 값으로 명시한다. 생략하면 기본 `true`가 Global·해당 Cluster에 반영될 수 있다.
+- `--incremental-backup`도 현재 적용할 값으로 명시한다. 생략하면 기본 `true`가 해당 Cluster에만 반영된다. 두 도구 모두 Global 증분값을 변경하지 않는다.
 - 체인 길이를 변경하지 않으면 `--backup-chain-size`는 생략하여 기존 `kvm.backup.chain.size`를 유지한다.
 - Veeam 기본 구성을 사용하면 `--agent-payload-path`를 생략하고 출력된 새 마커 디렉터리로 부모 Job의 SelectedFiles를 변경한다.
   명시적 경로를 유지할 경우에는 해당 옵션을 같은 값으로 지정한다.
@@ -658,9 +679,10 @@ NetBackup의 [netbackup-host-config.py](netbackup-host-config.py), Veeam의 [vee
   기존 백업 이미지나 복원 시점에 저장된 원본 파일 경로는 변경하지 않는다.
 
 구성 도구가 비동적 설정 변경으로 Mold 재기동을 요구하면 안내에 따라 재기동하고 같은 명령을 재실행한다.
-`backup.framework.enabled`와 `kvm.incremental.backup`의 대상 범위 값이 모두 요청값과 같으면
-업데이트를 건너뛰고 관리 서버 재기동 안내 없이 오퍼링·Host 구성을 계속한다.
-전역값이 같더라도 대상 Zone·Cluster 값이 달라 실제로 변경하면 재기동 안내가 나올 수 있다.
+`backup.framework.enabled`와 `kvm.incremental.backup`의 대상 범위 유효값이 모두 요청값과 같으면
+관리 서버 재기동 안내 없이 오퍼링·Host 구성을 계속한다.
+NetBackup·Veeam은 상속한 유효값이 요청값과 같아도 Cluster 값을 명시적으로 저장하며 Global 증분값은 변경하지 않는다.
+대상 Zone·Cluster의 유효값이 달라 실제 동작을 변경하면 재기동 안내가 나올 수 있다.
 NetBackup은 `bp.conf`를 갱신하면서 Client를 재시작할 수 있고,
 Veeam은 Agent 설정이 바뀌면 Agent 서비스를 재시작할 수 있다.
 두 도구 모두 복원 감시를 다시 활성화하므로 모든 Host 구성이 끝나기 전에는 외부 UI 복원을 새로 시작하지 않는다.
@@ -707,7 +729,7 @@ systemctl status mold-veeam-restore-agent.timer --no-pager
 ### NetBackup·Veeam 호스트 정책의 VM 대상 선택
 
 NetBackup과 ABLESTACK Veeam은 각각 Mold 글로벌 설정으로 VM별 스케줄 사용 여부를 결정한다.
-두 설정 모두 최초 기본값은 `false`이며 동적 설정이므로 운영 중 값 변경에 관리 서버 재기동은 필요하지 않다.
+최초 기본값은 NetBackup `true`, ABLESTACK Veeam `false`이며, 두 설정 모두 동적 설정이므로 운영 중 값 변경에 관리 서버 재기동은 필요하지 않다.
 각 솔루션의 모든 Host 정책/Job에 공통 적용하며, 두 솔루션의 값은 서로 독립적이다. NAS·Commvault에는 적용하지 않는다.
 
 | 솔루션 | 글로벌 설정 |
@@ -723,7 +745,7 @@ Veeam `/etc/ablestack/veeam/<job>.conf`에는 모드 값을 저장하지 않는�
 사전 구성의 입력 순서는 다음과 같다.
 
 1. VM별 스케줄 사용 여부를 먼저 선택한다. 현재 Mold 글로벌 값을 기본값으로 표시하며,
-   터미널이 없는 실행에서도 옵션을 생략하면 현재 값을 유지한다. 다른 Host를 추가하면서 기본 `false`로 덮어쓰지 않는다.
+   터미널이 없는 실행에서도 옵션을 생략하면 현재 값을 유지한다. 다른 Host를 추가하면서 제품 기본값으로 덮어쓰지 않는다.
 2. `true`이면 include/exclude 입력을 생략하고 Mold에서 대상 VM에 오퍼링과 백업 스케줄을 연결한다.
    기존 호스트 필터는 보존하며 새 정책/Job은 `VM_INCLUDE="*"`, `VM_EXCLUDE=""`를 저장한다.
    이 필터는 이후 글로벌 값을 `false`로 전환했을 때 사용한다.
@@ -737,7 +759,7 @@ VM 스케줄 사용 여부와 `--incremental-backup`의 Full/증분 선택은 �
 | 판단 항목 | 운영 중 기준 | 사전 구성의 역할 |
 | --- | --- | --- |
 | VM별 스케줄 사용 여부 | 해당 솔루션의 Mold 글로벌 `vm.schedule.enabled` | 입력값으로 글로벌 설정 갱신, 생략 시 현재 Mold 값 유지 |
-| Full/증분 선택 | Mold의 `kvm.incremental.backup` 유효값 | `--incremental-backup`으로 Mold 전역값과 대상 Cluster 값을 설정 |
+| Full/증분 선택 | Mold의 `kvm.incremental.backup` 유효값 | `--incremental-backup`으로 대상 Cluster 값만 명시적으로 저장하며 전역값 유지 |
 | 증분 체인 길이 상한 | Mold의 `kvm.backup.chain.size` | 증분 사용 시 명시한 값으로 Mold 설정 갱신 |
 
 실행 중 호스트 구성 파일의 모드·증분·체인 값으로 Mold 글로벌 설정을 다시 덮어쓰지 않는다.
@@ -756,6 +778,20 @@ VM_EXCLUDE="i-2-285-VM"
 `true`이면 호스트 필터와 관계없이 실행 시각이 된 Mold 스케줄의 VM만 백업한다.
 스케줄이 없거나 지금 실행할 VM이 없으면 **백업하지 않는다**. 호스트 필터 방식으로 전환하지 않는다.
 두 솔루션 모두 호스트 필터 모드에서 exclude를 include보다 우선 적용하며, `include="*"`, `exclude="*"`이면 대상은 0개다.
+
+NetBackup 호스트 필터에는 V2K로 가져온 VM처럼 공백이 있는 내부 이름도 지정할 수 있다.
+표시 이름이 아니라 Mold의 실제 내부 이름(`instancename`)을 입력한다.
+쉼표로 항목을 구분하고 각 항목 앞뒤의 공백만 무시한다. 이름 내부의 공백과 연속 공백은 그대로 비교한다.
+
+```bash
+VM_INCLUDE="ERP Server, Finance  DB"
+VM_EXCLUDE="ERP Server"
+```
+
+위 NetBackup 호스트 필터 예시에서는 내부 이름이 `Finance  DB`인 VM만 선택한다.
+`Finance DB`처럼 중간 공백 개수가 다른 이름은 일치하지 않는다.
+큰따옴표는 필터 전체를 감싸며, 각 VM 이름에 별도의 따옴표를 덧붙이지 않는다.
+VM별 스케줄 모드에서는 이 필터 대신 Mold 스케줄의 대상 목록을 사용한다.
 
 VM별 스케줄 방식에서 외부 호스트 정책은 실행 계기이며, 실제 VM별 일정은 Mold가 판단한다.
 예를 들어 VM 일정이 01:30이고 호스트 정책이 02:00에 실행되면 백업은 02:00에 시작하므로,
@@ -884,6 +920,8 @@ Full의 예상 필요량은 Ready 상태인 대상 볼륨의 논리 용량 합�
 
 이미 `backup.data.operation.timeout`이 있으면 값을 유지한다.
 이전 정리 단계가 이미 완료된 설치에서도 후속 마이그레이션으로 남은 `netbackup.restore.timeout`을 정리한다.
+기존 정리 체크포인트가 완료된 환경에는 별도의 후속 단계가 적용되어 남아 있는 구형 timeout과 공급자별 staging root 설정을 다시 정리한다.
+현재 사용하는 공통 스테이징 경로·용량 검사 모드·timeout 값은 유지하며, 구형 staging root의 Zone 설정도 함께 제거한다.
 새 설정이 없는 설치에서는 구형 timeout 값 중 기존 기본값과 다른 유효한 양의 정수 설정을 이관하며, 여러 값이면 가장 큰 값을 사용한다.
 이관할 값이 없으면 새 기본값 `43200`초를 사용한다. 구형 설정은 새 값 보존이 성공한 뒤 삭제하며, 실패한 마이그레이션은 다음 시작 시 재시도한다.
 `backup.chain.size`는 KBOSS에서 사용하므로 유지한다. `kvm.backup.chain.size`와 자동으로 합치거나 삭제하지 않는다.
@@ -899,6 +937,30 @@ Full의 예상 필요량은 Ready 상태인 대상 볼륨의 논리 용량 합�
 
 NAS에서는 스테이징에서 외부 솔루션으로 다시 전송하는 단계가 없다.
 백업 파일과 필요한 이전 Full·증분 파일은 NAS 백업 저장소에 남아 있어야 한다.
+
+`backup.data.operation.timeout`은 Commvault·NetBackup·Veeam과 같이 **개별 데이터 처리 단계마다** 적용한다.
+기본값은 `43200`초(12시간)이며 NAS도 다음 단계로 넘어갈 때 새 제한을 적용한다.
+
+| NAS 처리 | 데이터 제한의 적용 단위 |
+| --- | --- |
+| 실행 중·정지 QCOW2 백업 | 전체 대상 디스크를 포함한 libvirt 백업 작업 한 건. 디스크별로 분리하지 않음 |
+| RBD 백업 | 디스크별 `rbd export` 또는 `export-diff` 한 번씩 |
+| 공유 RAW 오프라인 백업 | 볼륨별 독립 Full 복사·변환 한 번씩 |
+| QCOW2 복원 | NAS의 backing chain을 직접 읽는 볼륨별 변환 한 번씩. 별도 다운로드 단계 없음 |
+| RBD 복원 | FULL import·각 증분 import-diff·추가 변환 한 번씩 |
+
+NAS의 QCOW2 백업은 여러 디스크를 포함한 libvirt 작업 한 건에 제한을 적용한다.
+Commvault·NetBackup·Veeam의 공통 볼륨 스테이징 경로는 볼륨별 생성과 외부 전송에 각각 제한을 적용한다.
+QCOW2 복원도 NAS는 선택한 backing chain을 읽는 변환 한 번으로 처리하고, 나머지 세 솔루션은
+파일별 다운로드와 FULL 변환·각 증분 적용을 나눠 처리한다. RBD export·RAW 복사의 볼륨별 제한은 같지만
+NAS에는 외부 백업 제품으로 다시 전송하거나 해당 제품에서 다운로드하는 단계가 없다.
+
+정지 RBD·공유 RAW 및 동기 백업 worker의 바깥쪽 감시에는 단일 데이터 단계 제한을 재사용하지 않는다.
+비정상 worker의 전체 보호 한도는 `N × T + max(300, M) + (N + 1) × 300`초로 계산한다.
+`N`은 데이터 작업 수(QCOW2 libvirt 백업은 1, RBD·공유 RAW는 볼륨 수), `T`는 개별 데이터 제한,
+`M`은 NAS 마운트 제한이다. 마운트·제어·정리 여유는 데이터 단계의 제한을 늘리지 않는다.
+예를 들어 디스크별 RBD export가 각각 7시간인 두 볼륨 백업은 합산 14시간이라는 이유로 12시간에 중단하지 않는다.
+각 export가 자체 12시간 제한을 넘으면 해당 단계에서 실패하며 기존 무진행 감지와 종료 확인·정리 보호도 유지한다.
 
 정지 VM의 시작 보호는 NAS에도 적용한다. Commvault·NetBackup·Veeam과 같은 VM별 DB 잠금과 Agent 보호 기록을 사용하지만,
 NAS 저장소 형식과 직접 백업 경로는 유지한다. Agent가 동일 작업의 원본 보호 준비를 확인한 뒤에만 실행한다.
@@ -984,8 +1046,22 @@ Mold에서 VM별 백업 스케줄을 사용하는 경우에는 아래의
 2. NetBackup에 Host별 기준 정책 하나를 준비한다. 정책 종류는 **`Standard`**이며,
    VM 요청용 **`Full Backup`** 스케줄과 실제 전송용 **`mold-transfer` / `User Backup`** 스케줄을 함께 만든다.
    실제 백업 Host가 정책의 Client에 등록되어 있어야 한다.
-   정책 이름은 Host 이름과 독립적으로 지정한다. 사전구성의 `--policy-name`에는 NetBackup UI의 실제 기준 정책 이름을 입력한다.
-   Mold Host는 현재 로컬 호스트명으로 정확히 조회하며, 필요하면 `--kvm-hostname` 또는 `--kvm-ip`로 별도 지정한다.
+   **정책 이름은 Mold Host 이름과 달라도 된다.** 사전구성의 `--policy-name`에는 NetBackup에 미리 생성한 실제 정책명을 대소문자까지 그대로 입력한다.
+   정책에는 Client가 정확히 하나 있어야 한다. 사전구성 도구는 Client의 DNS/IP가 실행 중인 KVM Host의 실제 인터페이스와 일치하고,
+   같은 IP를 가진 Mold KVM Host가 하나인지 확인한 뒤 Host·Zone·Cluster를 자동으로 결정한다.
+   `listHosts` 응답의 `id`인 Mold Host UUID(`cloud.host.uuid`)를 호스트별 구성 파일의 `KVM_HOST_ID`에 저장한다.
+   Hook은 실행할 때마다 Client의 DNS/IP와 실제 로컬 인터페이스를 확인하고 현재 Mold 등록 정보를 조회한다.
+   정확히 하나의 KVM Host가 일치하면 실행 중 UUID와 이름을 최신값으로 갱신하고 `hostid`로 요청한다.
+   따라서 Host 이름 변경, 삭제 후 재등록, UUID 없는 기존 구성 파일에서도 저장한 이름이나 UUID에 의존하지 않는다.
+   구성 파일은 사전 구성 시 확인한 값을 보존하며 실행 시 갱신값으로 파일을 덮어쓰지 않는다.
+   Client가 로컬 Host를 가리키지 않거나 등록 정보가 없거나 둘 이상 일치하면 백업 요청 전에 중단한다.
+   Client가 없거나 여러 개이거나, 다른 서버를 가리키거나, Mold Host를 하나로 특정할 수 없으면 자격증명 생성·Mold 설정 변경 전에 중단한다.
+   `--kvm-hostname`·`--kvm-ip`는 생략한다. 기존 호출에서 지정했다면 자동 검증 결과와 같은지 추가로 확인한다.
+   정책명은 최대 128자이며 영문·숫자와 `. _ - +`를 사용할 수 있다. 공백과 다른 특수문자는 허용하지 않으며 `-`·`.`으로 시작하거나 `.`으로 끝낼 수 없다.
+   `+`와 `_`는 서로 다른 이름으로 유지하며, Hook 파일과 bootstrap 디렉터리에도 실제 정책명을 사용한다.
+   요청용 `Full Backup` 스케줄명은 `mold-vm-request` 등으로 자유롭게 정할 수 있다. 실제 전송용 `User Backup` 스케줄명은 `mold-transfer`를 유지한다.
+   기존 VM의 정책명을 변경하면 첫 백업은 독립 Full로 시작하며, 이후 새 정책의 체인에서 증분을 이어간다. 기존 백업의 정책명과 복원 체인은 유지한다.
+   정책·스케줄·Client 이름을 합친 내부 상태 키가 길어지면 해시 키를 사용하여 상태·잠금 파일의 이름 길이를 제한한다. 외부 정책명과 실제 백업 소유 정보는 변경하지 않는다.
    Host의 실제 스테이징이 NFS이면 기준 정책의 `Follow NFS`를 활성화한다. GFS2 마운트에는 이 옵션이 필요 없다.
    확인 명령과 설정 방법은 [파일시스템별 외부 솔루션 설정](#스테이징-파일시스템별-외부-솔루션-설정)을 따른다.
 3. NetBackup REST API 주소와 API key, 대상 Mold 서버의 관리자 API key·secret key를 준비한다.
@@ -996,8 +1072,7 @@ Mold에서 VM별 백업 스케줄을 사용하는 경우에는 아래의
 
    ```bash
    python3 /usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/netbackup-host-config.py \
-     --policy-name "<NetBackup 기준 정책 이름>" \
-     --kvm-hostname "<Mold에 등록된 Host 이름>" \
+     --policy-name "<NetBackup에 미리 생성한 정책명>" \
      --vm-schedule-backup false \
      --vm-include "<대상 VM의 i-계열 인스턴스 이름>" \
      --mold-url "<Mold API 주소>" \
@@ -1018,8 +1093,9 @@ Mold에서 VM별 백업 스케줄을 사용하는 경우에는 아래의
    VM의 표시 이름과 Host에서 사용하는 `i-...-VM` 인스턴스 이름을 구분하여 입력한다.
    실제 키를 명령행에 입력할 때는 Shell history와 명령행 접근 권한을 관리한다.
 6. 스크립트는 Mold 글로벌 `backup.plugin.netbackup.vm.schedule.enabled`를 선택값으로 설정하고 Zone·Cluster 설정을 확인한 뒤 NetBackup 오퍼링을 등록한다.
-   `kvm.incremental.backup`의 전역 기본값과 해당 Cluster 값을 선택한 값으로 설정한다.
-   다른 Cluster의 개별 설정은 유지되며, 개별 설정이 없는 Cluster는 전역 기본값을 따른다.
+   `kvm.incremental.backup`은 해당 Cluster 값만 선택한 값으로 명시적으로 저장한다. 전역 기본값과 다른 Cluster 값은 변경하지 않는다.
+   현재 유효값이 요청값과 같아도 Cluster 값을 저장하여 이후 전역 기본값 변경의 영향을 받지 않게 한다.
+   Global이 `false`여도 대상 Cluster가 `true`이면 정상 부모와 체인 조건을 충족할 때 증분 백업을 선택한다.
    `kvm.backup.chain.size`는 여러 백업 공급자가 공유하는 전역값이다.
    관리 서버 재기동 안내와 함께 중단되면 Mold를 재기동하고 같은 명령을 다시 실행한다.
 7. 사전·사후 백업 스크립트, 암호화된 Mold 인증정보와 복원 감시 서비스를 Host에 구성한다.
@@ -1031,7 +1107,8 @@ Mold에서 VM별 백업 스케줄을 사용하는 경우에는 아래의
    이 구성은 각 백업 Host에서 수행한다. VM이 이동할 수 있다면 이동 대상 Host도 준비한다.
 
 구성 스크립트는 `/usr/openv/netbackup/bp.conf`가 있으면 기존 파일을 백업하고
-사전·사후 작업 및 Client 읽기 timeout을 24시간으로 설정한 후 NetBackup 서비스를 재시작한다.
+사전·사후 작업 및 Client 읽기 timeout을 Global `backup.plugin.netbackup.hook.timeout` 값
+(기본 `86400`초)으로 설정한 후 NetBackup 서비스를 재시작한다.
 진행 중인 NetBackup 작업이 없는 시간에 구성한다. NetBackup Client 자체를 설치하는 스크립트는 아니다.
 
 **백업 순서**
@@ -1118,28 +1195,100 @@ Client는 해당 Host 하나로 지정하고 `Allow multiple data streams`는 �
 | `schedule` (이름 변경 가능) | `Full Backup` | bootstrap 백업과 Hook으로 VM 백업을 요청한다. 해당 Host의 VM 예약 시각에 맞춰 자동 실행한다. |
 | `mold-transfer` (고정 이름) | `User Backup` | 준비된 볼륨·메타데이터 파일을 요청받아 저장한다. Start window는 매일 `00:00–24:00`으로 열어 둔다. 시간 창 자체로 자동 반복 실행되지 않는다. |
 
-`mold-transfer`의 저장소와 Retention은 실제 VM 백업을 보관할 기준으로 설정한다.
-bootstrap용 `schedule`은 별도 Retention을 지정할 수 있다. 증분 복원에 필요한 볼륨과 부모 이미지가
-메타데이터보다 먼저 만료되지 않도록 실제 데이터의 보존기간을 설정한다.
+**Retention 설정과 실제 VM 백업의 보존 기준**
+
+| 스케줄 | Retention의 적용 대상 | 설정 기준 / 예시 |
+| --- | --- | --- |
+| `schedule` / `Full Backup` | VM 백업 요청을 시작하는 bootstrap 디렉터리의 작은 파일 | 실행 이력을 확인할 기간. 예: `1 week` |
+| `mold-transfer` / `User Backup` | 실제 VM의 Full·증분 볼륨 파일과 복원 메타데이터 | 고객이 요구하는 복구 지점 보존기간. 예: `2 weeks` 또는 `1 month` |
+
+위 기간은 구성 예시이며 고객의 보관 요구에 맞춰 정한다. bootstrap은 Hook으로 Mold에 VM 백업을 요청하는
+기준 작업이다. **Full 스케줄의 Retention은 VM 디스크의 Full 백업 보존기간을 뜻하지 않는다.**
+VM 디스크의 Full 백업도 `mold-transfer`로 저장한다. `mold-transfer`의 저장소와 Retention은
+볼륨 파일과 메타데이터 모두에 적용할 실제 VM 백업 기준으로 설정한다.
+VM 스케줄 모드가 `true`인지 `false`인지는 이 보존 기준을 바꾸지 않는다.
+SLP 저장소를 사용하면 스케줄 Retention 대신 SLP의 보존 설정이 적용되므로 실제 카탈로그의 만료일을 확인한다.
+NetBackup의 일반적인 Retention 동작은 [10.5 공식 안내](https://www.veritas.com/support/en_US/doc/18716246-165970620-0/v41780533-165970620)를 따른다.
+
+볼륨별 NetBackup 백업은 스케줄의 기본 보존기간과 별도로 **복원 체인에 필요한 이미지의 만료일을 보호**한다.
+NetBackup은 Mold가 만든 Full·증분 파일 간 연결을 알지 못하므로 같은 Retention을 지정하는 것만으로는
+먼저 생성된 Full이 후속 증분보다 먼저 만료되는 것을 막을 수 없다.
+
+1. 증분의 원본 작업을 시작하기 전에 필요한 Full·중간 증분·메타데이터 이미지의 복사본별 만료일을 조회한다.
+   현재 만료일이 작업 보호 기한보다 빠르면 이미지 만료일 변경 API로 먼저 연장하고 재조회로 반영을 확인한다.
+   작업 제한시간은 볼륨 내보내기와 외부 전송 단계마다 적용되므로 VM 전체의 제한시간으로 간주하지 않는다.
+   초기 보호 기간은 `(볼륨 수 × 2 + 3) × max(300초, backup.data.operation.timeout)`으로 계산한다.
+   볼륨별 내보내기·전송과 메타데이터·준비·시작 대기 여유를 포함하며, 설정 기본값은 단계당 `43200`초(12시간)다.
+   처음 준비할 때 이 기간을 더한 절대 기한을 기록하고 같은 준비 작업의 재시도마다 뒤로 미루지 않는다.
+2. 새 볼륨·메타데이터 이미지가 저장되면 실제 이미지 만료일을 조회하여 부모 이미지들을 그 기한까지 연장한다.
+   여러 파일·복사본의 만료일이 다르면 새 복구 지점에서 가장 늦은 만료일을 기준으로 필요한 이미지들을 보호한다.
+3. 최종 카탈로그 재조회에서 보존을 확인한 뒤 스테이징 정리와 Mold의 `BackedUp` 완료 처리를 진행한다.
+   기존 완료 백업 중 보존이 아직 확인되지 않았거나 대기 중인 백업은 정기 동기화에서 재확인한다.
+   보존 확인을 마친 이미지의 절대 만료일을 매번 다시 연장하지 않는다. 새 증분은 관련 체인 전체를 다시 검증한다.
+   이미 만료·누락된 이미지의 데이터는 복구하지 못한다.
+
+예를 들어 11월 1일 Full과 11월 10일 증분을 각각 14일 보존하면 기본 만료일은 서로 다르다.
+11월 10일 증분의 실제 만료일이 11월 24일이면 필요한 Full·중간 증분·메타데이터도 최소 그 시각까지 보존한다.
+따라서 부모 이미지가 기본 Retention보다 오래 남을 수 있으며 저장소 용량 산정에 이 기간을 포함한다.
+더 늦은 기존 만료일은 단축하지 않고, 공유 정책이나 관련 없는 bootstrap 이미지는 변경하지 않는다.
+
+이미지 조회와 연장에는 `|MANAGE|IMAGES|`의 `|OPERATIONS|VIEW|` 및
+`|OPERATIONS|MANAGE|IMAGES|CHANGE-EXPIRATION|` 권한이 필요하다.
+변경 API는 `POST /netbackup/catalog/images/update-expiration-date`의 `byBackupId`이며,
+명시한 Backup ID·Client·복사본 하나의 만료일만 미래로 연장한다.
+10.5의 JSON API 버전은 `12.0`, 11.1 문서의 버전은 `13.0`이다.
+`12.0` 요청이 `406` 또는 `415`로 거절될 때만 `13.0`으로 재요청한다.
+요청의 `delete`, `immediate`, `forceIncompleteSLP`, `followDependee`는 모두 `false`로 지정한다.
+
+`204` 응답 후에도 카탈로그 재조회로 실제 만료일을 검증한다. `202`는 MPA 승인 대기이며 완료가 아니다.
+권한 오류·승인 대기·응답 유실·반영 미확인 시에는 새 증분의 원본 시작이나 완료 처리를 대기시키고
+스테이징 관리에 **보존 확인 대기**, 필요 보존 기한과 상세 사유를 표시한다.
+MPA 승인은 NetBackup에서 처리하고 Mold의 **작업 상태 다시 확인**으로 재검증한다.
+응답 유실로 접수 여부를 모르면 같은 요청을 자동으로 재전송하지 않는다.
+관리자가 NetBackup의 요청·이미지 상태를 확인하여 표시된 필요 보존 기한 이상으로 연장한 뒤 재확인한다.
+관계없는 이미지의 만료나 공유 정책의 일괄 보존기간 변경으로 대기 상태를 해소하지 않는다.
 
 **정책·Client·저장소의 동시 실행 제한도 함께 확인한다.**
 이 흐름에서 bootstrap 작업과 `mold-transfer`는 같은 정책의 서로 다른 백업 Job이다.
 여기서 말하는 bootstrap은 Mold 요청을 시작하는 일반 Standard 백업이며,
 NetBackup 멀티스트림 기능의 자원을 소비하지 않는 제어용 parent job과 구분한다.
+PRE Hook은 조회 시점에 조건에 맞는 VM 목록을 순회하며 모든 VM의 백업 요청을 접수한다.
+VM 준비가 실패하거나 접수 결과를 확인할 수 없으면 해당 순회를 중단한다. 캐시된 다음 VM을 계속 접수하지 않는다.
+접수 응답에는 정확한 Mold 백업 UUID가 필요하다. UUID가 없으면 다른 백업의 마커를 찾거나 같은 요청을
+다시 접수하지 않고, 관리 서버의 API·Server·NetBackup 플러그인과 Host 스크립트의 버전 일치를 먼저 확인한다.
+각 VM은 스테이징 슬롯을 기다리기 전에 작은 `.volume-bootstrap` 마커를 생성하므로,
+Hook은 실제 볼륨 백업 완료를 기다리지 않고 대상 목록의 접수를 끝낼 수 있다.
+실제 데이터 처리는 bootstrap Job 종료 확인 이후 시작한다. 따라서 bootstrap용 동시 슬롯을 별도로 더하지 않는다.
 
 | 위치 / 옵션 | 확인·조정 기준 |
 | --- | --- |
-| Policy Attributes / `Limit jobs per policy` | `1`도 순차 처리가 가능하므로 필수 변경은 아니다. 볼륨 전송 중 다음 bootstrap 작업도 지연 없이 실행하려면 Host당 동시 전송 수 `C`에 여유 `1`을 둔 `C+1`을 시작값으로 검토한다. 기본 Mold Host 제한 `C=1`에서는 `2`를 검토할 수 있다. |
-| Primary Host properties / Global attributes / `Maximum jobs per client` | 같은 Client의 여러 정책·스케줄이 공유하는 제한이다. 해당 Host의 의도한 병렬 수를 수용하는지 확인한다. 정책 제한만 높여도 이 값이 낮으면 계속 대기할 수 있다. |
+| Policy Attributes / `Limit jobs per policy` | 활성화하고 **Host별 `1`**을 초기 기준으로 한다. 전체 순차 및 Host별 1개 병렬 운영 모두 동일하며, bootstrap 종료 후 같은 정책의 볼륨·메타데이터 전송 Job에 적용한다. bootstrap용 슬롯을 더하지 않는다. |
+| Primary Host properties / Global attributes / `Maximum jobs per client` | **`1`**을 초기 기준으로 한다. Host 수에 맞춰 올리는 값이 아니다. 같은 Client의 여러 정책·스케줄이 공유하는 제한이며 Primary 전체에 적용하므로 다른 정책의 영향을 확인한다. Client·정책 상한 중 낮은 값이 적용된다. |
 | Primary Host properties / Client attributes / `Maximum data streams` | Client별 override가 있으면 `Maximum jobs per client` 대신 이 값이 적용된다. 정책의 `Allow multiple data streams` 체크박스와는 다른 옵션이다. |
-| Storage unit / `Maximum concurrent jobs` | 같은 저장소를 사용하는 모든 Host·정책이 공유한다. `1`이면 Host 4대도 저장소에서는 순차 처리된다. 네 Host의 전송을 동시에 처리하려면 저장소 성능을 확인하고 `4` 이상의 필요한 슬롯과 bootstrap용 여유를 검토한다. |
+| Storage unit / `Maximum concurrent jobs` | 같은 저장소를 사용하는 모든 Host·정책이 공유한다. 목표 전체 동시 실행 수와 다른 작업의 공유 사용량을 기준으로 검토한다. Host 수만으로 `4`·`8` 등으로 올리지 않으며 bootstrap용 슬롯을 별도로 더하지 않는다. |
 | Policy Attributes / `Allow multiple data streams` | 해제한다. 전송 한 건의 정확한 파일 목록과 Job·Backup ID를 연결하며 여러 스트림으로 나뉜 모호한 결과는 완료로 처리하지 않는다. |
 | Mold / `backup.thirdparty.staging.concurrent.jobs.per.host` | 기본 `1`이다. NetBackup 제한을 올려도 이 값이 `1`이면 Host 내 VM 스테이징은 하나씩 진행한다. 여러 볼륨을 가진 VM 한 개의 볼륨은 계속 순차 처리된다. |
-| Mold / `backup.thirdparty.staging.concurrent.jobs.per.cluster`, `.total` | 기본값은 각각 `4`, `4`이며 백업·복원과 다른 third-party 공급자도 함께 사용하는 제한이다. Host 제한·스테이징 여유 공간과 함께 조정한다. |
+| Mold / `backup.thirdparty.staging.concurrent.jobs.per.cluster`, `.total` | 기본값은 각각 `1`, `1`이다. 백업·복원과 다른 third-party 공급자도 함께 사용하는 제한이며, Host별 병렬 검증 시 목표 동시 Host 수에 맞춰 명시적으로 조정한다. |
 | Mold / `backup.thirdparty.staging.queue.timeout`, `backup.data.operation.timeout` | 각각 스테이징 입장 대기와 실제 처리 대기·전송 시간을 고려한다. NetBackup 자원 대기로 전송이 길어지면 활성 VM이 Host 슬롯을 계속 보유하고 다음 VM은 스테이징 큐 만료로 실패할 수 있다. |
 
-한 Host에서 순차 검증할 때는 정책·Client·저장소의 제한을 모두 `1`로 유지해도 된다.
-병렬 검증은 저장소 처리량과 Mold 제한을 확인한 뒤 조정하며, 모든 제한을 무조건 최댓값으로 올리지 않는다.
+전체 순차 운영 `1 / 1 / 1`을 초기 기준으로 하며 Host별 상한은 `1`로 유지한다.
+한 Cluster에서 Host H대의 병렬 실행을 검토할 때도 `1 / H / H`는 검증 후보 상한이다.
+Host 4대라는 이유만으로 `1 / 4 / 4`를 권장하지 않고 `1 / 2 / 2`부터 공유 스토리지·네트워크·VM 서비스 지연을 확인해 확대한다.
+대용량 VM은 실제 사용량과 개별 단계의 생성·전송량, 슬롯 점유시간 및 여유 공간을 기준으로 전체 동시 실행 수를 정한다.
+다른 공통 백업 솔루션의 백업·복원도 같은 제한을 사용하므로 함께 고려한다.
+
+| 단계 (1 Cluster·4 Host 예시) | Mold Host / Cluster / 전체 | Host별 Policy 상한 | Client 상한 기준 | 공유 Storage unit 상한 기준 |
+| --- | --- | --- | --- | --- |
+| ① 전체 순차 운영 | `1 / 1 / 1` | `1` | `1` | `1` |
+| ② 병렬 검증 시작 후보 | `1 / 2 / 2` | `1` | `1` | 목표 동시 쓰기 수와 공유 작업량 확인 |
+| ③ 검증 후 호스트별 병렬 후보 | `1 / 4 / 4` | `1` | `1` | 목표 동시 쓰기 수와 공유 작업량 확인 |
+
+Host당 `2` 이상인 `2 / 6 / 6`·`2 / 8 / 8` 등은 일반 권장 구성에 포함하지 않는다.
+같은 Host의 대용량 VM들이 원본 읽기·스테이징 생성·외부 전송을 겹쳐 수행할 수 있기 때문이다.
+특수한 환경에서 별도 부하·용량 검증 후 선택한 경우에만 Host별 정책·Client 제한도 함께 조정한다.
+이때 Host 정책 제한이 `1`이면 Mold의 Host 상한을 `2`로 올려도 해당 Host의 전송 두 건이 동시에 실행되지는 않는다.
+VM 한 대의 처리·정리가 끝난 뒤 다음 VM을 시작하려면 Mold의 Host 상한을 `1`로 유지한다.
+
 `Queued`이면 Job 상세의 대기 자원이 정책인지, Client인지, storage unit인지 먼저 확인한다.
 공식 기준은 [정책 동시 Job 제한](https://www.veritas.com/support/en_US/doc/18716246-163344127-0/v41274481-163344127)과
 [Client 동시 실행 제한·override](https://origin-www.veritas.com/content/support/en_US/doc/150157642-165999184-0/v44169007-165999184)를 참고한다.
@@ -1155,11 +1304,12 @@ Primary의 전역·Client override와 storage unit 제한은 관리 UI에서 별
 
 Backup Selections는 해당 정책의 **Client Host에 있는 경로**를 가리킨다.
 GFS2 경로를 공유하더라도 각 정책에는 대응하는 Client와 bootstrap 디렉터리를 지정한다.
-위 표는 정책명과 Host명을 같게 한 예시이며 필수 규칙은 아니다.
-예를 들어 `ablecube1` Host의 정책을 `kvm-prod-1`로 만들면
-`--policy-name kvm-prod-1 --kvm-hostname ablecube1`로 사전구성하고
-Backup Selections는 `/mnt/glue-gfs/ablestack-netbackup/bootstrap/kvm-prod-1`로 지정한다.
-정책의 Client는 실제 백업 Host인 `ablecube1`로 유지한다.
+위 표는 정책명과 Host명이 같은 기존 구성의 예시이며 계속 사용할 수 있다.
+정책명을 다르게 구성하려면 예를 들어 `ablecube1` Host의 정책을 `seocho-gfs+01`로 만들고
+`--policy-name seocho-gfs+01`로 사전구성한다.
+이때 Backup Selections는 `/mnt/glue-gfs/ablestack-netbackup/bootstrap/seocho-gfs+01`로 지정하며,
+정책의 Client에는 실제 백업 Host인 `ablecube1` 하나만 등록한다.
+복원·정리의 Mold 작업 Host는 백업에 저장한 Host ID로 결정하고, NetBackup 정책명과 Client 이름은 별도로 보존한다.
 Mold는 `/mnt/glue-gfs` 아래에 `ablestack-netbackup`을 붙이므로 root 설정에 이 하위 이름을 다시 붙이지 않는다.
 
 기준 정책의 `Full Backup` 스케줄은 작은 bootstrap 마커를 저장한다.
@@ -1169,7 +1319,18 @@ Mold는 `/mnt/glue-gfs` 아래에 `ablestack-netbackup`을 붙이므로 root 설
 
 **3. 각 Host에서 VM별 스케줄 모드로 사전구성한다.**
 
-아래는 `ablecube1`에서 실행하는 예시다. 나머지 Host에서는 `--policy-name`을 각 Host의 정책명으로 바꿔 순서대로 실행한다.
+UI로 사전구성을 시험할 때는 관리 서버의 API·Core·Server·NetBackup 플러그인, KVM Agent 모듈,
+Host 공용 스크립트와 UI를 같은 소스 기준으로 반영한다. `ablestack_backup_progress.py`와
+`thirdparty_volume_backup.py`를 함께 포함한다. Host 상세의 백업 연동 화면에서 정책과 API 주소를 지정하고
+사전 점검을 통과한 뒤 구성을 적용한다. VM 오퍼링 할당·스케줄 등록 여부는 화면에 조회된 실제 상태로 확인한다.
+
+새 구성의 첫 시험은 작은 VM 한 대로 백업 접수부터 `BackedUp`, 스테이징 정리 완료와 예약 `RELEASED`까지
+확인한 뒤 여러 VM의 예약 시험으로 확대한다. 사전구성 완료나 서비스 `active`만으로 백업 성공을 판단하지 않는다.
+야간 시험 종료 시에는 Mold 백업뿐 아니라 기준 정책의 NetBackup Job과 Host PRE Hook도 모두 종료됐는지 확인한다.
+기준 정책의 실행 창을 닫아도 이미 실행 중인 Hook의 VM 순회가 자동으로 끝나는 것은 아니다.
+종료가 확인되지 않은 작업의 잠금·예약·원본 보호 기록을 삭제하여 다음 시험을 시작하지 않는다.
+
+아래는 `ablecube1`에서 실행하는 예시다. 나머지 Host에서는 `--policy-name`을 해당 Host를 Client로 등록한 실제 NetBackup 정책명으로 바꿔 순서대로 실행한다.
 `--vm-schedule-backup true`일 때는 `--vm-include`·`--vm-exclude`를 지정하지 않는다.
 
 ```bash
@@ -1568,6 +1729,124 @@ Mold는 새 백업 항목을 등록하기 전에 Host 정책의 활성 상태와
 첫 누락 확인 후 최소 3분이 지난 동기화에서 부재를 재확인한 뒤 정리한다.
 같은 VM의 활성 백업·복원이나 남아 있는 종속 복원 지점이 있으면 정리가 계속 보류될 수 있다.
 
+#### NetBackup 체인 보존 기한과 자동 연장
+
+보관기간은 **각 백업 시점으로 복원할 수 있어야 하는 기간**이다. 체인에 속한 마지막 증분을
+생성하는 날까지 Full을 보관하는 것만으로는 그 증분의 보관기간을 보장할 수 없다.
+복원에 필요한 부모 Full·중간 증분·메타데이터의 각 이미지 Copy도 마지막 의존 백업의 만료 시각까지 필요하다.
+만료 기한은 날짜만 비교하지 않고 UTC 기준 시·분·초까지 비교하며, 카탈로그의 초 단위 정밀도에 맞춰 올림한다.
+
+예를 들어 매일 같은 시각에 백업하고 체인 길이가 `8`(Full 1개 + 증분 7개), 보관기간이 14일이면 다음과 같다.
+실제 전송·완료 시각에 따른 차이는 이 예에서 생략한다.
+
+| 생성일 | 백업 | 해당 백업의 원래 만료일 | 첫 Full이 필요한 기한 |
+| --- | --- | --- | --- |
+| 11/1 | Full | 11/15 | 11/15 |
+| 11/2 | 증분 1 | 11/16 | 11/16까지 보호 |
+| 11/8 | 증분 7 | 11/22 | 11/22까지 보호 |
+| 11/9 | 새로운 Full | 11/23 | 새 체인 시작. 이전 체인의 필요 기한은 계속 11/22 |
+
+11/20에 11/8 백업을 복원할 때에도 11/1의 Full과 필요한 중간 증분이 있어야 한다.
+따라서 첫 Full은 생성 시각부터 약 21일간 필요하다. 같은 조건에서 보관기간이 60일이면 약 67일이다.
+이는 보관기간 전체에 걸쳐 증분의 복원을 보장하기 위한 연장이다.
+
+Mold는 최초 확인한 원래 만료 시각(`original`)과 Mold가 적용한 시각(`managed`)을 따로 기록한다.
+완료 백업의 필요 기한은 **자신의 원래 만료 시각과, 자신을 필요로 하는 유효한 후속 백업들의 원래 만료 시각 중 최댓값**이다.
+연장된 날짜에 보관기간을 다시 더하지 않으므로, 같은 내용을 재조회하거나 새 독립 Full을 생성하는 것만으로
+이전 체인의 기한이 계속 늘어나지 않는다. 원래 더 긴 보관기간이나 운영자가 직접 변경한 만료 시각은 별도로 보존한다.
+
+보호 확인은 새 데이터 처리 시작 전·진행 중, 볼륨별 전송 완료 후, 메타데이터를 포함한 최종 완료 전에 수행한다.
+최종 완료에서는 새 증분의 원래 만료 시각을 확인해 부모의 필요 기한을 다시 계산한다.
+연장 API 수락만으로 완료하지 않고 모든 필요한 이미지 Copy의 실제 카탈로그 만료 시각을 재확인한다.
+그 확인을 마치기 전에는 해당 단계의 후속 처리나 논리 백업의 최종 완료를 보류한다.
+
+**보관기간이 14일이라고 저장소에 항상 14일치 이미지 분량만 남는 것은 아니다.**
+보관 중인 증분이 참조하는 더 오래된 부모와 새 체인이 함께 존재하는 공간도 용량 산정에 포함한다.
+이 절의 정상 보관 동작과 시험 서비스가 수행하는 승인된 구형 시험 체인의 명시적 삭제는 구분한다.
+
+#### 복원 중 만료 시각의 임시 보호와 해제
+
+복원 소요 시간은 사전에 확정할 수 없으므로, 복원을 시작한 날짜까지만 만료 기한을 맞추지 않는다.
+Mold에 복원 계획·진행 기록이 등록되면 실행 슬롯을 기다리는 동안부터 필요한 체인을 보호한다.
+이 설명은 Mold가 관리하는 복원과 NetBackup UI에서 `MOLD-RESTORE.json`을 통해 Mold에 접수된 복원에 적용한다.
+Mold에 접수되지 않은 별도 수동 파일 복원 전체를 감시한다는 뜻은 아니다.
+
+| 구분 | 현재 구현 |
+| --- | --- |
+| 임시 보호 기한 | 현재 시각에서 **30분 뒤**까지. 원래 보관 기한·다른 증분의 필요 기한이 더 길면 그 긴 기한을 유지 |
+| 갱신 조건 | 진행 기록을 재확인할 때 임시 보호가 **10분 이하**로 남았으면 다시 현재 시각 + 30분으로 갱신 |
+| 확인 주기와 보호 범위 | 정상 재조정에서 갱신한다. 실행 중 중복 검사는 같은 매니페스트 기준 60초 이내 생략할 수 있으며, Full·필요한 중간 증분·메타데이터의 각 Copy를 확인 |
+| 장시간 복원 | 복원이 3시간 또는 그 이상 걸려도 활성 복원 기록이 있으면 짧은 보호를 계속 갱신. 예상 완료 시간을 한 번 계산해 고정하지 않음 |
+| 설정과의 관계 | 데이터 처리 제한이 12시간, Hook 제한이 24시간이어도 그 시간을 일괄 보관기간에 더하지 않음. 이 30분·10분·5분 값은 현재 코드 상수이며 별도 Global 설정이 아님 |
+| 보호 종료 조건 | 파일 다운로드 완료만으로 해제하지 않음. 복원·롤백 등 실제 작업과 필요한 정리가 끝나 이미지 reader 종료를 확인한 뒤 해제 가능 |
+
+**예시: 현재 이미지 만료가 18:00이고, 17:50에 시작한 복원이 약 3시간 걸리는 경우**
+
+| 시각 | 정상 갱신이 이루어질 때의 처리 |
+| --- | --- |
+| 17:50 | 복원 접수·보호 확인. 기존 18:00보다 늦은 18:20까지 임시 보호 |
+| 18:10 무렵 | 보호가 10분 남으면 18:40까지 갱신 |
+| 18:30 무렵 | 계속 진행 중이면 19:00까지 갱신. 이후에도 같은 방식으로 갱신 |
+| 20:50 무렵 | 복원이 끝났더라도 정리가 진행 중이면 보호 유지. 이때 갱신됐다면 임시 기한은 21:20 |
+| 20:55 | 복원과 정리의 완료를 확인하면 임시 보호 해제 대상. 다른 의존 백업이 없다면 아래 복귀 절차 적용 |
+
+표의 시각은 정상 조회·갱신을 가정한 예이며 정확히 그 시각에 실행하는 별도 타이머는 아니다.
+통신·권한·승인 문제로 갱신을 확인하지 못한 경우에는 아래 실패 처리로 구분한다.
+
+임시 보호 해제 후에는 **원래 기한과 아직 유효한 다른 의존 백업의 필요 기한**을 다시 계산한다.
+그 기한이 미래이면 해당 기한을 유지한다. 이미 지난 경우, Mold가 추가한 임시 연장을 되돌릴 수 있는 Copy에는
+최초 해제 시점에서 **5분 뒤의 고정 유예**를 기록하고 그 시각으로 복귀시킨다.
+위 예에서는 조건을 모두 만족한 20:55에 21:00을 기록할 수 있다. 같은 해제를 재시도할 때마다 5분씩 밀지 않는다.
+그 뒤 실제 이미지 정리와 Mold의 만료 반영은 NetBackup·Mold의 정상 처리 주기에 따라 이루어진다.
+이 5분은 임시 연장을 되돌리는 유예이며, 이미지 전체 부재를 확인한 뒤 로컬 정리 전에 적용하는 3분 유예와 별개다.
+
+자동 단축은 원래 기한을 알고 있고, 현재 카탈로그 값이 Mold가 마지막으로 적용한 값과 일치할 때만 허용한다.
+다른 복원 reader가 남아 있거나 실패 작업의 종료가 불명확하면 단축을 보류한다.
+운영자가 만료일을 직접 바꾼 Copy, 원래 기한을 알 수 없는 구형 기록도 자동으로 덮어쓰거나 단축하지 않는다.
+
+#### 보존 기한 연장을 확인하지 못했을 때
+
+| 발생 지점·사유 | 처리 흐름 |
+| --- | --- |
+| 새 백업의 부모 보호가 미확인 | 보호 사유를 기록하고 신규 소스 시작·다음 외부 전송 진행을 보류. Host 종료·취소 상태 확인은 계속 수행 |
+| 볼륨 전송 후 보호가 미확인 | 이미 저장한 외부 Job·이미지 참조를 유지. Host의 다음 단계 ACK를 보류하며 같은 전송을 다시 제출하지 않음 |
+| 모든 전송 뒤 최종 보호가 미확인 | 최종화·정리를 `WAITING`으로 유지. 보호 확인 전에 논리 백업을 `BackedUp`으로 확정하지 않음 |
+| 새로운 파일 복원 요청 전 보호가 미확인 | 새 NetBackup 복원 POST를 보내지 않음. 미제출 실패·준비 상태를 기록하고 기존 복원 흐름에서 종료·재확인 |
+| 이미 Job ID가 있는 복원 중 갱신 실패 | 기존 Job ID로 진행·종료를 계속 조회하고 재조정에서 보호를 재확인. 중복 복원 POST나 다른 복원 방식으로 전환하지 않음 |
+| 인증·권한 등 명확한 연장 요청 거절 | `NETBACKUP_RETENTION_UNCONFIRMED` 사유를 보존. 불명확한 수락 건과 구분하며 원인 해소 후 보호 재확인 가능 |
+| 응답 유실 또는 API 수락 뒤 카탈로그 미반영 | 요청 목표와 pending 기록을 보존. 카탈로그 반영을 확인하기 전 같은 요청을 무작정 재제출하거나 완료로 판정하지 않음 |
+| MPA 승인 대기 | 승인 ticket과 pending 기록 유지. 기존 승인 건을 다시 만들지 않고 반영 여부를 재확인 |
+
+`WAITING`은 보호를 확인하지 못했다는 표시이며 **그 표시만으로 NetBackup 만료일이 연장됐다는 뜻이 아니다.**
+갱신에 계속 실패하면 실제 카탈로그에 남은 만료 시각에 도달해 아직 필요한 이미지가 만료될 수 있다.
+상세 오류와 정확한 이미지 ID·Copy·실제 만료 시각을 함께 보고 인증·권한·연결·승인 문제를 해소해야 한다.
+이미 만료·소실된 이미지의 데이터를 만료일 연장만으로 되살릴 수는 없다.
+
+그 경우 기존 증분 복원 지점은 유효한 체인으로 취급하지 않는다. 기존 작업의 종료·정리를 확인하고,
+후속 백업에서는 정확한 카탈로그 조회로 부모의 만료·누락을 확인한 뒤 독립 Full로 새 체인을 시작한다.
+단순 조회 장애는 부모의 소실 증거가 아니므로, 이를 근거로 임의의 새 전송이나 Full 전환을 실행하지 않는다.
+
+보호 확인 대기가 모든 단계에서 무제한이라는 뜻은 아니다. 입장 전에는 슬롯 큐 제한을 적용하고,
+슬롯 확보 뒤 소스 준비·파일 전송 확인에는 해당 단계의 데이터 처리 제한을 적용한다.
+제한에 도달한 Host 작업의 실제 종료와 정리를 확인한 뒤 실패 결과·예약 반환을 반영한다.
+모든 외부 전송이 이미 완료된 경우에는 그 참조를 보존하며 최종화 재시도와 신규 전송을 구분한다.
+
+**검증 범위(2026-11-19)**: 하루 1회·8개 체인·보관기간 14일/60일을 모델링한 회귀에서
+첫 Full의 필요 기한이 각각 21일/67일로 맞춰지고, 새 Full·반복 조회가 이전 체인의 기한을 추가로 늘리지 않음을 확인했다.
+현재 2시간 보관 PoC에서는 보존 Copy 기록 269개를 계산 기한과 대조했고, 선정한 이미지 12개의 실제 카탈로그 기한이
+필요 기한·Mold 적용 기록과 모두 일치했다. 예를 들어 Full 이미지 `ablecube1_1795064389`의 원래 만료는
+`15:59:49 KST`, 마지막 의존 증분의 만료는 `18:32:03 KST`이며, 실제 연장 기한도 `18:32:03 KST`였다.
+이 관찰을 실제 14일·60일 운영이나 만료 경계를 넘는 대용량 복원의 실서버 통과로 확대하지 않는다.
+장시간 복원 보호·해제, 연장 요청 거절·응답 유실·승인 대기·카탈로그 미반영은 회귀 테스트와 실서버 장애 시험을 구분한다.
+
+관련 회귀는 `NetBackupChainRetentionTest` 38건, `NetBackupRetentionApiTest` 19건,
+`ThirdPartyBackupArtifactPersistenceTest` 37건, `ThirdPartyBackupCompletedJobCleanupTest` 31건,
+`AblestackNetBackupRestoreTransferTest` 8건, 합계 **133건 통과**를 확인했다.
+보호 미확인 시 신규 복원 POST 차단과 기존 Job 조회 유지도 이 회귀 범위에 포함한다.
+
+구현 근거는 `NetBackupChainRetention`의 `required`·`protectLocked`,
+`AblestackNetBackupProvider`의 복원 준비·재조정과 `AblestackNetBackupRestoreTransfer`의 제출 전 보호 확인이다.
+
 #### NetBackup 백업 파일 만료 시 참고사항
 
 **활성 Host 정책의 bootstrap 이미지까지 전체 만료하면, 12시간 Frequency를 설정했어도 기준 정책이 다시 실행될 수 있다.**
@@ -1695,6 +1974,33 @@ Job 목록의 `page[limit]=1000`은 유지하며 공유 Host 정책은 cursor로
 기존 스테이징 파일과 외부 볼륨 Job을 보존하고 `RUNNING` 작업의 저장된 외부 Job 참조를 확인한다.
 조회가 정상화되면 다음 볼륨과 metadata까지 완료되는지 확인한다.
 이미 대기 시간 만료로 `Failed`가 된 작업은 자동 재개 대상이 아니므로 별도 백업을 다시 요청한다.
+
+#### NetBackup 논리 백업과 카탈로그 매칭 확인
+
+관리자는 백업 목록 또는 VM의 백업 탭에서 대상 NetBackup 백업의 **백업 이미지 정보**를 연다.
+볼륨별 백업 형식인 NetBackup 백업은 정상 완료되었거나 임시 파일 정리가 끝난 뒤에도 이 메뉴로 조회할 수 있다.
+이전 형식처럼 볼륨별 이미지 매니페스트가 없는 백업에는 이 메뉴를 제공하지 않는다.
+
+- Mold 논리 백업 UUID와 Full/증분 유형을 확인한다.
+- ROOT·DATA 볼륨과 VM 메타데이터별 카탈로그 식별자(Image ID), NetBackup Job ID와 저장 경로를 대조한다.
+- **이번 백업 이미지**와 **부모 체인 이미지**를 구분한다. 증분 백업은 이전 Full·증분 이미지도 복원에 필요할 수 있다.
+- 숫자 Job ID가 아직 확정되지 않은 전송 요청 참조는 실제 NetBackup Job ID와 구분한다.
+- 저장된 연결 정보와 외부 카탈로그의 현재 존재 여부는 별도로 확인한다. 카탈로그 상태와 마지막 확인 시각을 함께 확인하며, 개별 이미지가 미확인인 상태를 삭제로 판단하지 않는다.
+
+Mold 논리 백업 한 건은 NetBackup 이미지 여러 건과 연결된다. 외부 UI에서 VM 복원을 시작할 때에는
+**메타데이터 이미지**의 클라이언트, NetBackup 백업 시각, 해당 VM·시점 경로를 기준으로 찾는다.
+Mold의 백업 생성 시각과 NetBackup 전송 시각은 대기·전송 시간만큼 다를 수 있다.
+
+1. NetBackup의 Regular recovery에서 정책 유형 `Standard`, 복원 유형 `Normal backups`를 선택한다.
+2. Source client는 메타데이터 이미지의 작업 호스트로 지정한다.
+3. **Edit date range → Use date picker**에서 메타데이터의 NetBackup 백업 시각이 포함되도록 범위를 지정한다.
+   **Use backup history**를 사용한다면 해당 시각과 Backup ID 열을 함께 대조한다.
+4. 파일 목록에서 저장된 VM·시점 경로의 `MOLD-RESTORE.json`을 선택한다.
+   이 파일을 복원하면 Mold가 메타데이터를 검증한 뒤 필요한 Full·증분 볼륨을 별도로 회수한다.
+   자세한 수신 경로·감시 서비스 조건은 [NetBackup 및 Veeam 서비스 운영](#netbackup-및-veeam-서비스-운영)을 참고한다.
+
+**백업 이미지 정보**는 조회 전용이다. 작업 재조회, 수동 Job 연결과 임시 파일 정리는
+관리자 조치가 필요한 백업의 **스테이징 관리**에서 수행한다.
 
 ### Veeam: `ablestack-veeam`
 
@@ -2153,9 +2459,9 @@ Veeam의 기존 환경 생성·설치·설정용 셸 스크립트는 `veeam-host
 | --- | --- |
 | `--admin-apikey`, `--admin-secretkey` | Mold Admin API 인증정보. Veeam은 `--api-key`, `--api-secret` 별칭도 지원 |
 | `--mold-url URL` | Mold API 주소. NetBackup 필수, Veeam 생략 시 Agent의 `agent.properties`에서 조회 |
-| `--vm-schedule-backup true\|false` | 해당 솔루션의 Mold 글로벌 스케줄 모드 갱신. 생략 시 현재 Mold 값 유지(최초 `false`), Host conf에 모드 저장하지 않음 |
+| `--vm-schedule-backup true\|false` | 해당 솔루션의 Mold 글로벌 스케줄 모드 갱신. 생략 시 현재 Mold 값 유지(최초 NetBackup `true`, Veeam `false`), Host conf에 모드 저장하지 않음 |
 | `--vm-include LIST`, `--vm-exclude LIST` | `false`일 때 대상/제외 필터. 기본 `*`/빈 값. 터미널에서 생략 시 입력받음 |
-| `--incremental-backup true\|false` | 최초 구성할 Full/증분 정책. 기본 `true`. Mold Global 및 해당 Cluster에 반영 |
+| `--incremental-backup true\|false` | 최초 구성할 Full/증분 정책. 기본 `true`. 두 도구 모두 해당 Cluster 값만 명시적으로 저장하며 Global 유지 |
 | `--backup-chain-size N` | 증분일 때만 지정. 생략하면 기존 `kvm.backup.chain.size` 유지, 제품 기본값 `8` |
 
 `--vm-schedule-backup true`는 필터를 묻지 않고 기존 필터를 보존한다(최초 `VM_INCLUDE=*`, `VM_EXCLUDE=`).
@@ -2222,7 +2528,7 @@ python3 veeam-host-config.py \
 
 - **Full**: 해당 백업 시점의 볼륨 전체 데이터를 보관한다. 최초 백업은 Full로 시작한다.
 - **증분**: 이전 정상 백업 이후 변경된 데이터만 보관한다. 복원 시 기준 Full과 필요한 이전 증분 백업도 사용한다.
-- `kvm.incremental.backup`: VM이 속한 Cluster의 증분 백업 사용 여부이다.
+- `kvm.incremental.backup`: VM이 속한 Cluster의 증분 백업 사용 여부이며, 제품 기본값은 `true`이다. 기존에 저장된 Global·Cluster 값은 유지한다.
 - `kvm.backup.chain.size`: Full과 후속 증분이 연결된 백업 체인의 길이 상한이다. 기본값은 `8`이다.
 
 NetBackup·Veeam은 실행 시 VM의 ROOT 볼륨에서 확인한 Cluster의 `kvm.incremental.backup` 유효값을 따른다.
@@ -2533,11 +2839,13 @@ Commvault·NetBackup·Veeam의 백업과 복원은 공통 스테이징을 함께
 | 글로벌 설정 | 기본값 | 적용 범위 |
 | --- | --- | --- |
 | `backup.thirdparty.staging.concurrent.jobs.per.host` | `1` | Host 하나에서 동시에 실행하는 백업·복원의 합 |
-| `backup.thirdparty.staging.concurrent.jobs.per.cluster` | `4` | Cluster 하나에서 동시에 실행하는 백업·복원의 합 |
-| `backup.thirdparty.staging.concurrent.jobs.total` | `4` | 세 솔루션과 모든 Host를 합친 동시 백업·복원 수 |
+| `backup.thirdparty.staging.concurrent.jobs.per.cluster` | `1` | Cluster 하나에서 동시에 실행하는 백업·복원의 합 |
+| `backup.thirdparty.staging.concurrent.jobs.total` | `1` | 세 솔루션과 모든 Host를 합친 동시 백업·복원 수 |
 | `backup.thirdparty.staging.queue.timeout` | `14400`초(4시간) | 새 작업이 실행 허용을 기다릴 수 있는 시간 |
 
-기본 설정에서는 같은 Host의 작업은 하나씩 실행하고, 여러 Host에서는 Cluster·전체 제한과 용량 범위 안에서 병렬로 실행한다.
+기본 `1 / 1 / 1`은 공통 스테이징 전체에서 백업·복원을 하나씩 실행한다.
+Host별 병렬 검증은 클러스터 하나의 Host 수가 H인 경우 `1 / H / H`로 명시적으로 조정하며,
+Host 4대의 예시는 `1 / 4 / 4`다. 코드 기본값과 운영 서버에 저장된 병렬 설정값을 구분한다.
 같은 Host에서 둘 이상 실행하려면 Host 제한을 조정하고 Cluster·전체 제한 및 각 작업의 필요 공간도 함께 확보한다.
 GFS2·NFS를 공유하는 Host들은 같은 파일시스템의 예약분을 함께 계산한다.
 `LOCAL`은 Host별 공간을 검사하되 Host·Cluster·전체 동시 실행 수 제한은 공통으로 적용한다.
@@ -2613,6 +2921,246 @@ GFS2 원본 파일시스템의 클러스터 잠금과도 적용 대상이 다르
 
 #### 대용량 작업의 대기 시간 조정
 
+##### NetBackup ON/OFF별 한 회차의 요청 개수
+
+아래 기준은 현재 **볼륨별 스테이징·`mold-transfer` 방식**에 해당한다.
+VM 스케줄 모드는 백업 대상 선정 기준을 바꾸며, 파일 생성·전송·복원 엔진이나 슬롯 개수를 바꾸지 않는다.
+두 모드 모두 NetBackup Host 정책 실행으로 부모 PRE Hook이 시작되며, 일치하는 NetBackup 오퍼링 할당이 필요하다.
+ON에서도 Mold 예약 시각만 도래하고 NetBackup 정책이 실행되지 않으면 이 Hook 흐름은 시작되지 않는다.
+
+| 구분 | ON (`true`) | OFF (`false`) |
+|---|---|---|
+| 한 회차 대상 | 이 Host·정책에 맞는 오퍼링이 있고 Mold 예약 시간이 도래한 백업 가능한 VM | 이 Host·정책에 맞는 오퍼링이 있는 백업 가능한 VM 전체 |
+| Mold VM 스케줄 | 필요. 예약이 없거나 아직 도래하지 않았으면 제외 | 사용하지 않음. 기존 스케줄은 보존하되 이번 백업의 실행 완료로 소비하지 않음 |
+| 같은 Host에 대상 가능 VM 10개, 예약 도래 2개 | VM 백업 요청 최대 2개 | VM 백업 요청 최대 10개 |
+| 예약 도래 VM 없음 | VM 백업 요청 0개. 전체 VM 백업으로 전환하지 않음 | 예약 여부와 관계없이 적격 VM 수만큼 요청 |
+| 동일 시각에 10개 모두 예약 도래 | VM 백업 요청 최대 10개 | VM 백업 요청 최대 10개 |
+| 같은 VM에 여러 예약이 함께 도래 | 한 회차에서 VM별 중복 제거 후 1개만 선택 | VM별 1개만 선택 |
+| 요청 순서 | 앞 VM의 요청 결과·정확한 bootstrap 표식 확인 후 다음 VM 요청 | 동일 |
+| 앞 VM의 실제 백업 완료 대기 | 기다리지 않음. 접수된 여러 VM 작업이 슬롯을 기다릴 수 있음 | 동일 |
+
+Running·Stopped 사용자 VM 중 실행/마지막 Host 및 정지 VM 배정 조건을 만족하는 VM이 대상이며,
+다른 솔루션·정책의 오퍼링, 삭제된 VM, 이미 백업 중인 VM 등은 제외한다.
+조회 후 상태·오퍼링·모드·예약이 바뀌면 실행 시 다시 검증하여 요청이 거절될 수 있으므로 표의 수는 정상 조건의 최대치다.
+VM 접수·초기 준비 확인이 실패하거나 결과가 불명확하면 남은 VM 순회를 중단한다.
+이미 접수한 작업은 이 실패만으로 취소·삭제되지 않으므로 Mold에서 종료와 정리를 따로 확인한다.
+
+여기서 **VM 백업 요청 수**, **NetBackup Job 수**, **동시에 실행하는 VM 수**는 서로 다르다.
+VM 1개가 볼륨 3개를 백업하면 정상 회차에서 보통 볼륨 전송 3개와 마지막 메타데이터 전송 1개가 발생한다.
+부모 bootstrap 정책 Job은 별도로 존재한다. 증분도 이번 회차에서 만든 볼륨별 증분 파일을 전송한다.
+따라서 VM 10개가 접수되었다고 `mold-transfer` 전송 Job이 10개이거나 10개가 동시에 실행된다는 뜻은 아니다.
+
+##### 코드 기본값과 초기 검증 권장값
+
+초기 권장값은 처리량을 보장하는 고정 규칙이 아니라 **실측을 시작하기 위한 운영 기준**이다.
+VM 개수·가상 디스크의 표시 용량만으로 시간을 정하지 않고 FULL/증분의 실제 처리량과 소요시간을 함께 측정한다.
+
+| 설정 / 적용 위치 | 코드 기본값 | 초기 검증 권장과 변경 판단 |
+|---|---|---|
+| `backup.plugin.netbackup.hook.timeout` / Global·동적 | `86400`초 (24시간, 기존 동작 호환) | 정상 회차의 VM 요청·초기 확인 총시간을 측정한 뒤 하향 가능. 검증 시작 예시는 `3600`초(1시간)이며, 대상 전체의 접수·초기 확인과 여유가 이 안에 들어오는지 먼저 확인. 실제 백업·복원 완료시간을 더하지 않음 |
+| `backup.thirdparty.staging.queue.timeout` / Global | `14400`초 (4시간) | 초기에는 유지. 가장 늦게 슬롯을 얻을 VM의 예상 대기가 4시간에 접근·초과하면 반드시 재산정. 백업·복원 및 다른 공통 제공자의 기존 대기도 포함 |
+| `backup.data.operation.timeout` / Global | `43200`초 (12시간) | 초기에는 유지. 백업의 볼륨별 생성·전송 및 복원의 파일별 다운로드·FULL 변환·증분 적용 중 가장 오래 걸리는 개별 단계를 기준으로 재산정. 앞선 단계의 시간은 다음 단계 제한을 소비하지 않음 |
+| `backup.thirdparty.staging.concurrent.jobs.per.host` / Global | `1` | 첫 검증은 1 유지. 같은 Host의 백업·복원 VM 작업 합계. VM 하나의 모든 볼륨이 슬롯 1개를 공유하며 볼륨은 순차 처리 |
+| `backup.thirdparty.staging.concurrent.jobs.per.cluster` / Global | `1` | 초기에는 전체 순차 검증. Host별 병렬 검증 시 목표 동시 Host 수로 조정. 각 Cluster의 상한을 Global에서 지정하는 값이며 Cluster 범위 override를 뜻하지 않음 |
+| `backup.thirdparty.staging.concurrent.jobs.total` / Global | `1` | 초기에는 전체 순차 검증. Host별 병렬 검증 시 목표 전체 동시 Host 수로 조정. 모든 공통 솔루션의 백업·복원을 합산하며 저장소 처리능력도 함께 확인 |
+| `backup.qos.bandwidth.limit.mbps` / Global | `0` (제한 없음) | 운영 VM의 디스크 부하를 측정해 필요한 경우 제한. NetBackup 전송 네트워크 전체에 대한 속도 제한으로 해석하지 않음. 속도를 낮추면 데이터·큐 시간을 다시 계산 |
+| `backup.thirdparty.staging.capacity.buffer.percent` / Global | `20`% | 초기 유지. 작업별 스테이징 예약과 실제 여유 공간을 확인. 용량 부족을 피하려고 여유율을 낮추기보다 공간 확보·병렬도 축소 검토 |
+| `backup.restore.primary.storage.capacity.buffer.percent` / Global | `20`% | 초기 유지. 복원 준비 볼륨과 원본 보존·롤백 공간을 포함한 기본스토리지 여유 확인. 최소 10 GiB 여유 조건도 별도로 적용 |
+| `backup.thirdparty.staging.mount.timeout` / Global | `300`초 | 마운트 자체가 정상 환경에서도 늦는 경우에만 조정. 파일 생성·전송시간이나 큐 시간을 더하는 값이 아님 |
+| `backup.plugin.netbackup.request.timeout` / Global 기본·Zone 재정의 | `300`초 | REST API 한 번의 연결·응답 제한. 실제 파일 복원 전체 시간과 분리. 개별 API 응답이 이 제한을 넘는지 확인한 경우에만 조정 |
+| `backup.plugin.netbackup.recovery.job.timeout` / Global 기본·Zone 재정의 | `0`초 (동기 recovery 대기 무제한) | 구형/비볼륨 동기 복원 경로의 완료 대기에 적용. 현재 볼륨별 비동기 복원의 주 제한이 아니므로 이 값만 늘려 대용량 복원을 해결하려 하지 않음 |
+| `netbackup.prepared.restore.path.ready.timeout` / Global | `300`초 | NetBackup WebUI/비볼륨 경로에서 준비된 복원 경로·필수 파일의 가시성 확인. 현재 볼륨별 파일 전송 완료시간을 늘리는 값이 아님 |
+
+새 Hook Global 설정을 포함한 코드 기본값과 이미 운영 DB에 저장된 값은 구분한다.
+본 표의 권장 예시를 운영 서버에 자동 적용하지 않는다. Zone에 별도 API/복원 설정이 있으면 그 값이 우선하므로
+Global 변경 전 실제 값의 출처도 확인한다.
+
+##### NetBackup VM 스케줄 모드 OFF 운영 기준
+
+OFF에서는 해당 Host 정책에 맞는 NetBackup 오퍼링이 할당된 백업 가능한 VM 전체가 대상이다.
+정책 실행 시 VM별 요청과 초기 bootstrap 준비 확인은 순서대로 수행하지만,
+앞 VM의 실제 백업 완료를 기다려야 다음 VM을 요청하는 구조는 아니다.
+슬롯을 기다리기 전에 작은 bootstrap 표식을 생성하므로 여러 VM 요청이 접수되어 대기할 수 있다.
+요청 또는 초기 준비 확인이 실패하면 같은 회차에서 나머지 VM 요청을 중단하며,
+이미 접수된 작업은 별도로 상태·종료·정리를 확인한다.
+
+운영값은 VM 개수만으로 정하지 않고 다음 정보를 함께 확인한다.
+
+| 확인 항목 | 판단 기준 |
+|---|---|
+| 백업 대상 수 | Host의 전체 VM 수가 아니라 정책과 일치하는 오퍼링이 할당된 백업 가능한 VM 수 |
+| VM별 소요시간 | 최초 FULL 기준으로 원본 준비·데이터 생성·외부 전송·완료 확인·정리·슬롯 반환까지 측정한 시간 |
+| 데이터량 | VM의 모든 대상 볼륨과 실제 FULL/증분 생성·전송량. 가상 디스크 용량만으로 전송시간을 확정하지 않는다. |
+| 실제 병렬도 | Host·Cluster·전체 슬롯의 현재 가용 수, NetBackup 정책·Client·스토리지의 실행 제한을 함께 확인 |
+| 가용 용량과 부하 | 스테이징·원본 스토리지의 예약 용량, 디스크 I/O, CPU 및 네트워크 사용률. 다른 공통 제공자의 백업·복원도 포함 |
+
+동시에 접수된 N개 VM의 슬롯 점유 시간이 비슷하고 실제 병렬도가 C라면,
+마지막 VM의 예상 대기는 대략 `(ceil(N / C) - 1) × VM당 슬롯 점유시간`이다.
+이는 계획용 근사치이며 기존 대기 작업, 다른 Host·복원의 슬롯 사용, VM별 시간 차이와 여유시간을 추가한다.
+Host 제한이 기본값 1이면 Cluster·전체 제한이 4여도 같은 Host의 VM 4개가 동시에 실행되는 것은 아니다.
+
+| 조정할 설정 | 권고 기준 |
+|---|---|
+| `backup.thirdparty.staging.queue.timeout` | 마지막 대상 VM의 예상 슬롯 대기보다 길게 설정. 기본 4시간에 앞선 작업 시간 전체를 더하는 것이 아니라, 예상 최장 대기와 여유를 기준으로 결정 |
+| `backup.data.operation.timeout` | 백업·복원 모두 가장 오래 걸리는 개별 파일 생성·전송·다운로드·변환·증분 적용 단계로 산정하며 모든 VM·전체 체인 시간을 합산하지 않음 |
+| `backup.thirdparty.staging.concurrent.jobs.per.host` | 초기에는 1을 유지. 용량·I/O·네트워크와 외부 실행 제한을 확인한 뒤 실측 결과로 조정 |
+| `backup.thirdparty.staging.concurrent.jobs.per.cluster` / `concurrent.jobs.total` | 여러 Host와 복원을 함께 고려해 조정. Host 제한과 스토리지·전송 처리 능력을 넘는 증가는 처리속도를 보장하지 않는다. |
+| `backup.qos.bandwidth.limit.mbps` | 실제 처리량과 VM 서비스 영향을 기준으로 설정. 낮추면 백업 시간이 늘 수 있으므로 대기·처리 제한을 함께 검토 |
+| NetBackup 정책 실행 주기 | 한 회차의 예상 전체 처리시간과 여유시간을 고려해 결정. 주기마다 감당할 수 있는 양보다 많은 작업을 계속 접수하지 않도록 운영 |
+
+예를 들어 대상 10개, 실제 병렬도 1, VM당 슬롯 점유 30분이면 마지막 VM은 약 4시간 30분을 기다린다.
+기존 대기 작업이 없다는 가정에서도 기본 4시간을 넘으므로, 여유를 포함한 6시간(`21600`초) 등을 시험 기준으로 잡는다.
+VM당 1시간이면 예상 마지막 대기는 약 9시간이며, 여유를 포함한 12시간(`43200`초) 등을 검토한다.
+이 수치는 예시이며 실제 용량·처리시간·예약 주기를 측정한 뒤 확정한다.
+
+이 계산은 **ON에서 같은 회차에 N개가 도래한 경우에도 동일**하다.
+ON이라고 Hook·슬롯 대기를 짧게 고정하거나, OFF라고 데이터 처리 제한을 VM 수 배로 늘리지 않는다.
+
+##### VM 수·용량에 따른 조정 예시
+
+| 조건 (실측을 가정한 예시) | Hook 제한 판단 | 큐 제한 판단 | 데이터 제한 판단 |
+|---|---|---|---|
+| ON, 적격 VM 10개 중 이번 회차 예약 도래 2개, 요청·초기 확인 VM당 30초, 슬롯 점유 VM당 1시간, 병렬도 1 | 약 1분 + 공통 조회·여유. 1시간 검증 예시 안에 충분한지 확인 | 마지막 VM 약 1시간 대기 + 여유. 기본 4시간으로 시작 가능 | 백업의 최장 개별 단계가 12시간 이내면 기본 유지 |
+| OFF, 같은 10개 모두 적격. 나머지 조건 동일 | 약 5분 + 공통 조회·여유. 전체 백업 10시간을 Hook 값에 더하지 않음 | 마지막 VM 약 9시간 대기. 기본 4시간으로 부족하므로 여유 포함 12시간 등을 검토 | VM 수 10개만으로 12시간을 120시간으로 늘리지 않음 |
+| ON, 같은 시각에 10개 모두 예약 도래 | 바로 위 OFF와 동일한 요청 수 기준으로 산정 | 동일 | 동일 |
+| 한 VM의 큰 FULL 볼륨 생성 13시간, 해당 파일 전송 3시간 | 요청·bootstrap 확인이 짧으면 용량을 이유로 늘리지 않음 | 뒤 VM은 최소 그 VM의 전체 슬롯 점유시간 영향을 받으므로 별도 재산정 | 13시간 생성 단계가 기본 12시간 초과. 생성 제한에 여유를 더한 16시간 등으로 시험하고 실제 부하·전송·정리도 확인 |
+| VM 1개 복원에 다운로드 5시간·FULL 적용 5시간·증분 적용 4시간 등 합계 14시간, 개별 단계는 모두 12시간 미만 | 부모 백업 Hook 제한과 무관 | 뒤 복원 요청은 약 14시간의 슬롯 점유 영향을 받으므로 큐 대기를 재산정 | 단계별로 제한을 새로 적용하므로 합계 14시간이라는 이유만으로 기본 12시간을 늘리지 않음 |
+| 복원 파일 한 개 다운로드 또는 FULL 변환 한 번이 13시간 예상 | 부모 백업 Hook 제한과 무관 | 선행 복원의 전체 슬롯 점유시간을 고려 | 해당 개별 단계가 12시간 초과하므로 여유 포함 16시간 등으로 검토 |
+
+용량을 시간으로 환산할 때는 표시 용량 대신 실제 생성·읽기·전송 바이트와 실효 처리율을 사용한다.
+예를 들어 **실제로 1 TiB를 100 MiB/s로 한 번 처리**하면 이상적인 데이터 처리시간은 약 2.91시간이다.
+50 MiB/s면 약 5.83시간이며, 이는 원본 읽기·파일 생성·NetBackup 전송·체인 적용·flush가 모두 합쳐진 시간이 아니다.
+FULL/증분 생성량, 볼륨 수, 저장소 부하와 각 단계의 처리량을 따로 측정한다.
+
+##### 대용량·증분 체인 복원 시 반드시 구분할 제한
+
+VM 스케줄 ON/OFF는 **백업 대상 선정 모드**이며, 선택한 백업본의 복원 방식과 Hook 실행을 바꾸지 않는다.
+현재 볼륨 복원은 별도 Restore Worker가 슬롯을 확보한 뒤 메타데이터 및 필요한 FULL·증분 파일을 순서대로
+NetBackup Primary REST로 복원 요청하고, 파일별 완료를 확인하여 대상 기본스토리지에 적용한다.
+부모 백업 PRE/POST나 `mold-transfer` Hook 안에서 이 과정을 기다리지 않는다.
+
+현재 `LibvirtAblestackVolumeRestoreHelper`는 **외부 파일을 요청할 때마다** `backup.data.operation.timeout`으로
+새 마감시각을 정한다. 이전 파일 다운로드·FULL 적용·증분 적용 시간이 다음 파일의 대기 여유를 소비하지 않는다.
+개별 FULL 변환·가져오기·증분 적용 명령도 같은 설정값을 각각의 제한으로 사용한다.
+따라서 백업·복원 모두 **가장 오래 걸리는 개별 데이터 단계 + 여유**를 기준으로 같은 설정 하나를 관리한다.
+전체 VM·체인의 처리시간을 한 타이머로 합산하지 않는다. 전체 체인이 길어지면 슬롯 점유시간은 길어지므로 뒤 작업의 큐 제한은 별도로 재산정한다.
+최종 전환·롤백·정리와 불명확한 외부 작업의 종료 확인 절차는 유지한다.
+
+`backup.plugin.netbackup.recovery.job.timeout=0`은 별도의 구형 동기 대기 상한을 두지 않는다는 의미이며,
+현재 볼륨 Restore Worker의 `backup.data.operation.timeout`까지 무제한으로 바꾸지 않는다.
+`netbackup.prepared.restore.path.ready.timeout=300`도 현재 볼륨별 복원 전체를 5분으로 제한하는 설정이 아니다.
+
+| 증상·예상 조건 | 반드시 검토/조정할 대상 | 다른 값으로 해결하지 않을 항목 |
+|---|---|---|
+| 새 백업·복원이 슬롯을 얻기 전 4시간 이상 대기 예상 | `backup.thirdparty.staging.queue.timeout`, 선행 작업량·병렬도·용량 | Hook 제한만 연장해도 큐 만료는 그대로 발생 |
+| 개별 백업 볼륨 생성/전송 단계가 12시간 이상 예상 | `backup.data.operation.timeout`, 실제 I/O·전송 성능 및 NetBackup 자원 대기 | `BPSTART_TIMEOUT`만 연장해도 데이터 단계 제한은 그대로 발생 |
+| 복원 파일 다운로드 한 건 또는 변환/증분 적용 한 단계가 12시간 이상 예상 | `backup.data.operation.timeout`, 실제 전송량·기본스토리지 쓰기 성능 | 전체 체인 시간이 12시간을 넘는다는 이유만으로 확대하지 않음. 구형 recovery/prepared 경로 제한과도 구분 |
+| 부모 Hook이 VM 요청·초기 확인을 끝내기 전에 종료 | Global Hook 제한과 NetBackup notify/read 제한, 개별 API/초기 준비 실패 원인 | 대용량 디스크 전체 복사시간을 Hook에 합산하지 않음 |
+| 실제 진행량이 30분간 증가하지 않아 중단 | 정체 원인·스토리지·네트워크·프로세스 진행 상태 | 데이터 절대 제한만 늘려도 내부 무진행 감지는 그대로 유지 |
+| 복원 스테이징/기본스토리지 공간 부족 | 공간 확보, 예약·준비 볼륨·원본 보존 공간, 병렬도 | timeout 확대만으로 공간 부족은 해결되지 않음 |
+
+Hook의 요청 응답·초기 준비 확인 제한은 요청과 bootstrap 준비에 필요한 시간을 기준으로 관리한다.
+이는 슬롯 대기시간이나 실제 데이터 처리시간과 다르다. 대기시간 초과 작업은 값을 늘려도 자동 재개하지 않으며,
+설정 변경은 새로 접수하는 작업부터 적용된다. 대기 실패를 피하려고 용량 예약이나 안전한 종료 확인을 해제하지 않는다.
+
+##### Host·NetBackup 서버의 외부 제한 함께 확인
+
+Mold의 Global 값을 변경해도 Host의 NetBackup `bp.conf`와 Primary·Media 서버의 제한이 함께 변경되지는 않는다.
+Linux Client의 파일은 `/usr/openv/netbackup/bp.conf`이며 `nb.conf`와 구분한다.
+호스트 구성 적용 시 Client의 세 notify/read 값을 Global `backup.plugin.netbackup.hook.timeout`
+(기본 `86400`초), 두 connect 값을 각각 `1800`초로 설정하지만,
+이 값은 현재 구성 도구의 적용값이며 NetBackup 제품의 최대 허용값을 뜻하지 않는다.
+Primary·Media 서버의 Host properties 또는 해당 서버의 `bp.conf` 유효값도 별도로 확인한다.
+
+| 계층 / 설정 | 현재 코드 기준 | 제한하는 구간 / 조정 기준 |
+|---|---|---|
+| Mold `backup.thirdparty.staging.queue.timeout` | 기본 `14400`초 | 각 VM이 슬롯을 얻기 전 대기. 가장 늦게 입장할 VM의 예상 대기와 여유로 산정 |
+| Mold `backup.data.operation.timeout` | 기본 `43200`초 | 백업의 볼륨 생성·전송과 복원의 파일별 다운로드·변환·증분 적용에 각각 적용. VM 전체·체인 전체의 합산 제한이 아님 |
+| Host Hook `MOLD_ASYNC_JOB_TIMEOUT` | 기본 `7200`초 | VM별 `createNetBackup` 비동기 API의 접수·실행 시작 결과 확인. 실제 볼륨 백업 완료 대기와 구분 |
+| Host Hook `NETBACKUP_STAGING_TIMEOUT` | 실행 시 Mold 데이터 처리 제한 + `600`초 (기본 `43800`초) | VM별 정확한 백업 UUID의 bootstrap 준비 확인. 현재 볼륨 방식은 슬롯 대기 전에 표식을 만들므로 전체 슬롯 대기를 이 시간에 더하지 않음. 정상적인 Mold 설정 조회가 있으면 수동 환경변수 값보다 조회 결과를 사용 |
+| Global `backup.plugin.netbackup.hook.timeout` → Host `netbackup_hook_runner.py` | 기본 `86400`초 · Global · 동적 | PRE / POST 각각 한 번의 실행 제한. 새 호출마다 Global 값을 조회하여 `--timeout`으로 전달. 전체 VM 요청·비동기 결과·초기 준비 확인 누적 시간과 여유로 산정 |
+| NetBackup `BPSTART_TIMEOUT` | 호스트 구성 시 Global Hook 값 적용 (기본 `86400`초) | 서버가 Client의 `bpstart_notify` 종료를 기다리는 시간. 전체 대상 VM의 요청·초기 준비 확인을 합산한 PRE 시간과 여유로 산정 |
+| NetBackup `BPEND_TIMEOUT` | 호스트 구성 시 Global Hook 값 적용 (기본 `86400`초) | 서버가 Client의 `bpend_notify` 종료를 기다리는 시간. 실제 POST 후처리와 여유로 산정 |
+| NetBackup `CLIENT_READ_TIMEOUT` | 호스트 구성 시 Global Hook 값 적용 (기본 `86400`초) | 응답이 없는 구간의 읽기 대기. 전체 백업 수행시간 상한과 구분하며, 같은 실행 경로의 notify 제한 이상인지 확인 |
+| NetBackup `CLIENT_CONNECT_TIMEOUT` / `SERVER_CONNECT_TIMEOUT` | Client 구성 적용값 각각 `1800`초 | 연결 수립 대기. VM 수·대용량 전송시간을 이유로 일괄 확대하지 않음 |
+
+예를 들어 10개 VM의 실제 백업을 순차 처리하는 데 총 10시간이 걸려도 각 VM 요청과 bootstrap 준비가
+빠르게 끝나면 PRE는 10시간 동안 기다리지 않는다. 이 경우 Mold 큐 제한을 늘릴 수 있지만,
+그 이유만으로 `BPSTART_TIMEOUT`을 10시간보다 크게 늘릴 필요는 없다.
+반대로 PRE가 대상 VM들을 요청·확인하는 데 오래 걸리면 개별 내부 대기 제한과 PRE 전체를 감싸는
+NetBackup 서버 제한 및 Host Hook 감시기 제한을 모두 확인한다.
+Hook 제한 초과는 아직 요청하지 않은 VM의 접수를 중단시킬 수 있으나 이미 접수한 VM 백업을 취소·삭제하지 않는다.
+
+현재 볼륨 백업 흐름은 다음과 같다.
+
+1. 부모 정책의 `bpstart_notify`: 대상 VM 요청과 작은 bootstrap 표식 확인 후 종료.
+2. 호스트의 별도 Mold 작업 `thirdparty_volume_backup.py`: 슬롯 확보 및 부모 bootstrap 작업 종료 확인 후 볼륨 파일 생성.
+3. Mold 전송 제어와 호스트의 `netbackup-volume-backup.py`: 준비된 파일을 `bpbackup`의 `mold-transfer` 스케줄로 전송 요청.
+4. NetBackup이 파일을 전송하고 Mold가 정확한 Job·이미지를 확인. 볼륨별 생성 → 전송 확인 → 정리를 반복.
+
+`mold-transfer` 전용 사전·사후 Hook은 `exit 0`으로 즉시 종료하며, VM 백업 요청이나 파일 생성·완료 대기를 수행하지 않는다.
+디스크가 커질 때 늘어나는 파일 생성·전송 시간은 Hook 전체 제한과 분리한 `backup.data.operation.timeout`으로 관리한다.
+Hook의 기존 `86400`초 기본값은 호환을 위해 유지하며, 24시간 대기가 필요한 구조라는 뜻은 아니다.
+운영에서는 대상 VM 전체의 요청·초기 준비 확인 실측 시간에 여유를 더해 Global Hook 값을 줄일 수 있다.
+
+Global Hook 값은 양의 Integer 초 단위이며 0·음수·소수는 허용하지 않는다.
+PRE·POST 시작 시마다 읽고 실행 중인 Hook은 시작할 때 캡처한 값을 유지한다.
+설정 조회 실패·누락·잘못된 값은 고정 기본값으로 우회하지 않고 새 Hook 시작 전에 오류로 처리한다.
+실제 적용한 값은 `hook-control/` 기록의 `timeoutSeconds`로 확인한다.
+신규 설정 등록을 위해 Management를 업데이트하고 Host의 `netbackup-host-common.sh`와 `netbackup_hook_runner.py`도 함께 배포한다.
+이후 Global 값 변경은 다음 호출부터 적용되며 Management 재시작·호스트 사전구성 재적용 없이 Hook에 반영된다.
+Global 값 변경 및 기본값 초기화 시 **사전구성이 완료되고 `bp.conf`가 있는 KVM Client**의
+`BPSTART_TIMEOUT`·`BPEND_TIMEOUT`·`CLIENT_READ_TIMEOUT` 세 항목을 같은 값으로 자동 동기화한다.
+Client만 설치된 미구성 Host와 `bp.conf`가 없는 Host는 건너뛰고 파일을 만들지 않는다.
+정책을 비활성화하고 백업·복원·취소·정리·호스트 구성 작업이 없는지 확인한 뒤 변경한다.
+대상 Host 전체를 사전 확인하고 파일 변경·필요한 Client 서비스 재시작을 확인한 다음 Global 값을 저장한다.
+같은 값으로 이미 구성된 파일은 다시 쓰거나 Client를 재시작하지 않는다.
+일부 Host 적용 실패·응답 유실 시 Global을 유지하고 반영한 Host를 원래 파일로 복구한다.
+Host의 개인 복구 기록은 작업 ID와 원래 파일을 보존하여 연결 복구 후 같은 Global 값을 재저장할 때 조정한다.
+DB 저장 응답이 불명확하면 실제 저장값을 확인하여 이미 저장된 값 뒤에서 파일만 되돌리지 않는다.
+확인되지 않은 반영 또는 현재 Global과 불일치하는 복구 기록이 있으면 새 Hook의 VM 요청을 시작하지 않는다.
+Global과 일치하는 반영이 확인되고 마지막 기록 정리 응답만 유실된 경우에는 새 Hook을 허용한다.
+Primary·Media 서버의 `bp.conf`는 자동 수정하지 않는다. 새 Agent 명령을 포함하므로 Management·Common 스크립트·KVM Agent를 함께 업데이트한다.
+서버 notify 제한은 Hook 제한 이상으로 두고, 설정 조회·종료 확인 등의 여유시간도 고려한다.
+`CLIENT_READ_TIMEOUT`은 notify 제한 이상으로 두며 connect 제한은 별도로 관리한다.
+
+NetBackup 11.1 공식 안내의 적용 위치는 `BPSTART_TIMEOUT`이 **Media 서버**, `BPEND_TIMEOUT`이 **Primary 서버**다.
+실제 설치 버전의 문서와 작업을 실행하는 서버를 확인하고, Primary와 Media를 한 장비가 겸하면 해당 장비에서 둘 다 확인한다.
+`CLIENT_READ_TIMEOUT`은 시작·종료 notify 제한보다 작지 않게 맞춘다.
+Host 구성 도구는 이러한 서버 설정을 자동으로 수정하지 않는다.
+근거: [BPSTART_TIMEOUT](https://docs.cohesity.com/docs/netbackup/11.1/18716246-170847606-0/v40555698-170847606),
+[BPEND_TIMEOUT](https://docs.cohesity.com/docs/netbackup/11.1/18716246-170847606-0/v40555686-170847606),
+[Timeouts properties (10.1)](https://www.veritas.com/support/en_US/doc/18716246-157328516-0/v40229750-157328516).
+
+**최대 허용값 검증 상태**
+
+| NetBackup 설정 | 확인한 공식 문서의 최대값 명시 여부 |
+|---|---|
+| `BPSTART_TIMEOUT` | 11.1 항목 문서는 최대값을 명시하지 않음. 7.1.0.4 릴리스 노트에는 Java Console 제한을 48시간(`172800`초)으로 확대한 이력이 있으나, 이를 현재 모든 버전·설정 경로의 최대값으로 적용하지 않음 |
+| `BPEND_TIMEOUT` | 확인한 항목 문서에 숫자 상한이 없어 현재 설치 버전의 최대값 미확정 |
+| `CLIENT_READ_TIMEOUT` | 확인한 항목 문서에 숫자 상한이 없어 현재 설치 버전의 최대값 미확정 |
+| `CLIENT_CONNECT_TIMEOUT` / `SERVER_CONNECT_TIMEOUT` | 현재 설치 버전의 입력·런타임 상한 미확정. 구성 도구의 `1800`초를 상한으로 해석하지 않음 |
+
+상한 근거가 없는 항목을 무제한 또는 32비트 정수 최대값으로 안내하지 않는다.
+운영 적용 전 설치 버전별 Host properties의 허용 범위와 공급사 지원 범위를 확인한다.
+`nbgetconfig` 조회나 `bp.conf`에 숫자가 저장되는 것만으로 해당 시간까지 실행이 보장되는 것은 아니다.
+최대값을 확인하려고 운영 서버 설정을 큰 값으로 시험 변경하지 않는다.
+과거 UI 제한 변경 근거: [NetBackup 7.1.0.4 Release Notes](https://vox.veritas.com/legacyfs/online/veritasdata/NB_7104_Release_Notes.pdf).
+
+##### VM 스케줄 모드 변경
+
+`backup.plugin.netbackup.vm.schedule.enabled`는 모든 Zone의 NetBackup Host에 공통 적용되는 동적 설정이다.
+변경 자체를 위해 기존 백업본·VM 스케줄 삭제나 호스트 사전구성 재적용을 수행하지 않는다.
+운영 중에는 구성된 NetBackup 정책을 비활성화하고 백업·복원·취소·정리 작업 및 호스트 구성 작업이 끝난 뒤 변경한다.
+Mold는 기존 기록을 보존하면서 관련 상태를 확인하고, 상태를 확인할 수 없으면 변경하지 않는다.
+호스트 구성 스크립트도 함께 업데이트하여 모든 구성 정책 목록을 조회할 수 있어야 한다.
+초기 사전구성 전에는 정책·NetBackup 인증정보가 없어도 확인된 미구성 상태에서 변경할 수 있다.
+
+ON → OFF에서는 기존 VM 스케줄을 보존하지만 백업 대상 선정에 사용하지 않는다.
+OFF 백업을 기존 예약의 실행 완료로 소비하지 않는다.
+OFF → ON에서는 스케줄이 없는 VM을 제외하며 이미 도래한 예약이 다음 정책 실행에서 바로 대상이 될 수 있으므로,
+다음 실행 시각과 보호 대상 VM을 확인한다. 같은 값의 재저장에는 운영 중단 검사를 다시 요구하지 않는다.
+
 **대용량 VM이나 같은 Host에서 순차 처리할 VM이 많으면 `backup.thirdparty.staging.queue.timeout`을
 마지막 작업의 예상 대기 시간보다 길게 조정한다.** 기본값은 `14400`초(4시간)이며,
 Commvault·NetBackup·Veeam의 백업과 복원에 공통 적용한다.
@@ -2633,6 +3181,74 @@ C의 예상 대기 시간은 약 3시간 30분이다. 전송 속도 변동과 �
 이 설정은 실행 슬롯을 얻기 전의 대기 제한이다. 실행 이후의 처리 제한은 `backup.data.operation.timeout`으로 별도 관리한다.
 대기 제한을 늘려도 동시 처리 수나 처리 속도는 증가하지 않는다. 예약 주기보다 같은 Host의 전체 처리 시간이 길면
 예약 시각대로 매 회차를 완료하기 어려우므로 백업 주기와 Host 분산도 함께 조정한다.
+
+#### 데이터 처리와 명령 응답의 타임아웃
+
+타임아웃 설정을 작업마다 추가하지 않고 기존 공통 제한과 다음 두 설정을 사용한다.
+
+| 처리 | 적용 기준 |
+| --- | --- |
+| 백업·복원 시작 접수, 상태 조회·취소 요청 | Management 공통 `wait` 및 기존 명령별 `commands.timeout`. Host의 짧은 제어 제한도 유지한다. |
+| 백업 볼륨 내보내기·복사·변환, 외부 전송, 대용량 백업 데이터 삭제 | `backup.data.operation.timeout` (기본 `43200`초). 백업은 볼륨·처리 단계마다 적용하며 모든 VM의 합산 제한이 아니다. |
+| 현재 볼륨 복원의 외부 파일 대기·대상 디스크 적용 | 같은 데이터 제한값을 파일 다운로드·FULL 변환·증분 적용마다 새로 적용. 전체 VM·체인 처리시간을 합산하지 않으며, 슬롯 점유 전체 시간은 뒤 작업의 큐 대기에 반영 |
+| 공용 스테이징 실행 허용 대기 | `backup.thirdparty.staging.queue.timeout` (기본 `14400`초). 슬롯 확보 전까지만 적용한다. |
+
+**솔루션별 초기 권고값**
+
+업체가 사용하는 백업 솔루션 하나를 기준으로 `backup.data.operation.timeout`을 안내한다.
+실측 처리시간이 없는 초기 구성에서는 다음 값을 권고하며, 솔루션 이름만으로 서로 다른 시간을 지정하지 않는다.
+
+| 사용 솔루션 | 초기 권고값 | 이후 조정 시 확인할 시간 |
+| --- | --- | --- |
+| ABLESTACK NAS | `43200`초(12시간) | QCOW2는 전체 디스크를 포함한 libvirt 백업 작업 한 건과 볼륨별 체인 변환, RBD는 개별 export·import·증분 적용, 공유 RAW는 개별 볼륨 복사 중 최장시간 |
+| ABLESTACK Commvault | `43200`초(12시간) | 볼륨별 생성·Commvault 전송, 파일별 복원 다운로드·FULL 변환·각 증분 적용 중 최장 개별 단계 |
+| ABLESTACK NetBackup | `43200`초(12시간) | 볼륨별 생성·NetBackup 전송, 파일별 복원 다운로드·FULL 변환·각 증분 적용 중 최장 개별 단계 |
+| ABLESTACK Veeam | `43200`초(12시간) | 볼륨별 생성·Veeam 전송, 파일별 복원 다운로드·FULL 변환·각 증분 적용 중 최장 개별 단계 |
+
+조정할 때는 해당 솔루션의 Full·증분 백업과 복원을 실제 부하에서 측정하고 가장 긴 데이터 작업에 운영 여유를 더한다.
+NAS QCOW2 백업은 libvirt 작업의 실제 전체 경과시간으로 산정하며 디스크별 시간을 단순 합산하지 않는다.
+나머지 볼륨별 단계는 앞선 단계나 전체 VM·체인의 누적시간을 더하지 않는다.
+데이터 제한을 줄이면 실패 확정은 빨라질 수 있으나 정상 대용량 작업도 중단될 수 있으므로,
+백업 시간만으로 복원까지 같은 값에 들어온다고 판단하지 않는다. 슬롯 대기와 NetBackup Hook·각 제품의 API 응답 제한은 별도로 확인한다.
+
+백그라운드 백업·복원은 시작 응답을 받은 뒤 Host에서 계속 실행한다. 시작 응답 대기에 데이터 처리 제한인
+12시간을 사용하지 않는다. 명령에 데이터 처리 제한을 별도로 보관하여 `commands.timeout`이 응답 대기를
+변경해도 실제 데이터 처리 제한과 NAS 원본 보호 요청의 식별값은 바뀌지 않도록 한다.
+기존 명령에 별도 데이터 제한이 없으면 저장된 `wait` 값을 사용한다. 기존 복원 명령의 `timeout` 필드와
+구버전 Agent가 사용하는 `wait` 필드도 유지한다.
+
+데이터를 실제로 삭제하는 동기 명령은 `backup.data.operation.timeout`으로 실행과 응답을 기다린다.
+`wait` 기본값은 `1800`초이고 Host의 `cmds.timeout` 기본값은 `7200`초이므로 별도 제한을 제거하는 것만으로
+두 시간을 맞출 수 없다. 동기 데이터 명령에 더 짧은 `commands.timeout`을 지정하면 응답 대기가 먼저 끝날 수 있다.
+일반적인 제어 요청의 타임아웃은 원격 작업의 종료를 뜻하지 않는다. 기존 Host·외부 작업의 종료와 정리가
+확인되기 전에는 실행 슬롯·용량 예약·원본 보호를 반환하지 않고 기존 재확인 절차를 따른다.
+
+#### 데이터 처리 정체 감지
+
+글로벌 설정을 추가하지 않고 **30분 무진행 기준을 내부 정책**으로 적용한다. 전체 실행 제한인
+`backup.data.operation.timeout`과 슬롯 입장 전의 `backup.thirdparty.staging.queue.timeout`은 계속 독립적으로 사용한다.
+
+| 대상 | 관측 기준과 처리 |
+| --- | --- |
+| 공용 스테이징 QCOW2 백업 | NBD가 실제로 처리·건너뛴 논리 바이트를 기록한다. 별도 감시 프로세스가 진행량을 확인하므로 동기 NBD I/O에 멈춰도 정체를 감지한다. |
+| 실행 중 VM의 기존 스크립트 백업 | `virsh domjobinfo`의 Data/File processed 증가를 확인한다. 조회 성공이나 Job의 실행 상태만으로 무진행 시간을 갱신하지 않는다. |
+| RBD 내보내기·가져오기, qemu 변환·증분 적용 | 도구가 보고하는 네이티브 진행률 증가를 확인한다. 희소 파일의 크기나 진행률 파일의 수정시간은 정체 판단에 사용하지 않는다. |
+| 외부 전송·복원 완료 확인, 진행률 없는 변환 | 30분 경과 시 경고를 기록하고 기존 실행 제한으로 계속 기다린다. 진행량을 알 수 없다는 이유만으로 취소하지 않는다. |
+
+같은 수치를 반복 보고하거나 수치가 감소하면 무진행 시간이 연장되지 않는다. 증가하는 처리량이 있으면
+30분을 넘는 정상 대용량 작업도 계속 실행할 수 있다. qemu/RBD의 초기 `0%`는 대용량 사전할당·준비를 포함할 수
+있어 경고만 적용하고, 실제 진행률을 관측한 뒤부터 정체 감지를 적용한다. NBD 복사는 자체 논리 바이트 계측을 사용한다.
+`100%` 보고 이후의 최종 반영·flush는 증가할 진행량이 없으므로 경고와 기존 실행 제한으로 기다린다.
+입장 대기·원본 정리·최종화 단계에는 앞선 데이터 복사의 무진행 제한을 이어 적용하지 않는다.
+
+정체 시 해당 작업과 자식 데이터 프로세스에 종료를 요청하며, 쓰기 프로세스의 종료를 확인한 뒤 기존 실패·복원
+롤백·정리 절차로 이어진다. 감시 프로세스가 예약 파일·원본 보호·스테이징 데이터를 직접 삭제하지 않는다.
+Host/스토리지 장애로 종료가 확인되지 않으면 보호와 예약을 유지하며 복구·재확인이 필요하다.
+
+이 정책은 정체된 작업 때문에 후속 작업이 4시간 큐 제한에 도달하는 경우를 줄인다. 정상 작업 자체가 4시간을 넘거나
+외부 작업 진행을 계측하지 못하는 경우까지 큐 만료를 막지는 않으므로 예약 분산과 큐 대기시간 조정을 함께 검토한다.
+서버 반영 시 KVM Agent 모듈과 공용 스크립트를 함께 배포한다. 새 `ablestack_backup_progress.py`는 기존 스크립트와
+같은 디렉터리에 필요하며, RPM의 공용 스크립트 디렉터리 복사에 포함된다.
 
 ### 스테이징 대기와 정리 대기 구분
 
@@ -2697,6 +3313,344 @@ RBD export/export-diff의 실시간 대역폭 조정은 제공하지 않으며, 
 해당 외부 파일까지 제거하려면 정리 완료 후 취소 백업에서 일반 **백업 삭제**를 실행한다.
 삭제는 해당 취소 백업이 소유한 파일을 대상으로 하며, 외부에 전송하지 않은 볼륨은 건너뛴다.
 외부 파일 삭제와 정리를 완료하면 Mold 백업 행을 제거한다. 외부 승인 또는 삭제 확인이 대기 중이면 행과 삭제 진행 기록을 유지한다.
+
+## 백업 장애 대응
+
+백업이 멈춘 것으로 보이면 진행률뿐 아니라 단계, 대기 사유와 실제 외부 Job 상태를 함께 확인한다.
+아래 표의 **증상 → 확인 위치 → 조치 → 정상 복귀 기준** 순서로 점검한다.
+
+| 발생 현상 | 확인할 위치·항목 | 조치 | 정상 복귀 기준 |
+| --- | --- | --- | --- |
+| 여러 VM이 `WAITING` 상태 | Mold **스테이징 관리**의 대기 사유, 다른 백업·복원 작업의 실행 여부 | 앞 작업이 진행 중이면 순서 대기일 수 있다. 앞 작업 완료 후 다음 작업이 시작되는지 확인한다. | 앞 작업의 예약이 `RELEASED`로 바뀌고, 대기하던 작업이 실행 단계로 넘어간다. |
+| `PREPARING` 또는 `START_CONFIRMATION`에서 멈춤 | **백업 체인 보존 상태**, 상세 오류, 부모 백업 UUID | `NETBACKUP_RETENTION_UNCONFIRMED`라면 NetBackup에서 해당 이미지의 존재 여부·만료일을 확인한다. 인증 오류나 승인 대기라면 먼저 해당 원인을 해소한다. | 필요한 체인의 보존이 확인되어 준비 단계에서 다음 단계로 진행한다. 만료·누락된 체인을 이어갈 수 없는 경우에는 기존 작업의 종료·정리 확인 후 독립 Full 백업으로 새 체인을 시작한다. |
+| 호스트는 `FAILED`인데 Mold는 `BackingUp` | 스테이징 관리의 호스트 상태와 Mold 상태, 관리서버 로그 | **작업 상태 다시 확인**을 실행한다. 계속 다르면 상태 반영 장애로 판단하고 로그와 적용 버전을 확인한다. | Mold에 실제 실패·취소 결과가 반영되고, 필요한 정리와 예약 해제 후 후속 백업이 진행된다. |
+| NetBackup Job은 완료됐는데 Mold가 끝나지 않음 | 볼륨별 Job, 메타데이터 전송, 호스트 최종 처리·정리 상태 | 모든 전송과 호스트 처리가 끝났는지 확인한 뒤 재조회한다. 외부 Job 완료만으로 Mold 백업 전체가 완료된 것은 아니다. | Mold가 `BackedUp`으로 바뀌고 최종 처리·필수 정리와 예약 해제가 완료된다. |
+| NetBackup의 메타데이터 복원은 성공했는데 Mold 복원이 시작되지 않음 | 수신 호스트의 복원 감시 timer, `/var/log/netbackup-mold-restore-watcher.log`, `/var/log/netbackup-mold-restore.log`, 해당 Job의 `file-lists` 응답과 Mold API 오류 | 실제 선택은 `data.attributes.fileList`에서 확인한다. API 링크를 파일로 오인한 `UNKNOWN_FILES`라면 호스트 감시 프로그램을 갱신한다. `validation`·`proof`의 255자 제한 오류는 관리서버 API 수정본을 적용한다. 보류된 Job은 다음 감시 주기에 재검증되므로 중복 복원 요청 전에 접수 기록을 확인한다. 실제 파일 선택이 잘못된 경우에는 올바른 메타데이터를 새 복원 Job으로 요청한다. | 감시 로그에 Mold 복원 접수가 기록되고, Mold의 `RESTORE` 작업이 실행된다. 최종적으로 VM 복원 결과 `COMMITTED`, 필수 정리 완료와 예약 `RELEASED`를 확인한다. |
+| 보관기간이 지났는데 백업이 목록에 남음 | NetBackup 이미지 만료일, 이미지 정리 주기·대기 시간, Mold 카탈로그 상태 | 실제 이미지 정리와 Mold 동기화를 기다린다. 후속 증분 백업이 사용하는 체인인지도 확인한다. | 후속 작업에 필요한 체인은 유지된다. 더 이상 필요하지 않은 백업은 외부 이미지 정리 후 Mold에 만료 상태가 반영되고 정리 조건을 충족하면 목록에서 제거된다. |
+| 용량 부족·마운트 오류로 대기 | 스테이징 저장소와 기본 스토리지의 여유 공간, 작업 호스트의 NFS 마운트 | 용량·마운트 문제를 해소하고 작업 상태를 다시 확인한다. | 용량·마운트 오류가 해소되고 실행 조건을 충족한 작업이 대기에서 실행 단계로 넘어간다. |
+| 예약 시간이 지나도 새 백업이 없음 | Mold 스케줄·시간대, NetBackup 호스트 정책 활성 상태·실행 시간, 기존 진행 작업 | 스케줄과 정책을 확인하고, 이전 작업의 정체 여부를 먼저 점검한다. | 다음 예약 실행에서 대상 VM의 새 백업이 생성되고 정상 완료된다. |
+| 취소했는데 계속 진행 중으로 표시됨 | 취소 요청 상태, 호스트 종료 여부, 정리·예약 해제 상태 | 취소 요청 접수와 실제 종료를 구분한다. 종료·정리 후 대기 작업이 이어지는지 확인한다. | 호스트 종료가 확인되고 Mold에 취소 결과가 반영되며, 필요한 정리와 예약 해제 후 대기 작업이 진행된다. |
+
+예를 들어 Host/Cluster/전체 동시 실행 제한이 `1/1/1`이면 앞 작업이 진행 중인 동안 뒤 작업이 기다릴 수 있다.
+실행 중인 작업이 없는데도 대기 만료 시간을 넘겨 같은 오류가 반복되면 정상적인 순서 대기로 보지 않고 위 항목을 점검한다.
+
+### 장애 발생 시 기록할 항목과 로그
+
+장애 발생 시에는 **발생 시간, VM 이름, 백업 UUID, 작업 호스트, NetBackup Job ID, 상세 오류**를 먼저 기록한다.
+NetBackup Job이 아직 생성되지 않은 준비 단계라면 Job ID는 미생성으로 기록하고, 백업 UUID로 Mold와 호스트 로그를 확인한다.
+
+- 관리서버: `/var/log/cloudstack/management/management-server.log`
+- 해당 호스트: `/var/lib/ablestack/backup/jobs/<백업 UUID>/job.log`
+- NetBackup: Activity Monitor의 해당 Job 상세
+- NetBackup 외부 UI 복원 연동: 수신 호스트의 `/var/log/netbackup-mold-restore-watcher.log`, `/var/log/netbackup-mold-restore.log`
+
+실패·취소로 종료된 NetBackup 백업에 보존 미확인 기록이 남아 있어도 현재 대기 중인 작업이라는 뜻은 아니다.
+백업 종료 사유와 스테이징 정리 상태, 예약 `RELEASED` 여부를 함께 확인한다.
+
+## NetBackup 실패 시나리오 검증 기록
+
+### 2026-11-20 야간 반복 결과
+
+`2026-11-19 17:00` 이후 생성한 시험 백업을 `2026-11-20 09:03 KST`에 조회했다.
+GFS2·VM 스케줄 모드 ON, Host/Cluster/Total `1/2/2`, 체인 길이 `8`, 시험 보관기간 2시간 구성이다.
+기존 13대에 `netbackup-gfs`를 편입해 14대가 되었으며, 서버 제어 서비스가 예약 갱신과 정책 시작 요청을 수행했다.
+이 결과는 NetBackup 자체 Frequency·Start Window에 따른 자동 기동 검증과 구분한다.
+
+| 항목 | 확인 결과 |
+| --- | --- |
+| 반복 백업 | 총 222건 성공: Full 28건, 증분 194건. 해당 생성 구간의 실패·취소 0건 |
+| Host별 회차 | 네 Host가 각각 16회차 완료. 단일 회차 뒤 중단되지 않고 후속 회차를 계속 생성 |
+| 500 GiB·3디스크 | 가상 디스크 합계 800 GiB, Full 이미지 합계 약 500.26 GiB. Full 2건·증분 12건 성공 |
+| 체인 전환 | 세 볼륨 모두 첫 체인 길이 1→8 이후 새 Full에서 1로 전환. 두 번째 체인은 조회 시 6까지 성공 |
+| 후속 정리 | 새 Full의 유효성을 확인한 뒤 구형 시험 체인을 정리하는 운영 작업 33건 완료, 정리기 Host 오류 없음 |
+| 현재 용량 | 공유 GFS2 여유 약 2.63 TiB, NetBackup 저장소 여유 약 1.72 TiB |
+| 현재 제어 상태 | 서비스 RUNNING, 별도 보류·오류 없음. 조회 당시 진행 백업은 없고 다음 Host별 예약 대기 |
+
+500 GiB용 데이터 488 GiB는 `11/19 17:00`부터 생성해 `19:10`에 완료했고,
+두 시험 파일의 SHA-256을 기록했다. VM은 약 `19:11` 반복 대상에 편입됐다.
+첫 Full은 `11/19 19:40:40 → 20:33:24`(52분 44초), 두 번째 Full은
+`11/20 03:40:38 → 04:33:49`(53분 11초)에 완료됐다. API 접수 응답은 두 건 모두 약 1초였다.
+이 시간은 큐 대기·볼륨 생성·외부 전송·최종 처리를 포함하며, 순수 복사 처리량으로 사용하지 않는다.
+
+| 실사용량 구간 | 해당 VM의 Full 완료 소요 시간 | 표본·조건 |
+| --- | --- | --- |
+| 약 100 GiB | 약 11.4~12.7분 | Host2·Host4의 해당 VM, 합계 4건 |
+| 약 200 GiB | 약 22.3~24.3분 | Host3의 해당 VM, 2건 |
+| 약 300 GiB | 약 46.7~51.6분 | Host1의 해당 VM, 2건 |
+| 약 500 GiB | 약 52.7~53.2분 | Host4의 3디스크 VM, 2건 |
+
+위 표는 현재 환경의 접수부터 완료까지 관찰한 값이다. 같은 Host·Cluster의 앞선 작업과 공유 I/O에 따른
+대기를 포함하므로 용량에 비례하는 보장 시간이나 1 Gb/s 환경의 수치로 확대하지 않는다.
+야간에는 데이터 준비 이후 대량 변경을 반복 주입하지 않아 증분 변경량이 작았다.
+500 GiB VM의 증분은 전체 완료 약 5.3~24.6분으로 관찰됐지만, 대량 변경 증분의 처리 시간 검증은 남는다.
+
+**실제 보호 기한**: 두 번째 Full `3355`의 볼륨 3개와 메타데이터 이미지 Copy를 직접 조회했다.
+원래 만료 시각은 이미지별 `05:44:44`~`06:33:04 KST`였으며, 마지막 증분 `3425`의 원래 만료 시각인
+`11/20 10:46:13 KST`로 네 이미지 모두 연장돼 Mold 적용 기록과 실제 카탈로그가 일치했다.
+새 체인 전환 전 부모의 보관기간을 넘겨 증분이 성공한 근거이며, 장시간 복원 중 보호 갱신 시험과 구분한다.
+
+구형 체인 33건 정리는 시험 서비스의 **명시적 삭제** 결과다. 이를 2시간 보관기간에 따른 자연 만료와
+NetBackup 실제 공간 회수의 완료 증거로 합산하지 않는다. 자연 만료는 별도 이미지 ID·만료·부재 기록으로 확인한다.
+고의 연장 실패·타임아웃 초과·복원 중 만료 경계 통과·OFF 모드 정책 간격 비교는 이번 야간에 주입한 시험이 아니다.
+실행 근거는 관리 서버의 `state.json`, `host-cycle-timings.jsonl`, `backup-metrics.csv`,
+`volume-metrics.csv`, `phase-metrics.csv`와 야간 준비 경로의 `night-state.json`·`rotation-state.json`에 남아 있다.
+
+### 2026-11-20 복원·보존 실패 집중 시험
+
+야간 ON 제어기와 시험 체인 정리기의 신규 요청을 보류하고, 접수된 작업을 취소하지 않은 상태에서 진행했다.
+공통 데이터 처리 제한을 시험할 때는 별도 원복 감시기를 등록했다. 시험 복원 계획과 Host 명령에
+`backup.data.operation.timeout=300`초가 전달된 것을 확인한 뒤 약 7초 만에 기존 `43200`초로 복구했다.
+NetBackup API 장애 주입용 임시 Zone 주소도 시험 종료 후 삭제해 기존 Global 상속으로 복구했다.
+
+| 시험 | 실제 확인 | 판정·제한 |
+| --- | --- | --- |
+| 20 GiB VM의 8개 복구 지점 체인 복원 | VM410의 Full 1개·증분 7개 복원, 원본 교체 `COMMITTED`, 기본스토리지·스테이징 정리 완료, 예약 `RELEASED`, 재기동 후 게스트 파일 3개의 SHA-256 일치 | 통과. 실제 트랜잭션 완료는 `09:25:44 KST`; 관찰기의 뒤늦은 완료 기록을 복원 소요시간으로 사용하지 않음 |
+| 데이터 완료 응답 지연·300초 계획 | VM404의 특정 데이터 복원 Job 완료 응답만 지연. 복원 실패 후 원본 유지·롤백, 양쪽 정리 완료, 예약 반환, `qemu-img compare`로 원본 내용 동일 확인 및 VM 재기동 | 롤백·정리·원본 보호 확인. 설치본의 상위 오류 문구에 하위 원인이 빠져 있어 정확한 원인 표시의 서버 재검증은 남음. 정상 전송 중 네트워크 단절 시험과 구분 |
+| 보존 연장 권한 거부 | VM410 체인 이미지의 보존 연장 요청에만 HTTP 403 주입. `NETBACKUP_RETENTION_UNCONFIRMED`로 API 실패, Native 복원 POST 미발생, VM은 정지 상태로 정리 | 통과. 실제 API key나 권한은 변경하지 않음 |
+| 복원 중 원래 만료 시각 통과·보호 갱신 | VM410 복원에 속한 `qemu-img` 자식 하나만 25분 일시 정지. 원래 의존 만료 `10:15:15 KST` 경과 후 이미지 유지, 보호 기한 `10:22:50 → 10:43:31 KST` 갱신과 실제 카탈로그 일치 확인 | 통과. `10:22:32` 자식 재개, `10:26:56` 트랜잭션 커밋, 정리·예약 반환 후 VM 기동 및 게스트 파일 3개 해시 일치 |
+
+복원 중 만료 시험의 최초 VM 기동 요청은 Host 커밋·정리 결과를 확인한 직후 관리 서버의 볼륨 `Ready`
+전환보다 빨라 `no usable volumes found`로 실패했다. 최초 기동 요청의 실패 종료와 실제 VM `Stopped`·볼륨
+`Ready`를 확인한 뒤 한 번 재시도해 성공했다. 시험 제어기는 Host 커밋·예약 반환 외에 관리 서버의
+VM·볼륨 후처리 완료도 기다려야 한다. 최초 기동 오류를 숨기거나 복원 데이터 손상으로 집계하지 않는다.
+
+실패 원인 보완은 `LibvirtAblestackVolumeRestoreHelper`가 볼륨 준비 오류를 감쌀 때 하위 메시지를 함께 전달하는 변경이다.
+관련 로컬 회귀 4건이 통과했으며, 이 문구 보완의 서버 배포·실서버 확인과 구분한다.
+실행 근거는 관리 서버 `/var/tmp/seocho-netbackup-focused-validation-20261120/`의
+`restore-baseline.json`, `data-timeout.json`, `data-timeout-evidence.json`,
+`retention-rejection.json`, `restore-boundary-observations.jsonl`에 보존한다.
+
+**quiesce·thaw 실서버 시험의 확인 기준**
+
+- 실행 중인 소형 VM: 요청한 freeze 성공과 실제 frozen 상태, 복구 지점 확보 후 thawed 확인, 데이터 전송 전 동결 해제 순서를 같은 작업 UUID로 연결한다.
+- 정지 VM: 불필요한 freeze 없이 백업이 성공하고 기존 정지 상태가 유지되는지 확인한다.
+- freeze 실패·상태 확인 불가·동결 도중 자동 해제: 요청한 동결이 보장되지 않으면 백업이 중단되고, 자기 작업의 동결만 해제하는지 확인한다.
+- 오류·취소·프로세스 중단: thaw 확인과 제한된 재시도, 해제 미확정 시 기록·정리 보호, 확인 후 예약 반환을 검증한다.
+- RBD 다중 디스크: 모든 대상의 스냅샷 생성 후 thaw하고 export·외부 전송하는 순서를 별도 RBD 시험 VM에서 확인한다. GFS2 성공을 이 항목의 통과로 대체하지 않는다.
+
+OFF 정책 간격 비교 제어기는 배포 확인과 quiesce 기본 시험의 완료 기록을 기다린다.
+시험 시 공통 동시 실행 제한은 실서버 `1/2/2`를 유지하고, 소유 정책 네 개의 `mold-transfer`에만
+기존 1시간 보존 레벨을 사용한다. 이미지 자연 만료와 실제 여유 용량을 확인한 뒤
+동일 대상의 Full 회차를 15분 간격 시작과 동시 시작으로 비교하고, 종료 후 원래 2시간 보존·ON 제어로 복구한다.
+이는 시험 제어기의 정책 시작 요청 비교이며, NetBackup Frequency·Start Window 자동 기동 검증과 구분한다.
+
+### 2026-11-20 NAS 병행·동결/해제·검색 필터 적용본 검증
+
+`d6589925e7a`(동결·해제), `7808c82ae9b`(NAS 데이터 제한), `fc4b0e22cf3`(검색 필터·동결 결과 보존)
+적용 후 Host 4대의 관련 스크립트 해시와 Management·Agent의 변경 클래스 반영을 확인했다.
+NAS는 별도 소형 VM421(RBD)·VM422(GFS2/QCOW2)로 NetBackup VM410·VM420과 병행했다.
+NAS VM은 각각 20 GiB 루트와 8 GiB 데이터 디스크 2개, 검증용 난수 파일 합계 640 MiB를 사용한다.
+이는 기능·장애 처리 시험이며, 실사용 데이터 100/300/500 GiB의 성능 측정이나 1 Gbps 환경의 처리시간 기준으로 사용하지 않는다.
+초기 병행·동결/해제 시험에서는 공통 데이터 제한·동시 실행 설정과 다른 시험자의 VM은 변경하지 않았다.
+아래 후속 RBD 실제 데이터 제한 시험에서는 접수된 기존 작업을 완료한 뒤 시험 계획에만 300초를 적용하고
+공통 값은 즉시 43200초로 복구했다. 독립 설정 복구 감시기와 시험 자식 프로세스 재개 감시기도 함께 사용했다.
+
+| 시험 | 실제 확인 | 판정·남은 항목 |
+| --- | --- | --- |
+| NAS RBD 실행 중 Full·증분·정지 증분 | 백업 `3435/3439/3440` 완료, 실행 중 완료 표식 `quiesce_state=VERIFIED`, 정지 표식 `NOT_APPLICABLE`, 원본 보호 해제 확인 | 통과 |
+| NAS QCOW2 실행 중 Full·증분 | 백업 `3434/3436` 완료, 두 완료 표식 모두 `quiesce_requested=true`, `quiesce_state=VERIFIED` | 통과 |
+| NAS RBD·QCOW2 증분 체인 복원 | 백업 이후 게스트 파일을 추가 변경한 다음 RBD `3439`, QCOW2 `3436`으로 복원. 완료 이벤트·볼륨 Ready·부팅 후 루트/데이터 파일 3개 SHA-256이 선택한 백업 시점과 일치 | 두 방식 통과. NAS 정상 정리는 일시적 복원 상태 필드를 삭제하므로 빈 필드를 실패·진행 중으로 해석하지 않고 정확한 백업 UUID의 완료 이벤트를 함께 확인 |
+| NAS QCOW2 정지 증분 | `3437`이 실제 버전 대신 libvirt/QEMU `0/0`으로 판정돼 실패. 정리 완료·원본 보호 해제 후 자동 Full `3438` 성공 | `8749f55a0f9` 배포 후 실행 중 증분 `3462`·정지 증분 `3463` 성공 및 부팅 후 파일 해시 일치. 이어서 재기동 후 증분을 요청하자 별도의 부모 체크포인트 등록 문제가 드러났으며 아래 추가 검증에서 수정·재검증 |
+| NAS 동결 요청 실패 | VM421 `3444`, VM422 `3443`에서 게스트 hook 종료 코드 23 주입. 백업 실패·정리 완료·게스트 해제·원래 파일 해시 유지 | 두 방식 통과 |
+| NAS 해제 RPC 오류 | 커널 해제 후 hook이 23으로 실패하도록 주입. VM421 `3445`, VM422 `3448`에서 실제 thawed 상태를 확인해 백업 성공, 임시 Agent 설정 원복·해시 유지 | 두 방식 통과. 커널 해제 자체 실패와 구분 |
+| NAS 해제 응답·상태 확인 불가 | VM421 `3446`, VM422 `3449`에서 실제 해제 후 Guest Agent만 최대 180초 정지. 해제 미확정 중 `guest-freeze.pending` 유지, 독립 복구 후 실패 작업 정리·Full `3447/3450` 자동 재시도·해시 유지 | 두 방식 통과. 두 실패 작업 모두 Error·정리 WAITING에서 Failed·정리 COMPLETED로 전환. 커널이 계속 동결된 상태를 강제로 유지한 시험은 아님 |
+| NetBackup GFS2·RBD 동결 결과 보존 | VM410 `3441`, 디스크 3개의 VM420 `3442`에서 전송 확인 이후에도 manifest의 `guestQuiesce={requested:true,status:VERIFIED}` 보존, 백업 완료·정리 COMPLETED·예약 RELEASED | 두 방식 통과. 이전 설치본에서 발견한 ACK 이후 결과 누락과 구분 |
+| 백업·스케줄 검색 필터 | 관리자 API에서 VM·간격·동결 여부 조합 및 VM별 백업 검색 28건 일치, 잘못된 간격 거부. 로컬 UI 13건·스케줄 API 회귀 5건 통과 | 통과. 실서버 비관리자 권한 검증과 미설정 NULL 표본은 이번 관리자 조회로 대체하지 않음 |
+| NAS 데이터 제한 적용 단위 | 다중 볼륨·source guard·공통 동결/해제 Python 70건, NAS 제한·source guard·비동기 실행 Java 31건 통과. 실서버 정지 QCOW2 계획에 데이터 `43200`초·마운트 `30`초·디스크 3개 전달 확인 | 실행 중 QCOW2는 전체 libvirt 작업 한 건, RBD export·공유 RAW 복사는 볼륨별 제한. 합산 시간이 12시간을 넘는 실시간 장기 시험은 이번 소형 VM 시험에 포함하지 않음 |
+| NAS RBD 실제 데이터 제한 초과 | VM421 Full `3472`에서 해당 작업의 export 자식만 정지. 약 300초 후 자식 종료, `Timed out exporting full RBD snapshot ... (timeoutSeconds=300)`·`Failed`·정리 `COMPLETED`, 게스트 해제 및 검증 파일 해시 유지 확인 | 실제 300초 제한 범위 통과. 공통 값 `43200`초 복구 확인. QCOW2 제한 초과와 정지 RBD 다중 볼륨 누적 제한 검증은 별도 |
+
+NetBackup 소형 RBD VM의 동결 실패·동결 전 Agent 무응답·해제 RPC 오류·해제 확인 유실도
+`quiesce-faults.json`의 최종 4개 모드에서 통과했다. 준비 실패나 장애가 실제로 주입되기 전에 복구된 시도는 통과 건수에서 제외했다.
+NAS QCOW2에서 Guest hook 설치가 관찰 제한보다 늦어진 시도는 백업 요청 미접수를 확인한 뒤
+해당 임시 설정을 원복하고 새 프로필로 남은 시험만 재개했다. 이를 제품 백업 실패로 집계하지 않는다.
+
+실행 근거는 Management `/var/tmp/seocho-netbackup-focused-validation-20261120/`의
+`next-build-installed-verification.json`, `nas-runtime-{rbd,qcow2}.json`,
+`nas-quiesce-faults-{rbd,qcow2}.json`, `next-build-netbackup-{gfs,rbd}.json`,
+`next-build-filter-api.json`, `next-build-nas-marker-audit.json`에 보존한다.
+읽기 전용 NAS 점검 후 마운트 해제를 확인했으며, 해당 시점 여유 공간은 약 954 GiB였다.
+QCOW2 정지 Full의 Java 경로 완료 표식에는 현재 VM·checkpoint만 있으므로 이를 동결 VERIFIED 기록으로 대체하지 않는다.
+RBD 실제 제한 초과의 최종 근거는 `nas-data-timeout-final-verification.json`이다.
+최초 관찰기는 정리 완료 후 이미 삭제된 Host 작업 로그를 요구해 검토 필요로 종료했으므로,
+이 관찰기 오류와 실제 백업의 정상적인 제한 초과·정리 결과를 구분한다.
+최종 검증은 DB에 보존된 정확한 제한 초과 원인, 지정한 export 자식의 약 300초 생존 기록,
+정리 완료, 원본 해시와 게스트 해제 상태를 함께 확인한다. 실패 백업을 다시 제출하지 않았다.
+
+이번 NAS 해제 확인 실패 흐름에서 `Error`는 실패 감지 후 해제·종료·정리 확인을 기다리는 동안 표시됐다.
+이후 `Failed`로 전환된 실제 작업의 정리 상태는 `COMPLETED`였다. 다만 다른 실패 처리 경로에서는
+정리가 끝나지 않아도 `Failed`를 기록할 수 있으므로, 목록 상태만으로 정리 완료를 판단하지 않는다.
+실패 원인·정리 상태·해제 확인 기록을 함께 확인한다.
+
+OFF 정책 간격 비교는 첫 Full 회차 시작 제한인 13시를 넘겨 `SKIPPED_ON_RESUMED`로 종료했다.
+따라서 이번 배포 검증 결과에 OFF 간격 비교 통과를 포함하지 않으며 별도 시험이 남아 있다.
+
+### 2026-11-20 VM 재기동 후 증분 체크포인트 검토
+
+NAS QCOW2 VM422에서 실행 중 증분 `3462` 다음 정지 상태 증분 `3463`을 생성한 뒤
+VM을 재기동하고 증분 `3465`를 요청했을 때, libvirt가 직전 체크포인트의 부모를 찾지 못해 거절했다.
+`parent ... for moment ... not found`는 실행 VM의 체크포인트 등록 관계가 누락된 오류다.
+이 메시지만으로 NAS의 기존 백업 파일이나 부모 XML이 삭제됐다고 판단하지 않는다.
+
+`ablestack_nasbackup.sh`는 선택한 XML 하나만 재등록하던 흐름을 보완했다.
+같은 VM의 백업 디렉터리에서 필요한 조상 XML을 찾고, 이름·부모 관계·순환·중복 충돌을 먼저 검증한 다음
+부모부터 순서대로 등록한다. 이미 등록된 조상은 옛 XML이 없어도 사용한다.
+조상 정보가 불완전하면 동결·데이터 백업 시작 전에 중단하며 실제 libvirt 오류를 보존한다.
+
+사용자 승인 후 네 Host의 NAS 스크립트만 백업·교체했으며 서비스 재시작은 하지 않았다.
+VM422의 `3468` Full → `3469` 실행 중 증분 → `3470` 정지 증분 → 재기동 후 `3471` 증분이
+모두 `BackedUp`으로 완료됐다. 자동 Full 대체 없이 요청한 증분 유형을 유지했고,
+게스트 해제 상태와 검증 파일 3개의 해시 일치를 확인했다.
+근거는 Management 집중 시험 경로의 `nas-checkpoint-script-deployment.json`,
+`nas-checkpoint-transition-retest.json`에 보존한다.
+
+현재 ABLESTACK 백업 생성 경로는 아래 두 가지다. `ablestack-commvault`·`ablestack-netbackup`·
+`ablestack-veeam`은 항상 volume manifest를 전달하고 공통 비동기 엔진을 사용한다.
+실행 VM과 정지 VM 모두 이 엔진에서 처리한다. CloudStack 기본 `veeam` 플러그인은 이 범위에 포함하지 않는다.
+
+| 솔루션·경로 | 코드 확인 결과 | 검증 범위 |
+| --- | --- | --- |
+| NAS 현재 경로 | 부모 관계를 유지하므로 누락된 조상을 먼저 재등록해야 함. 위 순서·사전 검증 보완 적용 | 동일 VM의 실행→정지→재기동 증분 흐름 실서버 통과. NAS 셸 회귀 9건 통과 |
+| Commvault·NetBackup·Veeam 공통 경로 | 세 Provider 모두 volume manifest를 전달하고 `thirdparty_volume_backup.py`로 분기. 직전 기준점 재등록용 XML에서 오래된 `<parent>` 참조를 제거하고 현재 디스크 이름을 재결합하므로, 퇴역한 조상 등록에 의존하지 않음 | 공통 회귀 19건 통과. 오래된 조상 XML·libvirt 등록이 모두 없는 경우에도 직전 기준점 등록 및 디스크 이름 재결합 확인. Commvault·Veeam의 전체 제품 연동 실서버 시험을 대체하지 않음 |
+
+미사용 상태였던 세 솔루션의 개별 백업 셸과 Java helper는 제거했다.
+manifest가 없는 명령과 이전 동기식 백업 명령은 명확한 오류로 거절하고 별도 엔진을 실행하지 않는다.
+아직 사용되는 기존 백업의 스테이징·원본 체크포인트 삭제 기능은 `thirdparty_backup_cleanup.sh`로 분리했다.
+솔루션별 경로 검증과 RBD 스냅샷 삭제 후 부재 확인을 유지하며, 이 스크립트는 백업을 생성하지 않는다.
+이 경로의 공급자 ID는 `ablestack-commvault`, `ablestack-netbackup`, `ablestack-veeam`이다.
+CloudStack 기본 `veeam` 공급자는 별도 플러그인에서 처리하며 `ablestack-veeam`의 별칭으로 변환하지 않는다.
+`veeam`이 ABLESTACK 삭제 명령에 잘못 전달되면 정리 스크립트나 NAS 삭제를 실행하지 않고 거절한다.
+공통 보조 파일의 위치도 개별 Commvault 셸 대신 실제 공통 엔진 경로에서 찾는다.
+이번 경로 정리를 배포할 때는 KVM Agent JAR과 공통 엔진·정리 스크립트를 함께 갱신한다.
+이 정리는 로컬 소스 변경이며, 앞서 승인받아 네 Host에 적용한 NAS 셸 단독 수정과 구분한다.
+KVM 모듈을 clean한 뒤 관련 Java 회귀 33건과 NAS·공통 볼륨 엔진·정리 Python 회귀 92건을 통과했다.
+세 솔루션의 정상 요청이 공통 시작 검증으로 전달되는지, manifest 누락·동기식 명령을 실행 전에 거절하는지,
+삭제 요청의 솔루션·원본 체크포인트 정보가 정리 스크립트에 유지되는지를 확인했다.
+기본 `veeam`이 ABLESTACK 정리·NAS 삭제로 잘못 분기하지 않는 회귀도 포함한다.
+
+이 검토는 QCOW2 checkpoint·bitmap 증분 경로에 해당한다. RBD 증분은 스냅샷·export-diff를 사용하므로
+이 libvirt 체크포인트 등록 오류와 구분한다. 직전 기준점 자체나 필요한 bitmap이 없으면
+현재 공통 경로도 백업을 거절할 수 있으므로, 모든 체크포인트 장애가 해소됐다는 의미는 아니다.
+
+### 판정 기준과 확인 범위
+
+아래는 **2026-11-19, 한국시간 기준** 서초 IDC PoC의 검증 기록이다.
+GFS2·QCOW2, KVM Host 4대, VM 스케줄 모드 ON, 기존 PoC VM 13대(정지 VM 1대 포함),
+초기 실서버 동시 실행 제한 `1 / 4 / 4`에서 확인했다. `13:55` ON 반복 재개부터는 `1 / 2 / 2`로 조정했다.
+신규 설치의 코드 기본값 `1 / 1 / 1`과 구분한다.
+이 기록을 Veeam·RBD·OFF 모드나 다른 데이터 처리 단계의 검증 완료로 확대 해석하지 않는다.
+
+| 판정 | 의미 |
+| --- | --- |
+| 실서버 통과 | 명시한 실패 조건을 실제로 재현하고 그 조건에 대한 기대 결과를 확인 |
+| 설치 코드 경로 통과 | 서버에 설치된 함수에 제한된 시험 입력을 주입해 확인. 전체 API·Agent 흐름의 시험과 구분 |
+| 로컬 회귀 통과 | 단위 테스트·시험 제어 코드의 회귀 확인. 수정본 배포 후 실제 서버 재검증이 필요한 경우 별도 표시 |
+| 흐름 확인 | 정상 또는 장시간 작업에서 동작 분리를 관찰. 제한 초과·장애 주입 시험 완료를 뜻하지 않음 |
+| 문제 확인·재검증 필요 | 기대 결과와 다른 원인으로 차단되었거나 코드 보완·재배포가 필요 |
+| 미검증 | 시험하지 않았거나 완료·정리·후속 성공 근거가 아직 부족 |
+
+실패를 주입했을 때 `Failed`로 끝났다는 사실만으로 통과 처리하지 않는다.
+실패 원인·작업 식별, 프로세스/외부 reader 종료, 임시 데이터·원본 보호 정리, 슬롯·용량 예약 반환,
+VM 정상 상태 및 후속 백업 성공을 해당 시험 범위에서 확인한다.
+백업 취소·대역폭 조정처럼 구현된 정상 기능도 별도 실행 근거가 있어야 검증 완료로 기록한다.
+
+### 확인한 실패·차단 시나리오
+
+| ID | 실패 조건·재현 범위 | 기대 동작 | 실제 결과·판정 |
+| --- | --- | --- | --- |
+| NB-F01 | 20 GiB VM의 `QCOW2_BACKUP volume 1`에서 처리량 512 MiB 증가를 확인한 뒤 **데이터 처리 자식 프로세스만** 정지. VM QEMU와 감시기는 계속 실행 | 1,800초 무진행을 감지하고 종료를 확인한 뒤 실패·정리. VM과 후속 작업은 정상 유지 | `BACKUP_DATA_NO_PROGRESS` 발생, 프로세스 종료·실패 회차 임시 QCOW2/체크포인트 삭제·`COMPLETED`·`RELEASED` 확인. VM Running 유지. **무진행 감지·작업 종료·임시 데이터 정리·예약 반환 범위 실서버 통과**. 호스트 작업 기록의 후속 정리 누락은 NB-F09 참조 |
+| NB-F02 | NB-F01 실패 후 동일 Host와 VM의 후속 백업 | 반환한 슬롯으로 다른 작업이 실행되고 실패 VM도 새 백업 가능 | 같은 Host의 VM393이 슬롯을 받아 실행. VM410의 후속 **FULL 및 증분 백업 성공** 확인. **실서버 통과** |
+| NB-F03 | VM410을 다른 Host·정책 문맥으로 `createNetBackup` 요청 | 잘못된 대상 문맥을 거절하고 백업/데이터 작업을 새로 할당하지 않음 | `VM host, state or backup offering changed since target selection; select targets again`, 비동기 실패 및 새 백업 미할당 확인. **실서버 통과** |
+| NB-F04 | 실제 NetBackup 백업 접수 요청 3건이 pending일 때 VM 스케줄 모드 ON → OFF 변경 요청 | 진행 중 접수를 이유로 변경을 차단하고 ON과 기존 작업 유지 | `NETBACKUP_VM_SCHEDULE_MODE_BACKUP_BUSY: NetBackup backup submission`, 저장값 `true` 유지 확인. **실서버 통과** |
+| NB-F05 | 설치된 `claim_backup_start`에 접수되지 않은 합성 `PREPARED` 영수증과 존재하지 않는 VM 식별자를 전달 | 실행 시작을 거절하고 실제 VM/엔진 명령을 실행하지 않음 | `Backup start is unprepared, already initialized or permanently blocked`, 영수증 `PREPARED` 유지·엔진 미시작 확인. **설치 코드 경로 통과**. 영수증 재사용·실제 Agent 재전송의 모든 경우를 시험한 것은 아님 |
+| NB-F06 | 실제 작업 중 Hook 제한 `86400 → 7200` 변경 요청 | 실제 진행 작업을 이유로 변경을 차단하고 Global/Host 값을 유지 | 변경은 거절되고 Global·4대 Host의 세 `bp.conf` 값은 유지됐지만, **삭제된 과거 백업을 진행 중으로 잘못 판정**한 이유로 거절됨. 올바른 작업 중 차단 시험으로는 **통과 처리하지 않음** |
+| NB-F07 | 삭제된 구형 백업에 `BackingUp` 등 상태만 남은 경우와 실제 볼륨/시작 소유 기록·미완료 정리·미반환 예약이 있는 경우를 분리 | 완료된 구형 삭제 이력은 설정 변경을 막지 않고, 실제 진행/미확정 소유 기록은 계속 차단 | `NetBackupScheduleModeGuardTest`에서 구형 삭제 이력 허용, 현재 볼륨/시작 기록 및 미완료 정리/예약 차단 회귀 확인. **로컬 회귀 통과**, 수정본의 서버 재배포·Hook 정상 변경 재검증 필요 |
+| NB-F08 | 시험 제어 코드에 NetBackup 수동 시작 응답 `data` 배열·객체·빈 응답 및 응답 유실을 주입 | 수락한 응답 형식 때문에 다음 Host 진행이 중단되지 않음. 접수 결과가 불명확하면 원래 INTENT를 보존하고 중복 제출 금지 | 네 Host 수락 응답 처리, 응답 유실 시 INTENT 유지·재제출 방지, 빈 예약 목록의 전체 VM 대체 금지 회귀 확인. **시험 제어 코드의 로컬 회귀 통과**. 제품 API의 모든 장애 응답 검증과 구분 |
+| NB-F09 | NB-F01의 실패 회차는 물리 정리 `COMPLETED`, 예약 `RELEASED`, 보존 reader 종료까지 확인됐으나 호스트 작업 기록 정리 상태가 누락 | 실패 회차의 작업 기록도 자동 정리하고, 확인 응답 후 만료 FULL의 의존성을 해제 | 누락된 실패 기록의 재조정과 정리 요청 표시 복구 보완의 **관련 회귀 70개 통과**. Management 재배포 후 실패 회차 `2930`의 작업 기록 정리 `COMPLETED`와 Host 작업 디렉터리 삭제, 만료 FULL `2880`의 정상 정리(`15:18:25 KST`) 확인. DB 강제 수정이나 실패 이력 삭제 없이 **실서버 통과** |
+| NB-F10 | Agent·Management 재시작 중 기존 외부 전송과 후처리 | 접수된 백업을 임의 취소하지 않고 종료·정리까지 이어감 | 앞선 Agent·Management 시험에는 이전 검증기의 취소 요청이 섞여 전체 통과로 처리하지 않음. 제어기 보완 후 `15:16:06 KST` Management 재시작을 별도 관찰: 직전 진행 중이던 **6건 모두 `BackedUp`**, 네 Host의 다음 회차 예약 생성 확인. **이번 Management 재시작 범위 실서버 통과**. Agent 재시작·Agent와 Management 동시 재시작의 독립 재검증은 남음 |
+
+### NB-F01·NB-F02의 추적 정보
+
+- 대상: `poc-nb-h1-ubuntu-small` / `i-2-410-VM`, ROOT 20 GiB.
+- 실패 백업: `bd52c0c9-a1ec-463c-b921-8b9416fc265a` (Mold ID `2930`, INCREMENTAL).
+- 주입: `10:16:37`, 감지: `10:46:38`, 프로세스 종료 확인: `10:47:09`.
+- 후속 정상 FULL: `57d5a676-f241-450a-b033-d8ffe060635e` (Mold ID `2968`). 이후 증분 성공도 확인.
+- NetBackup 부모 bootstrap: Job `3740`, `mold-vm-request`, 상태 `0`, 약 `32 KB`.
+
+이 실패는 **첫 볼륨 생성 중, 해당 VM의 외부 전송 요청 전**에 발생했다.
+실패 회차의 볼륨에 전송 Job ID·외부 이미지 ID·접수 시각이 없었고 임시 파일 삭제를 확인했다.
+bootstrap 작업과 그 작은 이미지는 Host 회차의 공통 기록이므로 해당 VM 실패만으로 삭제하지 않는다.
+그 이미지의 확인 당시 만료 예정은 `2026-11-19 12:10:23 KST`이며, 만료 시각과 실제 공간 회수 완료는 구분한다.
+
+이때 `카탈로그 PENDING`은 외부 이미지 카탈로그 확인에 이르지 못한 기본 표시이며 정리가 계속 대기한다는 뜻이 아니다.
+반대로 `정리 COMPLETED`만으로 이미 전송된 NetBackup 이미지가 전부 삭제됐다고 판단하지 않는다.
+앞 볼륨 전송 후 다음 볼륨에서 실패한 경우에는 외부 이미지·작업과 명시적 삭제/만료를 별도로 확인해야 한다.
+
+
+NB-F09의 만료 FULL은 Mold ID `2880`, UUID `f7aff962-34f4-4d77-9043-c419636388cc`이다.
+그 FULL을 참조하던 실패 회차 `2930`의 `thirdparty.volume.job.cleanup.state`가 누락돼,
+임시 데이터와 슬롯 정리가 끝난 뒤에도 호스트 실행 기록 정리가 예약되지 않았다.
+실제 보존 기록은 `version=2`, `leaseActive=false`, `readersClosed=true`였고 호스트 작업 디렉터리는 남아 있었다.
+보완은 실패·취소·오류 상태의 NetBackup 볼륨 백업에서 누락된 정리 기록을 재시도 대상으로 복구한다.
+호스트 응답이 실패하면 `WAITING`과 기존 물리 정리 완료 증거를 유지하며, 완료가 확인돼야 의존성을 해제한다.
+NetBackup 외 공급자의 기존 실패 기록 판정은 유지한다. 로컬 검증과 배포 후 실서버 검증을 구분한다.
+
+`2026-11-19 15:16:06 KST` Management 재배포·재시작 후 자동 재조정으로 실패 회차 `2930`의
+물리 정리와 호스트 작업 기록 정리가 모두 `COMPLETED`, 예약은 `RELEASED`임을 확인했다.
+Host의 `/var/lib/ablestack/backup/jobs/bd52c0c9-a1ec-463c-b921-8b9416fc265a` 디렉터리도 삭제됐다.
+이후 만료 FULL `2880`은 `15:18:25 KST` 정상 정리됐으며, 실패 회차 `2930`의 이력은 보존됐다.
+DB 상태 강제 변경이나 실패 이력 삭제 없이 확인한 NB-F09의 실서버 통과 근거이다.
+
+같은 Management 재시작 직전 진행 중이던 백업 `3110`, `3117`, `3119`, `3120`, `3122`, `3123`은
+`15:20:05 KST` 조회 시 모두 `BackedUp`이었다. 시험 제어기는 신규 Host 회차만 보류했다가 재개했으며,
+이 배포 작업에서 백업 취소 요청은 보내지 않았다. 네 Host가 기존 회차를 완료하고 다음 회차를 예약한
+사실까지 확인했으며, 이 관찰을 Agent 재시작이나 모든 단계의 장애 복구 검증으로 확대하지 않는다.
+재개 후 `15:21 KST`에는 Host2·Host4의 다음 회차에서 새 백업 `3124`~`3128`의 실제 생성과
+`BackingUp` 상태도 확인했다. 예약 생성·제어 서비스 활성 상태만으로 반복 시작을 판정한 것은 아니다.
+
+### 정상 흐름으로 관찰했지만 실패 한계까지 시험하지 않은 항목
+
+| 항목 | 확인 결과 | 남은 범위 |
+| --- | --- | --- |
+| 비동기 API UUID | 실제 성공 응답의 `backupid`가 정확한 Mold 백업 UUID인지 대조 | UUID 누락·잘못된 UUID를 실제 Hook/API 응답에 주입하는 실패 시험 |
+| 응답 대기·데이터 제한 분리 | API 응답 완료 뒤 300초를 넘겨 데이터 처리가 계속되고 계획에 `43200`초가 저장되는 것을 확인 | 진행량이 증가하는 상태에서 개별 단계의 절대 제한을 초과하는 시험 |
+| NetBackup Client 식별 | 실제 전송 Job의 Client와 저장된 `sourceHost` 일치 확인 | 호스트명/IP/DNS 변경·식별 불명확 시의 실패 재현 |
+| 정지 VM 백업 | 원래 Stopped인 VM397의 반복 성공 확인 | 정지 VM의 슬롯 배정 실패·원본 보호 해제 실패 주입 |
+| 복원 작업의 실행 기회 | 시험 제어기가 신규 백업 회차를 양보한 뒤 대기하던 Veeam 복원의 `ADMITTED` 확인 | 제품 큐 전체의 공정성·동일 VM 복원 데이터/롤백 성공 검증으로 확대하지 않음 |
+
+### 다음 실패 시험과 통과 조건
+
+| 시험 | 반드시 확인할 결과 | 현재 판정 |
+| --- | --- | --- |
+| 진행량이 증가하는 데이터 작업의 절대 타임아웃 | 설정한 **개별 단계**에서 실패, reader/writer 종료 후 정리·예약 반환. 30분 무진행 실패와 구분 | 미검증 |
+| 슬롯 큐 제한 초과 | 입장 전 만료 및 미시작 확인, 예약 반환, 슬롯이 비어도 만료 작업이 자동 재개되지 않음 | 미검증 |
+| `mold-transfer` 전송 도중 통신 단절·취소·응답 유실 | 정확한 외부 Job을 추적하고 종료 불명확 시 `WAITING`/예약 유지. 종료 확인 후 정리·재백업 | 미검증 |
+| 진행량을 계측하지 못하는 외부 대기 30분 경과 | 경고와 데이터 절대 제한으로 대기하며, 진행량을 모른다는 이유만으로 정상 전송을 정체로 오판해 종료하지 않음 | 미검증 |
+| REST 인증 실패·응답 제한 초과·비동기 UUID 누락/오류 | 실패 계층과 원인을 표시하고 다른 백업 UUID나 경로로 대체하지 않음. 접수 결과 불명확 시 중복 시작 금지 | 해당 장애 주입은 미검증. 정상 UUID 응답·제어 스크립트 회귀와 구분 |
+| Management/Agent 재시작·시작 응답 유실·중복 요청 | 저장된 접수·소유 기록으로 같은 작업을 재확인. 중복 엔진/외부 Job 미생성, 확인 전 보호·예약 유지 | 실서버 장애 주입 미검증 |
+| 2·3디스크 VM의 중간 볼륨 실패 | 앞서 성공한 파일과 실패 파일을 구분, 나머지 볼륨 처리 중단, 복원 가능한 완료 지점과 삭제 범위 보존 | 미검증 |
+| 2·3디스크/긴 증분 체인 복원 중 단계 실패 | 파일별 다운로드·변환·증분 적용 제한 분리, 모든 볼륨 준비 전 원본 교체 금지, 교체 중 실패 시 롤백 | 미검증 |
+| NetBackup 저장소 상한·쓰기 공간 부족 | 상한에 따른 배정/실패와 실제 쓰기 실패를 구분, Mold 실패 사유·외부 종료·정리·슬롯 반환·공간 확보 후 성공 확인 | 미검증. 전용 시험 디스크 풀/용량 제한 저장소 필요. 공유 풀 포화와 상한 변경은 다른 정책에도 영향 |
+| 스테이징/기본스토리지 용량 부족·공간 확보 후 입장 | 부족한 저장소와 예약 수치를 정확히 표시, 실제 부족 공간에 쓰기 시작하지 않음, 공간 회복 후 정상 입장 | 미검증 |
+| Hook 제한 정상 변경·동기화 실패/롤백 | 유휴·정책 비활성 상태에서 완료 Host만 세 `bp.conf` 값 동기화. 일부 Host 실패 시 Global 유지·적용 파일 복구 | 로컬 회귀만 통과. NB-F06 수정본 배포 후 실서버 재검증 필요 |
+| VM 스케줄 모드의 유휴 전환·정책 활성 중 변경 | 유휴·정책 비활성 시만 변경 허용. 기존 스케줄 보존, ON은 도래 VM·OFF는 적격 오퍼링 VM 선택 | 접수 중 차단은 NB-F04 통과. 나머지 이번 회차 실서버 재검증 필요 |
+| 자연 만료·부모 체인 보호·공간 회수 | 새 체인 전환 전 필요한 부모 이미지 유지, 유효 보존기간 후 만료·Mold 반영·Native 공간 회수 확인 | 반복 관찰 중. 운영자가 강제 삭제한 경우와 별도 기록 |
+
+시작·진행 중·정리·완료 화면과 로그를 같은 작업 UUID로 연결한다.
+용량 부족·시간 초과·프로세스 정체·외부 결과 불명확을 한 종류의 실패로 합산하지 않는다.
+문서에는 시험 일시·배포 버전·VM/Host·디스크 수·실사용량·적용 설정·주입 위치·실패 이유·종료/정리/예약·후속 성공을 갱신한다.
+
+이번 실서버 근거는 관리 서버의 아래 파일에 보존한다. 야간에 백업본을 정리해도 근거 파일은 별도로 유지한다.
+
+```text
+/var/tmp/seocho-netbackup-stability-20261119/evidence/no-progress-vm410-20261119.json
+/var/tmp/seocho-netbackup-stability-20261119/evidence/verification-summary-20261119.json
+/var/tmp/seocho-netbackup-stability-20261119/state.json
+/var/tmp/seocho-netbackup-stability-20261119/verification-state.json
+/var/tmp/seocho-netbackup-stability-20261119/events.jsonl
+```
+
+로컬 코드 회귀는 `NetBackupScheduleModeGuardTest` 22건과 `NetBackupHookTimeoutServiceTest` 9건의 성공을 확인했다.
+전체 제품 회귀 시험이나 서버 배포 후 검증 완료를 뜻하지 않는다.
 
 ## 복원 절차
 
@@ -3410,7 +4364,8 @@ NetBackup Host 연동 스크립트의 기본 상태 경로는 `/var/lib/ablestac
 | `restore-watcher.lock` | 복원 감시기의 중복 실행을 제어한다. 기본 파일 경로이며 감시기 설정에 따라 지정할 수 있다. |
 
 사전·사후 Hook은 `netbackup_hook_runner.py`가 별도 프로세스 그룹으로 실행하고 호출 프로세스의 생존을 확인한다.
-호출자 종료, TERM/INT/HUP, 실행 제한(기본 86,400초), 동일 작업의 실패·시간 초과·취소 Post 알림이 확인되면
+호출자 종료, TERM/INT/HUP, Global `backup.plugin.netbackup.hook.timeout` 실행 제한(기본 86,400초),
+동일 작업의 실패·시간 초과·취소 Post 알림이 확인되면
 해당 Hook 그룹을 TERM으로 종료한 뒤 남은 프로세스를 KILL로 종료하여 자식에게 상속된 context 잠금도 해제한다.
 Mold가 접수한 VM 백업 작업, 스테이징 파일과 외부 백업본은 이 처리로 취소하거나 삭제하지 않는다.
 실행 중인 VM 백업의 중복 제출은 Mold의 기존 실행 중 검사로 차단한다.
@@ -3432,8 +4387,10 @@ Backup ID를 재사용한 새 호출자는 감시기가 이전 PRE 소유자의 
 업데이트할 Host 파일은 `netbackup-host-common.sh`, `netbackup-host-bpstart-notify.sh`,
 `netbackup-host-bpend-notify.sh`, `netbackup_hook_runner.py`이다. 기존 notify 래퍼가 이 경로들을 호출하면 래퍼 재생성은 필요 없다.
 Mold API 연결은 15초, 요청 전체는 300초로 제한하고 백업 생성 POST를 자동 재전송하지 않는다.
-대용량 백업의 `BPSTART_TIMEOUT`은 NetBackup Primary 서버에서도 확인하고, `CLIENT_READ_TIMEOUT`과 함께 실행 시간에 맞춘다.
-Host 구성 도구가 Client의 `bp.conf`를 수정한 것만으로 Primary 서버의 제한이 변경되지는 않는다.
+대용량 백업의 notify 제한은 실제 작업을 수행하는 NetBackup 서버에서도 확인하고, `CLIENT_READ_TIMEOUT`과 함께 실행 시간에 맞춘다.
+11.1 공식 문서에서 `BPSTART_TIMEOUT`은 Media 서버, `BPEND_TIMEOUT`은 Primary 서버에 해당한다.
+Host 구성 도구가 Client의 `bp.conf`를 수정한 것만으로 Primary·Media 서버의 제한이 변경되지는 않는다.
+VM 스케줄 모드 OFF의 전체 제한 관계와 최대값 검증 상태는 위의 “Host·NetBackup 서버의 외부 제한 함께 확인”을 참고한다.
 
 #### 기본스토리지의 백업·복원 작업 파일
 
@@ -3862,9 +4819,9 @@ Job의 `VEEAM_RESTORE_WATCH_WINDOW_MIN`은 해당 Job의 조회 범위로 적용
 구성은 다음 순서로 진행한다.
 
 1. 입력값, Agent 설치, Host/Zone/Cluster, 공통 staging 마운트를 확인한다.
-2. Global/Zone의 백업 프레임워크와 공급자를 확인하고 선택한 증분 정책을 Global/Cluster에 반영한다.
+2. Global/Zone의 백업 프레임워크와 공급자를 확인하고 선택한 증분 정책을 해당 Cluster에만 명시적으로 저장한다. Global 증분값은 유지한다.
 3. `backup.framework.enabled` 또는 `kvm.incremental.backup`을 실제로 변경한 경우에만 관리 서버 재기동을 안내하고 중단한다.
-   재기동 후 같은 명령을 다시 실행한다. 대상 범위의 값이 모두 같아 변경을 건너뛰면 안내 없이 다음 단계로 진행한다.
+   재기동 후 같은 명령을 다시 실행한다. 대상 범위의 유효값이 모두 같으면 Cluster 증분값을 명시적으로 저장하고 안내 없이 다음 단계로 진행한다.
 4. 같은 Zone·`ablestack-veeam`·`externalid=veeam` 오퍼링이 있으면 재사용한다. 없으면 생성하고 완료를 확인한다.
 5. 패키지 런타임의 존재를 확인하고 systemd 파일·디렉터리를 준비한다. 암호화한 API secret, Job conf, Pre/Post Hook과 업로드용 래퍼를 생성한다.
 6. Agent의 `timeoutPrePost`를 설정하고 변경 시 Agent 서비스를 재시작한다.

@@ -21,8 +21,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
@@ -59,9 +61,12 @@ public class AblestackSharedRawBackupServiceImpl extends ManagerBase implements 
     @Inject private AgentManager agents;
     @Inject private BackupDetailsDao backupDetails;
     private static final Gson JSON = new Gson();
-    private static final String LOCK = "ablestack.backup.shared.raw.lifecycle";
-    private final ThreadLocal<Integer> depth = ThreadLocal.withInitial(() -> 0);
-    private final ThreadLocal<GlobalLock> held = new ThreadLocal<>();
+    private static final class HeldLock {
+        final GlobalLock lock;
+        int references = 1;
+        HeldLock(GlobalLock lock) { this.lock = lock; }
+    }
+    private final ThreadLocal<Map<String, HeldLock>> held = ThreadLocal.withInitial(HashMap::new);
 
     static String marker(String path) {
         return AblestackSharedRawBackup.MARKER + "." + digest(path);
@@ -102,21 +107,71 @@ public class AblestackSharedRawBackupServiceImpl extends ManagerBase implements 
             if (owner != null && !owns(owner.getValue(), record, plan)) throw new CloudRuntimeException("Shared RAW ownership changed");
         }
     }
-    private Lease lock() {
-        if (depth.get() == 0) {
-            GlobalLock lock = GlobalLock.getInternLock(LOCK);
-            if (!lock.lock(5)) { lock.releaseRef(); throw new CloudRuntimeException("SHARED_RAW_BUSY: disk protection is being changed"); }
-            held.set(lock);
-        }
-        depth.set(depth.get() + 1);
-        return () -> {
-            int remaining = depth.get() - 1;
-            depth.set(remaining);
-            if (remaining == 0) {
-                GlobalLock lock = held.get(); held.remove(); depth.remove();
-                try { lock.unlock(); } finally { lock.releaseRef(); }
+    private Set<String> lockKeys(List<? extends Volume> source) {
+        Set<String> keys = new TreeSet<>();
+        for (Volume volume : source) {
+            if (volume.getId() > 0) keys.add("volume:" + volume.getId());
+            if (volume.getInstanceId() != null) keys.add("vm:" + volume.getInstanceId());
+            if (sharedFile(volume) && volume.getPath() != null) {
+                keys.add("disk:" + volume.getPoolId() + ":" + volume.getPath());
             }
-        };
+        }
+        return keys;
+    }
+    private Set<String> lockKeys(AblestackSharedRawBackup.Plan plan) {
+        Set<String> keys = new TreeSet<>();
+        for (var disk : plan.disks) {
+            keys.add("disk:" + disk.poolId + ":" + disk.path);
+            disk.volumeIds.forEach(id -> keys.add("volume:" + id));
+            disk.vmIds.forEach(id -> keys.add("vm:" + id));
+        }
+        return keys;
+    }
+    private void validateSources(List<? extends Volume> source, Set<String> keys) {
+        if (!keys.containsAll(lockKeys(source))) throw new CloudRuntimeException("SHARED_RAW_BUSY: source identity changed while waiting; retry the operation");
+        for (Volume volume : source) {
+            if (volume.getId() <= 0) continue;
+            Volume current = volumes.findById(volume.getId());
+            if (current == null || !Objects.equals(volume.getPoolId(), current.getPoolId())
+                    || !Objects.equals(volume.getPath(), current.getPath()) || !Objects.equals(volume.getInstanceId(), current.getInstanceId())
+                    || volume.getFormat() != current.getFormat() || !Objects.equals(volume.getSize(), current.getSize())) {
+                throw new CloudRuntimeException("SHARED_RAW_BUSY: source disk changed while waiting; retry the operation");
+            }
+        }
+    }
+    private Lease lock(Set<String> keys) {
+        List<String> acquired = new ArrayList<>();
+        try {
+            // Independent shared disks must not serialize every VM start in the cluster.
+            // Aliases share the physical pool/path key, and mutations also hold stable VM/volume IDs.
+            for (String key : new TreeSet<>(keys)) {
+                HeldLock prior = held.get().get(key);
+                if (prior != null) { prior.references++; }
+                else {
+                    GlobalLock lock = GlobalLock.getInternLock("asr-" + digest(key).substring(0, 40));
+                    if (!lock.lock(5)) {
+                        lock.releaseRef();
+                        throw new CloudRuntimeException("SHARED_RAW_BUSY: protection is being changed for " + key + "; retry after that operation finishes");
+                    }
+                    held.get().put(key, new HeldLock(lock));
+                }
+                acquired.add(key);
+            }
+        } catch (RuntimeException e) { unlock(acquired); throw e; }
+        boolean[] closed = {false};
+        return () -> { if (!closed[0]) { closed[0] = true; unlock(acquired); } };
+    }
+    private void unlock(List<String> keys) {
+        Map<String, HeldLock> locks = held.get();
+        try {
+            for (int i = keys.size() - 1; i >= 0; i--) {
+                HeldLock entry = locks.get(keys.get(i));
+                if (--entry.references == 0) {
+                    locks.remove(keys.get(i));
+                    try { entry.lock.unlock(); } finally { entry.lock.releaseRef(); }
+                }
+            }
+        } finally { if (locks.isEmpty()) held.remove(); }
     }
     private boolean sharedFile(Volume volume) {
         var pool = volume.getPoolId() == null ? null : pools.findById(volume.getPoolId());
@@ -149,8 +204,26 @@ public class AblestackSharedRawBackupServiceImpl extends ManagerBase implements 
         var destination = poolId == null ? null : pools.findById(poolId);
         if (attached.stream().noneMatch(this::sharedFile) && (selected == null || !sharedFile(selected))
                 && (destination == null || destination.getPoolType() != Storage.StoragePoolType.SharedMountPoint)) return () -> {};
-        Lease lease = lock();
+        Set<String> keys = lockKeys(attached);
+        if (vmId != null) keys.add("vm:" + vmId);
+        if (selected != null) keys.addAll(lockKeys(List.of(selected)));
+        if (volumeId != null) keys.add("volume:" + volumeId);
+        Long targetPoolId = poolId != null ? poolId : selected == null ? null : selected.getPoolId();
+        var targetPool = targetPoolId == null ? null : pools.findById(targetPoolId);
+        if (targetPool != null && targetPool.getPoolType() == Storage.StoragePoolType.SharedMountPoint && path != null) {
+            keys.add("disk:" + targetPoolId + ":" + path);
+        }
+        Lease lease = lock(keys);
         try {
+            Set<String> current = vmId == null ? new TreeSet<>() : lockKeys(volumes.findByInstance(vmId));
+            if (vmId != null) current.add("vm:" + vmId);
+            if (volumeId != null) {
+                Volume fresh = volumes.findById(volumeId);
+                if (fresh == null) throw new CloudRuntimeException("SHARED_RAW_UNKNOWN: disk identity is unavailable");
+                current.addAll(lockKeys(List.of(fresh)));
+                current.add("volume:" + volumeId);
+            }
+            if (!keys.containsAll(current)) throw new CloudRuntimeException("SHARED_RAW_BUSY: disk identity changed while waiting; retry the operation");
             if (vmId != null) for (Volume volume : volumes.findByInstance(vmId)) checkMarker(volume.getPoolId(), volume.getPath());
             if (volumeId != null) {
                 Volume volume = volumes.findById(volumeId);
@@ -165,7 +238,8 @@ public class AblestackSharedRawBackupServiceImpl extends ManagerBase implements 
     @Override public void checkSources(long vmId) {
         List<VolumeVO> source = volumes.findByInstance(vmId);
         if (!requiresOfflineFull(source)) return;
-        try (Lease lease = lock()) { build(source, "BACKUP"); }
+        Set<String> keys = lockKeys(source);
+        try (Lease lease = lock(keys)) { validateSources(source, keys); build(source, "BACKUP"); }
     }
 
     private List<AblestackSharedRawBackup.Disk> build(List<? extends Volume> source, String operation) {
@@ -230,7 +304,9 @@ public class AblestackSharedRawBackupServiceImpl extends ManagerBase implements 
     @Override public AblestackSharedRawBackup.Plan protect(Backup backup, Host host, String jobId, String operation, List<? extends Volume> source) {
         if (!requiresOfflineFull(source)) return null;
         if ("BACKUP".equals(operation) && !"FULL".equalsIgnoreCase(backup.getType())) throw new CloudRuntimeException("GFS2_RAW_INCREMENTAL_UNSUPPORTED: offline RAW backups must be FULL");
-        try (Lease lease = lock()) {
+        Set<String> keys = lockKeys(source);
+        try (Lease lease = lock(keys)) {
+            validateSources(source, keys);
             var prior = backupDetails.findDetail(backup.getId(), key(jobId, operation));
             if (prior != null) {
                 if (backupDetails.findDetail(backup.getId(), key(jobId, operation) + ".released") != null)
@@ -298,9 +374,14 @@ public class AblestackSharedRawBackupServiceImpl extends ManagerBase implements 
         }
     }
     @Override public void release(Backup backup, String jobId, String operation) {
-        try (Lease lease = lock()) {
+        var initial = backupDetails.findDetail(backup.getId(), key(jobId, operation));
+        if (initial == null) return;
+        String expectedRecord = initial.getValue();
+        var snapshot = JSON.fromJson(expectedRecord, AblestackSharedRawBackup.Plan.class);
+        if (snapshot == null || snapshot.disks == null) throw new CloudRuntimeException("SHARED_RAW_UNCONFIRMED: release plan is unavailable");
+        try (Lease lease = lock(lockKeys(snapshot))) {
             var record = backupDetails.findDetail(backup.getId(), key(jobId, operation));
-            if (record == null) return;
+            if (record == null || !expectedRecord.equals(record.getValue())) throw new CloudRuntimeException("SHARED_RAW_UNCONFIRMED: release plan changed");
             var plan = JSON.fromJson(record.getValue(), AblestackSharedRawBackup.Plan.class);
             if (plan == null || plan.version != 1 || plan.backupId != backup.getId()
                     || !jobId.equals(plan.jobId) || !operation.equals(plan.operation))

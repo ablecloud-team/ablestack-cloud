@@ -17,6 +17,7 @@
 
 import { shallowRef, defineAsyncComponent } from 'vue'
 import store from '@/store'
+import { isAdmin } from '@/role'
 
 export default {
   name: 'host',
@@ -49,6 +50,10 @@ export default {
   tabs: [{
     name: 'details',
     component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailsTab.vue')))
+  }, {
+    name: 'backup.integration',
+    component: shallowRef(defineAsyncComponent(() => import('@/views/infra/HostBackupIntegrationTab.vue'))),
+    show: (record) => isAdmin() && record.hypervisor === 'KVM' && 'getNetBackupHostConfiguration' in store.getters.apis
   }, {
     name: 'metrics',
     component: shallowRef(defineAsyncComponent(() => import('@/views/plugins/IFrameWall.vue')))

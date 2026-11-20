@@ -18,9 +18,11 @@ package org.apache.cloudstack.api.command.admin.storage.dataservice;
 
 import javax.inject.Inject;
 import org.apache.cloudstack.acl.RoleType;
-import org.apache.cloudstack.api.*;
+import org.apache.cloudstack.api.APICommand;
+import org.apache.cloudstack.api.BaseAsyncCmd;
+import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.command.admin.AdminCmd;
-import org.apache.cloudstack.api.response.*;
+import org.apache.cloudstack.api.response.StorageServiceRuntimeBundleResponse;
 import org.apache.cloudstack.storage.dataservice.StorageServiceRuntimeCatalog;
 
 @APICommand(name = "transitionStorageServiceRuntimeBundle", responseObject = StorageServiceRuntimeBundleResponse.class, description = "Manages the global signed runtime catalogue.", since = "4.23.0", authorized = {RoleType.Admin}, requestHasSensitiveInfo = false, responseHasSensitiveInfo = false)

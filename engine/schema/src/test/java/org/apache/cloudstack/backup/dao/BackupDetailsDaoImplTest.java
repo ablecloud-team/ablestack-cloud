@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.cloudstack.backup.AblestackSharedRawBackup;
 import org.apache.cloudstack.backup.BackupDetailVO;
+import org.apache.cloudstack.backup.ThirdPartyBackupManifest;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -54,7 +55,7 @@ public class BackupDetailsDaoImplTest {
         List<BackupDetailVO> stale = new ArrayList<>();
         for (String key : List.of(AblestackSharedRawBackup.BACKUP_KEY, AblestackSharedRawBackup.BACKUP_KEY + ".released",
                 AblestackSharedRawBackup.BACKUP_KEY + ".prepareFailed", AblestackSharedRawBackup.BACKUP_KEY + ".unstarted",
-                AblestackSharedRawBackup.RETENTION_PENDING)) {
+                AblestackSharedRawBackup.RETENTION_PENDING, ThirdPartyBackupManifest.RETENTION_PROTECTION_KEY)) {
             stale.add(new BackupDetailVO(60L, key, "stale", false));
         }
         stale.add(new BackupDetailVO(60L, "provider.name", "NAS", false));

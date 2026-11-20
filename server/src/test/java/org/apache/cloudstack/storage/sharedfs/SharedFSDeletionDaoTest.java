@@ -18,13 +18,19 @@ package org.apache.cloudstack.storage.sharedfs;
 import com.cloud.utils.db.TransactionLegacy;
 import org.apache.cloudstack.storage.sharedfs.dao.SharedFSDeletionOperationDaoImpl;
 import com.cloud.upgrade.dao.EuropaSharedFSDeletionUpgrade;
-import com.google.gson.*;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mysql.cj.jdbc.MysqlDataSource;
-import java.sql.*;
+import java.sql.Connection;
 import java.lang.reflect.Field;
 import javax.sql.DataSource;
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 public class SharedFSDeletionDaoTest {
     private Field source;private DataSource previous;private TransactionLegacy transaction;private SharedFSDeletionOperationDaoImpl dao;
     @Before public void open()throws Exception{

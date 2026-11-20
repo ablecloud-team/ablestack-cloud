@@ -70,6 +70,62 @@ mark_context_in_progress
         self.assertEqual("saved payload", self.payload.read_text())
         return result
 
+    def context_files(self, policy, schedule, client="ablecube1", state=None):
+        script = r'''
+set -euo pipefail
+source "$TEST_COMMON"
+POLICY_NAME=""
+SCHEDULE_NAME=""
+CLIENT_NAME=""
+resolve_context "$TEST_POLICY" "$TEST_SCHEDULE" "$TEST_CLIENT" fixed-time
+ensure_runtime_dirs
+mkdir -p "$RUNTIME_DIR"
+printf 'lock' > "$LOCK_FILE"
+printf 'context' > "$CONTEXT_FILE"
+printf 'marker' > "$(context_in_progress_file)"
+printf '[]' > "$STATE_ROOT/sessions/${CONTEXT_KEY}.listVirtualMachines.json"
+printf '%s\n' "$CONTEXT_KEY" "$POLICY_NAME" "$SCHEDULE_NAME" "$CLIENT_NAME"
+'''
+        return subprocess.run(["bash", "-c", script], env=dict(self.env, STATE_ROOT=str(state or self.state),
+            TEST_POLICY=policy, TEST_SCHEDULE=schedule, TEST_CLIENT=client), text=True, capture_output=True, timeout=10)
+
+    def test_customer_policy_and_custom_request_schedule_keep_existing_context_names(self):
+        policy = "ablecube1-poc-policy"
+        result = self.context_files(policy, "mold-vm-request")
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual(policy + "__mold-vm-request__ablecube1", result.stdout.splitlines()[0])
+
+    def test_maximum_policy_schedule_and_client_names_create_bounded_distinct_state_files(self):
+        keys = []
+        names = ("p" * 128, "s" * 128, "c" * 128)
+        variants = [names, ("p" * 127 + "q", names[1], names[2]),
+                    (names[0], "s" * 127 + "t", names[2]), (names[0], names[1], "c" * 127 + "d")]
+        for i, values in enumerate(variants):
+            with self.subTest(values=values):
+                root = self.root / ("long-" + str(i))
+                result = self.context_files(*values, state=root)
+                self.assertEqual(0, result.returncode, result.stderr)
+                key, policy, schedule, client = result.stdout.splitlines()
+                self.assertEqual(values, (policy, schedule, client))
+                self.assertTrue(key.startswith("ctx-"))
+                self.assertLessEqual(len(key), 68)
+                keys.append(key)
+                for path in root.rglob("*"):
+                    self.assertLessEqual(len(path.name.encode()), 255)
+        self.assertEqual(4, len(set(keys)))
+        again = self.context_files(*names, state=self.root / "repeat")
+        self.assertEqual(keys[0], again.stdout.splitlines()[0])
+
+    def test_existing_long_name_pending_context_is_preserved_before_changing_keys(self):
+        policy, schedule, client = "p" * 128, "s" * 94, "ablecube1"
+        raw = policy + "__" + schedule + "__" + client
+        marker = self.state / "contexts" / (raw + ".inprogress")
+        marker.write_text("legacy-owner")
+        result = self.context_files(policy, schedule, client)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("legacy long-name", result.stderr)
+        self.assertEqual("legacy-owner", marker.read_text())
+
     def test_dead_pre_owner_archives_its_context_and_allows_a_new_request(self):
         self.pre()
         archive = next(self.context.parent.glob("recovered-*"))

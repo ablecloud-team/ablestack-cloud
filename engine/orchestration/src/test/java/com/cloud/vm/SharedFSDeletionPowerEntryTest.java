@@ -16,14 +16,20 @@
 // under the License.
 package com.cloud.vm;
 
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.apache.cloudstack.storage.sharedfs.SharedFSDeletionPowerGuard;
 import com.cloud.utils.exception.CloudRuntimeException;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
 
 public class SharedFSDeletionPowerEntryTest {
     private List<Method> entries() {

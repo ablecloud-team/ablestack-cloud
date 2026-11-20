@@ -23,6 +23,11 @@ import com.cloud.vm.VirtualMachine;
 import org.apache.cloudstack.api.response.BackupStagingInfoResponse;
 
 public interface BackupProvider {
+    /** Read-only validation of configured parent policies and external jobs before a global mode change. */
+    default void validateVmScheduleModeChange(Long zoneId, List<String> policies) {
+        throw new UnsupportedOperationException("VM schedule mode validation is not supported by provider " + getName());
+    }
+
     /** CHECK returns whether a managed parent path differs; APPLY writes only a different path; VERIFY requires the target. */
     default boolean synchronizeStagingPath(com.cloud.host.Host host, ThirdPartyBackupStagingSync.Binding binding, String action) {
         throw new UnsupportedOperationException("Staging path synchronization is not supported by provider " + getName());

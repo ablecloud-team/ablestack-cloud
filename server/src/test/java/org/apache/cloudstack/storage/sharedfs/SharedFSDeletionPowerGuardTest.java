@@ -15,8 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 package org.apache.cloudstack.storage.sharedfs;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import com.cloud.utils.component.ComponentContext;
 import com.cloud.utils.db.GlobalLock;
 import com.cloud.utils.exception.CloudRuntimeException;
@@ -25,7 +31,9 @@ import com.cloud.vm.dao.UserVmDao;
 import org.apache.cloudstack.storage.dataservice.StorageServiceInstanceVO;
 import org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDao;
 import org.apache.cloudstack.storage.sharedfs.dao.SharedFSDao;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.MockedStatic;
 
 public class SharedFSDeletionPowerGuardTest {

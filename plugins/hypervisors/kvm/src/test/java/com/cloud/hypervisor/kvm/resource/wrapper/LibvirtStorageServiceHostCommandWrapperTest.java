@@ -34,9 +34,11 @@ import org.libvirt.DomainInfo.DomainState;
 import org.libvirt.Connect;
 import org.libvirt.LibvirtException;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
-import com.cloud.agent.api.Answer;
 import com.cloud.agent.api.StorageServiceHostAnswer;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 import org.junit.Assert;

@@ -1,0 +1,1180 @@
+#!/usr/bin/env python3
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+import argparse
+import base64
+import hashlib
+import hmac
+import json
+import os
+import re
+import shlex
+import shutil
+import ssl
+import subprocess
+import sys
+import time
+from pathlib import Path
+from typing import Optional
+from urllib.parse import quote, quote_plus
+from urllib.request import Request, urlopen
+from urllib.error import URLError, HTTPError
+
+from ablestack_backup_secret_key import SecretKeyError, ensure_key, read_key_material
+from netbackup_host_identity import local_host_addresses as read_local_host_addresses, resolve_addresses
+
+
+HOOK_OUTPUT_DIR = Path(os.environ.get("HOOK_OUTPUT_DIR", "/usr/openv/netbackup/bin"))
+CONFIG_OUTPUT_DIR = Path(os.environ.get("CONFIG_OUTPUT_DIR", "/etc/ablestack/netbackup"))
+SECRET_OUTPUT_DIR = Path(os.environ.get("SECRET_OUTPUT_DIR", "/etc/ablestack/netbackup/secrets"))
+BACKUP_STAGING_ROOT = Path(os.environ.get("BACKUP_STAGING_ROOT", "/tmp/mold/netbackup"))
+NETBACKUP_STAGE_ROOT_CONFIG_NAME = "backup.thirdparty.staging.root.path"
+STAGING_MOUNT_PATH = None
+STAGING_LOCAL_MODE = "MOUNT"
+WATCHER_OUTPUT_PATH = Path(os.environ.get("WATCHER_OUTPUT_PATH", "/usr/local/sbin/netbackup-host-restore-watcher"))
+RESTORE_NOTIFY_OUTPUT_PATH = Path(os.environ.get("RESTORE_NOTIFY_OUTPUT_PATH", "/usr/local/sbin/netbackup-host-restore-notify"))
+WATCHER_SERVICE_PATH = Path(os.environ.get("WATCHER_SERVICE_PATH", "/etc/systemd/system/netbackup-host-restore-watcher.service"))
+WATCHER_TIMER_PATH = Path(os.environ.get("WATCHER_TIMER_PATH", str(WATCHER_SERVICE_PATH.with_suffix(".timer"))))
+LOGROTATE_CONFIG_PATH = Path(os.environ.get("LOGROTATE_CONFIG_PATH", "/etc/logrotate.d/ablestack-netbackup"))
+WATCHER_CONFIG_PATH = Path(os.environ.get("WATCHER_CONFIG_PATH", str(CONFIG_OUTPUT_DIR / "restore-watcher.conf")))
+RESTORE_CONFIG_PATH = Path(os.environ.get("RESTORE_CONFIG_PATH", str(CONFIG_OUTPUT_DIR / "restore.conf")))
+PRE_HELPER_PATH = os.environ.get("PRE_HELPER_PATH", "/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/netbackup-host-bpstart-notify.sh")
+POST_HELPER_PATH = os.environ.get("POST_HELPER_PATH", "/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/netbackup-host-bpend-notify.sh")
+HOOK_LOG_PATH = os.environ.get("HOOK_LOG_PATH", "/var/log/netbackup-mold-hook.log")
+WATCHER_LOG_PATH = os.environ.get("WATCHER_LOG_PATH", "/var/log/netbackup-mold-restore-watcher.log")
+RESTORE_LOG_PATH = os.environ.get("RESTORE_LOG_PATH", "/var/log/netbackup-mold-restore.log")
+SECRET_KEY_FILE = Path(os.environ.get("SECRET_KEY_FILE", os.environ.get("ABLESTACK_SECRET_KEY_FILE", "/root/.ssh/ablestack.key")))
+NETBACKUP_BP_CONF_PATH = Path(os.environ.get("NETBACKUP_BP_CONF_PATH", "/usr/openv/netbackup/bp.conf"))
+NETBACKUP_SERVICE_NAME = os.environ.get("NETBACKUP_SERVICE_NAME", "netbackup")
+MOLD_API_RESPONSE_FORMAT = "json"
+NETBACKUP_PROVIDER_NAME = "ablestack-netbackup"
+NETBACKUP_VM_SCHEDULE_CONFIG_NAME = "backup.plugin.netbackup.vm.schedule.enabled"
+NETBACKUP_HOOK_TIMEOUT_CONFIG_NAME = "backup.plugin.netbackup.hook.timeout"
+NETBACKUP_OFFERING_NAME = "NetBackup"
+NETBACKUP_OFFERING_DESCRIPTION = "Ablestack NetBackup backup offering"
+NETBACKUP_OFFERING_EXTERNAL_ID = "netbackup"
+SCRIPT_DIR = Path(__file__).resolve().parent
+POLICY_TEMPLATE_PATH = Path(os.environ.get("POLICY_TEMPLATE_PATH", str(SCRIPT_DIR / "netbackup-host-policy.conf")))
+
+
+def log_step(message: str) -> None:
+    print(f"\n== {message} ==", file=sys.stderr)
+
+
+def log_info(message: str) -> None:
+    print(f"[INFO] {message}", file=sys.stderr)
+
+
+def log_ok(message: str) -> None:
+    print(f"[ OK ] {message}", file=sys.stderr)
+
+
+def log_api(method: str, command_name: str) -> None:
+    print(f"  -> Mold API {method.upper()} {command_name}", file=sys.stderr)
+
+
+def fail(message: str) -> None:
+    print(f"[FAIL] {message}", file=sys.stderr)
+    raise SystemExit(1)
+
+
+def backup_existing_file(target: Path) -> None:
+    if not target.exists():
+        return
+    stamp = time.strftime("%Y%m%d%H%M%S")
+    backup = target.with_name(f"{target.name}.bak.{stamp}")
+    suffix = 1
+    while backup.exists():
+        backup = target.with_name(f"{target.name}.bak.{stamp}.{suffix}")
+        suffix += 1
+    shutil.move(str(target), str(backup))
+    print(f"Backed up existing file: {target} -> {backup}")
+
+
+def copy_existing_file_backup(target: Path) -> None:
+    if not target.exists():
+        return
+    stamp = time.strftime("%Y%m%d%H%M%S")
+    backup = target.with_name(f"{target.name}.bak.{stamp}")
+    shutil.copy2(str(target), str(backup))
+    print(f"Backed up existing file: {target} -> {backup}")
+
+
+def validate_secret_key_file() -> None:
+    validate_custom_secret_key_file(SECRET_KEY_FILE)
+
+
+def validate_custom_secret_key_file(secret_key_file: Path) -> None:
+    try:
+        read_key_material(secret_key_file, "netbackup")
+    except (SecretKeyError, OSError) as exc:
+        fail(str(exc))
+
+
+def sanitize_name(value: str) -> str:
+    return re.sub(r"[^A-Za-z0-9._+-]", "_", value)
+
+
+def url_encode(value: str) -> str:
+    return quote_plus(value)
+
+
+def build_api_params(command_name: str, params: dict[str, str]) -> str:
+    tokens = [f"command={url_encode(command_name)}"]
+    for key, value in params.items():
+        tokens.append(f"{key}={url_encode(str(value))}")
+    tokens.append(f"response={url_encode(MOLD_API_RESPONSE_FORMAT)}")
+    return "&".join(tokens)
+
+
+def build_signed_url(base_url: str, api_params: str, api_key: str, secret_key: str) -> str:
+    sorted_params = [f"apikey={quote_plus(api_key).lower()}"]
+    for token in api_params.split("&"):
+        key, value = token.split("=", 1)
+        sorted_params.append(f"{key.lower()}={value.replace('+', '%20').lower()}")
+    sorted_url = "&".join(sorted(sorted_params))
+    signature = base64.b64encode(hmac.new(secret_key.encode(), sorted_url.encode(), hashlib.sha256).digest()).decode()
+    encoded_signature = quote_plus(signature)
+    return f"{base_url}?{api_params}&apiKey={quote_plus(api_key)}&signature={encoded_signature}"
+
+
+def invoke_mold_api(method: str, command_name: str, params: dict[str, str], mold_url: str, api_key: str, secret_key: str) -> dict:
+    log_api(method, command_name)
+    api_params = build_api_params(command_name, params)
+    signed_url = build_signed_url(mold_url, api_params, api_key, secret_key)
+    request = Request(signed_url, method=method.upper(), headers={
+        "Accept": "application/json",
+        "Content-type": "application/x-www-form-urlencoded",
+    })
+    try:
+        with urlopen(request, timeout=300) as response:
+            raw = response.read().decode("utf-8")
+    except HTTPError as exc:
+        body = exc.read().decode("utf-8", errors="replace")
+        fail(f"Mold API call failed: command={command_name} method={method} code={exc.code} body={body[:240]}")
+    except URLError as exc:
+        fail(f"Mold API call failed: command={command_name} method={method} error={exc}")
+
+    if not raw.strip():
+        fail(f"Mold API returned empty response: command={command_name} method={method}")
+    try:
+        return json.loads(raw)
+    except Exception as exc:
+        preview = raw.strip().replace("\n", "\\n")
+        if len(preview) > 240:
+            preview = preview[:240] + "..."
+        fail(f"Failed to parse Mold API response as JSON: {exc}\nResponse preview: {preview}")
+    return {}
+
+
+def wait_for_async_job(job_id: str, mold_url: str, api_key: str, secret_key: str, *, description: str,
+                       timeout_seconds: int = 300, poll_interval_seconds: int = 5) -> dict:
+    if not job_id:
+        fail(f"Missing async job ID for {description}")
+
+    deadline = time.time() + timeout_seconds
+    log_info(f"Waiting for async Mold job: {description} (jobid={job_id})")
+
+    while time.time() < deadline:
+        data = invoke_mold_api("GET", "queryAsyncJobResult", {
+            "jobid": job_id,
+        }, mold_url, api_key, secret_key)
+        response = data.get("queryasyncjobresultresponse", {})
+        job_status = int(response.get("jobstatus", 0) or 0)
+
+        if job_status == 0:
+            time.sleep(poll_interval_seconds)
+            continue
+
+        if job_status == 1:
+            log_ok(f"Async Mold job completed: {description} (jobid={job_id})")
+            return response
+
+        job_result = response.get("jobresult", {})
+        error_text = response.get("errortext") or response.get("jobresultcode")
+        if isinstance(job_result, dict):
+            error_text = job_result.get("errortext") or job_result.get("error") or error_text
+        fail(f"Async Mold job failed: description={description} jobid={job_id} error={error_text}")
+
+    fail(f"Timed out waiting for async Mold job: description={description} jobid={job_id}")
+    return {}
+
+
+def get_configuration_value(config_name: str, mold_url: str, api_key: str, secret_key: str,
+                            zone_id: Optional[str] = None, cluster_id: Optional[str] = None) -> str:
+    params = {"listAll": "true", "pagesize": "20", "page": "1", "name": config_name}
+    if zone_id:
+        params["zoneid"] = zone_id
+    if cluster_id:
+        params["clusterid"] = cluster_id
+    data = invoke_mold_api("GET", "listConfigurations", params, mold_url, api_key, secret_key)
+    configs = data.get("listconfigurationsresponse", {}).get("configuration", [])
+    if isinstance(configs, dict):
+        configs = [configs]
+    for cfg in configs:
+        if str(cfg.get("name", "")).lower() == config_name.lower():
+            return str(cfg.get("value", ""))
+    return ""
+
+
+def update_configuration_value(config_name: str, config_value: str, mold_url: str, api_key: str, secret_key: str,
+                               zone_id: Optional[str] = None, cluster_id: Optional[str] = None) -> None:
+    params = {"name": config_name, "value": config_value}
+    if zone_id:
+        params["zoneid"] = zone_id
+    if cluster_id:
+        params["clusterid"] = cluster_id
+    invoke_mold_api("POST", "updateConfiguration", params, mold_url, api_key, secret_key)
+
+
+def append_provider_if_missing(provider_list: str, provider_name: str) -> str:
+    items = [item.strip() for item in provider_list.split(",") if item.strip()]
+    lowered = {item.lower() for item in items}
+    if provider_name.lower() not in lowered:
+        items.append(provider_name)
+    return ",".join(items)
+
+
+def validate_policy_name(name: str) -> None:
+    # Keep the real name in API requests, hook filenames and configuration. Never
+    # turn an invalid name into another existing policy by replacing characters.
+    if len(name or "") > 128:
+        fail("Invalid --policy-name: NetBackup policy names must be at most 128 ASCII characters")
+    if not re.fullmatch(r"[A-Za-z0-9_+][A-Za-z0-9_.+\-]*", name or "") or name.endswith("."):
+        fail("Invalid --policy-name: use letters, digits, . _ - +, without spaces; "
+             "the name cannot start with '-' or '.', or end with '.'")
+
+
+def read_netbackup_policy(args: argparse.Namespace) -> dict:
+    if hasattr(args, "verified_policy"):
+        return args.verified_policy
+    validate_policy_name(args.policy_name)
+    request = Request(args.netbackup_url.rstrip("/") + "/config/policies/" + quote(args.policy_name, safe=""),
+                      headers={"Accept": "application/vnd.netbackup+json;version=12.0", "Authorization": args.netbackup_apikey})
+    try:
+        with urlopen(request, context=ssl._create_unverified_context(), timeout=30) as response:
+            document = json.load(response)
+        entry = document["data"]
+        if entry.get("id") is not None and entry["id"] != args.policy_name:
+            fail("NetBackup returned a different policy name; configuration was stopped")
+        policy = entry["attributes"]["policy"]
+        if policy.get("policyName") is not None and policy["policyName"] != args.policy_name:
+            fail("NetBackup returned a different policy name; configuration was stopped")
+        clients = policy.get("clients", [])
+        if (str(policy.get("policyType", "")).lower() != "standard" or not isinstance(clients, list)
+                or len(clients) != 1 or not str(clients[0].get("hostName", "")).strip()):
+            fail("NetBackup requires an existing Standard policy containing exactly one Client")
+    except HTTPError as error:
+        fail(f"Cannot read NetBackup policy: HTTP {error.code}; check the API key, permissions and policy name")
+    except (URLError, ValueError, KeyError, TypeError, AttributeError) as error:
+        fail(f"Cannot verify NetBackup policy: {type(error).__name__}")
+    args.verified_policy = policy
+    return policy
+
+
+def local_host_addresses() -> set[str]:
+    try:
+        return read_local_host_addresses()
+    except ValueError as error:
+        fail(str(error))
+
+
+def resolve_host_context(args: argparse.Namespace) -> tuple[str, str]:
+    log_step("Resolve Policy Client and Mold Host")
+    policy = read_netbackup_policy(args)
+    client_name = str(policy["clients"][0]["hostName"])
+    client_addresses = resolve_addresses(client_name)
+    local_addresses = local_host_addresses()
+    if not client_addresses.intersection(local_addresses):
+        fail(f"NetBackup policy Client '{client_name}' does not resolve to this KVM host's local interfaces")
+
+    matches = []
+    page = 1
+    while True:
+        params = {"listAll": "true", "pagesize": "500", "page": str(page), "type": "Routing"}
+        data = invoke_mold_api("GET", "listHosts", params, args.mold_url, args.admin_apikey, args.admin_secretkey)
+        response = data.get("listhostsresponse", {})
+        hosts = response.get("host", [])
+        if isinstance(hosts, dict):
+            hosts = [hosts]
+        for host in hosts:
+            addresses = resolve_addresses(str(host.get("ipaddress") or ""))
+            if (str(host.get("hypervisor", "")).lower() == "kvm"
+                    and addresses.intersection(client_addresses)):
+                matches.append(host)
+        if len(hosts) < 500:
+            break
+        page += 1
+        if page > 10000:
+            fail("Mold Host inventory pagination did not terminate")
+    if len(matches) != 1:
+        fail("Cannot uniquely match the policy Client to one Mold-registered local KVM host; check its Client DNS/IP and Mold Host IP")
+    exact = matches[0]
+    if not resolve_addresses(str(exact.get("ipaddress") or "")).intersection(local_addresses):
+        fail("The Mold Host matched by the policy Client is not this executing KVM host")
+    if not exact.get("id") or not exact.get("name") or not exact.get("zoneid") or not exact.get("clusterid"):
+        fail("Matched KVM host is missing its UUID, name, zone ID or cluster ID")
+    # Retain old invocations as assertions, never as a way to select a different host.
+    if args.kvm_hostname and args.kvm_hostname != str(exact["name"]):
+        fail("--kvm-hostname differs from the automatically verified Mold Host")
+    if args.kvm_ip and args.kvm_ip != str(exact.get("ipaddress", "")):
+        fail("--kvm-ip differs from the automatically verified Mold Host")
+    args.kvm_hostname = str(exact["name"])
+    args.kvm_host_id = str(exact["id"])
+    args.kvm_ip = str(exact["ipaddress"])
+    args.netbackup_client = client_name
+    zone_id, cluster_id = str(exact["zoneid"]), str(exact["clusterid"])
+    log_ok(f"NetBackup policy: {args.policy_name}; Client: {client_name}")
+    log_ok(f"Resolved Mold host: {args.kvm_hostname} ({args.kvm_ip}), UUID: {args.kvm_host_id}")
+    log_ok(f"Resolved zone ID: {zone_id}; cluster ID: {cluster_id}")
+    return zone_id, cluster_id
+
+
+def ensure_backup_framework_configuration(zone_id: str, cluster_id: str, args: argparse.Namespace) -> bool:
+    restart_required = False
+    log_step("Configure Mold")
+
+    if args.vm_schedule_backup is not None:
+        desired_schedule = str(args.vm_schedule_backup).lower()
+        current = get_configuration_value(NETBACKUP_VM_SCHEDULE_CONFIG_NAME, args.mold_url, args.admin_apikey, args.admin_secretkey)
+        if current.lower() != desired_schedule:
+            update_configuration_value(NETBACKUP_VM_SCHEDULE_CONFIG_NAME, desired_schedule,
+                                       args.mold_url, args.admin_apikey, args.admin_secretkey)
+            print(f"Updated global configuration: {NETBACKUP_VM_SCHEDULE_CONFIG_NAME}={desired_schedule} (all NetBackup host policies)")
+
+    log_info("Checking global configuration: backup.framework.enabled")
+    current = get_configuration_value("backup.framework.enabled", args.mold_url, args.admin_apikey, args.admin_secretkey)
+    if current.lower() != "true":
+        log_info("Updating global configuration: backup.framework.enabled=true")
+        update_configuration_value("backup.framework.enabled", "true", args.mold_url, args.admin_apikey, args.admin_secretkey)
+        print("Updated global configuration: backup.framework.enabled=true")
+        restart_required = True
+
+    log_info("Checking zone configuration: backup.framework.enabled")
+    current = get_configuration_value("backup.framework.enabled", args.mold_url, args.admin_apikey, args.admin_secretkey, zone_id)
+    if current.lower() != "true":
+        log_info("Updating zone configuration: backup.framework.enabled=true")
+        update_configuration_value("backup.framework.enabled", "true", args.mold_url, args.admin_apikey, args.admin_secretkey, zone_id)
+        print(f"Updated zone configuration: backup.framework.enabled=true (zoneid={zone_id})")
+        restart_required = True
+
+    desired_incremental = str(args.incremental_backup).lower()
+    log_info("Checking cluster configuration: kvm.incremental.backup")
+    current = get_configuration_value("kvm.incremental.backup", args.mold_url, args.admin_apikey, args.admin_secretkey, cluster_id=cluster_id)
+    # listConfigurations returns an effective value, which may be inherited.
+    # Always persist this Cluster's choice so a later Global change cannot alter it.
+    update_configuration_value("kvm.incremental.backup", desired_incremental, args.mold_url, args.admin_apikey, args.admin_secretkey, cluster_id=cluster_id)
+    print(f"Set cluster configuration: kvm.incremental.backup={desired_incremental} (clusterid={cluster_id})")
+    if current.lower() != desired_incremental:
+        restart_required = True
+
+    log_info("Backup mode: incremental chains" if args.incremental_backup else "Backup mode: Full only")
+    if args.incremental_backup and args.backup_chain_size is not None:
+        desired_chain_size = str(args.backup_chain_size)
+        log_info("Checking global configuration: kvm.backup.chain.size")
+        current = get_configuration_value("kvm.backup.chain.size", args.mold_url, args.admin_apikey, args.admin_secretkey)
+        if current != desired_chain_size:
+            log_info(f"Updating global configuration: kvm.backup.chain.size={desired_chain_size}")
+            update_configuration_value("kvm.backup.chain.size", desired_chain_size, args.mold_url, args.admin_apikey, args.admin_secretkey)
+            print(f"Updated global configuration: kvm.backup.chain.size={desired_chain_size}")
+
+    for scope_zone in (None, zone_id):
+        scope = "global" if scope_zone is None else f"zone {scope_zone}"
+        log_info(f"Checking {scope} configuration: backup.framework.provider.plugin")
+        current = get_configuration_value("backup.framework.provider.plugin", args.mold_url, args.admin_apikey, args.admin_secretkey, scope_zone)
+        updated = append_provider_if_missing(current, NETBACKUP_PROVIDER_NAME)
+        if updated != current:
+            update_configuration_value("backup.framework.provider.plugin", updated, args.mold_url, args.admin_apikey, args.admin_secretkey, scope_zone)
+            print(f"Updated {scope} configuration: backup.framework.provider.plugin={updated}")
+
+    log_info("Checking zone configuration: backup.plugin.netbackup.url")
+    current = get_configuration_value("backup.plugin.netbackup.url", args.mold_url, args.admin_apikey, args.admin_secretkey, zone_id)
+    if current != args.netbackup_url:
+        log_info(f"Updating zone configuration: backup.plugin.netbackup.url={args.netbackup_url}")
+        update_configuration_value("backup.plugin.netbackup.url", args.netbackup_url, args.mold_url, args.admin_apikey, args.admin_secretkey, zone_id)
+        print(f"Updated zone configuration: backup.plugin.netbackup.url={args.netbackup_url} (zoneid={zone_id})")
+
+    log_info("Checking zone configuration: backup.plugin.netbackup.apikey")
+    current = get_configuration_value("backup.plugin.netbackup.apikey", args.mold_url, args.admin_apikey, args.admin_secretkey, zone_id)
+    if current != args.netbackup_apikey:
+        log_info("Updating zone configuration: backup.plugin.netbackup.apikey=<hidden>")
+        update_configuration_value("backup.plugin.netbackup.apikey", args.netbackup_apikey, args.mold_url, args.admin_apikey, args.admin_secretkey, zone_id)
+        print(f"Updated zone configuration: backup.plugin.netbackup.apikey=<hidden> (zoneid={zone_id})")
+
+    return restart_required
+
+
+def check_netbackup_policy(args: argparse.Namespace) -> None:
+    """Read-only checks; policy, Client and storage concurrency remain administrator settings."""
+    log_step("Check NetBackup Host Policy")
+    policy = read_netbackup_policy(args)
+    client = str(policy["clients"][0]["hostName"])
+    if (client.lower() not in {str(args.kvm_hostname or "").lower(), str(args.kvm_ip or "").lower()}
+            and args.kvm_ip not in resolve_addresses(client)):
+        fail("NetBackup policy Client does not match the verified Mold KVM host")
+    if not any(str(schedule.get("backupType", "")).lower() == "full backup" for schedule in policy.get("schedules", [])):
+        fail("Keep a Full Backup schedule on the Host policy to dispatch VM requests through the bootstrap hooks")
+    schedules = [schedule for schedule in policy.get("schedules", []) if schedule.get("scheduleName") == "mold-transfer"]
+    if len(schedules) != 1 or str(schedules[0].get("backupType", "")).lower() != "user backup":
+        fail("Add schedule mold-transfer with Backup type User Backup to the existing Host policy")
+    if not schedules[0].get("startWindow"):
+        fail("Open the mold-transfer User Backup start window; use every day 00:00-24:00")
+    attributes = policy.get("policyAttributes", {})
+    limit = attributes.get("jobLimit", 0)
+    log_info(f"Limit jobs per policy: {limit if limit else 'unlimited'}")
+    concurrency = get_configuration_value("backup.thirdparty.staging.concurrent.jobs.per.host", args.mold_url,
+                                          args.admin_apikey, args.admin_secretkey) or "1"
+    log_info(f"Mold staging jobs per Host: {concurrency}; this is separate from the NetBackup policy Job limit")
+    log_info("Use Limit jobs per policy = 1 for sequential Host transfers; one bootstrap dispatches all matching VM requests")
+    log_info("Only raise the policy limit when allowing concurrent transfers on the same Host (for example, 2 for two transfers)")
+    log_info("Source preparation waits for the bootstrap Job to finish; no additional bootstrap Job slot is required")
+    log_info("Also check Maximum jobs per client / Client Maximum data streams and storage unit Maximum concurrent jobs in NetBackup UI")
+    log_info("Check mold-transfer storage and Retention independently of the bootstrap schedule; this tool does not change those settings")
+    log_info("Policy Frequency does not control failed retries. Check Primary Global attributes: Job retry delay and Schedule backup attempts")
+    log_info("Default 2 attempts in 12 hours can postpone a failed bootstrap job even when its start window is open; inspect nbpemreq -policies screen <policy> on the Primary")
+    log_info("Primary retry settings apply to all policies and are not read or changed by this tool; see BACKUP.md for the hourly retry example")
+    if not attributes.get("active", False):
+        log_info("Host policy is inactive; activate it after configuration and validation")
+    log_ok("Verified Host policy Client and mold-transfer User Backup schedule")
+
+
+def load_common_staging(args: argparse.Namespace, read_only: bool = False) -> None:
+    global BACKUP_STAGING_ROOT, STAGING_MOUNT_PATH, STAGING_LOCAL_MODE
+    enabled = get_configuration_value("backup.thirdparty.staging.enable", args.mold_url, args.admin_apikey, args.admin_secretkey)
+    if enabled.lower() != "true":
+        fail("Configure common staging and enable backup.thirdparty.staging.enable in Mold, then run this script again.")
+    root = get_configuration_value(NETBACKUP_STAGE_ROOT_CONFIG_NAME, args.mold_url, args.admin_apikey, args.admin_secretkey)
+    storage_type = get_configuration_value("backup.thirdparty.staging.storage.type", args.mold_url, args.admin_apikey, args.admin_secretkey).upper()
+    STAGING_LOCAL_MODE = (get_configuration_value("backup.thirdparty.staging.local.mode", args.mold_url,
+                            args.admin_apikey, args.admin_secretkey) or "MOUNT").upper() if storage_type == "LOCAL" else "MOUNT"
+    if STAGING_LOCAL_MODE not in ("MOUNT", "DIRECTORY"):
+        fail("Common staging local.mode must be MOUNT or DIRECTORY")
+    if STAGING_LOCAL_MODE == "DIRECTORY":
+        STAGING_MOUNT_PATH = Path(root)
+        BACKUP_STAGING_ROOT = Path(root) / NETBACKUP_PROVIDER_NAME
+        validate_staging_mount(read_only=read_only)
+        log_info(f"Using LOCAL directory staging: {BACKUP_STAGING_ROOT}")
+        return
+    mount = get_configuration_value("backup.thirdparty.staging.mount.path", args.mold_url, args.admin_apikey, args.admin_secretkey)
+    if not root or not mount or not Path(root).is_absolute() or not Path(mount).is_absolute() or mount == "/":
+        fail("Common staging root.path and mount.path must specify absolute paths on a separate mounted filesystem.")
+    STAGING_MOUNT_PATH = Path(mount).resolve(strict=False)
+    BACKUP_STAGING_ROOT = Path(root).resolve(strict=False) / NETBACKUP_PROVIDER_NAME
+    if STAGING_MOUNT_PATH not in BACKUP_STAGING_ROOT.parents:
+        fail("Common staging root.path must be inside mount.path.")
+    validate_staging_mount()
+    log_info(f"Using common staging: {BACKUP_STAGING_ROOT}")
+
+
+def ensure_netbackup_offering(zone_id: str, args: argparse.Namespace) -> None:
+    log_step("Ensure Backup Offering")
+    log_info(f"Checking existing NetBackup backup offerings for zoneid={zone_id}")
+    data = invoke_mold_api("GET", "listBackupOfferings", {
+        "listall": "true",
+        "page": "1",
+        "pagesize": "500",
+    }, args.mold_url, args.admin_apikey, args.admin_secretkey)
+    offerings = data.get("listbackupofferingsresponse", {}).get("backupoffering", [])
+    if isinstance(offerings, dict):
+        offerings = [offerings]
+    for offering in offerings:
+        provider = str(offering.get("provider", "")).lower()
+        offering_zone = str(offering.get("zoneid", "") or offering.get("zoneId", ""))
+        if (provider == NETBACKUP_PROVIDER_NAME and offering_zone == zone_id
+                and offering.get("externalid") == NETBACKUP_OFFERING_EXTERNAL_ID):
+            print(f"NetBackup backup offering already exists for zoneid={zone_id}")
+            return
+
+    log_info(f"Importing NetBackup backup offering for zoneid={zone_id}")
+    data = invoke_mold_api("POST", "importBackupOffering", {
+        "name": NETBACKUP_OFFERING_NAME,
+        "description": NETBACKUP_OFFERING_DESCRIPTION,
+        "provider": NETBACKUP_PROVIDER_NAME,
+        "externalid": NETBACKUP_OFFERING_EXTERNAL_ID,
+        "allowuserdrivenbackups": "false",
+        "zoneid": zone_id,
+    }, args.mold_url, args.admin_apikey, args.admin_secretkey)
+    response = data.get("importbackupofferingresponse", {})
+    job_id = str(response.get("jobid", "") or "")
+    wait_for_async_job(
+        job_id,
+        args.mold_url,
+        args.admin_apikey,
+        args.admin_secretkey,
+        description=f"importBackupOffering zoneid={zone_id}",
+    )
+
+    verify = invoke_mold_api("GET", "listBackupOfferings", {
+        "listall": "true",
+        "page": "1",
+        "pagesize": "500",
+    }, args.mold_url, args.admin_apikey, args.admin_secretkey)
+    offerings = verify.get("listbackupofferingsresponse", {}).get("backupoffering", [])
+    if isinstance(offerings, dict):
+        offerings = [offerings]
+    for offering in offerings:
+        provider = str(offering.get("provider", "")).lower()
+        offering_zone = str(offering.get("zoneid", "") or offering.get("zoneId", ""))
+        if provider == NETBACKUP_PROVIDER_NAME and offering_zone == zone_id:
+            print(f"Imported NetBackup backup offering for zoneid={zone_id}")
+            return
+    fail(f"importBackupOffering async job completed but NetBackup backup offering was not found for zoneid={zone_id}")
+
+
+def write_hook(path: Path, comment_name: str, helper_path: str, is_post: bool) -> None:
+    backup_existing_file(path)
+    if is_post:
+        content = f"""#!/bin/sh
+
+# Generated by netbackup-host-config.py: {comment_name}
+
+CLIENT="${{1:-}}"
+POLICY="${{2:-}}"
+SCHEDULE="${{3:-}}"
+TYPE="${{4:-}}"
+STATUS="${{5:-0}}"
+
+LOG="{HOOK_LOG_PATH}"
+HELPER="{helper_path}"
+
+log_line() {{
+  printf '%s %s\\n' "$(date '+%F %T')" "$1" >> "$LOG" 2>&1
+}}
+
+if [ $# -lt 4 ]; then
+  log_line "POST invalid-args argc=$# client=$CLIENT policy=$POLICY schedule=$SCHEDULE type=$TYPE status=$STATUS"
+  exit 2
+fi
+
+if [ ! -x "$HELPER" ]; then
+  log_line "POST helper-missing path=$HELPER"
+  exit 3
+fi
+
+log_line "POST start client=$CLIENT policy=$POLICY schedule=$SCHEDULE type=$TYPE status=$STATUS"
+"$HELPER" "$POLICY" "$SCHEDULE" "$CLIENT" "$STATUS" >> "$LOG" 2>&1
+RC=$?
+log_line "POST end rc=$RC client=$CLIENT policy=$POLICY schedule=$SCHEDULE type=$TYPE status=$STATUS"
+exit $RC
+"""
+    else:
+        content = f"""#!/bin/sh
+
+# Generated by netbackup-host-config.py: {comment_name}
+
+CLIENT="${{1:-}}"
+POLICY="${{2:-}}"
+SCHEDULE="${{3:-}}"
+TYPE="${{4:-}}"
+
+LOG="{HOOK_LOG_PATH}"
+HELPER="{helper_path}"
+
+log_line() {{
+  printf '%s %s\\n' "$(date '+%F %T')" "$1" >> "$LOG" 2>&1
+}}
+
+if [ $# -lt 4 ]; then
+  log_line "PRE invalid-args argc=$# client=$CLIENT policy=$POLICY schedule=$SCHEDULE type=$TYPE"
+  exit 2
+fi
+
+if [ ! -x "$HELPER" ]; then
+  log_line "PRE helper-missing path=$HELPER"
+  exit 3
+fi
+
+log_line "PRE start client=$CLIENT policy=$POLICY schedule=$SCHEDULE type=$TYPE"
+"$HELPER" "$POLICY" "$SCHEDULE" "$CLIENT" >> "$LOG" 2>&1
+RC=$?
+log_line "PRE end rc=$RC client=$CLIENT policy=$POLICY schedule=$SCHEDULE type=$TYPE"
+exit $RC
+"""
+    path.write_text(content, encoding="utf-8")
+    path.chmod(0o755)
+
+
+def render_policy_template(template_path: Path, replacements: dict[str, str]) -> str:
+    if not template_path.is_file():
+        fail(f"Policy template file not found: {template_path}")
+
+    lines = template_path.read_text(encoding="utf-8").splitlines()
+    rendered = []
+    seen = set()
+    pattern = re.compile(r"^([A-Z0-9_]+)=(.*)$")
+
+    for line in lines:
+        match = pattern.match(line)
+        if not match:
+            rendered.append(line)
+            continue
+
+        key = match.group(1)
+        if key in {"VM_SCHEDULE_BACKUP", "VM_INCLUDE", "VM_EXCLUDE"}:
+            continue
+        if key in replacements:
+            rendered.append(f"{key}={replacements[key]}")
+            seen.add(key)
+        else:
+            rendered.append(line)
+
+    for key, value in replacements.items():
+        if key not in seen:
+            rendered.append(f"{key}={value}")
+
+    return "\n".join(rendered) + "\n"
+
+
+def write_transfer_hooks(policy_safe: str) -> None:
+    """A User Backup transfers ready files without entering the parent VM dispatch/cleanup hooks."""
+    for name in ("bpstart_notify", "bpend_notify"):
+        target = HOOK_OUTPUT_DIR / f"{name}.{policy_safe}.mold-transfer"
+        backup_existing_file(target)
+        target.write_text("#!/bin/sh\n# Generated by netbackup-host-config.py: prepared artifact transfer\nexit 0\n", encoding="utf-8")
+        target.chmod(0o755)
+
+
+def write_config_file(path: Path, args: argparse.Namespace) -> None:
+    backup_existing_file(path)
+    content = render_policy_template(POLICY_TEMPLATE_PATH, {
+        "MOLD_URL": shlex.quote(args.mold_url),
+        "ADMIN_APIKEY": shlex.quote(args.admin_apikey),
+        "MOLD_SECRET_FILE": shlex.quote(str(SECRET_OUTPUT_DIR / "secret.enc")),
+        "SECRET_KEY_FILE": shlex.quote(str(SECRET_KEY_FILE)),
+        "KVM_HOSTNAME": shlex.quote(args.kvm_hostname),
+        "KVM_HOST_ID": shlex.quote(args.kvm_host_id),
+        "NETBACKUP_POLICY_NAME": shlex.quote(args.policy_name),
+        "NETBACKUP_PARENT_PAYLOAD_PATH": shlex.quote(str(BACKUP_STAGING_ROOT / "bootstrap" / sanitize_name(args.policy_name))),
+    })
+    path.write_text(content, encoding="utf-8")
+    path.chmod(0o600)
+
+
+def write_restore_config(path: Path, args: argparse.Namespace, secret_path: Path) -> None:
+    backup_existing_file(path)
+    content = "\n".join([
+        f"MOLD_URL={shlex.quote(args.mold_url)}",
+        f"ADMIN_APIKEY={shlex.quote(args.admin_apikey)}",
+        f'MOLD_SECRET_FILE="{secret_path}"',
+        f'SECRET_KEY_FILE="{SECRET_KEY_FILE}"',
+        'SECRET_HELPER="/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/netbackup-host-secret-helper.sh"',
+        f'LOG_FILE="{RESTORE_LOG_PATH}"',
+        f'NETBACKUP_STAGING_ROOT="{BACKUP_STAGING_ROOT}"',
+        "",
+    ])
+    path.write_text(content, encoding="utf-8")
+    path.chmod(0o600)
+
+
+def write_watcher_config(path: Path, args: argparse.Namespace) -> None:
+    history_paths = {
+        "STATE_FILE": "/var/lib/ablestack/netbackup/restore-watcher-state.json",
+        "LOCK_FILE": "/var/lib/ablestack/netbackup/restore-watcher.lock",
+    }
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            key = key.strip()
+            if key not in history_paths:
+                continue
+            try:
+                values = shlex.split(value, comments=True)
+            except ValueError:
+                values = []
+            if len(values) != 1 or not Path(values[0]).is_absolute():
+                fail(f"Invalid {key} in existing watcher config; correct it before reconfiguration: {path}")
+            history_paths[key] = values[0]
+    backup_existing_file(path)
+    content = "\n".join([
+        f"NETBACKUP_URL={shlex.quote(args.netbackup_url)}",
+        f"NETBACKUP_APIKEY={shlex.quote(args.netbackup_apikey)}",
+        'NETBACKUP_SSL_VERIFY="false"',
+        'NETBACKUP_CA_FILE=""',
+        f'NETBACKUP_STAGING_ROOT="{BACKUP_STAGING_ROOT}"',
+        f'MOLD_HOST_NAME="{args.kvm_hostname}"',
+        f'RESTORE_NOTIFY_SCRIPT="{RESTORE_NOTIFY_OUTPUT_PATH}"',
+        f'MOLD_CONFIG_FILE="{RESTORE_CONFIG_PATH}"',
+        f'LOG_FILE="{WATCHER_LOG_PATH}"',
+        f'STATE_FILE={shlex.quote(history_paths["STATE_FILE"])}',
+        f'LOCK_FILE={shlex.quote(history_paths["LOCK_FILE"])}',
+        'NETBACKUP_CLIENT_NAME=""',
+        'NETBACKUP_BP_CONF_PATH="/usr/openv/netbackup/bp.conf"',
+        'PROCESS_SINGLE_RESTORE_PATH_ONLY="true"',
+        'RECENT_JOB_WINDOW_SECONDS="86400"',
+        'REQUIRE_JOB_TIMESTAMP="false"',
+        'SKIP_EXISTING_JOBS_ON_START="true"',
+        'NETBACKUP_JOBS_PATH="/admin/jobs"',
+        'NETBACKUP_JOB_FILE_LISTS_ENABLED="true"',
+        'NETBACKUP_JOBS_FILTER="jobType eq \'RESTORE\'"',
+        'NETBACKUP_JOBS_LIMIT="100"',
+        'PROCESSED_JOB_TTL_SECONDS="604800"',
+        "",
+    ])
+    path.write_text(content, encoding="utf-8")
+    path.chmod(0o600)
+
+
+def install_watcher_files() -> None:
+    watcher_source = SCRIPT_DIR / "netbackup-host-restore-watcher.py"
+    restore_notify_source = SCRIPT_DIR / "netbackup-host-restore-notify"
+    metadata_source = SCRIPT_DIR / "thirdparty_restore_metadata.py"
+    if not watcher_source.is_file():
+        fail(f"Required watcher source file not found: {watcher_source}")
+    if not restore_notify_source.is_file():
+        fail(f"Required restore notify source file not found: {restore_notify_source}")
+    if not metadata_source.is_file():
+        fail(f"Required restore metadata helper not found: {metadata_source}")
+
+    WATCHER_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    RESTORE_NOTIFY_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(str(watcher_source), str(WATCHER_OUTPUT_PATH))
+    shutil.copy2(str(restore_notify_source), str(RESTORE_NOTIFY_OUTPUT_PATH))
+    metadata_destination = WATCHER_OUTPUT_PATH.parent / metadata_source.name
+    shutil.copy2(str(metadata_source), str(metadata_destination))
+    metadata_destination.chmod(0o644)
+    WATCHER_OUTPUT_PATH.chmod(0o755)
+    RESTORE_NOTIFY_OUTPUT_PATH.chmod(0o755)
+
+
+def write_watcher_service() -> None:
+    backup_existing_file(WATCHER_SERVICE_PATH)
+    content = f"""[Unit]
+Description=AbleStack NetBackup WebUI restore watcher
+After=network-online.target libvirtd.service cloudstack-agent.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+TimeoutStartSec=300
+TimeoutStopSec=30
+Environment=NETBACKUP_WATCHER_CONFIG={WATCHER_CONFIG_PATH}
+ExecStartPre=/usr/bin/python3 {SCRIPT_DIR}/netbackup_runtime.py --refresh
+ExecStart={WATCHER_OUTPUT_PATH} --once
+"""
+    WATCHER_SERVICE_PATH.write_text(content, encoding="utf-8")
+    WATCHER_SERVICE_PATH.chmod(0o644)
+
+
+def write_watcher_timer() -> None:
+    backup_existing_file(WATCHER_TIMER_PATH)
+    content = f"""[Unit]
+Description=Poll NetBackup WebUI restores every minute
+
+[Timer]
+OnBootSec=1min
+# Calendar polling resumes even after a previous service execution timed out.
+OnCalendar=minutely
+AccuracySec=1s
+Persistent=true
+Unit={WATCHER_SERVICE_PATH.name}
+
+[Install]
+WantedBy=timers.target
+"""
+    WATCHER_TIMER_PATH.write_text(content, encoding="utf-8")
+    WATCHER_TIMER_PATH.chmod(0o644)
+
+
+def write_logrotate_config() -> None:
+    backup_existing_file(LOGROTATE_CONFIG_PATH)
+    content = f"""{HOOK_LOG_PATH}
+{RESTORE_LOG_PATH}
+{WATCHER_LOG_PATH} {{
+    daily
+    maxsize 50M
+    rotate 14
+    missingok
+    notifempty
+    compress
+    delaycompress
+    copytruncate
+    create 0640 root root
+}}
+"""
+    LOGROTATE_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    LOGROTATE_CONFIG_PATH.write_text(content, encoding="utf-8")
+    LOGROTATE_CONFIG_PATH.chmod(0o644)
+
+
+def pause_watcher_for_configuration() -> None:
+    if not shutil.which("systemctl"):
+        return
+    # Stop scheduling before replacing configuration or executables. Keep the
+    # existing state and lock files: they belong to the same watcher after migration.
+    if not WATCHER_SERVICE_PATH.exists() and not WATCHER_TIMER_PATH.exists():
+        return
+    subprocess.run(["systemctl", "daemon-reload"], check=True, timeout=30)
+    if WATCHER_TIMER_PATH.exists():
+        subprocess.run(["systemctl", "stop", WATCHER_TIMER_PATH.name], check=True, timeout=30)
+    if WATCHER_SERVICE_PATH.exists():
+        result = subprocess.run(["systemctl", "show", WATCHER_SERVICE_PATH.name,
+                                 "--property=Type,ActiveState"],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True, timeout=30)
+        properties = dict(line.split("=", 1) for line in result.stdout.splitlines() if "=" in line)
+        if properties.get("Type") == "oneshot" and properties.get("ActiveState") not in {"inactive", "failed"}:
+            fail("Watcher timer is paused, but a polling pass is still running. Wait for it to finish, then rerun configuration.")
+        # Remove the old multi-user.target enablement before installing the oneshot.
+        subprocess.run(["systemctl", "disable", "--now", WATCHER_SERVICE_PATH.name], check=True, timeout=60)
+
+
+def enable_watcher_timer() -> None:
+    if not shutil.which("systemctl"):
+        print(f"systemctl not found. Run one polling pass manually: {WATCHER_OUTPUT_PATH} --once")
+        return
+    subprocess.run(["systemctl", "daemon-reload"], check=True, timeout=30)
+    subprocess.run(["systemctl", "enable", "--now", WATCHER_TIMER_PATH.name], check=True, timeout=60)
+    print(f"Enabled and started watcher timer: {WATCHER_TIMER_PATH.name}")
+
+
+def write_encrypted_secret_file(path: Path, secret: str, secret_key_file: Path = SECRET_KEY_FILE,
+                                skip_permission_validation: bool = False) -> None:
+    # Retain the argument for existing callers, but never bypass common Host key validation.
+    validate_custom_secret_key_file(secret_key_file)
+    helper_env = {**os.environ, "SECRET_KEY_FILE": str(secret_key_file)}
+    proc = subprocess.run(
+        [sys.executable, str(SCRIPT_DIR / "netbackup-host-secret-helper.py"), "encrypt", str(path)],
+        input=secret.encode(),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+        env=helper_env,
+    )
+    if proc.returncode != 0:
+        fail(f"Failed to encrypt ADMIN_SECRETKEY: {proc.stderr.decode(errors='replace')}")
+    path.chmod(0o600)
+
+
+def set_bp_conf_value(path: Path, key: str, value: str) -> None:
+    lines = path.read_text(encoding="utf-8").splitlines()
+    pattern = re.compile(rf"^\s*{re.escape(key)}\s*=")
+    replaced = False
+    new_lines = []
+    for line in lines:
+        if pattern.match(line):
+            if not replaced:
+                new_lines.append(f"{key} = {value}")
+            replaced = True
+        else:
+            new_lines.append(line)
+    if not replaced:
+        new_lines.append(f"{key} = {value}")
+    path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+
+
+def read_hook_timeout(args) -> int:
+    value = get_configuration_value(NETBACKUP_HOOK_TIMEOUT_CONFIG_NAME, args.mold_url, args.admin_apikey, args.admin_secretkey)
+    try:
+        if type(value) not in (str, int):
+            raise ValueError()
+        seconds = int(value)
+        if not 1 <= seconds <= 2147483647:
+            raise ValueError()
+        return seconds
+    except (ValueError, TypeError):
+        fail(f"Configure a positive Integer for {NETBACKUP_HOOK_TIMEOUT_CONFIG_NAME} in Global settings first")
+
+
+def apply_netbackup_bp_conf(notify_timeout: int) -> bool:
+    if not NETBACKUP_BP_CONF_PATH.is_file():
+        print(f"NetBackup bp.conf not found: {NETBACKUP_BP_CONF_PATH}")
+        return False
+    copy_existing_file_backup(NETBACKUP_BP_CONF_PATH)
+    # These Client-side values do not update the Primary/Media servers or
+    # represent product maxima. Size the server notify limits for the cumulative
+    # Hook request/bootstrap preparation time, separately from VM slot/data waits.
+    # CLIENT_READ_TIMEOUT must not be lower than the bpstart/bpend notify limits.
+    set_bp_conf_value(NETBACKUP_BP_CONF_PATH, "BPSTART_TIMEOUT", str(notify_timeout))
+    set_bp_conf_value(NETBACKUP_BP_CONF_PATH, "BPEND_TIMEOUT", str(notify_timeout))
+    set_bp_conf_value(NETBACKUP_BP_CONF_PATH, "CLIENT_READ_TIMEOUT", str(notify_timeout))
+    set_bp_conf_value(NETBACKUP_BP_CONF_PATH, "CLIENT_CONNECT_TIMEOUT", "1800")
+    set_bp_conf_value(NETBACKUP_BP_CONF_PATH, "SERVER_CONNECT_TIMEOUT", "1800")
+    print(f"Updated NetBackup config: {NETBACKUP_BP_CONF_PATH}")
+    return True
+
+
+def validate_staging_mount(read_only: bool = False) -> None:
+    if STAGING_LOCAL_MODE == "DIRECTORY" and read_only:
+        from thirdparty_staging_directory import canonical_path, local_filesystem
+        root = canonical_path(BACKUP_STAGING_ROOT.parent)
+        if not root.is_dir() or not os.access(root, os.W_OK | os.X_OK):
+            fail("LOCAL staging root must already exist and be writable; validate staging activation in Mold first")
+        local_filesystem(root)
+        return
+    if STAGING_LOCAL_MODE == "DIRECTORY":
+        from thirdparty_staging_directory import prepare_directory
+        try:
+            prepare_directory(BACKUP_STAGING_ROOT.parent, BACKUP_STAGING_ROOT)
+        except (OSError, ValueError, subprocess.SubprocessError) as error:
+            fail("Unable to validate LOCAL directory staging: " + str(error))
+        return
+    try:
+        mounted = subprocess.run(["findmnt", "-rn", "--mountpoint", str(STAGING_MOUNT_PATH)],
+                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=30)
+    except (OSError, subprocess.TimeoutExpired):
+        fail("Unable to verify the common staging mount. Check findmnt and the staging filesystem on this host.")
+    if mounted.returncode != 0:
+        fail("The common staging filesystem is not mounted on this host. Revalidate staging activation in Mold first.")
+
+
+def ensure_backup_staging_root() -> None:
+    # Recheck before creating directories; the mount may have disappeared since preflight.
+    validate_staging_mount()
+    BACKUP_STAGING_ROOT.mkdir(parents=True, exist_ok=True)
+    try:
+        BACKUP_STAGING_ROOT.chmod(0o755)
+    except PermissionError:
+        # Directory may already exist with stricter ownership-based permissions.
+        pass
+
+
+def apply_permissions() -> None:
+    for directory in (HOOK_OUTPUT_DIR, CONFIG_OUTPUT_DIR, BACKUP_STAGING_ROOT):
+        if not directory.exists():
+            continue
+        try:
+            directory.chmod(0o755)
+        except PermissionError:
+            pass
+
+    for path in HOOK_OUTPUT_DIR.glob("bpstart_notify.*"):
+        if path.is_file():
+            try:
+                path.chmod(0o755)
+            except PermissionError:
+                pass
+
+    if SECRET_OUTPUT_DIR.exists():
+        SECRET_OUTPUT_DIR.chmod(0o700)
+
+    for path in HOOK_OUTPUT_DIR.glob("bpend_notify.*"):
+        if path.is_file():
+            try:
+                path.chmod(0o755)
+            except PermissionError:
+                pass
+
+    for path in CONFIG_OUTPUT_DIR.glob("netbackup-host-*.conf"):
+        if path.is_file():
+            try:
+                path.chmod(0o600)
+            except PermissionError:
+                pass
+
+    for path in (RESTORE_CONFIG_PATH, WATCHER_CONFIG_PATH):
+        if path.is_file():
+            try:
+                path.chmod(0o600)
+            except PermissionError:
+                pass
+
+    secret_path = SECRET_OUTPUT_DIR / "secret.enc"
+    if secret_path.is_file():
+        try:
+            secret_path.chmod(0o600)
+        except PermissionError:
+            pass
+
+
+def restart_netbackup_service() -> None:
+    if shutil.which("systemctl"):
+        subprocess.run(["systemctl", "restart", NETBACKUP_SERVICE_NAME], check=True, timeout=120)
+        print(f"Restarted NetBackup service via systemctl: {NETBACKUP_SERVICE_NAME}")
+        return
+    if shutil.which("service"):
+        subprocess.run(["service", NETBACKUP_SERVICE_NAME, "restart"], check=True, timeout=120)
+        print(f"Restarted NetBackup service via service: {NETBACKUP_SERVICE_NAME}")
+        return
+    print(f"NetBackup service restart command not found. Please restart manually: {NETBACKUP_SERVICE_NAME}")
+
+
+def generate_host_outputs(zone_id: str, args: argparse.Namespace, progress=None) -> None:
+    notify_timeout = read_hook_timeout(args)
+    log_step("Generate Host Files")
+    log_info("Generating host-side NetBackup hook/config/watcher files")
+    progress = progress or (lambda step: None)
+    progress("HOST_DIRECTORIES")
+    HOOK_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    CONFIG_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    SECRET_OUTPUT_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
+    SECRET_OUTPUT_DIR.chmod(0o700)
+    WATCHER_SERVICE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    WATCHER_TIMER_PATH.parent.mkdir(parents=True, exist_ok=True)
+    LOGROTATE_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+    policy_safe = sanitize_name(args.policy_name)
+    pre_hook = HOOK_OUTPUT_DIR / f"bpstart_notify.{policy_safe}"
+    post_hook = HOOK_OUTPUT_DIR / f"bpend_notify.{policy_safe}"
+    config_path = CONFIG_OUTPUT_DIR / f"netbackup-host-{policy_safe}.conf"
+    secret_path = SECRET_OUTPUT_DIR / "secret.enc"
+
+    progress("WATCHER_PAUSE")
+    pause_watcher_for_configuration()
+    progress("HOOKS_AND_CREDENTIALS")
+    write_hook(pre_hook, f"bpstart_notify.{policy_safe}", PRE_HELPER_PATH, False)
+    write_hook(post_hook, f"bpend_notify.{policy_safe}", POST_HELPER_PATH, True)
+    write_transfer_hooks(policy_safe)
+    write_config_file(config_path, args)
+    write_encrypted_secret_file(secret_path, args.admin_secretkey)
+    write_restore_config(RESTORE_CONFIG_PATH, args, secret_path)
+    write_watcher_config(WATCHER_CONFIG_PATH, args)
+    progress("RESTORE_WATCHER_FILES")
+    install_watcher_files()
+    write_watcher_service()
+    write_watcher_timer()
+    write_logrotate_config()
+    progress("BOOTSTRAP")
+    ensure_backup_staging_root()
+    parent_payload = BACKUP_STAGING_ROOT / "bootstrap" / policy_safe
+    parent_payload.mkdir(parents=True, exist_ok=True)
+    apply_permissions()
+    progress("CLIENT_SERVICE")
+    if apply_netbackup_bp_conf(notify_timeout):
+        restart_netbackup_service()
+    else:
+        print("Skipped NetBackup service restart because bp.conf was not found.")
+    progress("WATCHER_SERVICE")
+    enable_watcher_timer()
+
+    print("\nGenerated host files:")
+    print(f"  PRE hook   : {pre_hook}")
+    print(f"  POST hook  : {post_hook}")
+    print(f"  Config     : {config_path}")
+    print(f"  Secret(enc): {secret_path}")
+    print(f"  Restore cfg: {RESTORE_CONFIG_PATH}")
+    print(f"  Watcher cfg: {WATCHER_CONFIG_PATH}")
+    print(f"  Watcher    : {WATCHER_OUTPUT_PATH}")
+    print(f"  Service    : {WATCHER_SERVICE_PATH}")
+    print(f"  Timer      : {WATCHER_TIMER_PATH}")
+    print(f"  Logrotate  : {LOGROTATE_CONFIG_PATH}")
+    print(f"  Staging dir: {BACKUP_STAGING_ROOT}")
+    print(f"  Mold Host  : {args.kvm_hostname}")
+    print(f"  Host UUID  : {args.kvm_host_id}")
+    print(f"  Parent policy Backup Selections: {parent_payload} (small bootstrap markers only)")
+    print("  Required transfer schedule: mold-transfer (User Backup, allow requests every day 00:00-24:00)")
+    print("  Transfer command: bpbackup with the exact ready file list; no per-artifact policies are created")
+    print(f"  Mold config: {NETBACKUP_STAGE_ROOT_CONFIG_NAME} (provider directory: {NETBACKUP_PROVIDER_NAME})")
+    print(f"  VM schedules: {NETBACKUP_VM_SCHEDULE_CONFIG_NAME}={str(args.vm_schedule_backup).lower()} (global, all NetBackup host policies)")
+    print(f"  Zone ID    : {zone_id}")
+
+
+def parse_boolean(value: str) -> bool:
+    if value.lower() not in ("true", "false"):
+        raise argparse.ArgumentTypeError("Expected true or false")
+    return value.lower() == "true"
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="NetBackup configuration helper")
+    parser.add_argument("--policy-name", help="existing NetBackup Standard policy with exactly one Client matching this KVM host; independent of Mold Host name")
+    parser.add_argument("--kvm-hostname", help="Optional compatibility assertion: expected Mold Host name; normally detected from the policy Client")
+    parser.add_argument("--kvm-ip", help="Optional compatibility assertion: expected Mold Host IP; normally detected from the policy Client")
+    parser.add_argument("--vm-schedule-backup", type=parse_boolean, metavar="true|false",
+                        help="Update Mold's global NetBackup VM schedule mode for all host policies. "
+                             "If omitted, use the current Mold value (initial default: true).")
+    parser.add_argument("--incremental-backup", type=parse_boolean, default=True, metavar="true|false",
+                        help="Set only this Cluster's kvm.incremental.backup; preserve the Global default (default: true). Use false for Full backups only.")
+    parser.add_argument("--backup-chain-size", type=int,
+                        help="Update global kvm.backup.chain.size in incremental mode only. If omitted, retain the existing value (default: 8).")
+    parser.add_argument("--backup-staging-root", default=str(BACKUP_STAGING_ROOT),
+                        help="Legacy bootstrap option. Jobs use Mold backup.thirdparty.staging.root.path/ablestack-netbackup.")
+    parser.add_argument("--mold-url", required=True)
+    parser.add_argument("--admin-apikey", required=True)
+    parser.add_argument("--admin-secretkey", required=True)
+    parser.add_argument("--netbackup-url")
+    parser.add_argument("--netbackup-apikey")
+    return parser.parse_args()
+
+
+def configure_vm_selection(args: argparse.Namespace) -> None:
+    if args.vm_schedule_backup is None:
+        current = get_configuration_value(NETBACKUP_VM_SCHEDULE_CONFIG_NAME,
+                                          args.mold_url, args.admin_apikey, args.admin_secretkey).lower()
+        if current not in {"true", "false"}:
+            fail(f"Mold must expose a valid {NETBACKUP_VM_SCHEDULE_CONFIG_NAME}; update the management server first")
+        args.vm_schedule_backup = parse_boolean(current)
+        if sys.stdin.isatty():
+            while True:
+                value = input(f"Use Mold per-VM backup schedules for ALL NetBackup host policies? [true/false, current: {current}]: ").strip() or current
+                try:
+                    args.vm_schedule_backup = parse_boolean(value)
+                    break
+                except argparse.ArgumentTypeError:
+                    print("Enter true or false.")
+    log_info("Only VMs explicitly assigned a NetBackup backup offering will be backed up")
+
+
+def validate_args(args: argparse.Namespace) -> None:
+    global BACKUP_STAGING_ROOT
+    if not args.policy_name:
+        fail("--policy-name is required")
+    validate_policy_name(args.policy_name)
+    if args.backup_chain_size is not None and args.backup_chain_size <= 0:
+        fail("--backup-chain-size must be a positive integer")
+    if not args.incremental_backup and args.backup_chain_size is not None:
+        fail("--backup-chain-size requires --incremental-backup true")
+    if not args.backup_staging_root:
+        fail("--backup-staging-root is required")
+    BACKUP_STAGING_ROOT = Path(args.backup_staging_root).expanduser()
+    if not BACKUP_STAGING_ROOT.is_absolute():
+        fail("--backup-staging-root must be an absolute path")
+    BACKUP_STAGING_ROOT = BACKUP_STAGING_ROOT.resolve(strict=False)
+    if not args.netbackup_url:
+        fail("--netbackup-url is required")
+    if not args.netbackup_apikey:
+        fail("--netbackup-apikey is required")
+    configure_vm_selection(args)
+
+
+def prepare_secret_key() -> None:
+    try:
+        ensure_key(SECRET_KEY_FILE, secret_files=(SECRET_OUTPUT_DIR / "secret.enc",),
+                   secret_directories=(SECRET_OUTPUT_DIR,), upgrade_unused_legacy=True)
+    except (SecretKeyError, OSError) as exc:
+        fail(str(exc))
+
+
+def main() -> None:
+    args = parse_args()
+    validate_args(args)
+
+    log_step("NetBackup Configuration")
+    log_info("Starting NetBackup host configuration")
+    log_info(f"Global {NETBACKUP_VM_SCHEDULE_CONFIG_NAME}={str(args.vm_schedule_backup).lower()} (all NetBackup host policies)")
+
+    # Fail before creating credentials, changing Mold settings or importing an offering.
+    read_netbackup_policy(args)
+    load_common_staging(args)
+    zone_id, cluster_id = resolve_host_context(args)
+    check_netbackup_policy(args)
+    prepare_secret_key()
+    restart_required = ensure_backup_framework_configuration(zone_id, cluster_id, args)
+    if restart_required:
+        fail("Updated non-dynamic backup configuration. Restart the Mold management server, then run this script again to import the NetBackup offering.")
+    ensure_netbackup_offering(zone_id, args)
+    log_ok("Completed Mold API configuration for NetBackup host")
+    generate_host_outputs(zone_id, args)
+
+    log_ok("Completed NetBackup host configuration")
+    print("Next: assign the NetBackup backup offering to each VM to protect.")
+    if args.vm_schedule_backup:
+        print("Then register a Mold backup schedule for each assigned VM. NetBackup policy runs select due schedules only.")
+    else:
+        print("No Mold VM schedule is required. NetBackup policy runs select eligible assigned VMs.")
+

@@ -435,6 +435,7 @@ public class BackupManagerTest {
         when(backup.getId()).thenReturn(1L);
         when(backup.getZoneId()).thenReturn(3L);
         when(backup.getDetail(anyString())).thenAnswer(call -> saved.get(call.getArgument(0)));
+        when(backup.getDetails()).thenReturn(saved);
         when(backupDao.findById(1L)).thenReturn(backup);
         when(hostDao.findByName("host-1")).thenReturn(host);
         when(host.getDataCenterId()).thenReturn(3L);
@@ -473,6 +474,21 @@ public class BackupManagerTest {
             backupManager.reportBackupArtifactRestoreValidation("902", gson.toJson(value));
             assertEquals(List.of("host-1_123"), gson.fromJson(saved.get(ThirdPartyExternalRestore.VALIDATION_PREFIX + "902.validation"),
                     ThirdPartyExternalRestore.Validation.class).references);
+            // An older Host watcher must not attach selection warnings to the
+            // exact metadata/volume Jobs already owned by Mold, even after completion.
+            ThirdPartyBackupRestore.Record owned = new ThirdPartyBackupRestore.Record();
+            owned.request = new ThirdPartyBackupRestore.Request();
+            owned.request.jobId = "mold-restore-1";
+            owned.result = new ThirdPartyBackupRestore.Result("904", true);
+            owned.result.callbackJobIds = List.of("905");
+            saved.put(ThirdPartyBackupRestore.recordKey(owned.request.jobId, 0), gson.toJson(owned));
+            for (String managedJob : List.of("904", "905")) {
+                value.jobid = managedJob;
+                value.references = List.of(root);
+                backupManager.reportBackupArtifactRestoreValidation(managedJob, gson.toJson(value));
+                assertFalse(saved.containsKey(ThirdPartyExternalRestore.VALIDATION_PREFIX + managedJob + ".validation"));
+            }
+            assertEquals("902", gson.fromJson(saved.get(ThirdPartyExternalRestore.VALIDATION_LATEST_KEY), ThirdPartyExternalRestore.Validation.class).jobid);
             when(host.getDataCenterId()).thenReturn(4L);
             value.references = List.of(root);
             value.jobid = "903";
@@ -2956,6 +2972,37 @@ public class BackupManagerTest {
     }
 
     @Test
+    public void testBackupResponseOmitsHistoricalWarningsForManagedFileRestoreJobsOnly() {
+        Map<String, String> details = new HashMap<>();
+        details.put(ThirdPartyBackupManifest.MODE_KEY, ThirdPartyBackupManifest.VOLUME_MODE);
+        ThirdPartyExternalRestore.Validation validation = new ThirdPartyExternalRestore.Validation();
+        validation.provider = "ablestack-netbackup";
+        validation.jobid = "1814";
+        validation.state = "WAITING_SELECTION";
+        validation.code = "UNKNOWN_FILES";
+        ThirdPartyBackupRestore.Record owned = new ThirdPartyBackupRestore.Record();
+        owned.request = new ThirdPartyBackupRestore.Request();
+        owned.request.jobId = "mold-restore-1";
+        owned.result = new ThirdPartyBackupRestore.Result("1814", true);
+        owned.result.callbackJobIds = List.of("1815");
+        details.put(ThirdPartyBackupRestore.recordKey(owned.request.jobId, 0), gson.toJson(owned));
+        BackupVO backup = cleanedFailedVolumeBackup(details);
+        backup.setStatus(Backup.Status.BackedUp);
+        for (String jobId : List.of("1814", "1815", "1816")) {
+            validation.jobid = jobId;
+            details.put(ThirdPartyExternalRestore.VALIDATION_LATEST_KEY, gson.toJson(validation));
+            BackupResponse response = backupManager.createBackupResponse(backup, false);
+            com.google.gson.JsonObject json = gson.toJsonTree(response).getAsJsonObject();
+            if ("1816".equals(jobId)) {
+                assertEquals(jobId, json.getAsJsonObject("externalrestorevalidation").get("jobid").getAsString());
+            } else {
+                assertFalse(json.has("externalrestorevalidation"));
+            }
+            assertEquals(gson.toJson(validation), details.get(ThirdPartyExternalRestore.VALIDATION_LATEST_KEY));
+        }
+    }
+
+    @Test
     public void testBackupResponseIncludesHiddenVolumeFailureAfterCleanup() {
         String reason = "Volume backup failed: [Errno 9] Bad file descriptor";
         Map<String, String> storedDetails = Map.of(
@@ -3457,6 +3504,7 @@ public class BackupManagerTest {
         ListBackupScheduleCmd cmd = Mockito.mock(ListBackupScheduleCmd.class);
         Mockito.when(cmd.getVmId()).thenReturn(vmId);
         Mockito.when(cmd.getId()).thenReturn(1L);
+        Mockito.when(cmd.getQuiesceVM()).thenReturn(null);
 
         // Mock VM for validation
         VMInstanceVO vm = Mockito.mock(VMInstanceVO.class);
@@ -3492,6 +3540,7 @@ public class BackupManagerTest {
         ListBackupScheduleCmd cmd = Mockito.mock(ListBackupScheduleCmd.class);
         Mockito.when(cmd.getVmId()).thenReturn(vmId);
         Mockito.when(cmd.getId()).thenReturn(1L);
+        Mockito.when(cmd.getQuiesceVM()).thenReturn(null);
 
         // Mock VM for validation
         VMInstanceVO vm = Mockito.mock(VMInstanceVO.class);

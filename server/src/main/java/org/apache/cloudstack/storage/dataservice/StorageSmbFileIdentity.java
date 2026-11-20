@@ -9,7 +9,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonElement;
 import com.cloud.exception.InvalidParameterValueException;
-import org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceConfigurationCmd;
 
 final class StorageSmbFileIdentity {
     static JsonObject fields(Map<String,Object> request) {

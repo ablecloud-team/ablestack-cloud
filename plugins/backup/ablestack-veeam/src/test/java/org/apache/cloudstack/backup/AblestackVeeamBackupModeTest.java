@@ -50,6 +50,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertThrows;
@@ -285,6 +286,44 @@ public class AblestackVeeamBackupModeTest {
 
     private void enabled() {
         when(depot.getConfigStringValue("kvm.incremental.backup", ConfigKey.Scope.Cluster, 40L)).thenReturn("true");
+    }
+
+    @Test public void runningVmUsesIncrementalWithGlobalFalseAndClusterTrue() {
+        assertIncrementalWithGlobalDisabled(false);
+    }
+
+    @Test public void stoppedVmUsesIncrementalWithGlobalFalseAndClusterTrue() {
+        assertIncrementalWithGlobalDisabled(true);
+    }
+
+    private void assertIncrementalWithGlobalDisabled(boolean stopped) {
+        Object originalGlobal = ReflectionTestUtils.getField(BackupManager.KvmIncrementalBackup, "_value");
+        try {
+            ReflectionTestUtils.setField(BackupManager.KvmIncrementalBackup, "_value", null);
+            when(depot.getConfigStringValue("kvm.incremental.backup", ConfigKey.Scope.Global, null)).thenReturn("false");
+            assertFalse(BackupManager.KvmIncrementalBackup.value());
+            enabled();
+            if (stopped) {
+                when(vm.getState()).thenReturn(VirtualMachine.State.Stopped);
+                when(vm.getHostId()).thenReturn(null);
+                when(vm.getLastHostId()).thenReturn(30L);
+            }
+            BackupVO previous = parent();
+            previous.setHostId(30L);
+            when(backups.listByVmIdAndOffering(1L, 10L, 2L)).thenReturn(List.of(previous));
+
+            AblestackVeeamTakeBackupCommand command = start(false);
+
+            assertEquals("INCREMENTAL", command.getBackupType());
+            assertEquals("previous-point", command.getParentCheckpointName());
+            assertEquals(previous.getExternalId(), command.getParentBackupPath());
+            ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(command.getVolumeStagingManifest());
+            assertEquals(previous.getUuid(), manifest.getParentBackupUuid());
+            assertEquals("INCREMENTAL", manifest.getBackupType());
+            verify(jobs, times(stopped ? 1 : 0)).validateHostPolicyBackupChain(eq(vm), eq(previous), eq(host), eq("source-job"), any());
+        } finally {
+            ReflectionTestUtils.setField(BackupManager.KvmIncrementalBackup, "_value", originalGlobal);
+        }
     }
 
     private AblestackVeeamTakeBackupCommand start(boolean mold) {

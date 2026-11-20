@@ -16,7 +16,6 @@
 // under the License.
 package org.apache.cloudstack.backup;
 
-import com.cloud.agent.api.Command;
 import com.cloud.storage.Storage;
 import com.cloud.storage.Volume;
 
@@ -25,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 /** Persist destination allocation and primary capacity policies with each detached restore command. */
-public abstract class AblestackRestoreBackupCommand extends Command {
+public abstract class AblestackRestoreBackupCommand extends AblestackDataOperationCommand {
     private Integer primaryStorageCapacityBufferPercent;
     private Map<String, BackupVolumeAllocation> restoreVolumeAllocation;
     public Map<String, BackupVolumeAllocation> getRestoreVolumeAllocation() { return restoreVolumeAllocation; }

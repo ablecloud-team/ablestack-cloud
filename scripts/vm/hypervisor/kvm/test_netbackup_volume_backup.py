@@ -24,6 +24,7 @@ import io
 import json
 import os
 from pathlib import Path
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -84,6 +85,77 @@ class NetBackupVolumeBackupTest(unittest.TestCase):
         self.assertEqual(first, backup.submit(self.file, self.plan, recover_only=True))
         self.assertEqual(first, backup.submit(self.file, self.plan))
         self.assertEqual(1, self.run.call_count)
+
+    def test_dispatch_survives_agent_restart_without_running_bpbackup_in_agent_cgroup(self):
+        with patch.object(backup.shutil, "which", return_value="/usr/bin/systemd-run"):
+            reference = backup.dispatch(self.file, self.plan)
+        args = self.run.call_args.args[0]
+        self.assertEqual("/usr/bin/systemd-run", args[0])
+        self.assertIn("--property=Type=exec", args)
+        self.assertIn("--submit-worker", args)
+        self.assertNotIn(str(self.executable), args)
+        self.assertTrue(self.file.with_suffix(".dispatch.json").exists())
+        self.assertFalse(self.file.with_suffix(".intent.json").exists())
+        # A restarted controller resumes a queued worker, never a second external intent.
+        self.run.reset_mock()
+        self.run.return_value = subprocess.CompletedProcess([], 0, stdout="LoadState=loaded\nActiveState=active\n")
+        with patch.object(backup.shutil, "which", return_value="/usr/bin/systemd-run"):
+            self.assertEqual(reference, backup.dispatch(self.file, self.plan, recover_only=True))
+        self.assertEqual(1, self.run.call_count)
+        self.assertEqual("systemctl", self.run.call_args.args[0][0])
+        self.assertFalse(self.file.with_suffix(".intent.json").exists())
+
+    def test_lost_dispatch_reply_can_restart_worker_only_before_external_intent(self):
+        self.run.side_effect = subprocess.TimeoutExpired(["systemd-run"], 15)
+        with patch.object(backup.shutil, "which", return_value="/usr/bin/systemd-run"):
+            reference = backup.dispatch(self.file, self.plan)
+        self.assertFalse(self.file.with_suffix(".intent.json").exists())
+        self.run.side_effect = None
+        self.run.return_value = subprocess.CompletedProcess([], 0)
+        self.assertEqual(reference, backup.submit(self.file, self.plan))
+        count = self.run.call_count
+        self.volume.unlink()
+        self.assertEqual(reference, backup.dispatch(self.file, self.plan, recover_only=True))
+        self.assertEqual(count, self.run.call_count)
+
+    def test_recovery_cannot_launch_a_worker_without_a_matching_queued_plan(self):
+        with self.assertRaisesRegex(RuntimeError, "will not be resubmitted"):
+            backup.dispatch(self.file, self.plan, recover_only=True)
+        self.run.assert_not_called()
+        with patch.object(backup.shutil, "which", return_value="/usr/bin/systemd-run"):
+            backup.dispatch(self.file, self.plan)
+        altered = copy.deepcopy(self.plan)
+        altered["policy"] = "another-policy"
+        with self.assertRaisesRegex(RuntimeError, "another artifact"):
+            backup.dispatch(self.file, altered, recover_only=True)
+
+    def test_two_real_workers_submit_client_command_once_and_recovery_remains_read_only(self):
+        count = self.root / "client-invocations"
+        self.executable.write_text("#!/bin/sh\nprintf 'submitted\\n' >> " + shlex.quote(str(count)) + "\nsleep 0.2\nexit 0\n")
+        with patch.object(backup.shutil, "which", return_value="/usr/bin/systemd-run"):
+            backup.dispatch(self.file, self.plan)
+        program = """import importlib.util,sys
+from pathlib import Path
+sys.path.insert(0,sys.argv[4])
+spec=importlib.util.spec_from_file_location('worker',Path(sys.argv[4])/'netbackup-volume-backup.py')
+module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+module.BPBACKUP=Path(sys.argv[1]);module.CONTROL_ROOT=Path(sys.argv[2])
+sys.argv=['worker','--plan-file',sys.argv[3],'--submit-worker'];module.main()
+"""
+        command = [sys.executable, "-c", program, str(self.executable), str(self.root / "user_ops"),
+                   str(self.file), str(Path(__file__).resolve().parent)]
+        workers = [subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True) for _ in range(2)]
+        for worker in workers:
+            output, error = worker.communicate(timeout=15)
+            self.assertEqual(0, worker.returncode, error)
+            self.assertIn("ABLESTACK_REQUEST_ID=", output)
+        self.assertEqual(["submitted"], count.read_text().splitlines())
+        self.file.with_suffix(".receipt.json").unlink()
+        self.volume.unlink()
+        worker = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        _, error = worker.communicate(timeout=15)
+        self.assertEqual(0, worker.returncode, error)
+        self.assertEqual(["submitted"], count.read_text().splitlines())
 
     def test_intent_is_durable_before_the_client_command_is_invoked(self):
         def execute(*args, **kwargs):

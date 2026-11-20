@@ -21,7 +21,7 @@
       <span v-if="configrecord.type ==='Boolean'">
         <a-tooltip :title="editableValue?'true':'false'">
           <a-switch
-            :disabled="(!('updateConfiguration' in $store.getters.apis) || configDisabled)"
+            :disabled="(!('updateConfiguration' in $store.getters.apis) || configDisabled || (isNetBackupScheduleMode && valueLoading))"
             v-model:checked="editableValue"
             @keydown.esc="editableValueKey = null"
             @pressEnter="updateConfigurationValue(configrecord)"
@@ -34,7 +34,7 @@
           <a-input-number
             style="width: 20vw;"
             :defaultValue="actualValue"
-            :disabled="(!('updateConfiguration' in $store.getters.apis) || configDisabled)"
+            :disabled="(!('updateConfiguration' in $store.getters.apis) || configDisabled || (isNetBackupHookTimeout && valueLoading))"
             v-model:value="editableValue"
             @keydown.esc="editableValueKey = null"
             @pressEnter="updateConfigurationValue(configrecord)"
@@ -184,7 +184,7 @@
           :disabled="valueLoading" />
         <tooltip-button
           :tooltip="$t('label.reset.config.value')"
-          @onClick="$resetConfigurationValueConfirm(configrecord, resetConfigurationValue)"
+          @onClick="confirmResetConfiguration(configrecord)"
           v-if="editableValueKey === null"
           icon="reload-outlined"
           :disabled="(!('resetConfiguration' in $store.getters.apis) || configDisabled || valueLoading || configrecord.value === configrecord.defaultvalue)" />
@@ -195,6 +195,7 @@
 <script>
 import { postAPI } from '@/api'
 import TooltipButton from '@/components/widgets/TooltipButton'
+import { netBackupScheduleModeKey, netBackupHookTimeoutKey, netBackupScheduleModeError } from '@/utils/netbackupScheduleMode'
 
 export default {
   name: 'ConfigurationValue',
@@ -231,6 +232,10 @@ export default {
       editableValue: null,
       editableValueKey: null
     }
+  },
+  computed: {
+    isNetBackupScheduleMode () { return this.configrecord.name === netBackupScheduleModeKey },
+    isNetBackupHookTimeout () { return this.configrecord.name === netBackupHookTimeoutKey }
   },
   created () {
     switch (this.$route.meta.name) {
@@ -272,7 +277,26 @@ export default {
       this.actualValue = this.editableValue
       this.editableValueKey = null
     },
-    updateConfigurationValue (configrecord) {
+    confirmScheduleMode (enabled, action, cancel) {
+      return this.$confirm({
+        title: this.$t('message.netbackup.schedule.mode.confirm'),
+        content: this.$t(enabled ? 'message.netbackup.schedule.mode.enable' : 'message.netbackup.schedule.mode.disable'),
+        okText: this.$t('label.ok'),
+        cancelText: this.$t('label.cancel'),
+        onOk: action,
+        onCancel: cancel
+      })
+    },
+    confirmResetConfiguration (configrecord) {
+      if (this.isNetBackupScheduleMode) {
+        return this.confirmScheduleMode(configrecord.defaultvalue === 'true', () => this.resetConfigurationValue(configrecord))
+      }
+      return this.$resetConfigurationValueConfirm(configrecord, this.resetConfigurationValue)
+    },
+    updateConfigurationValue (configrecord, confirmed = false) {
+      if (this.isNetBackupScheduleMode && !confirmed && this.editableValue !== this.actualValue) {
+        return this.confirmScheduleMode(this.editableValue, () => this.updateConfigurationValue(configrecord, true), () => this.cancelEditConfigurationValue(configrecord))
+      }
       let configRecordEntry = this.configrecord
       this.valueLoading = true
       this.editableValueKey = null
@@ -294,7 +318,7 @@ export default {
       if (this.scopeKey === 'domainid' && !params[this.scopeKey]) {
         params[this.scopeKey] = this.resource?.id
       }
-      postAPI('updateConfiguration', params).then(json => {
+      return postAPI('updateConfiguration', params).then(json => {
         // The updateConfiguration response can return a stale value for
         // non-global scopes (server-side issue). Trust the value the user
         // just submitted — the API returned success, so we know it was persisted.
@@ -312,7 +336,7 @@ export default {
         this.$message.error(this.$t('message.error.save.setting'))
         this.$notification.error({
           message: this.$t('label.error'),
-          description: error?.response?.data?.updateconfigurationresponse?.errortext || this.$t('message.error.save.setting')
+          description: netBackupScheduleModeError(error, (key, params) => this.$t(key, params), this.$t('message.error.save.setting'))
         })
       }).finally(() => {
         this.valueLoading = false
@@ -330,7 +354,7 @@ export default {
       if (this.scopeKey === 'domainid' && !params[this.scopeKey]) {
         params[this.scopeKey] = this.resource?.id
       }
-      postAPI('resetConfiguration', params).then(json => {
+      return postAPI('resetConfiguration', params).then(json => {
         configRecordEntry = json.resetconfigurationresponse.configuration
         this.editableValue = this.getEditableValue(configRecordEntry)
         this.actualValue = this.editableValue
@@ -348,7 +372,7 @@ export default {
         this.$message.error(this.$t('message.error.reset.config'))
         this.$notification.error({
           message: this.$t('label.error'),
-          description: this.$t('message.error.reset.config')
+          description: netBackupScheduleModeError(error, (key, params) => this.$t(key, params), this.$t('message.error.reset.config'))
         })
       }).finally(() => {
         this.valueLoading = false

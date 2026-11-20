@@ -40,6 +40,8 @@ import com.cloud.storage.VolumeApiService;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.vm.dao.VMInstanceDao;
+import com.cloud.vm.VmWorkAttachVolume;
+import com.cloud.vm.VmWorkDetachVolume;
 
 /** ABLESTACK extension wiring; no changes to CloudStack power or attach implementations. */
 public class AblestackSharedRawMutationInterceptor extends StaticMethodMatcherPointcutAdvisor implements BeanFactoryAware {
@@ -63,7 +65,8 @@ public class AblestackSharedRawMutationInterceptor extends StaticMethodMatcherPo
         String name = method.getName();
         if (VolumeDao.class.isAssignableFrom(beanClass)) return "attachVolume".equals(name) || "detachVolume".equals(name);
         if (VolumeApiService.class.isAssignableFrom(beanClass))
-            return "attachVolumeToVM".equals(name) || "detachVolumeFromVM".equals(name) || "updateVolume".equals(name);
+            return "attachVolumeToVM".equals(name) || "detachVolumeFromVM".equals(name) || "updateVolume".equals(name)
+                    || "handleVmWorkJob".equals(name);
         return AgentManager.class.isAssignableFrom(beanClass) && method.getParameterCount() >= 2
                 && ("send".equals(name) || "easySend".equals(name));
     }
@@ -102,17 +105,32 @@ public class AblestackSharedRawMutationInterceptor extends StaticMethodMatcherPo
         if (bean instanceof VolumeDao && ("attachVolume".equals(method) || "detachVolume".equals(method))) {
             try (var lease = service().guardVolume("attachVolume".equals(method) ? (Long) args[1] : null, (Long) args[0], null, null)) { return invocation.proceed(); }
         }
+        if (bean instanceof VolumeApiService && "handleVmWorkJob".equals(method)) {
+            if (args[0] instanceof VmWorkAttachVolume) {
+                var work = (VmWorkAttachVolume) args[0];
+                try (var lease = service().guardVolume(work.getVmId(), work.getVolumeId(), null, null)) { return invocation.proceed(); }
+            }
+            if (args[0] instanceof VmWorkDetachVolume) {
+                var work = (VmWorkDetachVolume) args[0];
+                try (var lease = service().guardVolume(work.getVmId(), work.getVolumeId(), null, null)) { return invocation.proceed(); }
+            }
+            return invocation.proceed();
+        }
         if (bean instanceof VolumeApiService && "attachVolumeToVM".equals(method)) {
             Long vm; Long disk;
             if (args[0] instanceof org.apache.cloudstack.api.command.user.volume.AttachVolumeCmd) {
                 var command = (org.apache.cloudstack.api.command.user.volume.AttachVolumeCmd) args[0];
                 vm = command.getVirtualMachineId(); disk = command.getId();
             } else { vm = (Long) args[0]; disk = (Long) args[1]; }
-            try (var lease = service().guardVolume(vm, disk, null, null)) { return invocation.proceed(); }
+            // The API waits for a different VM-work thread. Never hold its lock across
+            // that handoff; the worker holds the lease through agent dispatch and DAO updates.
+            try (var lease = service().guardVolume(vm, disk, null, null)) { /* preflight */ }
+            return invocation.proceed();
         }
         if (bean instanceof VolumeApiService && "detachVolumeFromVM".equals(method)) {
             var command = (org.apache.cloudstack.api.command.user.volume.DetachVolumeCmd) args[0];
-            try (var lease = service().guardVolume(command.getVirtualMachineId(), command.getId(), null, null)) { return invocation.proceed(); }
+            try (var lease = service().guardVolume(command.getVirtualMachineId(), command.getId(), null, null)) { /* preflight */ }
+            return invocation.proceed();
         }
         if (bean instanceof VolumeApiService && "updateVolume".equals(method)) {
             try (var lease = service().guardVolume(null, (Long) args[0], (Long) args[3], (String) args[1])) { return invocation.proceed(); }

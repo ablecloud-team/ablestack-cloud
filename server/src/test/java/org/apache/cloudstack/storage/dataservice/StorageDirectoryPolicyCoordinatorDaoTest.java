@@ -26,7 +26,6 @@ import com.cloud.utils.db.TransactionLegacy;
 import com.cloud.upgrade.dao.EuropaStorageConfigurationUpgrade;
 import com.cloud.utils.exception.CloudRuntimeException;
 import org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceConfigurationCmd;
-import org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd;
 import org.apache.cloudstack.api.command.user.storage.dataservice.EnableStorageServiceProtocolCmd;
 import org.apache.cloudstack.api.command.user.storage.dataservice.DeleteStorageServiceProtocolCmd;
 import org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDaoImpl;
@@ -53,7 +52,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /** Real coordinator, real instance reservation and real operation DAO against the unchanged VARCHAR(32). */

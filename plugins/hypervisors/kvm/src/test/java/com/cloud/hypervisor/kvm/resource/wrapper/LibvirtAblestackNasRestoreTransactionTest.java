@@ -75,6 +75,7 @@ public class LibvirtAblestackNasRestoreTransactionTest {
     private final List<String> commands = new ArrayList<>();
     private MockedStatic<Files> files;
     private MockedStatic<Script> scripts;
+    private MockedStatic<LibvirtAblestackDataProgress> dataProgress;
     private MockedStatic<LibvirtAblestackRestoreTransaction> transactions;
     private MockedConstruction<QemuImg> qemu;
     private LibvirtAblestackRestoreProvisioning provisioning;
@@ -121,6 +122,17 @@ public class LibvirtAblestackNasRestoreTransactionTest {
             }
             return "__CMD_EXIT__=0";
         });
+        dataProgress = Mockito.mockStatic(LibvirtAblestackDataProgress.class);
+        dataProgress.when(() -> LibvirtAblestackDataProgress.execute(anyString(), anyInt(), anyString(), any())).thenAnswer(call -> {
+            String command = call.getArgument(0);
+            commands.add(command);
+            var target = Pattern.compile("'([^']+)'$").matcher(command);
+            assertTrue(command, target.find());
+            Path prepared = Path.of(target.group(1));
+            if (Files.exists(root)) { assertEquals("old-root", Files.readString(root)); }
+            Files.writeString(prepared, prepared.getFileName().toString().startsWith("root-") ? "new-root" : "new-data");
+            return new com.cloud.utils.Pair<>(0, "");
+        });
         provisioning = LibvirtAblestackRestoreProvisioning.begin(Map.of(root.toString(), Storage.ProvisioningType.THIN,
                 data.toString(), Storage.ProvisioningType.SPARSE));
         capacity = LibvirtAblestackRestoreCapacity.begin(20);
@@ -130,6 +142,7 @@ public class LibvirtAblestackNasRestoreTransactionTest {
     public void close() {
         capacity.close();
         provisioning.close();
+        dataProgress.close();
         scripts.close();
         qemu.close();
         transactions.close();
@@ -171,7 +184,8 @@ public class LibvirtAblestackNasRestoreTransactionTest {
 
     @Test
     public void dataPreparationFailureLeavesBothOriginalsAndCleansPreparedRoot() throws Exception {
-        scripts.when(() -> Script.runSimpleBashScriptWithFullResult(Mockito.contains("datadisk.qcow2"), anyInt())).thenReturn("__CMD_EXIT__=1");
+        dataProgress.when(() -> LibvirtAblestackDataProgress.execute(Mockito.contains("datadisk.qcow2"), anyInt(), anyString(), any()))
+                .thenReturn(new com.cloud.utils.Pair<>(124, "BACKUP_DATA_NO_PROGRESS"));
         assertThrows(CloudRuntimeException.class, () -> restore(true));
         originalsRemain();
         transactionFilesAreGone();
@@ -181,7 +195,8 @@ public class LibvirtAblestackNasRestoreTransactionTest {
     public void newVmPreparationFailureDoesNotLeaveAPartiallyRestoredRoot() throws Exception {
         Files.delete(root);
         Files.delete(data);
-        scripts.when(() -> Script.runSimpleBashScriptWithFullResult(Mockito.contains("datadisk.qcow2"), anyInt())).thenReturn("__CMD_EXIT__=1");
+        dataProgress.when(() -> LibvirtAblestackDataProgress.execute(Mockito.contains("datadisk.qcow2"), anyInt(), anyString(), any()))
+                .thenReturn(new com.cloud.utils.Pair<>(124, "BACKUP_DATA_NO_PROGRESS"));
         assertThrows(CloudRuntimeException.class, () -> restore(true));
         assertFalse(Files.exists(root));
         assertFalse(Files.exists(data));

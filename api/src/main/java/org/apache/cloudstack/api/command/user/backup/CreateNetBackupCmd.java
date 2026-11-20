@@ -86,7 +86,8 @@ public class CreateNetBackupCmd extends BaseAsyncCreateCmd {
             required = false,
             description = "Attempt to freeze guest filesystems through QEMU Guest Agent while establishing source recovery points, then thaw before volume export and transfer. " +
                     "In SCHEDULE mode, the stored backup schedule setting takes precedence over this parameter. " +
-                    "Backup continues if freezing is unsupported or fails; application consistency is not guaranteed.",
+                    "Requested freezing must succeed and remain active until recovery points are established; otherwise backup fails. " +
+                    "Filesystem quiescing does not guarantee application consistency.",
             since = "4.21.0")
     private Boolean quiesceVM;
 

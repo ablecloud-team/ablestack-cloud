@@ -46,23 +46,21 @@ public class LibvirtAblestackDeleteBackupCommandWrapper extends CommandWrapper<A
         final String cleanupCheckpointNames = command.getCleanupCheckpointNames();
         final String diskPaths = command.getDiskPaths();
         final boolean forced = command.isForced();
-        int timeout = command.getWait() > 0 ? command.getWait() * 1000 : libvirtComputingResource.getCmdsTimeout();
+        int timeout = command.getTimeout() > 0 ? command.getTimeout() * 1000 : libvirtComputingResource.getCmdsTimeout();
 
         List<String[]> commands = new ArrayList<>();
-        if (List.of("ablestack-commvault", "ablestack-netbackup", "ablestack-veeam").stream()
-                .anyMatch(provider -> provider.equalsIgnoreCase(backupProvider))) {
+        final String provider = StringUtils.defaultString(backupProvider).toLowerCase(java.util.Locale.ROOT);
+        if (List.of("ablestack-commvault", "ablestack-netbackup", "ablestack-veeam").contains(provider)) {
             try {
-                LibvirtAblestackStagingCleanup.validate(backupProvider.toLowerCase(java.util.Locale.ROOT),
-                        java.nio.file.Path.of(backupPath), null);
+                LibvirtAblestackStagingCleanup.validate(provider, java.nio.file.Path.of(backupPath), null);
             } catch (java.io.IOException | RuntimeException e) {
                 return new BackupAnswer(command, false, "Unsafe staging delete path: " + e.getMessage());
             }
-        }
-        if ("ablestack-commvault".equalsIgnoreCase(backupProvider)) {
             List<String> deleteCommand = new ArrayList<>();
-            deleteCommand.add(libvirtComputingResource.getAbleCvtBackupPath());
-            deleteCommand.add("-o");
-            deleteCommand.add("delete");
+            deleteCommand.add(java.nio.file.Path.of(libvirtComputingResource.getThirdPartyVolumeBackupPath())
+                    .resolveSibling("thirdparty_backup_cleanup.sh").toString());
+            deleteCommand.add("--provider");
+            deleteCommand.add(provider);
             deleteCommand.add("-p");
             deleteCommand.add(backupPath);
             if (StringUtils.isNotBlank(vmName)) {
@@ -84,59 +82,7 @@ public class LibvirtAblestackDeleteBackupCommandWrapper extends CommandWrapper<A
                 deleteCommand.add(diskPaths);
             }
             commands.add(deleteCommand.toArray(new String[0]));
-        } else if ("ablestack-netbackup".equalsIgnoreCase(backupProvider)) {
-            List<String> deleteCommand = new ArrayList<>();
-            deleteCommand.add(libvirtComputingResource.getAbleNetBackupPath());
-            deleteCommand.add("-o");
-            deleteCommand.add("delete");
-            deleteCommand.add("-p");
-            deleteCommand.add(backupPath);
-            if (StringUtils.isNotBlank(vmName)) {
-                deleteCommand.add("-v");
-                deleteCommand.add(vmName);
-            }
-            deleteCommand.add("-x");
-            deleteCommand.add(Boolean.toString(forced));
-            if (StringUtils.isNotBlank(checkpointName)) {
-                deleteCommand.add("-c");
-                deleteCommand.add(checkpointName);
-            }
-            if (StringUtils.isNotBlank(cleanupCheckpointNames)) {
-                deleteCommand.add("-C");
-                deleteCommand.add(cleanupCheckpointNames);
-            }
-            if (StringUtils.isNotBlank(diskPaths)) {
-                deleteCommand.add("-d");
-                deleteCommand.add(diskPaths);
-            }
-            commands.add(deleteCommand.toArray(new String[0]));
-        } else if ("ablestack-veeam".equalsIgnoreCase(backupProvider) || "veeam".equalsIgnoreCase(backupProvider)) {
-            List<String> deleteCommand = new ArrayList<>();
-            deleteCommand.add(libvirtComputingResource.getAbleVeeamPath());
-            deleteCommand.add("-o");
-            deleteCommand.add("delete");
-            deleteCommand.add("-p");
-            deleteCommand.add(backupPath);
-            if (StringUtils.isNotBlank(vmName)) {
-                deleteCommand.add("-v");
-                deleteCommand.add(vmName);
-            }
-            deleteCommand.add("-x");
-            deleteCommand.add(Boolean.toString(forced));
-            if (StringUtils.isNotBlank(checkpointName)) {
-                deleteCommand.add("-c");
-                deleteCommand.add(checkpointName);
-            }
-            if (StringUtils.isNotBlank(cleanupCheckpointNames)) {
-                deleteCommand.add("-C");
-                deleteCommand.add(cleanupCheckpointNames);
-            }
-            if (StringUtils.isNotBlank(diskPaths)) {
-                deleteCommand.add("-d");
-                deleteCommand.add(diskPaths);
-            }
-            commands.add(deleteCommand.toArray(new String[0]));
-        } else {
+        } else if (provider.isEmpty() || "ablestack-nas".equals(provider)) {
             List<String> deleteCommand = new ArrayList<>();
             deleteCommand.add(libvirtComputingResource.getAbleNasBackupPath());
             deleteCommand.add("-o");
@@ -170,6 +116,8 @@ public class LibvirtAblestackDeleteBackupCommandWrapper extends CommandWrapper<A
                 deleteCommand.add(diskPaths);
             }
             commands.add(deleteCommand.toArray(new String[0]));
+        } else {
+            return new BackupAnswer(command, false, "Unsupported ABLESTACK backup provider: " + backupProvider);
         }
 
         logger.debug("Starting Ablestack backup delete for provider [{}], path [{}] with timeout [{}] ms",

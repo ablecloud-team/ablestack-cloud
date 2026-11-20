@@ -16,7 +16,7 @@
 // under the License.
 package com.cloud.api.query.dao;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.Collections;
 import com.cloud.storage.VMTemplateStoragePoolVO;

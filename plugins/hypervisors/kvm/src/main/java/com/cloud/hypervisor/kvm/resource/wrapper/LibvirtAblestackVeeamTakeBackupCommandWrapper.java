@@ -32,34 +32,10 @@ public class LibvirtAblestackVeeamTakeBackupCommandWrapper extends CommandWrappe
 
     @Override
     public Answer execute(final AblestackVeeamTakeBackupCommand command, final LibvirtComputingResource libvirtComputingResource) {
-        final AblestackVeeamTakeBackupCommand delegate = new AblestackVeeamTakeBackupCommand(command.getVmName(), command.getBackupPath());
-        delegate.setWait(command.getWait());
-        delegate.setQuiesce(command.getQuiesce());
-        delegate.setVolumePools(command.getVolumePools());
-        delegate.setVolumePaths(command.getVolumePaths());
-        delegate.setBackupType(command.getBackupType());
-        delegate.setCheckpointName(command.getCheckpointName());
-        delegate.setParentBackupPath(command.getParentBackupPath());
-        delegate.setParentCheckpointName(command.getParentCheckpointName());
-        delegate.setParentCheckpointPath(command.getParentCheckpointPath());
-        delegate.setParentCheckpointXml(command.getParentCheckpointXml());
-        delegate.setParentCheckpointXmlChain(command.getParentCheckpointXmlChain());
-        delegate.setBackupFiles(command.getBackupFiles());
-        delegate.setBackupJobId(command.getBackupJobId());
-        delegate.setVolumeStagingManifest(command.getVolumeStagingManifest());
-        delegate.setStagingBufferPercent(command.getStagingBufferPercent());
-        delegate.setStagingQueueTimeout(command.getStagingQueueTimeout());
-        delegate.setWaitForCompletion(command.isWaitForCompletion());
-
-        final LibvirtAblestackVeeamHelper backupHelper = new LibvirtAblestackVeeamHelper(libvirtComputingResource);
-        return LibvirtAblestackTakeBackupCommandHelper.execute(command, logger, BACKUP_TRACE, "Veeam",
+        return LibvirtAblestackTakeBackupCommandHelper.executeVolumeBackup(command, logger, BACKUP_TRACE, "Veeam",
                 new LibvirtAblestackTakeBackupCommandHelper.BackupCommandContext(command.getBackupJobId(), command.getVmName(),
                         command.getBackupPath(), command.getBackupType(), command.isWaitForCompletion()),
-                () -> backupHelper.buildDetachedBackupScriptCommand(delegate),
-                () -> backupHelper.executeBackup(delegate),
-                LibvirtAblestackVeeamHelper.EXIT_CLEANUP_FAILED,
-                "Veeam backup helper returned failure without details",
-                false,
-                result -> backupHelper.calculateBackupSize(delegate));
+                command.getVolumeStagingManifest(), command.getVolumeBackupStartPlan(),
+                () -> LibvirtAblestackVolumeBackupHelper.buildCommand(libvirtComputingResource, command));
     }
 }

@@ -16,7 +16,9 @@
 // under the License.
 package org.apache.cloudstack.storage.sharedfs.dao;
 import java.util.List;
-import com.cloud.utils.db.*;
+import com.cloud.utils.db.Filter;
+import com.cloud.utils.db.GenericDaoBase;
+import com.cloud.utils.db.SearchCriteria;
 import org.apache.cloudstack.storage.sharedfs.SharedFSDeletionOperationVO;
 public class SharedFSDeletionOperationDaoImpl extends GenericDaoBase<SharedFSDeletionOperationVO,Long> implements SharedFSDeletionOperationDao {
     public SharedFSDeletionOperationVO findByRequest(long id,String requestId){

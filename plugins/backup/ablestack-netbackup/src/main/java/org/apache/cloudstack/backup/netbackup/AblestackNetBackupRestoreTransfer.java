@@ -26,6 +26,7 @@ import com.cloud.utils.exception.CloudRuntimeException;
 import com.google.gson.Gson;
 import org.apache.cloudstack.backup.AblestackVolumeStagingCommand;
 import org.apache.cloudstack.backup.ThirdPartyBackupRestore;
+import org.apache.cloudstack.backup.ThirdPartyBackupSubmissionException;
 import org.apache.cloudstack.backup.ThirdPartyBackupVolumeService;
 import org.apache.commons.lang3.StringUtils;
 
@@ -36,13 +37,20 @@ public final class AblestackNetBackupRestoreTransfer implements ThirdPartyBackup
     private final AgentManager agentManager;
     private final long hostId;
     private final String destinationClient;
+    private final Runnable beforeSubmit;
 
     public AblestackNetBackupRestoreTransfer(Supplier<AblestackNetBackupClient> clients, AgentManager agentManager,
             long hostId, String destinationClient) {
+        this(clients, agentManager, hostId, destinationClient, () -> { });
+    }
+
+    public AblestackNetBackupRestoreTransfer(Supplier<AblestackNetBackupClient> clients, AgentManager agentManager,
+            long hostId, String destinationClient, Runnable beforeSubmit) {
         this.clients = clients;
         this.agentManager = agentManager;
         this.hostId = hostId;
         this.destinationClient = destinationClient;
+        this.beforeSubmit = beforeSubmit;
     }
 
     @Override
@@ -58,6 +66,11 @@ public final class AblestackNetBackupRestoreTransfer implements ThirdPartyBackup
                 // or a switch to bprestore, even after a management server restart or Host timeout.
                 throw new CloudRuntimeException("NetBackup Primary REST restore Job ID is unconfirmed for staging job " + request.jobId
                         + ", sequence " + request.sequence + "; submission will not be repeated and staging is retained");
+            }
+            try { beforeSubmit.run(); }
+            catch (RuntimeException e) {
+                // No restore POST has been issued, so the coordinator can safely close this request.
+                throw new ThirdPartyBackupSubmissionException("NetBackup restore retention preflight failed: " + e.getMessage(), e);
             }
             return client.submitVolumeRestore(request, destinationClient);
         }

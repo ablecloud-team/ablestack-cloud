@@ -19,6 +19,9 @@
 # Entry point for mold-agent or cloudstack-common RPM %post.
 set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ -f "${DIR}/netbackup_runtime.py" ]]; then
+  python3 "${DIR}/netbackup_runtime.py" --install
+fi
 if [[ -f "${DIR}/veeam-host-config.py" ]]; then
   python3 "${DIR}/veeam-host-config.py" --install-only
 fi

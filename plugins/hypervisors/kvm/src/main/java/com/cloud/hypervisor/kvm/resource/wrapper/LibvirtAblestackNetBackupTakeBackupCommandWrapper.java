@@ -32,35 +32,10 @@ public class LibvirtAblestackNetBackupTakeBackupCommandWrapper extends CommandWr
 
     @Override
     public Answer execute(final AblestackNetBackupTakeBackupCommand command, final LibvirtComputingResource libvirtComputingResource) {
-        final AblestackNetBackupTakeBackupCommand delegate = new AblestackNetBackupTakeBackupCommand(command.getVmName(), command.getBackupPath());
-        delegate.setWait(command.getWait());
-        delegate.setQuiesce(command.getQuiesce());
-        delegate.setVolumePools(command.getVolumePools());
-        delegate.setVolumePaths(command.getVolumePaths());
-        delegate.setBackupType(command.getBackupType());
-        delegate.setCheckpointName(command.getCheckpointName());
-        delegate.setParentBackupPath(command.getParentBackupPath());
-        delegate.setParentCheckpointName(command.getParentCheckpointName());
-        delegate.setParentCheckpointPath(command.getParentCheckpointPath());
-        delegate.setParentCheckpointXml(command.getParentCheckpointXml());
-        delegate.setParentCheckpointXmlChain(command.getParentCheckpointXmlChain());
-        delegate.setBackupFiles(command.getBackupFiles());
-        delegate.setWaitForCompletion(command.isWaitForCompletion());
-        delegate.setBackupJobId(command.getBackupJobId());
-        delegate.setVolumeStagingManifest(command.getVolumeStagingManifest());
-        delegate.setStagingBufferPercent(command.getStagingBufferPercent());
-        delegate.setStagingQueueTimeout(command.getStagingQueueTimeout());
-        delegate.setBandwidthLimitMbps(command.getBandwidthLimitMbps());
-
-        final LibvirtAblestackNetBackupHelper backupHelper = new LibvirtAblestackNetBackupHelper(libvirtComputingResource);
-        return LibvirtAblestackTakeBackupCommandHelper.execute(command, logger, BACKUP_TRACE, "NetBackup",
+        return LibvirtAblestackTakeBackupCommandHelper.executeVolumeBackup(command, logger, BACKUP_TRACE, "NetBackup",
                 new LibvirtAblestackTakeBackupCommandHelper.BackupCommandContext(command.getBackupJobId(), command.getVmName(),
                         command.getBackupPath(), command.getBackupType(), command.isWaitForCompletion()),
-                () -> backupHelper.buildDetachedBackupScriptCommand(delegate),
-                () -> backupHelper.executeBackup(delegate),
-                LibvirtAblestackNetBackupHelper.EXIT_CLEANUP_FAILED,
-                "NetBackup backup helper returned failure without details",
-                false,
-                result -> backupHelper.calculateBackupSize(delegate));
+                command.getVolumeStagingManifest(), command.getVolumeBackupStartPlan(),
+                () -> LibvirtAblestackVolumeBackupHelper.buildCommand(libvirtComputingResource, command));
     }
 }

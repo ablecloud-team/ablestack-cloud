@@ -65,6 +65,18 @@ public class BackupStagingManagementVisibilityTest {
     }
 
     @Test
+    public void retentionWaitingOrUnreadableReceiptKeepsRecheckVisibleAfterCleanup() {
+        when(backup.getStatus()).thenReturn(Backup.Status.BackedUp);
+        details.put(ThirdPartyBackupManifest.CLEANUP_STATE_KEY, "COMPLETED");
+        for (String receipt : java.util.Arrays.asList("{\"state\":\"WAITING\"}", "{}", "null", "broken")) {
+            details.put(ThirdPartyBackupManifest.RETENTION_PROTECTION_KEY, receipt);
+            assertTrue(ThirdPartyBackupVolumeService.needsStagingManagement(backup, null));
+        }
+        details.put(ThirdPartyBackupManifest.RETENTION_PROTECTION_KEY, "{\"state\":\"COMPLETED\"}");
+        assertFalse(ThirdPartyBackupVolumeService.needsStagingManagement(backup, null));
+    }
+
+    @Test
     public void unconfirmedSubmissionRecordedAsWaitingPermitsRecovery() {
         details.put(ThirdPartyBackupManifest.CLEANUP_STATE_KEY, "WAITING");
         details.put(ThirdPartyBackupManifest.CLEANUP_DETAILS_KEY, "External submission is unconfirmed; waiting for an exact artifact job reference");

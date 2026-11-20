@@ -46,7 +46,7 @@ public class LibvirtCheckBackupIncrementalSourceCommandWrapperTest {
                     + "d=json.load(open(p))\nassert '--inspect-incremental' in sys.argv\n"
                     + "print(json.dumps({'validated':True,'mode':oct(os.stat(p).st_mode & 0o777),'file':p,'vmName':d['vmName']}))\n");
             LibvirtComputingResource resource = mock(LibvirtComputingResource.class);
-            when(resource.getAbleCvtBackupPath()).thenReturn(directory.resolve("backup.sh").toString());
+            when(resource.getThirdPartyVolumeBackupPath()).thenReturn(directory.resolve("thirdparty_volume_backup.py").toString());
             CheckBackupIncrementalSourceCommand command = new CheckBackupIncrementalSourceCommand("vm", true,
                     "QCOW2", List.of(mock(PrimaryDataStoreTO.class)), List.of("root"), "parent", "<domaincheckpoint/>");
             try (MockedStatic<LibvirtAblestackTakeBackupCommandHelper> helper = mockStatic(LibvirtAblestackTakeBackupCommandHelper.class)) {
@@ -64,7 +64,7 @@ public class LibvirtCheckBackupIncrementalSourceCommandWrapperTest {
 
     @Test public void unavailableInspectionScriptCannotProduceASuccessAnswer() {
         LibvirtComputingResource resource = mock(LibvirtComputingResource.class);
-        when(resource.getAbleCvtBackupPath()).thenReturn("/unavailable/backup.sh");
+        when(resource.getThirdPartyVolumeBackupPath()).thenReturn("/unavailable/backup.sh");
         CheckBackupIncrementalSourceCommand command = new CheckBackupIncrementalSourceCommand("vm", true,
                 "QCOW2", List.of(mock(PrimaryDataStoreTO.class)), List.of("root"), "parent", "<domaincheckpoint/>");
         assertFalse(wrapper.execute(command, resource).getResult());

@@ -181,6 +181,9 @@ def convert(source, destination, source_format, virtual_bytes, timeout, progress
     if bandwidth > 0:
         args += ["-r", str(bandwidth * 1000000 // 8)]
     log = target.with_name(target.name + ".convert.log")
+    from ablestack_backup_progress import ProgressDeadline, percent
+    guard = ProgressDeadline("Offline Full conversion")
+    finalizing = False
     try:
         with log.open("w+") as output:
             process = subprocess.Popen(args + [str(source), str(target)], stdout=output, stderr=output,
@@ -192,12 +195,19 @@ def convert(source, destination, source_format, virtual_bytes, timeout, progress
                         cancel()
                     if time.monotonic() >= deadline:
                         raise RuntimeError("Offline Full conversion timed out")
-                    if progress:
-                        output.flush()
-                        with log.open() as reader:
-                            status = re.findall(r"([0-9]+(?:\.[0-9]+)?)/100%", reader.read()[-4096:])
-                        if status:
-                            progress(float(status[-1]) / 100)
+                    output.flush()
+                    with log.open("rb") as reader:
+                        reader.seek(0, os.SEEK_END)
+                        reader.seek(max(0, reader.tell() - 4096))
+                        completed = percent("qemu", reader.read().decode(errors="replace"))
+                    if completed is not None and completed >= 100 and not finalizing:
+                        guard = ProgressDeadline("Offline Full data finalization")
+                        finalizing = True
+                    elif completed is not None and completed > 0 and not finalizing:
+                        guard.observe(completed)
+                    guard.check()
+                    if progress and completed is not None:
+                        progress(completed / 100)
                     time.sleep(0.25)
                 if process.returncode:
                     output.flush()

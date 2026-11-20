@@ -20,6 +20,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import com.cloud.upgrade.dao.EuropaSchemaUpgrade;
+import com.cloud.upgrade.dao.EuropaBackupConfigUpgrade;
+import com.cloud.upgrade.dao.EuropaThirdPartyStagingConfigUpgrade;
 import com.cloud.utils.db.GlobalLock;
 import com.cloud.utils.exception.CloudRuntimeException;
 import org.junit.Test;
@@ -42,6 +44,26 @@ public class EuropaMigrationCheckpointTest {
             new DatabaseUpgradeChecker().runEuropaPhase(connection, "phase", migration);
             verify(migration, never()).run();
             journal.verify(() -> EuropaSchemaUpgrade.begin(connection, "phase"), never());
+        }
+    }
+
+    @Test
+    public void retiredBackupCleanupRunsEvenWhenOlderCleanupCheckpointsAreComplete() throws SQLException {
+        Connection connection = mock(Connection.class);
+        Runnable oldMigration = mock(Runnable.class);
+        Runnable cleanup = mock(Runnable.class);
+        String phase = EuropaBackupConfigUpgrade.RETIRED_SETTINGS_PHASE;
+        try (MockedStatic<EuropaSchemaUpgrade> journal = Mockito.mockStatic(EuropaSchemaUpgrade.class)) {
+            DatabaseUpgradeChecker checker = new DatabaseUpgradeChecker();
+            for (String old : new String[]{EuropaThirdPartyStagingConfigUpgrade.PHASE, EuropaBackupConfigUpgrade.PHASE,
+                    EuropaBackupConfigUpgrade.FOLLOW_UP_PHASE, EuropaBackupConfigUpgrade.VEEAM_VOLUME_PHASE}) {
+                journal.when(() -> EuropaSchemaUpgrade.hasState(connection, old, "Complete")).thenReturn(true);
+                checker.runEuropaPhase(connection, old, oldMigration);
+            }
+            checker.runEuropaPhase(connection, phase, cleanup);
+            verify(oldMigration, never()).run();
+            verify(cleanup).run();
+            journal.verify(() -> EuropaSchemaUpgrade.complete(connection, phase));
         }
     }
 

@@ -44,7 +44,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 public class AblestackNetBackupUserBackupTest {
-    private static final String POLICY = "prod-host-4";
+    private static final String POLICY = "prod-host.4+full";
     private static final String CLIENT = "ablecube4";
     private static final String IMAGE = "ablecube4_1792636130";
     private static final String ROOT = "/mnt/glue-gfs/ablestack-netbackup/i-2-317-VM/2026.10.22.11.12.28.987";
@@ -210,11 +210,39 @@ public class AblestackNetBackupUserBackupTest {
         assertThrows(ThirdPartyBackupSubmissionException.class, () -> client().validateUserBackupPolicy(POLICY, CLIENT, null));
     }
 
+    @Test public void customPolicyPreservesPlusAndReturnsTheActualClientForRestore() throws Exception {
+        String name = "PoC.GFS_02+full";
+        JSONObject policy = new JSONObject().put("policyType", "Standard")
+                .put("clients", new JSONArray().put(new JSONObject().put("hostName", CLIENT)))
+                .put("policyAttributes", new JSONObject().put("active", true))
+                .put("schedules", new JSONArray().put(new JSONObject().put("scheduleName", "mold-transfer")
+                    .put("backupType", "User Backup").put("startWindow", new JSONArray().put(new JSONObject().put("dayOfWeek", 1)))));
+        server.stubFor(get(urlEqualTo("/netbackup/config/policies/PoC.GFS_02%2Bfull"))
+                .willReturn(aResponse().withStatus(200).withBody(new JSONObject().put("data", new JSONObject()
+                    .put("attributes", new JSONObject().put("policy", policy))).toString())));
+        assertEquals(CLIENT, client().validateUserBackupPolicyClient(name, CLIENT, "192.0.2.4"));
+        assertThrows(ThirdPartyBackupSubmissionException.class,
+                () -> client().validateUserBackupPolicy(name, "unrelated-mold-host.invalid", "192.0.2.99"));
+        server.verify(0, getRequestedFor(urlEqualTo("/netbackup/config/policies/PoC.GFS_02_full")));
+    }
+
+    @Test public void clientDnsAliasMatchesRegisteredHostIpWithoutMatchingUnrelatedAddresses() throws Exception {
+        JSONObject policy = new JSONObject().put("policyType", "Standard")
+                .put("clients", new JSONArray().put(new JSONObject().put("hostName", "localhost")))
+                .put("policyAttributes", new JSONObject().put("active", true))
+                .put("schedules", new JSONArray().put(new JSONObject().put("scheduleName", "mold-transfer")
+                    .put("backupType", "User Backup").put("startWindow", new JSONArray().put(new JSONObject().put("dayOfWeek", 1)))));
+        stubPolicy(policy);
+        assertEquals("localhost", client().validateUserBackupPolicyClient(POLICY, "mold-label", "127.0.0.1"));
+        assertThrows(ThirdPartyBackupSubmissionException.class,
+                () -> client().validateUserBackupPolicy(POLICY, "mold-label", "192.0.2.4"));
+    }
+
     @Test public void missingPolicyIsARejectionButHttpFailuresRemainUnconfirmed() throws Exception {
-        server.stubFor(get(urlEqualTo("/netbackup/config/policies/" + POLICY)).willReturn(aResponse().withStatus(404)));
+        server.stubFor(get(urlEqualTo("/netbackup/config/policies/" + POLICY.replace("+", "%2B"))).willReturn(aResponse().withStatus(404)));
         assertThrows(ThirdPartyBackupSubmissionException.class, () -> client().validateUserBackupPolicy(POLICY, CLIENT, null));
         for (int status : new int[]{401, 503}) {
-            server.stubFor(get(urlEqualTo("/netbackup/config/policies/" + POLICY)).willReturn(aResponse().withStatus(status)));
+            server.stubFor(get(urlEqualTo("/netbackup/config/policies/" + POLICY.replace("+", "%2B"))).willReturn(aResponse().withStatus(status)));
             CloudRuntimeException error = assertThrows(CloudRuntimeException.class,
                     () -> client().validateUserBackupPolicy(POLICY, CLIENT, null));
             assertFalse(error instanceof ThirdPartyBackupSubmissionException);
@@ -234,7 +262,7 @@ public class AblestackNetBackupUserBackupTest {
                 .withRequestBody(containing("\"backupId\":\"" + IMAGE + "\""))
                 .willReturn(aResponse().withStatus(202).withHeader("X-NetBackup-MPA-Ticket", "ticket")));
         assertFalse(client().deleteUserBackupArtifact(POLICY, artifact, null, false).completed);
-        server.verify(0, deleteRequestedFor(urlEqualTo("/netbackup/config/policies/" + POLICY)));
+        server.verify(0, deleteRequestedFor(urlEqualTo("/netbackup/config/policies/" + POLICY.replace("+", "%2B"))));
         server.verify(0, getRequestedFor(urlPathEqualTo("/netbackup/catalog/images")));
         image(404, "");
         assertTrue(client().deleteUserBackupArtifact(POLICY, artifact, "ticket", false).completed);
@@ -315,7 +343,7 @@ public class AblestackNetBackupUserBackupTest {
     }
 
     private void stubPolicy(JSONObject policy) {
-        server.stubFor(get(urlEqualTo("/netbackup/config/policies/" + POLICY))
+        server.stubFor(get(urlEqualTo("/netbackup/config/policies/" + POLICY.replace("+", "%2B")))
                 .willReturn(aResponse().withStatus(200).withBody(new JSONObject().put("data", new JSONObject()
                         .put("attributes", new JSONObject().put("policy", policy))).toString())));
     }

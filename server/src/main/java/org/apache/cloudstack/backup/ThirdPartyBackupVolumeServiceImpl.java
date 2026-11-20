@@ -665,6 +665,18 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             info.jobcleanupreason = backup.getDetail(ThirdPartyBackupManifest.JOB_CLEANUP_DETAILS_KEY);
             info.finalizationstate = backup.getDetail(ThirdPartyBackupManifest.FINALIZATION_STATE_KEY);
             info.finalizationreason = backup.getDetail(ThirdPartyBackupManifest.FINALIZATION_DETAILS_KEY);
+            String retentionJson = backup.getDetail(ThirdPartyBackupManifest.RETENTION_PROTECTION_KEY);
+            if (StringUtils.isNotBlank(retentionJson)) {
+                try {
+                    com.google.gson.JsonObject retention = new Gson().fromJson(retentionJson, com.google.gson.JsonObject.class);
+                    info.retentionstate = retention.has("state") ? retention.get("state").getAsString() : "UNKNOWN";
+                    info.retentionreason = retention.has("reason") ? retention.get("reason").getAsString() : null;
+                    info.retentionuntil = retention.has("protectedUntil") ? retention.get("protectedUntil").getAsString() : null;
+                } catch (RuntimeException e) {
+                    info.retentionstate = "UNKNOWN";
+                    info.retentionreason = "NetBackup retention protection record cannot be read";
+                }
+            }
         }
         ThirdPartyBackupAdmission.Entry entry = info.historical ? null : readAdmission(backup.getId(), operation);
         if (entry != null && info.stagingjobid.equals(entry.jobId)) {
@@ -1908,6 +1920,8 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                     current.getDetail(ThirdPartyBackupManifest.MODE_KEY))) { continue; }
             ThirdPartyBackupManifest other = ThirdPartyBackupManifest.fromJson(current.getDetail(ThirdPartyBackupManifest.DETAIL_KEY));
             if (!manifest.getProvider().equals(other.getProvider())) { continue; }
+            if ("ablestack-netbackup".equals(other.getProvider())
+                    && ThirdPartyBackupVolumeService.closedFailedNetBackupDependency(current)) { continue; }
             DeleteProgress otherProgress = new Gson().fromJson(current.getDetail(ThirdPartyBackupManifest.DELETE_PROGRESS_KEY), DeleteProgress.class);
             if ((otherProgress == null || !otherProgress.complete) && other.references(backup.getUuid())) {
                 throw new CloudRuntimeException("Another backup still requires this Full/incremental artifact; delete dependent recovery points first");
@@ -3510,6 +3524,19 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             }
             backupDao.loadDetails(tracked);
             ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(tracked.getDetail(ThirdPartyBackupManifest.DETAIL_KEY));
+            RuntimeException retentionFailure = null;
+            if (tracked.getStatus() == Backup.Status.BackingUp && !ThirdPartyBackupManifest.hasCompletedTransfers(tracked)) {
+                try {
+                    transfer.protectActiveBackup(tracked);
+                } catch (RuntimeException protectionFailure) {
+                    backupDetailsDao.addDetail(tracked.getId(), ThirdPartyBackupManifest.PREPARATION_DETAILS_KEY,
+                            protectionFailure.getMessage(), false);
+                    logger.warn("Volume backup [{}] retention protection is unconfirmed; reconciliation will retry: {}",
+                            tracked.getUuid(), protectionFailure.getMessage());
+                    // Keep observing engine termination and cancellation even when no new source IO is safe.
+                    retentionFailure = protectionFailure;
+                }
+            }
             if ((tracked.getStatus() == Backup.Status.BackingUp || isFailedPipeline(tracked))
                     && reconcileBackupStart(tracked, host, manifest)) { return true; }
             if (isFailedPipeline(tracked)) {
@@ -3568,6 +3595,8 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                             start.cancelReason = "Host engine termination confirmed; staging cleanup and capacity release are pending";
                             saveBackupStart(terminalBackup.getId(), start);
                         }
+                    } else if ("ablestack-netbackup".equals(manifest.getProvider())) {
+                        scheduleFailedBackupRecordCleanup(terminalBackup);
                     }
                     return true;
                 });
@@ -3579,6 +3608,23 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                 return true;
             }
             if (requestPendingBackupCancellation(tracked, host)) { return true; }
+            if (retentionFailure != null) {
+                GlobalLock admissionLock = GlobalLock.getInternLock("backup.thirdparty.staging.admission");
+                boolean admissionAcquired = false;
+                try {
+                    admissionAcquired = admissionLock.lock(1);
+                    if (!admissionAcquired) { return true; }
+                    ThirdPartyBackupAdmission.Entry entry = readAdmission(tracked.getId(), "BACKUP");
+                    if (entry != null && tracked.getUuid().equals(entry.jobId) && "WAITING".equals(entry.state)
+                            && entry.deadline > 0 && System.currentTimeMillis() >= entry.deadline) {
+                        cancelAdmission(tracked.getId(), entry, "Staging queue timeout expired while source retention was unconfirmed");
+                    }
+                } finally {
+                    if (admissionAcquired) { admissionLock.unlock(); }
+                    admissionLock.releaseRef();
+                }
+                return true;
+            }
             Answer requestAnswer = agentManager.send(host.getId(), new AblestackVolumeStagingCommand(tracked.getUuid(), "STATUS", -1, null));
             if (requestAnswer == null || !requestAnswer.getResult() || StringUtils.isBlank(requestAnswer.getDetails())) {
                 return true;
@@ -3596,6 +3642,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                 observeAdmitted(tracked.getId(), host, tracked.getUuid(), "BACKUP");
                 try {
                     if (transfer.ready()) {
+                        transfer.beforeSourceStart(tracked);
                         Answer started = agentManager.send(host.getId(), new AblestackVolumeStagingCommand(tracked.getUuid(), "START", -1, null));
                         if (started == null || !started.getResult()) {
                             throw new CloudRuntimeException(started == null ? "Host source start response is missing" : started.getDetails());
@@ -3652,6 +3699,11 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                     throw new CloudRuntimeException("Host requested an artifact outside its saved volume plan");
                 }
                 artifact.size = requested.size;
+            }
+            String requestedQuiesce = tracked.getDetail(AblestackBackupFrameworkUtils.BACKUP_QUIESCE_DETAIL);
+            if (mergeGuestQuiesce(manifest, StringUtils.isBlank(requestedQuiesce) ? null : Boolean.valueOf(requestedQuiesce),
+                    request.get("guestQuiesce"))) {
+                saveVolumeManifest(tracked, manifest);
             }
             // An exact artifact request also proves the preparation gate was passed,
             // including older Agents that do not report a specific export step.
@@ -3810,6 +3862,27 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             backupDetailsDao.removeDetail(backup.getId(), ThirdPartyBackupManifest.PREPARATION_DETAILS_KEY);
             backup.getDetails().remove(ThirdPartyBackupManifest.PREPARATION_DETAILS_KEY);
         }
+    }
+
+    /** Preserve the actual Host result across artifact acknowledgments and controller recovery. */
+    static boolean mergeGuestQuiesce(ThirdPartyBackupManifest manifest, Boolean requested, Object value) {
+        if (value == null) { return false; } // Existing Agents do not send this optional evidence.
+        ThirdPartyBackupManifest.GuestQuiesce reported = new Gson().fromJson(new Gson().toJson(value),
+                ThirdPartyBackupManifest.GuestQuiesce.class);
+        if (reported == null || (requested != null && requested.booleanValue() != reported.requested)
+                || (reported.requested ? !java.util.Set.of("VERIFIED", "NOT_APPLICABLE").contains(StringUtils.defaultString(reported.status))
+                        : !"NOT_REQUESTED".equals(reported.status))) {
+            throw new CloudRuntimeException("Host guest quiesce result differs from the backup request");
+        }
+        ThirdPartyBackupManifest.GuestQuiesce previous = manifest.getGuestQuiesce();
+        if (previous != null) {
+            if (previous.requested != reported.requested || !java.util.Objects.equals(previous.status, reported.status)) {
+                throw new CloudRuntimeException("Host guest quiesce result changed between backup artifacts");
+            }
+            return false;
+        }
+        manifest.setGuestQuiesce(reported);
+        return true;
     }
 
     /** Detail-only writes must not depend on an UPDATE of the unchanged backups row. */
@@ -4023,6 +4096,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
     private void reconcileFailedBackup(BackupVO backup, Host host, ThirdPartyBackupManifest manifest, Transfer transfer) {
         boolean physicalCleanupCompleted = "COMPLETED".equals(backup.getDetail(ThirdPartyBackupManifest.CLEANUP_STATE_KEY));
         try {
+            if ("ablestack-netbackup".equals(manifest.getProvider())) { scheduleFailedBackupRecordCleanup(backup); }
             if (Backup.Status.Canceled.equals(backup.getStatus()) && StringUtils.isBlank(backup.getDetail("thirdparty.volume.failure"))) {
                 notifyFailure(transfer, backup);
                 backupDetailsDao.addDetail(backup.getId(), "thirdparty.volume.failure", "Backup canceled by operator", false);
@@ -4126,6 +4200,13 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                 saveCleanupState(backup.getId(), "WAITING", StringUtils.defaultString(e.getMessage()));
             }
             logger.debug("Failed volume backup [{}] cleanup is pending: {}", backup.getUuid(), e.getMessage());
+        }
+    }
+
+    private void scheduleFailedBackupRecordCleanup(BackupVO backup) {
+        if (StringUtils.isBlank(backup.getDetail(ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY))) {
+            backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY, "WAITING", false);
+            backup.getDetails().put(ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY, "WAITING");
         }
     }
 

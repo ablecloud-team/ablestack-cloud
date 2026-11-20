@@ -58,7 +58,6 @@ final class LibvirtAblestackVolumeRestoreHelper {
     private final Logger logger;
     private final String provider;
     private final String trace;
-    private long deadline;
     private int sequence;
     private boolean transferUncertain;
     private String targetVmName;
@@ -70,7 +69,6 @@ final class LibvirtAblestackVolumeRestoreHelper {
         provider = plan.manifest.getProvider().substring("ablestack-".length());
         trace = AblestackBackupFrameworkUtils.buildTracePrefix(provider, AblestackBackupFrameworkUtils.OPERATION_RESTORE);
         job = Path.of(AblestackBackupFrameworkUtils.ASYNC_BACKUP_JOB_ROOT, plan.jobId);
-        deadline = plan.timeout <= 0 ? Long.MAX_VALUE : System.nanoTime() + TimeUnit.SECONDS.toNanos(plan.timeout);
     }
 
     private static Path startDirectory() {
@@ -339,7 +337,7 @@ final class LibvirtAblestackVolumeRestoreHelper {
                 cleanupStagingDirectory(plan.manifest.getProvider(), plan.jobId, destination, root.resolve(plan.manifest.getProvider()));
             }
             if (Files.exists(capacityPlan)) {
-                Path script = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("thirdparty_restore_capacity.py");
+                Path script = Path.of(resource.getThirdPartyVolumeBackupPath()).getParent().resolve("thirdparty_restore_capacity.py");
                 new LibvirtAblestackVolumeRestoreHelper(plan, logger).capacity(script, capacityPlan, "release");
             }
             if ("ablestack-netbackup".equals(plan.manifest.getProvider())) {
@@ -407,7 +405,7 @@ final class LibvirtAblestackVolumeRestoreHelper {
                 throw new CloudRuntimeException("Streaming RBD diff restore requires an RBD primary destination");
             }
         }
-        Path capacityScript = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("thirdparty_restore_capacity.py");
+        Path capacityScript = Path.of(resource.getThirdPartyVolumeBackupPath()).getParent().resolve("thirdparty_restore_capacity.py");
         Path capacityPlan = job.resolve("restore-capacity-plan.json");
         boolean reserved = false;
         boolean completed = false;
@@ -448,7 +446,6 @@ final class LibvirtAblestackVolumeRestoreHelper {
             reserved = true;
             checkCancellation();
             Files.deleteIfExists(job.resolve("staging-admission-request.json"));
-            deadline = plan.timeout <= 0 ? Long.MAX_VALUE : System.nanoTime() + TimeUnit.SECONDS.toNanos(plan.timeout);
             Files.createDirectories(destination.resolve("payload"));
             Files.createDirectories(destination.resolve("metadata"));
             atomic(destination.resolve(".restore-owner"), plan.jobId);
@@ -619,7 +616,9 @@ final class LibvirtAblestackVolumeRestoreHelper {
                                 preparedUri, sourceFormat, targetFormat, plan.timeout);
                     } else {
                         QemuImg qemu = new QemuImg(TimeUnit.SECONDS.toMillis(plan.timeout));
-                        qemu.convert(new QemuImgFile(file.toString(), sourceFormat), new QemuImgFile(preparedUri, targetFormat));
+                        try (var observation = LibvirtAblestackDataProgress.unmeasured(logger::warn)) {
+                            qemu.convert(new QemuImgFile(file.toString(), sourceFormat), new QemuImgFile(preparedUri, targetFormat));
+                        }
                     }
                     if (volume.engine.startsWith("RBD") && volume.chain.size() > 1) {
                         LibvirtAblestackRbdRestoreHelper.createPreparedCheckpoint(pool, prepared, artifact.checkpointName, plan.timeout);
@@ -636,7 +635,9 @@ final class LibvirtAblestackVolumeRestoreHelper {
                     // The downloaded overlay belongs exclusively to this restore job; no second staging copy is needed.
                     run("qemu-img rebase -u -f qcow2 -F " + targetFormat.toString().toLowerCase(java.util.Locale.ROOT)
                             + " -b " + quote(preparedUri) + " " + quote(file.toString()));
-                    run("qemu-img commit -f qcow2 " + quote(file.toString()));
+                    var applied = LibvirtAblestackDataProgress.execute("qemu-img commit -p -f qcow2 " + quote(file.toString()),
+                            plan.timeout, "qemu", logger::warn);
+                    if (applied.first() != 0) { throw new CloudRuntimeException("Unable to apply restored QCOW2 overlay: " + applied.second()); }
                 }
                 Files.delete(file);
                 progress("PREPARE_VOLUME", index + 1, 15 + 65 * sequence / artifactCount);
@@ -663,7 +664,9 @@ final class LibvirtAblestackVolumeRestoreHelper {
             if (pool == null) {
                 try (FileChannel channel = FileChannel.open(Path.of(prepared), StandardOpenOption.WRITE)) { channel.force(true); }
             }
-        } catch (Exception e) { throw new CloudRuntimeException("Unable to prepare restored volume " + volume.uuid, e); }
+        } catch (Exception e) {
+            throw new CloudRuntimeException("Unable to prepare restored volume " + volume.uuid + ": " + e.getMessage(), e);
+        }
     }
 
     private long targetBytes(int index, ThirdPartyBackupManifest.Volume volume) {
@@ -687,6 +690,12 @@ final class LibvirtAblestackVolumeRestoreHelper {
         progress(provider.toUpperCase(java.util.Locale.ROOT) + "_RESTORE", metadata ? 0 : volume + 1,
                 15 + 65 * request.sequence / artifactCount);
         atomic(job.resolve("volume-restore-request.json"), new Gson().toJson(request));
+        final long observationStarted = System.nanoTime();
+        // Each exact artifact gets its own transfer budget, like backup exports
+        // and transfers. Earlier downloads/imports must not consume this wait.
+        final long deadline = plan.timeout <= 0 ? Long.MAX_VALUE
+                : observationStarted + TimeUnit.SECONDS.toNanos(plan.timeout);
+        boolean progressWarning = false;
         while (!Files.isRegularFile(acknowledgment)) {
             checkCancellation();
             Path failure = job.resolve("volume-restore-failure");
@@ -696,6 +705,12 @@ final class LibvirtAblestackVolumeRestoreHelper {
                 throw new CloudRuntimeException(String.valueOf(result.get("message")));
             }
             if (System.nanoTime() >= deadline) { throw new CloudRuntimeException("Timed out waiting for external volume restore"); }
+            if (!progressWarning && System.nanoTime() - observationStarted >= TimeUnit.SECONDS.toNanos(LibvirtAblestackDataProgress.IDLE_SECONDS)) {
+                String warning = "External restore progress is unavailable; waiting for confirmed completion within the execution timeout";
+                logger.warn("{} jobId=[{}] {}", trace, plan.jobId, warning);
+                step(provider.toUpperCase(java.util.Locale.ROOT) + "_RESTORE", warning);
+                progressWarning = true;
+            }
             try { Thread.sleep(1000); } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new CloudRuntimeException("Volume restore interrupted", e);

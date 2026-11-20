@@ -25,12 +25,23 @@ import unittest
 
 
 def cleanup_functions():
-    source = Path(__file__).with_name("ablestack_netbackup.sh").read_text()
+    source = Path(__file__).with_name("thirdparty_backup_cleanup.sh").read_text()
     return "\n".join(name + "() {" + source.split("\n" + name + "() {", 1)[1].split("\n}\n", 1)[0] + "\n}"
                      for name in ("rbd_snapshot_exists", "delete_rbd_snapshot_if_unreferenced"))
 
 
-class NetBackupRbdCleanupTest(unittest.TestCase):
+class ThirdPartyRbdCleanupTest(unittest.TestCase):
+    def test_removed_backup_operations_are_rejected_without_deleting_data(self):
+        script = Path(__file__).with_name("thirdparty_backup_cleanup.sh")
+        with tempfile.TemporaryDirectory() as directory:
+            sentinel = Path(directory, "keep")
+            sentinel.write_text("original")
+            for provider in ("ablestack-commvault", "ablestack-netbackup", "ablestack-veeam"):
+                result = subprocess.run(["bash", str(script), "--provider", provider, "-p", directory,
+                                         "-o", "backup-running"], capture_output=True, text=True, timeout=10)
+                self.assertNotEqual(0, result.returncode)
+                self.assertEqual("original", sentinel.read_text())
+
     def cleanup(self, mode):
         script = r'''
 set -euo pipefail

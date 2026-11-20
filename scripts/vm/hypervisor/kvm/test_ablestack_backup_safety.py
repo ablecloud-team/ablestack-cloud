@@ -36,6 +36,7 @@ VM=i-2-45-VM
 QUIESCE=false
 ABLESTACK_BACKUP_JOB_DIR="$TEST_JOB_DIR"
 log() { :; }
+sync() { :; }
 source "$TEST_SAFETY_SCRIPT"
 trap - EXIT
 """ + body
@@ -87,12 +88,12 @@ if ablestack_backup_cleanup_safe; then exit 1; fi
 QUIESCE=true
 virsh() {
   case "$*" in
-    *guest-fsfreeze-status*) echo '{"return":"thawed"}' ;;
-    *guest-fsfreeze-freeze*) [[ -f "$ABLESTACK_BACKUP_JOB_DIR/guest-freeze.pending" ]] || exit 9; return 124 ;;
-    *guest-fsfreeze-thaw*) touch "$ABLESTACK_BACKUP_JOB_DIR/thaw-attempted"; echo '{"return":1}' ;;
+    *guest-fsfreeze-status*) if [[ -f "$ABLESTACK_BACKUP_JOB_DIR/frozen" ]]; then echo '{"return":"frozen"}'; else echo '{"return":"thawed"}'; fi ;;
+    *guest-fsfreeze-freeze*) [[ -f "$ABLESTACK_BACKUP_JOB_DIR/guest-freeze.pending" ]] || exit 9; touch "$ABLESTACK_BACKUP_JOB_DIR/frozen"; return 124 ;;
+    *guest-fsfreeze-thaw*) touch "$ABLESTACK_BACKUP_JOB_DIR/thaw-attempted"; rm "$ABLESTACK_BACKUP_JOB_DIR/frozen"; echo '{"return":1}' ;;
   esac
 }
-ablestack_freeze_guest || exit 1
+if ablestack_freeze_guest; then exit 9; fi
 [[ "$BACKUP_GUEST_FREEZE_PENDING" == 0 && -f "$ABLESTACK_BACKUP_JOB_DIR/thaw-attempted" && ! -f "$ABLESTACK_BACKUP_JOB_DIR/guest-freeze.pending" ]]
 """)
         self.assertEqual(0, result.returncode, result.stderr)
@@ -106,7 +107,8 @@ virsh() {
     *) touch "$ABLESTACK_BACKUP_JOB_DIR/unexpected" ;;
   esac
 }
-ablestack_freeze_guest && ablestack_thaw_guest || exit 1
+if ablestack_freeze_guest; then exit 9; fi
+ablestack_thaw_guest || exit 1
 [[ ! -f "$ABLESTACK_BACKUP_JOB_DIR/unexpected" && ! -f "$ABLESTACK_BACKUP_JOB_DIR/guest-freeze.pending" ]]
 """)
         self.assertEqual(0, result.returncode, result.stderr)
@@ -121,6 +123,79 @@ virsh -c qemu:///system domjobinfo "$VM"
 [[ "$(cat "$ABLESTACK_BACKUP_JOB_DIR/control-args")" == '-k 5s 1s virsh -c qemu:///system domjobinfo i-2-45-VM' ]]
 """)
         self.assertEqual(0, result.returncode, result.stderr)
+
+    def test_successful_thaw_command_requires_confirmed_thawed_status(self):
+        result = self.run_shell(r"""
+BACKUP_GUEST_FREEZE_PENDING=1
+printf '%s\n' "$VM" > "$ABLESTACK_BACKUP_JOB_DIR/guest-freeze.pending"
+virsh() {
+  case "$*" in
+    *guest-fsfreeze-status*) echo '{"return":"frozen"}' ;;
+    *guest-fsfreeze-thaw*) echo attempt >> "$ABLESTACK_BACKUP_JOB_DIR/attempts"; echo '{"return":1}' ;;
+    *domstate*) echo running ;;
+  esac
+}
+if ablestack_thaw_guest; then exit 9; fi
+[[ "$BACKUP_GUEST_FREEZE_PENDING" == 1 && -f "$ABLESTACK_BACKUP_JOB_DIR/guest-freeze.pending" ]] || exit 1
+[[ "$(wc -l < "$ABLESTACK_BACKUP_JOB_DIR/attempts" | tr -d ' ')" == 3 ]]
+""")
+        self.assertEqual(0, result.returncode, result.stderr)
+
+    def test_freeze_never_starts_without_durable_ownership_receipt(self):
+        result = self.run_shell(r"""
+QUIESCE=true
+sync() { return 1; }
+virsh() {
+  case "$*" in
+    *guest-fsfreeze-status*) echo '{"return":"thawed"}' ;;
+    *) touch "$ABLESTACK_BACKUP_JOB_DIR/unexpected-freeze" ;;
+  esac
+}
+if ablestack_freeze_guest; then exit 9; fi
+[[ "$BACKUP_GUEST_FREEZE_PENDING" == 0 && ! -f "$ABLESTACK_BACKUP_JOB_DIR/unexpected-freeze" ]]
+""")
+        self.assertEqual(0, result.returncode, result.stderr)
+
+    def test_missing_job_directory_rejects_quiesce_before_guest_operations(self):
+        result = self.run_shell(r"""
+QUIESCE=true
+unset ABLESTACK_BACKUP_JOB_DIR
+virsh() { touch "$TEST_JOB_DIR/unexpected-guest-command"; }
+if ablestack_freeze_guest; then exit 9; fi
+[[ "$BACKUP_GUEST_FREEZE_PENDING" == 0 && ! -f "$TEST_JOB_DIR/unexpected-guest-command" ]]
+""")
+        self.assertEqual(0, result.returncode, result.stderr)
+
+    def test_owned_thaw_is_attempted_even_when_status_query_fails(self):
+        result = self.run_shell(r"""
+BACKUP_GUEST_FREEZE_PENDING=1
+printf '%s\n' "$VM" > "$ABLESTACK_BACKUP_JOB_DIR/guest-freeze.pending"
+virsh() {
+  case "$*" in
+    *guest-fsfreeze-status*) [[ -f "$ABLESTACK_BACKUP_JOB_DIR/thaw-attempted" ]] || return 124; echo '{"return":"thawed"}' ;;
+    *guest-fsfreeze-thaw*) touch "$ABLESTACK_BACKUP_JOB_DIR/thaw-attempted"; return 124 ;;
+  esac
+}
+ablestack_thaw_guest || exit 1
+[[ "$BACKUP_GUEST_FREEZE_PENDING" == 0 && ! -f "$ABLESTACK_BACKUP_JOB_DIR/guest-freeze.pending" ]]
+""")
+        self.assertEqual(0, result.returncode, result.stderr)
+
+    def test_term_exit_attempts_owned_thaw_and_preserves_signal_status(self):
+        result = self.run_shell(r"""
+BACKUP_GUEST_FREEZE_PENDING=1
+printf '%s\n' "$VM" > "$ABLESTACK_BACKUP_JOB_DIR/guest-freeze.pending"
+virsh() {
+  case "$*" in
+    *guest-fsfreeze-status*) if [[ -f "$ABLESTACK_BACKUP_JOB_DIR/thaw-attempted" ]]; then echo '{"return":"thawed"}'; else echo '{"return":"frozen"}'; fi ;;
+    *guest-fsfreeze-thaw*) touch "$ABLESTACK_BACKUP_JOB_DIR/thaw-attempted"; echo thaw-attempted ;;
+  esac
+}
+trap ablestack_backup_exit EXIT
+kill -TERM $$
+""")
+        self.assertEqual(143, result.returncode, result.stderr)
+        self.assertIn("thaw-attempted", result.stdout)
 
     def test_missing_completed_stats_while_backup_active_does_not_abort(self):
         result = self.run_shell(r"""
@@ -219,6 +294,78 @@ if ablestack_wait_for_backup; then exit 1; fi
         self.assertEqual(0, result.returncode, result.stderr)
 
 
+    def test_unchanged_native_bytes_stop_waiting_without_releasing_source_protection(self):
+        result = self.run_shell(r"""
+DATA_OPERATION_TIMEOUT_SECONDS=43200
+elapsed=0
+date() { printf '%s\n' "$elapsed"; }
+virsh() { printf 'Job type: Unbounded\nData processed: 1 MiB\n'; }
+sleep() { elapsed=$((elapsed + 900)); }
+ablestack_backup_job_started
+if ablestack_wait_for_backup; then exit 1; fi
+[[ "$elapsed" == 1800 && "$BACKUP_JOB_MAY_BE_ACTIVE" == 1 && -f "$ABLESTACK_BACKUP_JOB_DIR/backup-domain" ]]
+""")
+        self.assertEqual(0, result.returncode, result.stderr)
+
+    def test_advancing_bytes_allow_a_backup_longer_than_the_idle_budget(self):
+        result = self.run_shell(r"""
+DATA_OPERATION_TIMEOUT_SECONDS=43200
+elapsed=0
+date() { printf '%s\n' "$elapsed"; }
+virsh() {
+  case "$*" in
+    *--completed*) echo 'Job type: Completed' ;;
+    *) if [[ "$elapsed" -ge 3600 ]]; then echo 'Job type: None';
+       else printf 'Job type: Unbounded\nData processed: %s MiB\n' "$elapsed"; fi ;;
+  esac
+}
+sleep() { elapsed=$((elapsed + 900)); }
+ablestack_backup_job_started
+ablestack_wait_for_backup || exit 1
+[[ "$elapsed" == 3600 && "$BACKUP_JOB_MAY_BE_ACTIVE" == 0 ]]
+""")
+        self.assertEqual(0, result.returncode, result.stderr)
+
+    def test_missing_native_metrics_warn_without_canceling_a_healthy_job(self):
+        result = self.run_shell(r"""
+DATA_OPERATION_TIMEOUT_SECONDS=43200
+elapsed=0
+date() { printf '%s\n' "$elapsed"; }
+log() { printf '%s\n' "$*" >> "$ABLESTACK_BACKUP_JOB_DIR/warnings"; }
+virsh() {
+  case "$*" in
+    *--completed*) echo 'Job type: Completed' ;;
+    *) if [[ "$elapsed" -ge 3600 ]]; then echo 'Job type: None'; else echo 'Job type: Unbounded'; fi ;;
+  esac
+}
+sleep() { elapsed=$((elapsed + 900)); }
+ablestack_backup_job_started
+ablestack_wait_for_backup || exit 1
+[[ "$BACKUP_JOB_MAY_BE_ACTIVE" == 0 && "$(wc -l < "$ABLESTACK_BACKUP_JOB_DIR/warnings" | tr -d ' ')" == 1 ]]
+""")
+        self.assertEqual(0, result.returncode, result.stderr)
+
+
+    def test_file_counter_advances_even_when_the_data_counter_is_constant(self):
+        result = self.run_shell(r"""
+DATA_OPERATION_TIMEOUT_SECONDS=43200
+elapsed=0
+date() { printf '%s\n' "$elapsed"; }
+virsh() {
+  case "$*" in
+    *--completed*) echo 'Job type: Completed' ;;
+    *) if [[ "$elapsed" -ge 3600 ]]; then echo 'Job type: None';
+       else printf 'Job type: Unbounded\nData processed: 1 GiB\nFile processed: %s KiB\n' "$elapsed"; fi ;;
+  esac
+}
+sleep() { elapsed=$((elapsed + 900)); }
+ablestack_backup_job_started
+ablestack_wait_for_backup || exit 1
+[[ "$BACKUP_JOB_MAY_BE_ACTIVE" == 0 ]]
+""")
+        self.assertEqual(0, result.returncode, result.stderr)
+
+
 class VolumeSafetyTest(unittest.TestCase):
     def test_close_attempts_abort_even_when_guest_thaw_fails(self):
         worker = object.__new__(volume.Backup)
@@ -243,7 +390,11 @@ class VolumeSafetyTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             receipt = Path(directory) / "engine.json"
             receipt.write_text(json.dumps({"freezePending": True}))
-            with patch.object(volume, "run", side_effect=[RuntimeError("No agent"), "shut off"]):
+            def run(args, *unused):
+                if "domstate" in args:
+                    return "shut off"
+                raise RuntimeError("No agent")
+            with patch.object(volume, "run", side_effect=run):
                 volume.thaw_owned_guest(receipt, "i-2-45-VM")
             self.assertFalse(json.loads(receipt.read_text())["freezePending"])
 
@@ -251,7 +402,11 @@ class VolumeSafetyTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             receipt = Path(directory) / "engine.json"
             receipt.write_text(json.dumps({"freezePending": True}))
-            with patch.object(volume, "run", side_effect=[RuntimeError("No agent"), "running"]):
+            def run(args, *unused):
+                if "domstate" in args:
+                    return "running"
+                raise RuntimeError("No agent")
+            with patch.object(volume, "run", side_effect=run):
                 with self.assertRaises(RuntimeError):
                     volume.thaw_owned_guest(receipt, "i-2-45-VM")
             self.assertTrue(json.loads(receipt.read_text())["freezePending"])

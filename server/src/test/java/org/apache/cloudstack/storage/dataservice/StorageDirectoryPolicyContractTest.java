@@ -3,12 +3,26 @@
 // http://www.apache.org/licenses/LICENSE-2.0
 package org.apache.cloudstack.storage.dataservice;
 import java.lang.reflect.Field;
-import java.nio.file.*;
-import com.google.gson.*;
-import org.apache.cloudstack.api.command.user.storage.dataservice.*;
-import org.apache.cloudstack.api.response.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import org.apache.cloudstack.api.command.user.storage.dataservice.DeleteStorageDirectoryPolicyCmd;
+import org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageDirectoryPolicyCmd;
+import org.apache.cloudstack.api.response.ListResponse;
+import org.apache.cloudstack.api.response.StorageDirectoryPolicyResponse;
+import org.apache.cloudstack.api.response.StorageServiceConfigurationPreflightResponse;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class StorageDirectoryPolicyContractTest {
     private static void set(Object target,String name,Object value)throws Exception {

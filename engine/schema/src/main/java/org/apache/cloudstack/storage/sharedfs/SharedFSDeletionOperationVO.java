@@ -15,7 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 package org.apache.cloudstack.storage.sharedfs;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.util.Date;
 import java.util.UUID;
 import org.apache.cloudstack.api.Identity;

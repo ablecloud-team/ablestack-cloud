@@ -201,7 +201,7 @@ run_rbd_export_with_progress() {
   local step="$5"
   shift 5
   write_rbd_progress "$output_file" "$total_bytes" "$disk_index" "$disk_count" "$step"
-  "$@" &
+  python3 "$(dirname "${BASH_SOURCE[0]}")/ablestack_backup_progress.py" --kind rbd -- "$@" &
   local export_pid=$!
   while kill -0 "$export_pid" 2>/dev/null; do
     write_rbd_progress "$output_file" "$total_bytes" "$disk_index" "$disk_count" "$step"
@@ -268,7 +268,7 @@ backup_running_vm() {
     backup_begin=1;
   fi
 
-  ablestack_thaw_guest || { cleanup; exit 1; }
+  ablestack_finish_guest_quiesce || { cleanup; exit 1; }
 
   if [[ $backup_begin -ne 1 ]]; then
     log -ne "FAILED libvirt backup-begin vm=[$VM] checkpoint=[$CHECKPOINT_NAME] output=[${backup_begin_output:-Unknown error}]"
@@ -333,59 +333,21 @@ backup_rbd_volumes() {
   mark_backup_in_progress
 
   backup_domain_information "$VM"
-  trap 'log -ne "FAILED RBD backup unexpected error line=[$LINENO] op=[$OP] vm=[$VM] checkpoint=[$CHECKPOINT_NAME]"; cleanup_created_rbd_snapshots' ERR
-  trap 'log -ne "FAILED RBD backup interrupted op=[$OP] vm=[$VM] checkpoint=[$CHECKPOINT_NAME]"; cleanup_created_rbd_snapshots; exit 1' INT TERM
+  trap 'log -ne "FAILED RBD backup unexpected error line=[$LINENO] op=[$OP] vm=[$VM] checkpoint=[$CHECKPOINT_NAME]"; ablestack_thaw_guest || exit "$EXIT_CLEANUP_FAILED"; cleanup_created_rbd_snapshots' ERR
+  trap 'log -ne "FAILED RBD backup interrupted op=[$OP] vm=[$VM] checkpoint=[$CHECKPOINT_NAME]"; ablestack_thaw_guest || exit "$EXIT_CLEANUP_FAILED"; cleanup_created_rbd_snapshots; exit 130' INT
+  trap 'log -ne "FAILED RBD backup interrupted op=[$OP] vm=[$VM] checkpoint=[$CHECKPOINT_NAME]"; ablestack_thaw_guest || exit "$EXIT_CLEANUP_FAILED"; cleanup_created_rbd_snapshots; exit 143' TERM
 
   local index=0
   local disk_count
   disk_count=$(count_csv_values "$DISK_PATHS")
   [[ "$disk_count" -lt 1 ]] && disk_count=1
-  while IFS= read -r disk; do
-    log -ne "Loop disk raw value=[$disk]"
-    [[ -z "$disk" ]] && continue
-
-    parse_rbd_uri "$disk"
-    log -ne "Parsed disk [$disk] -> RBD_IMAGE=[$RBD_IMAGE], MON=[$RBD_MON_HOST], USER=[$RBD_USER]"
-
-    if [[ -z "$RBD_IMAGE" ]]; then
-      echo "Unable to parse RBD disk path: $disk"
-      cleanup
-      exit 1
-    fi
-
-    build_rbd_cmd
-    log -ne "Built RBD command: ${RBD_CMD[*]}"
-
-    local current_snapshot="${CHECKPOINT_NAME}"
-    log -ne "Preparing RBD snapshot for disk path [$disk], resolved image [$RBD_IMAGE]"
-
-    if ! timeout 30s "${RBD_CMD[@]}" info "$RBD_IMAGE" >> "$logFile" 2>&1; then
-      log -ne "FAILED RBD image access check image=[$RBD_IMAGE] timeout=[30s]"
-      echo "Failed to access RBD image $RBD_IMAGE"
-      cleanup_created_rbd_snapshots
-      cleanup
-      exit 1
-    fi
-
-    if [[ "$BACKUP_TYPE" == "INCREMENTAL" && -n "$PARENT_CHECKPOINT_NAME" ]]; then
-      if ! timeout 30s "${RBD_CMD[@]}" snap ls "$RBD_IMAGE" 2>>"$logFile" | awk 'NR>1 {print $2}' | grep -Fxq "$PARENT_CHECKPOINT_NAME"; then
-        log -ne "FAILED RBD parent snapshot check image=[$RBD_IMAGE] parentSnapshot=[$PARENT_CHECKPOINT_NAME]"
-        echo "Parent RBD snapshot ${RBD_IMAGE}@${PARENT_CHECKPOINT_NAME} not found for incremental backup"
-        cleanup_created_rbd_snapshots
-        cleanup
-        exit 1
-      fi
-    fi
-
-    if ! timeout 30s "${RBD_CMD[@]}" snap create "${RBD_IMAGE}@${current_snapshot}" >> "$logFile" 2>&1; then
-      log -ne "FAILED RBD snapshot create image=[$RBD_IMAGE] snapshot=[$current_snapshot] timeout=[30s]"
-      echo "Failed to create RBD snapshot ${RBD_IMAGE}@${current_snapshot}"
-      cleanup_created_rbd_snapshots
-      cleanup
-      exit 1
-    fi
-    record_created_rbd_snapshot "$disk" "$current_snapshot"
-  done < <(split_csv "$DISK_PATHS")
+  if ! ablestack_prepare_rbd_snapshots; then
+    # Thaw before snapshot cleanup, which can block on unavailable storage.
+    ablestack_thaw_guest || exit "$EXIT_CLEANUP_FAILED"
+    cleanup_created_rbd_snapshots
+    cleanup
+    exit 1
+  fi
 
   # A stopped VM may start only after the entire disk set has an immutable snapshot.
   nas_rbd_snapshots_complete
@@ -740,6 +702,7 @@ mark_backup_in_progress() {
 mark_backup_complete() {
   local tmp_marker="$dest/$COMPLETE_MARKER.tmp"
   printf 'completed_at=%s\nvm=%s\ncheckpoint=%s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$VM" "$CHECKPOINT_NAME" > "$tmp_marker"
+  printf 'quiesce_requested=%s\nquiesce_state=%s\n' "$QUIESCE" "$BACKUP_GUEST_QUIESCE_STATE" >> "$tmp_marker"
   mv -f "$tmp_marker" "$dest/$COMPLETE_MARKER"
   rm -f "$dest/$IN_PROGRESS_MARKER"
   sync "$dest/$COMPLETE_MARKER" 2>/dev/null || true
@@ -807,12 +770,80 @@ redefine_checkpoint_if_needed() {
   if virsh -c qemu:///system checkpoint-info --domain "$vm_name" --checkpointname "$PARENT_CHECKPOINT_NAME" > /dev/null 2>&1; then
     return 0
   fi
-  local redefine_output=""
-  if ! redefine_output=$(virsh -c qemu:///system checkpoint-create --domain "$vm_name" --xmlfile "$checkpoint_file" --redefine 2>&1); then
-    log -ne "FAILED checkpoint redefine vm=[$vm_name] checkpoint=[$PARENT_CHECKPOINT_NAME] output=[${redefine_output:-Unknown error}]"
-    echo "Failed to redefine checkpoint $PARENT_CHECKPOINT_NAME on domain $vm_name: ${redefine_output:-Unknown error}"
+  local known_checkpoints checkpoint_chain checkpoint_name redefine_output
+  if ! known_checkpoints=$(virsh -c qemu:///system checkpoint-list --domain "$vm_name" --name 2>&1); then
+    log -ne "FAILED checkpoint inventory vm=[$vm_name] output=[$known_checkpoints]"
+    echo "Failed to list checkpoints on domain $vm_name: $known_checkpoints"
     return 1
   fi
+  # A stopped backup creates checkpoint metadata on its temporary domain. After
+  # the real VM starts again, restore missing ancestors before the selected point.
+  # Ancestor XML may be stored in an earlier backup directory of this same VM.
+  if ! checkpoint_chain=$(python3 - "$checkpoint_file" "$PARENT_CHECKPOINT_NAME" "$known_checkpoints" 2>&1 <<'PY'
+import re
+import sys
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+selected = Path(sys.argv[1]).resolve()
+expected = sys.argv[2]
+known = set(sys.argv[3].splitlines())
+vm_root = selected.parent.parent.parent
+visiting, visited, ordered = set(), set(), []
+
+def metadata(path, name):
+    root = ET.parse(path).getroot()
+    if root.tag != 'domaincheckpoint' or root.findtext('name') != name:
+        raise ValueError('Checkpoint XML identity differs from ' + name)
+    return (root.findtext('parent/name') or '').strip()
+
+def visit(name, path=None):
+    if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*', name):
+        raise ValueError('Invalid checkpoint name: ' + name)
+    if name in visiting:
+        raise ValueError('Checkpoint parent cycle at ' + name)
+    if name in known or name in visited:
+        return
+    if path is None:
+        sibling = selected.parent / (name + '.xml')
+        candidates = [sibling] if sibling.is_file() else sorted(vm_root.glob('*/checkpoints/' + name + '.xml'))
+        if not candidates:
+            raise ValueError('Missing parent checkpoint XML ' + name)
+        parents = {metadata(candidate, name) for candidate in candidates}
+        if len(parents) != 1:
+            raise ValueError('Conflicting parent checkpoint XML ' + name)
+        path = candidates[0].resolve()
+    if not path.is_relative_to(vm_root) or any(c in str(path) for c in '\t\n\r'):
+        raise ValueError('Checkpoint XML path is outside the VM backup directory')
+    visiting.add(name)
+    parent = metadata(path, name)
+    if parent:
+        visit(parent)
+    visiting.remove(name)
+    visited.add(name)
+    ordered.append((name, str(path)))
+
+try:
+    visit(expected, selected)
+    for name, path in ordered:
+        print(name + '\t' + path)
+except (OSError, ValueError, ET.ParseError, RecursionError) as error:
+    print(str(error), file=sys.stderr)
+    sys.exit(1)
+PY
+  ); then
+    log -ne "FAILED checkpoint ancestry vm=[$vm_name] checkpoint=[$PARENT_CHECKPOINT_NAME] output=[$checkpoint_chain]"
+    echo "Failed to prepare checkpoint chain $PARENT_CHECKPOINT_NAME on domain $vm_name: $checkpoint_chain"
+    return 1
+  fi
+  while IFS=$'\t' read -r checkpoint_name checkpoint_file; do
+    [[ -z "$checkpoint_name" ]] && continue
+    if ! redefine_output=$(virsh -c qemu:///system checkpoint-create --domain "$vm_name" --xmlfile "$checkpoint_file" --redefine 2>&1); then
+      log -ne "FAILED checkpoint redefine vm=[$vm_name] checkpoint=[$checkpoint_name] output=[${redefine_output:-Unknown error}]"
+      echo "Failed to redefine checkpoint $checkpoint_name on domain $vm_name: ${redefine_output:-Unknown error}"
+      return 1
+    fi
+  done <<< "$checkpoint_chain"
 }
 
 parent_qcow2_bitmap_exists_on_all_disks() {
@@ -999,6 +1030,8 @@ checkpoint_name=$checkpoint_name
 parent_checkpoint_name=$parent_checkpoint_name
 disk_paths=$DISK_PATHS
 backup_files=$BACKUP_FILES
+quiesce_requested=$QUIESCE
+quiesce_state=$BACKUP_GUEST_QUIESCE_STATE
 backup_dir=$BACKUP_DIR
 EOF
 

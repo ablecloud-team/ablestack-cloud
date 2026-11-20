@@ -35,12 +35,12 @@ public class LibvirtAblestackBackupSourceCheckCommandWrapper
         extends CommandWrapper<AblestackBackupSourceCheckCommand, Answer, LibvirtComputingResource> {
     @Override
     public Answer execute(AblestackBackupSourceCheckCommand command, LibvirtComputingResource resource) {
-        if (StringUtils.isBlank(resource.getAbleCvtBackupPath()) || command.getTimeoutSeconds() <= 0
+        if (StringUtils.isBlank(resource.getThirdPartyVolumeBackupPath()) || command.getTimeoutSeconds() <= 0
                 || command.getTimeoutSeconds() > 60 || command.getPaths() == null || command.getPaths().isEmpty()
                 || command.getPaths().stream().anyMatch(path -> StringUtils.isBlank(path) || !path.startsWith("/"))) {
             return new Answer(command, false, "Invalid read-only backup source check command.");
         }
-        Path scriptPath = Path.of(resource.getAbleCvtBackupPath()).resolveSibling("thirdparty_backup_source_support.py");
+        Path scriptPath = Path.of(resource.getThirdPartyVolumeBackupPath()).resolveSibling("thirdparty_backup_source_support.py");
         if (!Files.isRegularFile(scriptPath)) {
             return new Answer(command, false, "Backup source check script is missing; update the KVM agent scripts.");
         }

@@ -45,6 +45,9 @@ public class NetBackupStagingPathSyncTest {
     private String owner;
     private JSONArray jobs;
     private List<String> names;
+    private boolean activePolicy;
+    private boolean incompleteJobs;
+    private int policyHttpStatus = 200;
     private final List<HttpUriRequest> requests = new ArrayList<>();
     private static final String TARGET = "/new/ablestack-netbackup/bootstrap/custom_policy";
     private static final String OLD = "/old/ablestack-netbackup/bootstrap/custom_policy";
@@ -77,10 +80,12 @@ public class NetBackupStagingPathSyncTest {
                 body = new JSONObject().put("data", data);
             } else if (path.contains("/admin/jobs")) {
                 body = new JSONObject().put("data", jobs);
+                if (incompleteJobs) { body.put("links", new JSONObject().put("next", "/more")); }
             } else {
+                status = policyHttpStatus;
                 JSONObject policy = new JSONObject().put("policyType", "Standard")
                         .put("clients", new JSONArray().put(new JSONObject().put("hostName", owner)))
-                        .put("policyAttributes", new JSONObject().put("active", false).put("retention", "keep"))
+                        .put("policyAttributes", new JSONObject().put("active", activePolicy).put("retention", "keep"))
                         .put("schedules", new JSONArray().put(new JSONObject().put("scheduleName", "unchanged")))
                         .put("backupSelections", new JSONObject().put("selections", new JSONArray().put(selected)));
                 body = new JSONObject().put("data", new JSONObject().put("attributes", new JSONObject().put("policy", policy)));
@@ -93,6 +98,36 @@ public class NetBackupStagingPathSyncTest {
     }
 
     private long writes() { return requests.stream().filter(request -> "PUT".equals(request.getMethod())).count(); }
+
+    @Test public void scheduleModeValidationIsReadOnlyForInactiveIdlePolicies() {
+        client.validateVmScheduleModeChange(List.of("custom policy"));
+        assertEquals(0, writes());
+        assertEquals(2, requests.size());
+    }
+
+    @Test public void scheduleModeChangesRejectActivePoliciesAndRetryingJobs() {
+        activePolicy = true;
+        assertTrue(assertThrows(CloudRuntimeException.class, () -> client.validateVmScheduleModeChange(List.of("custom policy")))
+                .getMessage().startsWith("NETBACKUP_VM_SCHEDULE_MODE_POLICY_ACTIVE:"));
+        activePolicy = false;
+        for (String state : List.of("ACTIVE", "WAITING_FOR_RETRY", "")) {
+            jobs = new JSONArray().put(new JSONObject().put("id", "73").put("attributes", new JSONObject().put("state", state)));
+            assertTrue(assertThrows(CloudRuntimeException.class, () -> client.validateVmScheduleModeChange(List.of("custom policy")))
+                    .getMessage().startsWith("NETBACKUP_VM_SCHEDULE_MODE_NATIVE_BUSY:"));
+        }
+        assertEquals(0, writes());
+    }
+
+    @Test public void scheduleModeChangesCannotTreatMissingPermissionsOrIncompletePagesAsIdle() {
+        policyHttpStatus = 401;
+        assertTrue(assertThrows(CloudRuntimeException.class, () -> client.validateVmScheduleModeChange(List.of("custom policy")))
+                .getMessage().startsWith("NETBACKUP_VM_SCHEDULE_MODE_UNCONFIRMED:"));
+        policyHttpStatus = 200;
+        incompleteJobs = true;
+        assertTrue(assertThrows(CloudRuntimeException.class, () -> client.validateVmScheduleModeChange(List.of("custom policy")))
+                .getMessage().startsWith("NETBACKUP_VM_SCHEDULE_MODE_UNCONFIRMED:"));
+        assertEquals(0, writes());
+    }
     private boolean sync(String action) { return client.synchronizeStagingPath("custom policy", "host-four", "192.0.2.4", OLD, TARGET, action); }
 
     @Test public void alreadyMatchingPathMakesOnlyOneReadAndNoWrite() {
@@ -142,6 +177,18 @@ public class NetBackupStagingPathSyncTest {
     @Test public void sanitizedLegacyFilenameResolvesTheActualPolicyNameForTheHost() {
         assertEquals("custom policy", client.resolveStagingPolicyName("custom_policy", "host-four", "192.0.2.4"));
         assertEquals(0, writes());
+    }
+
+    @Test public void plusNamesKeepExactBootstrapPathsAndCannotResolveThroughAnUnderscoreCollision() {
+        names = List.of("custom+policy", "custom_policy");
+        assertEquals("custom+policy", client.resolveStagingPolicyName("custom+policy", "host-four", "192.0.2.4"));
+        assertThrows(CloudRuntimeException.class,
+                () -> client.resolveStagingPolicyName("custom_policy", "host-four", "192.0.2.4"));
+        selected = "/old/ablestack-netbackup/bootstrap/custom+policy";
+        String target = "/new/ablestack-netbackup/bootstrap/custom+policy";
+        assertTrue(client.synchronizeStagingPath("custom+policy", "host-four", "192.0.2.4", selected, target, "APPLY"));
+        assertEquals(target, selected);
+        assertEquals(1, writes());
     }
 
     @Test public void ambiguousLegacyNamesCannotAuthorizeAnyPolicyWrite() {

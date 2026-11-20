@@ -564,7 +564,7 @@
       <template v-if="column.key === 'isuserdefined'">
         <span>{{ text ? $t('label.yes') : $t('label.no') }}</span>
       </template>
-      <template v-if="column.key === 'ispublic'">
+      <template v-if="['ispublic', 'quiescevm'].includes(column.key)">
         <span>{{ text ? $t('label.yes') : $t('label.no') }}</span>
       </template>
       <template v-if="column.key === 'state'">

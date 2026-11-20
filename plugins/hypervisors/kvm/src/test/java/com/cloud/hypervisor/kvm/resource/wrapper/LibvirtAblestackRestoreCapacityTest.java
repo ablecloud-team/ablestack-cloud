@@ -126,7 +126,7 @@ public class LibvirtAblestackRestoreCapacityTest {
     @Test
     public void thirdPartyHostReservationsUseTheSavedPrimaryPercentageAndLegacyDefault() throws Exception {
         LibvirtComputingResource resource = Mockito.mock(LibvirtComputingResource.class);
-        Mockito.when(resource.getAbleCvtBackupPath()).thenReturn("/scripts/commvault.sh");
+        Mockito.when(resource.getThirdPartyVolumeBackupPath()).thenReturn("/scripts/thirdparty_volume_backup.py");
         PrimaryDataStoreTO pool = Mockito.mock(PrimaryDataStoreTO.class);
         Mockito.when(pool.getPoolType()).thenReturn(Storage.StoragePoolType.SharedMountPoint);
         Path directory = folder.newFolder().toPath();

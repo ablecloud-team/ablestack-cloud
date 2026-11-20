@@ -355,6 +355,8 @@ known_categories = {
     'listRackLayouts.xml': 'Rack Management',
     'updateRackLayout.xml': 'Rack Management',
     'StorageService': 'Shared FileSystem',
+    'StorageDirectory': 'Shared FileSystem',
+    'StorageConfigArtifact': 'Shared FileSystem',
     'StorageNfs': 'Shared FileSystem',
     'StorageSmb': 'Shared FileSystem',
     'StorageIscsi': 'Shared FileSystem',
