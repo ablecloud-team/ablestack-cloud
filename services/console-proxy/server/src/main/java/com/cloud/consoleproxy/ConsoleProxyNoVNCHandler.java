@@ -176,7 +176,7 @@ public class ConsoleProxyNoVNCHandler extends WebSocketHandler {
         String sessionSourceIp = session.getRemoteAddress().getAddress().getHostAddress();
         logger.debug("Closing WebSocket session [source IP: {}, status code: {}].", sessionSourceIp, statusCode);
         if (viewer != null) {
-            ConsoleProxy.removeViewer(viewer);
+            viewer.closeClient();
         }
         logger.debug("WebSocket session [source IP: {}, status code: {}] closed successfully.", sessionSourceIp, statusCode);
     }

@@ -24,8 +24,6 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 public class NioSocketSSLEngineManager {
 
@@ -34,7 +32,6 @@ public class NioSocketSSLEngineManager {
     private final ByteBuffer myNetData;
     private final ByteBuffer peerNetData;
 
-    private final Executor executor;
     private final NioSocketInputStream inputStream;
     private final NioSocketOutputStream outputStream;
 
@@ -42,8 +39,6 @@ public class NioSocketSSLEngineManager {
         this.inputStream = socket.getInputStream();
         this.outputStream = socket.getOutputStream();
         engine = sslEngine;
-
-        executor = Executors.newSingleThreadExecutor();
 
         int networkBufSize = Math.max(engine.getSession().getPacketBufferSize(), ConsoleProxy.defaultBufferSize);
         myNetData = ByteBuffer.allocate(networkBufSize);
@@ -129,7 +124,7 @@ public class NioSocketSSLEngineManager {
     private void executeTasks() {
         Runnable task;
         while ((task = engine.getDelegatedTask()) != null) {
-            executor.execute(task);
+            task.run();
         }
     }
 

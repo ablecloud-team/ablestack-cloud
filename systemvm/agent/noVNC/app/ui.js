@@ -17,8 +17,10 @@ import keysyms from "../core/input/keysymdef.js";
 import Keyboard from "../core/input/keyboard.js";
 import RFB from "../core/rfb.js";
 import * as WebUtil from "./webutil.js";
+import MoldConsoleConnection from "./moldConsoleConnection.js";
 
 const PAGE_TITLE = "noVNC";
+const MOLD_CONSOLE_RETRY_TIMEOUT_MILLIS = 15000;
 
 const UI = {
 
@@ -41,6 +43,8 @@ const UI = {
     inhibitReconnect: true,
     reconnectCallback: null,
     reconnectPassword: null,
+    moldConsoleConnection: null,
+    moldConsoleTimedOut: false,
 
     fullScreen: false,
 
@@ -125,6 +129,7 @@ const UI = {
         let autoconnect = WebUtil.getConfigVar('autoconnect', false);
         if (autoconnect === 'true' || autoconnect == '1') {
             autoconnect = true;
+            UI.moldConsoleConnection = new MoldConsoleConnection(window);
             UI.connect();
         } else {
             autoconnect = false;
@@ -1098,9 +1103,14 @@ const UI = {
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
 
         UI.updateViewOnly(); // requires UI.rfb
+        UI.moldConsoleConnection?.start(() => {
+            UI.moldConsoleTimedOut = true;
+            UI.rfb.disconnect();
+        });
     },
 
     disconnect() {
+        UI.moldConsoleConnection?.finish();
         UI.rfb.disconnect();
 
         UI.connected = false;
@@ -1137,6 +1147,7 @@ const UI = {
     },
 
     connectFinished(e) {
+        UI.moldConsoleConnection?.finish();
         UI.connected = true;
         UI.inhibitReconnect = false;
 
@@ -1155,6 +1166,9 @@ const UI = {
 
     disconnectFinished(e) {
         const wasConnected = UI.connected;
+        const failed = !e.detail.clean || UI.moldConsoleTimedOut;
+        const timedOut = UI.moldConsoleTimedOut;
+        UI.moldConsoleTimedOut = false;
 
         // This variable is ideally set when disconnection starts, but
         // when the disconnection isn't clean or if it is initiated by
@@ -1163,11 +1177,25 @@ const UI = {
         UI.connected = false;
 
         UI.rfb = undefined;
-        if (!e.detail.clean) {
+        if (UI.moldConsoleConnection?.finish(!wasConnected && failed)) {
+            UI.updateVisualState('connecting');
+            setTimeout(() => {
+                if (!UI.rfb) {
+                    UI.updateVisualState('disconnected');
+                    UI.showStatus(_("Failed to connect to server"), 'error');
+                    UI.openControlbar();
+                    UI.openConnectPanel();
+                }
+            }, MOLD_CONSOLE_RETRY_TIMEOUT_MILLIS);
+            return;
+        }
+        if (failed) {
             UI.updateVisualState('disconnected');
             if (wasConnected) {
                 UI.showStatus(_("Something went wrong, connection is closed"),
                               'error');
+            } else if (timedOut) {
+                UI.showStatus(_("Failed to connect to server"), 'error');
             } else {
                 UI.showStatus(_("Failed to connect to server / access token has expired"), 'error');
             }
@@ -1191,6 +1219,9 @@ const UI = {
     },
 
     securityFailed(e) {
+        if (UI.moldConsoleConnection?.canRetry) {
+            return;
+        }
         let msg = "";
         // On security failures we might get a string with a reason
         // directly from the server. Note that we can't control if
@@ -1211,6 +1242,7 @@ const UI = {
  * ------v------*/
 
     async serverVerify(e) {
+        UI.moldConsoleConnection?.finish();
         const type = e.detail.type;
         if (type === 'RSA') {
             const publickey = e.detail.publickey;
@@ -1242,6 +1274,7 @@ const UI = {
  * ------v------*/
 
     credentials(e) {
+        UI.moldConsoleConnection?.finish();
         // FIXME: handle more types
 
         document.getElementById("noVNC_username_block").classList.remove("noVNC_hidden");

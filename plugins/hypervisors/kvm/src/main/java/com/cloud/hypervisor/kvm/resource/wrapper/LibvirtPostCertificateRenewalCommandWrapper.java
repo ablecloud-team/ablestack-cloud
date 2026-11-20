@@ -28,16 +28,9 @@ import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
 import com.cloud.resource.CommandWrapper;
 import com.cloud.resource.ResourceWrapper;
 import com.cloud.utils.script.Script;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 @ResourceWrapper(handles = PostCertificateRenewalCommand.class)
 public final class LibvirtPostCertificateRenewalCommandWrapper extends CommandWrapper<PostCertificateRenewalCommand, Answer, LibvirtComputingResource> {
-
-    private static final String QEMU_MONITOR_DISPLAY_RELOAD_VNC_TLS_CERTS_COMMAND =
-            "{\"execute\":\"display-reload\",\"arguments\":{\"type\":\"vnc\",\"tls-certs\":true}}";
-    private static final long MIN_QEMU_VERSION_FOR_VNC_TLS_CERT_RELOAD = 6000000L;
-    private static final String QEMU_MONITOR_QUERY_VNC_COMMAND = "{\"execute\":\"query-vnc\"}";
 
     @Override
     public Answer execute(final PostCertificateRenewalCommand command, final LibvirtComputingResource serverResource) {
@@ -61,10 +54,10 @@ public final class LibvirtPostCertificateRenewalCommandWrapper extends CommandWr
     // Restarting libvirtd alone does not refresh certificates already loaded by running QEMU processes.
     private void pushRenewedVncCertificateToRunningVms(final LibvirtComputingResource serverResource) {
         final long qemuVersion = serverResource.getHypervisorQemuVersion();
-        if (qemuVersion < MIN_QEMU_VERSION_FOR_VNC_TLS_CERT_RELOAD) {
+        if (!VncTlsCertificateReloader.isSupported(qemuVersion)) {
             logger.warn("QEMU {} on this host does not support reloading the VNC TLS certificate of a running VM (QEMU >= {} required), " +
                     "running VMs will keep using the previous certificate until they are stopped/started or migrated",
-                    qemuVersion, MIN_QEMU_VERSION_FOR_VNC_TLS_CERT_RELOAD);
+                    qemuVersion, VncTlsCertificateReloader.MIN_QEMU_VERSION);
             return;
         }
 
@@ -84,11 +77,10 @@ public final class LibvirtPostCertificateRenewalCommandWrapper extends CommandWr
             try {
                 vm = conn.domainLookupByID(domainId);
                 vmName = vm.getName();
-                if (!isVncTlsEnabled(vm)) {
+                if (!VncTlsCertificateReloader.reloadIfEnabled(vm)) {
                     logger.debug("VNC TLS is not enabled for VM [{}], skipping certificate reload", vmName);
                     continue;
                 }
-                vm.qemuMonitorCommand(QEMU_MONITOR_DISPLAY_RELOAD_VNC_TLS_CERTS_COMMAND, 0);
                 logger.debug("Reloaded VNC TLS certificate for VM [{}]", vmName);
             } catch (final Exception e) {
                 logger.warn("Failed to reload the renewed VNC certificate for VM [{}], it will keep using the previous " +
@@ -102,21 +94,6 @@ public final class LibvirtPostCertificateRenewalCommandWrapper extends CommandWr
                     }
                 }
             }
-        }
-    }
-
-    private boolean isVncTlsEnabled(final Domain vm) {
-        try {
-            final String response = vm.qemuMonitorCommand(QEMU_MONITOR_QUERY_VNC_COMMAND, 0);
-            if (response == null) {
-                return false;
-            }
-            final JsonObject vnc = new JsonParser().parse(response).getAsJsonObject().getAsJsonObject("return");
-            return vnc != null && vnc.has("auth") && !vnc.get("auth").isJsonNull()
-                    && vnc.get("auth").getAsString().startsWith("vencrypt+x509");
-        } catch (final Exception e) {
-            logger.trace("Unable to query VNC status for VM, assuming TLS not enabled", e);
-            return false;
         }
     }
 }

@@ -355,7 +355,7 @@ public class ConsoleAccessManagerImpl extends ManagerBase implements ConsoleAcce
         }
 
         if (portInfo == null) {
-            portInfo = managementServer.getVncPort(vm);
+            portInfo = managementServer.getVncPort(vm, true);
         }
 
         if (logger.isDebugEnabled())

@@ -99,6 +99,7 @@
 import { api } from '@/api'
 import ResourceActionMenu from '@/components/view/ResourceActionMenu'
 import { isDangerAction, resolveActionMenuGroup } from '@/utils/actionMenu'
+import { openConsoleWithRetry } from '@/utils/consoleRetry'
 
 export default {
   name: 'ActionButton',
@@ -408,6 +409,8 @@ export default {
             this.$message.success({
               content: this.$t('label.copied.clipboard')
             })
+          } else if (this.resource.hypervisor === 'KVM') {
+            openConsoleWithRetry(url, () => api('createConsoleEndpoint', params), error => this.$notifyError(error))
           } else {
             window.open(url, '_blank')
           }
