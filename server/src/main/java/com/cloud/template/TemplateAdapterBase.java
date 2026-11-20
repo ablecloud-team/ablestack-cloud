@@ -151,9 +151,6 @@ public abstract class TemplateAdapterBase extends AdapterBase implements Templat
         }
 
         if (isIso) {
-            if (templateType == TemplateType.USER && MapUtils.isEmpty(details)) {
-                details = Map.of(ApiConstants.BootType.UEFI.toString(), ApiConstants.BootMode.LEGACY.toString());
-            }
             if (bootable == null) {
                 bootable = Boolean.TRUE;
             }
