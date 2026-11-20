@@ -19,12 +19,14 @@ package com.cloud.consoleproxy;
 import com.cloud.utils.net.NetUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.WebSocketException;
 import org.eclipse.jetty.websocket.api.extensions.Frame;
 
 import java.awt.Image;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -48,7 +50,7 @@ public class ConsoleProxyNoVncClient implements ConsoleProxyClient {
     protected long createTime = System.currentTimeMillis();
     protected long lastFrontEndActivityTime = System.currentTimeMillis();
 
-    private boolean connectionAlive;
+    private volatile boolean connectionAlive;
 
     private ConsoleProxyClientParam clientParam;
     private String sessionUuid;
@@ -105,6 +107,7 @@ public class ConsoleProxyNoVncClient implements ConsoleProxyClient {
         updateFrontEndActivityTime();
         Thread worker = new Thread(new Runnable() {
             public void run() {
+                boolean failed = false;
                 try {
                     String tunnelUrl = param.getClientTunnelUrl();
                     String tunnelSession = param.getClientTunnelSession();
@@ -173,8 +176,21 @@ public class ConsoleProxyNoVncClient implements ConsoleProxyClient {
                         }
                     }
                     logger.info("Connection with client [{}] [IP: {}] is dead.", clientId, clientSourceIp);
-                } catch (IOException e) {
-                    logger.error("Error on VNC client", e);
+                } catch (IOException | URISyntaxException | RuntimeException e) {
+                    if (connectionAlive && session.isOpen()) {
+                        failed = true;
+                        logger.warn("VNC connection failed for VM [{}], console session [{}]", param.getClientTag(), sessionUuid, e);
+                    }
+                } finally {
+                    connectionAlive = false;
+                    client.close();
+                    if (session.isOpen()) {
+                        if (failed) {
+                            session.close(StatusCode.SERVER_ERROR, "VNC connection failed");
+                        } else {
+                            session.close();
+                        }
+                    }
                 }
             }
 
@@ -314,31 +330,27 @@ public class ConsoleProxyNoVncClient implements ConsoleProxyClient {
      * - When websocketUrl is not empty -> connect to websocket
      * - Otherwise -> connect to TCP port on host directly
      */
-    private void connectClientToVNCServer(String tunnelUrl, String tunnelSession, String websocketUrl) {
-        try {
-            if (StringUtils.isNotBlank(websocketUrl)) {
-                logger.info(String.format("Connect to VNC over websocket URL: %s", websocketUrl));
-                ConsoleProxy.ensureRoute(NetUtils.extractHost(websocketUrl));
-                client.connectToWebSocket(websocketUrl, session);
-            } else if (StringUtils.isNotBlank(tunnelUrl) && StringUtils.isNotBlank(tunnelSession)) {
-                URI uri = new URI(tunnelUrl);
-                logger.info(String.format("Connect to VNC server via tunnel. url: %s, session: %s",
-                        tunnelUrl, tunnelSession));
+    private void connectClientToVNCServer(String tunnelUrl, String tunnelSession, String websocketUrl) throws IOException, URISyntaxException {
+        if (StringUtils.isNotBlank(websocketUrl)) {
+            logger.info(String.format("Connect to VNC over websocket URL: %s", websocketUrl));
+            ConsoleProxy.ensureRoute(NetUtils.extractHost(websocketUrl));
+            client.connectToWebSocket(websocketUrl, session);
+        } else if (StringUtils.isNotBlank(tunnelUrl) && StringUtils.isNotBlank(tunnelSession)) {
+            URI uri = new URI(tunnelUrl);
+            logger.info(String.format("Connect to VNC server via tunnel. url: %s, session: %s",
+                    tunnelUrl, tunnelSession));
 
-                ConsoleProxy.ensureRoute(uri.getHost());
-                client.connectTo(uri.getHost(), uri.getPort(), uri.getPath() + "?" + uri.getQuery(),
-                        tunnelSession, "https".equalsIgnoreCase(uri.getScheme()));
-            } else {
-                logger.info(String.format("Connect to VNC server directly. host: %s, port: %s",
-                        getClientHostAddress(), getClientHostPort()));
-                ConsoleProxy.ensureRoute(getClientHostAddress());
-                client.connectTo(getClientHostAddress(), getClientHostPort());
-            }
-
-            logger.info("Connection to VNC server has been established successfully.");
-        } catch (Throwable e) {
-            logger.error("Unexpected exception while connecting to VNC server.", e);
+            ConsoleProxy.ensureRoute(uri.getHost());
+            client.connectTo(uri.getHost(), uri.getPort(), uri.getPath() + "?" + uri.getQuery(),
+                    tunnelSession, "https".equalsIgnoreCase(uri.getScheme()));
+        } else {
+            logger.info(String.format("Connect to VNC server directly. host: %s, port: %s",
+                    getClientHostAddress(), getClientHostPort()));
+            ConsoleProxy.ensureRoute(getClientHostAddress());
+            client.connectTo(getClientHostAddress(), getClientHostPort());
         }
+
+        logger.info("Connection to VNC server has been established successfully.");
     }
 
     private void setClientParam(ConsoleProxyClientParam param) {
@@ -366,6 +378,9 @@ public class ConsoleProxyNoVncClient implements ConsoleProxyClient {
     @Override
     public void closeClient() {
         this.connectionAlive = false;
+        if (client != null) {
+            client.close();
+        }
         // Clear buffer reference to allow GC when client disconnects
         this.readBuffer = null;
         ConsoleProxy.removeViewer(this);

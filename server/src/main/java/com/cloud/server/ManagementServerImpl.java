@@ -5891,6 +5891,11 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
     @Override
     public Pair<String, Integer> getVncPort(final VirtualMachine vm) {
+        return getVncPort(vm, false);
+    }
+
+    @Override
+    public Pair<String, Integer> getVncPort(final VirtualMachine vm, final boolean prepareVncTls) {
         if (vm.getHostId() == null) {
             logger.warn("VM " + vm.getHostName() + " does not have host, return -1 for its VNC port");
             return new Pair<>(null, -1);
@@ -5900,12 +5905,11 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             logger.trace("Trying to retrieve VNC port from agent about VM " + vm.getHostName());
         }
 
-        GetVncPortAnswer answer = null;
-        if (vm.getState() == State.Migrating && vm.getLastHostId() != null) {
-            answer = (GetVncPortAnswer)_agentMgr.easySend(vm.getLastHostId(), new GetVncPortCommand(vm.getId(), vm.getInstanceName()));
-        } else {
-            answer = (GetVncPortAnswer)_agentMgr.easySend(vm.getHostId(), new GetVncPortCommand(vm.getId(), vm.getInstanceName()));
-        }
+        final State state = vm.getState();
+        final Long hostId = state == State.Migrating && vm.getLastHostId() != null ? vm.getLastHostId() : vm.getHostId();
+        final boolean prepare = prepareVncTls && state == State.Running && HypervisorType.KVM.equals(vm.getHypervisorType());
+        final GetVncPortCommand command = new GetVncPortCommand(vm.getId(), vm.getInstanceName(), prepare);
+        final GetVncPortAnswer answer = (GetVncPortAnswer)_agentMgr.easySend(hostId, command);
         if (answer != null && answer.getResult()) {
             return new Pair<>(answer.getAddress(), answer.getPort());
         }

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# upload-systemvm.sh: ISO -> extract System VM -> HTTP/API registration -> Ready.
+# upload-systemvm-template.sh: ISO -> extract System VM -> HTTP/API registration -> Ready.
 set -euo pipefail
 export MOLD_SYSTEMVM_SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 exec python3 - "$@" <<'PYTHON'
@@ -262,7 +262,8 @@ def prepare_image(args):
             else:
                 parts = sorted((iso_root / 'template').glob('ablestack-template.qcow2_split.*'))
                 if not parts:
-                    raise Failure('No ablestack-template.qcow2 or split image found in ISO/template/.')
+                    raise Failure('No ablestack-template.qcow2 or split image found in {}. '
+                                  'Specify --iso with the directory containing template/.'.format(iso_root / 'template'))
                 for index, part in enumerate(parts):
                     if index >= 26 * 26:
                         raise Failure('Too many split image parts.')
@@ -488,11 +489,14 @@ def main():
         raise Failure('Invalid port, poll interval or timeout.')
     if not any((args.iso, args.base_image, args.template)):
         script_dir = Path(os.environ.get('MOLD_SYSTEMVM_SCRIPT_DIR', '.')).resolve()
-        template_dir = script_dir / 'template'
-        if (template_dir / 'ablestack-template.qcow2').is_file() or any(
-                template_dir.glob('ablestack-template.qcow2_split.*')):
-            args.iso = str(script_dir)
-        else:
+        # ISO layouts may place this script at the root or in root/update/.
+        for iso_root in (script_dir, script_dir.parent):
+            template_dir = iso_root / 'template'
+            if (template_dir / 'ablestack-template.qcow2').is_file() or any(
+                    path.is_file() for path in template_dir.glob('ablestack-template.qcow2_split.*')):
+                args.iso = str(iso_root)
+                break
+        if not args.iso:
             sibling_isos = sorted(str(path) for path in script_dir.glob('*.iso') if path.is_file())
             if sibling_isos:
                 args.iso = choose('Choose ISO next to the script', sibling_isos)

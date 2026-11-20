@@ -32,6 +32,8 @@ import com.cloud.resource.ResourceWrapper;
 @ResourceWrapper(handles =  GetVncPortCommand.class)
 public final class LibvirtGetVncPortCommandWrapper extends CommandWrapper<GetVncPortCommand, Answer, LibvirtComputingResource> {
 
+    private final VncTlsConsolePreparation vncTlsPreparation = new VncTlsConsolePreparation();
+
     @Override
     public Answer execute(final GetVncPortCommand command, final LibvirtComputingResource libvirtComputingResource) {
         try {
@@ -39,6 +41,10 @@ public final class LibvirtGetVncPortCommandWrapper extends CommandWrapper<GetVnc
 
             final Connect conn = libvirtUtilitiesHelper.getConnectionByVmName(command.getName());
             final Integer vncPort = libvirtComputingResource.getVncPort(conn, command.getName());
+            if (command.shouldPrepareVncTls() && vncPort != null && vncPort >= 0
+                    && VncTlsCertificateReloader.isSupported(libvirtComputingResource.getHypervisorQemuVersion())) {
+                vncTlsPreparation.prepare(conn, command.getName());
+            }
             return new GetVncPortAnswer(command, libvirtComputingResource.getPrivateIp(), 5900 + vncPort);
         } catch (final LibvirtException e) {
             return new GetVncPortAnswer(command, e.toString());

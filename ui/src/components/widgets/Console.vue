@@ -29,6 +29,7 @@
 <script>
 import { SERVER_MANAGER } from '@/store/mutation-types'
 import { api } from '@/api'
+import { openConsoleWithRetry } from '@/utils/consoleRetry'
 
 export default {
   name: 'Console',
@@ -60,6 +61,8 @@ export default {
             this.$message.success({
               content: this.$t('label.copied.clipboard')
             })
+          } else if (this.resource.hypervisor === 'KVM') {
+            openConsoleWithRetry(this.url, () => api('createConsoleEndpoint', params), error => this.$notifyError(error))
           } else {
             window.open(this.url, '_blank')
           }

@@ -22,13 +22,19 @@ package com.cloud.agent.api;
 public class GetVncPortCommand extends Command {
     long id;
     String name;
+    private boolean prepareVncTls;
 
     public GetVncPortCommand() {
     }
 
     public GetVncPortCommand(long id, String name) {
+        this(id, name, false);
+    }
+
+    public GetVncPortCommand(long id, String name, boolean prepareVncTls) {
         this.id = id;
         this.name = name;
+        this.prepareVncTls = prepareVncTls;
     }
 
     @Override
@@ -42,5 +48,9 @@ public class GetVncPortCommand extends Command {
 
     public long getId() {
         return id;
+    }
+
+    public boolean shouldPrepareVncTls() {
+        return prepareVncTls;
     }
 }

@@ -42,6 +42,7 @@ import com.cloud.consoleproxy.websocket.WebSocketReverseProxy;
 import com.cloud.utils.Pair;
 import com.cloud.utils.exception.CloudRuntimeException;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,13 +60,15 @@ import javax.crypto.spec.DESKeySpec;
 public class NoVncClient {
     protected Logger logger = LogManager.getLogger(getClass());
 
-    private Socket socket;
+    private volatile Socket socket;
     private DataInputStream is;
     private DataOutputStream os;
 
     private NioSocketHandler nioSocketConnection;
+    private volatile NioSocket nioSocket;
 
-    private WebSocketReverseProxy webSocketReverseProxy;
+    private volatile WebSocketReverseProxy webSocketReverseProxy;
+    private volatile boolean closed;
 
     private boolean flushAfterReceivingNoVNCData = true;
     private boolean securityPhaseCompleted = false;
@@ -85,25 +88,39 @@ public class NoVncClient {
         logger.info("Connecting to VNC server {}:{} ...", host, port);
         RawHTTP tunnel = new RawHTTP("CONNECT", host, port, path, session, useSSL);
         socket = tunnel.connect();
+        checkClosed();
         setTunnelSocketStreams();
     }
 
-    public void connectTo(String host, int port) {
+    public void connectTo(String host, int port) throws IOException {
         // Connect to server
         logger.info("Connecting to VNC server {}:{} ...", host, port);
-        try {
-            NioSocket nioSocket = new NioSocket(host, port);
-            this.nioSocketConnection = new NioSocketHandlerImpl(nioSocket);
-        } catch (Exception e) {
-            logger.error(String.format("Cannot create socket to host: %s and port %s: %s", host, port,
-                    e.getMessage()), e);
-        }
+        nioSocket = new NioSocket(host, port);
+        checkClosed();
+        nioSocketConnection = new NioSocketHandlerImpl(nioSocket);
     }
 
     // VNC over WebSocket connection helpers
     public void connectToWebSocket(String websocketUrl, Session session) throws URISyntaxException {
         webSocketReverseProxy = new WebSocketReverseProxy(new URI(websocketUrl), session);
         webSocketReverseProxy.connect();
+        checkClosed();
+    }
+
+    private void checkClosed() {
+        if (closed) {
+            close();
+            throw new CloudRuntimeException("NoVNC connection closed");
+        }
+    }
+
+    public void close() {
+        closed = true;
+        IOUtils.closeQuietly(nioSocket);
+        IOUtils.closeQuietly(socket);
+        if (webSocketReverseProxy != null) {
+            webSocketReverseProxy.close();
+        }
     }
 
     public boolean isVncOverNioSocket() {
@@ -393,6 +410,7 @@ public class NoVncClient {
     public void waitForNoVNCReply() {
         int cycles = 0;
         while (isWaitForNoVnc()) {
+            checkClosed();
             cycles++;
         }
         if (logger.isDebugEnabled()) {
