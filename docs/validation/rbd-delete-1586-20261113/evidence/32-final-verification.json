@@ -1,0 +1,101 @@
+{
+  "cluster": 32,
+  "deletionCases": [
+    {
+      "case": "normal",
+      "network": "510959ca-591b-45dc-96ae-688798dfdbc8",
+      "router": "r-529-VM",
+      "host": "10.10.32.1",
+      "image": "409ad1ea-f347-4139-b05c-573af93d5189",
+      "physicalAbsent": true,
+      "dbRemoved": true,
+      "apiAbsent": true
+    },
+    {
+      "case": "watch1",
+      "network": "c1ad9108-087f-48ce-beae-946557a3ed23",
+      "router": "r-530-VM",
+      "host": "10.10.32.3",
+      "image": "d7b3c3cc-44ba-4189-82bb-b0fc9b324ee6",
+      "physicalAbsent": true,
+      "dbRemoved": true,
+      "apiAbsent": true
+    },
+    {
+      "case": "watch2",
+      "network": "261353c1-4cdb-42aa-bf43-34353bebb897",
+      "router": "r-531-VM",
+      "host": "10.10.32.3",
+      "image": "024c4c9f-aef2-43ba-b6f5-702041278276",
+      "physicalAbsent": true,
+      "dbRemoved": true,
+      "apiAbsent": true
+    },
+    {
+      "case": "watch3",
+      "network": "b63ec919-6bc6-46ac-8e8f-0b3fb78091e4",
+      "router": "r-532-VM",
+      "host": "10.10.32.3",
+      "image": "16306e26-9672-4a3a-bc9d-5bd27c01c148",
+      "physicalAbsent": true,
+      "dbRemoved": true,
+      "apiAbsent": true
+    }
+  ],
+  "inventoryCounts": {
+    "virtualmachine": 72,
+    "network": 28,
+    "vpc": 4
+  },
+  "originalInventorySame": true,
+  "originalVmStateHostNicSame": true,
+  "disposableResourcesRemaining": {
+    "volumes": 0,
+    "networks": 0
+  },
+  "disposableOfferingRemoved": true,
+  "hosts": [
+    {
+      "host": "ablecube32-1",
+      "ip": "10.10.32.1",
+      "jarSha256": "db478ce8a9a4297d3a91451e0cd5fe1c98c7ccab1556c7abf2bdca091d90ad3c",
+      "changedClassesVerified": 5,
+      "unmodifiedEntriesVerified": 555,
+      "agent": {
+        "active": "active",
+        "pid": "2866030"
+      },
+      "originalQemuPidsPreserved": 17,
+      "libvirtFtctlUnitsUnchanged": true,
+      "nativeBackendUnchanged": true
+    },
+    {
+      "host": "ablecube32-2",
+      "ip": "10.10.32.2",
+      "jarSha256": "6e4d34bc7eee884225bfcc2a0d25576a235dfae2049b341f53c13b03ec5faa13",
+      "changedClassesVerified": 5,
+      "unmodifiedEntriesVerified": 555,
+      "agent": {
+        "active": "active",
+        "pid": "3376562"
+      },
+      "originalQemuPidsPreserved": 30,
+      "libvirtFtctlUnitsUnchanged": true,
+      "nativeBackendUnchanged": true
+    },
+    {
+      "host": "ablecube32-3",
+      "ip": "10.10.32.3",
+      "jarSha256": "d6421cfb64f1b8654370f49d9125f9715cbf0f11ef7c106aeefd86dcb29c8baf",
+      "changedClassesVerified": 5,
+      "unmodifiedEntriesVerified": 555,
+      "agent": {
+        "active": "active",
+        "pid": "708113"
+      },
+      "originalQemuPidsPreserved": 14,
+      "libvirtFtctlUnitsUnchanged": true,
+      "nativeBackendUnchanged": true
+    }
+  ]
+}

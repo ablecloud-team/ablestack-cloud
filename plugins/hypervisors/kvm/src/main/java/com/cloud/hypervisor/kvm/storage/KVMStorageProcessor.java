@@ -3492,7 +3492,7 @@ public class KVMStorageProcessor implements StorageProcessor {
             if (deleteSharedMountPointRelativePathIfNeeded(pool, vol.getPath())) {
                 return new Answer(null);
             }
-            if (pool.getType() != StoragePoolType.CLVM && pool.getType() != StoragePoolType.CLVM_NG) {
+            if (pool.getType() != StoragePoolType.RBD && pool.getType() != StoragePoolType.CLVM && pool.getType() != StoragePoolType.CLVM_NG) {
                 try {
                     pool.getPhysicalDisk(vol.getPath());
                 } catch (final Exception e) {
@@ -3500,7 +3500,10 @@ public class KVMStorageProcessor implements StorageProcessor {
                     return new Answer(null);
                 }
             }
-            pool.deletePhysicalDisk(vol.getPath(), vol.getFormat());
+            boolean deleted = pool.deletePhysicalDisk(vol.getPath(), vol.getFormat());
+            if (pool.getType() == StoragePoolType.RBD && !deleted) {
+                return new Answer(null, false, "RBD cleanup did not confirm physical image removal. Inspect the storage target and retry normal deletion.");
+            }
             if (vol.getChainInfo() != null && poolTypesToDeleteChainInfo.contains(pool.getType()) && vol.getFormat() == ImageFormat.QCOW2 && cmd.isDeleteChain()) {
                 logger.debug("Deleting leftover backup delta at [{}].", vol.getChainInfo());
                 pool.deletePhysicalDisk(vol.getChainInfo(), vol.getFormat());

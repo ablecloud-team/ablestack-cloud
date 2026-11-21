@@ -1,0 +1,53 @@
+{
+  "unrelatedBaselineFileUnchanged": true,
+  "fullModuleCheckstyleErrors": [
+    {
+      "file": "plugins/hypervisors/kvm/src/test/java/com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapperTest.java",
+      "line": "37",
+      "column": "8",
+      "severity": "error",
+      "message": "Unused import - com.cloud.agent.api.Answer.",
+      "source": "com.puppycrawl.tools.checkstyle.checks.imports.UnusedImportsCheck"
+    },
+    {
+      "file": "plugins/hypervisors/kvm/src/test/java/com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapperTest.java",
+      "line": "39",
+      "severity": "error",
+      "message": "Using the '.*' form of import should be avoided - org.mockito.Mockito.*.",
+      "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck"
+    }
+  ],
+  "focusedChangedFiles": 5,
+  "focusedViolations": 0,
+  "logs": {
+    "focused-style.log": {
+      "sha256": "0ea7d97660fc5c2eca1d1f05ffa0edc8c3b31f4e53ac549ae948f556a887ed0a",
+      "summary": [
+        "[INFO] You have 0 Checkstyle violations.",
+        "[INFO] BUILD SUCCESS",
+        "[INFO] Total time:  2.898 s"
+      ]
+    },
+    "unit.log": {
+      "sha256": "03e56eb657372869a7f197ba3217ed123317dbbcea15520d70484fad400d3e1f",
+      "summary": [
+        "[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.735 s - in com.cloud.hypervisor.kvm.storage.RbdDeletionProbeTest",
+        "[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.305 s - in com.cloud.hypervisor.kvm.storage.KVMStorageProcessorRbdRetryTest",
+        "[INFO] Tests run: 23, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.594 s - in com.cloud.hypervisor.kvm.storage.LibvirtStorageAdaptorTest",
+        "[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in com.cloud.hypervisor.kvm.storage.RbdSnapshotDeletionTest",
+        "[INFO] Tests run: 48, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.759 s - in com.cloud.hypervisor.kvm.storage.KVMStorageProcessorTest",
+        "[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.233 s - in com.cloud.hypervisor.kvm.storage.RbdDeletionContractTest",
+        "[INFO] Tests run: 121, Failures: 0, Errors: 0, Skipped: 0",
+        "[INFO] BUILD SUCCESS",
+        "[INFO] Total time:  39.952 s"
+      ]
+    },
+    "package.log": {
+      "sha256": "6c80faab093472c05e3944e290eedcb16f81e6a2279dc61b0860eca4e563f224",
+      "summary": [
+        "[INFO] BUILD SUCCESS",
+        "[INFO] Total time:  7.911 s"
+      ]
+    }
+  }
+}

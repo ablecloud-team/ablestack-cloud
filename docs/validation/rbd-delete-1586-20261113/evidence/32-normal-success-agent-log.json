@@ -1,0 +1,3 @@
+[
+  "2026-11-13 13:16:21,316 INFO  [kvm.storage.LibvirtStorageAdaptor] (Basic-Worker-5:[]) (logid:ce6e5108) RBD cleanup confirmed physical absence: pool=91cae554-3fce-3f93-89d1-cefaf9bf8122 image=409ad1ea-f347-4139-b05c-573af93d5189 state=ABSENT_CONFIRMED stage=OPEN_IMAGE nativeCode=-2 fsid=47c73ef8-b237-11f1-aafa-002481547a21 poolId=2 namespace=<default> snapshots=-1 imagePrefix=null"
+]
