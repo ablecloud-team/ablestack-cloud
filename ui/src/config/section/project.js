@@ -58,8 +58,8 @@ export default {
     },
     {
       name: 'limits.configure',
-      show: (record, route, user) => { return ['Admin', 'DomainAdmin'].includes(user.roletype) },
-      component: shallowRef(defineAsyncComponent(() => import('@/components/view/ResourceLimitTab.vue')))
+      show: (record, route, user) => ['Admin', 'DomainAdmin'].includes(user.roletype) && !!store.getters.apis.listResourceLimits,
+      component: shallowRef(defineAsyncComponent(() => import('@/views/project/ProjectResourceLimitTab.vue')))
     },
     {
       name: 'events',
