@@ -179,8 +179,9 @@
               {{ $t('label.refresh') }}
             </a-button>
             <AsnListTools v-if="asnSearchAuth" :selected="selectedItems" :ready="asnListReady" :scope="listScope()" @refresh="resetSelection(); $refs.listview?.resetSelection(); fetchData({ irefresh: true })" />
+            <ProjectListSearch v-if="isProjectList" @search="onSearch" />
             <search-view
-              v-if="!dataView"
+              v-else-if="!dataView"
               :class="{ 'kms-toolbar-search': kmsListRoute($route), 'vm-acl-toolbar-search': isVmUi || isAclUi }"
               :searchFilters="searchFilters"
               :searchParams="searchParams"
@@ -765,7 +766,7 @@
           :kms-table="kmsListRoute($route)"
           :items="items"
           :actions="(asnSearchAuth && asnSearchFailure) || isSnapshotCopyList || snapshotSearchFailure || policySearchFailure || ((isSnapshotList || isPolicyList || isObjectStorageUi || $route.meta?.name === 'vnfapp') && !storageActionReady) || ($route.meta?.name === 'vmgroup' && !vmGroupQueryReady) ? [] : actions"
-          :selectionDisabled="record => (asnSearchAuth && !asnListReady) || (isSnapshotList || isPolicyList || isObjectStorageUi || $route.meta?.name === 'vnfapp') && !storageActionReady"
+          :selectionDisabled="record => (isProjectList && !storageActionReady) || (asnSearchAuth && !asnListReady) || (isSnapshotList || isPolicyList || isObjectStorageUi || $route.meta?.name === 'vnfapp') && !storageActionReady"
           :explicitlyAllowRowSelection="policySelectionAvailable || !!asnSearchAuth"
           :tableScroll="isEventList ? { x: 1210 } : asnSearchAuth ? { x: 1640 } : s2sGatewayListRoute($route) ? { x: 860 } : vpnConnectionListRoute($route) ? { x: vpnConnectionTableWidth } : undefined"
           :keyboardContextMenu="isSnapshotList"
@@ -792,7 +793,7 @@
             `${$t('label.showing')} ${Math.min(total, 1+((page-1)*pageSize))}-${Math.min(page*pageSize, total)} ${$t('label.of')} ${total} ${$t('label.items')}`"
           :pageSizeOptions="pageSizeOptions"
           @change="changePage"
-          @showSizeChange="changePageSize"
+          @showSizeChange="onListPageSizeChange"
           showSizeChanger
           showQuickJumper
         >
@@ -853,6 +854,8 @@ import { genericCompare } from '@/utils/sort.js'
 import { sourceToken } from '@/utils/request'
 import store from '@/store'
 import { projectBulkScope, projectBulkTargets } from '@/utils/projectBulk'
+import { applyProjectSearch, projectListParams, projectListScope, projectSearchQuery, projectSortFields } from '@/utils/projectSearch'
+import ProjectListSearch from '@/views/project/ProjectListSearch'
 import eventBus from '@/config/eventBus'
 
 import Breadcrumb from '@/components/widgets/Breadcrumb'
@@ -937,6 +940,7 @@ export default {
     InstanceGroupDeleteSummary,
     InstanceGroupQueryStatus,
     SearchView,
+    ProjectListSearch,
     SearchFilter,
     S2sGatewayFilterChips,
     BulkActionProgress,
@@ -1211,6 +1215,11 @@ export default {
     next()
   },
   watch: {
+    projectSearchScope (value, previous) {
+      if (!this.isProjectList || value === previous) return
+      this.resetSelection()
+      if (this.$refs.listview) this.$refs.listview.resetSelection()
+    },
     kmsSearchAuth: {
       flush: 'sync',
       handler (value, previous) {
@@ -1446,6 +1455,9 @@ export default {
     isVmUi () { return this.$route.meta?.name === 'vm' },
     isVmList () { return !this.dataView && this.isVmUi },
     isProjectList () { return !this.dataView && this.$route.meta?.name === 'project' },
+    projectSearchScope () {
+      return this.$route.meta?.name === 'project' ? projectListScope(this.$store.getters, this.$store.state?.user?.token) : ''
+    },
     projectBulkContext () {
       if (!this.isProjectList) return ''
       return JSON.stringify([
@@ -1511,6 +1523,17 @@ export default {
     publicIpAuth () { return publicIpRoute(this.$route) ? publicIpReadAuth(this.$store) : '' },
     presentedColumns () {
       const columns = this.localizePublicIpColumns(this.columns)
+      if (this.isProjectList) {
+        const { sortkey, sortorder } = projectSearchQuery(this.$route.query, this.$store.getters)
+        const sortValue = (record, key) => key === 'account'
+          ? (record.owner || []).map(owner => owner.account).join(', ') || record.account || ''
+          : record[key] || ''
+        return columns.map(column => projectSortFields.includes(column.key) ? {
+          ...column,
+          sorter: (a, b) => genericCompare(sortValue(a, column.key), sortValue(b, column.key)),
+          sortOrder: sortkey === column.key ? (sortorder === 'asc' ? 'ascend' : 'descend') : null
+        } : column)
+      }
       if (this.isEventList) {
         const { sortkey, sortorder } = this.$route.query
         const widths = { type: 166, level: 70, state: 100, description: 250, resource: 154, username: 114, account: 110, project: 130, domain: 108, created: 180, filtercolumn: 42 }
@@ -1560,7 +1583,7 @@ export default {
     activeFiltersList () {
       if (asnRoute(this.$route) || this.isS2sSearchList) return []
       if (this.isIsoList) return isoFilterChips(this.$route.query, this.$store.getters)
-      const queryParams = Object.assign({}, this.$route.query)
+      const queryParams = this.isProjectList ? projectSearchQuery(this.$route.query, this.$store.getters) : { ...this.$route.query }
       const activeFilters = []
       for (const filter in queryParams) {
         if (isAclListRoute(this.$route) && !['name', 'vpcid'].includes(filter)) continue
@@ -1819,6 +1842,7 @@ export default {
       if (this.$route.meta?.name === 'kubernetesiso') return JSON.stringify([this.$route.fullPath, kubernetesIsoContext(this.$store.getters, this.$store.state?.user?.token)])
       if (vnfRoute(this.$route)) return JSON.stringify([this.$route.fullPath, vnfAuth(this.$store.getters, this.$store.state?.user?.token), this.$store.getters.metrics])
       if (isSshKeyPairDetailRoute(this.$route)) return sshKeyPairDetailScope(this.$route, this.$store.getters, this.$store.state?.user?.token)
+      if (this.$route.meta?.name === 'project') return JSON.stringify([this.$route.fullPath, this.projectSearchScope])
       if (this.$route.meta?.name === 'vmgroup') return vmGroupQueryScope(this.$route, this.$store.getters, this.$store.state?.user?.token)
       // Tabs and S3 folder normalization do not change the authorized resource.
       // Keep all actual filters and the identity/session scope below.
@@ -2238,7 +2262,7 @@ export default {
       const version = ++this.listRequestVersion
       const sameList = this.listLoadedScope === scope
       const publicIpList = this.$route.meta?.name === 'publicip' && !this.$route.params?.id && !this.$route.query?.dataView
-      if (this.isEventList && !sameList) {
+      if ((this.isEventList || this.isProjectList) && !sameList) {
         this.items = []; this.resource = {}; this.itemCount = 0; this.listLoadedScope = null; this.listRefreshError = false
         this.resetSelection()
         if (this.$refs.listview) this.$refs.listview.resetSelection()
@@ -2637,6 +2661,7 @@ export default {
       }
       if (asnRoute(this.$route)) { params = asnParams(this.$route.query); this.columns.forEach(column => { column.sorter = false }) }
       if (publicIpList) params = publicIpParams(this.$route.query, this.$store.getters, this.$getApiParams('listPublicIpAddresses'))
+      if (this.isProjectList && this.apiName === 'listProjects') params = projectListParams(this.$route.query, params, this.$store.getters)
       if (vnfRoute(this.$route)) params = vnfListParams(params, this.dataView)
 
       if (['listAnnotations', 'listRoles', 'listZonesMetrics', 'listPods',
@@ -3222,7 +3247,8 @@ export default {
       }
       queryParams.page = '1'
       queryParams.pagesize = String(this.pageSize)
-      this.$router.push({ query: queryParams })
+      if (this.isProjectList && filter.key === 'account') delete queryParams.username
+      this.$router.push({ query: this.isProjectList ? projectSearchQuery(queryParams, this.$store.getters) : queryParams })
     },
     onRowSelectionChange (selection) {
       if (this.isProjectList && !this.storageActionReady && selection?.length) return
@@ -4431,6 +4457,13 @@ export default {
       this.$router.push({ query })
     },
     onSearch (opts) {
+      if (this.isProjectList) {
+        this.resetSelection()
+        if (this.$refs.listview) this.$refs.listview.resetSelection()
+        const query = applyProjectSearch({ pagesize: String(this.pageSize), ...this.$route.query }, opts, this.$store.getters)
+        if (JSON.stringify(query) === JSON.stringify(this.$route.query)) return this.fetchData({ irefresh: true })
+        return this.$router.push({ query })
+      }
       if (isAclListRoute(this.$route) && !this.dataView) {
         const query = aclListSearchQuery(this.$route.query, opts || {}, this.pageSize, this.$store.getters)
         this.resetSelection()
@@ -4571,11 +4604,15 @@ export default {
     },
     changePage (page, pageSize) {
       const query = Object.assign({}, this.$route.query)
-      query.page = (['template', 'iso', 'cniconfiguration', 'guestnetwork', 'vnfapp', 'asnumbers', 'kubernetesiso', 'acllist'].includes(this.$route.meta?.name) || this.$route.name === 'snapshot' || snapshotPolicyListRoute(this.$route) || vpnConnectionListRoute(this.$route)) && Number(pageSize) !== this.pageSize ? 1 : page
+      query.page = (this.isProjectList || ['template', 'iso', 'cniconfiguration', 'guestnetwork', 'vnfapp', 'asnumbers', 'kubernetesiso', 'acllist'].includes(this.$route.meta?.name) || this.$route.name === 'snapshot' || snapshotPolicyListRoute(this.$route) || vpnConnectionListRoute(this.$route)) && Number(pageSize) !== this.pageSize ? 1 : page
       query.pagesize = pageSize
       this.$router.push({ query })
     },
     handleTableChange (pagination, filters, sorter) {
+      if (this.isProjectList) {
+        const query = { ...this.$route.query, sortkey: sorter?.columnKey, sortorder: sorter?.order === 'ascend' ? 'asc' : sorter?.order === 'descend' ? 'desc' : undefined }
+        return this.$router.push({ query: projectSearchQuery(query, this.$store.getters) })
+      }
       if (this.eventCreatedSortEnabled && (sorter?.field === 'created' || sorter?.columnKey === 'created')) {
         const query = eventCreatedSortQuery(this.$route.query, sorter.order)
         return this.$router.push({ query })
@@ -4607,6 +4644,9 @@ export default {
       }
       if (this.$route.name !== 'vmsnapshot') return
       this.$router.push({ query: { ...this.$route.query, page: '1', pagesize: String(this.pageSize), sortkey: sorter?.order ? sorter.field : 'created', sortorder: sorter?.order === 'ascend' ? 'asc' : 'desc' } })
+    },
+    onListPageSizeChange (currentPage, pageSize) {
+      if (!this.isProjectList) this.changePageSize(currentPage, pageSize)
     },
     changePageSize (currentPage, pageSize) {
       const query = Object.assign({}, this.$route.query)

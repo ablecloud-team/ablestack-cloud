@@ -17,6 +17,41 @@
 
 <template>
   <div>
+    <div class="member-search-tools">
+      <a-input-search
+        v-model:value="keyword"
+        :aria-label="$t('label.project.members.search.keyword')"
+        :placeholder="$t('label.project.members.search.keyword')"
+        :disabled="membershipLocked"
+        allow-clear
+        @search="searchMemberKeyword" />
+      <a-popover v-model:visible="filtersOpen" placement="bottomLeft" trigger="click">
+        <template v-if="filtersOpen" #content>
+          <a-form :model="draftFilters" layout="vertical" class="member-filter-form" @finish="submitMemberFilters" v-ctrl-enter="submitMemberFilters">
+            <a-form-item :label="$t('label.project.members.search.account')" html-for="project-member-filter-account">
+              <a-input id="project-member-filter-account" v-model:value="draftFilters.account" allow-clear />
+            </a-form-item>
+            <a-form-item :label="$t('label.project.members.search.username')" html-for="project-member-filter-username">
+              <a-input id="project-member-filter-username" v-model:value="draftFilters.username" allow-clear />
+            </a-form-item>
+            <a-form-item :label="$t('label.roletype')" html-for="project-member-filter-role">
+              <a-select id="project-member-filter-role" v-model:value="draftFilters.role" :options="memberRoleOptions" allow-clear />
+            </a-form-item>
+            <a-form-item v-if="apis.listProjectRoles" :label="$t('label.project.role')" html-for="project-member-filter-projectrole">
+              <a-select id="project-member-filter-projectrole" v-model:value="draftFilters.projectroleid" :options="customRoleOptions" allow-clear />
+            </a-form-item>
+            <a-space>
+              <a-button @click="applyMemberFilters({})">{{ $t('label.reset') }}</a-button>
+              <a-button type="primary" @click="submitMemberFilters">{{ $t('label.search') }}</a-button>
+            </a-space>
+          </a-form>
+        </template>
+        <a-button :aria-expanded="filtersOpen" :disabled="membershipLocked" @click="draftFilters = { ...memberFilters }">
+          <filter-outlined /> {{ $t('label.advanced.search') }}
+          <span v-if="advancedFilterCount">({{ advancedFilterCount }})</span>
+        </a-button>
+      </a-popover>
+    </div>
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <a-table
       size="small"
@@ -93,6 +128,7 @@
 
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import { projectListScope, projectMemberFilters } from '@/utils/projectSearch'
 import { getAPI } from '@/api'
 import eventBus from '@/config/eventBus'
 import { isProjectAdministrator, memberOperation, projectMemberActions, projectMembershipJob } from '@/utils/projectMembership'
@@ -111,7 +147,9 @@ const actions = {
 export default {
   name: 'AccountsTab',
   components: { MoldDialog, MoldDialogActions, TooltipButton },
-  mixins: [listRefreshMixin(['fetchProjectAccounts']), projectMembershipJob],
+  mixins: [listRefreshMixin(['fetchProjectAccounts'], {
+    scopeKey: vm => [vm.resource.id, vm.page, vm.pageSize, vm.memberFilters, vm.memberSearchScope]
+  }), projectMembershipJob],
   inject: ['parentFetchData'],
   props: {
     resource: { type: Object, required: true }
@@ -120,6 +158,10 @@ export default {
     return {
       members: [],
       roles: [],
+      memberFilters: {},
+      draftFilters: {},
+      keyword: '',
+      filtersOpen: false,
       loading: false,
       page: 1,
       pageSize: 10,
@@ -140,9 +182,11 @@ export default {
         { key: 'actions', title: this.$t('label.actions') }
       ]
     },
-    roleOptions () {
-      return [{ value: '', label: this.$t('label.none') }, ...this.roles.map(role => ({ value: role.id, label: role.name }))]
-    },
+    memberSearchScope () { return projectListScope(this.$store.getters, this.$store.state?.user?.token) },
+    memberRoleOptions () { return ['Admin', 'Regular'].map(value => ({ value, label: value })) },
+    customRoleOptions () { return this.roles.map(role => ({ value: role.id, label: role.name })) },
+    roleOptions () { return [{ value: '', label: this.$t('label.none') }, ...this.customRoleOptions] },
+    advancedFilterCount () { return Object.keys(this.memberFilters).filter(key => key !== 'keyword').length },
     confirmDisabled () {
       if (!this.selected || this.membershipBusy) return true
       if (this.membershipJobId) return false
@@ -151,7 +195,8 @@ export default {
     }
   },
   watch: {
-    'resource.id': 'resetProject'
+    'resource.id': 'resetProject',
+    memberSearchScope: 'resetProject'
   },
   created () { this.resetProject() },
   mounted () { eventBus.on('project-members-updated', this.projectMembersUpdated) },
@@ -165,6 +210,10 @@ export default {
       this.itemCount = 0
       this.members = []
       this.roles = []
+      this.memberFilters = {}
+      this.draftFilters = {}
+      this.keyword = ''
+      this.filtersOpen = false
       this.selected = null
       this.resetMembershipJob()
       this.fetchProjectAccounts()
@@ -175,6 +224,20 @@ export default {
     },
     actionsFor (member) { return projectMemberActions(this.resource, member, this.$store.getters.userInfo, this.apis) },
     roleName (id) { return id ? this.roles.find(role => role.id === id)?.name || id : '' },
+    searchMemberKeyword (keyword) { this.applyMemberFilters({ ...this.memberFilters, keyword }) },
+    submitMemberFilters () { this.applyMemberFilters({ ...this.draftFilters, keyword: this.keyword }) },
+    applyMemberFilters (draft) {
+      if (this.membershipLocked) return
+      this.filtersOpen = false
+      const filters = projectMemberFilters(draft)
+      this.keyword = filters.keyword || ''
+      if (JSON.stringify(filters) === JSON.stringify(this.memberFilters) && this.page === 1 && !this.listRefreshFailed) return
+      this.memberFilters = filters
+      this.members = []
+      this.itemCount = 0
+      this.page = 1
+      this.fetchProjectAccounts()
+    },
     changePage (page, size) {
       const next = size === this.pageSize ? page : 1
       if (next === this.page && size === this.pageSize) return
@@ -198,7 +261,9 @@ export default {
       const request = this.listRequestToken('fetchProjectAccounts')
       this.loading = !request.loaded
       try {
-        const json = await getAPI('listProjectAccounts', { projectid, page: this.page, pagesize: this.pageSize, ignoreproject: true }, { preserveOnFailure: true })
+        const json = await getAPI('listProjectAccounts', {
+          projectid, page: this.page, pagesize: this.pageSize, ignoreproject: true, ...this.memberFilters
+        }, { preserveOnFailure: true })
         if (!this.isListRequestCurrent('fetchProjectAccounts', request)) return
         const { count, projectaccount } = json.listprojectaccountsresponse
         this.members = projectaccount || []
@@ -243,6 +308,10 @@ export default {
 </script>
 
 <style scoped>
+.member-search-tools { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.member-search-tools :deep(.ant-input-search) { width: 286px; max-width: 100%; }
+.member-filter-form { width: min(330px, 72vw); }
+.member-filter-form :deep(.ant-form-item) { margin-bottom: 12px; }
 .member-pagination { margin: 10px 0; }
 .member-action-status { margin: 12px 0; }
 </style>
