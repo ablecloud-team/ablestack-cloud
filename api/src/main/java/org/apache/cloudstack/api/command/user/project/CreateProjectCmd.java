@@ -30,10 +30,8 @@ import org.apache.cloudstack.context.CallContext;
 import org.apache.commons.lang3.StringUtils;
 
 import com.cloud.event.EventTypes;
-import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.exception.ResourceAllocationException;
 import com.cloud.projects.Project;
-import com.cloud.user.Account;
 
 @APICommand(name = "createProject", description = "Creates a project", responseObject = ProjectResponse.class, since = "3.0.0",
         requestHasSensitiveInfo = false, responseHasSensitiveInfo = false)
@@ -54,7 +52,7 @@ public class CreateProjectCmd extends BaseAsyncCreateCmd {
     @Parameter(name = ApiConstants.DOMAIN_ID, type = CommandType.UUID, entityType = DomainResponse.class, description = "Domain ID of the Account owning a project")
     private Long domainId;
 
-    @Parameter(name = ApiConstants.ACCOUNT_ID, type = CommandType.UUID, entityType = AccountResponse.class, description = "ID of the Account owning a project")
+    @Parameter(name = ApiConstants.ACCOUNT_ID, type = CommandType.UUID, entityType = AccountResponse.class, description = "ID of the account owning the project. If omitted, use account and domain ID or the calling account.")
     private Long accountId;
 
     @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, required = true, description = "Name of the project")
@@ -68,20 +66,11 @@ public class CreateProjectCmd extends BaseAsyncCreateCmd {
     // ///////////////////////////////////////////////////
 
     public String getAccountName() {
-        if (accountName != null) {
-            return accountName;
-        } else {
-            return CallContext.current().getCallingAccount().getAccountName();
-        }
+        return accountName;
     }
 
     public Long getDomainId() {
-        if (domainId != null) {
-            return domainId;
-        }
-
-        return CallContext.current().getCallingAccount().getDomainId();
-
+        return domainId;
     }
 
     public String getName() {
@@ -102,20 +91,7 @@ public class CreateProjectCmd extends BaseAsyncCreateCmd {
 
     @Override
     public long getEntityOwnerId() {
-        Account caller = CallContext.current().getCallingAccount();
-
-        if ((accountName != null && domainId == null)) {
-            throw new InvalidParameterValueException("Account name and domain id must be specified together");
-        }
-
-        if (userId != null && (accountId == null || domainId == null)) {
-            throw new InvalidParameterValueException("Account ID and Domain ID must be specified with userID");
-        }
-        if (accountName != null) {
-            return _accountService.finalizeOwner(caller, accountName, domainId, null).getId();
-        }
-
-        return caller.getId();
+        return _projectService.resolveProjectOwner(getAccountName(), getDomainId(), getUserId(), getAccountId()).getId();
     }
 
     // ///////////////////////////////////////////////////

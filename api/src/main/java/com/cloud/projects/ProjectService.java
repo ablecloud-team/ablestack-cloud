@@ -27,6 +27,11 @@ import com.cloud.user.User;
 
 public interface ProjectService {
     /**
+     * Resolves and validates the owner of a new project for the current caller.
+     */
+    Account resolveProjectOwner(String accountName, Long domainId, Long userId, Long accountId);
+
+    /**
      * Creates a new project
      *
      * @param name
@@ -42,7 +47,7 @@ public interface ProjectService {
      *            - id of the user to be made as project owner
      *
      * @param accountId
-     *            - id of the account to which the user belongs
+     *            - id of the account owning the project
      *
      * @return the project if created successfully, null otherwise
      * @throws ResourceAllocationException

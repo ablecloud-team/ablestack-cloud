@@ -37,6 +37,11 @@ public class MockProjectManagerImpl extends ManagerBase implements ProjectManage
     }
 
     @Override
+    public Account resolveProjectOwner(String accountName, Long domainId, Long userId, Long accountId) {
+        return null;
+    }
+
+    @Override
     public boolean deleteProject(long id, Boolean cleanup) {
         // TODO Auto-generated method stub
         return false;

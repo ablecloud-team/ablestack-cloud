@@ -213,20 +213,6 @@ public class ProjectManagerImpl extends ManagerBase implements ProjectManager, C
         return true;
     }
 
-    private User validateUser(Long userId, Long accountId, Long domainId) {
-        User user = null;
-        if (userId != null) {
-            user = userDao.findById(userId);
-            if (user == null ) {
-                throw new InvalidParameterValueException("Invalid user ID provided");
-            }
-            if (user.getAccountId() != accountId || _accountDao.findById(user.getAccountId()).getDomainId() != domainId) {
-                throw new InvalidParameterValueException("User doesn't belong to the specified account or domain");
-            }
-        }
-        return user;
-    }
-
     private User validateUser(Long userId, Long domainId) {
         User user = null;
         if (userId != null) {
@@ -242,60 +228,73 @@ public class ProjectManagerImpl extends ManagerBase implements ProjectManager, C
     }
 
     @Override
+    public Account resolveProjectOwner(String accountName, Long domainId, Long userId, Long accountId) {
+        if ((accountName != null && domainId == null) || (accountName == null && accountId == null && domainId != null)) {
+            throw new InvalidParameterValueException("Account name and domain ID must be specified together when selecting an owner by name");
+        }
+        if (userId != null && accountName == null && accountId == null) {
+            throw new InvalidParameterValueException("An owner account must be specified with user ID");
+        }
+
+        Account caller = CallContext.current().getCallingAccount();
+        Account owner;
+        if (accountId == null) {
+            owner = _accountMgr.finalizeOwner(caller, accountName, domainId, null);
+        } else {
+            Account selected = _accountDao.findById(accountId);
+            if (selected == null || selected.getState() != Account.State.ENABLED) {
+                throw new InvalidParameterValueException("The specified owner account does not exist or is disabled");
+            }
+            if ((domainId != null && !domainId.equals(selected.getDomainId()))
+                    || (accountName != null && !accountName.equals(selected.getAccountName()))) {
+                throw new InvalidParameterValueException("The specified account ID does not match the account name or domain");
+            }
+            owner = _accountMgr.finalizeOwner(caller, selected.getAccountName(), selected.getDomainId(), null);
+            if (owner.getId() != accountId) {
+                throw new InvalidParameterValueException("The specified owner account is no longer available");
+            }
+        }
+
+        if (owner.getState() != Account.State.ENABLED || owner.getId() == Account.ACCOUNT_ID_SYSTEM || owner.getType() == Account.Type.PROJECT) {
+            throw new InvalidParameterValueException("The project owner must be an enabled account eligible to own a project");
+        }
+        if (userId != null) {
+            User user = userDao.findById(userId);
+            if (user == null || user.getState() != Account.State.ENABLED || user.getAccountId() != owner.getId()) {
+                throw new InvalidParameterValueException("The project owner user must be enabled and belong to the selected account");
+            }
+        }
+        return owner;
+    }
+
+    @Override
     @ActionEvent(eventType = EventTypes.EVENT_PROJECT_CREATE, eventDescription = "creating project", create = true)
     @DB
     public Project createProject(final String name, final String displayText, String accountName, final Long domainId, final Long userId, final Long accountId) throws ResourceAllocationException {
         Account caller = CallContext.current().getCallingAccount();
-        Account owner = caller;
-
-        //check if the user authorized to create the project
         if (_accountMgr.isNormalUser(caller.getId()) && !_allowUserToCreateProject) {
             throw new PermissionDeniedException("Regular user is not permitted to create a project");
         }
 
-        //Verify request parameters
-        if ((accountName != null && domainId == null) || (domainId != null && accountName == null)) {
-            throw new InvalidParameterValueException("Account name and domain id must be specified together");
+        Account owner = resolveProjectOwner(accountName, domainId, userId, accountId);
+        long ownerDomainId = owner.getDomainId();
+        if (_projectDao.findByNameAndDomain(name, ownerDomainId) != null) {
+            throw new InvalidParameterValueException("Project with name " + name + " already exists in domain id=" + ownerDomainId);
         }
-
-        if (userId != null && (accountId == null && domainId == null)) {
-            throw new InvalidParameterValueException("Domain ID and account ID must be provided with User ID");
-        }
-
-        if (accountName != null) {
-            owner = _accountMgr.finalizeOwner(caller, accountName, domainId, null);
-        }
-
-        //don't allow 2 projects with the same name inside the same domain
-        if (_projectDao.findByNameAndDomain(name, owner.getDomainId()) != null) {
-            throw new InvalidParameterValueException("Project with name " + name + " already exists in domain id=" + owner.getDomainId());
-        }
-
-        User user = validateUser(userId, accountId, domainId);
-        if (user != null) {
-            owner = _accountDao.findById(user.getAccountId());
-        }
-
-        //do resource limit check
         _resourceLimitMgr.checkResourceLimit(owner, ResourceType.project);
 
-        final Account ownerFinal = owner;
-        User finalUser = user;
-        Project project =  Transaction.execute(new TransactionCallback<Project>() {
+        Project project = Transaction.execute(new TransactionCallback<Project>() {
             @Override
             public Project doInTransaction(TransactionStatus status) {
 
                 //Create an account associated with the project
-                StringBuilder acctNm = new StringBuilder("PrjAcct-");
-                acctNm.append(name).append("-").append(ownerFinal.getDomainId());
+                String projectAccountName = "PrjAcct-" + name + "-" + ownerDomainId;
+                Account projectAccount = _accountMgr.createAccount(projectAccountName, Account.Type.PROJECT, null, ownerDomainId, null, null, UUID.randomUUID().toString());
 
-                Account projectAccount = _accountMgr.createAccount(acctNm.toString(), Account.Type.PROJECT, null, domainId, null, null, UUID.randomUUID().toString());
-
-                Project project = _projectDao.persist(new ProjectVO(name, displayText, ownerFinal.getDomainId(), projectAccount.getId()));
+                Project project = _projectDao.persist(new ProjectVO(name, displayText, ownerDomainId, projectAccount.getId()));
 
                 //assign owner to the project
-                assignAccountToProject(project, ownerFinal.getId(), ProjectAccount.Role.Admin,
-                        Optional.ofNullable(finalUser).map(User::getId).orElse(null),  null);
+                assignAccountToProject(project, owner.getId(), ProjectAccount.Role.Admin, userId, null);
 
                 if (project != null) {
                     CallContext.current().setEventDetails("Project ID: " + project.getUuid());
@@ -303,7 +302,7 @@ public class ProjectManagerImpl extends ManagerBase implements ProjectManager, C
                 }
 
                 //Increment resource count
-                _resourceLimitMgr.incrementResourceCount(ownerFinal.getId(), ResourceType.project);
+                _resourceLimitMgr.incrementResourceCount(owner.getId(), ResourceType.project);
 
                 return project;
             }
@@ -427,14 +426,13 @@ public class ProjectManagerImpl extends ManagerBase implements ProjectManager, C
                 @Override
                 public Boolean doInTransaction(TransactionStatus status) {
                     boolean result = true;
-            logger.debug("Unassigning all accounts from project " + project + " as a part of project cleanup...");
-            List<? extends ProjectAccount> projectAccounts = _projectAccountDao.listByProjectId(project.getId());
-            for (ProjectAccount projectAccount : projectAccounts) {
-                result = result && unassignAccountFromProject(projectAccount.getProjectId(), projectAccount.getAccountId());
-            }
+                    logger.debug("Unassigning all accounts and users from project {} as a part of project cleanup", project);
+                    for (ProjectAccountVO projectAccount : _projectAccountDao.listByProjectId(project.getId())) {
+                        result = result && _projectAccountDao.remove(projectAccount.getId());
+                    }
 
-            logger.debug("Removing all invitations for the project " + project + " as a part of project cleanup...");
-            _projectInvitationDao.cleanupInvitations(project.getId());
+                    logger.debug("Removing all invitations for project {} as a part of project cleanup", project);
+                    _projectInvitationDao.cleanupInvitations(project.getId());
                     return result;
                 }
             });

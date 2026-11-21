@@ -73,7 +73,9 @@ export default {
       label: 'label.new.project',
       docHelp: 'adminguide/projects.html#creating-a-new-project',
       listView: true,
-      args: ['name', 'displaytext']
+      popup: true,
+      selfManagedDialog: true,
+      component: shallowRef(defineAsyncComponent(() => import('@/views/project/CreateProjectDialog.vue')))
     },
     {
       api: 'updateProjectInvitation',

@@ -21,11 +21,19 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.cloud.projects.ProjectService;
+import com.cloud.user.Account;
+
 @RunWith(MockitoJUnitRunner.class)
 public class CreateProjectCmdTest  {
+
+    @Mock
+    private ProjectService projectService;
 
     @InjectMocks
     private CreateProjectCmd createProjectCmd = new CreateProjectCmd();
@@ -35,6 +43,16 @@ public class CreateProjectCmdTest  {
         String netName = "net-project";
         ReflectionTestUtils.setField(createProjectCmd , "name", netName);
         Assert.assertEquals(createProjectCmd.getDisplayText(), netName);
+    }
+
+    @Test
+    public void testGetEntityOwnerIdUsesExplicitAccountIdWithoutFillingInCallerScope() {
+        ReflectionTestUtils.setField(createProjectCmd, "accountId", 42L);
+        Account owner = Mockito.mock(Account.class);
+        Mockito.when(owner.getId()).thenReturn(42L);
+        Mockito.when(projectService.resolveProjectOwner(null, null, null, 42L)).thenReturn(owner);
+
+        Assert.assertEquals(42L, createProjectCmd.getEntityOwnerId());
     }
 
 }

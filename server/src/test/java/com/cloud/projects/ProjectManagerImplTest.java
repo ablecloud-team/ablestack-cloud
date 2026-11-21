@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.cloudstack.acl.ControlledEntity;
+import org.apache.cloudstack.context.CallContext;
+import org.apache.cloudstack.framework.messagebus.MessageBus;
 import org.apache.cloudstack.reservation.dao.ReservationDao;
 import org.apache.cloudstack.webhook.WebhookHelper;
 import org.apache.commons.collections.CollectionUtils;
@@ -39,17 +41,25 @@ import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import com.cloud.configuration.Resource.ResourceType;
+import com.cloud.exception.InvalidParameterValueException;
+import com.cloud.exception.PermissionDeniedException;
 import com.cloud.exception.ResourceAllocationException;
 import com.cloud.projects.ProjectAccount.Role;
 import com.cloud.projects.dao.ProjectAccountDao;
 import com.cloud.projects.dao.ProjectDao;
 import com.cloud.projects.dao.ProjectInvitationDao;
 import com.cloud.resourcelimit.CheckedReservation;
+import com.cloud.user.Account;
+import com.cloud.user.AccountManager;
 import com.cloud.user.AccountVO;
 import com.cloud.user.ResourceLimitService;
 import com.cloud.user.User;
+import com.cloud.user.UserVO;
 import com.cloud.user.dao.AccountDao;
+import com.cloud.user.dao.UserDao;
 import com.cloud.utils.component.ComponentContext;
+import com.cloud.utils.db.Transaction;
+import com.cloud.utils.db.TransactionCallback;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -72,6 +82,15 @@ public class ProjectManagerImplTest {
     AccountDao accountDao;
 
     @Mock
+    AccountManager accountManager;
+
+    @Mock
+    UserDao userDao;
+
+    @Mock
+    MessageBus messageBus;
+
+    @Mock
     ResourceLimitService resourceLimitMgr;
 
     @Mock
@@ -87,6 +106,121 @@ public class ProjectManagerImplTest {
             updateProjects.add(project);
             return true;
         });
+    }
+
+    @Test
+    public void testCreateProjectChecksLimitOfSelectedOwnerInSelectedDomain() throws ResourceAllocationException {
+        Account caller = Mockito.mock(Account.class);
+        AccountVO owner = Mockito.mock(AccountVO.class);
+        CallContext context = Mockito.mock(CallContext.class);
+        try (MockedStatic<CallContext> callContext = Mockito.mockStatic(CallContext.class)) {
+            callContext.when(CallContext::current).thenReturn(context);
+            Mockito.when(context.getCallingAccount()).thenReturn(caller);
+            Mockito.when(owner.getId()).thenReturn(42L);
+            Mockito.when(owner.getAccountName()).thenReturn("target");
+            Mockito.when(owner.getDomainId()).thenReturn(18L);
+            Mockito.when(owner.getState()).thenReturn(Account.State.ENABLED);
+            Mockito.when(accountDao.findById(42L)).thenReturn(owner);
+            Mockito.when(accountManager.finalizeOwner(caller, "target", 18L, null)).thenReturn(owner);
+            Mockito.doThrow(new ResourceAllocationException("test quota", ResourceType.project))
+                    .when(resourceLimitMgr).checkResourceLimit(owner, ResourceType.project);
+
+            Assert.assertThrows(ResourceAllocationException.class,
+                    () -> projectManager.createProject("example", "example", null, null, null, 42L));
+
+            Mockito.verify(projectDao).findByNameAndDomain("example", 18L);
+            Mockito.verify(resourceLimitMgr).checkResourceLimit(owner, ResourceType.project);
+            Mockito.verifyNoMoreInteractions(resourceLimitMgr);
+        }
+    }
+
+    @Test
+    public void testResolveProjectOwnerRejectsConflictingDomainBeforeCheckingQuotas() {
+        AccountVO owner = Mockito.mock(AccountVO.class);
+        CallContext context = Mockito.mock(CallContext.class);
+        try (MockedStatic<CallContext> callContext = Mockito.mockStatic(CallContext.class)) {
+            callContext.when(CallContext::current).thenReturn(context);
+            Mockito.when(owner.getDomainId()).thenReturn(18L);
+            Mockito.when(owner.getState()).thenReturn(Account.State.ENABLED);
+            Mockito.when(accountDao.findById(42L)).thenReturn(owner);
+
+            Assert.assertThrows(InvalidParameterValueException.class,
+                    () -> projectManager.resolveProjectOwner(null, 19L, null, 42L));
+
+            Mockito.verifyNoInteractions(accountManager, resourceLimitMgr);
+        }
+    }
+
+    @Test
+    public void testResolveProjectOwnerChecksDelegationThroughAccountAuthorization() {
+        Account caller = Mockito.mock(Account.class);
+        AccountVO owner = Mockito.mock(AccountVO.class);
+        CallContext context = Mockito.mock(CallContext.class);
+        try (MockedStatic<CallContext> callContext = Mockito.mockStatic(CallContext.class)) {
+            callContext.when(CallContext::current).thenReturn(context);
+            Mockito.when(context.getCallingAccount()).thenReturn(caller);
+            Mockito.when(owner.getDomainId()).thenReturn(18L);
+            Mockito.when(owner.getAccountName()).thenReturn("target");
+            Mockito.when(owner.getState()).thenReturn(Account.State.ENABLED);
+            Mockito.when(accountDao.findById(42L)).thenReturn(owner);
+            Mockito.when(accountManager.finalizeOwner(caller, "target", 18L, null))
+                    .thenThrow(new PermissionDeniedException("test scope denial"));
+
+            Assert.assertThrows(PermissionDeniedException.class,
+                    () -> projectManager.resolveProjectOwner(null, null, null, 42L));
+        }
+    }
+
+    @Test
+    public void testResolveProjectOwnerRejectsUserFromAnotherAccount() {
+        Account caller = Mockito.mock(Account.class);
+        Account owner = Mockito.mock(Account.class);
+        UserVO user = Mockito.mock(UserVO.class);
+        CallContext context = Mockito.mock(CallContext.class);
+        try (MockedStatic<CallContext> callContext = Mockito.mockStatic(CallContext.class)) {
+            callContext.when(CallContext::current).thenReturn(context);
+            Mockito.when(context.getCallingAccount()).thenReturn(caller);
+            Mockito.when(accountManager.finalizeOwner(caller, "target", 18L, null)).thenReturn(owner);
+            Mockito.when(owner.getId()).thenReturn(42L);
+            Mockito.when(owner.getState()).thenReturn(Account.State.ENABLED);
+            Mockito.when(userDao.findById(17L)).thenReturn(user);
+            Mockito.when(user.getState()).thenReturn(Account.State.ENABLED);
+            Mockito.when(user.getAccountId()).thenReturn(43L);
+
+            Assert.assertThrows(InvalidParameterValueException.class,
+                    () -> projectManager.resolveProjectOwner("target", 18L, 17L, null));
+        }
+    }
+
+    @Test
+    public void testDeleteProjectRemovesAccountAndUserScopedMemberships() {
+        long projectId = 100L;
+        ProjectVO project = Mockito.mock(ProjectVO.class);
+        AccountVO projectAccount = Mockito.mock(AccountVO.class);
+        AccountVO system = Mockito.mock(AccountVO.class);
+        ProjectAccountVO accountMembership = Mockito.mock(ProjectAccountVO.class);
+        ProjectAccountVO userMembership = Mockito.mock(ProjectAccountVO.class);
+        Mockito.when(project.getId()).thenReturn(projectId);
+        Mockito.when(project.getProjectAccountId()).thenReturn(90L);
+        Mockito.when(accountDao.findById(90L)).thenReturn(projectAccount);
+        Mockito.when(accountDao.findById(Account.ACCOUNT_ID_SYSTEM)).thenReturn(system);
+        Mockito.when(accountManager.deleteAccount(projectAccount, User.UID_SYSTEM, system)).thenReturn(true);
+        Mockito.when(projectAccountDao.listByProjectId(projectId)).thenReturn(List.of(accountMembership, userMembership));
+        Mockito.when(accountMembership.getId()).thenReturn(11L);
+        Mockito.when(userMembership.getId()).thenReturn(12L);
+        Mockito.when(projectAccountDao.remove(11L)).thenReturn(true);
+        Mockito.when(projectAccountDao.remove(12L)).thenReturn(true);
+        Mockito.when(projectDao.remove(projectId)).thenReturn(true);
+
+        try (MockedStatic<Transaction> transaction = Mockito.mockStatic(Transaction.class)) {
+            transaction.when(() -> Transaction.execute(Mockito.any(TransactionCallback.class)))
+                    .thenAnswer(call -> ((TransactionCallback<?>) call.getArgument(0)).doInTransaction(null));
+
+            Assert.assertTrue(projectManager.deleteProject(system, User.UID_SYSTEM, project));
+        }
+
+        Mockito.verify(projectAccountDao).remove(11L);
+        Mockito.verify(projectAccountDao).remove(12L);
     }
 
     private void runUpdateProjectNameAndDisplayTextTest(boolean nonNullName, boolean nonNullDisplayText) {
