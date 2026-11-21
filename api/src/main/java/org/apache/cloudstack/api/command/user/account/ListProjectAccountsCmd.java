@@ -44,8 +44,11 @@ public class ListProjectAccountsCmd extends BaseListCmd {
     @Parameter(name = ApiConstants.ACCOUNT, type = CommandType.STRING, description = "List Accounts of the project by Account name")
     private String accountName;
 
-    @Parameter(name = ApiConstants.USER_ID, type = CommandType.UUID, entityType = UserResponse.class, description = "List invitation by User ID")
+    @Parameter(name = ApiConstants.USER_ID, type = CommandType.UUID, entityType = UserResponse.class, description = "List project memberships by user ID")
     private Long userId;
+
+    @Parameter(name = ApiConstants.USERNAME, type = CommandType.STRING, description = "List project memberships by exact username")
+    private String username;
 
     @Parameter(name = ApiConstants.ROLE, type = CommandType.STRING, description = "List Accounts of the project by role")
     private String role;
@@ -70,6 +73,10 @@ public class ListProjectAccountsCmd extends BaseListCmd {
     }
 
     public Long getUserId() { return userId; }
+
+    public String getUsername() {
+        return username;
+    }
 
     public Long getProjectRoleId() {
         return projectRoleId;

@@ -37,10 +37,13 @@ import com.cloud.api.query.dao.ProjectJoinDao;
 import com.cloud.api.query.vo.ProjectJoinVO;
 import com.cloud.domain.DomainVO;
 import com.cloud.domain.dao.DomainDao;
+import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.exception.PermissionDeniedException;
 import com.cloud.user.Account;
 import com.cloud.user.AccountManager;
 import com.cloud.user.User;
+import com.cloud.user.UserVO;
+import com.cloud.user.dao.UserDao;
 import com.cloud.utils.Pair;
 import com.cloud.utils.db.SearchBuilder;
 import com.cloud.utils.db.SearchCriteria;
@@ -60,6 +63,8 @@ public class ProjectDomainQueryTest {
     private AccountManager accountMgr;
     @Mock
     private DomainDao domainDao;
+    @Mock
+    private UserDao userDao;
     @Mock
     private ProjectJoinDao projectJoinDao;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -147,5 +152,24 @@ public class ProjectDomainQueryTest {
         assertThrows(PermissionDeniedException.class, this::query);
         verify(projectJoinDao, never()).searchAndCount(any(), any());
     }
+    @Test
+    public void usernameMustBelongToTheSpecifiedAccount() {
+        DomainVO domain = Mockito.mock(DomainVO.class);
+        Account account = Mockito.mock(Account.class);
+        UserVO username = Mockito.mock(UserVO.class);
+        when(command.getDomainId()).thenReturn(105L);
+        when(command.getAccountName()).thenReturn("team");
+        when(command.getUsername()).thenReturn("other-user");
+        when(accountMgr.isAdmin(7L)).thenReturn(true);
+        when(domainDao.findById(105L)).thenReturn(domain);
+        when(accountMgr.getActiveAccountByName("team", 105L)).thenReturn(account);
+        when(account.getId()).thenReturn(29L);
+        when(userDao.getUserByName("other-user", 105L)).thenReturn(username);
+        when(username.getAccountId()).thenReturn(45L);
+
+        assertThrows(InvalidParameterValueException.class, this::query);
+        verify(projectJoinDao, never()).searchAndCount(any(), any());
+    }
+
 }
 

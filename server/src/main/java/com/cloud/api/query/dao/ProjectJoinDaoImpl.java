@@ -77,7 +77,7 @@ public class ProjectJoinDaoImpl extends GenericDaoBase<ProjectJoinVO, Long> impl
         prjIdSearch.and("id", prjIdSearch.entity().getId(), SearchCriteria.Op.EQ);
         prjIdSearch.done();
 
-        this._count = "select count(distinct id) from project_view WHERE ";
+        this._count = "select count(distinct project_view.id) from project_view WHERE ";
     }
 
     @Override
