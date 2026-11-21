@@ -852,6 +852,7 @@ import { mixinDevice } from '@/utils/mixin.js'
 import { genericCompare } from '@/utils/sort.js'
 import { sourceToken } from '@/utils/request'
 import store from '@/store'
+import { projectBulkScope, projectBulkTargets } from '@/utils/projectBulk'
 import eventBus from '@/config/eventBus'
 
 import Breadcrumb from '@/components/widgets/Breadcrumb'
@@ -1042,6 +1043,7 @@ export default {
       vmGroupQueryStatus: 'loading',
       sshKeyPairDetailStatus: 'loading',
       sshKeyPairDetailContext: null,
+      projectBulkEpoch: 0,
       autoRefreshInterval: 10000
     }
   },
@@ -1061,7 +1063,13 @@ export default {
     this.formRef = ref()
     this.form = reactive({})
     this.rules = reactive({})
-    this.onListEvent('project-switch-start', () => { if (s2sGatewayRoute(this.$route) || vpnConnectionRoute(this.$route)) this.rejectS2sGatewaySearch('scope') })
+    this.onListEvent('project-switch-start', () => {
+      if (s2sGatewayRoute(this.$route) || vpnConnectionRoute(this.$route)) this.rejectS2sGatewaySearch('scope')
+      if (!this.isProjectList) return
+      this.projectBulkEpoch++
+      this.resetSelection()
+      if (this.$refs.listview) this.$refs.listview.resetSelection()
+    })
     this.onListEvent('vm-refresh-data', () => {
       if (this.$route.path === '/vm' || this.$route.path.includes('/vm/')) {
         this.fetchData()
@@ -1369,7 +1377,7 @@ export default {
           this.fetchData({ irefresh: true })
           return
         }
-        if ((storageUiRoute(from) || (from.meta?.name || from.name) === 'snapshot') && this.showAction) this.closeAction()
+        if ((storageUiRoute(from) || (from.meta?.name || from.name) === 'snapshot' || this.currentAction.projectBulkTargets) && this.showAction) this.closeAction()
         this.resetSelection()
         const page = Number(to.query.page)
         this.page = Number.isInteger(page) && page > 0 ? page : 1
@@ -1437,6 +1445,14 @@ export default {
     isGuestNetworkUi () { return ['guestnetwork', 'networkoffering'].includes(this.$route.meta?.name) },
     isVmUi () { return this.$route.meta?.name === 'vm' },
     isVmList () { return !this.dataView && this.isVmUi },
+    isProjectList () { return !this.dataView && this.$route.meta?.name === 'project' },
+    projectBulkContext () {
+      if (!this.isProjectList) return ''
+      return JSON.stringify([
+        this.projectBulkEpoch,
+        projectBulkScope(this.$route, this.$store.getters, this.$store.state?.user?.token, this.selectedRowKeys)
+      ])
+    },
     isAclUi () { return isAclListRoute(this.$route) },
     aclStandardDialog () {
       return this.isAclUi && ['createNetworkACLList', 'updateNetworkACLList', 'deleteNetworkACLList'].includes(this.currentAction?.api)
@@ -1667,7 +1683,7 @@ export default {
       }
       const selectionCount = this.selectedRowKeys.length
       return this.actions.filter(action => {
-        if (isEventMutation(action.api) && !this.storageActionReady) return false
+        if ((isEventMutation(action.api) || (this.isProjectList && action.projectBulkAction)) && !this.storageActionReady) return false
         if (!(action.api in this.$store.getters.apis)) {
           return false
         }
@@ -3025,6 +3041,7 @@ export default {
       return this.fetchData({ irefresh: true })
     },
     closeAction (result) {
+      const refreshProjectBulk = this.currentAction?.projectBulkTargets && result?.refreshProjectList && this.isProjectList
       if (result?.kmsRemoved && !kmsDeletionConfirmed(this.$route, this.currentAction, result, this.kmsNavigationScope())) return
       const keyResourceList = result?.kmsRemoved ? this.currentKmsListLocation() : null
       if (keyResourceList) {
@@ -3112,6 +3129,11 @@ export default {
       this.showAction = false
       this.currentAction = {}
       this.actionConfirmText = ''
+      if (refreshProjectBulk) {
+        this.resetSelection()
+        if (this.$refs.listview) this.$refs.listview.resetSelection()
+        this.fetchData({ irefresh: true })
+      }
       if (displayLocation) {
         this.$message.success(this.$t(result.fordisplay ? 'message.s2s.display.shown' : 'message.s2s.display.hidden'))
         const query = this.$route.query || {}; const next = displayLocation.query || {}
@@ -3203,6 +3225,7 @@ export default {
       this.$router.push({ query: queryParams })
     },
     onRowSelectionChange (selection) {
+      if (this.isProjectList && !this.storageActionReady && selection?.length) return
       if (asnRoute(this.$route)) {
         if (this.listRequestPending && this.listLoadedScope !== this.listScope()) return
         if (this.listRefreshError || this.asnSearchFailure) { this.resetSelection(); return }
@@ -3277,6 +3300,21 @@ export default {
       this.actionTrigger = document.activeElement
       this.actionTriggerLabel = this.actionTrigger?.getAttribute('aria-label')
       this.actionOriginPath = this.$route?.path
+      if (isGroupAction && action.projectBulkAction) {
+        if (!this.isProjectList || !this.storageActionReady) return
+        const targets = projectBulkTargets(action.api, this.selectedRowKeys, this.items, this.$store.getters)
+        if (!targets.length) return
+        const context = this.projectBulkContext
+        this.currentAction = {
+          ...action,
+          selfManagedDialog: true,
+          component: markRaw(defineAsyncComponent(() => import('@/views/project/ProjectBulkActionDialog.vue'))),
+          projectBulkTargets: Object.freeze(targets),
+          projectBulkCurrent: () => this.showAction && context === this.projectBulkContext
+        }
+        this.showAction = true
+        return
+      }
       if (isEventMutation(action.api)) {
         if (!this.eventActionScope || !this.storageActionReady) return
         const rows = isGroupAction ? this.selectedItems : [action.resource || this.resource]

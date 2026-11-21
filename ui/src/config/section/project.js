@@ -18,6 +18,7 @@
 import { shallowRef, defineAsyncComponent } from 'vue'
 import store from '@/store'
 import { isProjectAdministrator } from '@/utils/projectMembership'
+import { projectActionReason, projectBulkAvailable } from '@/utils/projectBulk'
 
 export default {
   name: 'project',
@@ -113,33 +114,18 @@ export default {
         return isProjectAdministrator(record, store.userInfo)
       }
     },
-    {
-      api: 'activateProject',
-      icon: 'play-circle-outlined',
-      label: 'label.activate.project',
-      message: 'message.activate.project',
+    ...[
+      { api: 'activateProject', icon: 'play-circle-outlined', label: 'label.activate.project', message: 'message.activate.project', toolbarLabel: 'label.project.bulk.activate' },
+      { api: 'suspendProject', icon: 'pause-circle-outlined', label: 'label.suspend.project', message: 'message.suspend.project', toolbarLabel: 'label.project.bulk.suspend' }
+    ].map(action => ({
+      ...action,
       dataView: true,
-      show: (record, store) => {
-        return (isProjectAdministrator(record, store.userInfo)) && record.state === 'Suspended'
-      },
-      groupAction: true,
       popup: true,
-      groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
-    },
-    {
-      api: 'suspendProject',
-      icon: 'pause-circle-outlined',
-      label: 'label.suspend.project',
-      message: 'message.suspend.project',
-      docHelp: 'adminguide/projects.html#sending-project-membership-invitations',
-      dataView: true,
-      show: (record, store) => {
-        return (isProjectAdministrator(record, store.userInfo)) && record.state !== 'Suspended'
-      },
       groupAction: true,
-      popup: true,
-      groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
-    },
+      projectBulkAction: true,
+      show: (record, store) => !projectActionReason(action.api, record, store),
+      groupShow: (rows, store) => projectBulkAvailable(action.api, rows, store)
+    })),
     ...['addAccountToProject', 'addUserToProject'].map(api => ({
       api,
       icon: 'user-add-outlined',
@@ -162,9 +148,11 @@ export default {
         return isProjectAdministrator(record, store.userInfo) && record.id !== store.project.id
       },
       groupAction: true,
+      projectBulkAction: true,
+      toolbarLabel: 'label.project.bulk.delete',
+      groupShow: (rows, store) => projectBulkAvailable('deleteProject', rows, store),
       popup: true,
       requireNameConfirmation: true,
-      groupMap: (selection, values) => { return selection.map(x => { return { id: x, cleanup: values.cleanup || null } }) },
       args: (record, store) => {
         const fields = []
         if (store.apis.deleteProject.params.filter(x => x.name === 'cleanup').length > 0) {
