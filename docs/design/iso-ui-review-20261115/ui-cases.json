@@ -1,0 +1,521 @@
+[
+  {
+    "id": "baseline-iso-list",
+    "at": "2026-11-14T14:30:04.145Z",
+    "count": 8,
+    "theme": "dark",
+    "actor": "admin",
+    "observed": "UI"
+  },
+  {
+    "id": "register-invalid-url",
+    "at": "2026-11-14T14:31:18.885Z",
+    "result": "SERVER_REJECTED",
+    "finding": "No client URL validation; URI is not absolute notification 431; draft retained",
+    "registered": false
+  },
+  {
+    "id": "register-empty-url-wrong-message",
+    "at": "2026-11-14T14:32:18.551Z",
+    "result": "BUG_CONFIRMED",
+    "urlError": "로컬에서 ISO 업로드",
+    "expected": "URL 입력 필요",
+    "clientRequired": true
+  },
+  {
+    "id": "search-api-ui-gaps",
+    "at": "2026-11-14T14:34:01.312Z",
+    "observedUiFields": [
+      "name",
+      "zoneid",
+      "tags",
+      "arch",
+      "oscategoryid",
+      "storageid",
+      "imagestoreid"
+    ],
+    "apiCandidateMissingUi": [
+      "bootable",
+      "isready",
+      "ispublic",
+      "hypervisor",
+      "userdataid"
+    ],
+    "status": "CONTRACT_REVIEW_PENDING_LIVE_DOCS"
+  },
+  {
+    "id": "name-vs-keyword-search",
+    "at": "2026-11-14T14:34:27.031Z",
+    "advancedName": "Driver",
+    "advancedCount": 0,
+    "keyword": "Driver",
+    "keywordCount": 1,
+    "source": "UI",
+    "classification": "Exact-name contract; disclose in field tooltip, no banner"
+  },
+  {
+    "id": "1ffb3c5f-bfd1-4cf2-8b56-273f54eacad6",
+    "at": "2026-11-14T14:37:11.343Z",
+    "result": "PASS",
+    "size": 1525760,
+    "checksum": "{SHA-256}171cc1569c3078e9b4b9e0d88338ba8ac990fb0843a431193c63d60669662ca4",
+    "bootable": false,
+    "arch": "x86_64",
+    "isready": true,
+    "uiRawBoolean": "true/false"
+  },
+  {
+    "id": "zone-style-and-selection",
+    "at": "2026-11-14T14:38:16.681Z",
+    "result": "IMPROVE",
+    "whiteVerticalGrid": true,
+    "rawStates": [
+      "Successfully Installed",
+      "DOWNLOADED",
+      "100"
+    ],
+    "toolbarAbsent": true,
+    "bulkButtonAppearsFullWidth": true,
+    "screenshots": [
+      "zone-expanded-dark-before.png",
+      "zone-selected-dark-before.png"
+    ]
+  },
+  {
+    "id": "zone-copy-no-target",
+    "at": "2026-11-14T14:38:40.952Z",
+    "result": "NOT_RUN_ENVIRONMENT",
+    "availableZones": 1,
+    "targetZones": 0,
+    "uiOpensEmptyDialog": true,
+    "featureMustBePreserved": true
+  },
+  {
+    "id": "edit-missing-initial-arch-and-bootable",
+    "at": "2026-11-14T14:40:08.130Z",
+    "result": "BUG_CONFIRMED",
+    "isoId": "1ffb3c5f-bfd1-4cf2-8b56-273f54eacad6",
+    "detailArch": "x86_64",
+    "editArch": "placeholder (empty)",
+    "bootableFieldVisible": false,
+    "apiSupports": [
+      "arch",
+      "bootable"
+    ]
+  },
+  {
+    "id": "edit-arch-search-filter",
+    "at": "2026-11-14T14:40:50.734Z",
+    "result": "BUG_CONFIRMED",
+    "query": "zz-no-such-architecture",
+    "observedOptions": [
+      "x86_64",
+      "aarch64",
+      "s390x"
+    ],
+    "expectedOptions": []
+  },
+  {
+    "id": "breadcrumb-search-context-lost",
+    "at": "2026-11-14T14:41:47.975Z",
+    "result": "BUG_CONFIRMED",
+    "beforeListQuery": "keyword=qa-iso-url&q=qa-iso-url&page=1&pagesize=20",
+    "afterBreadcrumbQuery": "none",
+    "expected": "restore previous list context"
+  },
+  {
+    "id": "de9279c7-b869-413a-baff-bee6ceff8d19",
+    "at": "2026-11-14T14:44:54.337Z",
+    "result": "PASS",
+    "ready": true,
+    "arch": "x86_64",
+    "bootable": false,
+    "checksumEntered": "d1cfa4ad592ccaa06f1b733142ce1fdf",
+    "checksumVisibleInDetail": false,
+    "integrityValidation": "NOT_CLAIMED"
+  },
+  {
+    "id": "local-upload-userdata-fails-after-registration",
+    "at": "2026-11-14T14:47:48.807Z",
+    "result": "BUG_CONFIRMED",
+    "severity": "P1",
+    "isoName": "qa-iso-local-userdata-20261114",
+    "userData": "8acaa908-fad1-42c3-8847-c22d98306394",
+    "policy": "append",
+    "observed": "Generic 요청 실패; form retained; ISO row created; upload not started",
+    "retryRisk": "duplicate registration",
+    "sourceCorroboration": "RegisterOrUploadIso.vue reads json.postuploadisoresponse.iso[0].id, but getuploadparams is the response contract"
+  },
+  {
+    "id": "d1c7baed-c14d-44eb-a0c2-49134b3dffe7",
+    "at": "2026-11-14T14:51:43.404Z",
+    "result": "BUG_CONFIRMED",
+    "uiDeleteVisible": true,
+    "serverMessage": "The ISO is either getting uploaded or it may be initiated shortly, please wait for it to be completed",
+    "cleanup": "WAITING_FOR_NORMAL_UPLOAD_TIMEOUT",
+    "noForcedApiAvailable": true
+  },
+  {
+    "id": "upload-timeout-live",
+    "at": "2026-11-14T14:54:30.154Z",
+    "result": "OBSERVED",
+    "minutes": 60,
+    "settingChanged": false,
+    "orphanCreatedLocal": "2026-11-14 23:47:27 KST",
+    "cleanupEarliest": "2026-11-15 00:47:27 KST plus monitor interval"
+  },
+  {
+    "id": "1ffb3c5f-bfd1-4cf2-8b56-273f54eacad6",
+    "at": "2026-11-14T15:00:30.438Z",
+    "name": "qa-iso-url-20261114",
+    "description": "metadata update + user data append; arch x86_64 and false booleans preserved"
+  },
+  {
+    "id": "deploy-iso-nonbootable-filter",
+    "at": "2026-11-14T15:02:22.553Z",
+    "result": "Other category contains no bootable ISO; QA nonbootable fixture not offered as OS source",
+    "scope": "selection only; no guest boot tested"
+  },
+  {
+    "id": "vm-standard-comparison",
+    "at": "2026-11-14T15:02:36.023Z",
+    "vm": "9f3bf7a1-c5b2-45ba-ba06-1e466d09b364",
+    "readOnly": true,
+    "views": [
+      "list",
+      "settings",
+      "nics",
+      "network-connect-dialog-cancel"
+    ],
+    "vmCreated": false
+  },
+  {
+    "id": "download-file-user-assisted-pass",
+    "at": "2026-11-14T15:05:01.244Z",
+    "file": "qa-iso-url-20261114.iso",
+    "bytes": 1525760,
+    "sha256": "171cc1569c3078e9b4b9e0d88338ba8ac990fb0843a431193c63d60669662ca4",
+    "userDownloaded": true,
+    "verifiedLocal": true
+  },
+  {
+    "id": "comments-create-delete-pass",
+    "at": "2026-11-14T15:06:41.953Z",
+    "created": 1,
+    "deleted": 1,
+    "remaining": 0
+  },
+  {
+    "id": "events-iso-lifecycle-pass",
+    "at": "2026-11-14T15:07:00.606Z",
+    "observed": [
+      "ISO create completed",
+      "ISO edit completed",
+      "ISO extract scheduled-start-completed",
+      "annotation create-delete completed"
+    ],
+    "count": 7
+  },
+  {
+    "id": "permissions-empty-target-pass",
+    "at": "2026-11-14T15:07:31.077Z",
+    "validation": "공유 대상을 하나 이상 입력하거나 선택하세요.",
+    "permissionChanged": false,
+    "style": "legacy 550px body buttons; no explicit current permissions summary"
+  },
+  {
+    "id": "zone-light-style",
+    "at": "2026-11-14T15:08:47.138Z",
+    "rawStates": [
+      "100",
+      "DOWNLOADED",
+      "Successfully Installed"
+    ],
+    "toolbarAbsent": true
+  },
+  {
+    "id": "system-iso-action-visibility",
+    "at": "2026-11-14T15:09:16.297Z",
+    "resource": "vmware-tools.iso",
+    "owner": "system",
+    "menus": [
+      "8859 menu item (메뉴 항목) 공유 ISO 업데이트",
+      "8861 menu item (메뉴 항목) ISO 권한 업데이트",
+      "8865 menu item (메뉴 항목) ISO 편집",
+      "8867 menu item (메뉴 항목) ISO 다운로드"
+    ],
+    "submitted": false,
+    "classification": "UI guard consistency; no backend bypass claimed"
+  },
+  {
+    "id": "system-iso-zone-guard-inconsistent",
+    "at": "2026-11-14T15:09:31.828Z",
+    "rowDeleteHidden": true,
+    "bulkDeleteVisibleOnSelection": true,
+    "status": "Processing",
+    "ready": true,
+    "submitted": false
+  },
+  {
+    "id": "acl-user-private-baseline",
+    "at": "2026-11-14T15:13:31.728Z",
+    "actor": "qa-iso-review-20261115",
+    "role": "User",
+    "ownedIsoCount": 0,
+    "adminIsoVisible": false
+  },
+  {
+    "id": "acl-user-private-direct-empty",
+    "at": "2026-11-14T15:14:04.667Z",
+    "access": "data not disclosed",
+    "ui": "blank InfoCard and detail with UUID breadcrumb, no not-found/permission explanation",
+    "classification": "empty-state UX defect"
+  },
+  {
+    "id": "acl-private-direct-late-error",
+    "at": "2026-11-14T15:14:18.628Z",
+    "detailDataRendered": false,
+    "lateToast": "server permission error after blank detail; raw technical message",
+    "correction": "initial empty-state observation preceded delayed error toast",
+    "serverBypassClaimed": false
+  },
+  {
+    "id": "user-owned-url-registration-and-extractable-pass",
+    "at": "2026-11-14T15:16:37.793Z",
+    "resourceId": "d6daa825-a5d2-4abc-8850-e391cbd6a977",
+    "ready": true,
+    "checksumVisible": "d1cfa4ad592ccaa06f1b733142ce1fdf",
+    "isextractableSaved": true,
+    "apiDescriptionCaveat": "Base permissions description says root only, actual ISO owner exception exists in server and live UI"
+  },
+  {
+    "id": "owner-download-action-visibility-pass",
+    "at": "2026-11-14T15:16:45.769Z",
+    "falseHidden": true,
+    "trueVisible": true,
+    "downloadNotRepeated": true
+  },
+  {
+    "id": "user-tags-create-delete-pass",
+    "at": "2026-11-14T15:17:21.237Z",
+    "resourceId": "d6daa825-a5d2-4abc-8850-e391cbd6a977",
+    "key": "qa-iso-review",
+    "created": true,
+    "deleted": true
+  },
+  {
+    "id": "nonbootable-zone-deploy-dead-end",
+    "at": "2026-11-14T15:18:07.297Z",
+    "resourceId": "d6daa825-a5d2-4abc-8850-e391cbd6a977",
+    "ready": true,
+    "bootable": false,
+    "zoneRocketEnabled": true,
+    "wizardIsoTypeLocked": true,
+    "sourceListEmpty": true,
+    "createDisabled": true,
+    "vmCreated": false,
+    "classification": "P2 navigation and prerequisite feedback"
+  },
+  {
+    "id": "user-owned-iso-delete-pass",
+    "at": "2026-11-14T15:19:06.043Z",
+    "resourceId": "d6daa825-a5d2-4abc-8850-e391cbd6a977",
+    "listCountAfter": 0,
+    "redirectedToList": true
+  },
+  {
+    "id": "acl-user-shared-list-pass",
+    "at": "2026-11-14T15:23:36.200Z",
+    "actor": "qa-iso-review-20261115",
+    "sharedCount": 1,
+    "resourceId": "1ffb3c5f-bfd1-4cf2-8b56-273f54eacad6",
+    "filter": "shared",
+    "chipFinding": [
+      "label.isofilter : shared",
+      "필터 : shared"
+    ]
+  },
+  {
+    "id": "shared-iso-zone-empty-render",
+    "at": "2026-11-14T15:24:11.824Z",
+    "severity": "P1",
+    "resourceId": "1ffb3c5f-bfd1-4cf2-8b56-273f54eacad6",
+    "actor": "qa-iso-review-20261115",
+    "detailReadable": true,
+    "detailActionsHidden": true,
+    "zoneTotal": 1,
+    "zoneRowsVisible": 0,
+    "loading": false,
+    "sourceInference": "IsoZones rowExpandable dereferences record.downloaddetails.length; guarded optional data needed for restricted response",
+    "actualRuntimeExceptionCaptured": false
+  },
+  {
+    "id": "shared-filter-lost-on-breadcrumb",
+    "at": "2026-11-14T15:24:25.816Z",
+    "before": "shared",
+    "beforeCount": 1,
+    "after": "self",
+    "afterCount": 0
+  },
+  {
+    "id": "live-api-upload-contract",
+    "at": "2026-11-14T15:26:14.779Z",
+    "api": "getUploadParamsForIso",
+    "request": [
+      "format",
+      "name",
+      "zoneid",
+      "account",
+      "bootable",
+      "checksum",
+      "displaytext",
+      "domainid",
+      "isdynamicallyscalable",
+      "isextractable",
+      "isfeatured",
+      "ispublic",
+      "ostypeid",
+      "projectid"
+    ],
+    "response": [
+      "signature",
+      "id",
+      "expires",
+      "metadata",
+      "postURL"
+    ],
+    "archSupported": false,
+    "checksumSupported": true,
+    "uiHasArchControl": true
+  },
+  {
+    "id": "live-api-update-contract",
+    "at": "2026-11-14T15:26:45.990Z",
+    "api": "updateIso",
+    "supports": [
+      "arch",
+      "bootable",
+      "details",
+      "cleanupdetails",
+      "forceupdateostype",
+      "isdynamicallyscalable",
+      "name",
+      "displaytext",
+      "ostypeid",
+      "passwordenabled",
+      "sortkey"
+    ],
+    "bootableUiMissing": true,
+    "detailsUiScopeNeedsDesign": true
+  },
+  {
+    "id": "live-api-list-contract",
+    "at": "2026-11-14T15:27:04.737Z",
+    "api": "listIsos",
+    "missingUiFilters": [
+      "bootable",
+      "ispublic",
+      "isready",
+      "hypervisor",
+      "userdataid"
+    ],
+    "adminStorageFiltersSupported": true,
+    "sharedAliasWorkedDespiteDescriptionOmission": true
+  },
+  {
+    "id": "iso-permission-remove-target-missing",
+    "at": "2026-11-14T15:30:31.210Z",
+    "severity": "P1",
+    "resourceId": "1ffb3c5f-bfd1-4cf2-8b56-273f54eacad6",
+    "grantedAccount": "qa-iso-review-20261115",
+    "recipientReadVerified": true,
+    "removeTargetsVisible": 0,
+    "willUseResetForDisposableOnly": true
+  },
+  {
+    "id": "disposable-permissions-reset-ui-success",
+    "at": "2026-11-14T15:31:52.306Z",
+    "resourceId": "1ffb3c5f-bfd1-4cf2-8b56-273f54eacad6",
+    "scope": "one disposable ISO, only QA account grant",
+    "recipientRecheck": "PENDING"
+  },
+  {
+    "id": "permissions-reset-recipient-verified",
+    "at": "2026-11-14T15:34:12.893Z",
+    "recipient": "qa-iso-review-20261115",
+    "filter": "shared",
+    "before": 1,
+    "after": 0
+  },
+  {
+    "id": "admin-url-iso-deleted",
+    "at": "2026-11-14T15:36:25.178Z",
+    "resourceId": "1ffb3c5f-bfd1-4cf2-8b56-273f54eacad6",
+    "completedEventVisible": true,
+    "returnRoute": "dashboard after direct detail entry"
+  },
+  {
+    "id": "admin-local-iso-deleted",
+    "at": "2026-11-14T15:38:05.951Z",
+    "resourceId": "de9279c7-b869-413a-baff-bee6ceff8d19",
+    "completedEventVisible": true
+  },
+  {
+    "id": "userdata-cleanup-pass",
+    "at": "2026-11-14T15:39:16.712Z",
+    "resourceId": "8acaa908-fad1-42c3-8847-c22d98306394",
+    "vmRefs": 0,
+    "templateRefs": 0,
+    "isoRefs": 0,
+    "result": "삭제 완료 1개"
+  },
+  {
+    "id": "account-cleanup-pass",
+    "at": "2026-11-14T15:42:15.555Z",
+    "resourceId": "8aec7d98-a30e-4fb5-959f-0e43dc3b94a7",
+    "baselineAccountsRemaining": 3,
+    "credentialPersisted": false
+  },
+  {
+    "id": "vm-standard-light-comparison",
+    "at": "2026-11-14T15:42:49.265Z",
+    "vm": "9f3bf7a1-c5b2-45ba-ba06-1e466d09b364",
+    "tab": "nics",
+    "mutated": false
+  },
+  {
+    "id": "theme-restored",
+    "at": "2026-11-14T15:43:46.332Z",
+    "theme": "dark",
+    "serverThemeConfigChanged": false
+  },
+  {
+    "id": "fixture-cleanup-pass",
+    "at": "2026-11-14T15:46:43.366Z",
+    "httpStatus": 404,
+    "protectedArtifactsUnchanged": true,
+    "moldPidUnchanged": true,
+    "moldActive": true
+  },
+  {
+    "id": "orphan-normal-expiry-observed",
+    "at": "2026-11-14T15:48:49.761Z",
+    "downloadState": "ABANDONED",
+    "downloadPercent": 0,
+    "summaryStill": "대기 중",
+    "zoneStatusStill": "Processing",
+    "settingsOrDbChanged": false
+  },
+  {
+    "id": "final-ui-cleanup-pass",
+    "at": "2026-11-14T15:50:52.344Z",
+    "isoBaseline": 8,
+    "isoBaselineIdsMatch": true,
+    "qaIsoRemaining": 0,
+    "accountBaseline": 3,
+    "userdataRemaining": 0,
+    "testVmsCreated": 0,
+    "globalTimeoutChanged": false,
+    "dbStateChanged": false
+  }
+]

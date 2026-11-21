@@ -1,0 +1,32 @@
+{
+  "base": "1046a5dc3f21cb9cca0ab6881dd906d64b591e80",
+  "changedFromReview": [
+    "ui/src/components/view/ResourceView.vue",
+    "ui/tests/unit/components/view/VpcDialog.spec.js"
+  ],
+  "tools": {
+    "node": {
+      "exitCode": 0,
+      "output": "v20.20.2\n"
+    },
+    "npm": {
+      "exitCode": 0,
+      "output": "10.8.2\n"
+    },
+    "java": {
+      "exitCode": 0,
+      "output": "openjdk version \"17.0.19\" 2026-04-21 LTS\nOpenJDK Runtime Environment (Red_Hat-17.0.19.0.10-1) (build 17.0.19+10-LTS)\nOpenJDK 64-Bit Server VM (Red_Hat-17.0.19.0.10-1) (build 17.0.19+10-LTS, mixed mode, sharing)\n"
+    },
+    "maven": {
+      "exitCode": 0,
+      "output": "Apache Maven 3.6.3 (Red Hat 3.6.3-22)\nMaven home: /usr/share/maven\nJava version: 17.0.19, vendor: Red Hat, Inc., runtime: /usr/lib/jvm/java-17-openjdk-17.0.19.0.10-2.el9_7.x86_64\nDefault locale: en_US, platform encoding: UTF-8\nOS name: \"linux\", version: \"6.18.58.1-microsoft-standard-wsl2\", arch: \"amd64\", family: \"unix\"\n"
+    },
+    "docker": {
+      "error": "[Errno 2] No such file or directory: 'docker'"
+    }
+  },
+  "plannedSourceChangedFromReview": [
+    "ui/src/components/view/ResourceView.vue"
+  ],
+  "reviewImpact": "ResourceView adds only vpcoffering/privategw route branches; ISO-specific implementation inputs unchanged"
+}

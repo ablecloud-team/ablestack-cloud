@@ -1,0 +1,41 @@
+{
+  "at": "2026-11-14T15:50:52.346Z",
+  "basis": "Actual cluster 13 UI after normal deletion",
+  "createdIsos": 4,
+  "deletedIsos": 4,
+  "remainingQaIsos": 0,
+  "expectedOriginalIsoIds": [
+    "71ed0193-510e-4d01-8faa-f1fb3faa7b1a",
+    "98432634-54c7-485f-aa24-e6e2cea40980",
+    "dfe8bda9-fb51-4c0d-aa45-4c34a7306fa0",
+    "192d3383-74a4-4969-8f37-5af00aa90b95",
+    "5836b8f6-9336-4766-8f77-e39218f6e826",
+    "7a3959a8-a533-4bd9-a009-6bce3efe61d9",
+    "ca2894d4-2ca0-4027-ace7-6e78a096fad4",
+    "367c88cb-4947-452f-9429-54a19885adf4"
+  ],
+  "observedOriginalIsoIds": [
+    "71ed0193-510e-4d01-8faa-f1fb3faa7b1a",
+    "98432634-54c7-485f-aa24-e6e2cea40980",
+    "dfe8bda9-fb51-4c0d-aa45-4c34a7306fa0",
+    "192d3383-74a4-4969-8f37-5af00aa90b95",
+    "5836b8f6-9336-4766-8f77-e39218f6e826",
+    "7a3959a8-a533-4bd9-a009-6bce3efe61d9",
+    "ca2894d4-2ca0-4027-ace7-6e78a096fad4",
+    "367c88cb-4947-452f-9429-54a19885adf4"
+  ],
+  "originalIsoIdsMatch": true,
+  "accountsBefore": 3,
+  "accountsAfter": 3,
+  "testAccountDeleted": true,
+  "testUserDataDeleted": true,
+  "sharedPermissionResetRecipientCount": 0,
+  "testVmsCreated": 0,
+  "testNetworksCreated": 0,
+  "fixtureRemoved": true,
+  "fixtureHttpStatus": 404,
+  "protectedProductFilesUnchanged": true,
+  "moldPidUnchanged": true,
+  "themeRestored": "dark",
+  "implementationOrDeployment": false
+}

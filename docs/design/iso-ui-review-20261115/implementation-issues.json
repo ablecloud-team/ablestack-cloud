@@ -1,0 +1,106 @@
+[
+  {
+    "key": "ISO-01",
+    "number": 1666,
+    "id": 6392734760,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1666",
+    "title": "[ISO-01][Europa][P1] ISO API·응답·상태·작업 권한 공통 계약 정리",
+    "priority": "P1",
+    "depends": [],
+    "sequence": 1
+  },
+  {
+    "key": "ISO-02",
+    "number": 1667,
+    "id": 6392736211,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1667",
+    "title": "[ISO-02][Europa][P1] ISO 등록·로컬 업로드의 사용자 데이터·체크섬·실패 정리 개선",
+    "priority": "P1",
+    "depends": [
+      "ISO-01"
+    ],
+    "sequence": 2
+  },
+  {
+    "key": "ISO-03",
+    "number": 1668,
+    "id": 6392737796,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1668",
+    "title": "[ISO-03][Europa][P1] 공유 ISO Zone 행과 권한 회수 목록·ACL 정합성 개선",
+    "priority": "P1",
+    "depends": [
+      "ISO-01"
+    ],
+    "sequence": 3
+  },
+  {
+    "key": "ISO-04",
+    "number": 1669,
+    "id": 6392739455,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1669",
+    "title": "[ISO-04][Europa][P2] ISO 수정의 부팅 가능·아키텍처·사용자 데이터 및 설정 계약 보완",
+    "priority": "P2",
+    "depends": [
+      "ISO-01",
+      "ISO-02"
+    ],
+    "sequence": 4
+  },
+  {
+    "key": "ISO-05",
+    "number": 1670,
+    "id": 6392740924,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1670",
+    "title": "[ISO-05][Europa][P2] ISO 목록·breadcrumb·검색 조건 복원과 이름 우선 열 개선",
+    "priority": "P2",
+    "depends": [
+      "ISO-01"
+    ],
+    "sequence": 5
+  },
+  {
+    "key": "ISO-06",
+    "number": 1671,
+    "id": 6392742494,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1671",
+    "title": "[ISO-06][Europa][P2] ISO 상세·Zone·복사 및 삭제 대화상자를 VM 표준으로 통일",
+    "priority": "P2",
+    "depends": [
+      "ISO-03",
+      "ISO-05"
+    ],
+    "sequence": 6
+  },
+  {
+    "key": "ISO-07",
+    "number": 1672,
+    "id": 6392744188,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1672",
+    "title": "[ISO-07][Europa][P2] ISO 다운로드 결과와 VM 부팅·데이터 미디어 소비 경로 개선",
+    "priority": "P2",
+    "depends": [
+      "ISO-02",
+      "ISO-03",
+      "ISO-04"
+    ],
+    "sequence": 7
+  },
+  {
+    "key": "ISO-08",
+    "number": 1673,
+    "id": 6392745768,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1673",
+    "title": "[ISO-08][Europa][P1] 13번 ISO 실계정 ACL 전체 행렬·통합 UI 회귀 및 자원 정리",
+    "priority": "P1",
+    "depends": [
+      "ISO-01",
+      "ISO-02",
+      "ISO-03",
+      "ISO-04",
+      "ISO-05",
+      "ISO-06",
+      "ISO-07"
+    ],
+    "sequence": 8
+  }
+]
