@@ -49,6 +49,12 @@ export default {
       }
     },
     {
+      name: 'project.invitations.outgoing',
+      component: shallowRef(defineAsyncComponent(() => import('@/views/project/InvitationsTemplate.vue'))),
+      show: (record, route, user) => store.getters.features.projectinviterequired &&
+        isProjectAdministrator(record, user) && !!store.getters.apis.listProjectInvitations?.params?.some(param => param.name === 'direction')
+    },
+    {
       name: 'certificates',
       component: shallowRef(defineAsyncComponent(() => import('@/views/iam/SSLCertificateTab.vue')))
     },
@@ -83,6 +89,7 @@ export default {
       api: 'updateProjectInvitation',
       icon: 'key-outlined',
       label: 'label.enter.token',
+      standardDialogSize: 'sm',
       docHelp: 'adminguide/projects.html#accepting-a-membership-invitation',
       listView: true,
       popup: true,
@@ -93,15 +100,16 @@ export default {
       api: 'listProjectInvitations',
       icon: 'team-outlined',
       label: 'label.project.invitation',
+      standardDialogSize: 'lg',
       docHelp: 'adminguide/projects.html#accepting-a-membership-invitation',
       listView: true,
       popup: true,
       showBadge: true,
       badgeNum: 0,
       param: {
-        state: 'Pending'
+        direction: 'incoming', activeonly: true, ignoreproject: true, page: 1, pagesize: 1
       },
-      show: (record, store) => { return store.features.projectinviterequired },
+      show: (record, store) => store.features.projectinviterequired && !!store.apis.listProjectInvitations?.params?.some(param => param.name === 'direction'),
       component: shallowRef(defineAsyncComponent(() => import('@/views/project/InvitationsTemplate.vue')))
     },
     {

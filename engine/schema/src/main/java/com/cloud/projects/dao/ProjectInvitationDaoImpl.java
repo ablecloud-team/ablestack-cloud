@@ -52,6 +52,7 @@ public class ProjectInvitationDaoImpl extends GenericDaoBase<ProjectInvitationVO
         ProjectAccountInviteSearch.and("accountId", ProjectAccountInviteSearch.entity().getForAccountId(), SearchCriteria.Op.EQ);
         ProjectAccountInviteSearch.and("projectId", ProjectAccountInviteSearch.entity().getProjectId(), SearchCriteria.Op.EQ);
         ProjectAccountInviteSearch.and("userId", ProjectAccountInviteSearch.entity().getForUserId(), SearchCriteria.Op.NULL);
+        ProjectAccountInviteSearch.and("state", ProjectAccountInviteSearch.entity().getState(), SearchCriteria.Op.IN);
         ProjectAccountInviteSearch.done();
 
         InactiveSearch = createSearchBuilder();

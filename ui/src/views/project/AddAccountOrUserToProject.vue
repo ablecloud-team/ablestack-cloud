@@ -17,7 +17,7 @@
 <template>
   <MoldDialog
     size="sm"
-    :title="$t('label.project.member.add')"
+    :title="$t(invitationRequired ? 'label.project.member.invite' : 'label.project.member.add')"
     form-actions
     focus-guard
     @cancel="close">
@@ -76,7 +76,7 @@
     <MoldDialogActions :busy="membershipBusy">
       <a-button :disabled="membershipBusy" @click="close">{{ $t('label.cancel') }}</a-button>
       <a-button type="primary" :loading="membershipBusy" :disabled="submitDisabled" @click="submit">
-        {{ $t(membershipJobId ? 'label.job.check.result' : 'label.project.member.add') }}
+        {{ $t(membershipJobId ? 'label.job.check.result' : invitationRequired ? 'label.project.member.invite' : 'label.project.member.add') }}
       </a-button>
     </MoldDialogActions>
   </MoldDialog>
@@ -229,7 +229,7 @@ export default {
       if (this.supports('roletype')) params.roletype = this.roleType
       if (this.projectRoleId && this.supports('projectroleid')) params.projectroleid = this.projectRoleId
       if (!await this.runMembershipJob(this.command, params, 'label.project.member.add') || this.disposed) return
-      eventBus.emit('project-members-updated', this.resource.id)
+      eventBus.emit(this.invitationRequired ? 'project-invitations-updated' : 'project-members-updated', this.resource.id)
       this.$emit('refresh-data', { irefresh: true })
       this.close()
     }

@@ -204,6 +204,7 @@ import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
+import com.cloud.api.ApiDBUtils;
 import com.cloud.api.query.dao.AccountJoinDao;
 import com.cloud.api.query.dao.AffinityGroupJoinDao;
 import com.cloud.api.query.dao.AsyncJobJoinDao;
@@ -304,7 +305,6 @@ import com.cloud.projects.ProjectManager;
 import com.cloud.projects.ProjectVO;
 import com.cloud.projects.dao.ProjectAccountDao;
 import com.cloud.projects.dao.ProjectDao;
-import com.cloud.projects.dao.ProjectInvitationDao;
 import com.cloud.resource.ResourceManager;
 import com.cloud.resource.icon.dao.ResourceIconDao;
 import com.cloud.server.ResourceManagerUtil;
@@ -555,8 +555,6 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
     @Inject
     StoragePoolDetailsDao _storagePoolDetailsDao;
 
-    @Inject
-    ProjectInvitationDao projectInvitationDao;
 
     @Inject
     VMTemplatePoolDao templatePoolDao;
@@ -2413,76 +2411,90 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
     public ListResponse<ProjectInvitationResponse> listProjectInvitations(ListProjectInvitationsCmd cmd) {
         Pair<List<ProjectInvitationJoinVO>, Integer> invites = listProjectInvitationsInternal(cmd);
         ListResponse<ProjectInvitationResponse> response = new ListResponse<>();
-        List<ProjectInvitationResponse> projectInvitationResponses = ViewResponseHelper.createProjectInvitationResponse(invites.first().toArray(new ProjectInvitationJoinVO[0]));
-
-        response.setResponses(projectInvitationResponses, invites.second());
+        Date cutoff = projectInvitationCutoff();
+        List<ProjectInvitationResponse> rows = invites.first().stream().map(invite -> {
+            ProjectInvitationResponse row = ApiDBUtils.newProjectInvitationResponse(invite);
+            row.setActive(invite.getState() == ProjectInvitation.State.Pending && invite.getCreated().after(cutoff));
+            return row;
+        }).collect(Collectors.toList());
+        response.setResponses(rows, invites.second());
         return response;
     }
 
+    private Date projectInvitationCutoff() {
+        return new Date(DateUtil.currentGMTTime().getTime() - _projectMgr.getInvitationTimeout());
+    }
+
     public Pair<List<ProjectInvitationJoinVO>, Integer> listProjectInvitationsInternal(ListProjectInvitationsCmd cmd) {
-        Long id = cmd.getId();
         Long projectId = cmd.getProjectId();
-        String accountName = cmd.getAccountName();
-        Long domainId = cmd.getDomainId();
-        String state = cmd.getState();
-        boolean activeOnly = cmd.isActiveOnly();
-        Long startIndex = cmd.getStartIndex();
-        Long pageSizeVal = cmd.getPageSizeVal();
-        Long userId = cmd.getUserId();
-        boolean isRecursive = cmd.isRecursive();
-        boolean listAll = cmd.listAll();
-
+        String direction = cmd.getDirection();
+        boolean outgoing = "outgoing".equalsIgnoreCase(direction);
+        boolean incoming = "incoming".equalsIgnoreCase(direction);
         Account caller = CallContext.current().getCallingAccount();
-        User callingUser = CallContext.current().getCallingUser();
-        List<Long> permittedAccounts = new ArrayList<Long>();
+        User user = CallContext.current().getCallingUser();
+        if (direction != null && !incoming && !outgoing) {
+            throw new InvalidParameterValueException("Invitation direction must be incoming or outgoing");
+        }
 
-        Ternary<Long, Boolean, ListProjectResourcesCriteria> domainIdRecursiveListProject = new Ternary<Long, Boolean, ListProjectResourcesCriteria>(domainId, isRecursive, null);
-        accountMgr.buildACLSearchParameters(caller, id, accountName, projectId, permittedAccounts, domainIdRecursiveListProject, listAll, true);
-        domainId = domainIdRecursiveListProject.first();
-        isRecursive = domainIdRecursiveListProject.second();
-        ListProjectResourcesCriteria listProjectResourcesCriteria = domainIdRecursiveListProject.third();
+        Ternary<Long, Boolean, ListProjectResourcesCriteria> acl = new Ternary<>(cmd.getDomainId(), cmd.isRecursive(), null);
+        List<Long> permittedAccounts = new ArrayList<>();
+        if (outgoing) {
+            Project project = projectId == null ? null : _projectMgr.getProject(projectId);
+            if (project == null || cmd.getAccountName() != null) {
+                throw new InvalidParameterValueException("Outgoing invitations require a managed project ID");
+            }
+            accountMgr.checkAccess(caller, SecurityChecker.AccessType.ModifyProject, true, accountMgr.getAccount(project.getProjectAccountId()));
+        } else if (incoming) {
+            if (cmd.getAccountName() != null || (cmd.getDomainId() != null && !cmd.getDomainId().equals(caller.getDomainId()))) {
+                throw new InvalidParameterValueException("Incoming invitations belong to the calling account");
+            }
+            permittedAccounts.add(caller.getId());
+        } else {
+            if (cmd.getAccountName() != null && projectId != null) {
+                throw new InvalidParameterValueException("Account and projectId can't be specified together");
+            }
+            accountMgr.buildACLSearchParameters(caller, cmd.getId(), cmd.getAccountName(), null, permittedAccounts, acl, cmd.listAll(), true);
+        }
 
-        Filter searchFilter = new Filter(ProjectInvitationJoinVO.class, "id", true, startIndex, pageSizeVal);
+        if (cmd.isActiveOnly() && cmd.getState() != null && !ProjectInvitation.State.Pending.name().equalsIgnoreCase(cmd.getState())) {
+            return new Pair<>(Collections.emptyList(), 0);
+        }
+
+        Filter filter = new Filter(ProjectInvitationJoinVO.class, "id", true, cmd.getStartIndex(), cmd.getPageSizeVal());
         SearchBuilder<ProjectInvitationJoinVO> sb = _projectInvitationJoinDao.createSearchBuilder();
-        accountMgr.buildACLViewSearchBuilder(sb, domainId, isRecursive, permittedAccounts, listProjectResourcesCriteria);
-        ProjectInvitation invitation = projectInvitationDao.findByUserIdProjectId(callingUser.getId(), callingUser.getAccountId(), projectId == null ? -1 : projectId);
-        sb.and("projectId", sb.entity().getProjectId(), SearchCriteria.Op.EQ);
-        sb.and("state", sb.entity().getState(), SearchCriteria.Op.EQ);
-        sb.and("created", sb.entity().getCreated(), SearchCriteria.Op.GT);
-        sb.and("id", sb.entity().getId(), SearchCriteria.Op.EQ);
-
+        accountMgr.buildACLViewSearchBuilder(sb, acl.first(), acl.second(), permittedAccounts, acl.third());
+        sb.and("projectId", sb.entity().getProjectId(), Op.EQ);
+        sb.and("state", sb.entity().getState(), Op.EQ);
+        sb.and("created", sb.entity().getCreated(), Op.GT);
+        sb.and("id", sb.entity().getId(), Op.EQ);
+        sb.and("userId", sb.entity().getUserId(), Op.EQ);
         SearchCriteria<ProjectInvitationJoinVO> sc = sb.create();
-        accountMgr.buildACLViewSearchCriteria(sc, domainId, isRecursive, permittedAccounts, listProjectResourcesCriteria);
+        accountMgr.buildACLViewSearchCriteria(sc, acl.first(), acl.second(), permittedAccounts, acl.third());
+        sc.setParametersIfNotNull("projectId", projectId);
+        sc.setParametersIfNotNull("id", cmd.getId());
+        sc.setParametersIfNotNull("userId", cmd.getUserId());
 
-        if (projectId != null) {
-            sc.setParameters("projectId", projectId);
+        if (!outgoing) {
+            SearchCriteria<ProjectInvitationJoinVO> recipient = _projectInvitationJoinDao.createSearchCriteria();
+            recipient.addOr("userId", Op.NULL);
+            recipient.addOr("userId", Op.EQ, user.getId());
+            sc.addAnd("userId", Op.SC, recipient);
         }
-
-        if (invitation != null) {
-            sc.setParameters("userId", invitation.getForUserId());
-        } else if (userId != null) {
-            sc.setParameters("userId", userId);
-        }
-
-        if (state != null) {
-            sc.setParameters("state", state);
-        }
-
-        if (id != null) {
-            sc.setParameters("id", id);
-        }
-
-        if (activeOnly) {
+        if (cmd.isActiveOnly()) {
             sc.setParameters("state", ProjectInvitation.State.Pending);
-            sc.setParameters("created", new Date((DateUtil.currentGMTTime().getTime()) - _projectMgr.getInvitationTimeout()));
+            sc.setParameters("created", projectInvitationCutoff());
+        } else {
+            sc.setParametersIfNotNull("state", cmd.getState());
         }
-
-        Pair<List<ProjectInvitationJoinVO>, Integer> projectInvitations = _projectInvitationJoinDao.searchAndCount(sc, searchFilter);
-        List<ProjectInvitationJoinVO> invitations = projectInvitations.first();
-        invitations = invitations.stream().filter(invite -> invite.getUserId() == null || Long.parseLong(invite.getUserId()) == callingUser.getId()).collect(Collectors.toList());
-        return new Pair<>(invitations, invitations.size());
-
-
+        if (StringUtils.isNotBlank(cmd.getKeyword())) {
+            String keyword = "%" + cmd.getKeyword().trim() + "%";
+            SearchCriteria<ProjectInvitationJoinVO> search = _projectInvitationJoinDao.createSearchCriteria();
+            search.addOr("projectName", Op.LIKE, keyword);
+            search.addOr("accountName", Op.LIKE, keyword);
+            search.addOr("email", Op.LIKE, keyword);
+            sc.addAnd("projectName", Op.SC, search);
+        }
+        return _projectInvitationJoinDao.searchAndCount(sc, filter);
     }
 
     @Override

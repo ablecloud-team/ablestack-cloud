@@ -23,9 +23,11 @@ import org.springframework.stereotype.Component;
 
 import org.apache.cloudstack.api.response.ProjectInvitationResponse;
 
+import com.cloud.api.ApiDBUtils;
 import com.cloud.api.ApiResponseHelper;
 import com.cloud.api.query.vo.ProjectInvitationJoinVO;
 import com.cloud.projects.ProjectInvitation;
+import com.cloud.user.User;
 import com.cloud.utils.db.GenericDaoBase;
 import com.cloud.utils.db.SearchBuilder;
 import com.cloud.utils.db.SearchCriteria;
@@ -58,7 +60,11 @@ public class ProjectInvitationJoinDaoImpl extends GenericDaoBase<ProjectInvitati
             response.setAccountName(invite.getAccountName());
         }
         if (invite.getUserId() != null) {
-            response.setUserId(invite.getUserId());
+            User user = ApiDBUtils.findUserById(invite.getUserId());
+            if (user != null) {
+                response.setUserId(user.getUuid());
+                response.setUsername(user.getUsername());
+            }
         }
         if (invite.getEmail() != null) {
             response.setEmail(invite.getEmail());

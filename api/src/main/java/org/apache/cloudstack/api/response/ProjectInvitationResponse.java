@@ -56,7 +56,7 @@ public class ProjectInvitationResponse extends BaseResponse implements Controlle
     private String domainPath;
 
     @SerializedName(ApiConstants.ACCOUNT)
-    @Param(description = "The Account name of the project's owner")
+    @Param(description = "The name of the invited account")
     private String accountName;
 
     @SerializedName(ApiConstants.EMAIL)
@@ -66,6 +66,22 @@ public class ProjectInvitationResponse extends BaseResponse implements Controlle
     @SerializedName(ApiConstants.STATE)
     @Param(description = "The invitation state")
     private String invitationState;
+
+    @SerializedName("username")
+    @Param(description = "The name of the invited user")
+    private String username;
+
+    @SerializedName("active")
+    @Param(description = "Whether the invitation is pending and has not expired")
+    private Boolean active;
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public void setId(String id) {
         this.id = id;

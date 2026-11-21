@@ -246,7 +246,7 @@
           :confirmLoading="actionLoading"
           :footer="standardActionDialog ? undefined : null"
           :form-actions="standardActionDialog"
-          :focus-guard="isVpcUi || vmStandardDialog || publicIpStandardDialog || !!currentAction.snapshotStandardDialog || !!currentAction.vnfReinstallCurrent"
+          :focus-guard="isVpcUi || isProjectUi || vmStandardDialog || publicIpStandardDialog || !!currentAction.snapshotStandardDialog || !!currentAction.vnfReinstallCurrent"
           :after-close="restoreClosedActionFocus"
           :width="currentAction.dialogWidth || 'auto'"
         >

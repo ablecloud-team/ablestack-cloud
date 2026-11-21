@@ -16,114 +16,54 @@
 // under the License.
 
 <template>
-  <div class="row-project-invitation" v-ctrl-enter="handleSubmit">
-    <a-spin :spinning="loading">
-      <a-form
-        :ref="formRef"
-        :model="form"
-        :rules="rules"
-        layout="vertical"
-       >
-        <a-form-item ref="projectid" name="projectid" :label="$t('label.projectid')">
-          <a-input
-            v-model:value="form.projectid"
-            :placeholder="apiParams.projectid.description"
-            v-focus="true"
-          />
-        </a-form-item>
-        <a-form-item ref="token" name="token" :label="$t('label.token')">
-          <a-input
-            v-model:value="form.token"
-            :placeholder="apiParams.token.description"
-          />
-        </a-form-item>
-
-        <div :span="24" class="action-button">
-          <a-button @click="() => $emit('close-action')">{{ $t('label.cancel') }}</a-button>
-          <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-        </div>
-      </a-form>
-    </a-spin>
+  <div @keydown.ctrl.enter.prevent.stop="!$event.repeat && submit()">
+    <a-form layout="vertical">
+      <a-alert v-if="membershipError" show-icon type="error" :message="membershipError" class="token-error" />
+      <a-form-item :label="$t('label.projectid')" html-for="invite-token-project" required>
+        <a-input id="invite-token-project" v-model:value="projectid" :disabled="membershipLocked" v-focus="true" />
+      </a-form-item>
+      <a-form-item :label="$t('label.token')" html-for="invite-token-code" required>
+        <a-input-password id="invite-token-code" v-model:value="token" :disabled="membershipLocked" />
+      </a-form-item>
+    </a-form>
+    <MoldDialogActions :busy="membershipBusy">
+      <a-button :disabled="membershipBusy" @click="$emit('close-action')">{{ $t('label.cancel') }}</a-button>
+      <a-button type="primary" :loading="membershipBusy" :disabled="disabled" @click="submit">
+        {{ $t(membershipJobId ? 'label.job.check.result' : 'label.accept.project.invitation') }}
+      </a-button>
+    </MoldDialogActions>
   </div>
 </template>
 
 <script>
-import { ref, reactive, toRaw } from 'vue'
-import { postAPI } from '@/api'
+import eventBus from '@/config/eventBus'
+import { projectMembershipJob } from '@/utils/projectMembership'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 
 export default {
   name: 'InvitationTokenTemplate',
-  beforeCreate () {
-    this.apiParams = this.$getApiParams('updateProjectInvitation')
+  components: { MoldDialogActions },
+  mixins: [projectMembershipJob],
+  emits: ['close-action', 'refresh-data'],
+  data: () => ({ projectid: '', token: '', disposed: false }),
+  computed: {
+    disabled () { return this.membershipBusy || (!this.membershipJobId && (this.membershipUnknown || !this.projectid.trim() || !this.token.trim())) }
   },
-  data () {
-    return {
-      loading: false
-    }
-  },
-  created () {
-    this.formRef = ref()
-    this.form = reactive({})
-    this.rules = reactive({
-      projectid: [{ required: true, message: this.$t('message.error.required.input') }],
-      token: [{ required: true, message: this.$t('message.error.required.input') }]
-    })
-  },
+  beforeUnmount () { this.disposed = true },
   methods: {
-    handleSubmit (e) {
-      e.preventDefault()
-      if (this.loading) return
-      this.formRef.value.validate().then(() => {
-        const values = toRaw(this.form)
-
-        const title = this.$t('label.accept.project.invitation')
-        const description = this.$t('label.projectid') + ' ' + values.projectid
-        const loading = this.$message.loading(title + `${this.$t('label.in.progress.for')} ` + description, 0)
-
-        this.loading = true
-
-        postAPI('updateProjectInvitation', values).then(json => {
-          this.checkForAddAsyncJob(json, title, description)
-          this.$emit('close-action')
-        }).catch(error => {
-          this.$notifyError(error)
-        }).finally(() => {
-          this.$emit('refresh-data')
-          this.loading = false
-          setTimeout(loading, 1000)
-        })
-      }).catch((error) => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
-      })
-    },
-    checkForAddAsyncJob (json, title, description) {
-      let hasJobId = false
-
-      for (const obj in json) {
-        if (obj.includes('response')) {
-          for (const res in json[obj]) {
-            if (res === 'jobid') {
-              hasJobId = true
-              const jobId = json[obj][res]
-              this.$pollJob({
-                title,
-                jobId,
-                description,
-                showLoading: false
-              })
-            }
-          }
-        }
-      }
-
-      return hasJobId
+    async submit () {
+      if (this.disabled) return
+      const projectid = this.projectid.trim()
+      const params = { projectid, token: this.token.trim(), accept: true }
+      if (!await this.runMembershipJob('updateProjectInvitation', params, 'label.accept.project.invitation') || this.disposed) return
+      eventBus.emit('project-invitations-updated', projectid)
+      this.$emit('refresh-data', { irefresh: true })
+      this.$emit('close-action')
     }
   }
 }
 </script>
 
-<style lang="less" scoped>
-.row-project-invitation {
-  min-width: 450px;
-}
+<style scoped>
+.token-error { margin-bottom: 12px; }
 </style>

@@ -54,6 +54,14 @@ public class ListProjectInvitationsCmd extends BaseListAccountResourcesCmd {
     @Parameter(name = ApiConstants.USER_ID, type = CommandType.UUID, entityType = UserResponse.class, description = "List invitation by user ID")
     private Long userId;
 
+    @Parameter(name = ApiConstants.DIRECTION, type = CommandType.STRING,
+            description = "Incoming invitations for the caller or outgoing invitations for a managed project. Outgoing requires projectid.")
+    private String direction;
+
+    public String getDirection() {
+        return direction;
+    }
+
     // ///////////////////////////////////////////////////
     // ///////////////// Accessors ///////////////////////
     // ///////////////////////////////////////////////////
