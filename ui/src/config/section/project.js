@@ -29,7 +29,7 @@ export default {
   resourceType: 'Project',
   columns: ['name', 'state', 'displaytext', 'account', 'domain'],
   searchFilters: ['name', 'displaytext', 'state', 'id', 'domainid', 'account', 'username', 'tags'],
-  details: ['name', 'id', 'displaytext', 'projectaccountname', 'account', 'domain'],
+  details: ['id', 'displaytext', 'projectaccountname'],
   tabs: [
     {
       name: 'details',

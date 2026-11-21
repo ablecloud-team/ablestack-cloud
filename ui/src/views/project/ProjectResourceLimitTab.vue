@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 <template>
-  <div class="project-limit-editor">
+  <a-spin class="project-limit-editor" :spinning="loading">
     <a-alert v-if="readError" type="error" show-icon :message="readError" class="project-limit-notice" />
     <a-alert
       v-else-if="inactive || !canWrite"
@@ -30,36 +30,39 @@
       show-icon
       :message="$t('message.project.limit.summary', summary)"
       class="project-limit-notice" />
-    <a-table
-      size="small"
-      row-key="key"
-      :columns="columns"
-      :data-source="rows"
-      :loading="loading"
-      :pagination="false"
-      :scroll="{ x: 650 }">
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'label'">
-          <span>{{ resourceLabel(record) }}</span>
-          <a-tag v-if="record.tag" class="project-limit-tag">{{ record.tag }}</a-tag>
+    <section v-for="group in groups" :key="group.label" class="project-limit-group">
+      <h3>{{ $t(group.label) }}</h3>
+      <a-table
+        size="small"
+        row-key="key"
+        :columns="columns"
+        :data-source="group.rows"
+        :pagination="false"
+        :scroll="{ x: 416 }"
+        class="project-tab-table">
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'label'">
+            <span>{{ resourceLabel(record) }}</span>
+            <a-tag v-if="record.tag" class="project-limit-tag">{{ record.tag }}</a-tag>
+          </template>
+          <template v-else-if="column.key === 'saved'">
+            {{ record.saved === -1 ? $t('label.unlimited') + ' (-1)' : record.saved }}
+          </template>
+          <template v-else-if="column.key === 'draft'">
+            <a-input-number
+              :value="record.draft"
+              :aria-label="resourceLabel(record) + (record.tag ? ' ' + record.tag : '')"
+              :disabled="!canEdit || saving"
+              class="project-limit-input"
+              @change="value => edit(record, value)" />
+          </template>
+          <template v-else-if="column.key === 'result' && record.status">
+            <a-tag :color="{ saved: 'green', failed: 'red', unknown: 'orange' }[record.status]">{{ $t('label.project.limit.' + record.status) }}</a-tag>
+            <p v-if="record.detail" class="project-limit-detail">{{ record.detail }}</p>
+          </template>
         </template>
-        <template v-else-if="column.key === 'saved'">
-          {{ record.saved === -1 ? $t('label.unlimited') + ' (-1)' : record.saved }}
-        </template>
-        <template v-else-if="column.key === 'draft'">
-          <a-input-number
-            :value="record.draft"
-            :aria-label="resourceLabel(record) + (record.tag ? ' ' + record.tag : '')"
-            :disabled="!canEdit || saving"
-            style="width: 146px"
-            @change="value => edit(record, value)" />
-        </template>
-        <template v-else-if="column.key === 'result' && record.status">
-          <a-tag :color="{ saved: 'green', failed: 'red', unknown: 'orange' }[record.status]">{{ $t('label.project.limit.' + record.status) }}</a-tag>
-          <p v-if="record.detail" class="project-limit-detail">{{ record.detail }}</p>
-        </template>
-      </template>
-    </a-table>
+      </a-table>
+    </section>
     <a-space class="project-limit-actions">
       <a-button :disabled="loading || saving" @click="refresh">{{ $t('label.refresh') }}</a-button>
       <a-button
@@ -70,7 +73,7 @@
         {{ $t('label.save') }}
       </a-button>
     </a-space>
-  </div>
+  </a-spin>
 </template>
 
 <script>
@@ -111,11 +114,23 @@ export default {
     summary () {
       return ['saved', 'failed', 'unknown'].map(status => this.rows.filter(row => row.status === status).length)
     },
+    groups () {
+      const categories = [
+        { label: 'label.compute', types: [0, 8, 9, 16] },
+        { label: 'label.network', types: [1, 6, 7] },
+        { label: 'label.storage', types: [2, 3, 4, 10, 11, 12, 13, 14, 15] }
+      ]
+      const known = categories.flatMap(category => category.types)
+      return [
+        ...categories.map(category => ({ ...category, rows: this.rows.filter(row => category.types.includes(row.type)) })),
+        { label: 'label.other', rows: this.rows.filter(row => !known.includes(row.type)) }
+      ].filter(group => group.rows.length)
+    },
     columns () {
       return [
-        { key: 'label', title: this.$t('label.project.limit.resource'), width: 210 },
-        { key: 'saved', title: this.$t('label.project.limit.applied'), width: 118 },
-        { key: 'draft', title: this.$t('label.project.limit.requested'), width: 172 },
+        { key: 'label', title: this.$t('label.project.limit.resource'), width: '32%' },
+        { key: 'saved', title: this.$t('label.project.limit.applied'), width: '19%' },
+        { key: 'draft', title: this.$t('label.project.limit.requested'), width: '23%' },
         { key: 'result', title: this.$t('label.project.limit.result') }
       ]
     }
@@ -127,7 +142,10 @@ export default {
   },
   beforeUnmount () { this.generation++ },
   methods: {
-    resourceLabel (row) { return row.name ? this.$t('label.max' + row.name.replace('_', '')) : String(row.type) },
+    resourceLabel (row) {
+      if (row.name === 'backup') return this.$t('label.maxbackups')
+      return row.name ? this.$t('label.max' + row.name.replace('_', '')) : String(row.type)
+    },
     edit (row, value) {
       if (!this.canEdit || this.saving) return
       row.draft = value
@@ -306,4 +324,8 @@ export default {
 .project-limit-actions { display: flex; justify-content: flex-end; margin-top: 12px; }
 .project-limit-tag { margin-inline-start: 8px; }
 .project-limit-detail { margin: 4px 0 0; overflow-wrap: anywhere; }
+.project-limit-group { margin-bottom: 16px; }
+.project-limit-group h3 { margin: 0 0 8px; color: var(--ui-text-primary); font-size: 14px; font-weight: 600; }
+.project-limit-input { width: 100%; max-width: 116px; }
+.project-limit-group :deep(.ant-tag) { max-width: 100%; white-space: normal; }
 </style>

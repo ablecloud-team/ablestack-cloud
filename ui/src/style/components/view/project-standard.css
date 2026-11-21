@@ -1,0 +1,34 @@
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file for ownership.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * http://www.apache.org/licenses/LICENSE-2.0
+ */
+
+.project-standard-page :deep(.project-state-filter) { min-width: 104px; }
+
+.project-standard-page .autogen-toolbar-actions :deep(.project-toolbar-search) {
+  min-width: min(228px, 100%);
+  margin: 0;
+}
+
+.project-standard-page :deep(.project-list-column-state) { white-space: nowrap; }
+.project-standard-page :deep(.project-list-column-displaytext),
+.project-standard-page :deep(.project-list-column-account),
+.project-standard-page :deep(.project-list-column-domain) { overflow-wrap: anywhere; }
+.project-standard-page :deep(.project-list-name-cell) {
+  display: flex;
+  align-items: center;
+}
+.project-standard-page :deep(.project-list-name-cell > span) { flex: 0 0 auto; }
+.project-standard-page :deep(.project-list-name-link) {
+  flex: 1 1 0;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.project-standard-page :deep(.project-list-name-link:focus-visible) {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: -2px;
+}

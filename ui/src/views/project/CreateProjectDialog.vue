@@ -24,76 +24,78 @@
     focus-guard
     :after-close="finishClose"
     @cancel="close">
-    <a-form layout="vertical" @finish="submit" v-ctrl-enter="submit">
-      <a-alert v-if="error" type="error" show-icon :message="error" class="project-create-error" />
-      <a-form-item :label="$t('label.name')" html-for="new-project-name" required>
-        <a-input id="new-project-name" v-model:value="name" :disabled="fieldsLocked" v-focus="true" />
-      </a-form-item>
-      <a-form-item :label="$t('label.description')" html-for="new-project-description">
-        <a-textarea id="new-project-description" v-model:value="description" :rows="2" :disabled="fieldsLocked" />
-      </a-form-item>
-      <a-form-item v-if="canDelegate" :label="$t('label.project.owner')">
-        <a-radio-group :value="delegated" :disabled="fieldsLocked" @change="changeOwnerMode">
-          <a-radio :value="false">{{ $t('label.project.create.owner.current') }}</a-radio>
-          <a-radio :value="true">{{ $t('label.project.create.owner.other') }}</a-radio>
-        </a-radio-group>
-      </a-form-item>
-      <template v-if="delegated && canDelegate">
-        <a-form-item :label="$t('label.domain')" html-for="new-project-domain" required>
-          <InfiniteScrollSelect
-            id="new-project-domain"
-            :value="domain?.id"
-            api="listDomains"
-            :api-params="domainsParams"
-            resource-type="domain"
-            option-label-key="path"
-            default-icon="block-outlined"
-            :disabled="fieldsLocked"
-            @change-option="selectDomain" />
+    <div @keydown.ctrl.enter.prevent.stop="!$event.repeat && submit()">
+      <a-form layout="vertical" @finish="submit">
+        <a-alert v-if="error" type="error" show-icon :message="error" class="project-create-error" />
+        <a-form-item :label="$t('label.name')" html-for="new-project-name" required>
+          <a-input id="new-project-name" v-model:value="name" :disabled="fieldsLocked" v-focus="true" />
         </a-form-item>
-        <a-form-item :label="$t('label.owner.account')" html-for="new-project-account" required>
-          <InfiniteScrollSelect
-            v-if="domain"
-            id="new-project-account"
-            :key="domain.id"
-            :value="account?.id"
-            api="listAccounts"
-            :api-params="accountsParams"
-            resource-type="account"
-            default-icon="team-outlined"
-            :disabled="fieldsLocked"
-            @change-option="selectAccount" />
-          <a-select v-else id="new-project-account" disabled :placeholder="$t('label.select')" />
+        <a-form-item :label="$t('label.description')" html-for="new-project-description">
+          <a-textarea id="new-project-description" v-model:value="description" :rows="2" :disabled="fieldsLocked" />
         </a-form-item>
-        <a-form-item v-if="canSelectUser" :label="$t('label.user')" html-for="new-project-user">
-          <InfiniteScrollSelect
-            v-if="account"
-            id="new-project-user"
-            :key="account.id"
-            :value="user?.id"
-            api="listUsers"
-            :api-params="usersParams"
-            resource-type="user"
-            option-label-key="username"
-            default-icon="user-outlined"
-            :show-icon="false"
-            allow-clear
-            :disabled="fieldsLocked"
-            @change-option="selectUser" />
-          <a-select v-else id="new-project-user" disabled :placeholder="$t('label.select')" />
+        <a-form-item v-if="canDelegate" :label="$t('label.project.owner')">
+          <a-radio-group :value="delegated" :disabled="fieldsLocked" @change="changeOwnerMode">
+            <a-radio :value="false">{{ $t('label.project.create.owner.current') }}</a-radio>
+            <a-radio :value="true">{{ $t('label.project.create.owner.other') }}</a-radio>
+          </a-radio-group>
         </a-form-item>
-      </template>
-      <a-descriptions
-        v-if="ownerAccount"
-        :title="$t('label.project.create.owner.summary')"
-        :column="1"
-        size="small"
-        bordered>
-        <a-descriptions-item :label="$t('label.domain')">{{ ownerDomain }}</a-descriptions-item>
-        <a-descriptions-item :label="$t('label.owner.account')">{{ ownerAccount }}</a-descriptions-item>
-        <a-descriptions-item v-if="delegated && user" :label="$t('label.user')">{{ user.username }}</a-descriptions-item>
-      </a-descriptions>
-    </a-form>
+        <template v-if="delegated && canDelegate">
+          <a-form-item :label="$t('label.domain')" html-for="new-project-domain" required>
+            <InfiniteScrollSelect
+              id="new-project-domain"
+              :value="domain?.id"
+              api="listDomains"
+              :api-params="domainsParams"
+              resource-type="domain"
+              option-label-key="path"
+              default-icon="block-outlined"
+              :disabled="fieldsLocked"
+              @change-option="selectDomain" />
+          </a-form-item>
+          <a-form-item :label="$t('label.owner.account')" html-for="new-project-account" required>
+            <InfiniteScrollSelect
+              v-if="domain"
+              id="new-project-account"
+              :key="domain.id"
+              :value="account?.id"
+              api="listAccounts"
+              :api-params="accountsParams"
+              resource-type="account"
+              default-icon="team-outlined"
+              :disabled="fieldsLocked"
+              @change-option="selectAccount" />
+            <a-select v-else id="new-project-account" disabled :placeholder="$t('label.select')" />
+          </a-form-item>
+          <a-form-item v-if="canSelectUser" :label="$t('label.user')" html-for="new-project-user">
+            <InfiniteScrollSelect
+              v-if="account"
+              id="new-project-user"
+              :key="account.id"
+              :value="user?.id"
+              api="listUsers"
+              :api-params="usersParams"
+              resource-type="user"
+              option-label-key="username"
+              default-icon="user-outlined"
+              :show-icon="false"
+              allow-clear
+              :disabled="fieldsLocked"
+              @change-option="selectUser" />
+            <a-select v-else id="new-project-user" disabled :placeholder="$t('label.select')" />
+          </a-form-item>
+        </template>
+        <a-descriptions
+          v-if="ownerAccount"
+          :title="$t('label.project.create.owner.summary')"
+          :column="1"
+          size="small"
+          bordered>
+          <a-descriptions-item :label="$t('label.domain')">{{ ownerDomain }}</a-descriptions-item>
+          <a-descriptions-item :label="$t('label.owner.account')">{{ ownerAccount }}</a-descriptions-item>
+          <a-descriptions-item v-if="delegated && user" :label="$t('label.user')">{{ user.username }}</a-descriptions-item>
+        </a-descriptions>
+      </a-form>
+    </div>
     <MoldDialogActions :busy="busy">
       <a-button :disabled="busy" @click="close">{{ $t('label.cancel') }}</a-button>
       <a-button type="primary" :loading="busy" :disabled="submitDisabled" @click="submit">

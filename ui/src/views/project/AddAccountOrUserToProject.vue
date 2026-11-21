@@ -21,56 +21,58 @@
     form-actions
     focus-guard
     @cancel="close">
-    <a-form layout="vertical" v-ctrl-enter="submit">
-      <a-alert v-if="membershipError" type="error" show-icon :message="membershipError" class="member-feedback" />
-      <a-alert v-if="candidateError" type="warning" show-icon :message="candidateError" class="member-feedback">
-        <template #action><a-button size="small" @click="loadCandidates()">{{ $t('label.retry') }}</a-button></template>
-      </a-alert>
-      <a-alert v-if="resource.state !== 'Active'" type="warning" show-icon :message="$t('message.project.member.inactive')" class="member-feedback" />
-      <a-form-item :label="$t('label.project')">
-        <span>{{ resource.name }} · {{ resource.domain }}</span>
-      </a-form-item>
-      <a-form-item v-if="modes.length > 1">
-        <a-radio-group :value="kind" :disabled="membershipLocked" @change="changeKind">
-          <a-radio value="account">{{ $t('label.account') }}</a-radio>
-          <a-radio value="user">{{ $t('label.user') }}</a-radio>
-        </a-radio-group>
-      </a-form-item>
-      <a-form-item :label="$t(kind === 'account' ? 'label.account' : 'label.username')" html-for="project-member-name">
-        <a-select
-          v-if="canDiscover"
-          id="project-member-name"
-          v-model:value="memberName"
-          :placeholder="$t('label.select')"
-          :options="candidates"
-          :disabled="membershipLocked || resource.state !== 'Active'"
-          :loading="loadingCandidates"
-          :filter-option="false"
-          allow-clear
-          show-search
-          @search="searchCandidates" />
-        <a-input v-else id="project-member-name" v-model:value="memberName" :disabled="membershipLocked" />
-      </a-form-item>
-      <a-form-item v-if="invitationRequired && supports('email')" :label="$t('label.email')" html-for="project-member-email">
-        <a-input id="project-member-email" v-model:value="email" type="email" :disabled="membershipLocked" />
-      </a-form-item>
-      <a-form-item v-if="supports('roletype')" :label="$t('label.roletype')" html-for="project-member-type">
-        <a-select
-          id="project-member-type"
-          v-model:value="roleType"
-          :options="[{ value: 'Regular', label: 'Regular' }, { value: 'Admin', label: 'Admin' }]"
-          :disabled="membershipLocked" />
-      </a-form-item>
-      <a-form-item v-if="supports('projectroleid') && apis.listProjectRoles" :label="$t('label.project.role')" html-for="project-member-role">
-        <a-select
-          id="project-member-role"
-          v-model:value="projectRoleId"
-          :options="projectRoles"
-          :placeholder="$t('label.none')"
-          :disabled="membershipLocked"
-          allow-clear />
-      </a-form-item>
-    </a-form>
+    <div @keydown.ctrl.enter.prevent.stop="!$event.repeat && submit()">
+      <a-form layout="vertical">
+        <a-alert v-if="membershipError" type="error" show-icon :message="membershipError" class="member-feedback" />
+        <a-alert v-if="candidateError" type="warning" show-icon :message="candidateError" class="member-feedback">
+          <template #action><a-button size="small" @click="loadCandidates()">{{ $t('label.retry') }}</a-button></template>
+        </a-alert>
+        <a-alert v-if="resource.state !== 'Active'" type="warning" show-icon :message="$t('message.project.member.inactive')" class="member-feedback" />
+        <a-form-item :label="$t('label.project')">
+          <span class="member-project-name">{{ resource.name }} · {{ resource.domain }}</span>
+        </a-form-item>
+        <a-form-item v-if="modes.length > 1">
+          <a-radio-group :value="kind" :disabled="membershipLocked" @change="changeKind">
+            <a-radio value="account">{{ $t('label.account') }}</a-radio>
+            <a-radio value="user">{{ $t('label.user') }}</a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item :label="$t(kind === 'account' ? 'label.account' : 'label.username')" html-for="project-member-name">
+          <a-select
+            v-if="canDiscover"
+            id="project-member-name"
+            v-model:value="memberName"
+            :placeholder="$t('label.select')"
+            :options="candidates"
+            :disabled="membershipLocked || resource.state !== 'Active'"
+            :loading="loadingCandidates"
+            :filter-option="false"
+            allow-clear
+            show-search
+            @search="searchCandidates" />
+          <a-input v-else id="project-member-name" v-model:value="memberName" :disabled="membershipLocked" />
+        </a-form-item>
+        <a-form-item v-if="invitationRequired && supports('email')" :label="$t('label.email')" html-for="project-member-email">
+          <a-input id="project-member-email" v-model:value="email" type="email" :disabled="membershipLocked" />
+        </a-form-item>
+        <a-form-item v-if="supports('roletype')" :label="$t('label.roletype')" html-for="project-member-type">
+          <a-select
+            id="project-member-type"
+            v-model:value="roleType"
+            :options="[{ value: 'Regular', label: 'Regular' }, { value: 'Admin', label: 'Admin' }]"
+            :disabled="membershipLocked" />
+        </a-form-item>
+        <a-form-item v-if="supports('projectroleid') && apis.listProjectRoles" :label="$t('label.project.role')" html-for="project-member-role">
+          <a-select
+            id="project-member-role"
+            v-model:value="projectRoleId"
+            :options="projectRoles"
+            :placeholder="$t('label.none')"
+            :disabled="membershipLocked"
+            allow-clear />
+        </a-form-item>
+      </a-form>
+    </div>
     <MoldDialogActions :busy="membershipBusy">
       <a-button :disabled="membershipBusy" @click="close">{{ $t('label.cancel') }}</a-button>
       <a-button type="primary" :loading="membershipBusy" :disabled="submitDisabled" @click="submit">
@@ -236,5 +238,6 @@ export default {
 </script>
 
 <style scoped>
+.member-project-name { overflow-wrap: anywhere; }
 .member-feedback { margin-bottom: 12px; }
 </style>

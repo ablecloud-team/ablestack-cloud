@@ -16,16 +16,16 @@
 // under the License.
 
 <template>
-  <div :class="{ 'autoscale-screen': $route.meta?.name === 'autoscalevmgroup', 'userdata-library': $route.meta?.name === 'userdata', 'affinity-library': $route.meta?.name === 'affinitygroup', 'snapshot-list-page': isSnapshotList, 'object-storage-ui': isObjectStorageUi, 'bucket-list-page': isBucketList, 'vm-list-page': isVmList, 'event-list-page': isEventList, 'vm-acl-standard': isVmUi || isAclUi, 'acl-page': isAclUi, 'kms-management-page': kmsRoute($route), 'kms-list-page': kmsListRoute($route),  'public-ip-page': isPublicIpUi, 'volume-list-page': isVolumeList, 'template-list-page': isTemplateList, 'iso-list-page': isIsoList, 'kubernetes-iso-page': $route.meta?.name === 'kubernetesiso', 'kubernetes-iso-list-page': isKubernetesIsoList, 's2s-gateway-list-page': s2sGatewayListRoute($route), 's2s-connection-page': vpnConnectionRoute($route), 'asn-list-page': !!asnSearchAuth, 'themed-list-toolbar': vpnConnectionRoute($route) || isS2sSearchList || !!asnSearchAuth || isKubernetesIsoList || isPublicIpUi || isTemplateList || isIsoList || isVpcUi || isVmList || isAclUi || isEventList || isVolumeList || isGuestNetworkList || ($route.name === 'sharedfs' && !dataView), 'guest-network-page': isGuestNetworkUi, 'runtime-catalog-screen': $route.meta?.name === 'runtimebundle' }">
+  <div :class="{ 'autoscale-screen': $route.meta?.name === 'autoscalevmgroup', 'userdata-library': $route.meta?.name === 'userdata', 'affinity-library': $route.meta?.name === 'affinitygroup', 'snapshot-list-page': isSnapshotList, 'object-storage-ui': isObjectStorageUi, 'bucket-list-page': isBucketList, 'vm-list-page': isVmList, 'event-list-page': isEventList, 'vm-acl-standard': isVmUi || isAclUi || isProjectUi, 'project-standard-page': isProjectUi, 'acl-page': isAclUi, 'kms-management-page': kmsRoute($route), 'kms-list-page': kmsListRoute($route),  'public-ip-page': isPublicIpUi, 'volume-list-page': isVolumeList, 'template-list-page': isTemplateList, 'iso-list-page': isIsoList, 'kubernetes-iso-page': $route.meta?.name === 'kubernetesiso', 'kubernetes-iso-list-page': isKubernetesIsoList, 's2s-gateway-list-page': s2sGatewayListRoute($route), 's2s-connection-page': vpnConnectionRoute($route), 'asn-list-page': !!asnSearchAuth, 'themed-list-toolbar': vpnConnectionRoute($route) || isS2sSearchList || !!asnSearchAuth || isKubernetesIsoList || isPublicIpUi || isTemplateList || isIsoList || isVpcUi || isVmList || isProjectList || isAclUi || isEventList || isVolumeList || isGuestNetworkList || ($route.name === 'sharedfs' && !dataView), 'guest-network-page': isGuestNetworkUi, 'runtime-catalog-screen': $route.meta?.name === 'runtimebundle' }">
     <div class="content-breadcrumb">
       <a-card class="breadcrumb-card" style="z-index: 10">
         <a-row>
           <a-col
-            :class="{ 'vm-acl-breadcrumb-layout': isVmUi || isAclUi }"
+            :class="{ 'vm-acl-breadcrumb-layout': isVmUi || isAclUi || isProjectUi }"
             :span="device === 'mobile' ? 24 : 12"
             style="padding-left: 12px; margin-top: 10px"
           >
-            <breadcrumb :resource="resource" :standard-layout="isVmUi || isAclUi">
+            <breadcrumb :resource="resource" :standard-layout="isVmUi || isAclUi || isProjectUi">
               <template #end>
                 <a-button
                   v-if="$route.meta?.name !== 'runtimebundle'"
@@ -53,6 +53,17 @@
                   <a-select-option value="all">{{ $t('label.all') }}</a-select-option>
                   <a-select-option value="true">{{ $t('label.enabled') }}</a-select-option>
                   <a-select-option value="false">{{ $t('label.disabled') }}</a-select-option>
+                </a-select>
+                <a-select
+                  v-if="isProjectList"
+                  id="project-state-filter"
+                  :aria-label="$t('label.state')"
+                  :value="$route.query.state || ''"
+                  :options="projectStateOptions"
+                  size="small"
+                  class="project-state-filter"
+                  @change="changeProjectState">
+                  <template #suffixIcon><filter-outlined /></template>
                 </a-select>
                 <a-tooltip placement="right">
                   <template #title>
@@ -179,7 +190,7 @@
               {{ $t('label.refresh') }}
             </a-button>
             <AsnListTools v-if="asnSearchAuth" :selected="selectedItems" :ready="asnListReady" :scope="listScope()" @refresh="resetSelection(); $refs.listview?.resetSelection(); fetchData({ irefresh: true })" />
-            <ProjectListSearch v-if="isProjectList" @search="onSearch" />
+            <ProjectListSearch v-if="isProjectList" class="project-toolbar-search" @search="onSearch" />
             <search-view
               v-else-if="!dataView"
               :class="{ 'kms-toolbar-search': kmsListRoute($route), 'vm-acl-toolbar-search': isVmUi || isAclUi }"
@@ -293,17 +304,17 @@
         @refresh="finishEventMutation(false)"
       />
       <component
-        :is="isVpcUi ? 'VpcDialog' : (isStorageUi || isBucketGroupDelete || isGuestNetworkDelete || vmStandardDialog || aclStandardDialog || publicIpReleaseDialog) ? 'MoldDialog' : 'a-modal'"
-        :size="(isVpcUi || isStorageUi || isBucketGroupDelete || isGuestNetworkDelete || vmStandardDialog || aclStandardDialog || publicIpReleaseDialog) ? 'md' : undefined"
+        :is="isVpcUi ? 'VpcDialog' : (isStorageUi || isBucketGroupDelete || isGuestNetworkDelete || vmStandardDialog || projectStandardDialog || aclStandardDialog || publicIpReleaseDialog) ? 'MoldDialog' : 'a-modal'"
+        :size="(isVpcUi || isStorageUi || isBucketGroupDelete || isGuestNetworkDelete || vmStandardDialog || projectStandardDialog || aclStandardDialog || publicIpReleaseDialog) ? 'md' : undefined"
         class="mold-dialog"
-        :class="{ 'storage-standard-dialog': isStorageUi || isBucketGroupDelete || isGuestNetworkDelete || vmStandardDialog || aclStandardDialog || publicIpReleaseDialog, 'vpc-standard-dialog': isVpcUi, 'acl-standard-dialog': aclStandardDialog, 'object-storage-dialog': isBucketGroupDelete, 'autoscale-dialog': $route.meta?.name === 'autoscalevmgroup' }"
+        :class="{ 'storage-standard-dialog': isStorageUi || isBucketGroupDelete || isGuestNetworkDelete || vmStandardDialog || projectStandardDialog || aclStandardDialog || publicIpReleaseDialog, 'vpc-standard-dialog': isVpcUi, 'acl-standard-dialog': aclStandardDialog, 'object-storage-dialog': isBucketGroupDelete, 'autoscale-dialog': $route.meta?.name === 'autoscalevmgroup' }"
           v-else
         :visible="showAction"
-        :closable="!(isVpcUi || vmStandardDialog || aclStandardDialog || publicIpReleaseDialog) || !(actionLoading || vmActionValidationPending)"
+        :closable="!(isVpcUi || vmStandardDialog || projectStandardDialog || aclStandardDialog || publicIpReleaseDialog) || !(actionLoading || vmActionValidationPending)"
         :maskClosable="false"
         :width="(isBucketGroupDelete || isGuestNetworkDelete || publicIpReleaseDialog || aclStandardDialog) ? 'min(720px, calc(100vw - 32px))' : (currentAction.invokedAsGroupAction ? modalWidth : 760)"
-        :focus-guard="isVpcUi || vmStandardDialog || aclStandardDialog || publicIpReleaseDialog"
-        :keyboard="!(isVpcUi || vmStandardDialog || aclStandardDialog || publicIpReleaseDialog) || !(actionLoading || vmActionValidationPending)"
+        :focus-guard="isVpcUi || vmStandardDialog || projectStandardDialog || aclStandardDialog || publicIpReleaseDialog"
+        :keyboard="!(isVpcUi || vmStandardDialog || projectStandardDialog || aclStandardDialog || publicIpReleaseDialog) || !(actionLoading || vmActionValidationPending)"
         :after-close="restoreClosedActionFocus"
         :ok-button-props="getOkProps()"
         ok-text="111"
@@ -330,342 +341,351 @@
           <dt>{{ $t('label.scope') }}</dt><dd><AclScopeValue :resource="resource" :linked="false" /></dd>
         </dl>
         <a-alert v-if="vmStandardDialog && vmActionError" type="error" show-icon :message="vmActionError" class="vm-action-error" />
+        <a-alert v-if="projectStandardDialog && projectActionError" type="error" show-icon :message="projectActionError" class="vm-action-error" />
         <a-alert v-if="isVpcUi && vpcActionError" type="error" show-icon :message="vpcActionError" style="margin-bottom: 16px" />
         <a-spin
           :spinning="actionLoading"
-          v-ctrl-enter="vmStandardDialog ? false : handleSubmit"
+          v-ctrl-enter="vmStandardDialog || projectStandardDialog ? false : handleSubmit"
           @keydown.ctrl.enter.prevent="vmStandardDialog && !$event.repeat && handleSubmit($event)"
         >
-          <div v-if="isGuestNetworkDelete && !currentAction.invokedAsGroupAction" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; overflow-wrap: anywhere">
-            <strong>{{ resource.name || resource.id }}</strong>
-            <span>{{ resource.type }} · {{ resource.id }}</span>
-          </div>
-          <PublicIpReleaseSummary v-if="publicIpReleaseDialog" :resources="currentAction.invokedAsGroupAction ? selectedItems : [currentAction.resource || resource]" />
-          <VmSnapshotSummary v-if="currentAction.api === 'createVMSnapshot'" vm-only :snapshot="{ virtualmachineid: currentAction.resource.id, virtualmachinename: currentAction.resource.displayname || currentAction.resource.name, virtualmachineinstancename: currentAction.resource.instancename, virtualmachinestate: currentAction.resource.state }" />
-          <InstanceGroupDeleteSummary v-if="currentAction.api === 'deleteInstanceGroup'" :groups="currentAction.vmGroupTargets || []" />
-          <span v-if="currentAction.message">
-            <div v-if="selectedRowKeys.length > 0 && currentAction.invokedAsGroupAction">
-              <a-alert
-                v-if="['delete-outlined', 'DeleteOutlined', 'poweroff-outlined', 'PoweroffOutlined'].includes(currentAction.icon)"
-                type="error"
-              >
-                <template #message>
-                  <exclamation-circle-outlined style="color: red; fontSize: 30px; display: inline-flex" />
-                  <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length}` + $t('label.items.selected') + `. </b>&nbsp`" />
-                  <span v-html="currentAction.message" />
-                </template>
-              </a-alert>
-              <a-alert
-                v-else
-                type="warning"
-              >
-                <template #message>
-                  <span v-if="selectedRowKeys.length > 0" v-html="`<b>${selectedRowKeys.length}` + $t('label.items.selected') + `. </b>&nbsp`" />
-                  <span v-html="currentAction.message" />
-                </template>
-              </a-alert>
+          <div @keydown.ctrl.enter.capture="handleProjectDialogShortcut">
+            <div v-if="isGuestNetworkDelete && !currentAction.invokedAsGroupAction" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; overflow-wrap: anywhere">
+              <strong>{{ resource.name || resource.id }}</strong>
+              <span>{{ resource.type }} · {{ resource.id }}</span>
             </div>
-            <div v-else>
-              <a-alert type="warning">
-                <template #message>
-                  <span v-html="currentAction.message" />
-                </template>
-              </a-alert>
-            </div>
-            <div v-if="selectedRowKeys.length > 0 && currentAction.invokedAsGroupAction">
-              <a-divider />
-              <a-table
-                v-if="selectedRowKeys.length > 0 && currentAction.api !== 'deleteInstanceGroup'"
-                size="middle"
-                :columns="presentedChosenColumns"
-                :dataSource="selectedItems"
-                :rowKey="(record, idx) => record.id || record.name || record.usageType || idx + '-' + Math.random()"
-                :pagination="true"
-                :scroll="isBucketGroupDelete ? { x: 760 } : undefined"
-                style="overflow-y: auto"
-              >
-                <template #bodyCell="{ column, text, record }">
-                  <public-ip-detail-value v-if="$route.meta?.name === 'publicip' && ['state', 'allocated', 'issystem', 'issourcenat', 'isstaticnat', 'fordisplay'].includes(column.key)" :resource="record" :field="column.key" compact />
-                  <template v-if="column.key === 'displayname' && isVmIdentityRoute($route)">{{ vmDisplayName(record) }}</template>
-                  <template v-if="column.key === 'allocated' && $route.meta.name === 'asnumbers'">
-                    {{ $toLocaleDate(text) }}
+            <PublicIpReleaseSummary v-if="publicIpReleaseDialog" :resources="currentAction.invokedAsGroupAction ? selectedItems : [currentAction.resource || resource]" />
+            <VmSnapshotSummary v-if="currentAction.api === 'createVMSnapshot'" vm-only :snapshot="{ virtualmachineid: currentAction.resource.id, virtualmachinename: currentAction.resource.displayname || currentAction.resource.name, virtualmachineinstancename: currentAction.resource.instancename, virtualmachinestate: currentAction.resource.state }" />
+            <InstanceGroupDeleteSummary v-if="currentAction.api === 'deleteInstanceGroup'" :groups="currentAction.vmGroupTargets || []" />
+            <span v-if="currentAction.message">
+              <div v-if="selectedRowKeys.length > 0 && currentAction.invokedAsGroupAction">
+                <a-alert
+                  v-if="['delete-outlined', 'DeleteOutlined', 'poweroff-outlined', 'PoweroffOutlined'].includes(currentAction.icon)"
+                  type="error"
+                >
+                  <template #message>
+                    <exclamation-circle-outlined style="color: red; fontSize: 30px; display: inline-flex" />
+                    <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length}` + $t('label.items.selected') + `. </b>&nbsp`" />
+                    <span v-html="currentAction.message" />
                   </template>
-                </template>
-              </a-table>
-            </div>
-            <br v-if="currentAction.paramFields.length > 0" />
-          </span>
-          <network-operation-policy v-if="isGuestNetworkDelete" context="delete" :network-type="resource.type" />
-          <div v-if="requiresNameConfirmation" style="margin-bottom: 5px">
-            <a-form-item>
-              <a-input v-model:value="actionConfirmText" :placeholder="resource.name" />
-            </a-form-item>
-            <a-alert type="info" :message="$t('label.delete.confirmation')" />
-          </div>
-          <a-form
-            :ref="formRef"
-            :model="form"
-            :rules="rules"
-            @finish="handleSubmit"
-            layout="vertical"
-          >
-            <div
-              v-for="(field, fieldIndex) in currentAction.paramFields"
-              :key="fieldIndex"
-            >
-              <a-form-item
-                :name="field.name"
-                :ref="field.name"
-                :v-bind="field.name"
-                :extra="currentAction.api === 'createNetworkACLList' && field.name === 'vpcid' ? $t('message.acl.scope.create') : undefined"
-                v-if="!(currentAction.mapping && field.name in currentAction.mapping && currentAction.mapping[field.name].value)"
-              >
-                <template #label>
-                  <tooltip-label
-                    v-if="['domain', 'guestcidraddress'].includes(field.name) && ['createZone', 'updateZone'].includes(currentAction.api)"
-                    :title="$t('label.default.network.' + field.name + '.isolated.network')"
-                    :tooltip="actionFieldDescription(field)"
-                  />
-                  <tooltip-label
-                    v-else-if="field.name === 'keepmacaddressonpublicnic' && currentAction.api === 'updateVPC'"
-                    :title="$t('label.keep.mac.address.on.public.nic')"
-                    :tooltip="actionFieldDescription(field)"
-                  />
-                  <tooltip-label
-                    v-else
-                    :title="$t('label.' + field.name)"
-                    :tooltip="actionFieldDescription(field)"
-                  />
-                </template>
-
-                <a-switch
-                  v-if="field.type==='boolean'"
-                  v-model:checked="form[field.name]"
-                  :aria-label="field.name === 'fordisplay' ? $t('label.fordisplay') : undefined"
-                  :placeholder="actionFieldDescription(field)"
-                  v-focus="fieldIndex === firstIndex"
-                />
-                <a-select
-                  v-else-if="currentAction.mapping && field.name in currentAction.mapping && currentAction.mapping[field.name].options"
-                  :loading="field.loading"
-                  v-model:value="form[field.name]"
-                  :placeholder="actionFieldDescription(field)"
-                  v-focus="fieldIndex === firstIndex"
-                  showSearch
-                  optionFilterProp="label"
-                  :filterOption="(input, option) => {
-                    return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }"
-                >
-                  <a-select-option
-                    key=""
-                    label=""
-                  >{{ }}</a-select-option>
-                  <a-select-option
-                    v-for="(opt, optIndex) in currentAction.mapping[field.name].options"
-                    :key="optIndex"
-                    :label="opt"
-                  >
-                    {{ opt }}
-                  </a-select-option>
-                </a-select>
-                <a-select
-                  v-else-if="field.name==='keypair' ||
-                    (field.name==='account' && !['addAccountToProject', 'createAccount'].includes(currentAction.api))"
-                  showSearch
-                  optionFilterProp="label"
-                  v-model:value="form[field.name]"
-                  @change="val => handleSelectChange(field.name, val)"
-                  :loading="field.loading"
-                  :placeholder="actionFieldDescription(field)"
-                  :filterOption="(input, option) => {
-                    return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }"
-                  v-focus="fieldIndex === firstIndex"
-                >
-                  <a-select-option
-                    key=""
-                    label=""
-                  >{{ }}</a-select-option>
-                  <a-select-option
-                    v-for="(opt, optIndex) in field.opts"
-                    :key="optIndex"
-                    :label="opt.name || opt.description || opt.traffictype || opt.publicip"
-                  >
-                    {{ opt.name || opt.description || opt.traffictype || opt.publicip }}
-                  </a-select-option>
-                </a-select>
-                <a-select
-                  v-else-if="field.type==='uuid'"
-                  showSearch
-                  optionFilterProp="label"
-                  v-model:value="form[field.name]"
-                  @change="val => handleSelectChange(field.name, val)"
-                  :loading="field.loading"
-                  :placeholder="actionFieldDescription(field)"
-                  :filterOption="(input, option) => {
-                    return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }"
-                  v-focus="fieldIndex === firstIndex"
-                >
-                  <a-select-option
-                    key=""
-                    label=""
-                  >{{ }}</a-select-option>
-                  <a-select-option
-                    v-for="opt in field.opts"
-                    :key="opt.id"
-                    :label="opt.name || opt.description || opt.traffictype || opt.publicip"
-                  >
-                    <div>
-                      <span v-if="(field.name.startsWith('template') || field.name.startsWith('iso'))">
-                        <span v-if="opt.icon">
-                          <resource-icon
-                            :image="opt.icon.base64image"
-                            size="1x"
-                            style="margin-right: 5px"
-                          />
-                        </span>
-                        <os-logo
-                          v-else
-                          :osId="opt.ostypeid"
-                          :osName="opt.ostypename"
-                          size="lg"
-                          style="margin-left: -1px"
-                        />
-                      </span>
-                      <span v-if="(field.name.startsWith('zone'))">
-                        <span v-if="opt.icon">
-                          <resource-icon
-                            :image="opt.icon.base64image"
-                            size="1x"
-                            style="margin-right: 5px"
-                          />
-                        </span>
-                        <global-outlined
-                          v-else
-                          style="margin-right: 5px"
-                        />
-                      </span>
-                      <span v-if="(field.name.startsWith('project'))">
-                        <span v-if="opt.icon">
-                          <resource-icon
-                            :image="opt.icon.base64image"
-                            size="1x"
-                            style="margin-right: 5px"
-                          />
-                        </span>
-                        <project-outlined
-                          v-else
-                          style="margin-right: 5px"
-                        />
-                      </span>
-                      <span v-if="(field.name.startsWith('account') || field.name.startsWith('user'))">
-                        <span v-if="opt.icon">
-                          <resource-icon
-                            :image="opt.icon.base64image"
-                            size="1x"
-                            style="margin-right: 5px"
-                          />
-                        </span>
-                        <user-outlined
-                          v-else
-                          style="margin-right: 5px"
-                        />
-                      </span>
-                      <span v-if="(field.name.startsWith('network'))">
-                        <span v-if="opt.icon">
-                          <resource-icon
-                            :image="opt.icon.base64image"
-                            size="1x"
-                            style="margin-right: 5px"
-                          />
-                        </span>
-                        <apartment-outlined
-                          v-else
-                          style="margin-right: 5px"
-                        />
-                      </span>
-                      <span v-if="(field.name.startsWith('domain'))">
-                        <span v-if="opt.icon">
-                          <resource-icon
-                            :image="opt.icon.base64image"
-                            size="1x"
-                            style="margin-right: 5px"
-                          />
-                        </span>
-                        <block-outlined
-                          v-else
-                          style="margin-right: 5px"
-                        />
-                      </span>
-                      {{ opt.name || opt.description || opt.traffictype || opt.publicip }}
-                    </div>
-                  </a-select-option>
-                </a-select>
-                <a-select
-                  v-else-if="field.type==='list'"
-                  :loading="field.loading"
-                  mode="multiple"
-                  v-model:value="form[field.name]"
-                  @change="val => handleSelectChange(field.name, val)"
-                  :placeholder="actionFieldDescription(field)"
-                  v-focus="fieldIndex === firstIndex"
-                  showSearch
-                  optionFilterProp="label"
-                  :filterOption="(input, option) => {
-                    return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }"
-                >
-                  <a-select-option
-                    v-for="(opt, optIndex) in field.opts"
-                    :key="optIndex"
-                    :label="(opt.name && opt.type ? opt.name + ' (' + opt.type + ')' : opt.name || opt.description)"
-                  >
-                    {{ (opt.name && opt.type ? opt.name + ' (' + opt.type + ')' : opt.name || opt.description) }}
-                  </a-select-option>
-                </a-select>
-                <details-input
-                  v-else-if="field.type==='map'"
-                  v-model:value="form[field.name]"
-                  :optionalKeys="currentAction.mapping?.[field.name]?.optionalKeys || []" />
-                <a-input-number
-                  v-else-if="field.type==='long'"
-                  v-focus="fieldIndex === firstIndex"
-                  style="width: 100%;"
-                  v-model:value="form[field.name]"
-                  :placeholder="actionFieldDescription(field)"
-                />
-                <a-input-password
-                  v-else-if="field.name==='password' || field.name==='currentpassword' || field.name==='confirmpassword' || field.name==='secretkey'"
-                  v-model:value="form[field.name]"
-                  :placeholder="actionFieldDescription(field)"
-                  @blur="($event) => handleConfirmBlur($event, field.name)"
-                  v-focus="fieldIndex === firstIndex"
-                />
-                <a-textarea
-                  v-else-if="field.name==='certificate' || field.name==='privatekey' || field.name==='certchain'"
-                  rows="2"
-                  v-model:value="form[field.name]"
-                  :placeholder="actionFieldDescription(field)"
-                  v-focus="fieldIndex === firstIndex"
-                />
-                <a-input
+                </a-alert>
+                <a-alert
                   v-else
-                  v-focus="fieldIndex === firstIndex"
-                  v-model:value="form[field.name]"
-                  :placeholder="actionFieldDescription(field)"
-                />
+                  type="warning"
+                >
+                  <template #message>
+                    <span v-if="selectedRowKeys.length > 0" v-html="`<b>${selectedRowKeys.length}` + $t('label.items.selected') + `. </b>&nbsp`" />
+                    <span v-html="currentAction.message" />
+                  </template>
+                </a-alert>
+              </div>
+              <div v-else>
+                <a-alert type="warning">
+                  <template #message>
+                    <span v-html="currentAction.message" />
+                  </template>
+                </a-alert>
+              </div>
+              <div v-if="selectedRowKeys.length > 0 && currentAction.invokedAsGroupAction">
+                <a-divider />
+                <a-table
+                  v-if="selectedRowKeys.length > 0 && currentAction.api !== 'deleteInstanceGroup'"
+                  size="middle"
+                  :columns="presentedChosenColumns"
+                  :dataSource="selectedItems"
+                  :rowKey="(record, idx) => record.id || record.name || record.usageType || idx + '-' + Math.random()"
+                  :pagination="true"
+                  :scroll="isBucketGroupDelete ? { x: 760 } : undefined"
+                  style="overflow-y: auto"
+                >
+                  <template #bodyCell="{ column, text, record }">
+                    <public-ip-detail-value v-if="$route.meta?.name === 'publicip' && ['state', 'allocated', 'issystem', 'issourcenat', 'isstaticnat', 'fordisplay'].includes(column.key)" :resource="record" :field="column.key" compact />
+                    <template v-if="column.key === 'displayname' && isVmIdentityRoute($route)">{{ vmDisplayName(record) }}</template>
+                    <template v-if="column.key === 'allocated' && $route.meta.name === 'asnumbers'">
+                      {{ $toLocaleDate(text) }}
+                    </template>
+                  </template>
+                </a-table>
+              </div>
+              <br v-if="currentAction.paramFields.length > 0" />
+            </span>
+            <a-alert
+              v-if="projectStandardDialog && currentAction.api === 'deleteProject' && currentAction.paramFields.some(field => field.name === 'cleanup')"
+              :type="form.cleanup ? 'warning' : 'info'"
+              show-icon
+              :message="$t(form.cleanup ? 'message.project.delete.cleanup' : 'message.project.delete.keep')"
+              class="vm-action-error" />
+            <network-operation-policy v-if="isGuestNetworkDelete" context="delete" :network-type="resource.type" />
+            <div v-if="requiresNameConfirmation" style="margin-bottom: 5px">
+              <a-form-item>
+                <a-input v-model:value="actionConfirmText" :placeholder="resource.name" :aria-label="$t('label.delete.confirmation')" v-focus="projectStandardDialog" />
               </a-form-item>
+              <a-alert type="info" :message="$t('label.delete.confirmation')" />
             </div>
+            <a-form
+              :ref="formRef"
+              :model="form"
+              :rules="rules"
+              @finish="handleSubmit"
+              layout="vertical"
+            >
+              <div
+                v-for="(field, fieldIndex) in currentAction.paramFields"
+                :key="fieldIndex"
+              >
+                <a-form-item
+                  :name="field.name"
+                  :ref="field.name"
+                  :v-bind="field.name"
+                  :extra="currentAction.api === 'createNetworkACLList' && field.name === 'vpcid' ? $t('message.acl.scope.create') : undefined"
+                  v-if="!(currentAction.mapping && field.name in currentAction.mapping && currentAction.mapping[field.name].value)"
+                >
+                  <template #label>
+                    <tooltip-label
+                      v-if="['domain', 'guestcidraddress'].includes(field.name) && ['createZone', 'updateZone'].includes(currentAction.api)"
+                      :title="$t('label.default.network.' + field.name + '.isolated.network')"
+                      :tooltip="actionFieldDescription(field)"
+                    />
+                    <tooltip-label
+                      v-else-if="field.name === 'keepmacaddressonpublicnic' && currentAction.api === 'updateVPC'"
+                      :title="$t('label.keep.mac.address.on.public.nic')"
+                      :tooltip="actionFieldDescription(field)"
+                    />
+                    <tooltip-label
+                      v-else
+                      :title="$t('label.' + field.name)"
+                      :tooltip="actionFieldDescription(field)"
+                    />
+                  </template>
 
-          </a-form>
+                  <a-switch
+                    v-if="field.type==='boolean'"
+                    v-model:checked="form[field.name]"
+                    :aria-label="field.name === 'fordisplay' ? $t('label.fordisplay') : undefined"
+                    :placeholder="actionFieldDescription(field)"
+                    v-focus="fieldIndex === firstIndex"
+                  />
+                  <a-select
+                    v-else-if="currentAction.mapping && field.name in currentAction.mapping && currentAction.mapping[field.name].options"
+                    :loading="field.loading"
+                    v-model:value="form[field.name]"
+                    :placeholder="actionFieldDescription(field)"
+                    v-focus="fieldIndex === firstIndex"
+                    showSearch
+                    optionFilterProp="label"
+                    :filterOption="(input, option) => {
+                      return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    }"
+                  >
+                    <a-select-option
+                      key=""
+                      label=""
+                    >{{ }}</a-select-option>
+                    <a-select-option
+                      v-for="(opt, optIndex) in currentAction.mapping[field.name].options"
+                      :key="optIndex"
+                      :label="opt"
+                    >
+                      {{ opt }}
+                    </a-select-option>
+                  </a-select>
+                  <a-select
+                    v-else-if="field.name==='keypair' ||
+                      (field.name==='account' && !['addAccountToProject', 'createAccount'].includes(currentAction.api))"
+                    showSearch
+                    optionFilterProp="label"
+                    v-model:value="form[field.name]"
+                    @change="val => handleSelectChange(field.name, val)"
+                    :loading="field.loading"
+                    :placeholder="actionFieldDescription(field)"
+                    :filterOption="(input, option) => {
+                      return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    }"
+                    v-focus="fieldIndex === firstIndex"
+                  >
+                    <a-select-option
+                      key=""
+                      label=""
+                    >{{ }}</a-select-option>
+                    <a-select-option
+                      v-for="(opt, optIndex) in field.opts"
+                      :key="optIndex"
+                      :label="opt.name || opt.description || opt.traffictype || opt.publicip"
+                    >
+                      {{ opt.name || opt.description || opt.traffictype || opt.publicip }}
+                    </a-select-option>
+                  </a-select>
+                  <a-select
+                    v-else-if="field.type==='uuid'"
+                    showSearch
+                    optionFilterProp="label"
+                    v-model:value="form[field.name]"
+                    @change="val => handleSelectChange(field.name, val)"
+                    :loading="field.loading"
+                    :placeholder="actionFieldDescription(field)"
+                    :filterOption="(input, option) => {
+                      return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    }"
+                    v-focus="fieldIndex === firstIndex"
+                  >
+                    <a-select-option
+                      key=""
+                      label=""
+                    >{{ }}</a-select-option>
+                    <a-select-option
+                      v-for="opt in field.opts"
+                      :key="opt.id"
+                      :label="opt.name || opt.description || opt.traffictype || opt.publicip"
+                    >
+                      <div>
+                        <span v-if="(field.name.startsWith('template') || field.name.startsWith('iso'))">
+                          <span v-if="opt.icon">
+                            <resource-icon
+                              :image="opt.icon.base64image"
+                              size="1x"
+                              style="margin-right: 5px"
+                            />
+                          </span>
+                          <os-logo
+                            v-else
+                            :osId="opt.ostypeid"
+                            :osName="opt.ostypename"
+                            size="lg"
+                            style="margin-left: -1px"
+                          />
+                        </span>
+                        <span v-if="(field.name.startsWith('zone'))">
+                          <span v-if="opt.icon">
+                            <resource-icon
+                              :image="opt.icon.base64image"
+                              size="1x"
+                              style="margin-right: 5px"
+                            />
+                          </span>
+                          <global-outlined
+                            v-else
+                            style="margin-right: 5px"
+                          />
+                        </span>
+                        <span v-if="(field.name.startsWith('project'))">
+                          <span v-if="opt.icon">
+                            <resource-icon
+                              :image="opt.icon.base64image"
+                              size="1x"
+                              style="margin-right: 5px"
+                            />
+                          </span>
+                          <project-outlined
+                            v-else
+                            style="margin-right: 5px"
+                          />
+                        </span>
+                        <span v-if="(field.name.startsWith('account') || field.name.startsWith('user'))">
+                          <span v-if="opt.icon">
+                            <resource-icon
+                              :image="opt.icon.base64image"
+                              size="1x"
+                              style="margin-right: 5px"
+                            />
+                          </span>
+                          <user-outlined
+                            v-else
+                            style="margin-right: 5px"
+                          />
+                        </span>
+                        <span v-if="(field.name.startsWith('network'))">
+                          <span v-if="opt.icon">
+                            <resource-icon
+                              :image="opt.icon.base64image"
+                              size="1x"
+                              style="margin-right: 5px"
+                            />
+                          </span>
+                          <apartment-outlined
+                            v-else
+                            style="margin-right: 5px"
+                          />
+                        </span>
+                        <span v-if="(field.name.startsWith('domain'))">
+                          <span v-if="opt.icon">
+                            <resource-icon
+                              :image="opt.icon.base64image"
+                              size="1x"
+                              style="margin-right: 5px"
+                            />
+                          </span>
+                          <block-outlined
+                            v-else
+                            style="margin-right: 5px"
+                          />
+                        </span>
+                        {{ opt.name || opt.description || opt.traffictype || opt.publicip }}
+                      </div>
+                    </a-select-option>
+                  </a-select>
+                  <a-select
+                    v-else-if="field.type==='list'"
+                    :loading="field.loading"
+                    mode="multiple"
+                    v-model:value="form[field.name]"
+                    @change="val => handleSelectChange(field.name, val)"
+                    :placeholder="actionFieldDescription(field)"
+                    v-focus="fieldIndex === firstIndex"
+                    showSearch
+                    optionFilterProp="label"
+                    :filterOption="(input, option) => {
+                      return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    }"
+                  >
+                    <a-select-option
+                      v-for="(opt, optIndex) in field.opts"
+                      :key="optIndex"
+                      :label="(opt.name && opt.type ? opt.name + ' (' + opt.type + ')' : opt.name || opt.description)"
+                    >
+                      {{ (opt.name && opt.type ? opt.name + ' (' + opt.type + ')' : opt.name || opt.description) }}
+                    </a-select-option>
+                  </a-select>
+                  <details-input
+                    v-else-if="field.type==='map'"
+                    v-model:value="form[field.name]"
+                    :optionalKeys="currentAction.mapping?.[field.name]?.optionalKeys || []" />
+                  <a-input-number
+                    v-else-if="field.type==='long'"
+                    v-focus="fieldIndex === firstIndex"
+                    style="width: 100%;"
+                    v-model:value="form[field.name]"
+                    :placeholder="actionFieldDescription(field)"
+                  />
+                  <a-input-password
+                    v-else-if="field.name==='password' || field.name==='currentpassword' || field.name==='confirmpassword' || field.name==='secretkey'"
+                    v-model:value="form[field.name]"
+                    :placeholder="actionFieldDescription(field)"
+                    @blur="($event) => handleConfirmBlur($event, field.name)"
+                    v-focus="fieldIndex === firstIndex"
+                  />
+                  <a-textarea
+                    v-else-if="field.name==='certificate' || field.name==='privatekey' || field.name==='certchain'"
+                    rows="2"
+                    v-model:value="form[field.name]"
+                    :placeholder="actionFieldDescription(field)"
+                    v-focus="fieldIndex === firstIndex"
+                  />
+                  <a-input
+                    v-else
+                    v-focus="fieldIndex === firstIndex"
+                    v-model:value="form[field.name]"
+                    :placeholder="actionFieldDescription(field)"
+                  />
+                </a-form-item>
+              </div>
+
+            </a-form>
+          </div>
         </a-spin>
         <template #footer>
           <a-button
             v-focus="aclDeleteDialog"
-            @click="vmStandardDialog || aclStandardDialog ? cancelAction() : closeAction()"
-            :disabled="(vmStandardDialog || aclStandardDialog || publicIpReleaseDialog) && (actionLoading || vmActionValidationPending)">
+            @click="vmStandardDialog || projectStandardDialog || aclStandardDialog ? cancelAction() : closeAction()"
+            :disabled="(vmStandardDialog || projectStandardDialog || aclStandardDialog || publicIpReleaseDialog) && (actionLoading || vmActionValidationPending)">
             {{ $t('label.cancel') }}
           </a-button>
           <a-button
@@ -673,9 +693,9 @@
             @click="handleSubmit"
             :disabled="isSubmitDisabled || (vmStandardDialog && (vmActionValidationPending || vmActionUnknown))"
             :loading="actionLoading || (vmStandardDialog && vmActionValidationPending)"
-            :danger="aclDeleteDialog || publicIpReleaseDialog || isVpcUi && currentAction.api?.startsWith('delete') || vmStandardDialog && currentAction.api === 'stopVirtualMachine'"
+            :danger="aclDeleteDialog || (projectStandardDialog && currentAction.api === 'deleteProject') || publicIpReleaseDialog || isVpcUi && currentAction.api?.startsWith('delete') || vmStandardDialog && currentAction.api === 'stopVirtualMachine'"
             ref="submit">
-            {{ $t(publicIpReleaseDialog ? 'label.public.ip.release.confirm' : (isVpcUi || vmStandardDialog || aclStandardDialog) && currentAction.label ? currentAction.label : 'label.ok') }}
+            {{ $t(publicIpReleaseDialog ? 'label.public.ip.release.confirm' : (isVpcUi || vmStandardDialog || projectStandardDialog || aclStandardDialog) && currentAction.label ? currentAction.label : 'label.ok') }}
           </a-button>
         </template>
       </component>
@@ -768,7 +788,7 @@
           :actions="(asnSearchAuth && asnSearchFailure) || isSnapshotCopyList || snapshotSearchFailure || policySearchFailure || ((isSnapshotList || isPolicyList || isObjectStorageUi || $route.meta?.name === 'vnfapp') && !storageActionReady) || ($route.meta?.name === 'vmgroup' && !vmGroupQueryReady) ? [] : actions"
           :selectionDisabled="record => (isProjectList && !storageActionReady) || (asnSearchAuth && !asnListReady) || (isSnapshotList || isPolicyList || isObjectStorageUi || $route.meta?.name === 'vnfapp') && !storageActionReady"
           :explicitlyAllowRowSelection="policySelectionAvailable || !!asnSearchAuth"
-          :tableScroll="isEventList ? { x: 1210 } : asnSearchAuth ? { x: 1640 } : s2sGatewayListRoute($route) ? { x: 860 } : vpnConnectionListRoute($route) ? { x: vpnConnectionTableWidth } : undefined"
+          :tableScroll="isProjectList ? { x: projectTableWidth } : isEventList ? { x: 1210 } : asnSearchAuth ? { x: 1640 } : s2sGatewayListRoute($route) ? { x: 860 } : vpnConnectionListRoute($route) ? { x: vpnConnectionTableWidth } : undefined"
           :keyboardContextMenu="isSnapshotList"
           :currentPage="page"
           :pageSize="pageSize"
@@ -854,7 +874,7 @@ import { genericCompare } from '@/utils/sort.js'
 import { sourceToken } from '@/utils/request'
 import store from '@/store'
 import { projectBulkScope, projectBulkTargets } from '@/utils/projectBulk'
-import { applyProjectSearch, projectListParams, projectListScope, projectSearchQuery, projectSortFields } from '@/utils/projectSearch'
+import { applyProjectSearch, projectListParams, projectListScope, projectSearchQuery, projectSortFields, projectStates } from '@/utils/projectSearch'
 import ProjectListSearch from '@/views/project/ProjectListSearch'
 import eventBus from '@/config/eventBus'
 
@@ -977,6 +997,7 @@ export default {
       actionLoading: false,
       vmActionValidationPending: false,
       vmActionError: '',
+      projectActionError: '',
       vmActionUnknown: false,
       columnKeys: [],
       allColumns: [],
@@ -1452,8 +1473,13 @@ export default {
     isVolumeList () { return !this.dataView && this.$route.meta?.name === 'volume' },
     isGuestNetworkList () { return !this.dataView && guestNetworkRoute(this.$route) },
     isGuestNetworkUi () { return ['guestnetwork', 'networkoffering'].includes(this.$route.meta?.name) },
+    isProjectUi () { return this.$route.meta?.name === 'project' },
     isVmUi () { return this.$route.meta?.name === 'vm' },
     isVmList () { return !this.dataView && this.isVmUi },
+    projectStateOptions () {
+      return [{ value: '', label: this.$t('label.all') },
+        ...projectStates.map(value => ({ value, label: this.$t('state.' + value.toLowerCase()) }))]
+    },
     isProjectList () { return !this.dataView && this.$route.meta?.name === 'project' },
     projectSearchScope () {
       return this.$route.meta?.name === 'project' ? projectListScope(this.$store.getters, this.$store.state?.user?.token) : ''
@@ -1505,6 +1531,9 @@ export default {
       return JSON.stringify([this.$route.fullPath, project?.id, listAllProjects, this.$store.state?.user?.token,
         apis.downloadEvents?.response?.some(field => field.name === 'csv'), !!apis.archiveEvents, !!apis.deleteEvents, features?.eventdeleteenabled])
     },
+    projectStandardDialog () {
+      return this.isProjectUi && ['updateProject', 'activateProject', 'suspendProject', 'deleteProject'].includes(this.currentAction?.api)
+    },
     vmStandardDialog () { return isVmIdentityRoute(this.$route) && ['updateVirtualMachine', 'startVirtualMachine', 'stopVirtualMachine', 'rebootVirtualMachine', 'restoreVirtualMachine', 'recoverVirtualMachine'].includes(this.currentAction?.api) },
     isKmsDetail () { return kmsDetailRoute(this.$route) },
     kmsDetailReady () {
@@ -1528,11 +1557,16 @@ export default {
         const sortValue = (record, key) => key === 'account'
           ? (record.owner || []).map(owner => owner.account).join(', ') || record.account || ''
           : record[key] || ''
-        return columns.map(column => projectSortFields.includes(column.key) ? {
+        const widths = { name: 216, state: 104, displaytext: 192, account: 140, domain: 128, filtercolumn: 44 }
+        return columns.map(column => ({
           ...column,
-          sorter: (a, b) => genericCompare(sortValue(a, column.key), sortValue(b, column.key)),
-          sortOrder: sortkey === column.key ? (sortorder === 'asc' ? 'ascend' : 'descend') : null
-        } : column)
+          width: widths[column.key] || 144,
+          className: 'project-list-column-' + column.key,
+          ...(projectSortFields.includes(column.key) ? {
+            sorter: (a, b) => genericCompare(sortValue(a, column.key), sortValue(b, column.key)),
+            sortOrder: sortkey === column.key ? (sortorder === 'asc' ? 'ascend' : 'descend') : null
+          } : {})
+        }))
       }
       if (this.isEventList) {
         const { sortkey, sortorder } = this.$route.query
@@ -1560,6 +1594,7 @@ export default {
       if (!asnRoute(this.$route)) return columns
       return columns.map(column => column.key === 'filtercolumn' ? column : ({ ...column, title: this.$t(column.key === 'allocated' ? 'label.asn.allocatedat' : 'label.' + column.key.toLowerCase()), width: ['asnumber', 'allocationstate'].includes(column.key) ? 140 : column.key === 'releasereason' ? 230 : 160 }))
     },
+    projectTableWidth () { return 40 + this.presentedColumns.reduce((width, column) => width + column.width, 0) },
     vpnConnectionTableWidth () { return this.presentedColumns.reduce((width, column) => width + column.width, 0) },
     presentedChosenColumns () { return this.localizePublicIpColumns(this.chosenColumns) },
     publicIpReleaseDialog () { return this.$route.meta?.name === 'publicip' && this.currentAction?.api === 'releaseIpAddress' },
@@ -3110,7 +3145,7 @@ export default {
       }
       const snapshotDialog = this.currentAction?.storageSnapshotMode || this.currentAction?.snapshotStandardDialog
       const kmsDialog = kmsRoute(this.$route) && this.currentAction?.selfManagedDialog
-      const guardedDialog = this.currentAction?.api === 'downloadEvents' || !!this.currentAction?.eventMutationTargets || kmsDialog || ['kubernetesiso', 's2svpn', 's2svpnconn'].includes(this.$route.meta?.name) || this.vmStandardDialog || this.aclStandardDialog || this.publicIpStandardDialog || snapshotDialog || !!this.currentAction?.vnfReinstallCurrent || !!this.currentAction?.vnfUnmanageCurrent
+      const guardedDialog = this.currentAction?.api === 'downloadEvents' || !!this.currentAction?.eventMutationTargets || kmsDialog || this.isProjectUi || ['kubernetesiso', 's2svpn', 's2svpnconn'].includes(this.$route.meta?.name) || this.vmStandardDialog || this.aclStandardDialog || this.publicIpStandardDialog || snapshotDialog || !!this.currentAction?.vnfReinstallCurrent || !!this.currentAction?.vnfUnmanageCurrent
       const policyDeleteDialog = this.currentAction?.policyDeleteDialog
       const deletedPolicyDetail = policyDeleteDialog && policyDetailRoute(this.$route) && this.currentAction.policyListScope === this.listScope() && result?.removed?.includes(this.$route.params?.id)
       let policyListLocation
@@ -3190,7 +3225,8 @@ export default {
         if (this.isVpcUi && !replacement && originPath === this.$route?.path) replacement = this.$el?.querySelector('.ant-table-row-selected input[type="checkbox"]:not([disabled])') || this.$el?.querySelector('.autogen-toolbar-actions button:not([disabled])')
         // A portal menu item may remain connected but hidden after its dropdown closes.
         // Snapshot dialogs return to the stable toolbar/detail button in the current route.
-        const target = (this.isVpcUi || guardedDialog) && replacement?.isConnected ? replacement : trigger?.isConnected ? trigger : replacement
+        const preferTrigger = this.isProjectUi && trigger?.isConnected
+        const target = !preferTrigger && (this.isVpcUi || guardedDialog) && replacement?.isConnected ? replacement : trigger?.isConnected ? trigger : replacement
         if (!this.showAction && target?.isConnected && target !== document.body) {
           target.focus({ preventScroll: true })
         }
@@ -3208,7 +3244,7 @@ export default {
     },
     cancelAction () {
       if (this.vmStandardDialog && (this.actionLoading || this.vmActionValidationPending)) return
-      if ((this.isVpcUi || this.aclStandardDialog) && this.actionLoading) return
+      if ((this.isVpcUi || this.aclStandardDialog || this.projectStandardDialog) && this.actionLoading) return
       eventBus.emit('action-closing', { action: this.currentAction })
       this.closeAction()
     },
@@ -3307,6 +3343,7 @@ export default {
         if (!canKubernetesIsoAction(operation, action.resource || this.resource, this.$store.getters) || this.kubernetesIsoReadError || this.listRequestPending || this.listLoadedScope !== this.listScope()) return
       }
       this.vpcActionError = ''
+      this.projectActionError = ''
       if (vnfRoute(this.$route) && (!this.storageActionReady || !(action.api in (this.$store.getters.apis || {})) || isGroupAction && (!this.selectedRowKeys.length || this.selectedRowKeys.some(id => !this.items.some(row => row.id === id))))) return
       if ((snapshotListRoute(this.$route) || snapshotDetailRoute(this.$route) || policyDetailRoute(this.$route) || snapshotPolicyListRoute(this.$route)) && this.storageActionReady === false && !this.canOpenPolicyCreate(action, isGroupAction)) return
       if (storageUiRoute(this.$route) && (action.dataView || isGroupAction) && !this.storageActionReady) return
@@ -3646,6 +3683,7 @@ export default {
     },
     getFirstIndexFocus () {
       this.firstIndex = 0
+      if (this.projectStandardDialog && this.requiresNameConfirmation) { this.firstIndex = -1; return }
       for (let fieldIndex = 0; fieldIndex < this.currentAction.paramFields.length; fieldIndex++) {
         const field = this.currentAction.paramFields[fieldIndex]
         if (!(this.currentAction.mapping && field.name in this.currentAction.mapping && this.currentAction.mapping[field.name].value)) {
@@ -3883,6 +3921,12 @@ export default {
       this.selectedRowKeys = []
       this.message = {}
     },
+    handleProjectDialogShortcut (event) {
+      if (!this.projectStandardDialog) return
+      event.preventDefault()
+      event.stopPropagation()
+      if (!event.repeat) this.handleSubmit(event)
+    },
     handleSubmit (e) {
       if (this.currentAction.api === 'downloadEvents' || isEventMutation(this.currentAction.api)) return
       if (this.$route.meta?.name === 'kubernetesiso' && !canKubernetesIsoAction(Object.keys(kubernetesIsoApis).find(key => kubernetesIsoApis[key] === this.currentAction?.api), this.resource, this.$store.getters)) return
@@ -4072,11 +4116,14 @@ export default {
       if (isSshKeyPairDetailRoute(this.$route) && !this.canExecuteSshKeyPairAction(this.currentAction)) return
       const sshActionScope = isSshKeyPairDetailRoute(this.$route) ? this.listScope() : null
       const submittedAction = this.currentAction
+      const projectScope = this.projectStandardDialog ? this.listScope() : null
+      if (projectScope) this.projectActionError = ''
       const vmScope = this.vmStandardDialog ? vmEditScope(this.resource, this.$route, this.$store) : null
       if (vmScope && (this.vmActionValidationPending || this.vmActionUnknown)) return
       if (vmScope) { this.vmActionValidationPending = true; this.vmActionError = '' }
       if (e && typeof e.preventDefault === 'function') e.preventDefault()
       this.formRef.value.validate().then(() => {
+        if (projectScope && (!this.showAction || submittedAction !== this.currentAction || projectScope !== this.listScope() || this.actionLoading)) return
         if (vmScope && (!this.showAction || submittedAction !== this.currentAction || vmScope !== vmEditScope(this.resource, this.$route, this.$store))) return
         if (vmScope) this.vmActionValidationPending = false
         if (sshActionScope && (sshActionScope !== this.listScope() || !this.canExecuteSshKeyPairAction(submittedAction))) return
@@ -4128,7 +4175,8 @@ export default {
             if (input === undefined || input === null ||
               (input === '' && !['updateStoragePool', 'updateHost', 'updatePhysicalNetwork',
                 'updateDiskOffering', 'updateNetworkOffering', 'updateServiceOffering',
-                'updateZone', 'updateAccount', 'updateWebhook'].includes(action.api))) {
+                'updateZone', 'updateAccount', 'updateWebhook'].includes(action.api) &&
+                !(action.api === 'updateProject' && key === 'displaytext'))) {
               if (param.type === 'boolean') {
                 params[key] = false
               }
@@ -4240,6 +4288,9 @@ export default {
           }
 
           if (!isVmGroupAction(action.api)) console.log(error)
+          if (projectScope && this.currentAction === action && projectScope === this.listScope()) {
+            this.projectActionError = Object.values(error.response?.data || {}).find(value => value?.errortext)?.errortext || this.$t('message.request.failed')
+          }
           if (this.isVpcUi && this.currentAction === action && actionScope === this.listScope()) this.vpcActionError = Object.values(error.response?.data || {}).find(value => value?.errortext)?.errortext || error.message || this.$t('error.fetching.data')
           eventBus.emit('update-resource-state', { selectedItems: this.selectedItems, resource: this.getDataIdentifier(params), state: 'failed' })
           if (isVmGroupAction(action.api)) this.notifyVmGroupError(error)
@@ -4455,6 +4506,10 @@ export default {
       query.page = '1'
       query.pagesize = this.pageSize.toString()
       this.$router.push({ query })
+    },
+    changeProjectState (state) {
+      const query = projectSearchQuery({ ...this.$route.query, state, page: '1' }, this.$store.getters)
+      return this.$router.push({ query })
     },
     onSearch (opts) {
       if (this.isProjectList) {
@@ -4802,6 +4857,7 @@ export default {
 
 <style scoped src="@/style/components/view/list-toolbar.css" />
 <style scoped src="@/style/components/view/vm-acl-standard.css" />
+<style scoped src="@/style/components/view/project-standard.css" />
 <style src="@/style/components/view/s2s-connection.css" />
 <style scoped src="@/style/components/view/public-ip-breadcrumb.css" />
 

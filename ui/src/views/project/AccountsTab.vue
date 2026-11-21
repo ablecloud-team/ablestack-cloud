@@ -17,7 +17,15 @@
 
 <template>
   <div>
-    <div class="member-search-tools">
+    <div class="project-tab-toolbar">
+      <a-button v-if="addAction" type="primary" :disabled="membershipLocked || listRefreshFailed" @click="parentExecuteAction({ ...addAction, resource })">
+        <template #icon><plus-outlined /></template>
+        {{ $t('label.project.member.add') }}
+      </a-button>
+      <a-button :loading="loading" :disabled="membershipLocked" @click="refreshMembers">
+        <template #icon><reload-outlined /></template>
+        {{ $t('label.refresh') }}
+      </a-button>
       <a-input-search
         v-model:value="keyword"
         :aria-label="$t('label.project.members.search.keyword')"
@@ -52,9 +60,11 @@
         </a-button>
       </a-popover>
     </div>
-    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
+    <a-alert v-if="listRefreshFailed" type="warning" show-icon :message="$t('message.list.refresh.stale')" class="project-tab-notice" />
     <a-table
+      class="project-tab-table"
       size="small"
+      :scroll="{ x: apis.listProjectRoles ? 630 : 510 }"
       :loading="loading"
       :columns="columns"
       :data-source="members"
@@ -80,6 +90,7 @@
       </template>
     </a-table>
     <a-pagination
+      v-if="itemCount"
       class="member-pagination"
       size="small"
       :current="page"
@@ -150,7 +161,7 @@ export default {
   mixins: [listRefreshMixin(['fetchProjectAccounts'], {
     scopeKey: vm => [vm.resource.id, vm.page, vm.pageSize, vm.memberFilters, vm.memberSearchScope]
   }), projectMembershipJob],
-  inject: ['parentFetchData'],
+  inject: ['parentFetchData', 'parentExecuteAction'],
   props: {
     resource: { type: Object, required: true }
   },
@@ -173,6 +184,11 @@ export default {
   },
   computed: {
     apis () { return this.$store.getters.apis },
+    addAction () {
+      if (!this.parentExecuteAction || this.resource.state !== 'Active' || !isProjectAdministrator(this.resource, this.$store.getters.userInfo)) return null
+      return this.$route.meta.actions?.find(action => ['addAccountToProject', 'addUserToProject'].includes(action.api) &&
+        this.apis[action.api] && action.show(this.resource, this.$store.getters))
+    },
     columns () {
       return [
         { key: 'account', dataIndex: 'account', title: this.$t('label.account') },
@@ -219,6 +235,7 @@ export default {
       this.fetchProjectAccounts()
       this.fetchProjectRoles()
     },
+    refreshMembers () { return Promise.all([this.fetchProjectAccounts(), this.fetchProjectRoles()]) },
     projectMembersUpdated (projectId) {
       if (this.resource.id === projectId) this.fetchProjectAccounts()
     },
@@ -308,10 +325,8 @@ export default {
 </script>
 
 <style scoped>
-.member-search-tools { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-.member-search-tools :deep(.ant-input-search) { width: 286px; max-width: 100%; }
 .member-filter-form { width: min(330px, 72vw); }
 .member-filter-form :deep(.ant-form-item) { margin-bottom: 12px; }
-.member-pagination { margin: 10px 0; }
+.member-pagination { margin: 16px 0 0; display: flex; flex-wrap: wrap; justify-content: flex-end; }
 .member-action-status { margin: 12px 0; }
 </style>

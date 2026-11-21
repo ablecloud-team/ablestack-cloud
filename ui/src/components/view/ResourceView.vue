@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <resource-layout :wide="wideLayout" :class="{ 'event-resource': isEventDetailRoute($route), 'kms-resource': kmsDetailRoute($route), 's2s-gateway-resource': $route.meta?.name === 's2svpn', 'autoscale-resource': $route.meta?.name === 'autoscalevmgroup', 'affinity-resource': $route.meta?.name === 'affinitygroup', 'kubernetes-iso-resource': $route.meta?.name === 'kubernetesiso', 'template-resource': ['template', 'iso', 'kubernetesiso'].includes($route.meta?.name), 'acl-resource': $route.meta?.name === 'acllist' }">
+  <resource-layout :wide="wideLayout" :class="{ 'event-resource': isEventDetailRoute($route), 'kms-resource': kmsDetailRoute($route), 's2s-gateway-resource': $route.meta?.name === 's2svpn', 'autoscale-resource': $route.meta?.name === 'autoscalevmgroup', 'affinity-resource': $route.meta?.name === 'affinitygroup', 'kubernetes-iso-resource': $route.meta?.name === 'kubernetesiso', 'template-resource': ['template', 'iso', 'kubernetesiso'].includes($route.meta?.name), 'acl-resource': $route.meta?.name === 'acllist', 'project-resource': isProjectDetailRoute($route) }">
     <template #left>
       <slot name="info-card">
         <info-card
@@ -61,7 +61,7 @@
         </keep-alive>
         <a-tabs
           v-else
-          :class="{'s2s-gateway-tabs': $route.meta?.name === 's2svpn', 'template-main-tabs':['template','iso','kubernetesiso'].includes($route.meta?.name)}"
+          :class="{'s2s-gateway-tabs': $route.meta?.name === 's2svpn', 'template-main-tabs':['template','iso','kubernetesiso'].includes($route.meta?.name), 'project-tabs': isProjectDetailRoute($route)}"
           :style="{ width: '100%', marginTop: resourceTabPosition === 'top' ? '-12px' : '0' }"
           :tabPosition="resourceTabPosition"
           :animated="false"
@@ -229,6 +229,7 @@ export default {
     window.removeEventListener('popstate', this.setActiveTab)
   },
   methods: {
+    isProjectDetailRoute,
     kmsDetailRoute,
     isEventDetailRoute,
     refreshKubernetesIsoAvailability () { return this.$refs.kubernetesIsoSummary?.refresh() },
@@ -376,4 +377,34 @@ export default {
 .kms-resource :deep(.ant-tabs-content-holder),
 .kms-resource :deep(.ant-tabs-tabpane) { min-width: 0; max-width: 100%; }
 .kms-resource :deep(.ant-list-item) { overflow-wrap: anywhere; }
+</style>
+
+<style scoped>
+.project-resource :deep(.resource-content-card),
+.project-resource :deep(.ant-tabs-content-holder),
+.project-resource :deep(.ant-tabs-tabpane),
+.project-resource :deep(.resource-details__name > :last-child) { min-width: 0; }
+.project-resource :deep(.resource-details__name .name),
+.project-resource :deep(.resource-detail-item__details),
+.project-resource :deep(.project-tab-table .ant-table-cell) { overflow-wrap: anywhere; }
+.project-resource :deep(.project-tab-toolbar) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.project-resource :deep(.project-tab-toolbar .ant-input-search) {
+  width: 280px;
+  max-width: 100%;
+  margin-inline-start: auto;
+}
+.project-resource :deep(.project-tab-notice) { margin-bottom: 12px; }
+.project-resource :deep(.project-tabs.ant-tabs-left > .ant-tabs-content-holder > .ant-tabs-content > .ant-tabs-tabpane) {
+  padding-inline-start: 16px;
+}
+@media (max-width: 768px) {
+  .project-resource :deep(.resource-content-card > .ant-card-body) { padding: 16px; }
+  .project-resource :deep(.project-tab-toolbar .ant-input-search) { width: 100%; margin-inline-start: 0; }
+}
 </style>
