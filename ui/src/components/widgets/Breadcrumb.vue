@@ -81,6 +81,7 @@ import { documentationUrl } from '@/utils/cniFileImport'
 
 import { vmDisplayName, isVmIdentityRoute } from '@/utils/vmIdentity'
 import { publicIpListLocation } from '@/utils/publicIpSearch'
+import { vpnUserListLocation, vpnUserRoute } from '@/utils/vpnUserSearch'
 import { gatewayName } from '@/utils/s2sGateway'
 import { s2sGatewayListLocation, s2sGatewayRoute, vpnConnectionApi, vpnConnectionName, vpnConnectionRoute } from '@/utils/s2sGatewaySearch'
 import { vnfListLocation } from '@/utils/vnfSearch'
@@ -161,6 +162,7 @@ export default {
       if (item.path === '/s2svpnconn' && this.$route.meta?.name === 's2svpnconn' && this.$route.params?.id) return s2sGatewayListLocation(this.$route, this.$store.getters, vpnConnectionApi)
       if (item.path === '/s2svpn' && this.$route.meta?.name === 's2svpn' && this.$route.params?.id) return s2sGatewayListLocation(this.$route, this.$store.getters)
       if (item.path === '/kubernetesiso' && this.$route.meta?.name === 'kubernetesiso' && this.$route.params?.id) return kubernetesIsoListLocation(this.$route, this.$store.getters, this.$store.state?.user?.token)
+      if (item.path === '/vpnuser' && vpnUserRoute(this.$route) && this.$route.params?.id) return vpnUserListLocation(this.$route, this.$store.getters)
       if (item.path === '/publicip' && this.$route.meta?.name === 'publicip' && this.$route.params?.id) return publicIpListLocation(this.$route, this.$store.getters)
       if (item.path === '/vnfapp' && this.$route.meta?.name === 'vnfapp' && this.$route.params?.id) return vnfListLocation(this.$route, this.$store.getters)
       if (item.path === '/iso' && this.$route.meta?.name === 'iso' && this.$route.params?.id) return isoListLocation(this.$route, this.$store.getters)

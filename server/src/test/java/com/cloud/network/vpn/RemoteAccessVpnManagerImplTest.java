@@ -15,24 +15,77 @@
 package com.cloud.network.vpn;
 
 import com.cloud.exception.InvalidParameterValueException;
+import com.cloud.network.VpnUserVO;
+import com.cloud.network.dao.VpnUserDao;
+import com.cloud.network.dao.VpnUserDaoImpl;
+import com.cloud.user.AccountManager;
+import com.cloud.utils.Pair;
+import com.cloud.utils.db.SearchBuilder;
+import com.cloud.utils.db.SearchCriteria;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.net.NetUtils;
 import junit.framework.TestCase;
+import org.apache.cloudstack.api.command.user.vpn.ListVpnUsersCmd;
+import org.apache.cloudstack.context.CallContext;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.naming.ConfigurationException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RemoteAccessVpnManagerImplTest extends TestCase {
 
     Class<InvalidParameterValueException> expectedException = InvalidParameterValueException.class;
     Class<CloudRuntimeException> cloudRuntimeException = CloudRuntimeException.class;
+
+    @Test
+    public void vpnUserKeywordMatchesStayWithinOwnerAndStateConditions() {
+        RemoteAccessVpnManagerImpl manager = new RemoteAccessVpnManagerImpl();
+        manager._accountMgr = Mockito.mock(AccountManager.class);
+        manager._vpnUsersDao = Mockito.mock(VpnUserDao.class);
+        ListVpnUsersCmd command = new ListVpnUsersCmd();
+        ReflectionTestUtils.setField(command, "keyword", "vpn-client");
+        ReflectionTestUtils.setField(command, "userName", "exact-user");
+        SearchBuilder<VpnUserVO> builder = new VpnUserDaoImpl() { }.createSearchBuilder();
+        Mockito.when(manager._vpnUsersDao.createSearchBuilder()).thenReturn(builder);
+        Mockito.doAnswer(invocation -> {
+            builder.and("allowedAccount", builder.entity().getAccountId(), SearchCriteria.Op.EQ);
+            return null;
+        }).when(manager._accountMgr).buildACLSearchBuilder(Mockito.eq(builder), Mockito.isNull(), Mockito.eq(false),
+                Mockito.anyList(), Mockito.isNull());
+        Mockito.doAnswer(invocation -> {
+            SearchCriteria<VpnUserVO> criteria = invocation.getArgument(0);
+            criteria.setParameters("allowedAccount", 9L);
+            return null;
+        }).when(manager._accountMgr).buildACLSearchCriteria(Mockito.any(), Mockito.isNull(), Mockito.eq(false),
+                Mockito.anyList(), Mockito.isNull());
+        Mockito.when(manager._vpnUsersDao.searchAndCount(Mockito.any(), Mockito.any())).thenReturn(new Pair<>(Collections.emptyList(), 0));
+        assertEquals("vpn-client", command.getKeyword());
+        try (MockedStatic<CallContext> contexts = Mockito.mockStatic(CallContext.class)) {
+            contexts.when(CallContext::current).thenReturn(Mockito.mock(CallContext.class));
+            manager.searchForVpnUsers(command);
+        }
+        ArgumentCaptor<SearchCriteria<VpnUserVO>> criteriaCaptor = ArgumentCaptor.forClass(SearchCriteria.class);
+        Mockito.verify(manager._vpnUsersDao).searchAndCount(criteriaCaptor.capture(), Mockito.any());
+        SearchCriteria<VpnUserVO> criteria = criteriaCaptor.getValue();
+        String sql = criteria.getWhereClause().replace("`", "").replaceAll("[ ]+", " ");
+        int keywordGroup = sql.indexOf(" AND (");
+        assertTrue(sql, keywordGroup >= 0);
+        String scopeConditions = sql.substring(0, keywordGroup);
+        assertTrue(scopeConditions, scopeConditions.contains("owner_id") && scopeConditions.contains("username") && scopeConditions.contains("state"));
+        String keywordConditions = sql.substring(keywordGroup);
+        assertTrue(keywordConditions, keywordConditions.contains("username LIKE") && keywordConditions.contains("uuid LIKE"));
+        assertTrue(keywordConditions, keywordConditions.indexOf(" OR ") > 0 && keywordConditions.indexOf(" OR ") < keywordConditions.lastIndexOf(')'));
+        assertEquals(2, criteria.getValues().stream().filter(value -> "%vpn-client%".equals(value.second())).count());
+    }
 
     @Test
     public void validateValidateIpRangeRangeLengthLessThan2MustThrowException(){

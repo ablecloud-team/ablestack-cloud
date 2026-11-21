@@ -76,7 +76,7 @@
             (dataView && action.dataView && ('show' in action ? action.show(resource, $store.getters) : true))
           )"
         :disabled="isActionDisabled(action)"
-        :aria-label="$t(action.label)"
+        :aria-label="$t(action.toolbarLabel || action.label)"
         :type="dataView ? 'text' : (primaryIconList.includes(action.icon) ? 'primary' : 'default')"
         :danger="dangerIconList.includes(action.icon)"
         :shape="dataView ? null : (action.toolbarLabel || ['PlusOutlined', 'plus-outlined', 'UserAddOutlined', 'user-add-outlined'].includes(action.icon) ? 'round' : 'circle')"

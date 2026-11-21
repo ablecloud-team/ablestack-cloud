@@ -50,7 +50,7 @@
     :message="$t(l2Network.configDrive ? 'message.l2.network.configdrive' : 'message.l2.network.basic')" />
   <a-list
     class="resource-details-list"
-    :class="{ 'template-details-list': ['template', 'iso'].includes($route.meta.name), 's2s-gateway-details': $route.meta.name === 's2svpn', 'vm-details-list': kmsRoute($route) || ['vm', 'vnfapp', 'publicip', 's2svpn', 'acllist', 'event', 'project'].includes($route.meta.name) }"
+    :class="{ 'template-details-list': ['template', 'iso'].includes($route.meta.name), 's2s-gateway-details': $route.meta.name === 's2svpn', 'vm-details-list': kmsRoute($route) || ['vm', 'vnfapp', 'publicip', 's2svpn', 'acllist', 'event', 'vpnuser', 'project'].includes($route.meta.name) }"
     size="small"
     :dataSource="(fetchDetails() || []).concat(Object.keys(allocationDetails))">
     <template #renderItem="{item}">
@@ -66,6 +66,12 @@
           <div v-else-if="item === 'protocol'">{{ kmsProtocolOptions($store.getters.features, dataResource.protocol).find(provider => provider.id === dataResource.protocol)?.name || $t('label.unknown') }}</div>
           <div v-else-if="item === 'vendorname'">{{ dataResource.vendor || dataResource.vendorname || $t('label.unknown') }}</div>
           <div v-else>{{ dataResource[item] ?? $t(item === 'state' ? 'label.hsm.connection.unavailable' : 'label.unknown') }}</div>
+        </div>
+      </a-list-item>
+      <a-list-item v-else-if="$route.meta.name === 'vpnuser' && dataResource.id">
+        <div>
+          <strong>{{ $t(item === 'id' ? 'label.vpn.user.uuid' : getDetailTitle(item)) }}</strong><br />
+          <VpnUserValue :resource="dataResource" :field="item" />
         </div>
       </a-list-item>
       <a-list-item v-else-if="$route.meta.name === 'acllist' && item === 'scope' && dataResource.id">
@@ -452,6 +458,7 @@ import { l2ConfigDrive, l2PvlanDetails } from '@/utils/l2Network'
 import { sharedScopeLabel } from '@/utils/sharedNetwork'
 import Status from '@/components/widgets/Status'
 import PublicIpDetailValue from '@/components/widgets/PublicIpDetailValue'
+import VpnUserValue from '@/components/widgets/VpnUserValue'
 import { publicIpDetailFields, publicIpFieldLabel } from '@/utils/publicIpDetails'
 import TemplateDetailValue from '@/components/widgets/TemplateDetailValue'
 import IsoDetailValue from '@/components/widgets/IsoDetailValue'
@@ -484,6 +491,7 @@ import VnfAccessNotice from '@/components/compute/VnfAccessNotice'
 export default {
   name: 'DetailsTab',
   components: {
+    VpnUserValue,
     AclScopeValue,
     S2sGatewayValue,
     PublicIpDetailValue,

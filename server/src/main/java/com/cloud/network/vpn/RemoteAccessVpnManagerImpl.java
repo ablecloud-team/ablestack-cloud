@@ -721,20 +721,24 @@ public class RemoteAccessVpnManagerImpl extends ManagerBase implements RemoteAcc
         SearchBuilder<VpnUserVO> sb = _vpnUsersDao.createSearchBuilder();
         _accountMgr.buildACLSearchBuilder(sb, domainId, isRecursive, permittedAccounts, listProjectResourcesCriteria);
 
-
         sb.and("id", sb.entity().getId(), SearchCriteria.Op.EQ);
         sb.and("username", sb.entity().getUsername(), SearchCriteria.Op.EQ);
-        sb.and("keyword", sb.entity().getUsername(), SearchCriteria.Op.LIKE);
         sb.and("state", sb.entity().getState(), Op.IN);
+        if (keyword != null) {
+            sb.and().op("keywordUsername", sb.entity().getUsername(), SearchCriteria.Op.LIKE);
+            sb.or("keywordUuid", sb.entity().getUuid(), SearchCriteria.Op.LIKE);
+            sb.cp();
+        }
 
         SearchCriteria<VpnUserVO> sc = sb.create();
         _accountMgr.buildACLSearchCriteria(sc, domainId, isRecursive, permittedAccounts, listProjectResourcesCriteria);
 
         sc.setParameters("state", State.Active, State.Add);
 
-        if(keyword != null){
-            sc.addOr("uuid", SearchCriteria.Op.LIKE, "%" + keyword + "%");
-            sc.setParameters("keyword", "%" + keyword + "%");
+        if (keyword != null) {
+            String pattern = "%" + keyword + "%";
+            sc.setParameters("keywordUsername", pattern);
+            sc.setParameters("keywordUuid", pattern);
         }
 
         if (id != null) {

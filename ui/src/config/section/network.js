@@ -25,6 +25,7 @@ import { vnfStates } from '@/utils/vnfSearch'
 import tungsten from '@/assets/icons/tungsten.svg?inline'
 import { isAdmin, isAdminOrDomainAdmin } from '@/role'
 import { isZoneCreated } from '@/utils/zone'
+import { canCreateVpnUser } from '@/utils/vpnUserCreation'
 import { escapeHtml } from '@/utils/util'
 import { vueProps } from '@/vue-app'
 import { publicIpFilterLabels } from '@/utils/publicIpPresentation'
@@ -39,6 +40,7 @@ import { networkBusy } from '@/utils/networkLifecycle'
 import { canReadNetworkPermissions } from '@/utils/networkPermissions'
 import { vpcRestartParams, vpcRestartReason } from '@/utils/vpcRestart'
 import { vpcMigrationVisible } from '@/utils/vpcMigration'
+import { canDeleteVpnUsers } from '@/utils/vpnUserDeletion'
 
 const activeFastCloneStatuses = ['pending', 'running']
 const fastCloneOperationBlockedLabel = 'message.sharedmountpoint.clone.flatten.in.progress'
@@ -1303,51 +1305,30 @@ export default {
       title: 'label.vpn.users',
       icon: 'user-switch-outlined',
       permission: ['listVpnUsers'],
-      columns: ['username', 'state', 'account', 'domain'],
-      details: ['username', 'state', 'account', 'domain'],
+      searchFilters: ['username', 'domainid', 'account'],
+      columns: ['username', 'state', 'owners'],
+      details: ['state', 'owners', 'id'],
       actions: [
         {
           api: 'addVpnUser',
           icon: 'plus-outlined',
           label: 'label.add.vpn.user',
           listView: true,
-          show: isZoneCreated,
-          args: (record, store) => {
-            if (store.userInfo.roletype === 'User') {
-              return ['username', 'password']
-            }
-
-            return ['username', 'password', 'domainid', 'account']
-          }
+          show: (record, store) => isZoneCreated() && canCreateVpnUser(store),
+          popup: true,
+          selfManagedDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/network/VpnUserCreateDialog.vue')))
         },
         {
           api: 'removeVpnUser',
           icon: 'delete-outlined',
           label: 'label.delete.vpn.user',
-          message: 'message.action.delete.vpn.user',
+          toolbarLabel: 'label.vpn.user.delete.selected',
           dataView: true,
-          args: ['username', 'domainid', 'account'],
-          mapping: {
-            username: {
-              value: (record) => { return record.username }
-            },
-            domainid: {
-              value: (record) => { return record.domainid }
-            },
-            account: {
-              value: (record) => { return record.account }
-            }
-          },
+          show: (record, store) => canDeleteVpnUsers(store),
           groupAction: true,
-          popup: true,
-          groupMap: (selection, values, record) => {
-            return selection.map(x => {
-              const data = record.filter(y => { return y.id === x })
-              return {
-                username: data[0].username, account: data[0].account, domainid: data[0].domainid
-              }
-            })
-          }
+          groupShow: (records, store) => canDeleteVpnUsers(store),
+          popup: true
         }
       ]
     },

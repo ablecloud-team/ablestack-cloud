@@ -41,6 +41,7 @@
 import InfiniteScrollSelect from '@/components/widgets/InfiniteScrollSelect'
 import eventBus from '@/config/eventBus'
 import { sourceToken } from '@/utils/request'
+import { vpnUserRoute } from '@/utils/vpnUserSearch'
 
 let projectMenuSequence = 0
 export default {
@@ -109,7 +110,12 @@ export default {
         await this.$store.dispatch('SetProject', target)
         scopeApplied = true
         await this.$store.dispatch('ToggleTheme', target.id ? 'dark' : 'light')
-        if (this.$route.name !== 'dashboard') await this.$router.push({ name: 'dashboard' })
+        if (vpnUserRoute(this.$route) && this.$store.getters.apis.listVpnUsers) {
+          await this.$store.dispatch('SetListAllProjects', false)
+          await this.$router.push({ path: '/vpnuser', query: { projectid: target.id || '0', page: '1', pagesize: this.$route.query.pagesize } })
+        } else if (this.$route.name !== 'dashboard') {
+          await this.$router.push({ name: 'dashboard' })
+        }
         this.$message.success(`${this.$t('message.switch.to')} "${project.displaytext || project.name}"`)
       } catch (error) {
         // Lookup/storage failures keep the previous scope. A later navigation

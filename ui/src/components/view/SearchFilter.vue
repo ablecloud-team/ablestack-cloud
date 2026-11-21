@@ -244,6 +244,8 @@ export default {
       return (text.length <= length) ? text : (text.substring(0, length - 3) + '...')
     },
     retrieveFieldLabel (fieldName) {
+      if (this.apiName === 'listVpnUsers' && fieldName === 'username') return this.$t('label.vpn.user.search.exact')
+      if (this.apiName === 'listVpnUsers' && fieldName === 'domainid') return this.$t('label.domain')
       if (this.kms && fieldName === 'projectid') return this.$t('label.project')
       if (this.apiName === 'listPublicIpAddresses') return this.$t(publicIpPickerConfig(fieldName)?.label || (fieldName === 'fordisplay' ? 'label.public.ip.display' : 'label.' + fieldName))
       if (this.apiName === 'listVnfAppliances' && fieldName === 'name') return this.$t('label.vm.name')

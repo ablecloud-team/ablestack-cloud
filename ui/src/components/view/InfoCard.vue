@@ -139,7 +139,7 @@
                 <status :text="String(resource.enabled)" :display-label="$t(resource.enabled ? 'label.enabled' : 'label.disabled')" display-text />
               </div>
             </div>
-            <div class="resource-detail-item" v-else-if="(resource.state || resource.status || (['template', 'iso', 'publicip', 'kubernetesiso'].includes($route.meta.name) && resource.id)) && !['zone', 'keypair'].includes($route.meta.name)">
+            <div class="resource-detail-item" v-else-if="(resource.state || resource.status || (['template', 'iso', 'publicip', 'kubernetesiso'].includes($route.meta.name) && resource.id)) && !['zone', 'keypair', 'vpnuser'].includes($route.meta.name)">
           <div class="resource-detail-item__label">{{ $t($route.meta.name === 'kubernetesiso' ? 'label.kubernetes.iso.version.state' : 'label.status') }}</div>
           <div class="resource-detail-item__details">
             <kubernetes-iso-status v-if="$route.meta.name === 'kubernetesiso'" :resource="resource" mode="version" />
@@ -259,7 +259,7 @@
         <div class="resource-detail-item" v-if="$route.meta.name === 'template' && templateRuntimeToolVisible">
           <router-link to="/runtimebundle">{{ $t('label.runtime.catalog') }}</router-link>
         </div>
-        <div class="resource-detail-item" v-if="resource.id">
+        <div class="resource-detail-item" v-if="resource.id && $route.meta.name !== 'vpnuser'">
           <div class="resource-detail-item__label">{{ $t('label.id') }}</div>
           <div class="resource-detail-item__details">
             <tooltip-button
@@ -693,7 +693,7 @@
                 <span>{{ resource.loadbalancer.name }} ( {{ resource.loadbalancer.publicip }}:{{ resource.loadbalancer.publicport }})</span>
               </div>
             </div>
-            <div class="resource-detail-item" v-if="resource.projectid || resource.projectname">
+            <div class="resource-detail-item" v-if="$route.meta.name !== 'vpnuser' && (resource.projectid || resource.projectname)">
               <div class="resource-detail-item__label">{{ $t('label.project') }}</div>
               <div class="resource-detail-item__details">
                 <span v-if="images.project">
@@ -1020,7 +1020,7 @@
                 </template>
               </div>
             </div>
-            <div class="resource-detail-item" v-if="resource.account && !resource.account.startsWith('PrjAcct-')">
+            <div class="resource-detail-item" v-if="$route.meta.name !== 'vpnuser' && resource.account && !resource.account.startsWith('PrjAcct-')">
               <div class="resource-detail-item__label">{{ $t('label.account') }}</div>
               <div class="resource-detail-item__details">
                 <span v-if="images.account">
@@ -1047,7 +1047,7 @@
                 <span v-else>{{ resource.rolename || resource.role || resource.roleid }}</span>
               </div>
             </div>
-            <div class="resource-detail-item" v-if="resource.domainid">
+            <div class="resource-detail-item" v-if="$route.meta.name !== 'vpnuser' && resource.domainid">
               <div class="resource-detail-item__label">{{ $t('label.domain') }}</div>
               <div class="resource-detail-item__details">
                 <resource-icon v-if="images.domain" :image="images.domain" size="1x" style="margin-right: 5px"/>
@@ -1570,14 +1570,10 @@ export default {
       if (this.resource.zoneid) {
         this.fetchResourceIcon(this.resource.zoneid, 'zone')
       }
-      if (this.resource.domainid) {
-        this.fetchResourceIcon(this.resource.domainid, 'domain')
-      }
-      if (this.resource.account) {
-        this.fetchAccount()
-      }
-      if (this.resource.projectid) {
-        this.fetchResourceIcon(this.resource.projectid, 'project')
+      if (this.$route.meta.name !== 'vpnuser') {
+        if (this.resource.domainid) this.fetchResourceIcon(this.resource.domainid, 'domain')
+        if (this.resource.account) this.fetchAccount()
+        if (this.resource.projectid) this.fetchResourceIcon(this.resource.projectid, 'project')
       }
       if (this.resource.vpcid) {
         this.fetchResourceIcon(this.resource.vpcid, 'vpc')

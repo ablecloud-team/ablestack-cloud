@@ -93,6 +93,24 @@
   width: 100%;
   margin: 0;
 }
+.vpn-user-page :deep(.vm-acl-breadcrumb-layout .breadcrumb) {
+  align-items: flex-start;
+}
+.vpn-user-page :deep(.vm-acl-breadcrumb-current) {
+  overflow: visible;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.vpn-user-page .autogen-toolbar-actions :deep(.row-action-button) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+.vpn-user-page .autogen-toolbar-actions :deep(.row-action-button .action-button-item) {
+  margin: 0 !important;
+}
+.vpn-user-selection-count { white-space: nowrap; }
 .acl-page :deep(.acl-resource .ant-col),
 .acl-page :deep(.acl-resource .ant-tabs-content-holder),
 .acl-page :deep(.acl-resource .ant-tabs-tabpane),

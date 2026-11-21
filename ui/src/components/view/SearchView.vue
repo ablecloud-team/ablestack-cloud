@@ -26,7 +26,8 @@
     <span v-if="!searchFilters || searchFilters.length === 0" style="display: flex;">
       <a-input-search
         v-model:value="searchQuery"
-        :placeholder="isAclSearch ? $t('label.acl.search.keyword') : isEventSearch ? $t('label.events.search.keyword') : apiName === 'listVnfAppliances' ? $t('label.vnf.name.search') : $t('label.search')"
+        :aria-label="isVpnUserSearch ? $t('label.vpn.user.search.keyword') : undefined"
+        :placeholder="isVpnUserSearch ? $t('label.vpn.user.search.keyword') : isAclSearch ? $t('label.acl.search.keyword') : isEventSearch ? $t('label.events.search.keyword') : apiName === 'listVnfAppliances' ? $t('label.vnf.name.search') : $t('label.search')"
         allowClear
         @search="onSearch"
       />
@@ -38,8 +39,8 @@
       <a-input-search
         allowClear
         class="input-search"
-        :aria-label="isAclSearch ? $t('label.acl.search.keyword') : isEventSearch ? $t('label.events.search.keyword') : apiName === 'listIsos' ? $t('label.search') : undefined"
-        :placeholder="isAclSearch ? $t('label.acl.search.keyword') : isEventSearch ? $t('label.events.search.keyword') : apiName === 'listVnfAppliances' ? $t('label.vnf.name.search') : $t('label.search')"
+        :aria-label="isVpnUserSearch ? $t('label.vpn.user.search.keyword') : isAclSearch ? $t('label.acl.search.keyword') : isEventSearch ? $t('label.events.search.keyword') : apiName === 'listIsos' ? $t('label.search') : undefined"
+        :placeholder="isVpnUserSearch ? $t('label.vpn.user.search.keyword') : isAclSearch ? $t('label.acl.search.keyword') : isEventSearch ? $t('label.events.search.keyword') : apiName === 'listVnfAppliances' ? $t('label.vnf.name.search') : $t('label.search')"
         :title="apiName === 'listIsos' ? $t('message.iso.search.keyword') : undefined"
         v-model:value="searchQuery"
         @search="onSearch">
@@ -51,7 +52,7 @@
             <template #content v-if="visibleFilter">
               <a-form
                 style="min-width: 170px"
-                :class="{ 'acl-list-search-form': isAclSearch, 'storage-standard-search-form': ['listTemplates', 'listIsos', 'listVolumes', 'listServiceOfferings', 'listDiskOfferings'].includes(apiName) || isGuestNetworkSearch || isVnfSearch || isEventSearch, 'guest-network-search-form': isGuestNetworkSearch || isVnfSearch || isEventSearch }"
+                :class="{ 'acl-list-search-form': isAclSearch || isVpnUserSearch, 'storage-standard-search-form': ['listTemplates', 'listIsos', 'listVolumes', 'listServiceOfferings', 'listDiskOfferings'].includes(apiName) || isGuestNetworkSearch || isVnfSearch || isEventSearch, 'guest-network-search-form': isGuestNetworkSearch || isVnfSearch || isEventSearch }"
                 :ref="formRef"
                 :model="form"
                 :rules="rules"
@@ -64,8 +65,8 @@
                   :name="field.name"
                   :key="index"
                   :label="retrieveFieldLabel(field.name)"
-                  :html-for="isAclSearch && field.name === 'vpcid' ? 'pip-search-candidate-vpcid' : isKmsSearch ? 'kms-filter-' + field.name : undefined"
-                  :extra="['listTemplates', 'listIsos'].includes(apiName) && ['name', 'isready', 'userdataid'].includes(field.name) ? $t('message.template.search.' + field.name) : undefined">
+                  :html-for="isVpnUserSearch ? 'vpn-user-filter-' + field.name : isAclSearch && field.name === 'vpcid' ? 'pip-search-candidate-vpcid' : isKmsSearch ? 'kms-filter-' + field.name : undefined"
+                  :extra="isVpnUserSearch && field.error ? $t('error.fetching.data') : ['listTemplates', 'listIsos'].includes(apiName) && ['name', 'isready', 'userdataid'].includes(field.name) ? $t('message.template.search.' + field.name) : undefined">
                   <PublicIpSearchSelect
                     v-if="isAclSearch && field.name === 'vpcid'"
                     v-model:value="form.vpcid"
@@ -95,7 +96,7 @@
                   <a-select
                     allowClear
                     v-else-if="field.type==='list'"
-                    :id="isKmsSearch ? 'kms-filter-' + field.name : undefined"
+                    :id="isVpnUserSearch ? 'vpn-user-filter-' + field.name : isKmsSearch ? 'kms-filter-' + field.name : undefined"
                     :get-popup-container="isKmsSearch ? filterPopupContainer : undefined"
                     v-model:value="form[field.name]"
                     showSearch
@@ -107,8 +108,8 @@
                     @search="searchVmOptions($event, field)"
                     @popupScroll="moreVmOptions($event, field)"
                     :loading="field.loading"
-                    :disabled="isKmsSearch && (field.loading || field.name === 'account' && (!form.domainid || !!form.projectid) || ['domainid', 'account'].includes(field.name) && !!form.projectid) || apiName === 'listAffinityGroups' && (field.loading || !!field.error || (field.name === 'account' && !form.domainid))"
-                    :placeholder="isKmsSearch && kmsBooleans.includes(field.name) ? $t('label.all') : isGuestNetworkSearch && field.name === 'forvpc' ? $t('label.all') : apiName === 'listAffinityGroups' && field.name === 'account' && !form.domainid ? $t('message.affinity.search.account.domain') : undefined"
+                    :disabled="isVpnUserSearch && (field.loading || field.error || field.name === 'account' && !form.domainid) || isKmsSearch && (field.loading || field.name === 'account' && (!form.domainid || !!form.projectid) || ['domainid', 'account'].includes(field.name) && !!form.projectid) || apiName === 'listAffinityGroups' && (field.loading || !!field.error || (field.name === 'account' && !form.domainid))"
+                    :placeholder="isVpnUserSearch && field.name === 'account' && !form.domainid ? $t('message.vpn.user.search.account.domain') : isKmsSearch && kmsBooleans.includes(field.name) ? $t('label.all') : isGuestNetworkSearch && field.name === 'forvpc' ? $t('label.all') : apiName === 'listAffinityGroups' && field.name === 'account' && !form.domainid ? $t('message.affinity.search.account.domain') : undefined"
                     @input="field.name === 'virtualmachineid' && $route.name === 'vmsnapshot' ? null : onchange($event, field.name)"
                     @change="onSelectFieldChange(field.name)">
                     <a-select-option
@@ -151,7 +152,8 @@
                   <a-input
                     v-else-if="field.type==='input'"
                     v-model:value="form[field.name]"
-                    :aria-label="isEventSearch ? retrieveFieldLabel(field.name) : undefined" />
+                    :id="isVpnUserSearch ? 'vpn-user-filter-' + field.name : undefined"
+                    :aria-label="isEventSearch || isVpnUserSearch ? retrieveFieldLabel(field.name) : undefined" />
                   <div v-else-if="field.type==='tag'">
                     <a-input-group
                       type="text"
@@ -216,7 +218,7 @@
               class="filter-button"
               size="small"
               :aria-label="$t('label.advanced.search')"
-                  @click="() => { if (!isAclSearch && !['listTemplates', 'listIsos', 'listCniConfiguration', 'listAffinityGroups', 'listVnfAppliances', 'listEvents'].includes(apiName)) searchQuery = null }">
+                  @click="() => { if (!isAclSearch && !isVpnUserSearch && !['listTemplates', 'listIsos', 'listCniConfiguration', 'listAffinityGroups', 'listVnfAppliances', 'listEvents'].includes(apiName)) searchQuery = null }">
               <filter-two-tone v-if="isFiltered" />
               <filter-outlined v-else />
             </a-button>
@@ -233,6 +235,7 @@ import { ref, reactive, toRaw } from 'vue'
 import { kmsApis, kmsBooleans, kmsLookup, kmsProjectScope, kmsProtocolOptions } from '@/utils/kmsSearch'
 import { getAPI } from '@/api'
 import { eventSearchError } from '@/utils/eventSearch'
+import { vpnUserProject, vpnUserSearchAuth } from '@/utils/vpnUserSearch'
 import { sourceToken } from '@/utils/request'
 import { isAdmin } from '@/role'
 import TooltipButton from '@/components/widgets/TooltipButton'
@@ -318,6 +321,15 @@ export default {
     this.rules = reactive({})
   },
   watch: {
+    vpnUserFilterContext: {
+      flush: 'sync',
+      handler () {
+        if (!this.isVpnUserSearch) return
+        this.visibleFilter = false
+        this.form = reactive({})
+        this.fields = []
+      }
+    },
     vnfSearchContext: { flush: 'sync', handler () { if (this.isVnfSearch) { this.visibleFilter = false; this.form = reactive({}); this.fields = []; this.vnfBlocked = {}; this.volumeLookupReset++ } } },
     volumeOwnerContext () {
       this.visibleFilter = false
@@ -336,7 +348,7 @@ export default {
         this.searchQuery = to.query.q
       }
       this.updateIsFiltered()
-      if (this.isAclSearch) this.visibleFilter = false
+      if (this.isAclSearch || this.isVpnUserSearch) this.visibleFilter = false
       if (this.apiName === 'listIsos' && to?.meta?.name === 'iso' && this.visibleFilter) this.fillFormFieldValues()
       if (this.apiName === 'listAffinityGroups' && to?.meta?.name === 'affinitygroup' && this.visibleFilter) {
         this.fillFormFieldValues()
@@ -355,6 +367,12 @@ export default {
   },
   computed: {
     isKmsSearch () { return kmsApis.includes(this.apiName) },
+    isVpnUserSearch () { return this.apiName === 'listVpnUsers' },
+    vpnUserFilterContext () {
+      return this.isVpnUserSearch
+        ? JSON.stringify([vpnUserProject(this.$route.query, this.$store.getters), vpnUserSearchAuth(this.$store.getters, this.$store.state?.user?.token)])
+        : null
+    },
     isEventSearch () { return this.apiName === 'listEvents' },
     isVnfSearch () { return this.apiName === 'listVnfAppliances' },
     vnfSearchContext () { return this.isVnfSearch ? vnfAuth(this.$store.getters, this.$store.state?.user?.token) : '' },
@@ -412,6 +430,13 @@ export default {
       this.fetchDynamicFieldData(fieldname, event.target.value)
     },
     onSelectFieldChange (fieldname) {
+      if (this.isVpnUserSearch) {
+        if (fieldname === 'domainid') {
+          this.form.account = undefined
+          this.fetchAffinityFilters(['account'])
+        }
+        return
+      }
       if (this.isKmsSearch) {
         if (fieldname === 'domainid') {
           this.form.account = undefined
@@ -459,6 +484,8 @@ export default {
       this.initFormFieldData()
     },
     retrieveFieldLabel (fieldName) {
+      if (this.isVpnUserSearch && fieldName === 'username') return this.$t('label.vpn.user.search.exact')
+      if (this.isVpnUserSearch && fieldName === 'domainid') return this.$t('label.domain')
       if (this.isAclSearch && fieldName === 'name') return this.$t('label.acl.search.exact')
       if (this.isEventSearch && ['keyword', 'type', 'eventuuid', 'resourceid'].includes(fieldName)) {
         return this.$t('label.events.search.' + fieldName)
@@ -508,7 +535,7 @@ export default {
         if (item === 'account' && !('listAccounts' in this.$store.getters.apis)) {
           return true
         }
-        if (!this.isKmsSearch && item === 'account' && !('addAccountToProject' in this.$store.getters.apis || 'createAccount' in this.$store.getters.apis)) {
+        if (!this.isVpnUserSearch && !this.isKmsSearch && item === 'account' && !('addAccountToProject' in this.$store.getters.apis || 'createAccount' in this.$store.getters.apis)) {
           return true
         }
         if (item === 'podid' && !('listPods' in this.$store.getters.apis)) {
@@ -1147,20 +1174,23 @@ export default {
     async fetchAffinityFilters (arrayField) {
       const domainid = this.form.domainid
       const fields = this.fields.filter(field => ['type', 'domainid', 'account', 'projectid'].includes(field.name) && arrayField.includes(field.name))
+      const vpnContext = this.vpnUserFilterContext
       await Promise.all(fields.map(async field => {
         const version = this.affinityOptionsVersion[field.name] = (this.affinityOptionsVersion[field.name] || 0) + 1
+        const current = () => version === this.affinityOptionsVersion[field.name] &&
+          (!vpnContext || this.visibleFilter && vpnContext === this.vpnUserFilterContext && this.fields.includes(field))
         field.loading = true; field.error = false; field.opts = []
         try {
           if (field.name === 'account' && !domainid) return
           const rows = field.name === 'type'
             ? affinityTypeOptions(await getAPI('listAffinityGroupTypes', { ignoreproject: true }, { preserveOnFailure: true, timeout: 15000 }))
             : await affinityOwnerOptions(getAPI, { domainid: 'domain', account: 'account', projectid: 'project' }[field.name], domainid)
-          if (version !== this.affinityOptionsVersion[field.name] || (['account', 'projectid'].includes(field.name) && domainid !== this.form.domainid)) return
+          if (!current() || (['account', 'projectid'].includes(field.name) && domainid !== this.form.domainid)) return
           // Root-admin listAccounts can include descendants despite isrecursive=false.
           const eligible = rows.filter(row => !['account', 'projectid'].includes(field.name) || !domainid || row.domainid === domainid)
           field.opts = this.sortArray(eligible.map(row => ({ ...row, ...(row.labelKey ? { name: this.$t(row.labelKey) } : {}) })), field.name === 'domainid' ? 'path' : 'name')
-        } catch (_) { if (version === this.affinityOptionsVersion[field.name]) field.error = true } finally {
-          if (version === this.affinityOptionsVersion[field.name]) field.loading = false
+        } catch (_) { if (current()) field.error = true } finally {
+          if (current()) field.loading = false
         }
       }))
     },
@@ -1201,6 +1231,12 @@ export default {
     },
     initFormFieldData () {
       const arrayField = this.initFields()
+      if (this.isVpnUserSearch) {
+        this.form = reactive({})
+        this.fillFormFieldValues()
+        this.fetchAffinityFilters(arrayField)
+        return
+      }
       if (this.isAclSearch) {
         this.aclVpcBlocked = false
         this.fillFormFieldValues()
@@ -2037,6 +2073,12 @@ export default {
       this.$emit('search', { searchQuery: this.searchQuery })
     },
     async onClear () {
+      if (this.isVpnUserSearch) {
+        this.visibleFilter = false
+        this.searchQuery = ''
+        this.$emit('search', { reset: true })
+        return
+      }
       if (this.isAclSearch) {
         this.visibleFilter = false
         this.searchQuery = ''
@@ -2088,6 +2130,11 @@ export default {
       this.$emit('search', this.paramsFilter)
     },
     handleSubmit () {
+      if (this.isVpnUserSearch) {
+        this.visibleFilter = false
+        this.$emit('search', { filters: Object.fromEntries(this.fields.map(field => [field.name, this.form[field.name]])) })
+        return
+      }
       if (this.isAclSearch) {
         if (this.aclVpcBlocked) return
         this.visibleFilter = false
@@ -2146,7 +2193,7 @@ export default {
       this.$emit('change-filter', filter)
     },
     updateIsFiltered () {
-      const params = this.isAclSearch || this.isEventSearch || this.isKmsSearch || this.isGuestNetworkSearch || this.isVnfSearch || ['listTemplates', 'listIsos', 'listCniConfiguration', 'listAffinityGroups'].includes(this.apiName) ? this.$route.query : this.searchParams
+      const params = this.isVpnUserSearch || this.isAclSearch || this.isEventSearch || this.isKmsSearch || this.isGuestNetworkSearch || this.isVnfSearch || ['listTemplates', 'listIsos', 'listCniConfiguration', 'listAffinityGroups'].includes(this.apiName) ? this.$route.query : this.searchParams
       this.isFiltered = this.searchFilters.some(item => {
         if (params[item]) {
           return true
