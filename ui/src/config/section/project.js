@@ -17,6 +17,7 @@
 
 import { shallowRef, defineAsyncComponent } from 'vue'
 import store from '@/store'
+import { isProjectAdministrator } from '@/utils/projectMembership'
 
 export default {
   name: 'project',
@@ -36,13 +37,13 @@ export default {
     {
       name: 'accounts',
       component: shallowRef(defineAsyncComponent(() => import('@/views/project/AccountsTab.vue'))),
-      show: (record, route, user) => { return ['Admin', 'DomainAdmin'].includes(user.roletype) || record.isCurrentUserProjectAdmin }
+      show: (record, route, user) => isProjectAdministrator(record, user)
     },
     {
       name: 'project.roles',
       component: shallowRef(defineAsyncComponent(() => import('@/views/project/iam/ProjectRoleTab.vue'))),
       show: (record, route, user) => {
-        return (['Admin', 'DomainAdmin'].includes(user.roletype) || record.isCurrentUserProjectAdmin) &&
+        return isProjectAdministrator(record, user) &&
         'listProjectRoles' in store.getters.apis
       }
     },
@@ -109,7 +110,7 @@ export default {
       dataView: true,
       args: ['name', 'displaytext'],
       show: (record, store) => {
-        return (['Admin', 'DomainAdmin'].includes(store.userInfo.roletype)) || record.isCurrentUserProjectAdmin
+        return isProjectAdministrator(record, store.userInfo)
       }
     },
     {
@@ -119,7 +120,7 @@ export default {
       message: 'message.activate.project',
       dataView: true,
       show: (record, store) => {
-        return ((['Admin', 'DomainAdmin'].includes(store.userInfo.roletype)) || record.isCurrentUserProjectAdmin) && record.state === 'Suspended'
+        return (isProjectAdministrator(record, store.userInfo)) && record.state === 'Suspended'
       },
       groupAction: true,
       popup: true,
@@ -133,25 +134,23 @@ export default {
       docHelp: 'adminguide/projects.html#sending-project-membership-invitations',
       dataView: true,
       show: (record, store) => {
-        return ((['Admin', 'DomainAdmin'].includes(store.userInfo.roletype)) ||
-        record.isCurrentUserProjectAdmin) && record.state !== 'Suspended'
+        return (isProjectAdministrator(record, store.userInfo)) && record.state !== 'Suspended'
       },
       groupAction: true,
       popup: true,
       groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
     },
-    {
-      api: 'addAccountToProject',
+    ...['addAccountToProject', 'addUserToProject'].map(api => ({
+      api,
       icon: 'user-add-outlined',
-      label: 'label.action.project.add.account',
-      docHelp: 'adminguide/projects.html#adding-project-members-from-the-ui',
+      label: 'label.project.member.add',
       dataView: true,
       popup: true,
-      show: (record, store) => {
-        return (['Admin', 'DomainAdmin'].includes(store.userInfo.roletype)) || record.isCurrentUserProjectAdmin
-      },
+      selfManagedDialog: true,
+      show: (record, store) => record.state === 'Active' && isProjectAdministrator(record, store.userInfo) &&
+        (api === 'addAccountToProject' || !store.apis.addAccountToProject),
       component: shallowRef(defineAsyncComponent(() => import('@/views/project/AddAccountOrUserToProject.vue')))
-    },
+    })),
     {
       api: 'deleteProject',
       icon: 'delete-outlined',
@@ -160,7 +159,7 @@ export default {
       docHelp: 'adminguide/projects.html#suspending-or-deleting-a-project',
       dataView: true,
       show: (record, store) => {
-        return (['Admin', 'DomainAdmin'].includes(store.userInfo.roletype) || record.isCurrentUserProjectAdmin) && record.id !== store.project.id
+        return isProjectAdministrator(record, store.userInfo) && record.id !== store.project.id
       },
       groupAction: true,
       popup: true,

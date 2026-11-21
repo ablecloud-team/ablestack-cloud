@@ -101,6 +101,12 @@ public class MockProjectManagerImpl extends ManagerBase implements ProjectManage
     }
 
     @Override
+    public Project updateProject(long id, String name, String displayText, String accountName, Long userId, Role newRole,
+            boolean swapOwner, Long projectRoleId, boolean clearProjectRole) {
+        return null;
+    }
+
+    @Override
     public boolean addAccountToProject(long projectId, String accountName, String email, Long projectRoleId, Role projectRoleType) {
         // TODO Auto-generated method stub
         return false;

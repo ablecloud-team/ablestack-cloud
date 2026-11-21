@@ -25,6 +25,7 @@ import org.apache.cloudstack.api.BaseAsyncCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.response.ProjectResponse;
+import org.apache.cloudstack.api.response.ProjectRoleResponse;
 import org.apache.cloudstack.api.response.UserResponse;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.commons.lang3.EnumUtils;
@@ -64,6 +65,14 @@ public class UpdateProjectCmd extends BaseAsyncCmd {
             "Ideally to be used when a single project administrator is present. In case of multiple project admins, swapowner is to be set to false," +
             "to promote or demote the user/account based on the roleType (Regular or Admin) provided. Defaults to true")
     private Boolean swapOwner;
+
+    @Parameter(name = ApiConstants.PROJECT_ROLE_ID, type = CommandType.UUID, entityType = ProjectRoleResponse.class,
+            description = "Custom project role for the selected account or user membership")
+    private Long projectRoleId;
+
+    @Parameter(name = "clearprojectrole", type = CommandType.BOOLEAN,
+            description = "Remove the custom project role from the selected membership")
+    private Boolean clearProjectRole;
 
     @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "Name of the project", since = "4.19.0")
     private String name;
@@ -139,10 +148,18 @@ public class UpdateProjectCmd extends BaseAsyncCmd {
                     "to update Account or user ID to update the user of the project");
         }
 
-        Project project = null;
-        if (isSwapOwner()) {
+        boolean clearRole = Boolean.TRUE.equals(clearProjectRole);
+        boolean updatingCustomRole = clearRole || projectRoleId != null;
+        if (updatingCustomRole && (StringUtils.isNotEmpty(roleType) || Boolean.TRUE.equals(swapOwner))) {
+            throw new InvalidParameterValueException("Update the custom role and administrator role in separate requests");
+        }
+        Project project;
+        if (updatingCustomRole || (isSwapOwner() && getUserId() != null)) {
+            project = _projectService.updateProject(getId(), getName(), getDisplayText(), getAccountName(), getUserId(), null,
+                    !updatingCustomRole, projectRoleId, clearRole);
+        } else if (isSwapOwner()) {
             project = _projectService.updateProject(getId(), getName(), getDisplayText(), getAccountName());
-        }  else {
+        } else {
             project = _projectService.updateProject(getId(), getName(), getDisplayText(), getAccountName(), getUserId(), getAccountRole());
         }
         if (project != null) {

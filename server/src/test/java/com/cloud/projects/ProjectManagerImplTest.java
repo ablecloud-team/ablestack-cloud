@@ -223,6 +223,56 @@ public class ProjectManagerImplTest {
         Mockito.verify(projectAccountDao).remove(12L);
     }
 
+    @Test
+    public void testUserScopedAdministratorDoesNotAuthorizeSibling() {
+        Account caller = Mockito.mock(Account.class);
+        User user = Mockito.mock(User.class);
+        ProjectVO project = Mockito.mock(ProjectVO.class);
+        CallContext context = Mockito.mock(CallContext.class);
+        Mockito.when(caller.getId()).thenReturn(42L);
+        Mockito.when(user.getId()).thenReturn(77L);
+        Mockito.when(project.getId()).thenReturn(100L);
+        Mockito.when(project.getProjectAccountId()).thenReturn(90L);
+        try (MockedStatic<CallContext> callContext = Mockito.mockStatic(CallContext.class)) {
+            callContext.when(CallContext::current).thenReturn(context);
+            Mockito.when(context.getCallingUser()).thenReturn(user);
+            Mockito.when(context.getProject()).thenReturn(project);
+
+            Assert.assertFalse(projectManager.canModifyProjectAccount(caller, 90L));
+        }
+        Mockito.verify(projectAccountDao).findByProjectIdUserId(100L, 42L, 77L);
+        Mockito.verify(projectAccountDao).findByProjectIdAccountId(100L, 42L);
+    }
+
+    @Test
+    public void testLastUserAdministratorCannotBeRemoved() {
+        Account caller = Mockito.mock(Account.class);
+        CallContext context = Mockito.mock(CallContext.class);
+        UserVO user = Mockito.mock(UserVO.class);
+        ProjectVO project = Mockito.mock(ProjectVO.class);
+        ProjectAccountVO owner = Mockito.mock(ProjectAccountVO.class);
+        Mockito.when(projectDao.lockRow(100L, true)).thenReturn(project);
+        Mockito.when(userDao.findById(77L)).thenReturn(user);
+        Mockito.when(user.getAccountId()).thenReturn(42L);
+        Mockito.when(projectAccountDao.findByProjectIdUserId(100L, 42L, 77L)).thenReturn(owner);
+        Mockito.when(projectAccountDao.getProjectOwners(100L)).thenReturn(List.of(owner));
+        Mockito.when(owner.getAccountRole()).thenReturn(Role.Admin);
+
+        try (MockedStatic<CallContext> callContext = Mockito.mockStatic(CallContext.class);
+             MockedStatic<Transaction> transaction = Mockito.mockStatic(Transaction.class)) {
+            callContext.when(CallContext::current).thenReturn(context);
+            Mockito.when(context.getCallingAccount()).thenReturn(caller);
+            transaction.when(() -> Transaction.execute(Mockito.any(TransactionCallback.class)))
+                    .thenAnswer(call -> ((TransactionCallback<?>) call.getArgument(0)).doInTransaction(null));
+
+            InvalidParameterValueException error = Assert.assertThrows(InvalidParameterValueException.class,
+                    () -> projectManager.deleteUserFromProject(100L, 77L));
+            Assert.assertTrue(error.getMessage().contains("last project administrator"));
+        }
+        Mockito.verify(projectAccountDao, Mockito.never()).remove(Mockito.anyLong());
+        Mockito.verifyNoInteractions(resourceLimitMgr);
+    }
+
     private void runUpdateProjectNameAndDisplayTextTest(boolean nonNullName, boolean nonNullDisplayText) {
         ProjectVO projectVO = new ProjectVO();
         String newName = nonNullName ? "NewName" : null;

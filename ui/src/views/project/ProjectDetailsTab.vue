@@ -15,56 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 <template>
-  <DetailsTab :resource="dataResource" />
+  <DetailsTab :resource="resource" />
 </template>
+
 <script>
 import DetailsTab from '@/components/view/DetailsTab'
+
 export default {
   name: 'ProjectDetailsTab',
-  components: {
-    DetailsTab
-  },
-  props: {
-    resource: {
-      type: Object,
-      required: true
-    }
-  },
-  data () {
-    return {
-      dataResource: {}
-    }
-  },
-  created () {
-    this.dataResource = this.resource
-    this.determineOwner()
-  },
-  watch: {
-    resource: {
-      deep: true,
-      handler () {
-        this.dataResource = this.resource
-        if (!this.dataResource || !this.dataResource.id) {
-          return
-        }
-        this.determineOwner()
-      }
-    }
-  },
-  methods: {
-    determineOwner () {
-      var owner = this.dataResource.owner || []
-      // If current backend does not support multiple project admins
-      if (owner.length === 0) {
-        this.dataResource.isCurrentUserProjectAdmin = this.dataResource.account === this.$store.getters.userInfo.account
-        return
-      }
-      owner = owner.filter(projectaccount => {
-        return (projectaccount.userid && projectaccount.userid === this.$store.getters.userInfo.id) ||
-          projectaccount.account === this.$store.getters.userInfo.account
-      })
-      this.dataResource.isCurrentUserProjectAdmin = owner.length > 0
-    }
-  }
+  components: { DetailsTab },
+  props: { resource: { type: Object, required: true } }
 }
 </script>

@@ -88,6 +88,9 @@ public interface ProjectService {
 
     Project updateProject(long id, String name, String displayText, String newOwnerName, Long userId, Role newRole) throws ResourceAllocationException;
 
+    Project updateProject(long id, String name, String displayText, String accountName, Long userId, Role newRole,
+            boolean swapOwner, Long projectRoleId, boolean clearProjectRole) throws ResourceAllocationException;
+
     boolean addAccountToProject(long projectId, String accountName, String email, Long projectRoleId, Role projectRoleType) throws ResourceAllocationException;
 
     boolean deleteAccountFromProject(long projectId, String accountName);
