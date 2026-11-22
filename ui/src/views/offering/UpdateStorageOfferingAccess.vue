@@ -12,7 +12,7 @@ under the License. -->
 <template>
   <div class="volume-operation-form" v-ctrl-enter="submit">
     <a-spin :spinning="loading || saving">
-      <div class="volume-operation-target"><strong>{{ resource.name }}</strong><a-tag>{{ record.state }}</a-tag></div>
+      <div class="volume-operation-target"><strong>{{ resource.name }}</strong><a-tag v-if="record.state">{{ isSystemOffering ? $t(systemOfferingStateLabel(record.state)) : record.state }}</a-tag></div>
       <a-alert v-if="readError" type="error" :message="readError" show-icon />
       <a-button v-if="readError" class="operation-retry" @click="load">{{ $t('label.retry') }}</a-button>
       <a-form v-if="loaded" layout="vertical">
@@ -47,6 +47,7 @@ import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { postAPI } from '@/api'
 import { getAPI } from '@/utils/storageApi'
 import management from '@/utils/storageManagementMixin'
+import { systemOfferingStateLabel } from '@/utils/systemOfferingTypes'
 import { readAllocationList } from '@/utils/volumeAllocation'
 import { scopeIds, accessParams, offeringSnapshot } from '@/utils/storageManagement'
 export default {
@@ -57,15 +58,17 @@ export default {
   emits: ['close-action', 'refresh-data'],
   data: () => ({ record: {}, domains: [], zones: [], form: { ispublic: false, domainid: [], zoneid: [] }, postStarted: false }),
   computed: {
+    isSystemOffering () { return this.$route?.meta?.name === 'systemoffering' },
     offeringType () { return this.$route.meta.name === 'diskoffering' ? 'DiskOffering' : 'ServiceOffering' },
     managementApi () { return 'update' + this.offeringType },
     retainedDomains () { return scopeIds(this.record.domainid).filter(id => !this.domains.some(d => d.id === id)) }
   },
   methods: {
+    systemOfferingStateLabel,
     async readRecord () {
       const command = 'list' + this.offeringType + 's'
       const params = { id: this.resource.id, listall: true, state: 'all' }
-      if (this.$route?.meta?.name === 'systemoffering') params.issystem = true
+      if (this.isSystemOffering) params.issystem = true
       const result = await getAPI(command, params, { preserveOnFailure: true })
       const record = result?.[command.toLowerCase() + 'response']?.[this.offeringType.toLowerCase()]?.find(row => row.id === this.resource.id)
       if (!record) throw new Error('message.offering.not.found')

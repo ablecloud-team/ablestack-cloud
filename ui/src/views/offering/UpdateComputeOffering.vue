@@ -12,7 +12,7 @@ under the License. -->
 <template>
   <div class="volume-operation-form" v-ctrl-enter="submit">
     <a-spin :spinning="loading || saving">
-      <div class="volume-operation-target"><strong>{{ resource.name }}</strong><a-tag>{{ record.state }}</a-tag></div>
+      <div class="volume-operation-target"><strong>{{ resource.name }}</strong><a-tag v-if="record.state">{{ isSystemOffering ? $t(systemOfferingStateLabel(record.state)) : record.state }}</a-tag></div>
       <a-alert v-if="readError" type="error" :message="readError" show-icon />
       <a-button v-if="readError" class="operation-retry" @click="load">{{ $t('label.retry') }}</a-button>
       <a-form v-if="loaded" ref="formRef" :model="form" layout="vertical">
@@ -39,7 +39,7 @@ under the License. -->
           <details-input v-if="form.externalMode === 'edit' && !managementDisabled" v-model:value="form.external" />
           <a-checkbox v-if="form.externalMode === 'clear'" v-model:checked="form.confirmClear" :disabled="managementDisabled">{{ $t('message.storage.management.clear.confirm') }}</a-checkbox>
         </details>
-        <p class="operation-help">{{ $t(record.diskofferingcomputeonly ? 'message.offering.compute.dedicated' : 'message.offering.compute.linked') }}</p>
+        <p class="operation-help">{{ $t(diskOfferingHelp) }}</p>
       </a-form>
       <a-alert v-if="submitError" class="operation-retry" type="error" :message="submitError" show-icon />
       <a-alert v-if="unknownResult" class="operation-retry" type="warning" :message="$t('message.offering.update.unknown')" show-icon />
@@ -56,6 +56,7 @@ import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { postAPI } from '@/api'
 import { getAPI } from '@/utils/storageApi'
 import management from '@/utils/storageManagementMixin'
+import { systemOfferingStateLabel } from '@/utils/systemOfferingTypes'
 import { offeringSnapshot, computeEditParams } from '@/utils/storageManagement'
 import { trueValue } from '@/utils/offeringQos'
 import { getFilteredExternalDetails } from '@/utils/extension'
@@ -69,14 +70,21 @@ export default {
   emits: ['close-action', 'refresh-data'],
   data: () => ({ record: {}, form: {}, tagsAllowed: false, postStarted: false }),
   computed: {
+    isSystemOffering () { return this.$route?.meta?.name === 'systemoffering' },
     managementApi: () => 'updateServiceOffering',
+    diskOfferingHelp () {
+      const scope = this.isSystemOffering ? 'system' : 'compute'
+      const type = this.record.diskofferingcomputeonly ? 'dedicated' : 'linked'
+      return 'message.offering.' + scope + '.' + type
+    },
     currentExternal () { return getFilteredExternalDetails(this.record.serviceofferingdetails) || {} },
     tagFields () { return this.tagsAllowed ? ['storagetags', 'hosttags'].filter(key => key in this.managementFields) : [] }
   },
   methods: {
+    systemOfferingStateLabel,
     async readRecord () {
       const params = { id: this.resource.id, listall: true, state: 'all', details: 'all' }
-      if (this.$route?.meta?.name === 'systemoffering') params.issystem = true
+      if (this.isSystemOffering) params.issystem = true
       const response = await getAPI('listServiceOfferings', params, { preserveOnFailure: true })
       const record = response?.listserviceofferingsresponse?.serviceoffering?.find(row => row.id === this.resource.id)
       if (!record) throw new Error('message.offering.not.found')

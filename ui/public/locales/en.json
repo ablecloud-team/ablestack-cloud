@@ -10149,6 +10149,8 @@
   "message.offering.cache.shareable": "Shareable disks require cache mode none.",
   "message.offering.immutable": "Size, custom IOPS, storage type and allocation policy cannot be changed here. Clone or create an offering for different immutable properties. Manage state and access with their separate actions.",
   "message.offering.disk.connection.unknown": "The linked disk offering type is unknown. Refresh the offering information before opening its details.",
+  "message.offering.system.dedicated": "These disk properties were generated for this system offering. Clone the offering or create a new one to change the disk properties.",
+  "message.offering.system.linked": "This system offering uses properties from the linked disk offering. Edit cache and QoS there. Clone the disk offering or create a new one to change immutable properties.",
   "message.offering.compute.dedicated": "These disk properties were generated for this compute offering. Compute editing does not change CPU, memory, cache or QoS. Clone or create a compute offering to change disk properties.",
   "message.offering.compute.linked": "Disk properties come from the linked general disk offering. Edit cache and QoS there; clone or create a disk offering for immutable properties. Existing VMs using this compute offering may be affected on their next attachment or stop/start.",
   "message.offering.not.found": "The offering could not be read. Check access or deactivation state.",
