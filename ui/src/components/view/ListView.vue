@@ -1125,7 +1125,7 @@
         <span v-else> {{ text }} </span>
       </template>
       <template v-if="column.key === 'order'">
-        <div v-if="!systemOfferingOrder || systemOfferingOrderAvailable" class="shift-btns">
+        <div v-if="!systemOfferingOrder || systemOfferingOrderAvailable" class="shift-btns" :class="{ 'system-offering-order-actions': systemOfferingOrder }">
           <a-tooltip
             :name="text"
             placement="top"
@@ -2447,6 +2447,19 @@ export default {
       transform: rotate(90deg);
     }
 
+  }
+
+  .system-offering-order-actions {
+    gap: 4px;
+
+    > .shift-btn {
+      flex: 0 0 24px;
+      inline-size: 24px;
+      block-size: 24px;
+      min-inline-size: 0;
+      margin: 0;
+      padding: 0;
+    }
   }
 
   .alert-notification-threshold {
