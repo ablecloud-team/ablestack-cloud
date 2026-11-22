@@ -24,6 +24,7 @@ import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.response.ServiceOfferingResponse;
 
+import com.cloud.exception.PermissionDeniedException;
 import com.cloud.offering.ServiceOffering;
 
 @APICommand(name = "cloneServiceOffering",
@@ -72,6 +73,8 @@ public class CloneServiceOfferingCmd extends CreateServiceOfferingCmd {
             }
         } catch (com.cloud.exception.InvalidParameterValueException e) {
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR, e.getMessage());
+        } catch (PermissionDeniedException e) {
+            throw new ServerApiException(ApiErrorCode.ACCOUNT_ERROR, e.getMessage());
         } catch (com.cloud.utils.exception.CloudRuntimeException e) {
             throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, e.getMessage());
         }
