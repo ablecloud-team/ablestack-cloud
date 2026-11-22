@@ -18,17 +18,19 @@
 <template>
   <a-spin :spinning="componentLoading">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <a-button
-      :disabled="!('createVlanIpRange' in $store.getters.apis)"
-      type="dashed"
-      style="margin-bottom: 20px; width: 100%"
-      @click="handleOpenAddIpRangeModal">
-      <template #icon><plus-outlined /></template>
-      {{ $t('label.add.ip.range') }}
-    </a-button>
+    <resource-table-toolbar :loading="componentLoading || listRefreshing > 0" @refresh="fetchData()">
+      <a-button
+        :disabled="!('createVlanIpRange' in $store.getters.apis)"
+        type="primary"
+        @click="handleOpenAddIpRangeModal">
+        <template #icon><plus-outlined /></template>
+        {{ $t('label.add.ip.range') }}
+      </a-button>
+    </resource-table-toolbar>
 
     <a-table
       size="small"
+      :scroll="{ x: 920 }"
       style="overflow-y: auto"
       :columns="columns"
       :dataSource="items"
@@ -118,12 +120,14 @@
       </template>
     </a-pagination>
 
-    <a-modal
+    <mold-dialog
+      size="md"
+      form-actions
+      focus-guard
       :visible="accountModal"
       v-if="selectedItem"
       :closable="true"
       :maskClosable="false"
-      :footer="null"
       @cancel="accountModal = false">
       <div>
         <div style="margin-bottom: 10px;">
@@ -136,19 +140,21 @@
         </div>
       </div>
 
-      <div :span="24" class="action-button">
+      <mold-dialog-actions>
         <a-button @click="accountModal = false">{{ $t('label.close') }}</a-button>
-      </div>
-    </a-modal>
+      </mold-dialog-actions>
+    </mold-dialog>
 
-    <a-modal
+    <mold-dialog
+      size="md"
+      form-actions
+      focus-guard
       v-if="addAccountModal"
       :zIndex="1001"
       :closable="true"
       :maskClosable="false"
       :visible="addAccountModal"
       :title="$t('label.add.account')"
-      :footer="null"
       @cancel="addAccountModal = false">
       <a-spin :spinning="domainsLoading" v-ctrl-enter="handleAddAccount">
         <div style="margin-bottom: 10px;">
@@ -173,20 +179,22 @@
           </a-select>
         </div>
 
-        <div :span="24" class="action-button">
+        <mold-dialog-actions>
           <a-button @click="addAccountModal = false">{{ $t('label.cancel') }}</a-button>
           <a-button type="primary" ref="submit" @click="handleAddAccount">{{ $t('label.ok') }}</a-button>
-        </div>
+        </mold-dialog-actions>
       </a-spin>
-    </a-modal>
+    </mold-dialog>
 
-    <a-modal
+    <mold-dialog
+      size="md"
+      form-actions
+      focus-guard
       v-if="addIpRangeModal"
       :visible="addIpRangeModal"
       :title="$t('label.add.ip.range')"
       :closable="true"
       :maskClosable="false"
-      :footer="null"
       @cancel="addIpRangeModal = false">
       <a-form
         :ref="formRef"
@@ -320,19 +328,21 @@
           </span>
         </div>
 
-        <div :span="24" class="action-button">
+        <mold-dialog-actions>
           <a-button @click="addIpRangeModal = false">{{ $t('label.cancel') }}</a-button>
           <a-button type="primary" ref="submit" @click="handleAddIpRange">{{ $t('label.ok') }}</a-button>
-        </div>
+        </mold-dialog-actions>
       </a-form>
-    </a-modal>
+    </mold-dialog>
 
-    <a-modal
+    <mold-dialog
+      size="md"
+      form-actions
+      focus-guard
       :visible="updateIpRangeModal"
       :title="$t('label.update.ip.range')"
       v-if="selectedItem"
       :maskClosable="false"
-      :footer="null"
       @cancel="updateIpRangeModal = false">
       <a-form
         :ref="updRangeRef"
@@ -370,16 +380,19 @@
           </a-form-item>
         </div>
 
-        <div :span="24" class="action-button">
+        <mold-dialog-actions>
           <a-button @click="updateIpRangeModal = false">{{ $t('label.cancel') }}</a-button>
           <a-button type="primary" ref="submit" @click="handleUpdateIpRange">{{ $t('label.ok') }}</a-button>
-        </div>
+        </mold-dialog-actions>
       </a-form>
-    </a-modal>
+    </mold-dialog>
   </a-spin>
 </template>
 
 <script>
+import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
+import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { ref, reactive, toRaw } from 'vue'
@@ -388,9 +401,12 @@ import TooltipButton from '@/components/widgets/TooltipButton'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
-  mixins: [listRefreshMixin(['fetchData'])],
+  mixins: [listRefreshMixin(['fetchData'], { routeKey: vm => vm.$route.path })],
   name: 'IpRangesTabPublic',
   components: {
+    ResourceTableToolbar,
+    MoldDialog,
+    MoldDialogActions,
     TooltipButton,
     TooltipLabel
   },

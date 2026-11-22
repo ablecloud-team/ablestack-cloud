@@ -36,10 +36,10 @@
           </template>
         </template>
       </a-table>
-      <div class="form-action">
+      <mold-dialog-actions>
         <a-button class="button-back" @click="handleDone">{{ selectedRowKeys.length > 0 ? $t('label.done') : $t('label.skip') }}</a-button>
         <a-button class="button-next" type="primary" @click="handleSubmit" ref="submit">{{ $t('label.register.template') }}</a-button>
-      </div>
+      </mold-dialog-actions>
 
       <a-modal
       :visible="showAlert"
@@ -63,6 +63,7 @@
   </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { getAPI, postAPI } from '@/api'
 import { genericCompare } from '@/utils/sort.js'
 import OsLogo from '@/components/widgets/OsLogo'
@@ -70,6 +71,7 @@ import OsLogo from '@/components/widgets/OsLogo'
 export default {
   name: 'ZoneWizardRegisterTemplate',
   components: {
+    MoldDialogActions,
     OsLogo
   },
   props: {

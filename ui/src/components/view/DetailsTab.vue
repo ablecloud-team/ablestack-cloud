@@ -55,7 +55,7 @@
     :message="$t(l2Network.configDrive ? 'message.l2.network.configdrive' : 'message.l2.network.basic')" />
   <a-list
     class="resource-details-list"
-    :class="{ 'template-details-list': ['template', 'iso'].includes($route.meta.name), 's2s-gateway-details': $route.meta.name === 's2svpn', 'vm-details-list': kmsRoute($route) || ['vm', 'vnfapp', 'systemoffering', 'publicip', 's2svpn', 'acllist', 'event', 'vpnuser', 'project', 'guestvlans', 'ipv4subnets', 'dnszone', 'dnsserver'].includes($route.meta.name) }"
+    :class="{ 'template-details-list': ['template', 'iso'].includes($route.meta.name), 's2s-gateway-details': $route.meta.name === 's2svpn', 'vm-details-list': kmsRoute($route) || ['vm', 'vnfapp', 'systemoffering', 'publicip', 's2svpn', 'acllist', 'event', 'vpnuser', 'project', 'guestvlans', 'ipv4subnets', 'dnszone', 'dnsserver', 'zone', 'physicalnetwork'].includes($route.meta.name) }"
     size="small"
     :dataSource="(fetchDetails() || []).concat(Object.keys(allocationDetails))">
     <template #renderItem="{item}">
@@ -71,6 +71,22 @@
           <div v-else-if="item === 'protocol'">{{ kmsProtocolOptions($store.getters.features, dataResource.protocol).find(provider => provider.id === dataResource.protocol)?.name || $t('label.unknown') }}</div>
           <div v-else-if="item === 'vendorname'">{{ dataResource.vendor || dataResource.vendorname || $t('label.unknown') }}</div>
           <div v-else>{{ dataResource[item] ?? $t(item === 'state' ? 'label.hsm.connection.unavailable' : 'label.unknown') }}</div>
+        </div>
+      </a-list-item>
+      <a-list-item v-else-if="$route.meta.name === 'zone' && ['allocationstate', 'haenable', 'localstorageenabled', 'securitygroupsenabled'].includes(item)">
+        <div>
+          <strong>{{ $t('label.' + item) }}</strong>
+          <div>
+            <status v-if="item === 'allocationstate'" :text="dataResource.allocationstate || ''" :display-label="dataResource.allocationstate ? '' : $t('label.unknown')" display-text />
+            <status v-else-if="item === 'haenable'" :text="zoneFeatureState(dataResource.resourcedetails?.resourceHAEnabled ?? false)" :display-label="$t(zoneFeatureLabel(dataResource.resourcedetails?.resourceHAEnabled ?? false))" display-text />
+            <status v-else :text="zoneFeatureState(dataResource[item])" :display-label="$t(zoneFeatureLabel(dataResource[item]))" display-text />
+          </div>
+        </div>
+      </a-list-item>
+      <a-list-item v-else-if="$route.meta.name === 'zone' && ['networkdomain', 'dnssearchorder'].includes(item)">
+        <div>
+          <strong>{{ $t('label.zone.' + item) }}</strong>
+          <div>{{ (item === 'networkdomain' ? dataResource.domain : zoneDnsSearchOrder(dataResource).join(', ')) || '—' }}</div>
         </div>
       </a-list-item>
       <a-list-item v-else-if="$route.meta.name === 'dnszone' && item === 'dnsservername'">
@@ -144,7 +160,7 @@
             :field="item"
             :value="dataResource[item]"
             :label="$t(getDetailTitle(item))" />
-          <status v-else-if="['ipv4subnets', 'dnsserver'].includes($route.meta.name) && item === 'state'" :text="dataResource.state" display-text />
+          <status v-else-if="['ipv4subnets', 'dnsserver', 'physicalnetwork'].includes($route.meta.name) && item === 'state'" :text="dataResource.state" display-text />
           <span v-else-if="$route.meta.name === 'ipv4subnets' && item === 'allocated'">{{ $toLocaleDate(dataResource.allocated) }}</span>
           <status v-else-if="$route.meta.name === 'event' && item === 'state'" :text="dataResource.state" display-text />
           <div v-else-if="$route.meta.name === 'event' && item === 'type'">{{ eventTypeLabel(dataResource.type, $t) }}</div>
@@ -507,6 +523,7 @@ display-text />
 
 <script>
 import { systemOfferingDetailLabels, systemOfferingValue } from '@/utils/systemOfferingTypes'
+import { zoneDnsSearchOrder, zoneFeatureLabel, zoneFeatureState } from '@/utils/zone'
 import Ipv4SubnetResourceLink from '@/components/widgets/Ipv4SubnetResourceLink'
 import AclScopeValue from '@/components/view/AclScopeValue'
 import { aclDisplayLabel } from '@/utils/vpcAclAccess'
@@ -714,6 +731,9 @@ export default {
   },
   methods: {
     systemOfferingValue,
+    zoneDnsSearchOrder,
+    zoneFeatureState,
+    zoneFeatureLabel,
     eventTypeLabel,
     kmsRoute,
     hsmOwnerScope,

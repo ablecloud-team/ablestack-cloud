@@ -17,69 +17,83 @@
 
 <template>
   <a-spin :spinning="fetchLoading">
-    <a-tabs :tabPosition="resourceTabPosition" :animated="false" @tabClick="onClick">
-      <a-tab-pane v-for="(item, index) in traffictypes" :tab="item.traffictype" :key="index">
+    <resource-table-toolbar v-if="traffictypes.length || listRefreshFailed" :loading="fetchLoading || listRefreshing > 0" @refresh="fetchData()">
+      <select
+        v-if="traffictypes.length"
+        id="zone-traffic-type"
+        class="ant-input traffic-type-select"
+        :aria-label="$t('label.traffictype')"
+        :value="selectedTraffic?.traffictype"
+        @change="selectTraffic($event.target.value)">
+        <option v-for="item in traffictypes" :key="item.id" :value="item.traffictype">{{ item.traffictype }}</option>
+      </select>
+      <template #actions>
         <a-popconfirm
+          v-if="selectedTraffic"
           :title="$t('message.confirm.delete.traffic.type')"
-          @confirm="deleteTrafficType(item)"
+          @confirm="deleteTrafficType(selectedTraffic)"
           :okText="$t('label.yes')"
           :cancelText="$t('label.no')" >
           <a-button
             type="primary"
             danger
-            style="width: 100%; margin-bottom: 10px"
             :loading="loading"
             :disabled="!('deleteTrafficType' in $store.getters.apis)">
             <template #icon><delete-outlined /></template> {{ $t('label.delete.traffic.type') }}
           </a-button>
         </a-popconfirm>
-        <div
-          v-for="(type, idx) in ['kvmnetworklabel', 'vmwarenetworklabel', 'xennetworklabel', 'hypervnetworklabel', 'ovm3networklabel']"
-          :key="idx"
-          style="margin-bottom: 10px;">
-          <div><strong>{{ $t(type) }}</strong></div>
-          <div>{{ item[type] || $t('label.network.label.display.for.blank.value') }}</div>
+      </template>
+    </resource-table-toolbar>
+    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
+    <div v-if="selectedTraffic" :key="selectedTraffic.traffictype">
+      <div
+        v-for="(type, idx) in ['kvmnetworklabel', 'vmwarenetworklabel', 'xennetworklabel', 'hypervnetworklabel', 'ovm3networklabel']"
+        :key="idx"
+        style="margin-bottom: 10px;">
+        <div><strong>{{ $t('label.' + type) }}</strong></div>
+        <div>{{ selectedTraffic[type] || $t('label.network.label.display.for.blank.value') }}</div>
+      </div>
+      <div v-if="selectedTraffic.traffictype === 'Guest' && networkType === 'Advanced'">
+        <a-divider />
+        <IpRangesTabGuest :resource="resource" :loading="loading"/>
+      </div>
+      <div v-if="selectedTraffic.traffictype === 'Guest' && networkType === 'Basic'">
+        <a-divider />
+        <IpRangesTabPublic
+          :resource="resource"
+          :loading="loading"
+          :network="guestNetwork"
+          :basicGuestNetwork="networkType === 'Basic' && selectedTraffic.traffictype === 'Guest'"/>
+      </div>
+      <div v-if="selectedTraffic.traffictype === 'Public'">
+        <div style="margin-bottom: 10px;">
+          <div><strong>{{ $t('label.traffictype') }}</strong></div>
+          <div>{{ publicNetwork.traffictype }}</div>
         </div>
-        <div v-if="item.traffictype === 'Guest' && networkType === 'Advanced'">
-          <a-divider />
-          <IpRangesTabGuest :resource="resource" :loading="loading"/>
+        <div style="margin-bottom: 10px;">
+          <div><strong>{{ $t('label.broadcastdomaintype') }}</strong></div>
+          <div>{{ publicNetwork.broadcastdomaintype }}</div>
         </div>
-        <div v-if="item.traffictype === 'Guest' && networkType === 'Basic'">
-          <a-divider />
-          <IpRangesTabPublic
-            :resource="resource"
-            :loading="loading"
-            :network="guestNetwork"
-            :basicGuestNetwork="networkType === 'Basic' && item.traffictype === 'Guest'"/>
-        </div>
-        <div v-if="item.traffictype === 'Public'">
-          <div style="margin-bottom: 10px;">
-            <div><strong>{{ $t('label.traffictype') }}</strong></div>
-            <div>{{ publicNetwork.traffictype }}</div>
-          </div>
-          <div style="margin-bottom: 10px;">
-            <div><strong>{{ $t('label.broadcastdomaintype') }}</strong></div>
-            <div>{{ publicNetwork.broadcastdomaintype }}</div>
-          </div>
-          <a-divider />
-          <IpRangesTabPublic :resource="resource" :loading="loading" :network="publicNetwork" :basicGuestNetwork="false" />
-        </div>
-        <div v-if="item.traffictype === 'Management'">
-          <a-divider />
-          <IpRangesTabManagement :resource="resource" :loading="loading" />
-        </div>
-        <div v-if="item.traffictype === 'Storage'">
-          <a-divider />
-          <IpRangesTabStorage :resource="resource" />
-        </div>
-      </a-tab-pane>
-    </a-tabs>
+        <a-divider />
+        <IpRangesTabPublic :resource="resource" :loading="loading" :network="publicNetwork" :basicGuestNetwork="false" />
+      </div>
+      <div v-if="selectedTraffic.traffictype === 'Management'">
+        <a-divider />
+        <IpRangesTabManagement :resource="resource" :loading="loading" />
+      </div>
+      <div v-if="selectedTraffic.traffictype === 'Storage'">
+        <a-divider />
+        <IpRangesTabStorage :resource="resource" />
+      </div>
+    </div>
+    <a-empty v-else-if="!fetchLoading" />
   </a-spin>
 </template>
 
 <script>
 import { getAPI, postAPI } from '@/api'
-import { mixinDevice } from '@/utils/mixin.js'
+import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
+import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import IpRangesTabPublic from './IpRangesTabPublic'
 import IpRangesTabManagement from './IpRangesTabManagement'
 import IpRangesTabStorage from './IpRangesTabStorage'
@@ -88,13 +102,14 @@ import { trafficTypeTab } from '@/config/section/infra/phynetworks.js'
 
 export default {
   name: 'TrafficTypesTab',
+  mixins: [listRefreshMixin(['fetchData'], { routeKey: vm => vm.$route.path })],
   components: {
+    ResourceTableToolbar,
     IpRangesTabPublic,
     IpRangesTabManagement,
     IpRangesTabStorage,
     IpRangesTabGuest
   },
-  mixins: [mixinDevice],
   props: {
     resource: {
       type: Object,
@@ -114,12 +129,21 @@ export default {
       fetchLoading: false
     }
   },
+  computed: {
+    selectedTraffic () {
+      return this.traffictypes.find(item => item.traffictype === this.$route.query.traffic) || this.traffictypes[0]
+    }
+  },
   created () {
     if (this.resource.id) {
       this.fetchData()
     }
   },
   watch: {
+    'resource.id' () { this.fetchData() },
+    selectedTraffic (traffic) {
+      trafficTypeTab.index = Math.max(0, this.traffictypes.indexOf(traffic))
+    },
     loading (newData, oldData) {
       if (!newData && this.resource.id) {
         this.fetchData()
@@ -128,103 +152,76 @@ export default {
   },
   methods: {
     async fetchData () {
-      this.fetchTrafficTypes()
-      this.fetchLoading = true
-      getAPI('listNetworks', {
-        listAll: true,
-        trafficType: 'Public',
-        isSystem: true,
-        zoneId: this.resource.zoneid
-      }).then(json => {
-        if (json.listnetworksresponse && json.listnetworksresponse.network && json.listnetworksresponse.network.length > 0) {
-          this.publicNetwork = json.listnetworksresponse.network[0]
-        } else {
-          this.publicNetwork = {}
-        }
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.fetchLoading = false
-      })
-      await this.fetchZones()
-      if (this.networkType === 'Basic') {
-        this.fetchGuestNetwork()
+      const { id, zoneid } = this.resource
+      if (!id || !zoneid) return
+      const request = this.listRequestToken('fetchData')
+      const current = () => this.isListRequestCurrent('fetchData', request)
+      this.fetchLoading = !request.loaded
+      if (!request.loaded) {
+        this.traffictypes = []
+        this.publicNetwork = {}
+        this.guestNetwork = {}
+      }
+      try {
+        const [traffic, zones] = await Promise.all([
+          getAPI('listTrafficTypes', { physicalnetworkid: id }, { preserveOnFailure: true }),
+          getAPI('listZones', { id: zoneid }, { preserveOnFailure: true })
+        ])
+        if (!current()) return
+        const types = traffic.listtraffictypesresponse.traffictype || []
+        const zone = zones.listzonesresponse.zone?.find(item => item.id === zoneid)
+        if (!zone) throw new Error('Zone lookup failed')
+        const [publicNetwork, guestNetwork] = await Promise.allSettled([
+          types.some(type => type.traffictype === 'Public') ? this.fetchTrafficNetwork(zoneid, 'Public') : {},
+          zone.networktype === 'Basic' && types.some(type => type.traffictype === 'Guest') ? this.fetchTrafficNetwork(zoneid, 'Guest') : {}
+        ])
+        if (!current()) return
+        this.traffictypes = types
+        this.networkType = zone.networktype
+        if (publicNetwork.status === 'fulfilled') this.publicNetwork = publicNetwork.value
+        if (guestNetwork.status === 'fulfilled') this.guestNetwork = guestNetwork.value
+        request.failed = publicNetwork.status === 'rejected' || guestNetwork.status === 'rejected'
+        if (request.failed) this.listRefreshFailed = true
+      } catch (error) {
+        if (!current()) return
+        request.failed = true
+        this.listRefreshFailed = true
+        if (!request.loaded) this.$notifyError(error)
+      } finally {
+        if (current()) this.fetchLoading = false
       }
     },
-    fetchTrafficTypes () {
-      this.fetchLoading = true
-      getAPI('listTrafficTypes', { physicalnetworkid: this.resource.id }).then(json => {
-        this.traffictypes = json.listtraffictypesresponse.traffictype
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.fetchLoading = false
-      })
-    },
-    fetchZones () {
-      return new Promise((resolve, reject) => {
-        this.fetchLoading = true
-        getAPI('listZones', { id: this.resource.zoneid }).then(json => {
-          const zone = json.listzonesresponse.zone || []
-          this.networkType = zone[0].networktype
-          resolve(this.networkType)
-        }).catch(error => {
-          this.$notifyError(error)
-          reject(error)
-        }).finally(() => {
-          this.fetchLoading = false
-        })
-      })
-    },
-    fetchGuestNetwork () {
-      getAPI('listNetworks', {
+    async fetchTrafficNetwork (zoneId, trafficType) {
+      const response = await getAPI('listNetworks', {
         listAll: true,
-        trafficType: 'Guest',
-        zoneId: this.resource.zoneid
-      }).then(json => {
-        if (json.listnetworksresponse?.network?.length > 0) {
-          this.guestNetwork = json.listnetworksresponse.network[0]
-        } else {
-          this.guestNetwork = {}
-        }
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.fetchLoading = false
-      })
+        trafficType,
+        zoneId,
+        ...(trafficType === 'Public' ? { isSystem: true } : {})
+      }, { preserveOnFailure: true })
+      return response.listnetworksresponse.network?.[0] || {}
     },
     deleteTrafficType (trafficType) {
       postAPI('deleteTrafficType', { id: trafficType.id }).then(response => {
+        const jobId = response.deletetraffictyperesponse.jobid
+        if (!jobId) return this.fetchData()
         this.$pollJob({
-          jobId: response.deletetraffictyperesponse.jobid,
+          jobId,
           title: this.$t('label.delete.traffic.type'),
           description: trafficType.traffictype,
           successMessage: this.$t('message.traffic.type.deleted') + ' ' + trafficType.traffictype,
-          successMethod: () => {
-            this.fetchLoading = false
-            this.fetchTrafficTypes()
-          },
+          successMethod: () => this.fetchData(),
           errorMessage: this.$t('message.delete.failed'),
-          errorMethod: () => {
-            this.fetchLoading = false
-            this.fetchTrafficTypes()
-          },
+          errorMethod: () => this.fetchData(),
           loadingMessage: this.$t('message.delete.traffic.type.processing'),
           catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.fetchLoading = false
-            this.fetchTrafficTypes()
-          }
+          catchMethod: () => this.fetchData()
         })
       }).catch(error => {
         this.$notifyError(error)
-      }).finally(() => {
-        this.fetchLoading = false
-        this.fetchTrafficTypes()
       })
     },
-    onClick (trafficType) {
-      trafficTypeTab.index = trafficType
+    selectTraffic (traffic) {
+      this.$router.push({ query: { ...this.$route.query, traffic } })
     }
   }
 }
@@ -232,4 +229,15 @@ export default {
 
 <style lang="less" scoped>
 
+</style>
+
+<style scoped>
+.traffic-type-select {
+  width: 10rem;
+  max-width: 100%;
+  height: 32px;
+}
+@media (max-width: 768px) {
+  .traffic-type-select { width: 100%; }
+}
 </style>

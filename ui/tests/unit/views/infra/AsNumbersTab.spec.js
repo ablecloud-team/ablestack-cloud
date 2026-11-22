@@ -176,3 +176,11 @@ test('cancellation restores focus to the native row button with a safe fallback 
   expect(document.activeElement).toBe(source)
   row.remove(); w.vm.deleteTarget = { id: 'range' }; expect(() => w.vm.closeDelete()).not.toThrow(); await nextTick()
 })
+
+test('the serializer empty range response is a ready list with creation available', async () => {
+  getAPI.mockResolvedValueOnce({ listasnrangesresponse: {} })
+  const { w } = await mount()
+  expect(w.vm.asnRanges).toEqual([])
+  expect(w.vm.listRefreshFailed).toBe(false)
+  expect(w.vm.addASRangeModal).toBe(true)
+})

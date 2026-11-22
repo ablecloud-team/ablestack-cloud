@@ -18,68 +18,30 @@
 <template>
   <a-spin :spinning="fetchLoading">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <a-button
-      type="primary"
-      style="width: 100%; margin-bottom: 10px"
-      @click="showAddPhyNetModal"
-      :loading="loading"
-      :disabled="!('createPhysicalNetwork' in $store.getters.apis)">
-      <template #icon><plus-outlined /></template> {{ $t('label.add.physical.network') }}
-    </a-button>
-    <a-list class="list">
-      <a-list-item v-for="network in networks" :key="network.id" class="list__item">
-        <div class="list__item-outer-container">
-          <div class="list__item-container">
-            <div class="list__col">
-              <div class="list__label">
-                {{ $t('label.name') }}
-              </div>
-              <div>
-                <router-link :to="{ path: '/physicalnetwork/' + network.id }">{{ network.name }}</router-link>
-              </div>
-            </div>
-            <div class="list__col">
-              <div class="list__label">{{ $t('label.state') }}</div>
-              <div><status :text="network.state" displayText></status></div>
-            </div>
-            <div class="list__col">
-              <div class="list__label">
-                {{ $t('label.isolationmethods') }}
-              </div>
-              <div>
-                {{ network.isolationmethods }}
-              </div>
-            </div>
-            <div class="list__col">
-              <div class="list__label">
-                {{ $t('label.vlan') }}
-              </div>
-              <div>{{ network.vlan }}</div>
-            </div>
-            <div class="list__col">
-              <div class="list__label">
-                {{ $t('label.traffictype') }}
-              </div>
-              <div>
-                {{ network.traffictype }}
-              </div>
-            </div>
-            <div class="list__col">
-              <div class="list__label">
-                {{ $t('label.broadcastdomainrange') }}
-              </div>
-              <div>{{ network.broadcastdomainrange }}</div>
-            </div>
-          </div>
-        </div>
-      </a-list-item>
-    </a-list>
-    <a-modal
+    <resource-table-toolbar :loading="fetchLoading || listRefreshing > 0" @refresh="fetchData()">
+      <a-button
+        type="primary"
+        @click="showAddPhyNetModal"
+        :loading="loading"
+        :disabled="!('createPhysicalNetwork' in $store.getters.apis)">
+        <template #icon><plus-outlined /></template> {{ $t('label.add.physical.network') }}
+      </a-button>
+    </resource-table-toolbar>
+    <a-table size="small" row-key="id" :columns="columns" :data-source="networks" :pagination="false" :scroll="{ x: 740 }">
+      <template #bodyCell="{ column, record, text }">
+        <router-link v-if="column.key === 'name'" :to="{ path: '/physicalnetwork/' + record.id, query: zoneListQuery($route.query) }">{{ text }}</router-link>
+        <status v-else-if="column.key === 'state'" :text="text" display-text />
+        <span v-else>{{ text || '—' }}</span>
+      </template>
+    </a-table>
+    <mold-dialog
+      size="md"
+      focus-guard
+      form-actions
       :visible="addPhyNetModal"
       :title="$t('label.add.physical.network')"
       :maskClosable="false"
       :closable="true"
-      :footer="null"
       @cancel="closeModals">
       <a-form
         :ref="formRef"
@@ -142,20 +104,24 @@
           <a-input v-model:value="form.broadcastdomainrange" :placeholder="apiParams.broadcastdomainrange.description" />
         </a-form-item>
 
-        <div :span="24" class="action-button">
+        <mold-dialog-actions>
           <a-button @click="closeModals">{{ $t('label.cancel') }}</a-button>
           <a-button type="primary" ref="submit" @click="handleAddPhyNet">{{ $t('label.ok') }}</a-button>
-        </div>
+        </mold-dialog-actions>
       </a-form>
-    </a-modal>
+    </mold-dialog>
   </a-spin>
 </template>
 
 <script>
+import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
+import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
+import { zoneListQuery } from '@/utils/zone'
 import Status from '@/components/widgets/Status'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
@@ -163,6 +129,9 @@ export default {
   mixins: [listRefreshMixin(['fetchData'])],
   name: 'PhysicalNetworksTab',
   components: {
+    ResourceTableToolbar,
+    MoldDialog,
+    MoldDialogActions,
     Status,
     TooltipLabel
   },
@@ -203,49 +172,45 @@ export default {
     }
   },
   computed: {
+    columns () {
+      return ['name', 'state', 'isolationmethods', 'vlan', 'traffictype', 'broadcastdomainrange']
+        .map(key => ({ key, dataIndex: key, title: this.$t('label.' + key) }))
+    },
     isolationMethods () {
       return ['VLAN', 'VXLAN', 'GRE', 'STT', 'BCF_SEGMENT', 'SSP', 'ODL', 'L3VPN', 'VCS', 'NSX', 'NETRIS']
     }
   },
   methods: {
-    fetchData () {
-      const listRequest = this.listRequestToken('fetchData')
-      this.fetchLoading = !listRequest.loaded
-      return getAPI('listPhysicalNetworks', { zoneid: this.resource.id }).then(json => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
-
-        this.networks = json.listphysicalnetworksresponse.physicalnetwork || []
-        this.fetchTrafficLabels()
-      }).catch(error => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
-        listRequest.failed = true
-        this.listRefreshFailed = true
-        if (listRequest.loaded) return
-
-        this.$notifyError(error)
-      }).finally(() => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
-        this.fetchLoading = false
-      })
-    },
-    fetchTrafficLabels () {
-      const promises = []
-      for (const network of this.networks) {
-        promises.push(new Promise((resolve, reject) => {
-          getAPI('listTrafficTypes', { physicalnetworkid: network.id }).then(json => {
-            if (json.listtraffictypesresponse.traffictype) {
-              network.traffictype = json.listtraffictypesresponse.traffictype.filter(e => { return e.traffictype }).map(e => { return e.traffictype }).join(', ')
-            }
-            resolve()
-          }).catch(error => {
-            this.$notifyError(error)
-            reject(error)
-          })
+    zoneListQuery,
+    async fetchData () {
+      if (!this.resource.id) return
+      const request = this.listRequestToken('fetchData')
+      const current = () => this.isListRequestCurrent('fetchData', request)
+      this.fetchLoading = !request.loaded
+      try {
+        const json = await getAPI('listPhysicalNetworks', { zoneid: this.resource.id }, { preserveOnFailure: true })
+        if (!current()) return
+        const networks = json.listphysicalnetworksresponse.physicalnetwork || []
+        const previous = new Map(request.loaded ? this.networks.map(network => [network.id, network.traffictype]) : [])
+        const labels = await Promise.allSettled(networks.map(network =>
+          getAPI('listTrafficTypes', { physicalnetworkid: network.id }, { preserveOnFailure: true })))
+        if (!current()) return
+        this.networks = networks.map((network, i) => ({
+          ...network,
+          traffictype: labels[i].status === 'fulfilled'
+            ? (labels[i].value.listtraffictypesresponse.traffictype || []).map(type => type.traffictype).filter(Boolean).join(', ')
+            : previous.get(network.id)
         }))
+        request.failed = labels.some(result => result.status === 'rejected')
+        if (request.failed) this.listRefreshFailed = true
+      } catch (error) {
+        if (!current()) return
+        request.failed = true
+        this.listRefreshFailed = true
+        if (!request.loaded) this.$notifyError(error)
+      } finally {
+        if (current()) this.fetchLoading = false
       }
-      Promise.all(promises).finally(() => {
-        this.fetchLoading = false
-      })
     },
     showAddPhyNetModal () {
       this.addPhyNetModal = true
@@ -295,42 +260,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.list {
-
-  &__label {
-    font-weight: bold;
-  }
-
-  &__col {
-    flex: 1;
-
-    @media (min-width: 480px) {
-      &:not(:last-child) {
-        margin-right: 20px;
-      }
-    }
-  }
-
-  &__item {
-    margin-right: -8px;
-    align-items: flex-start;
-
-    &-outer-container {
-      width: 100%;
-    }
-
-    &-container {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-
-      @media (min-width: 480px) {
-        flex-direction: row;
-        margin-bottom: 10px;
-      }
-    }
-  }
-}
-</style>

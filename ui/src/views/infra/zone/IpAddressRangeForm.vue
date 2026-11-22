@@ -107,7 +107,7 @@
           </a-form>
         </template>
       </a-table>
-      <div class="form-action">
+      <mold-dialog-actions>
         <a-button
           v-if="!isFixError"
           class="button-prev"
@@ -117,7 +117,7 @@
         <a-button class="button-next" ref="submit" type="primary" @click="handleSubmit">
           {{ $t('label.next') }}
         </a-button>
-      </div>
+      </mold-dialog-actions>
     </div>
     <a-modal
       v-if="showError"
@@ -140,6 +140,7 @@
   </div>
 </template>
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 
 import { ref, reactive, toRaw } from 'vue'
 import TooltipButton from '@/components/widgets/TooltipButton'
@@ -147,6 +148,7 @@ import { mixinDevice } from '@/utils/mixin.js'
 
 export default {
   components: {
+    MoldDialogActions,
     TooltipButton
   },
   mixins: [mixinDevice],

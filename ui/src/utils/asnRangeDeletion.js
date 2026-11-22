@@ -34,6 +34,10 @@ export function deletionTarget (zone, row) {
 }
 export function confirmedList (json, responseName, objectName) {
   const response = json?.[responseName]
+  if (['listasnrangesresponse', 'listasnumbersresponse'].includes(responseName) && response &&
+      Object.getPrototypeOf(response) === Object.prototype && Object.keys(response).length === 0) {
+    return { rows: [], count: 0 }
+  }
   if (!response || response.errorcode || !Number.isSafeInteger(response.count) || response.count < 0) throw Error('lookup')
   const rows = response[objectName] || []
   if (!Array.isArray(rows) || rows.length > response.count || (response.count > 0 && !rows.length)) throw Error('lookup')

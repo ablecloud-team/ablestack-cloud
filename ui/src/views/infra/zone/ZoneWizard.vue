@@ -265,10 +265,6 @@ export default {
   .form {
     width: 100%;
 
-    @media (min-width: 1000px) {
-      width: 1000px;
-    }
-
     :deep(.form-action) {
       position: relative;
       margin-top: 16px;

@@ -17,9 +17,10 @@
 
 <template>
   <div>
-    <strong>{{ $t(title) }}</strong>
+    <resource-table-toolbar :loading="loading || refreshing" @refresh="provideReload()">
+      <strong>{{ $t(title) }}</strong>
+    </resource-table-toolbar>
     <a-table
-      style="margin-top: 10px;"
       size="small"
       class="row-list-data"
       :loading="loading"
@@ -27,6 +28,7 @@
       :dataSource="dataSource"
       :rowKey="record => record.id || record.name || record.nvpdeviceid || record.resourceid || record.physicalnetworkid"
       :pagination="false"
+      table-layout="fixed"
       :scroll="scrollable">
       <template #bodyCell="{ column, text, record }">
         <template v-if="column.key === 'name'">
@@ -123,14 +125,16 @@
 </template>
 
 <script>
+import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
 import { postAPI } from '@/api'
 import Status from '@/components/widgets/Status'
 import TooltipButton from '@/components/widgets/TooltipButton'
 
 export default {
   name: 'ProviderListView',
-  components: { Status, TooltipButton },
+  components: { ResourceTableToolbar, Status, TooltipButton },
   props: {
+    refreshing: { type: Boolean, default: false },
     title: {
       type: String,
       required: true
@@ -175,13 +179,7 @@ export default {
   },
   computed: {
     scrollable () {
-      if (this.dataSource.length === 0) {
-        return { y: '60vh', x: 'auto' }
-      } else if (this.columns.length > 3) {
-        return { y: '60vh', x: '50vw' }
-      }
-
-      return { y: '60vh' }
+      return this.columns.length > 4 ? { x: this.columns.length * 140 } : undefined
     },
     listCols () {
       const columns = []

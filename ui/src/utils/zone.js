@@ -23,3 +23,73 @@ export function isZoneCreated () {
   }
   return true
 }
+
+const zoneFilterKeys = new Set(['name', 'domainid', 'networktype', 'storageaccessgroup'])
+
+function isZoneFilter (key) {
+  return zoneFilterKeys.has(key) || /^tags\[\d+\]\.(key|value)$/.test(key)
+}
+
+export function zoneListQuery (query = {}) {
+  return Object.fromEntries(Object.entries(query).filter(([key, value]) => {
+    return (isZoneFilter(key) || ['keyword', 'q', 'sortkey', 'sortorder', 'page', 'pagesize'].includes(key)) &&
+      (typeof value === 'number' || (typeof value === 'string' && value.trim()))
+  }))
+}
+
+export function zoneSearchQuery (current, options, pageSize) {
+  const query = { ...zoneListQuery(current), page: '1', pagesize: String(pageSize) }
+  if (Object.hasOwn(options, 'searchQuery')) {
+    delete query.name
+    delete query.keyword
+    delete query.q
+    const keyword = options.searchQuery?.trim()
+    if (keyword) query.keyword = query.q = keyword
+  } else {
+    Object.keys(query).filter(isZoneFilter).forEach(key => delete query[key])
+    Object.assign(query, zoneListQuery(options))
+    if (query.name || options.zoneReset) {
+      delete query.keyword
+      delete query.q
+    }
+  }
+  return query
+}
+
+export function zoneReadParams (query, { id, page, pagesize, showIcon }) {
+  if (id) return { id, showIcon }
+  const filters = Object.fromEntries(Object.entries(zoneListQuery(query))
+    .filter(([key]) => isZoneFilter(key) || key === 'keyword'))
+  return { ...filters, page, pagesize, showIcon }
+}
+
+export function zoneDnsSearchOrder (zone) {
+  return parseZoneDnsSearchOrder(zone.resourcedetails?.['network.guestnetwork.dns.search.order'])
+}
+
+export function parseZoneDnsSearchOrder (value) {
+  return (value || '').split(/[\n,]/).map(suffix => suffix.trim()).filter(Boolean)
+}
+
+export function validZoneDnsSuffix (suffix) {
+  return suffix.length <= 190 && suffix.split('.').every(label => /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i.test(label))
+}
+
+export function physicalNetworkZoneLocation (route, zoneId) {
+  return { path: '/zone/' + zoneId, query: { ...zoneListQuery(route.query), tab: 'physical.network' } }
+}
+
+export function zoneFeatureState (value) {
+  if (value === true || value === 'true') return 'Enabled'
+  if (value === false || value === 'false') return 'Disabled'
+  return ''
+}
+
+export function zoneMetricText (value) {
+  if (value == null || value === '' || !Number.isFinite(Number.parseFloat(value))) return ''
+  return String(value).replace(/\bghz\b/i, 'GHz').replace(/\bmhz\b/i, 'MHz')
+}
+
+export function zoneFeatureLabel (value) {
+  return { Enabled: 'label.enabled', Disabled: 'label.disabled' }[zoneFeatureState(value)] || 'label.unknown'
+}

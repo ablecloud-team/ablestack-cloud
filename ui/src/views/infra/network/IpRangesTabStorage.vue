@@ -18,18 +18,20 @@
 <template>
   <a-spin :spinning="componentLoading">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <a-button
-      :disabled="!('createStorageNetworkIpRange' in $store.getters.apis)"
-      type="dashed"
-      style="margin-bottom: 20px; width: 100%"
-      @click="handleOpenAddIpRangeModal">
-      <template #icon><plus-outlined /></template>
-      {{ $t('label.add.ip.range') }}
-    </a-button>
+    <resource-table-toolbar :loading="componentLoading || listRefreshing > 0" @refresh="fetchData()">
+      <a-button
+        :disabled="!('createStorageNetworkIpRange' in $store.getters.apis)"
+        type="primary"
+        @click="handleOpenAddIpRangeModal">
+        <template #icon><plus-outlined /></template>
+        {{ $t('label.add.ip.range') }}
+      </a-button>
+    </resource-table-toolbar>
 
     <a-table
       style="overflow-y: auto"
       size="small"
+      :scroll="{ x: 820 }"
       :columns="columns"
       :dataSource="items"
       :rowKey="record => record.id"
@@ -66,13 +68,15 @@
       </template>
     </a-pagination>
 
-    <a-modal
+    <mold-dialog
+      size="md"
+      form-actions
+      focus-guard
       v-if="addIpRangeModal"
       :visible="addIpRangeModal"
       :title="$t('label.add.ip.range')"
       :closable="true"
       :maskClosable="false"
-      :footer="null"
       @cancel="addIpRangeModal = false">
       <a-form
         :ref="formRef"
@@ -112,17 +116,20 @@
           <a-input v-model:value="form.endip" />
         </a-form-item>
 
-        <div :span="24" class="action-button">
+        <mold-dialog-actions>
           <a-button @click="addIpRangeModal = false">{{ $t('label.cancel') }}</a-button>
           <a-button type="primary" ref="submit" @click="handleAddIpRange">{{ $t('label.ok') }}</a-button>
-        </div>
+        </mold-dialog-actions>
       </a-form>
-    </a-modal>
+    </mold-dialog>
 
   </a-spin>
 </template>
 
 <script>
+import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
+import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { ref, reactive, toRaw } from 'vue'
@@ -130,9 +137,12 @@ import { getAPI, postAPI } from '@/api'
 import TooltipButton from '@/components/widgets/TooltipButton'
 
 export default {
-  mixins: [listRefreshMixin(['fetchData'])],
+  mixins: [listRefreshMixin(['fetchData'], { routeKey: vm => vm.$route.path })],
   name: 'IpRangesTabStorage',
   components: {
+    ResourceTableToolbar,
+    MoldDialog,
+    MoldDialogActions,
     TooltipButton
   },
   props: {

@@ -3376,11 +3376,9 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
         }
         response.setServices(services);
 
-        Provider serviceProvider = networkModel.resolveProvider(result.getProviderName());
-        if (serviceProvider != null) {
-            boolean canEnableIndividualServices = ApiDBUtils.canElementEnableIndividualServices(serviceProvider);
-            response.setCanEnableIndividualServices(canEnableIndividualServices);
-        }
+        final var element = networkModel.getElementImplementingProvider(result.getProviderName());
+        response.setSupported(element != null);
+        response.setCanEnableIndividualServices(element != null && element.canEnableIndividualServices());
 
         response.setObjectName("networkserviceprovider");
         return response;

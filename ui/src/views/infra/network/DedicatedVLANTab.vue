@@ -18,17 +18,20 @@
 <template>
   <a-spin :spinning="fetchLoading">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <a-button
-      ref="dedicationTrigger"
-      :disabled="posting || !('dedicateGuestVlanRange' in $store.getters.apis)"
-      type="primary"
-      @click="handleOpenModal">
-      <template #icon><plus-outlined /></template>
-      {{ $t('label.dedicate.vlan.vni.range') }}
-    </a-button>
+    <resource-table-toolbar :loading="fetchLoading || listRefreshing > 0" @refresh="fetchData()">
+      <a-button
+        ref="dedicationTrigger"
+        :disabled="posting || !('dedicateGuestVlanRange' in $store.getters.apis)"
+        type="primary"
+        @click="handleOpenModal">
+        <template #icon><plus-outlined /></template>
+        {{ $t('label.dedicate.vlan.vni.range') }}
+      </a-button>
+    </resource-table-toolbar>
     <a-table
       size="small"
-      style="overflow-y: auto; margin-top: 20px;"
+      :scroll="{ x: 720 }"
+      style="overflow-y: auto;"
       :loading="fetchLoading"
       :columns="columns"
       :dataSource="items"
@@ -195,6 +198,7 @@
 </template>
 
 <script>
+import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { getAPI, postAPI } from '@/api'
@@ -203,9 +207,10 @@ import MoldDialog from '@/components/view/MoldDialog'
 import ResourceIcon from '@/components/view/ResourceIcon'
 
 export default {
-  mixins: [listRefreshMixin(['fetchData'])],
+  mixins: [listRefreshMixin(['fetchData'], { routeKey: vm => vm.$route.path })],
   name: 'DedicatedVLANTab',
   components: {
+    ResourceTableToolbar,
     TooltipButton,
     MoldDialog,
     ResourceIcon

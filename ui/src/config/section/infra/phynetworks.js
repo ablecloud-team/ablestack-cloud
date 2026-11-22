@@ -120,6 +120,7 @@ export default {
       label: 'label.update.traffic.label',
       dataView: true,
       popup: true,
+      standardDialogSize: 'md',
       component: shallowRef(defineAsyncComponent(() => import('@/views/infra/network/EditTrafficLabel.vue')))
     },
     {

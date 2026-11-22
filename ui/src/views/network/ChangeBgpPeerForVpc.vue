@@ -47,19 +47,21 @@
         style="overflow-y: auto"/>
     </div>
 
-    <div :span="24" class="action-button">
+    <mold-dialog-actions>
       <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
       <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-    </div>
+    </mold-dialog-actions>
 
   </a-form>
 </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { getAPI, postAPI } from '@/api'
 import { genericCompare } from '@/utils/sort.js'
 
 export default {
+  components: { MoldDialogActions },
   name: 'ChangeBgpPeersForVpc',
   props: {
     resource: {

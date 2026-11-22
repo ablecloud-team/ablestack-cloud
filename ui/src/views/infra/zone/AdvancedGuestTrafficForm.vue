@@ -62,7 +62,7 @@
         </a-form-item>
       </a-form-item>
     </a-form>
-    <div class="form-action">
+    <mold-dialog-actions>
       <a-button
         v-if="!isFixError"
         class="button-prev"
@@ -72,13 +72,15 @@
       <a-button class="button-next" ref="submit" type="primary" @click="handleSubmit">
         {{ $t('label.next') }}
       </a-button>
-    </div>
+    </mold-dialog-actions>
   </div>
 </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { ref, reactive, toRaw } from 'vue'
 export default {
+  components: { MoldDialogActions },
   name: 'AdvancedGuestTrafficForm',
   props: {
     prefillContent: {

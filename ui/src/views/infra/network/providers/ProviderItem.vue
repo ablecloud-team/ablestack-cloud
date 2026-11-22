@@ -17,25 +17,28 @@
 
 <template>
   <div>
-    <a-row :gutter="12">
-      <a-col :md="24" :lg="24" style="text-align: left">
-        <action-button
-          :actions="provider.actions"
-          :resource="resource"
-          :loading="loading"
-          @exec-action="handleExecAction"/>
-      </a-col>
-    </a-row>
+    <div class="provider-actions">
+      <div class="provider-state">
+        <strong>{{ $t('label.state') }}</strong>
+        <span v-if="resource.supported === false">{{ $t('label.zone.provider.unsupported') }}</span>
+        <status v-else-if="resource.state" :text="resource.state" display-text />
+        <span v-else>{{ $t('label.not.added') }}</span>
+      </div>
+      <action-button
+        :actions="providerActions"
+        :resource="resource"
+        :loading="loading || actionsDisabled"
+        @exec-action="handleExecAction" />
+    </div>
     <provider-detail
-      style="margin-top: 10px"
-      :details="provider.details"
+      :details="providerDetails"
       :nsp="resource"
       :loading="loading" />
     <div
       v-for="(list, index) in listData"
       :key="index">
       <provider-list-view
-        style="border-top: 1px solid #ddd; padding-top: 5px;"
+        class="provider-resource-list"
         v-if="resource.id"
         :title="list.title"
         :action="currentAction"
@@ -45,7 +48,8 @@
         :resource="resource"
         :page="page"
         :pageSize="pageSize"
-        :loading="loading || list.loading" />
+        :loading="loading || list.loading"
+        :refreshing="list.refreshing" />
     </div>
   </div>
 </template>
@@ -53,6 +57,7 @@
 <script>
 import { getAPI } from '@/api'
 import ActionButton from '@/components/view/ActionButton'
+import Status from '@/components/widgets/Status'
 import ProviderDetail from '@/views/infra/network/providers/ProviderDetail'
 import ProviderListView from '@/views/infra/network/providers/ProviderListView'
 
@@ -60,10 +65,12 @@ export default {
   name: 'ProviderItem',
   components: {
     ActionButton,
+    Status,
     ProviderDetail,
     ProviderListView
   },
   props: {
+    actionsDisabled: { type: Boolean, default: false },
     itemNsp: {
       type: Object,
       required: true
@@ -102,6 +109,19 @@ export default {
       providerChangePage: this.changePage
     }
   },
+  computed: {
+    providerActions () {
+      if (this.resource.supported === false) return []
+      return (this.provider.actions || []).map(action => {
+        const stateAction = action.api === 'updateNetworkServiceProvider' &&
+          ['label.enable.provider', 'label.disable.provider'].includes(action.label)
+        return stateAction ? { ...action, showLabel: true } : action
+      })
+    },
+    providerDetails () {
+      return (this.provider.details || []).filter(field => field !== 'state')
+    }
+  },
   inject: ['provideSetNsp', 'provideExecuteAction'],
   watch: {
     nsp: {
@@ -122,19 +142,17 @@ export default {
       if (!this.nsp || Object.keys(this.nsp).length === 0) {
         this.resource = {
           name: this.itemNsp.title,
-          state: 'Disabled',
           physicalnetworkid: this.resourceId,
           zoneid: this.zoneId
         }
       } else {
-        this.resource = this.nsp
-        this.resource.zoneid = this.zoneId
+        this.resource = { ...this.nsp, zoneid: this.zoneId }
       }
       if (this.itemNsp && Object.keys(this.itemNsp).length > 0) {
         this.provider = this.itemNsp
         this.provideSetNsp(this.resource)
 
-        if (!this.provider.lists || this.provider.lists.length === 0) {
+        if (this.resource.supported === false || !this.resource.id || !this.provider.lists?.length) {
           return
         }
         this.provider.lists.map(this.fetchOptions)
@@ -190,13 +208,17 @@ export default {
         }
       })
 
+      const previous = this.listData[args.title]
       this.listData[args.title] = {
         title: args.title,
-        columns: columns,
-        data: [],
-        itemCount: 0,
-        loading: true
+        columns,
+        data: previous?.data || [],
+        itemCount: previous?.itemCount || 0,
+        loading: !previous,
+        refreshing: true
       }
+      const list = this.listData[args.title]
+      const current = () => this.listData[args.title] === list
 
       try {
         const providers = ['tungsten', 'nsx', 'netris']
@@ -205,22 +227,24 @@ export default {
         for (const provider of providers) {
           if (apiLower.includes(provider)) {
             await this.fetchConfiguration(`${provider}.plugin.enable`)
-            if (!this.pluginEnabled) {
-              this.listData[args.title].loading = false
-              return
-            }
+            if (!this.pluginEnabled || !current()) return
           }
         }
         const listResult = await this.executeApi(args.api, params)
-        this.listData[args.title].data = listResult.data
-        this.listData[args.title].itemCount = listResult.itemCount
-        this.listData[args.title].loading = false
+        if (!current()) return
+        list.data = listResult.data
+        list.itemCount = listResult.itemCount
       } catch (error) {
-        this.listData[args.title].loading = false
+        if (!current()) return
         this.$notification.error({
           message: this.$t('message.request.failed'),
           description: (error.response?.headers?.['x-description']) || error.message
         })
+      } finally {
+        if (current()) {
+          list.loading = false
+          list.refreshing = false
+        }
       }
     },
     executeApi (apiName, params) {
@@ -274,4 +298,23 @@ export default {
 </script>
 
 <style scoped>
+.provider-actions,
+.provider-state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.provider-actions { margin-bottom: 16px; }
+.provider-actions :deep(.row-action-button) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.provider-resource-list {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ui-border);
+}
 </style>

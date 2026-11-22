@@ -95,6 +95,9 @@
       <a-tag v-else-if="column.key === 'fordisplay' && isAclListRoute($route) && typeof text === 'boolean'">
         {{ $t(aclDisplayLabel(text)) }}
       </a-tag>
+      <template v-else-if="$route.meta?.name === 'zone' && ['cputotal', 'memorytotal', 'cpumaxdeviation', 'memorymaxdeviation', 'gputotal', 'gpuused'].includes(column.key)">
+        {{ ['gputotal', 'gpuused'].includes(column.key) && zoneMetricText(record.gputotal) && Number(record.gputotal) === 0 ? $t('label.zone.capacity.unsupported') : zoneMetricText(text) || $t('label.unknown') }}
+      </template>
       <template v-else>
       <VpnPsk v-if="column.key === 'ipsecpsk' || column.dataIndex === 'ipsecpsk'" :value="text" masked-only />
       <SharedFSCapacitySummary v-else-if="$route.name === 'sharedfs' && column.key === 'capacity'" :resource="record" mode="list" />
@@ -208,6 +211,10 @@
               :location="{ path: '/systemoffering/' + record.id, query: systemOfferingListQuery($route.query) }" />
             <a-tag v-if="record.defaultuse" class="system-offering-default-tag">{{ $t('label.default') }}</a-tag>
           </div>
+          <span v-else-if="$route.path === '/zone' && !resourcePath && record.id">
+            <router-link :to="{ path: '/zone/' + record.id, query: zoneListQuery($route.query) }">{{ text }}</router-link>
+            <router-link v-if="record.hasannotations" :aria-label="$t('label.comments')" :to="{ path: '/zone/' + record.id, query: { ...zoneListQuery($route.query), tab: 'comments' } }"><message-filled /></router-link>
+          </span>
           <router-link v-else-if="$route.path === '/dnsserver' && !resourcePath && record.id" :to="{ path: '/dnsserver/' + record.id, query: dnsServerListQuery($route.query) }">{{ text }}</router-link>
           <router-link v-else-if="$route.path === '/dnszone' && !resourcePath && record.id" :to="{ path: '/dnszone/' + record.id, query: dnsZoneListQuery($route.query) }">{{ text }}</router-link>
           <span v-else-if="resourcePath && record.id" class="embedded-resource-name"><router-link :to="resourceLink ? resourceLink(record) : { path: resourcePath === '/vm' ? createPathBasedOnVmType(record.vmtype, record.id) : resourcePath + '/' + record.id }">{{ text }}</router-link></span>
@@ -828,19 +835,19 @@
               v-if="record[value.disable]"
               class="alert-disable-threshold"
             >
-              {{ text }}
+              {{ $route.meta.name === 'zone' ? zoneMetricText(text) || $t('label.unknown') : text }}
             </span>
             <span
               v-else-if="record[value.notification]"
               class="alert-notification-threshold"
             >
-              {{ text }}
+              {{ $route.meta.name === 'zone' ? zoneMetricText(text) || $t('label.unknown') : text }}
             </span>
             <span
               style="padding: 10%;"
               v-else
             >
-              {{ text }}
+              {{ $route.meta.name === 'zone' ? zoneMetricText(text) || $t('label.unknown') : text }}
             </span>
           </span>
           <a-tooltip v-if="$route.meta.name === 'storagepool' && name === 'disksizeallocatedgb'" :title="$t('message.storage.allocated.meaning')"><info-circle-outlined /></a-tooltip>
@@ -1101,7 +1108,8 @@
         </span>
       </template>
       <template v-if="['cluster', 'zone'].includes($route.meta.name) && column.key === 'haenable'">
-        <status :text="record.resourcedetails?.resourceHAEnabled === 'true' ? 'enabled' : 'disabled'" displayText/>
+        <status v-if="$route.meta.name === 'zone'" :text="zoneFeatureState(record.resourcedetails?.resourceHAEnabled ?? false)" :display-label="$t(zoneFeatureLabel(record.resourcedetails?.resourceHAEnabled ?? false))" display-text />
+        <status v-else :text="record.resourcedetails?.resourceHAEnabled === 'true' ? 'enabled' : 'disabled'" display-text />
       </template>
       <template v-if="column.key === 'hastate'">
         <!-- <a-tag>{{ record.hostha.hastate }}</a-tag> -->
@@ -1331,6 +1339,7 @@ import Ipv4SubnetResourceLink from '@/components/widgets/Ipv4SubnetResourceLink'
 import { dnsServerListQuery } from '@/utils/dnsServer'
 import { systemOfferingListQuery, systemOfferingValue } from '@/utils/systemOfferingTypes'
 import { canReorderSystemOffering, readSystemOfferingOrder, systemOfferingOrderChanges } from '@/utils/systemOfferingOrder'
+import { zoneFeatureLabel, zoneFeatureState, zoneListQuery, zoneMetricText } from '@/utils/zone'
 import { dnsZoneListQuery } from '@/utils/dnsZone'
 import { ipv4SubnetListQuery } from '@/utils/ipv4Subnet'
 import AclScopeValue from '@/components/view/AclScopeValue'
@@ -1717,6 +1726,10 @@ export default {
     dnsServerListQuery,
     systemOfferingListQuery,
     systemOfferingValue,
+    zoneListQuery,
+    zoneFeatureState,
+    zoneFeatureLabel,
+    zoneMetricText,
     dnsZoneListQuery,
     ipv4SubnetListQuery,
     guestVlanNetworkLocation,

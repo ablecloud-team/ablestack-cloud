@@ -86,16 +86,17 @@
             v-model:value="form.ovm3networklabel"
             :placeholder="apiParams.ovm3networklabel.description" />
         </a-form-item>
-        <div :span="24" class="action-button">
+        <mold-dialog-actions>
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
           <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-        </div>
+        </mold-dialog-actions>
       </a-form>
     </a-spin>
   </div>
 </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -104,6 +105,7 @@ import { trafficTypeTab } from '@/config/section/infra/phynetworks.js'
 export default {
   name: 'EditTrafficLabel',
   components: {
+    MoldDialogActions,
     TooltipLabel
   },
   props: {

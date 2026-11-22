@@ -18,58 +18,21 @@
 <template>
   <a-spin :spinning="fetchLoading">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <a-list class="list">
-      <a-list-item v-for="vm in vms" :key="vm.id" class="list__item">
-        <div class="list__item-outer-container">
-          <div class="list__item-container">
-            <div class="list__col">
-              <div class="list__label">
-                {{ $t('label.name') }}
-              </div>
-              <div>
-                <router-link :to="{ path: '/systemvm/' + vm.id }">{{ vm.name }}</router-link>
-              </div>
-            </div>
-            <div class="list__col">
-              <div class="list__label">{{ $t('label.vmstate') }}</div>
-              <div><status :text="vm.state" displayText></status></div>
-            </div>
-            <div class="list__col">
-              <div class="list__label">{{ $t('label.agentstate') }}</div>
-              <div><status :text="vm.agentstate || $t('label.unknown')" displayText></status></div>
-            </div>
-            <div class="list__col">
-              <div class="list__label">
-                {{ $t('label.type') }}
-              </div>
-              <div>
-                {{ vm.systemvmtype == 'consoleproxy' ? $t('label.console.proxy.vm') : $t('label.secondary.storage.vm') }}
-              </div>
-            </div>
-            <div class="list__col">
-              <div class="list__label">
-                {{ $t('label.publicip') }}
-              </div>
-              <div>
-                {{ vm.publicip }}
-              </div>
-            </div>
-            <div class="list__col">
-              <div class="list__label">
-                {{ $t('label.hostname') }}
-              </div>
-              <div>
-                <router-link :to="{ path: '/host/' + vm.hostid }">{{ vm.hostname }}</router-link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </a-list-item>
-    </a-list>
+    <resource-table-toolbar :loading="fetchLoading || listRefreshing > 0" @refresh="fetchData()" />
+    <a-table size="small" row-key="id" :columns="columns" :data-source="vms" :pagination="false" :scroll="{ x: 720 }">
+      <template #bodyCell="{ column, record, text }">
+        <router-link v-if="column.key === 'name'" :to="{ path: '/systemvm/' + record.id }">{{ text }}</router-link>
+        <status v-else-if="['state', 'agentstate'].includes(column.key)" :text="text || $t('label.unknown')" display-text />
+        <span v-else-if="column.key === 'systemvmtype'">{{ $t(text === 'consoleproxy' ? 'label.console.proxy.vm' : 'label.secondary.storage.vm') }}</span>
+        <router-link v-else-if="column.key === 'hostname' && record.hostid && $store.getters.apis.listHosts" :to="{ path: '/host/' + record.hostid }">{{ text }}</router-link>
+        <span v-else>{{ text || '—' }}</span>
+      </template>
+    </a-table>
   </a-spin>
 </template>
 
 <script>
+import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { getAPI } from '@/api'
@@ -79,6 +42,7 @@ export default {
   mixins: [listRefreshMixin(['fetchData'])],
   name: 'SystemVmsTab',
   components: {
+    ResourceTableToolbar,
     Status
   },
   props: {
@@ -95,6 +59,12 @@ export default {
     return {
       vms: [],
       fetchLoading: false
+    }
+  },
+  computed: {
+    columns () {
+      return Object.entries({ name: 'name', state: 'vmstate', agentstate: 'agentstate', systemvmtype: 'type', publicip: 'publicip', hostname: 'hostname' })
+        .map(([key, label]) => ({ key, dataIndex: key, title: this.$t('label.' + label) }))
     }
   },
   created () {
@@ -138,42 +108,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.list {
-
-  &__label {
-    font-weight: bold;
-  }
-
-  &__col {
-    flex: 1;
-
-    @media (min-width: 480px) {
-      &:not(:last-child) {
-        margin-right: 20px;
-      }
-    }
-  }
-
-  &__item {
-    margin-right: -8px;
-    align-items: flex-start;
-
-    &-outer-container {
-      width: 100%;
-    }
-
-    &-container {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-
-      @media (min-width: 480px) {
-        flex-direction: row;
-        margin-bottom: 10px;
-      }
-    }
-  }
-}
-</style>

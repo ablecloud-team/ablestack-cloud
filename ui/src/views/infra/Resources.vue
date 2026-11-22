@@ -16,18 +16,22 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="fetchLoading">
-    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
+  <a-spin :spinning="fetchLoading" :class="{ 'zone-capacity': isZone }">
+    <a-alert v-if="isZone && listRefreshFailed" type="error" show-icon :message="$t('message.zone.capacity.load.failed')">
+      <template #description><a-button size="small" @click="fetchData">{{ $t('label.retry') }}</a-button></template>
+    </a-alert>
+    <p v-else-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
+    <a-empty v-if="isZone && !resourcesList.length && !fetchLoading && !listRefreshFailed" />
     <a-list>
-      <a-list-item v-for="item in resourcesList" :key="item.id" class="list-item">
+      <a-list-item v-for="item in resourcesList" :key="item.id || item.type" class="list-item" :data-capacity-type="item.type">
         <div class="list-item__container">
           <div class="list-item__data list-item__title">{{ returnCapacityTitle(item.type) }}</div>
           <div class="list-item__vals">
             <div class="list-item__data">
-              Allocated:
-              {{ convertByType(item.type, item.capacityused) }} / {{ convertByType(item.type, item.capacitytotal) }}
+              {{ capacityDescription(item) }}
             </div>
             <a-progress
+              v-if="showCapacityPercent(item)"
               status="normal"
               :percent="parseFloat(item.percentused)"
               :format="p => parseFloat(item.percentused).toFixed(2) + '%'" />
@@ -46,10 +50,10 @@
                       <div class="list-item__data list-item__title">{{ '#' + item.tag }}</div>
                       <div class="list-item__vals">
                         <div class="list-item__data">
-                          Allocated:
-                          {{ convertByType(item.type, item.capacityused) }} / {{ convertByType(item.type, item.capacitytotal) }}
+                          {{ capacityDescription(item) }}
                         </div>
                         <a-progress
+                          v-if="showCapacityPercent(item)"
                           status="normal"
                           :percent="parseFloat(item.percentused)"
                           :format="p => parseFloat(item.percentused).toFixed(2) + '%'" />
@@ -90,6 +94,9 @@ export default {
       }
     }
   },
+  computed: {
+    isZone () { return this.$route.meta.name === 'zone' }
+  },
   data () {
     return {
       fetchLoading: false,
@@ -107,35 +114,33 @@ export default {
       const params = {}
       params[entity] = this.resource.id
       this.fetchLoading = !listRequest.loaded
-      return getAPI('listCapacity', params).then(response => {
+      if (this.isZone && !listRequest.loaded) this.resourcesList = []
+      return getAPI('listCapacity', params, { preserveOnFailure: this.isZone }).then(response => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
 
-        this.resourcesList = response.listcapacityresponse.capacity
+        this.resourcesList = response.listcapacityresponse.capacity || []
         this.updateTaggedCapacities()
         if (!listRequest.loaded) this.animatePercentVals(this.resourcesList)
       }).catch(error => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
         listRequest.failed = true
         this.listRefreshFailed = true
-        if (listRequest.loaded) return
+        if (listRequest.loaded || this.isZone) return
 
         this.$notifyError(error)
       }).finally(() => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
 
         this.fetchLoading = false
-      }).finally(() => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
-        this.fetchLoading = false
       })
     },
     updateTaggedCapacities () {
-      var resourcesListCopy = [...this.resourcesList]
+      const resourcesListCopy = [...this.resourcesList]
       this.resourcesList = this.resourcesList.filter(x => !x.tag)
       this.resourcesList.forEach(resource => {
-        var tagged = []
-        var tags = []
-        for (var x of resourcesListCopy) {
+        const tagged = []
+        const tags = []
+        for (const x of resourcesListCopy) {
           if (resource.type === x.type && x.tag) {
             tagged.push(x)
             tags.push(x.tag)
@@ -157,7 +162,24 @@ export default {
         }, 200)
       })
     },
+    capacityNumber (value) {
+      return value != null && value !== '' && Number.isFinite(Number(value)) && Number(value) >= 0
+    },
+    capacityDescription (item) {
+      const { type, capacityused, capacitytotal } = item
+      if (this.isZone) {
+        if (!this.capacityNumber(capacityused) || !this.capacityNumber(capacitytotal)) return this.$t('label.zone.capacity.unmeasured')
+        if (Number(type) === 19 && Number(capacitytotal) === 0) return this.$t('label.zone.capacity.unsupported')
+      }
+      const label = this.isZone ? this.$t([2, 6, 9, 11, 19].includes(Number(type)) ? 'label.used' : 'label.allocated') : 'Allocated'
+      return label + ' ' + this.convertByType(type, capacityused) + ' / ' + this.convertByType(type, capacitytotal)
+    },
+    showCapacityPercent (item) {
+      return !this.isZone || (this.capacityNumber(item.capacityused) && this.capacityNumber(item.capacitytotal) &&
+        Number(item.capacitytotal) > 0 && this.capacityNumber(item.percentused))
+    },
     convertBytes (val) {
+      if (this.isZone) return this.$bytesToHumanReadableSize(Number(val))
       if (val < 1024 * 1024) return `${(val / 1024).toFixed(2)} KB`
       if (val < 1024 * 1024 * 1024) return `${(val / 1024 / 1024).toFixed(2)} MB`
       if (val < 1024 * 1024 * 1024 * 1024) return `${(val / 1024 / 1024 / 1024).toFixed(2)} GB`
@@ -165,11 +187,12 @@ export default {
       return val
     },
     convertHz (val) {
+      if (this.isZone && val < 1000) return String(val) + ' MHz'
       if (val < 1000) return `${val} Mhz`
       return `${(val / 1000).toFixed(2)} GHz`
     },
     convertByType (type, val) {
-      switch (type) {
+      switch (Number(type)) {
         case 0: return this.convertBytes(val)
         case 1: return this.convertHz(val)
         case 2: return this.convertBytes(val)
@@ -181,7 +204,7 @@ export default {
       }
     },
     returnCapacityTitle (type) {
-      switch (type) {
+      switch (Number(type)) {
         case 0: return this.$t('label.memory')
         case 1: return this.$t('label.cpu')
         case 2: return this.$t('label.primary.storage.used')
@@ -213,6 +236,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+  .zone-capacity .list-item__data { white-space: normal; overflow-wrap: anywhere; }
   .list-item {
 
     &__container {
@@ -256,7 +280,7 @@ export default {
 
     &__data {
       margin-right: 20px;
-      white-space: nowrap;
+      overflow-wrap: anywhere;
     }
 
     &__vals {

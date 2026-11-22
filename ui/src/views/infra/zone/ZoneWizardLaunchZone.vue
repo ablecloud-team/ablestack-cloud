@@ -23,14 +23,14 @@
         style="font-size: 20px;"/>
       {{ $t(description.waiting) }}
     </a-card>
-    <div class="form-action">
+    <mold-dialog-actions :busy="processStatus === 'process' || loading">
       <a-button class="button-prev" @click="handleBack">
         {{ $t('label.previous') }}
       </a-button>
       <a-button class="button-next" type="primary" @click="handleSubmit">
         <rocket-outlined /> {{ $t('label.launch.zone') }}
       </a-button>
-    </div>
+    </mold-dialog-actions>
   </div>
   <div v-else>
     <a-card class="ant-form-text card-launch-description">
@@ -65,7 +65,7 @@
         </a-step>
       </a-steps>
     </a-card>
-    <div class="form-action">
+    <mold-dialog-actions :busy="processStatus === 'process' || loading">
       <a-button
         v-if="processStatus==='finish'"
         class="button-next"
@@ -82,11 +82,12 @@
         type="primary"
         @click="handleFixesError"
       >{{ $t('label.fix.errors') }}</a-button>
-    </div>
+    </mold-dialog-actions>
   </div>
 </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { getAPI, postAPI } from '@/api'
 
 const BASIC_ZONE = 'Basic'
@@ -96,6 +97,7 @@ const STATUS_FINISH = 'finish'
 const STATUS_FAILED = 'error'
 
 export default {
+  components: { MoldDialogActions },
   props: {
     prefillContent: {
       type: Object,

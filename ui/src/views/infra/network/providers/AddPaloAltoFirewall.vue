@@ -150,19 +150,21 @@
           </a-form-item>
         </a-col>
       </a-row>
-      <div :span="24" class="action-button">
+      <mold-dialog-actions>
         <a-button :loading="loading" @click="onCloseAction">{{ $t('label.cancel') }}</a-button>
         <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-      </div>
+      </mold-dialog-actions>
     </a-form>
   </div>
 </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { ref, reactive, toRaw } from 'vue'
 import { postAPI } from '@/api'
 
 export default {
+  components: { MoldDialogActions },
   name: 'AddPaloAltoFirewall',
   props: {
     resource: {

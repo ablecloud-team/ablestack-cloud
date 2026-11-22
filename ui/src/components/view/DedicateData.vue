@@ -31,7 +31,7 @@
         <strong>{{ $t('label.account') }}</strong><br/>
         <router-link :to="{ path: '/account/' + dedicatedAccountId }">{{ dedicatedAccountId }}</router-link>
       </p>
-      <a-button style="margin-top: 10px; margin-bottom: 10px;" type="primary" danger @click="handleRelease">
+      <a-button style="margin-top: 10px; margin-bottom: 10px;" type="primary" danger :disabled="$route.meta.name === 'zone' && !('releaseDedicatedZone' in $store.getters.apis)" @click="handleRelease">
         {{ releaseButtonLabel }}
       </a-button>
     </div>
@@ -51,6 +51,15 @@
       @close="modalActive = false"
       :fetchData="fetchData" />
   </a-list-item>
+  <mold-dialog v-if="releaseZoneVisible" :title="releaseButtonLabel" size="md" form-actions focus-guard @cancel="releaseZoneVisible = false">
+    <p>{{ resource.name }}</p>
+    <p>{{ $t('message.zone.release.confirm') }}</p>
+    <a-alert v-if="releaseError" type="error" show-icon :message="releaseError" />
+    <mold-dialog-actions :busy="releaseBusy">
+      <a-button @click="releaseZoneVisible = false">{{ $t('label.cancel') }}</a-button>
+      <a-button danger type="primary" @click="releaseDedicatedZone">{{ $t(releaseJob ? 'label.zone.update.recheck' : 'label.release.dedicated.zone') }}</a-button>
+    </mold-dialog-actions>
+  </mold-dialog>
 </template>
 
 <script>
@@ -58,6 +67,8 @@ import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { getAPI, postAPI } from '@/api'
 import DedicateModal from './DedicateModal'
+import MoldDialog from './MoldDialog'
+import MoldDialogActions from './MoldDialogActions'
 
 export default {
   mixins: [listRefreshMixin(['fetchDedicatedZones', 'fetchDedicatedPods', 'fetchDedicatedClusters', 'fetchDedicatedHosts'], { select: vm => ({ zone: ['fetchDedicatedZones'], pod: ['fetchDedicatedPods'], cluster: ['fetchDedicatedClusters'], host: ['fetchDedicatedHosts'] })[vm.$route.meta.name] || [] })],
@@ -68,7 +79,9 @@ export default {
     }
   },
   components: {
-    DedicateModal
+    DedicateModal,
+    MoldDialog,
+    MoldDialogActions
   },
   inject: ['parentFetchData'],
   created () {
@@ -77,6 +90,10 @@ export default {
   data () {
     return {
       modalActive: false,
+      releaseZoneVisible: false,
+      releaseBusy: false,
+      releaseError: '',
+      releaseJob: '',
       dedicateButtonAvailable: true,
       dedicatedButtonLabel: this.$t('label.dedicate'),
       releaseButtonLabel: this.$t('label.release'),
@@ -211,28 +228,34 @@ export default {
         this.$notifyError(error)
       })
     },
-    releaseDedidcatedZone () {
-      postAPI('releaseDedicatedZone', {
-        zoneid: this.resource.id
-      }).then(response => {
-        this.$pollJob({
-          jobId: response.releasededicatedzoneresponse.jobid,
-          title: this.$t('label.release.dedicated.zone'),
-          description: this.resource.id,
-          successMessage: this.$t('message.dedicated.zone.released'),
-          successMethod: () => {
-            this.dedicatedDomainId = null
-          },
-          errorMessage: this.$t('error.release.dedicate.zone'),
-          loadingMessage: this.$t('message.releasing.dedicated.zone'),
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.parentFetchData()
-          }
-        })
-      }).catch(error => {
-        this.$notifyError(error)
-      })
+    async releaseDedicatedZone () {
+      if (this.releaseBusy || !('releaseDedicatedZone' in this.$store.getters.apis)) return
+      this.releaseBusy = true
+      this.releaseError = ''
+      try {
+        const retry = !!this.releaseJob
+        if (!retry) {
+          const response = await postAPI('releaseDedicatedZone', { zoneid: this.resource.id }, { preserveOnFailure: true })
+          this.releaseJob = response.releasededicatedzoneresponse?.jobid
+        }
+        if (!this.releaseJob) throw new Error(this.$t('message.job.result.unknown'))
+        const result = await this.$pollJob({ jobId: this.releaseJob, retry, showLoading: false, successMessage: this.$t('message.dedicated.zone.released'), errorMessage: this.$t('error.release.dedicate.zone') })
+        if (result.jobstatus === 1) {
+          this.releaseZoneVisible = false
+          this.releaseJob = ''
+          this.fetchData()
+          this.parentFetchData()
+        } else if (result.jobstatus === 2) {
+          this.releaseJob = ''
+          this.releaseError = this.$t('error.release.dedicate.zone')
+        } else {
+          this.releaseError = this.$t('message.job.result.unknown')
+        }
+      } catch (error) {
+        this.releaseError = Object.values(error.response?.data || {}).find(item => item?.errortext)?.errortext || error.message
+      } finally {
+        this.releaseBusy = false
+      }
     },
     releaseDedidcatedPod () {
       postAPI('releaseDedicatedPod', {
@@ -306,7 +329,8 @@ export default {
     handleRelease () {
       this.modalActive = false
       if (this.$route.meta.name === 'zone') {
-        this.releaseDedidcatedZone()
+        this.releaseError = ''
+        this.releaseZoneVisible = true
       }
       if (this.$route.meta.name === 'pod') {
         this.releaseDedidcatedPod()

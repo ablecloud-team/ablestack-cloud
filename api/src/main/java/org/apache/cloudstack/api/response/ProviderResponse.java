@@ -58,6 +58,10 @@ public class ProviderResponse extends BaseResponse {
     @Param(description = "True if individual services can be enabled/disabled")
     private Boolean canEnableIndividualServices;
 
+    @SerializedName("supported")
+    @Param(description = "Whether the management server has a network element for this provider")
+    private Boolean supported;
+
     public void setName(String name) {
         this.name = name;
     }
@@ -104,6 +108,14 @@ public class ProviderResponse extends BaseResponse {
 
     public List<String> getServices() {
         return services;
+    }
+
+    public Boolean getSupported() {
+        return supported;
+    }
+
+    public void setSupported(Boolean supported) {
+        this.supported = supported;
     }
 
     public Boolean getCanEnableIndividualServices() {

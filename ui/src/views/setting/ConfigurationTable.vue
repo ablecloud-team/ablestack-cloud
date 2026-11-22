@@ -20,8 +20,9 @@
     <a-table
       class="config-list-view"
       size="small"
-      :showHeader="false"
-      :pagination="false"
+      :show-header="standardLayout"
+      :scroll="standardLayout ? { x: 520 } : undefined"
+      :pagination="standardLayout ? { pageSize: 20, hideOnSinglePage: true } : false"
       :columns="columns"
       :dataSource="config"
       :rowKey="record => record.name"
@@ -71,6 +72,7 @@ export default {
   },
   name: 'ConfigurationTable',
   props: {
+    standardLayout: { type: Boolean, default: false },
     config: {
       type: Array,
       default: () => { return [] }

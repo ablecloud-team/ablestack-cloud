@@ -26,16 +26,17 @@ const drain = async () => { for (let i = 0; i < 35; i++) { await Promise.resolve
 const deferred = () => { let fulfill, fail; const promise = new Promise((resolve, reject) => { fulfill = resolve; fail = reject }); return { promise, resolve: fulfill, reject: fail } }
 const slot = { render () { return h('div', this.$slots.default?.()) } }
 const button = { props: ['disabled', 'loading'], render () { return h('button', { disabled: this.disabled || this.loading }, this.$slots.default?.()) } }
-let serial = 0; let wrappers; let identities; let rows; let allocated; let lookupFailure; let emptyResponse
+let serial = 0; let wrappers; let identities; let rows; let allocated; let lookupFailure; let emptyResponse; let omitZeroCount
 const target = Object.freeze({ id: 'range', zoneid: 'zone', zonename: 'Zone', startasn: '64512', endasn: '64514', count: 3 })
 beforeEach(() => {
-  jest.clearAllMocks(); wrappers = []; identities = []; rows = [{ id: 'range', zoneid: 'zone', startasn: 64512, endasn: 64514 }]; allocated = 0; lookupFailure = false; emptyResponse = false
+  jest.clearAllMocks(); wrappers = []; identities = []; rows = [{ id: 'range', zoneid: 'zone', startasn: 64512, endasn: 64514 }]; allocated = 0; lookupFailure = false; emptyResponse = false; omitZeroCount = false
   getAPI.mockImplementation(async (command, params) => {
     if (lookupFailure) throw Error('offline')
     if (command === 'listZones') return { listzonesresponse: { zone: [{ id: params.id }] } }
-    if (command === 'listASNRanges') return { listasnrangesresponse: { count: rows.length, asnumberrange: rows } }
+    if (command === 'listASNRanges') return { listasnrangesresponse: omitZeroCount && !rows.length ? {} : { count: rows.length, asnumberrange: rows } }
     if (emptyResponse) return { listasnumbersresponse: {} }
     const count = params.asnrangeid ? (params.isallocated ? allocated : 3) : rows.length * 3
+    if (omitZeroCount && !count) return { listasnumbersresponse: {} }
     return { listasnumbersresponse: { count, asnumber: count ? [{ zoneid: 'zone', asnrangeid: 'range', allocationstate: params.isallocated ? 'Allocated' : 'Free' }] : [] } }
   })
   postAPI.mockImplementation(async () => { rows = []; return { deleteasnrangeresponse: { success: true } } })
@@ -60,6 +61,16 @@ test('empty or failed count is unknown and never enables deletion', async () => 
   await w.vm.submit(); expect(postAPI).not.toHaveBeenCalled()
   expect(() => confirmedList({ listasnumbersresponse: { count: 2 } }, 'listasnumbersresponse', 'asnumber')).toThrow()
 })
+test('legacy empty allocation and post-delete lists confirm the last range was removed', async () => {
+  omitZeroCount = true
+  const { w } = await mount()
+  expect(w.vm.allocated).toBe(0)
+  expect(w.vm.ready).toBe(true)
+  await w.vm.submit()
+  expect(postAPI).toHaveBeenCalledTimes(1)
+  expect(w.emitted('complete')[0][0]).toEqual({ ranges: [], accepted: true })
+})
+
 test('allocated count blocks deletion', async () => {
   allocated = 1; const { w } = await mount(); expect(w.vm.allocated).toBe(1); expect(w.vm.ready).toBe(false); await w.vm.submit(); expect(postAPI).not.toHaveBeenCalled()
 })

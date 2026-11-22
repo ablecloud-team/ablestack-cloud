@@ -165,7 +165,7 @@
         </a-button>
       </template>
     </a-table>
-    <div class="form-action">
+    <mold-dialog-actions>
       <a-button
         v-if="!isFixError"
         class="button-right"
@@ -179,7 +179,7 @@
         @click="handleSubmit">
         {{ $t('label.next') }}
       </a-button>
-    </div>
+    </mold-dialog-actions>
     <a-modal
       v-model:visible="showError"
       :title="`${$t('label.error')}!`"
@@ -266,12 +266,14 @@
   </div>
 </template>
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 
 import { ref, reactive, toRaw } from 'vue'
 import TooltipButton from '@/components/widgets/TooltipButton'
 
 export default {
   components: {
+    MoldDialogActions,
     TooltipButton
   },
   props: {

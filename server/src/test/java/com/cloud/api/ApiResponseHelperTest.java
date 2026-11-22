@@ -51,6 +51,7 @@ import org.apache.cloudstack.api.response.DirectDownloadCertificateResponse;
 import org.apache.cloudstack.api.response.GuestOSCategoryResponse;
 import org.apache.cloudstack.api.response.IpQuarantineResponse;
 import org.apache.cloudstack.api.response.NicSecondaryIpResponse;
+import org.apache.cloudstack.api.response.ProviderResponse;
 import org.apache.cloudstack.api.response.ResourceIconResponse;
 import org.apache.cloudstack.api.response.TemplateResponse;
 import org.apache.cloudstack.api.response.UnmanagedInstanceResponse;
@@ -64,7 +65,10 @@ import com.cloud.capacity.Capacity;
 import com.cloud.configuration.Resource;
 import com.cloud.domain.DomainVO;
 import com.cloud.host.HostVO;
+import com.cloud.network.Network;
+import com.cloud.network.NetworkModel;
 import com.cloud.network.Networks;
+import com.cloud.network.PhysicalNetworkServiceProvider;
 import com.cloud.network.PhysicalNetworkTrafficType;
 import com.cloud.network.PublicIpQuarantine;
 import com.cloud.network.as.AutoScaleVmGroup;
@@ -78,6 +82,7 @@ import com.cloud.network.dao.NetworkServiceMapDao;
 import com.cloud.network.dao.NetworkVO;
 import com.cloud.network.dao.PhysicalNetworkVO;
 import com.cloud.network.dao.PhysicalNetworkTrafficTypeVO;
+import com.cloud.network.element.NetworkElement;
 import com.cloud.resource.icon.ResourceIconVO;
 import com.cloud.server.ResourceIcon;
 import com.cloud.server.ResourceIconManager;
@@ -117,6 +122,9 @@ public class ApiResponseHelperTest {
     ApiResponseHelper helper;
 
     @Mock
+    NetworkModel networkModel;
+
+    @Mock
     AccountManager accountManagerMock;
 
     @Mock
@@ -153,6 +161,38 @@ public class ApiResponseHelperTest {
     @Spy
     @InjectMocks
     ApiResponseHelper apiResponseHelper = new ApiResponseHelper();
+
+    @Test
+    public void testProviderWithoutNetworkElementDoesNotPreventListingOtherProviders() {
+        PhysicalNetworkServiceProvider nsx = Mockito.mock(PhysicalNetworkServiceProvider.class);
+        when(nsx.getProviderName()).thenReturn("Nsx");
+        when(nsx.getUuid()).thenReturn("nsx-provider");
+        when(nsx.getState()).thenReturn(PhysicalNetworkServiceProvider.State.Enabled);
+        when(nsx.getEnabledServices()).thenReturn(Collections.emptyList());
+
+        PhysicalNetworkServiceProvider router = Mockito.mock(PhysicalNetworkServiceProvider.class);
+        when(router.getProviderName()).thenReturn("VirtualRouter");
+        when(router.getUuid()).thenReturn("router-provider");
+        when(router.getState()).thenReturn(PhysicalNetworkServiceProvider.State.Enabled);
+        when(router.getEnabledServices()).thenReturn(Collections.singletonList(Network.Service.Dhcp));
+        NetworkElement routerElement = Mockito.mock(NetworkElement.class);
+        when(networkModel.getElementImplementingProvider("VirtualRouter")).thenReturn(routerElement);
+        when(routerElement.canEnableIndividualServices()).thenReturn(true);
+
+        try (MockedStatic<ApiDBUtils> ignored = Mockito.mockStatic(ApiDBUtils.class)) {
+            ProviderResponse unsupported = apiResponseHelper.createNetworkServiceProviderResponse(nsx);
+            assertEquals("nsx-provider", unsupported.getId());
+            assertFalse(unsupported.getSupported());
+            assertFalse(unsupported.getCanEnableIndividualServices());
+
+            ProviderResponse supported = apiResponseHelper.createNetworkServiceProviderResponse(router);
+            assertEquals("router-provider", supported.getId());
+            assertEquals("Enabled", supported.getState());
+            assertEquals(Collections.singletonList("Dhcp"), supported.getServices());
+            assertTrue(supported.getSupported());
+            assertTrue(supported.getCanEnableIndividualServices());
+        }
+    }
 
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss ZZZ");
 

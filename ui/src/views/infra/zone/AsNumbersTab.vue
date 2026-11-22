@@ -19,10 +19,15 @@
   <div class="asn-range-tab">
     <router-link v-if="returnLocation" class="asn-return-link" :to="returnLocation"><arrow-left-outlined /> {{ $t('label.asn.return') }}</router-link>
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <div class="asn-range-toolbar"><h3>{{ $t('label.asn.manage') }}</h3>
-    <a-button ref="createButton" type="primary" :disabled="!canCreate || fetchLoading || listRefreshFailed || loading || !!deleteTarget" @click="showCreateASRange">
-      <template #icon><plus-outlined /></template> {{ $t('label.create.asnrange') }}
-    </a-button></div>
+    <resource-table-toolbar :loading="fetchLoading || listRefreshing > 0" @refresh="fetchData()">
+      <a-button
+        ref="createButton"
+        type="primary"
+        :disabled="!canCreate || fetchLoading || listRefreshFailed || loading || !!deleteTarget"
+        @click="showCreateASRange">
+        <template #icon><plus-outlined /></template> {{ $t('label.create.asnrange') }}
+      </a-button>
+    </resource-table-toolbar>
     <a-table
       :loading="fetchLoading"
       :locale="{ emptyText: $t(listRefreshFailed ? 'message.asn.range.lookup.failed' : 'label.no.data') }"
@@ -103,18 +108,19 @@
 </template>
 
 <script>
+import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
 import { getAPI, postAPI } from '@/api'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import { asnCreationContext, asnOperation, trackAsnOperation, clearAsnOperation, asnRangeErrors, asnRangeValues, asnRangeMatches, confirmAsnRange } from '@/utils/asnRange'
 import { asnReturnLocation } from '@/utils/asnOperations'
-import { deletionTarget } from '@/utils/asnRangeDeletion'
+import { confirmedList, deletionTarget } from '@/utils/asnRangeDeletion'
 import AsnRangeDeleteDialog from './AsnRangeDeleteDialog'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 
 export default {
-  components: { AsnRangeDeleteDialog, TooltipButton, MoldDialog, MoldDialogActions },
+  components: { ResourceTableToolbar, AsnRangeDeleteDialog, TooltipButton, MoldDialog, MoldDialogActions },
   mixins: [listRefreshMixin(['fetchData'], { scopeKey: vm => vm.creationContext })],
   props: { resource: { type: Object, required: true } },
   emits: ['refresh-data', 'close-action'],
@@ -175,9 +181,8 @@ export default {
         const data = await getAPI('listASNRanges', { zoneid: this.resource.id }, { preserveOnFailure: true })
         if (!data?.listasnrangesresponse || data.listasnrangesresponse.errorcode) throw new Error('ASN ranges unavailable')
         if (!this.isListRequestCurrent('fetchData', request)) return false
-        const body = data.listasnrangesresponse
-        const ranges = body.asnumberrange || []
-        if (!Array.isArray(ranges) || !Number.isSafeInteger(body.count) || body.count !== ranges.length || ranges.some(r => r.zoneid !== this.resource.id || !r.id)) throw Error('ASN range response scope')
+        const { rows: ranges, count } = confirmedList(data, 'listasnrangesresponse', 'asnumberrange')
+        if (count !== ranges.length || ranges.some(r => r.zoneid !== this.resource.id || !r.id)) throw Error('ASN range response scope')
         this.asnRanges = ranges
         return true
       } catch (error) {
@@ -296,8 +301,6 @@ export default {
 </script>
 
 <style scoped>
-.asn-range-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
-.asn-range-toolbar h3 { margin: 0; color: var(--ui-text-primary); }
 .asn-return-link { display: inline-block; margin-bottom: 12px; }
 .asn-range-tab { color: var(--ui-text-primary); }
 .asn-range-tab :deep(.ant-table) { color: var(--ui-text-secondary); }

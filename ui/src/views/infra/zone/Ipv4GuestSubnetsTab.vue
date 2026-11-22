@@ -18,17 +18,19 @@
 <template>
   <a-spin :spinning="componentLoading">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <a-button
-      :disabled="!('createIpv4SubnetForZone' in $store.getters.apis)"
-      type="primary"
-      style="margin-bottom: 20px; width: 100%"
-      @click="handleOpenAddIpv4SubnetModal">
-      <template #icon><plus-outlined /></template>
-      {{ $t('label.add.ipv4.subnet') }}
-    </a-button>
+    <resource-table-toolbar :loading="componentLoading || listRefreshing > 0" @refresh="fetchData()">
+      <a-button
+        :disabled="!('createIpv4SubnetForZone' in $store.getters.apis)"
+        type="primary"
+        @click="handleOpenAddIpv4SubnetModal">
+        <template #icon><plus-outlined /></template>
+        {{ $t('label.add.ipv4.subnet') }}
+      </a-button>
+    </resource-table-toolbar>
 
     <a-table
       size="small"
+      :scroll="{ x: 680 }"
       style="overflow-y: auto"
       :columns="ipv4SubnetColumns"
       :dataSource="ipv4Subnets"
@@ -112,12 +114,14 @@
       </template>
     </a-pagination>
 
-    <a-modal
+    <mold-dialog
+      size="md"
+      form-actions
+      focus-guard
       :visible="accountForIpv4GuestSubnetModal"
       v-if="selectedIpv4GuestSubnet"
       :closable="true"
       :maskClosable="false"
-      :footer="null"
       @cancel="accountForIpv4GuestSubnetModal = false">
       <div>
         <div style="margin-bottom: 10px;">
@@ -130,19 +134,21 @@
         </div>
       </div>
 
-      <div :span="24" class="action-button">
+      <mold-dialog-actions>
         <a-button @click="accountForIpv4GuestSubnetModal = false">{{ $t('label.close') }}</a-button>
-      </div>
-    </a-modal>
+      </mold-dialog-actions>
+    </mold-dialog>
 
-    <a-modal
+    <mold-dialog
+      size="md"
+      form-actions
+      focus-guard
       v-if="addAccountForIpv4GuestSubnetModal"
       :zIndex="1001"
       :closable="true"
       :maskClosable="false"
       :visible="addAccountForIpv4GuestSubnetModal"
       :title="$t('label.add.account')"
-      :footer="null"
       @cancel="addAccountForIpv4GuestSubnetModal = false">
       <a-spin :spinning="domainsLoading" v-ctrl-enter="handleAddAccountForIpv4GuestSubnet">
         <div style="margin-bottom: 10px;">
@@ -167,20 +173,22 @@
           </a-select>
         </div>
 
-        <div :span="24" class="action-button">
+        <mold-dialog-actions>
           <a-button @click="addAccountForIpv4GuestSubnetModal = false">{{ $t('label.cancel') }}</a-button>
           <a-button type="primary" ref="submit" @click="handleAddAccountForIpv4GuestSubnet">{{ $t('label.ok') }}</a-button>
-        </div>
+        </mold-dialog-actions>
       </a-spin>
-    </a-modal>
+    </mold-dialog>
 
-    <a-modal
+    <mold-dialog
+      size="md"
+      form-actions
+      focus-guard
       v-if="addIpv4SubnetModal"
       :visible="addIpv4SubnetModal"
       :title="$t('label.add.ipv4.subnet')"
       :closable="true"
       :maskClosable="false"
-      :footer="null"
       @cancel="addIpv4SubnetModal = false">
       <a-form
         :ref="ipv4SubnetFormRef"
@@ -194,10 +202,12 @@
         <a-form-item name="subnet" ref="subnet" :label="$t('label.subnet')" class="form__item">
           <a-input v-focus="true" v-model:value="ipv4SubnetForm.subnet" />
         </a-form-item>
-        <div class="form__item">
-          <div style="color: black;">{{ $t('label.set.reservation') }}</div>
-          <a-switch v-model:checked="showAccountForIpv4GuestSubnetFields" @change="handleShowAccountForIpv4GuestSubnetFields" />
-        </div>
+        <a-form-item :label="$t('label.set.reservation')" html-for="zone-ipv4-subnet-reservation" class="form__item">
+          <a-switch
+            id="zone-ipv4-subnet-reservation"
+            v-model:checked="showAccountForIpv4GuestSubnetFields"
+            @change="handleShowAccountForIpv4GuestSubnetFields" />
+        </a-form-item>
         <div v-if="showAccountForIpv4GuestSubnetFields" style="margin-top: 20px;">
           <div v-html="$t('label.ipv4.subnet.set.reservation.desc')"></div><br>
           <a-spin :spinning="domainsLoading">
@@ -223,19 +233,21 @@
           </a-spin>
         </div>
 
-        <div :span="24" class="action-button">
+        <mold-dialog-actions>
           <a-button @click="addIpv4SubnetModal = false; showAccountForIpv4GuestSubnetFields = false">{{ $t('label.cancel') }}</a-button>
           <a-button type="primary" ref="submit" @click="handleAddIpv4Subnet">{{ $t('label.ok') }}</a-button>
-        </div>
+        </mold-dialog-actions>
       </a-form>
-    </a-modal>
+    </mold-dialog>
 
-    <a-modal
+    <mold-dialog
+      size="md"
+      form-actions
+      focus-guard
       :visible="updateIpv4SubnetModal"
       :title="$t('label.update.ip.range')"
       v-if="selectedIpv4GuestSubnet"
       :maskClosable="false"
-      :footer="null"
       @cancel="updateIpv4SubnetModal = false">
       <a-form
         :ref="updateIpv4SubnetRef"
@@ -252,18 +264,21 @@
           </a-form-item>
         </div>
 
-        <div :span="24" class="action-button">
+        <mold-dialog-actions>
           <a-button @click="updateIpv4SubnetModal = false">{{ $t('label.cancel') }}</a-button>
           <a-button type="primary" ref="submit" @click="handleUpdateIpv4Subnet">{{ $t('label.ok') }}</a-button>
-        </div>
+        </mold-dialog-actions>
       </a-form>
-    </a-modal>
+    </mold-dialog>
     <br>
     <br>
   </a-spin>
 </template>
 
 <script>
+import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
+import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { ref, reactive, toRaw } from 'vue'
@@ -275,6 +290,9 @@ export default {
   mixins: [listRefreshMixin(['fetchZoneIpv4Subnet'])],
   name: 'Ipv4GuestSubnetsTab',
   components: {
+    ResourceTableToolbar,
+    MoldDialog,
+    MoldDialogActions,
     ResourceIcon,
     TooltipButton
   },

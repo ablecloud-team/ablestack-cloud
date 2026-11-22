@@ -16,25 +16,20 @@
 // under the License.
 
 <template>
-  <div>
-    <a-list size="small" :dataSource="details">
-      <template #renderItem="{item}">
-        <a-list-item>
-          <div>
-            <strong>{{ $t(`label.${item}`) }}</strong>
-            <br />
-            <div v-if="item === 'servicelist'">
-              {{ nsp[item] ? nsp[item].join(', ') : '' }}
-            </div>
-            <span v-else-if="item !== 'state'">{{ nsp[item] ? nsp[item] : '' }}</span>
-            <span v-else>
-              <status :text="nsp[item] ? nsp[item] : 'Disabled'" displayText />
-            </span>
-          </div>
-        </a-list-item>
-      </template>
-    </a-list>
-  </div>
+  <dl class="provider-attributes">
+    <div v-for="item in details" :key="item">
+      <dt>{{ $t('label.' + item) }}</dt>
+      <dd>
+        <template v-if="item === 'state'">
+          <span v-if="nsp.supported === false">{{ $t('label.zone.provider.unsupported') }}</span>
+          <status v-else-if="nsp.state" :text="nsp.state" display-text />
+          <span v-else>{{ $t('label.not.added') }}</span>
+        </template>
+        <span v-else-if="item === 'servicelist'">{{ nsp.servicelist?.join(', ') || '—' }}</span>
+        <span v-else>{{ nsp[item] || '—' }}</span>
+      </dd>
+    </div>
+  </dl>
 </template>
 
 <script>
@@ -59,4 +54,14 @@ export default {
 </script>
 
 <style scoped>
+.provider-attributes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 12px 20px;
+}
+.provider-attributes dt { font-weight: 600; }
+.provider-attributes dd {
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+}
 </style>

@@ -18,17 +18,19 @@
 <template>
   <a-spin :spinning="componentLoading">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <a-button
-      :disabled="!('createNetwork' in $store.getters.apis)"
-      type="dashed"
-      style="margin-bottom: 20px; width: 100%"
-      @click="handleOpenShowCreateForm">
-      <template #icon><plus-outlined /></template>
-      {{ $t('label.add.guest.network') }}
-    </a-button>
+    <resource-table-toolbar :loading="componentLoading || listRefreshing > 0" @refresh="fetchData()">
+      <a-button
+        :disabled="!('createNetwork' in $store.getters.apis)"
+        type="primary"
+        @click="handleOpenShowCreateForm">
+        <template #icon><plus-outlined /></template>
+        {{ $t('label.add.guest.network') }}
+      </a-button>
+    </resource-table-toolbar>
 
     <a-table
       size="small"
+      :scroll="{ x: 880 }"
       style="overflow-y: auto"
       :columns="columns"
       :dataSource="items"
@@ -64,14 +66,16 @@
     <br>
     <br>
 
-    <a-button
-      :disabled="!('createGuestNetworkIpv6Prefix' in $store.getters.apis)"
-      type="dashed"
-      style="margin-bottom: 20px; width: 100%"
-      @click="handleOpenAddIpv6PrefixForm()">
-      <template #icon><plus-outlined /></template>
-      {{ $t('label.add.ip.v6.prefix') }}
-    </a-button>
+    <resource-table-toolbar :loading="componentLoading || listRefreshing > 0" @refresh="fetchIpv6PrefixData()">
+      <a-button
+        :disabled="!('createGuestNetworkIpv6Prefix' in $store.getters.apis)"
+        type="dashed"
+        style="margin-bottom: 20px; width: 100%"
+        @click="handleOpenAddIpv6PrefixForm()">
+        <template #icon><plus-outlined /></template>
+        {{ $t('label.add.ip.v6.prefix') }}
+      </a-button>
+    </resource-table-toolbar>
     <a-table
       style="overflow-y: auto"
       size="small"
@@ -99,24 +103,28 @@
       </template>
     </a-table>
 
-    <a-modal
+    <mold-dialog
+      size="lg"
+      form-actions
+      focus-guard
       v-if="showCreateForm"
       :visible="showCreateForm"
       :title="$t('label.add.guest.network')"
       :closable="true"
       :maskClosable="false"
-      :footer="null"
       @cancel="showCreateForm = false"
       centered
       width="auto">
       <CreateNetwork :resource="{ zoneid: resource.zoneid }" @close-action="closeAction"/>
-    </a-modal>
+    </mold-dialog>
 
-    <a-modal
+    <mold-dialog
+      size="md"
+      form-actions
+      focus-guard
       :visible="addIpv6PrefixModal"
       :title="$t('Add IPv6 Prefix')"
       :maskClosable="false"
-      :footer="null"
       @cancel="handleCloseAddIpv6PrefixForm()"
       centered
       v-ctrl-enter="handleAddIpv6Prefix">
@@ -132,17 +140,20 @@
           <a-input v-model:value="form.prefix" />
         </a-form-item>
 
-        <div :span="24" class="action-button">
+        <mold-dialog-actions>
           <a-button @click="handleCloseAddIpv6PrefixForm()">{{ $t('label.cancel') }}</a-button>
           <a-button type="primary" ref="submit" @click="handleAddIpv6Prefix">{{ $t('label.ok') }}</a-button>
-        </div>
+        </mold-dialog-actions>
       </a-form>
-    </a-modal>
+    </mold-dialog>
 
   </a-spin>
 </template>
 
 <script>
+import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
+import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { ref, reactive, toRaw } from 'vue'
@@ -152,9 +163,12 @@ import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipButton from '@/components/widgets/TooltipButton'
 
 export default {
-  mixins: [listRefreshMixin(['fetchData'])],
+  mixins: [listRefreshMixin(['fetchData'], { routeKey: vm => vm.$route.path })],
   name: 'IpRangesTabGuest',
   components: {
+    ResourceTableToolbar,
+    MoldDialog,
+    MoldDialogActions,
     CreateNetwork,
     ResourceIcon,
     TooltipButton
@@ -219,7 +233,8 @@ export default {
           title: this.$t('label.actions')
         }
       ],
-      addIpv6PrefixModal: false
+      addIpv6PrefixModal: false,
+      loadedPhysicalNetworkId: ''
     }
   },
   beforeCreate () {
@@ -247,17 +262,27 @@ export default {
       })
     },
     async fetchData () {
+      const { id, zoneid } = this.resource
+      if (!id || !zoneid) return
       const request = this.listRequestToken('fetchData')
-      this.componentLoading = !request.loaded
+      const hasDisplayedData = this.loadedPhysicalNetworkId === id
+      if (this.loadedPhysicalNetworkId && !hasDisplayedData) {
+        this.items = []
+        this.ipv6Prefixes = []
+        this.total = 0
+        this.loadedPhysicalNetworkId = ''
+      }
+      this.componentLoading = !request.loaded && !hasDisplayedData
       try {
         const [networks, prefixes] = await Promise.all([
-          getAPI('listNetworks', { zoneid: this.resource.zoneid, physicalnetworkid: this.resource.id, showicon: true, page: this.page, pagesize: this.pageSize }),
-          getAPI('listGuestNetworkIpv6Prefixes', { zoneid: this.resource.zoneid, page: this.page, pagesize: this.pageSize })
+          getAPI('listNetworks', { zoneid, physicalnetworkid: id, showicon: true, page: this.page, pagesize: this.pageSize }),
+          getAPI('listGuestNetworkIpv6Prefixes', { zoneid, page: this.page, pagesize: this.pageSize })
         ])
         if (!this.isListRequestCurrent('fetchData', request)) return
         this.items = networks?.listnetworksresponse?.network || []
         this.total = networks?.listnetworksresponse?.count || 0
         this.ipv6Prefixes = prefixes?.listguestnetworkipv6prefixesresponse?.guestnetworkipv6prefix || []
+        this.loadedPhysicalNetworkId = id
       } catch (error) {
         if (!this.isListRequestCurrent('fetchData', request)) return
         request.failed = true

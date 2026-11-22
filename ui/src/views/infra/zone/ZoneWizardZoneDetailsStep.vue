@@ -245,7 +245,7 @@
         </a-form-item>
       </div>
     </a-form>
-    <div class="form-action">
+    <mold-dialog-actions>
       <a-button
         @click="handleBack"
         class="button-back"
@@ -255,16 +255,18 @@
       <a-button ref="submit" type="primary" @click="handleSubmit" class="button-next">
         {{ $t('label.next') }}
       </a-button>
-    </div>
+    </mold-dialog-actions>
   </div>
 </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI } from '@/api'
 
 export default {
+  components: { MoldDialogActions },
   props: {
     prefillContent: {
       type: Object,

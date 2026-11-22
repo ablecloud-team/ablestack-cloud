@@ -29,7 +29,14 @@
       :message="$t('message.domain.settings.scope', { path: resource.path || resource.name })"
       :description="$t('message.domain.settings.inheritance')" />
     <a-col :span="24">
-      <div :class="{ 'domain-settings-toolbar': scopeKey === 'domainid' }">
+      <resource-table-toolbar
+        v-if="scopeKey === 'zoneid'"
+        v-model:search="filter"
+        searchable
+        :loading="tabLoading"
+        @search="handleSearch"
+        @refresh="fetchData()" />
+      <div v-else :class="{ 'domain-settings-toolbar': scopeKey === 'domainid' }">
         <a-button v-if="scopeKey === 'domainid'" :loading="tabLoading" size="small" shape="round" @click="fetchData()">
           <template #icon><reload-outlined /></template>
           {{ $t('label.refresh') }}
@@ -42,7 +49,8 @@
           @search="handleSearch" />
       </div>
       <ConfigurationTable
-        :columns="columns"
+        :columns="scopeKey === 'zoneid' ? columns.map(column => ({ ...column, title: $t('label.' + column.title) })) : columns"
+        :standard-layout="scopeKey === 'zoneid'"
         :config="items"
         :resource="resource"
         @refresh-config="handleConfigRefresh" />
@@ -51,12 +59,14 @@
 </template>
 
 <script>
+import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
 import { getAPI } from '@/api'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import ConfigurationTable from '@/views/setting/ConfigurationTable.vue'
 
 export default {
   components: {
+    ResourceTableToolbar,
     ConfigurationTable,
     TooltipButton
   },

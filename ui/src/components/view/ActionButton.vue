@@ -79,7 +79,7 @@
         :aria-label="$t(action.toolbarLabel || action.label)"
         :type="dataView ? 'text' : (primaryIconList.includes(action.icon) ? 'primary' : 'default')"
         :danger="dangerIconList.includes(action.icon)"
-        :shape="dataView ? null : (action.toolbarLabel || ['PlusOutlined', 'plus-outlined', 'UserAddOutlined', 'user-add-outlined'].includes(action.icon) ? 'round' : 'circle')"
+        :shape="dataView || action.showLabel ? null : (action.toolbarLabel || ['PlusOutlined', 'plus-outlined', 'UserAddOutlined', 'user-add-outlined'].includes(action.icon) ? 'round' : 'circle')"
         :style="dataView ? {} : { marginLeft: '5px' }"
         :class="['action-button-item', { 'action-button-item--dataview': dataView }]"
         :size="size"
@@ -89,6 +89,7 @@
         <span v-if="dataView" class="action-button-item__label">
           {{ $t(action.label) }}
         </span>
+        <span v-else-if="action.showLabel" class="action-button-item__visible-label">{{ $t(action.label) }}</span>
         <span v-else-if="action.toolbarLabel || ['PlusOutlined', 'plus-outlined', 'UserAddOutlined', 'user-add-outlined'].includes(action.icon)">
           {{ $t(action.toolbarLabel || action.label) }}
         </span>
@@ -587,4 +588,8 @@ export default {
   right: 10px;
   z-index: 8;
 }
+</style>
+
+<style scoped>
+.action-button-item__visible-label { margin-inline-start: 6px; }
 </style>
