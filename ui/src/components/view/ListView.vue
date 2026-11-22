@@ -2467,7 +2467,8 @@ export default {
   .system-offering-order-actions {
     gap: 4px;
 
-    > .shift-btn {
+    > :deep(.ant-tooltip-disabled-compatible-wrapper),
+    :deep(button.shift-btn) {
       flex: 0 0 24px;
       inline-size: 24px;
       block-size: 24px;
