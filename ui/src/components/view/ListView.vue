@@ -83,6 +83,7 @@
       <IsoListCell v-else-if="isIsoMainList && ['name', 'state', 'ostypename', 'arch', 'account', 'project', 'size'].includes(column.key)" :record="record" :field="column.key" />
       <S2sGatewayValue v-else-if="$route.meta?.name === 's2svpn' && ['publicip','vpcname','account','domain','project'].includes(column.key)" :resource="record" :field="column.key" list />
       <KubernetesIsoListCell v-else-if="isKubernetesIsoMainList && ['state', 'isostate', 'zonename', 'semanticversion', 'mincpunumber', 'minmemory', 'arch'].includes(column.key)" :resource="record" :field="column.key" />
+      <span v-else-if="systemOfferingOrder && ['systemvmtype', 'storagetype', 'offerha', 'cpunumber', 'cpuspeed', 'memory'].includes(column.key)">{{ systemOfferingValue(column.key, record, $t) }}</span>
       <AclScopeValue v-else-if="column.key === 'vpcname' && isAclListRoute($route)" :resource="record" />
       <a-tag v-else-if="column.key === 'fordisplay' && isAclListRoute($route) && typeof text === 'boolean'">
         {{ $t(aclDisplayLabel(text)) }}
@@ -194,7 +195,10 @@
           <router-link v-else-if="$route.meta?.name === 'account' && !resourcePath && record.id" :title="text" :to="accountDetailLocation($route, record, $store.getters, $store.state?.user?.token)">{{ text }}</router-link>
           <router-link v-else-if="$route.meta?.name === 'role' && !resourcePath && record.id" :title="text" :to="roleDetailLocation($route, record, $store.getters, $store.state?.user?.token)">{{ text }}</router-link>
           <router-link v-else-if="kmsListRoute($route) && !resourcePath && record.id" :to="kmsDetailLocation($route, record, $store.getters, $store.state?.user?.token)">{{ text }}</router-link>
-          <router-link v-else-if="$route.path === '/systemoffering' && !resourcePath && record.id" :to="{ path: '/systemoffering/' + record.id, query: systemOfferingListQuery($route.query) }">{{ text }}</router-link>
+          <div v-else-if="systemOfferingOrder && !resourcePath && record.id">
+            <router-link :title="text" :to="{ path: '/systemoffering/' + record.id, query: systemOfferingListQuery($route.query) }">{{ text }}</router-link>
+            <a-tag v-if="record.defaultuse" class="system-offering-default-tag">{{ $t('label.default') }}</a-tag>
+          </div>
           <router-link v-else-if="$route.path === '/dnsserver' && !resourcePath && record.id" :to="{ path: '/dnsserver/' + record.id, query: dnsServerListQuery($route.query) }">{{ text }}</router-link>
           <router-link v-else-if="$route.path === '/dnszone' && !resourcePath && record.id" :to="{ path: '/dnszone/' + record.id, query: dnsZoneListQuery($route.query) }">{{ text }}</router-link>
           <span v-else-if="resourcePath && record.id" class="embedded-resource-name"><router-link :to="resourceLink ? resourceLink(record) : { path: resourcePath === '/vm' ? createPathBasedOnVmType(record.vmtype, record.id) : resourcePath + '/' + record.id }">{{ text }}</router-link></span>
@@ -605,6 +609,7 @@
           <status v-if="vpnConnectionListRoute($route)" :text="text || ''" :display-label="$t(vpnConnectionState(record))" display-text />
           <public-ip-status v-else-if="$route.meta?.name === 'publicip'" :value="text" />
           <template-availability v-else-if="['template', 'iso'].includes($route.meta?.name)" :kind="$route.meta.name" :record="record" compact single-line />
+          <status v-else-if="systemOfferingOrder" :text="text || ''" :display-label="systemOfferingValue('state', record, $t)" display-text />
           <status v-else-if="$route.path.startsWith('/host')" :text="getHostState(record)" displayText />
           <status v-else :text="text ? text : ''" :displayLabel="column.stateLabel ? column.stateLabel(record) : ''" displayText />
           <clone-flatten-control :record="record" @refresh="$emit('refresh')" />
@@ -1317,7 +1322,7 @@
 <script>
 import Ipv4SubnetResourceLink from '@/components/widgets/Ipv4SubnetResourceLink'
 import { dnsServerListQuery } from '@/utils/dnsServer'
-import { systemOfferingListQuery } from '@/utils/systemOfferingTypes'
+import { systemOfferingListQuery, systemOfferingValue } from '@/utils/systemOfferingTypes'
 import { canReorderSystemOffering, readSystemOfferingOrder, systemOfferingOrderChanges } from '@/utils/systemOfferingOrder'
 import { dnsZoneListQuery } from '@/utils/dnsZone'
 import { ipv4SubnetListQuery } from '@/utils/ipv4Subnet'
@@ -1677,6 +1682,7 @@ export default {
   methods: {
     dnsServerListQuery,
     systemOfferingListQuery,
+    systemOfferingValue,
     dnsZoneListQuery,
     ipv4SubnetListQuery,
     guestVlanNetworkLocation,
@@ -1789,6 +1795,9 @@ export default {
     },
     listRowKey (record) { return snapshotCopyList(this.$route) ? (record.copy?.id || listRowKey(record)) : listRowKey(record) },
     translateEventType (type) {
+      if (this.$route.meta?.name === 'systemoffering' && ['CREATE', 'CLONE', 'EDIT', 'DELETE'].some(action => type === 'SERVICE.OFFERING.' + action)) {
+        return this.$t('label.system.offering.event.' + type.split('.').at(-1).toLowerCase())
+      }
       return eventTypeLabel(type, this.$t)
     },
     convertKB (val) {

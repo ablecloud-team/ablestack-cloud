@@ -172,7 +172,7 @@ export default {
         : params,
       columns: ['name', 'state', 'systemvmtype', 'cpunumber', 'cpuspeed', 'memory', 'storagetype', 'offerha', 'order'],
       filters: ['active', 'inactive'],
-      details: ['name', 'id', 'displaytext', 'systemvmtype', 'defaultuse', 'systemofferingvmcount', 'provisioningtype', 'cachemode', 'storagetype', 'iscustomized', 'limitcpuuse', 'cpunumber', 'cpuspeed', 'memory', 'storagetags', 'hosttags', 'tags', 'domain', 'zone', 'created', 'dynamicscalingenabled', 'diskofferingstrictness'],
+      details: ['name', 'id', 'displaytext', 'state', 'systemvmtype', 'defaultuse', 'systemofferingvmcount', 'offerha', 'networkrate', 'diskofferingname', 'rootdisksize', 'provisioningtype', 'cachemode', 'storagetype', 'iscustomized', 'limitcpuuse', 'cpunumber', 'cpuspeed', 'memory', 'storagetags', 'hosttags', 'tags', 'domain', 'zone', 'created', 'dynamicscalingenabled', 'diskofferingstrictness'],
       resourceType: 'ServiceOffering',
       tabs: [
         {
@@ -205,9 +205,10 @@ export default {
         icon: 'edit-outlined',
         label: 'label.edit',
         dataView: true,
-        params: { issystem: 'true' },
+        popup: true,
+        standardDialogSize: 'md',
         docHelp: 'adminguide/service_offerings.html#modifying-or-deleting-a-service-offering',
-        args: ['name', 'displaytext', 'storagetags', 'hosttags']
+        component: shallowRef(defineAsyncComponent(() => import('@/views/offering/UpdateComputeOffering.vue')))
       }, {
         api: 'updateServiceOffering',
         icon: 'lock-outlined',
@@ -215,6 +216,7 @@ export default {
         dataView: true,
         popup: true,
         show: () => store.getters.userInfo.roletype === 'Admin',
+        standardDialogSize: 'md',
         component: shallowRef(defineAsyncComponent(() => import('@/views/offering/UpdateStorageOfferingAccess.vue')))
       }, {
         api: 'updateServiceOffering',
@@ -245,6 +247,7 @@ export default {
         dataView: true,
         params: { issystem: 'true' },
         popup: true,
+        standardDialogSize: 'lg',
         component: shallowRef(defineAsyncComponent(() => import('@/views/offering/CloneComputeOffering.vue')))
       }]
     },

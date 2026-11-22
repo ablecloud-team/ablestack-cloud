@@ -165,6 +165,7 @@
               </template>
             </status>
             <status v-else-if="$route.meta.name === 's2svpnconn'" class="status" :text="resource.state || ''" :display-label="$t(vpnConnectionState(resource))" display-text />
+            <status v-else-if="$route.meta.name === 'systemoffering'" class="status" :text="resource.state" :display-label="$t(systemOfferingStateLabel(resource.state))" display-text />
             <status v-else-if="['role', 'account'].includes($route.meta.name)" class="status" :text="resource.state" :display-label="$t('label.' + resource.state)" display-text />
             <status v-else class="status" :text="resource.state || resource.status" displayText/>
           </div>
@@ -1200,6 +1201,7 @@
 </template>
 
 <script>
+import { systemOfferingStateLabel } from '@/utils/systemOfferingTypes'
 import AclScopeValue from '@/components/view/AclScopeValue'
 import { aclDisplayLabel, aclDisplaySupported } from '@/utils/vpcAclAccess'
 import { eventDisplayTitle, eventTimelineQuery, isEventDetailRoute } from '@/utils/eventTimeline'
@@ -1482,6 +1484,7 @@ export default {
     }
   },
   methods: {
+    systemOfferingStateLabel,
     aclDisplayLabel,
     aclDisplaySupported,
     vpnConnectionState,
