@@ -17,10 +17,6 @@
 
 <template>
   <div class="list-view-table-wrapper" :class="{ 'kms-table': kmsTable, 'autoscale-list': $route.name === 'autoscalevmgroup', 'snapshot-list-table': $route.name === 'snapshot', 'snapshot-policy-list-table': $route.name === 'snapshotpolicy', 'kubernetes-iso-list-table': isKubernetesIsoMainList }" :tabindex="scrollRegionLabel ? 0 : undefined" :role="scrollRegionLabel ? 'region' : undefined" :aria-label="scrollRegionLabel" @keydown="scrollWideTable" @contextmenu="handleGlobalContextMenu">
-    <p
-      v-if="systemOfferingOrder && items.length && isOrderUpdatable() && $store.getters.apis.listConfigurations && !systemOfferingOrderAvailable"
-      class="system-offering-order-hint"
-      role="status">{{ $t('message.system.offering.order.full.view') }}</p>
     <a-table
       size="middle"
       :loading="loading"
@@ -2402,12 +2398,6 @@ export default {
 </style>
 
 <style scoped lang="scss">
-.system-offering-order-hint {
-  margin: 0;
-  padding: 8px 12px;
-  color: var(--ui-text-secondary);
-}
-
 .system-offering-name-cell {
   display: flex;
   align-items: baseline;
