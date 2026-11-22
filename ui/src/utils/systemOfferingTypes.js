@@ -19,3 +19,19 @@ export const systemOfferingTypes = new Map([
   ['secondarystoragevm', 'label.secondary.storage.vm'],
   ['internalloadbalancervm', 'label.internallbvm']
 ])
+
+export const systemOfferingFilterTypes = new Map([
+  ...systemOfferingTypes,
+  ['elasticloadbalancervm', 'label.service.lb.elasticlbcheckbox']
+])
+
+export const systemOfferingStorageLabels = new Map([
+  ['shared', 'label.shared'],
+  ['local', 'label.local.storage']
+])
+
+const listQueryKeys = ['keyword', 'name', 'zoneid', 'domainid', 'cpunumber', 'cpuspeed', 'memory', 'systemvmtype', 'storagetype', 'state', 'filter', 'page', 'pagesize']
+
+export function systemOfferingListQuery (query) {
+  return Object.fromEntries(listQueryKeys.filter(key => typeof query[key] === 'string' && query[key]).map(key => [key, query[key]]))
+}

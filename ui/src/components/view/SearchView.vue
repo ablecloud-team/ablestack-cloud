@@ -243,6 +243,7 @@
 </template>
 
 <script>
+import { systemOfferingFilterTypes, systemOfferingStorageLabels } from '@/utils/systemOfferingTypes'
 import { roleStates, roleTypes } from '@/utils/roleSearch'
 import KubernetesIsoSearch from '@/components/view/KubernetesIsoSearch'
 import { ref, reactive, toRaw } from 'vue'
@@ -605,7 +606,7 @@ export default {
           return true
         }
         if (['zoneid', 'domainid', 'imagestoreid', 'storageid', 'state', 'account', 'hypervisor', 'level',
-          'clusterid', 'podid', 'groupid', 'entitytype', 'accounttype', 'systemvmtype', 'scope', 'provider',
+          'clusterid', 'podid', 'groupid', 'entitytype', 'accounttype', 'systemvmtype', 'storagetype', 'scope', 'provider',
           'type', 'scope', 'managementserverid', 'serviceofferingid',
           'diskofferingid', 'networkid', 'usagetype', 'restartrequired', 'gpuenabled',
           'displaynetwork', 'forvpc', 'guestiptype', 'usersource', 'arch', 'oscategoryid', 'templatetype', 'gpucardid', 'vgpuprofileid',
@@ -642,6 +643,8 @@ export default {
       return arrayField
     },
     fetchStaticFieldData (arrayField) {
+      const storageType = this.fields.find(field => field.name === 'storagetype')
+      if (storageType) storageType.opts = Array.from(systemOfferingStorageLabels, ([id, name]) => ({ id, name }))
       if (this.isVnfSearch) { const state = this.fields.find(field => field.name === 'state'); if (state) state.opts = vnfStates(this.$store.getters).map(id => ({ id, name: 'state.' + id.toLowerCase() })); return }
       if (this.isAccountSearch) {
         this.fields.filter(field => ['isrecursive', 'iscleanuprequired'].includes(field.name)).forEach(field => {
@@ -1770,6 +1773,9 @@ export default {
       return types
     },
     fetchSystemVmTypes () {
+      if (this.$route.meta?.name === 'systemoffering') {
+        return Array.from(systemOfferingFilterTypes, ([id, name]) => ({ id, name }))
+      }
       const types = []
       if (this.apiName.indexOf('listSystemVms') > -1) {
         types.push({

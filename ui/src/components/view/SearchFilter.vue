@@ -56,6 +56,7 @@
 </template>
 
 <script>
+import { systemOfferingFilterTypes, systemOfferingStorageLabels } from '@/utils/systemOfferingTypes'
 
 import { getAPI } from '@/api'
 import { kmsApis, kmsBooleans, kmsProtocolOptions } from '@/utils/kmsSearch'
@@ -290,6 +291,11 @@ export default {
       }
     },
     getStaticFieldValue (key, value) {
+      if (this.$route.meta?.name === 'systemoffering') {
+        const labels = { systemvmtype: systemOfferingFilterTypes, storagetype: systemOfferingStorageLabels }
+        const label = labels[key]?.get(value)
+        if (label) return this.$t(label)
+      }
       if (this.apiName === 'listIsos' && ['bootable', 'isready', 'ispublic'].includes(key)) return this.$t(String(value) === 'true' ? 'label.yes' : 'label.no')
       if (this.apiName === 'listIsos' && key === 'isofilter') return this.$t(this.$route?.meta?.filterLabels?.[value] || ('label.' + value))
       if (this.apiName === 'listNetworks' && key === 'forvpc') return this.$t(String(value) === 'true' ? 'label.yes' : 'label.no')
