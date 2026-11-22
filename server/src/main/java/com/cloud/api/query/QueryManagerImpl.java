@@ -4469,7 +4469,9 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         }
 
         Filter searchFilter = new Filter(ServiceOfferingVO.class, "sortKey", SortKeyAscending.value(), cmd.getStartIndex(), cmd.getPageSizeVal());
-        // searchFilter.addOrderBy(ServiceOfferingVO.class, "id", true);
+        if (Boolean.TRUE.equals(isSystem)) {
+            searchFilter.addOrderBy(ServiceOfferingVO.class, "id", true);
+        }
 
         SearchBuilder<ServiceOfferingVO> serviceOfferingSearch = _srvOfferingDao.createSearchBuilder();
         serviceOfferingSearch.select(null, Func.DISTINCT, serviceOfferingSearch.entity().getId()); // select distinct

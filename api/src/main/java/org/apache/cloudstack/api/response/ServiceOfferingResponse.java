@@ -124,6 +124,10 @@ public class ServiceOfferingResponse extends BaseResponseWithAnnotations {
     @Param(description = "The number of existing system VMs and routers using this system service offering")
     private Integer systemOfferingVmCount;
 
+    @SerializedName(ApiConstants.SORT_KEY)
+    @Param(description = "The sort key of the system service offering")
+    private Integer sortKey;
+
     @SerializedName(ApiConstants.SYSTEM_VM_TYPE)
     @Param(description = "Is this a the System VM type for System VM offering")
     private String vmType;
@@ -355,6 +359,10 @@ public class ServiceOfferingResponse extends BaseResponseWithAnnotations {
 
     public void setSystemOfferingVmCount(Integer systemOfferingVmCount) {
         this.systemOfferingVmCount = systemOfferingVmCount;
+    }
+
+    public void setSortKey(Integer sortKey) {
+        this.sortKey = sortKey;
     }
 
     public String getSystemVmType() {

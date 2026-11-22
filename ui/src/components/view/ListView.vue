@@ -1116,7 +1116,8 @@
         <span v-else> {{ text }} </span>
       </template>
       <template v-if="column.key === 'order'">
-        <div class="shift-btns">
+        <div v-if="systemOfferingOrder && !systemOfferingOrderAvailable" class="system-offering-order-hint">{{ $t('message.system.offering.order.full.view') }}</div>
+        <div v-else class="shift-btns">
           <a-tooltip
             :name="text"
             placement="top"
@@ -1124,6 +1125,8 @@
             <template #title>{{ $t('label.move.to.top') }}</template>
             <a-button
               shape="round"
+              :aria-label="$t('label.move.to.top')"
+              :disabled="systemOfferingOrder && systemOfferingOrderBusy"
               @click="moveItemTop(record)"
               class="shift-btn"
             >
@@ -1134,6 +1137,8 @@
             <template #title>{{ $t('label.move.to.bottom') }}</template>
             <a-button
               shape="round"
+              :aria-label="$t('label.move.to.bottom')"
+              :disabled="systemOfferingOrder && systemOfferingOrderBusy"
               @click="moveItemBottom(record)"
               class="shift-btn"
             >
@@ -1144,6 +1149,8 @@
             <template #title>{{ $t('label.move.up.row') }}</template>
             <a-button
               shape="round"
+              :aria-label="$t('label.move.up.row')"
+              :disabled="systemOfferingOrder && systemOfferingOrderBusy"
               @click="moveItemUp(record)"
               class="shift-btn"
             >
@@ -1154,6 +1161,8 @@
             <template #title>{{ $t('label.move.down.row') }}</template>
             <a-button
               shape="round"
+              :aria-label="$t('label.move.down.row')"
+              :disabled="systemOfferingOrder && systemOfferingOrderBusy"
               @click="moveItemDown(record)"
               class="shift-btn"
             >
@@ -1309,6 +1318,7 @@
 import Ipv4SubnetResourceLink from '@/components/widgets/Ipv4SubnetResourceLink'
 import { dnsServerListQuery } from '@/utils/dnsServer'
 import { systemOfferingListQuery } from '@/utils/systemOfferingTypes'
+import { canReorderSystemOffering, readSystemOfferingOrder, systemOfferingOrderChanges } from '@/utils/systemOfferingOrder'
 import { dnsZoneListQuery } from '@/utils/dnsZone'
 import { ipv4SubnetListQuery } from '@/utils/ipv4Subnet'
 import AclScopeValue from '@/components/view/AclScopeValue'
@@ -1465,6 +1475,8 @@ export default {
   inject: ['parentFetchData', 'parentToggleLoading'],
   data () {
     return {
+      systemOfferingOrderBusy: false,
+      systemOfferingTableSorted: false,
       selectedRowKeys: [],
       editableValueKey: null,
       editableValue: '',
@@ -1555,6 +1567,8 @@ export default {
     this.getUsageTypes()
   },
   computed: {
+    systemOfferingOrder () { return this.$route.path === '/systemoffering' },
+    systemOfferingOrderAvailable () { return !!this.$store.getters.apis.listConfigurations && canReorderSystemOffering(this.$route.query, this.systemOfferingTableSorted) },
     isProjectMainList () { return this.$route.meta?.name === 'project' && !this.$route.params?.id && !this.resourcePath },
     scrollRegionLabel () {
       if (this.isProjectMainList) return this.$t('label.projects')
@@ -1757,7 +1771,10 @@ export default {
       const matched = this.$router.resolve('/project/' + record.projectid).matched
       return matched.length > 0 && matched[0].redirect !== '/exception/404'
     },
-    handleTableChange (pagination, filters, sorter) { this.$emit('table-change', pagination, filters, sorter) },
+    handleTableChange (pagination, filters, sorter) {
+      if (this.systemOfferingOrder) this.systemOfferingTableSorted = !!sorter?.order
+      this.$emit('table-change', pagination, filters, sorter)
+    },
     snapshotRowEvents (record) {
       if (!this.keyboardContextMenu && !['vmsnapshot', 'kubernetes', 'kubernetesiso'].includes(this.$route.name)) return {}
       return {
@@ -1988,6 +2005,31 @@ export default {
     isOrderUpdatable () {
       return this.getUpdateApi() in this.$store.getters.apis
     },
+    async moveSystemOffering (record, direction) {
+      if (!this.systemOfferingOrderAvailable || this.systemOfferingOrderBusy || !this.isOrderUpdatable()) return
+      const context = this.$route.fullPath
+      const isCurrent = () => context === this.$route.fullPath && this.systemOfferingOrderAvailable
+      this.systemOfferingOrderBusy = true
+      let saved = 0
+      let planned = 0
+      try {
+        const { rows, ascending } = await readSystemOfferingOrder(getAPI)
+        if (!isCurrent()) return
+        const changes = systemOfferingOrderChanges(rows, record.id, direction, ascending)
+        planned = changes.length
+        for (const change of changes) {
+          if (!isCurrent()) return
+          const result = await postAPI('updateServiceOffering', change, { preserveOnFailure: true })
+          if (result.updateserviceofferingresponse?.serviceoffering?.sortkey !== change.sortkey) throw new Error('order result unknown')
+          saved++
+        }
+      } catch {
+        this.$message.error(this.$t('message.system.offering.order.failure', [saved, planned]))
+      } finally {
+        this.systemOfferingOrderBusy = false
+        if (context === this.$route.fullPath) await this.parentFetchData({ irefresh: true })
+      }
+    },
     handleUpdateOrder (id, index) {
       this.parentToggleLoading()
       const apiCommand = this.getUpdateApi()
@@ -2017,6 +2059,7 @@ export default {
       })
     },
     moveItemUp (record) {
+      if (this.systemOfferingOrder) return this.moveSystemOffering(record, 'up')
       const data = this.items
       const index = data.findIndex(item => item.id === record.id)
       if (index === 0) return
@@ -2024,6 +2067,7 @@ export default {
       this.updateOrder(data)
     },
     moveItemDown (record) {
+      if (this.systemOfferingOrder) return this.moveSystemOffering(record, 'down')
       const data = this.items
       const index = data.findIndex(item => item.id === record.id)
       if (index === data.length - 1) return
@@ -2031,6 +2075,7 @@ export default {
       this.updateOrder(data)
     },
     moveItemTop (record) {
+      if (this.systemOfferingOrder) return this.moveSystemOffering(record, 'top')
       const data = this.items
       const index = data.findIndex(item => item.id === record.id)
       if (index === 0) return
@@ -2038,6 +2083,7 @@ export default {
       this.updateOrder(data)
     },
     moveItemBottom (record) {
+      if (this.systemOfferingOrder) return this.moveSystemOffering(record, 'bottom')
       const data = this.items
       const index = data.findIndex(item => item.id === record.id)
       if (index === data.length - 1) return

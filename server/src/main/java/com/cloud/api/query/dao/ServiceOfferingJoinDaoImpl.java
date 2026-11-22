@@ -128,6 +128,7 @@ public class ServiceOfferingJoinDaoImpl extends GenericDaoBase<ServiceOfferingJo
         offeringResponse.setDefaultUse(offering.isDefaultUse());
         if (offering.isSystemUse()) {
             offeringResponse.setSystemOfferingVmCount(vmInstanceDao.getVmCountByOfferingId(offering.getId()));
+            offeringResponse.setSortKey(offering.getSortKey());
         }
         offeringResponse.setSystemVmType(offering.getSystemVmType());
         offeringResponse.setDisplayText(offering.getDisplayText());
@@ -265,6 +266,7 @@ public class ServiceOfferingJoinDaoImpl extends GenericDaoBase<ServiceOfferingJo
     @Override
     public List<ServiceOfferingJoinVO> searchByIds(Long... offeringIds) {
         Filter searchFilter = new Filter(ServiceOfferingJoinVO.class, "sortKey", SortKeyAscending.value());
+        searchFilter.addOrderBy(ServiceOfferingJoinVO.class, "id", true);
         searchFilter.addOrderBy(ServiceOfferingJoinVO.class, "id", true);
 
         // set detail batch query size
