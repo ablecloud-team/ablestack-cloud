@@ -25,7 +25,9 @@ function afterChanges (rows, changes, ascending) {
 
 test('only the unfiltered all-state list allows global ordering', () => {
   expect(canReorderSystemOffering({ state: 'all', filter: 'all', page: '2', pagesize: '20' }, false)).toBe(true)
-  expect(canReorderSystemOffering({}, false)).toBe(false)
+  expect(canReorderSystemOffering({}, false)).toBe(true)
+  expect(canReorderSystemOffering({ state: 'All' }, false)).toBe(true)
+  expect(canReorderSystemOffering({ filter: 'inactive' }, false)).toBe(false)
   expect(canReorderSystemOffering({ state: 'active', filter: 'all' }, false)).toBe(false)
   expect(canReorderSystemOffering({ state: 'all', keyword: 'test' }, false)).toBe(false)
   expect(canReorderSystemOffering({ state: 'all', storagetype: 'local' }, false)).toBe(false)

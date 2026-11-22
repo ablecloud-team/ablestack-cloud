@@ -167,9 +167,10 @@ export default {
       permission: ['listServiceOfferings', 'listInfrastructure'],
       searchFilters: ['name', 'systemvmtype', 'storagetype', 'zoneid', 'domainid', 'cpunumber', 'cpuspeed', 'memory'],
       params: { issystem: 'true', isrecursive: 'true' },
-      customParamHandler: (params) => params.id
+      defaultFilter: 'all',
+      customParamHandler: (params, query) => params.id
         ? { id: params.id, issystem: true, isrecursive: true, listall: true, state: 'all' }
-        : params,
+        : { ...params, state: params.state || (['active', 'inactive'].includes(query.filter) ? query.filter : 'all') },
       columns: ['name', 'state', 'systemvmtype', 'cpunumber', 'cpuspeed', 'memory', 'storagetype', 'offerha', 'order'],
       filters: ['active', 'inactive'],
       details: ['name', 'id', 'displaytext', 'state', 'systemvmtype', 'defaultuse', 'systemofferingvmcount', 'offerha', 'networkrate', 'diskofferingname', 'rootdisksize', 'provisioningtype', 'cachemode', 'storagetype', 'iscustomized', 'limitcpuuse', 'cpunumber', 'cpuspeed', 'memory', 'storagetags', 'hosttags', 'tags', 'domain', 'zone', 'created', 'dynamicscalingenabled', 'diskofferingstrictness'],

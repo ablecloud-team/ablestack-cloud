@@ -20,8 +20,8 @@ const maxKey = 2147483647
 
 export function canReorderSystemOffering (query, tableSorted) {
   const { state, filter, page, pagesize, ...search } = systemOfferingListQuery(query)
-  return !tableSorted && (!state || state === 'all') && (!filter || filter === 'all') &&
-    (state === 'all' || filter === 'all') && !Object.keys(search).length
+  return !tableSorted && (!state || state.toLowerCase() === 'all') &&
+    (!filter || filter.toLowerCase() === 'all') && !Object.keys(search).length
 }
 
 export async function readSystemOfferingOrder (getAPI) {

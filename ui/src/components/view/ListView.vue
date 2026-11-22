@@ -83,7 +83,14 @@
       <IsoListCell v-else-if="isIsoMainList && ['name', 'state', 'ostypename', 'arch', 'account', 'project', 'size'].includes(column.key)" :record="record" :field="column.key" />
       <S2sGatewayValue v-else-if="$route.meta?.name === 's2svpn' && ['publicip','vpcname','account','domain','project'].includes(column.key)" :resource="record" :field="column.key" list />
       <KubernetesIsoListCell v-else-if="isKubernetesIsoMainList && ['state', 'isostate', 'zonename', 'semanticversion', 'mincpunumber', 'minmemory', 'arch'].includes(column.key)" :resource="record" :field="column.key" />
-      <span v-else-if="systemOfferingOrder && ['systemvmtype', 'storagetype', 'offerha', 'cpunumber', 'cpuspeed', 'memory'].includes(column.key)">{{ systemOfferingValue(column.key, record, $t) }}</span>
+      <TableOverflowText
+        v-else-if="systemOfferingOrder && column.key === 'state'"
+        :text="systemOfferingValue('state', record, $t)">
+        <status :text="text || ''" :display-label="systemOfferingValue('state', record, $t)" :show-tooltip="false" display-text />
+      </TableOverflowText>
+      <TableOverflowText
+        v-else-if="systemOfferingOrder && ['systemvmtype', 'storagetype', 'offerha', 'cpunumber', 'cpuspeed', 'memory'].includes(column.key)"
+        :text="systemOfferingValue(column.key, record, $t)" />
       <AclScopeValue v-else-if="column.key === 'vpcname' && isAclListRoute($route)" :resource="record" />
       <a-tag v-else-if="column.key === 'fordisplay' && isAclListRoute($route) && typeof text === 'boolean'">
         {{ $t(aclDisplayLabel(text)) }}
@@ -196,7 +203,9 @@
           <router-link v-else-if="$route.meta?.name === 'role' && !resourcePath && record.id" :title="text" :to="roleDetailLocation($route, record, $store.getters, $store.state?.user?.token)">{{ text }}</router-link>
           <router-link v-else-if="kmsListRoute($route) && !resourcePath && record.id" :to="kmsDetailLocation($route, record, $store.getters, $store.state?.user?.token)">{{ text }}</router-link>
           <div v-else-if="systemOfferingOrder && !resourcePath && record.id" class="system-offering-name-cell">
-            <router-link :title="text" :to="{ path: '/systemoffering/' + record.id, query: systemOfferingListQuery($route.query) }">{{ text }}</router-link>
+            <TableOverflowText
+              :text="text || '—'"
+              :location="{ path: '/systemoffering/' + record.id, query: systemOfferingListQuery($route.query) }" />
             <a-tag v-if="record.defaultuse" class="system-offering-default-tag">{{ $t('label.default') }}</a-tag>
           </div>
           <router-link v-else-if="$route.path === '/dnsserver' && !resourcePath && record.id" :to="{ path: '/dnsserver/' + record.id, query: dnsServerListQuery($route.query) }">{{ text }}</router-link>
@@ -609,7 +618,6 @@
           <status v-if="vpnConnectionListRoute($route)" :text="text || ''" :display-label="$t(vpnConnectionState(record))" display-text />
           <public-ip-status v-else-if="$route.meta?.name === 'publicip'" :value="text" />
           <template-availability v-else-if="['template', 'iso'].includes($route.meta?.name)" :kind="$route.meta.name" :record="record" compact single-line />
-          <status v-else-if="systemOfferingOrder" :text="text || ''" :display-label="systemOfferingValue('state', record, $t)" display-text />
           <status v-else-if="$route.path.startsWith('/host')" :text="getHostState(record)" displayText />
           <status v-else :text="text ? text : ''" :displayLabel="column.stateLabel ? column.stateLabel(record) : ''" displayText />
           <clone-flatten-control :record="record" @refresh="$emit('refresh')" />
@@ -1121,7 +1129,7 @@
         <span v-else> {{ text }} </span>
       </template>
       <template v-if="column.key === 'order'">
-        <div v-if="!systemOfferingOrder || systemOfferingOrderAvailable" class="shift-btns" :class="{ 'system-offering-order-actions': systemOfferingOrder }">
+        <div class="shift-btns" :class="{ 'system-offering-order-actions': systemOfferingOrder }">
           <a-tooltip
             :name="text"
             placement="top"
@@ -1130,7 +1138,7 @@
             <a-button
               shape="round"
               :aria-label="$t('label.move.to.top')"
-              :disabled="systemOfferingOrder && systemOfferingOrderBusy"
+              :disabled="systemOfferingOrderDisabled"
               @click="moveItemTop(record)"
               class="shift-btn"
             >
@@ -1142,7 +1150,7 @@
             <a-button
               shape="round"
               :aria-label="$t('label.move.to.bottom')"
-              :disabled="systemOfferingOrder && systemOfferingOrderBusy"
+              :disabled="systemOfferingOrderDisabled"
               @click="moveItemBottom(record)"
               class="shift-btn"
             >
@@ -1154,7 +1162,7 @@
             <a-button
               shape="round"
               :aria-label="$t('label.move.up.row')"
-              :disabled="systemOfferingOrder && systemOfferingOrderBusy"
+              :disabled="systemOfferingOrderDisabled"
               @click="moveItemUp(record)"
               class="shift-btn"
             >
@@ -1166,7 +1174,7 @@
             <a-button
               shape="round"
               :aria-label="$t('label.move.down.row')"
-              :disabled="systemOfferingOrder && systemOfferingOrderBusy"
+              :disabled="systemOfferingOrderDisabled"
               @click="moveItemDown(record)"
               class="shift-btn"
             >
@@ -1573,6 +1581,7 @@ export default {
   computed: {
     systemOfferingOrder () { return this.$route.path === '/systemoffering' },
     systemOfferingOrderAvailable () { return !!this.$store.getters.apis.listConfigurations && canReorderSystemOffering(this.$route.query, this.systemOfferingTableSorted) },
+    systemOfferingOrderDisabled () { return this.systemOfferingOrder && (!this.systemOfferingOrderAvailable || this.systemOfferingOrderBusy) },
     isProjectMainList () { return this.$route.meta?.name === 'project' && !this.$route.params?.id && !this.resourcePath },
     scrollRegionLabel () {
       if (this.systemOfferingOrder) return this.$t('label.system.offerings')
@@ -1588,8 +1597,24 @@ export default {
       const columns = this.isOrderUpdatable() ? this.columns : this.columns.filter(column => column.dataIndex !== 'order')
       if (this.kmsTable) return kmsTableColumns(columns)
       if (this.systemOfferingOrder) {
-        const widths = { name: 240, state: 104, systemvmtype: 150, cpunumber: 92, cpuspeed: 108, memory: 104, storagetype: 124, offerha: 94, order: 132, filtercolumn: 42 }
-        return columns.map(column => ({ ...column, width: widths[column.key] || column.width || 120 }))
+        const widths = {
+          name: this.$store.getters.device === 'mobile' ? 188 : 330,
+          state: 84,
+          systemvmtype: 154,
+          cpunumber: 76,
+          cpuspeed: 96,
+          memory: 88,
+          storagetype: 114,
+          offerha: 80,
+          order: 132,
+          filtercolumn: 42
+        }
+        return columns.map(column => ({
+          ...column,
+          width: widths[column.key] || column.width || 120,
+          ...(['order', 'filtercolumn'].includes(column.key) ? { fixed: 'right' } : {}),
+          ...(column.key === 'order' ? { sorter: false } : {})
+        }))
       }
       if (!this.isKubernetesIsoMainList) return columns
       const widths = { name: this.$store.getters.device === 'mobile' ? 280 : 420, state: 112, semanticversion: 144, isostate: 128, mincpunumber: 128, minmemory: 168, arch: 128, zonename: 180, filtercolumn: 36 }
@@ -2400,11 +2425,11 @@ export default {
 <style scoped lang="scss">
 .system-offering-name-cell {
   display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 4px 8px;
+  align-items: center;
+  gap: 8px;
 
-  a { min-width: 0; overflow-wrap: anywhere; word-break: normal; }
+  .table-overflow-text { flex: 0 1 auto; }
+  .system-offering-default-tag { flex: none; margin: 0; }
 }
 
 .list-state-with-flatten {
