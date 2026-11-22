@@ -120,6 +120,10 @@ public class ServiceOfferingResponse extends BaseResponseWithAnnotations {
     @Param(description = "Is this a default System VM offering")
     private Boolean defaultUse;
 
+    @SerializedName("systemofferingvmcount")
+    @Param(description = "The number of existing system VMs and routers using this system service offering")
+    private Integer systemOfferingVmCount;
+
     @SerializedName(ApiConstants.SYSTEM_VM_TYPE)
     @Param(description = "Is this a the System VM type for System VM offering")
     private String vmType;
@@ -347,6 +351,10 @@ public class ServiceOfferingResponse extends BaseResponseWithAnnotations {
 
     public void setDefaultUse(Boolean defaultUse) {
         this.defaultUse = defaultUse;
+    }
+
+    public void setSystemOfferingVmCount(Integer systemOfferingVmCount) {
+        this.systemOfferingVmCount = systemOfferingVmCount;
     }
 
     public String getSystemVmType() {

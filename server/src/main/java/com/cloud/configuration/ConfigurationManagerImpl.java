@@ -4587,6 +4587,10 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             throw new InvalidParameterValueException(String.format("Unable to update service offering: %s by id user: %s because it is not root-admin or domain-admin", offeringHandle, user));
         }
 
+        if (offeringHandle.isSystemUse() && state == ServiceOffering.State.Inactive && offeringHandle.getState() != state) {
+            validateSystemOfferingCanBeDisabled(offeringHandle);
+        }
+
         final boolean updateNeeded = name != null || displayText != null || sortKey != null || storageTags != null || hostTags != null || state != null;
         final boolean serviceOfferingExternalDetailsNeedUpdate =
                 serviceOfferingExternalDetailsNeedUpdate(offeringDetails, externalDetails, cleanupExternalDetails);
@@ -5433,6 +5437,16 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         return diskOfferingDetailsDao.findZoneIds(diskOfferingId);
     }
 
+    private void validateSystemOfferingCanBeDisabled(ServiceOffering offering) {
+        if (offering.getDefaultUse()) {
+            throw new InvalidParameterValueException("A default system service offering cannot be deactivated.");
+        }
+        int vmCount = _vmInstanceDao.getVmCountByOfferingId(offering.getId());
+        if (vmCount > 0) {
+            throw new InvalidParameterValueException(String.format("This system service offering is used by %d existing system VM(s) or router(s).", vmCount));
+        }
+    }
+
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_SERVICE_OFFERING_DELETE, eventDescription = "deleting service offering")
     public boolean deleteServiceOffering(final DeleteServiceOfferingCmd cmd) {
@@ -5479,6 +5493,9 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             throw new InvalidParameterValueException(String.format("Unable to delete service offering: %s by user: %s because it is not root-admin or domain-admin", offering, user));
         }
 
+        if (offering.isSystemUse()) {
+            validateSystemOfferingCanBeDisabled(offering);
+        }
         annotationDao.removeByEntityType(AnnotationService.EntityType.SERVICE_OFFERING.name(), offering.getUuid());
         if (diskOffering.isComputeOnly()) {
             diskOffering.setState(DiskOffering.State.Inactive);

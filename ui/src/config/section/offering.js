@@ -172,7 +172,7 @@ export default {
         : params,
       columns: ['name', 'state', 'systemvmtype', 'cpunumber', 'cpuspeed', 'memory', 'storagetype', 'offerha', 'order'],
       filters: ['active', 'inactive'],
-      details: ['name', 'id', 'displaytext', 'systemvmtype', 'provisioningtype', 'cachemode', 'storagetype', 'iscustomized', 'limitcpuuse', 'cpunumber', 'cpuspeed', 'memory', 'storagetags', 'hosttags', 'tags', 'domain', 'zone', 'created', 'dynamicscalingenabled', 'diskofferingstrictness'],
+      details: ['name', 'id', 'displaytext', 'systemvmtype', 'defaultuse', 'systemofferingvmcount', 'provisioningtype', 'cachemode', 'storagetype', 'iscustomized', 'limitcpuuse', 'cpunumber', 'cpuspeed', 'memory', 'storagetags', 'hosttags', 'tags', 'domain', 'zone', 'created', 'dynamicscalingenabled', 'diskofferingstrictness'],
       resourceType: 'ServiceOffering',
       tabs: [
         {
@@ -220,36 +220,23 @@ export default {
         api: 'updateServiceOffering',
         icon: 'play-circle-outlined',
         label: 'label.action.enable.system.service.offering',
-        message: 'message.action.enable.system.service.offering',
         dataView: true,
-        params: { issystem: 'true' },
-        args: ['state'],
-        mapping: {
-          state: {
-            value: (record) => { return 'Active' }
-          }
-        },
         groupAction: true,
         popup: true,
-        show: (record) => { return record.state !== 'Active' },
-        groupMap: (selection) => { return selection.map(x => { return { id: x, state: 'Active' } }) }
+        systemOfferingState: 'Active',
+        show: record => record.state === 'Inactive',
+        groupShow: records => records.some(record => record.state === 'Inactive')
       }, {
         api: 'updateServiceOffering',
         icon: 'pause-circle-outlined',
         label: 'label.action.disable.system.service.offering',
-        message: 'message.action.disable.system.service.offering',
         docHelp: 'adminguide/service_offerings.html#modifying-or-deleting-a-service-offering',
         dataView: true,
-        params: { issystem: 'true' },
         groupAction: true,
         popup: true,
-        mapping: {
-          state: {
-            value: (record) => { return 'Inactive' }
-          }
-        },
-        show: (record) => { return record.state === 'Active' },
-        groupMap: (selection) => { return selection.map(x => { return { id: x, state: 'Inactive' } }) }
+        systemOfferingState: 'Inactive',
+        show: record => record.state === 'Active',
+        groupShow: records => records.some(record => record.state === 'Active')
       }, {
         api: 'cloneServiceOffering',
         icon: 'copy-outlined',

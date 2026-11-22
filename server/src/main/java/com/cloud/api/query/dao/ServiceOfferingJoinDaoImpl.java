@@ -50,6 +50,7 @@ import com.cloud.utils.db.GenericDaoBase;
 import com.cloud.utils.db.SearchBuilder;
 import com.cloud.utils.db.SearchCriteria;
 import com.cloud.utils.db.TransactionLegacy;
+import com.cloud.vm.dao.VMInstanceDao;
 
 import static org.apache.cloudstack.query.QueryService.SortKeyAscending;
 
@@ -64,6 +65,8 @@ public class ServiceOfferingJoinDaoImpl extends GenericDaoBase<ServiceOfferingJo
     private ConfigurationDao configDao;
     @Inject
     private AccountManager accountManager;
+    @Inject
+    private VMInstanceDao vmInstanceDao;
     @Inject
     private org.apache.cloudstack.resourcedetail.dao.DiskOfferingDetailsDao allocationDetailsDao;
 
@@ -123,6 +126,9 @@ public class ServiceOfferingJoinDaoImpl extends GenericDaoBase<ServiceOfferingJo
         offeringResponse.setState(offering.getState().toString());
         offeringResponse.setIsSystemOffering(offering.isSystemUse());
         offeringResponse.setDefaultUse(offering.isDefaultUse());
+        if (offering.isSystemUse()) {
+            offeringResponse.setSystemOfferingVmCount(vmInstanceDao.getVmCountByOfferingId(offering.getId()));
+        }
         offeringResponse.setSystemVmType(offering.getSystemVmType());
         offeringResponse.setDisplayText(offering.getDisplayText());
         offeringResponse.setProvisioningType(offering.getProvisioningType().toString());
