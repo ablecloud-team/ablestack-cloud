@@ -846,7 +846,7 @@ export default {
 
     async validate () {
       if (this.systemLocalHa) {
-        this.$refs.internalFormRef?.scrollToField('offerha')
+        if (this.$refs.internalFormRef) this.$refs.internalFormRef.scrollToField('offerha')
         const error = new Error(this.$t('message.system.offering.local.ha'))
         error.errorFields = [{ name: ['offerha'], errors: [error.message] }]
         throw error

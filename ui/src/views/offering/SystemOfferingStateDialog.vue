@@ -80,7 +80,7 @@ export default {
     close () { if (!this.saving) this.closed = true },
     finishClose () {
       this.$emit('close-action')
-      this.afterClose?.()
+      if (this.afterClose) this.afterClose()
     },
     async check (item) {
       try {
