@@ -55,7 +55,7 @@
     :message="$t(l2Network.configDrive ? 'message.l2.network.configdrive' : 'message.l2.network.basic')" />
   <a-list
     class="resource-details-list"
-    :class="{ 'template-details-list': ['template', 'iso'].includes($route.meta.name), 's2s-gateway-details': $route.meta.name === 's2svpn', 'vm-details-list': kmsRoute($route) || ['vm', 'vnfapp', 'publicip', 's2svpn', 'acllist', 'event', 'vpnuser', 'project', 'guestvlans', 'ipv4subnets', 'dnszone', 'dnsserver'].includes($route.meta.name) }"
+    :class="{ 'template-details-list': ['template', 'iso'].includes($route.meta.name), 's2s-gateway-details': $route.meta.name === 's2svpn', 'vm-details-list': kmsRoute($route) || ['vm', 'vnfapp', 'systemoffering', 'publicip', 's2svpn', 'acllist', 'event', 'vpnuser', 'project', 'guestvlans', 'ipv4subnets', 'dnszone', 'dnsserver'].includes($route.meta.name) }"
     size="small"
     :dataSource="(fetchDetails() || []).concat(Object.keys(allocationDetails))">
     <template #renderItem="{item}">
@@ -116,7 +116,7 @@
         <div><strong>{{ $t('label.scope') }}</strong><br/><AclScopeValue :resource="dataResource" /></div>
       </a-list-item>
       <a-list-item v-else-if="$route.meta.name === 'systemoffering' && dataResource.id && systemOfferingDetailLabels.has(item)">
-        <div>
+        <div class="system-offering-detail-value">
           <strong>{{ $t(systemOfferingDetailLabels.get(item)) }}</strong><br />
           <status v-if="item === 'state'" :text="dataResource.state" :display-label="systemOfferingValue(item, dataResource, $t)" display-text />
           <template v-else>{{ systemOfferingValue(item, dataResource, $t) }}</template>
@@ -1033,6 +1033,7 @@ export default {
 }
 /* Same row rhythm as the VM InstanceTab details. */
 .s2s-gateway-details :deep(.ant-list-item) { padding-top: 12px; padding-bottom: 12px; }
+.system-offering-detail-value { width: 100%; }
 .preline {
   white-space: pre-line;
   word-break: break-word;

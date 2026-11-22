@@ -187,6 +187,7 @@ export default {
         },
         {
           name: 'comments',
+          permission: ['listAnnotations'],
           component: shallowRef(defineAsyncComponent(() => import('@/components/view/AnnotationsTab.vue'))),
           show: (record, route, user) => { return ['Admin', 'DomainAdmin'].includes(user.roletype) }
         }
@@ -196,6 +197,7 @@ export default {
         icon: 'plus-outlined',
         label: 'label.add.system.service.offering',
         docHelp: 'adminguide/service_offerings.html#creating-a-new-system-service-offering',
+        standardDialogSize: 'md',
         listView: true,
         params: { issystem: 'true' },
         popup: true,

@@ -17,6 +17,10 @@
 
 <template>
   <div class="list-view-table-wrapper" :class="{ 'kms-table': kmsTable, 'autoscale-list': $route.name === 'autoscalevmgroup', 'snapshot-list-table': $route.name === 'snapshot', 'snapshot-policy-list-table': $route.name === 'snapshotpolicy', 'kubernetes-iso-list-table': isKubernetesIsoMainList }" :tabindex="scrollRegionLabel ? 0 : undefined" :role="scrollRegionLabel ? 'region' : undefined" :aria-label="scrollRegionLabel" @keydown="scrollWideTable" @contextmenu="handleGlobalContextMenu">
+    <p
+      v-if="systemOfferingOrder && items.length && isOrderUpdatable() && $store.getters.apis.listConfigurations && !systemOfferingOrderAvailable"
+      class="system-offering-order-hint"
+      role="status">{{ $t('message.system.offering.order.full.view') }}</p>
     <a-table
       size="middle"
       :loading="loading"
@@ -24,7 +28,7 @@
       :columns="displayColumns"
       :dataSource="items"
       :tableLayout="isIsoMainList || scrollRegionLabel ? 'fixed' : undefined"
-      :scroll="kmsTableScroll || tableScroll || kubernetesIsoTableScroll || isoTableScroll || templateTableScroll || ($route.name === 'snapshot' ? { x: 1400 } : ['autoscalevmgroup', 'affinitygroup'].includes($route.name) ? { x: 980 } : undefined)"
+      :scroll="kmsTableScroll || tableScroll || systemOfferingTableScroll || kubernetesIsoTableScroll || isoTableScroll || templateTableScroll || ($route.name === 'snapshot' ? { x: 1400 } : ['autoscalevmgroup', 'affinitygroup'].includes($route.name) ? { x: 980 } : undefined)"
       :rowKey="listRowKey"
       :pagination="false"
       :rowSelection="explicitlyAllowRowSelection || enableGroupAction() || $route.name === 'event' ? {selectedRowKeys: selectedRowKeys, onChange: onSelectChange, getCheckboxProps: record => ({ disabled: selectionDisabled(record) }), columnWidth: 30} : null"
@@ -195,7 +199,7 @@
           <router-link v-else-if="$route.meta?.name === 'account' && !resourcePath && record.id" :title="text" :to="accountDetailLocation($route, record, $store.getters, $store.state?.user?.token)">{{ text }}</router-link>
           <router-link v-else-if="$route.meta?.name === 'role' && !resourcePath && record.id" :title="text" :to="roleDetailLocation($route, record, $store.getters, $store.state?.user?.token)">{{ text }}</router-link>
           <router-link v-else-if="kmsListRoute($route) && !resourcePath && record.id" :to="kmsDetailLocation($route, record, $store.getters, $store.state?.user?.token)">{{ text }}</router-link>
-          <div v-else-if="systemOfferingOrder && !resourcePath && record.id">
+          <div v-else-if="systemOfferingOrder && !resourcePath && record.id" class="system-offering-name-cell">
             <router-link :title="text" :to="{ path: '/systemoffering/' + record.id, query: systemOfferingListQuery($route.query) }">{{ text }}</router-link>
             <a-tag v-if="record.defaultuse" class="system-offering-default-tag">{{ $t('label.default') }}</a-tag>
           </div>
@@ -1121,8 +1125,7 @@
         <span v-else> {{ text }} </span>
       </template>
       <template v-if="column.key === 'order'">
-        <div v-if="systemOfferingOrder && !systemOfferingOrderAvailable" class="system-offering-order-hint">{{ $t('message.system.offering.order.full.view') }}</div>
-        <div v-else class="shift-btns">
+        <div v-if="!systemOfferingOrder || systemOfferingOrderAvailable" class="shift-btns">
           <a-tooltip
             :name="text"
             placement="top"
@@ -1576,6 +1579,7 @@ export default {
     systemOfferingOrderAvailable () { return !!this.$store.getters.apis.listConfigurations && canReorderSystemOffering(this.$route.query, this.systemOfferingTableSorted) },
     isProjectMainList () { return this.$route.meta?.name === 'project' && !this.$route.params?.id && !this.resourcePath },
     scrollRegionLabel () {
+      if (this.systemOfferingOrder) return this.$t('label.system.offerings')
       if (this.isProjectMainList) return this.$t('label.projects')
       if (this.$route.meta?.name === 'guestvlans' && !this.$route.params?.id) return this.$t('label.guest.vlan')
       if (this.kmsTable) return this.$t(this.resourcePath === '/volume' ? 'label.volumes' : this.resourcePath === '/kmskey' ? 'label.kms.keys' : this.$route.meta.title)
@@ -1587,6 +1591,10 @@ export default {
     displayColumns () {
       const columns = this.isOrderUpdatable() ? this.columns : this.columns.filter(column => column.dataIndex !== 'order')
       if (this.kmsTable) return kmsTableColumns(columns)
+      if (this.systemOfferingOrder) {
+        const widths = { name: 240, state: 104, systemvmtype: 150, cpunumber: 92, cpuspeed: 108, memory: 104, storagetype: 124, offerha: 94, order: 132, filtercolumn: 42 }
+        return columns.map(column => ({ ...column, width: widths[column.key] || column.width || 120 }))
+      }
       if (!this.isKubernetesIsoMainList) return columns
       const widths = { name: this.$store.getters.device === 'mobile' ? 280 : 420, state: 112, semanticversion: 144, isostate: 128, mincpunumber: 128, minmemory: 168, arch: 128, zonename: 180, filtercolumn: 36 }
       return columns.map(column => ({
@@ -1599,6 +1607,11 @@ export default {
     },
     kmsTableScroll () {
       return this.kmsTable ? { ...this.tableScroll, x: this.displayColumns.reduce((total, column) => total + column.width, 0) } : null
+    },
+    systemOfferingTableScroll () {
+      if (!this.systemOfferingOrder) return null
+      const selectionWidth = this.enableGroupAction() ? 30 : 0
+      return { x: this.displayColumns.reduce((total, column) => total + column.width, selectionWidth) }
     },
     kubernetesIsoTableScroll () {
       return this.isKubernetesIsoMainList ? { x: this.displayColumns.reduce((total, column) => total + column.width, 0) } : null
@@ -2389,6 +2402,21 @@ export default {
 </style>
 
 <style scoped lang="scss">
+.system-offering-order-hint {
+  margin: 0;
+  padding: 8px 12px;
+  color: var(--ui-text-secondary);
+}
+
+.system-offering-name-cell {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+
+  a { min-width: 0; overflow-wrap: anywhere; word-break: normal; }
+}
+
 .list-state-with-flatten {
   display: inline-flex;
   align-items: center;

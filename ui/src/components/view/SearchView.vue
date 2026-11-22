@@ -52,7 +52,7 @@
             <template #content v-if="visibleFilter">
               <a-form
                 style="min-width: 170px"
-                :class="{ 'acl-list-search-form': isAclSearch || isVpnUserSearch, 'storage-standard-search-form': ['listTemplates', 'listIsos', 'listVolumes', 'listServiceOfferings', 'listDiskOfferings'].includes(apiName) || isGuestNetworkSearch || isVnfSearch || isEventSearch, 'guest-network-search-form': isGuestNetworkSearch || isVnfSearch || isEventSearch }"
+                :class="{ 'acl-list-search-form': isAclSearch || isVpnUserSearch, 'storage-standard-search-form': (['listTemplates', 'listIsos', 'listVolumes', 'listServiceOfferings', 'listDiskOfferings'].includes(apiName) && $route.meta?.name !== 'systemoffering') || isGuestNetworkSearch || isVnfSearch || isEventSearch, 'guest-network-search-form': isGuestNetworkSearch || isVnfSearch || isEventSearch }"
                 :ref="formRef"
                 :model="form"
                 :rules="rules"
