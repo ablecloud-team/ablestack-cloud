@@ -64,7 +64,9 @@ export default {
   methods: {
     async readRecord () {
       const command = 'list' + this.offeringType + 's'
-      const result = await getAPI(command, { id: this.resource.id, listall: true, state: 'all' }, { preserveOnFailure: true })
+      const params = { id: this.resource.id, listall: true, state: 'all' }
+      if (this.$route.meta.name === 'systemoffering') params.issystem = true
+      const result = await getAPI(command, params, { preserveOnFailure: true })
       const record = result?.[command.toLowerCase() + 'response']?.[this.offeringType.toLowerCase()]?.find(row => row.id === this.resource.id)
       if (!record) throw new Error('message.offering.not.found')
       return record

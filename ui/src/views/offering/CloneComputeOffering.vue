@@ -40,6 +40,7 @@
         :apiParams="apiParams"
         :isSystem="isSystem"
         :lockSystemVmType="isSystem"
+        :systemSource="sourceOffering"
         :isAdmin="isAdmin"
         :ref="formRef"
         @submit="handleSubmit">
@@ -151,6 +152,7 @@ export default {
       vgpuProfiles: [],
       vgpuProfileLoading: false,
       sourceLoading: false,
+      sourceOffering: null,
       sourceReady: false,
       sourceError: '',
       externalDetailsEnabled: false
@@ -189,6 +191,7 @@ export default {
         }
         this.populateFormFromResource(source)
         this.resolveComputeOnlyState(source)
+        this.sourceOffering = source
         this.sourceReady = true
       } catch (error) {
         this.sourceError = error?.response?.data?.errortext || error?.message || this.$t('message.offering.not.found')
@@ -616,7 +619,7 @@ export default {
           params.leaseexpiryaction = values.leaseexpiryaction
         }
 
-        if (values.ispublic !== true) {
+        if (!this.isSystem && values.ispublic !== true) {
           var domainIndexes = values.domainid
           var domainId = null
           if (domainIndexes && domainIndexes.length > 0) {
@@ -632,7 +635,7 @@ export default {
         }
         var zoneIndexes = values.zoneid
         var zoneId = null
-        if (zoneIndexes && zoneIndexes.length > 0) {
+        if (!this.isSystem && zoneIndexes && zoneIndexes.length > 0) {
           var zoneIds = []
           for (var j = 0; j < zoneIndexes.length; j++) {
             zoneIds = zoneIds.concat(this.zones[zoneIndexes[j]].id)

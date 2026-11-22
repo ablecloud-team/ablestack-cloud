@@ -210,6 +210,14 @@ export default {
         args: ['name', 'displaytext', 'storagetags', 'hosttags']
       }, {
         api: 'updateServiceOffering',
+        icon: 'lock-outlined',
+        label: 'label.action.update.offering.access',
+        dataView: true,
+        popup: true,
+        show: () => store.getters.userInfo.roletype === 'Admin',
+        component: shallowRef(defineAsyncComponent(() => import('@/views/offering/UpdateStorageOfferingAccess.vue')))
+      }, {
+        api: 'updateServiceOffering',
         icon: 'play-circle-outlined',
         label: 'label.action.enable.system.service.offering',
         message: 'message.action.enable.system.service.offering',
