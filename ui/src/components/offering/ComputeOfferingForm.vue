@@ -48,6 +48,7 @@
           <a-select
             :getPopupContainer="(trigger) => trigger.parentNode"
             v-model:value="form.systemvmtype"
+            @change="handleSystemVmTypeChange"
             showSearch
             optionFilterProp="label"
             :filterOption="(input, option) => { return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 }"
@@ -230,7 +231,7 @@
               </a-form-item>
             </a-col>
             <a-col :md="12" :lg="12">
-              <a-form-item name="networkrate" ref="networkrate">
+              <a-form-item v-if="!isSystem || form.systemvmtype === 'domainrouter'" name="networkrate" ref="networkrate">
                 <template #label>
                   <tooltip-label :title="$t('label.networkrate')" :tooltip="apiParams.networkrate.description"/>
                 </template>
@@ -677,6 +678,9 @@ export default {
     this.form.ispublic = this.isPublic
   },
   methods: {
+    handleSystemVmTypeChange (type) {
+      this.form.networkrate = type === 'domainrouter' ? this.initialValues.networkrate : undefined
+    },
     initForm () {
       this.formRef = this.$refs.internalFormRef
       this.internalRules = reactive({
