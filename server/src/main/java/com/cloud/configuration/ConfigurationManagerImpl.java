@@ -3669,6 +3669,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             throw new InvalidParameterValueException("Unable to find active user by id " + userId);
         }
         final Account account = _accountDao.findById(user.getAccountId());
+        validateSystemOfferingAccount(isSystem, account);
         if (account.getType() == Account.Type.DOMAIN_ADMIN) {
             if (filteredDomainIds.isEmpty()) {
                 throw new InvalidParameterValueException(String.format("Unable to create public service offering by admin: %s because it is domain-admin", user));
@@ -4536,6 +4537,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             throw new InvalidParameterValueException("Unable to find active user by id " + userId);
         }
         final Account account = _accountDao.findById(user.getAccountId());
+        validateSystemOfferingAccount(offeringHandle.isSystemUse(), account);
 
         // Filter child domains when both parent and child domains are present
         List<Long> filteredDomainIds = domainHelper.filterChildSubDomains(domainIds);
@@ -4770,6 +4772,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             throw new InvalidParameterValueException("Unable to find active user by id " + userId);
         }
         final Account account = _accountDao.findById(user.getAccountId());
+        validateSystemOfferingAccount(isSystem, account);
         if (account.getType() == Account.Type.DOMAIN_ADMIN) {
             if (filteredDomainIds.isEmpty()) {
                 throw new InvalidParameterValueException(String.format("Unable to create public disk offering by admin: %s because it is domain-admin", user));
@@ -5071,6 +5074,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             throw new InvalidParameterValueException("Unable to find active user by id " + userId);
         }
         final Account account = _accountDao.findById(user.getAccountId());
+        validateSystemOfferingAccount(offeringHandle.isSystemUse(), account);
 
         // Filter child domains when both parent and child domains are present
         List<Long> filteredDomainIds = domainHelper.filterChildSubDomains(domainIds);
@@ -5437,6 +5441,12 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         return diskOfferingDetailsDao.findZoneIds(diskOfferingId);
     }
 
+    private void validateSystemOfferingAccount(boolean systemOffering, Account account) {
+        if (systemOffering && account.getType() != Account.Type.ADMIN) {
+            throw new PermissionDeniedException("Only root administrators can manage system service offerings.");
+        }
+    }
+
     private void validateSystemOfferingCanBeDisabled(ServiceOffering offering) {
         if (offering.getDefaultUse()) {
             throw new InvalidParameterValueException("A default system service offering cannot be deactivated.");
@@ -5479,6 +5489,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             throw new InvalidParameterValueException("Unable to find active user by id " + userId);
         }
         final Account account = _accountDao.findById(user.getAccountId());
+        validateSystemOfferingAccount(offering.isSystemUse(), account);
         if (account.getType() == Account.Type.DOMAIN_ADMIN) {
             List<Long> existingDomainIds = _serviceOfferingDetailsDao.findDomainIds(offeringId);
             if (existingDomainIds.isEmpty()) {
