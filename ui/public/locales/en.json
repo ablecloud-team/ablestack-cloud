@@ -10162,6 +10162,7 @@
   "message.system.offering.state.unavailable": "Could not verify this offering and its usage. Reload the list before trying again.",
   "message.system.offering.state.confirm": "Only eligible offerings listed below will be updated.",
   "message.system.offering.order.full.view": "Select All and clear search filters and column sorting to change the global order.",
+  "message.system.offering.local.ha": "Local storage does not support HA. Turn off HA or select shared storage.",
   "message.system.offering.order.failure": "Order change could not be completed ({0} of {1} confirmed). The saved order has been reloaded.",
   "message.offering.update.saved": "Offering settings saved. Existing running VMs are not updated immediately.",
   "message.offering.update.unknown": "The save result is unknown. Another save has been blocked. Refresh to check the server settings before editing again.",

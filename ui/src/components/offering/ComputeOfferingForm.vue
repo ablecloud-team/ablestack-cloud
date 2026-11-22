@@ -241,7 +241,7 @@
           </a-row>
           <a-row :gutter="12">
             <a-col :md="12" :lg="12">
-              <a-form-item name="offerha" ref="offerha">
+              <a-form-item name="offerha" ref="offerha" :validate-status="systemLocalHa ? 'error' : undefined" :help="systemLocalHa ? $t('message.system.offering.local.ha') : undefined">
                 <template #label>
                   <tooltip-label :title="$t('label.offerha')" :tooltip="apiParams.offerha.description"/>
                 </template>
@@ -669,6 +669,9 @@ export default {
     }
   },
   computed: {
+    systemLocalHa () {
+      return this.isSystem && !this.lockSystemVmType && this.form.storagetype === 'local' && this.form.offerha === true
+    },
     systemVmTypes () { return Array.from(systemOfferingTypes) },
     zoneOptions () { return this.isSystem ? this.zones.filter(zone => zone.id) : this.zones },
     systemVmTypeLabel () {
@@ -842,6 +845,12 @@ export default {
     onToggleLeaseData () { if (this.showLeaseOptions === false) { this.leaseduration = undefined; this.leaseexpiryaction = undefined } else { this.leaseduration = this.leaseduration !== undefined ? this.leaseduration : this.defaultLeaseDuration; this.leaseexpiryaction = this.leaseexpiryaction !== undefined ? this.leaseexpiryaction : this.defaultLeaseExpiryAction } this.form.leaseduration = this.leaseduration; this.form.leaseexpiryaction = this.leaseexpiryaction },
 
     async validate () {
+      if (this.systemLocalHa) {
+        this.$refs.internalFormRef?.scrollToField('offerha')
+        const error = new Error(this.$t('message.system.offering.local.ha'))
+        error.errorFields = [{ name: ['offerha'], errors: [error.message] }]
+        throw error
+      }
       try { await this.$refs.allocationEditor?.validate() } catch (error) {
         await this.$refs.sections?.reveal('volume')
         throw error
