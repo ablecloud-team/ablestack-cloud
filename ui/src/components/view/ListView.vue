@@ -91,6 +91,19 @@
       <TableOverflowText
         v-else-if="systemOfferingOrder && ['systemvmtype', 'storagetype', 'offerha', 'cpunumber', 'cpuspeed', 'memory'].includes(column.key)"
         :text="systemOfferingValue(column.key, record, $t)" />
+      <div v-else-if="systemOfferingOrder && column.key === 'name' && !resourcePath && record.id" class="system-offering-name-cell">
+        <TableOverflowText
+          :text="text || '—'"
+          :location="{ path: '/systemoffering/' + record.id, query: systemOfferingListQuery($route.query) }" />
+        <a-tag v-if="record.defaultuse" class="system-offering-default-tag">{{ $t('label.default') }}</a-tag>
+        <div class="system-offering-name-actions">
+          <QuickView
+            :actions="actions"
+            :resource="record"
+            :enabled="quickViewEnabled(actions, columns, column.key)"
+            @exec-action="$parent.execAction" />
+        </div>
+      </div>
       <AclScopeValue v-else-if="column.key === 'vpcname' && isAclListRoute($route)" :resource="record" />
       <a-tag v-else-if="column.key === 'fordisplay' && isAclListRoute($route) && typeof text === 'boolean'">
         {{ $t(aclDisplayLabel(text)) }}
@@ -205,12 +218,6 @@
           <router-link v-else-if="$route.meta?.name === 'account' && !resourcePath && record.id" :title="text" :to="accountDetailLocation($route, record, $store.getters, $store.state?.user?.token)">{{ text }}</router-link>
           <router-link v-else-if="$route.meta?.name === 'role' && !resourcePath && record.id" :title="text" :to="roleDetailLocation($route, record, $store.getters, $store.state?.user?.token)">{{ text }}</router-link>
           <router-link v-else-if="kmsListRoute($route) && !resourcePath && record.id" :to="kmsDetailLocation($route, record, $store.getters, $store.state?.user?.token)">{{ text }}</router-link>
-          <div v-else-if="systemOfferingOrder && !resourcePath && record.id" class="system-offering-name-cell">
-            <TableOverflowText
-              :text="text || '—'"
-              :location="{ path: '/systemoffering/' + record.id, query: systemOfferingListQuery($route.query) }" />
-            <a-tag v-if="record.defaultuse" class="system-offering-default-tag">{{ $t('label.default') }}</a-tag>
-          </div>
           <span v-else-if="$route.path === '/zone' && !resourcePath && record.id">
             <router-link :to="{ path: '/zone/' + record.id, query: zoneListQuery($route.query) }">{{ text }}</router-link>
             <router-link v-if="record.hasannotations" :aria-label="$t('label.comments')" :to="{ path: '/zone/' + record.id, query: { ...zoneListQuery($route.query), tab: 'comments' } }"><message-filled /></router-link>
@@ -2443,6 +2450,11 @@ export default {
 
   .table-overflow-text { flex: 0 1 auto; }
   .system-offering-default-tag { flex: none; margin: 0; }
+  .system-offering-name-actions {
+    display: flex;
+    flex: none;
+    margin-inline-start: auto;
+  }
 }
 
 .list-state-with-flatten {
