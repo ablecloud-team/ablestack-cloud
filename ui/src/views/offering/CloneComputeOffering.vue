@@ -39,6 +39,7 @@
         :rules="rules"
         :apiParams="apiParams"
         :isSystem="isSystem"
+        :lockSystemVmType="isSystem"
         :isAdmin="isAdmin"
         :ref="formRef"
         @submit="handleSubmit">
@@ -66,6 +67,7 @@ import { getAPI } from '@/utils/storageApi'
 import { performanceParams, qosForm } from '@/utils/offeringQos'
 import { allocationParams, allocationForm } from '@/utils/volumeAllocation'
 import { getFilteredExternalDetails } from '@/utils/extension'
+import { systemOfferingTypes } from '@/utils/systemOfferingTypes'
 import AddDiskOffering from '@/views/offering/AddDiskOffering'
 import { isAdmin } from '@/role'
 import { mixinForm } from '@/utils/mixin'
@@ -182,6 +184,9 @@ export default {
         const response = await getAPI('listServiceOfferings', { id: this.resource.id, listall: true, state: 'all', details: 'all', issystem: this.isSystem })
         const source = response.listserviceofferingsresponse?.serviceoffering?.find(row => row.id === this.resource.id)
         if (!source) throw new Error(this.$t('message.offering.not.found'))
+        if (this.isSystem && !systemOfferingTypes.has(source.systemvmtype?.toLowerCase())) {
+          throw new Error(this.$t('message.system.offering.clone.type.unsupported'))
+        }
         this.populateFormFromResource(source)
         this.resolveComputeOnlyState(source)
         this.sourceReady = true
@@ -198,7 +203,7 @@ export default {
     initForm () {
       this.formRef = ref()
       this.form = reactive({
-        systemvmtype: 'domainrouter',
+        systemvmtype: null,
         offeringtype: this.offeringType,
         ispublic: this.isPublic,
         dynamicscalingenabled: true,
@@ -328,7 +333,7 @@ export default {
       if (r.maxmemory || offeringDetails.maxmemory) this.form.maxmemory = r.maxmemory || offeringDetails.maxmemory
 
       if (r.hosttags) this.form.hosttags = r.hosttags
-      if (r.networkrate) this.form.networkrate = r.networkrate
+      if (r.networkrate != null) this.form.networkrate = r.networkrate
       if (r.offerha !== undefined) this.form.offerha = r.offerha
       if (r.dynamicscalingenabled !== undefined) {
         this.form.dynamicscalingenabled = r.dynamicscalingenabled
@@ -407,7 +412,7 @@ export default {
 
       if (r.vspherestoragepolicy) this.form.storagepolicy = r.vspherestoragepolicy
 
-      if (r.systemvmtype) this.form.systemvmtype = r.systemvmtype
+      if (r.systemvmtype) this.form.systemvmtype = r.systemvmtype.toLowerCase()
 
       if (r.deploymentplanner) {
         this.form.deploymentplanner = r.deploymentplanner
@@ -570,7 +575,7 @@ export default {
           }
         }
 
-        if (values.networkrate != null && values.networkrate.length > 0) {
+        if ((!this.isSystem || this.form.systemvmtype === 'domainrouter') && values.networkrate != null && String(values.networkrate).length > 0) {
           params.networkrate = values.networkrate
         }
         if (values.rootdisksize != null && values.rootdisksize.length > 0) {
@@ -601,9 +606,6 @@ export default {
         }
         if ('isvolatile' in values && values.isvolatile !== undefined) {
           params.isvolatile = values.isvolatile === true
-        }
-        if ('systemvmtype' in values && values.systemvmtype !== undefined) {
-          params.systemvmtype = values.systemvmtype
         }
 
         if ('leaseduration' in values && values.leaseduration !== undefined) {

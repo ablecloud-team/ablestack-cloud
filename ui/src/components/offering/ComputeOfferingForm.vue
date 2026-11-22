@@ -45,7 +45,9 @@
           <template #label>
             <tooltip-label :title="$t('label.systemvmtype')" :tooltip="apiParams.systemvmtype.description"/>
           </template>
+          <span v-if="lockSystemVmType">{{ systemVmTypeLabel }}</span>
           <a-select
+            v-else
             :getPopupContainer="(trigger) => trigger.parentNode"
             v-model:value="form.systemvmtype"
             @change="handleSystemVmTypeChange"
@@ -550,6 +552,7 @@ import AllocationSummary from '@/components/view/AllocationSummary'
 import OfferingDiskDefinition from '@/components/offering/OfferingDiskDefinition'
 import MoldDialog from '@/components/view/MoldDialog'
 import { readAllocationList } from '@/utils/volumeAllocation'
+import { systemOfferingTypes } from '@/utils/systemOfferingTypes'
 
 export default {
   name: 'ComputeOfferingForm',
@@ -569,6 +572,7 @@ export default {
   },
   props: {
     organized: Boolean,
+    lockSystemVmType: Boolean,
     rules: { type: Object, default: () => ({}) },
     initialValues: {
       type: Object,
@@ -659,6 +663,12 @@ export default {
       vgpuProfiles: [],
       vgpuProfileLoading: false,
       externalDetailsEnabled: false
+    }
+  },
+  computed: {
+    systemVmTypeLabel () {
+      const label = systemOfferingTypes.get(this.form.systemvmtype)
+      return label ? this.$t(label) : this.$t('label.na')
     }
   },
   watch: {

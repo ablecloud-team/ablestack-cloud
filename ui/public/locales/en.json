@@ -10152,6 +10152,7 @@
   "message.offering.compute.dedicated": "These disk properties were generated for this compute offering. Compute editing does not change CPU, memory, cache or QoS. Clone or create a compute offering to change disk properties.",
   "message.offering.compute.linked": "Disk properties come from the linked general disk offering. Edit cache and QoS there; clone or create a disk offering for immutable properties. Existing VMs using this compute offering may be affected on their next attachment or stop/start.",
   "message.offering.not.found": "The offering could not be read. Check access or deactivation state.",
+  "message.system.offering.clone.type.unsupported": "The source offering has a missing or unsupported system VM type. Create an offering with a supported type.",
   "message.offering.update.saved": "Offering settings saved. Existing running VMs are not updated immediately.",
   "message.offering.update.unknown": "The save result is unknown. Another save has been blocked. Refresh to check the server settings before editing again.",
   "message.volume.operation.fixed.iops": "The selected offering defines these fixed IOPS values.",

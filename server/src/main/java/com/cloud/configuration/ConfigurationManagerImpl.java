@@ -4004,6 +4004,11 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
     public ServiceOffering cloneServiceOffering(final CloneServiceOfferingCmd cmd) {
         final long userId = CallContext.current().getCallingUserId();
         final ServiceOfferingVO sourceOffering = getAndValidateSourceOffering(cmd.getSourceOfferingId());
+        final boolean systemUse = sourceOffering.isSystemUse();
+        final VirtualMachine.Type vmType = resolveVmType(sourceOffering);
+        if (systemUse && StringUtils.isNotBlank(cmd.getSystemVmType()) && !vmType.name().equalsIgnoreCase(cmd.getSystemVmType())) {
+            throw new InvalidParameterValueException("A system service offering clone must use the source system VM type.");
+        }
         final DiskOfferingVO sourceDiskOffering = getSourceDiskOffering(sourceOffering);
         final Map<String, String> requestParams = cmd.getFullUrlParams();
 
@@ -4028,7 +4033,8 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         final List<Long> domainIds = resolveDomainIds(cmd, sourceOffering);
         final List<Long> zoneIds = resolveZoneIds(cmd, sourceOffering);
         final String hostTag = getOrDefault(cmd.getHostTag(), sourceOffering.getHostTag());
-        final Integer networkRate = getOrDefault(cmd.getNetworkRate(), sourceOffering.getRateMbps());
+        final Integer networkRate = !systemUse || vmType == VirtualMachine.Type.DomainRouter
+                ? getOrDefault(cmd.getNetworkRate(), sourceOffering.getRateMbps()) : null;
         final String deploymentPlanner = getOrDefault(cmd.getDeploymentPlanner(), sourceOffering.getDeploymentPlanner());
 
         final ClonedDiskOfferingParams diskParams = resolveDiskOfferingParams(cmd, sourceDiskOffering);
@@ -4066,9 +4072,6 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         }
 
         final boolean localStorageRequired = ServiceOffering.StorageType.local.toString().equalsIgnoreCase(storageType);
-
-        final boolean systemUse = sourceOffering.isSystemUse();
-        final VirtualMachine.Type vmType = resolveVmType(sourceOffering);
 
         return createServiceOffering(userId, systemUse, vmType,
                 name, cpuNumber, memory, cpuSpeed, displayText, OfferingAllocationClone.provisioning(provisioningType, sourceDiskOffering == null ? "thin" : sourceDiskOffering.getProvisioningType().toString(), mergedDetails, requestParams), localStorageRequired,
@@ -4253,15 +4256,15 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
     }
 
     private VirtualMachine.Type resolveVmType(ServiceOfferingVO sourceOffering) {
-        if (sourceOffering.getVmType() == null) {
-            return null;
+        if (!sourceOffering.isSystemUse()) {
+            return EnumUtils.getEnum(VirtualMachine.Type.class, sourceOffering.getVmType());
         }
-        try {
-            return VirtualMachine.Type.valueOf(sourceOffering.getVmType());
-        } catch (IllegalArgumentException e) {
-            logger.warn("Invalid VM type in source offering: {}", sourceOffering.getVmType());
-            return null;
+        final VirtualMachine.Type type = EnumUtils.getEnumIgnoreCase(VirtualMachine.Type.class, sourceOffering.getVmType());
+        if (type == VirtualMachine.Type.DomainRouter || type == VirtualMachine.Type.ConsoleProxy
+                || type == VirtualMachine.Type.SecondaryStorageVm || type == VirtualMachine.Type.InternalLoadBalancerVm) {
+            return type;
         }
+        throw new InvalidParameterValueException("The source offering has a missing or unsupported system VM type. Create an offering with a supported type.");
     }
 
     private static class ClonedDiskOfferingParams {
