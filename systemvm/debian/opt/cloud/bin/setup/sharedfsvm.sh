@@ -45,8 +45,13 @@ setup_sharedfsvm() {
     enable_fwding 0
     enable_irqbalance 0
     setup_ntp
-    mkdir -p /var/lib/dhcp
-    dhclient -4 -v -pf /run/dhclient.eth0.pid -lf /var/lib/dhcp/dhclient.eth0.leases eth0 || true
+    if [ -s /etc/ablestack-storage/sharedfs-network.json ] ||
+        grep -sEq '(^|[[:space:]])sharedfsnetworkmode=static([[:space:]]|$)' /var/cache/cloud/cmdline; then
+      log_it "Skipping DHCP for static SharedFS networking"
+    else
+      mkdir -p /var/lib/dhcp
+      dhclient -4 -v -pf /run/dhclient.eth0.pid -lf /var/lib/dhcp/dhclient.eth0.leases eth0 || true
+    fi
 
     rm -f /etc/logrotate.d/cloud
     mkdir -p /etc/ablestack-storage

@@ -128,6 +128,7 @@ public interface UserVmManager extends UserVmService {
 
     public  static  final String CKS_NODE = "cksnode";
     public  static  final String SHAREDFSVM = "sharedfsvm";
+    String SHAREDFS_NETWORK_MODE = "sharedfs.network.mode";
 
     /**
      * @param hostId get all of the virtual machines that belong to one host.

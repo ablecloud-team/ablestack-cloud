@@ -25,6 +25,8 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -32,6 +34,8 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.cloudstack.api.ApiCommandResourceType;
@@ -269,9 +273,22 @@ public class StorageVmSharedFSLifeCycleTest {
     }
 
     @Test
-    public void testDeploySharedFS() throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, IOException, OperationTimedoutException {
+    public void testDeploySharedFS() throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        assertSharedFSDeployment(SharedFS.NetworkMode.DHCP, Map.of("minIopsDo", "1000", "maxIopsDo", "2000"));
+    }
+
+    @Test
+    public void testDeployStaticSharedFSWithNetworkModeDetail() throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        assertSharedFSDeployment(SharedFS.NetworkMode.STATIC, Map.of("minIopsDo", "1000", "maxIopsDo", "2000",
+                UserVmManager.SHAREDFS_NETWORK_MODE, "STATIC"));
+    }
+
+    private void assertSharedFSDeployment(SharedFS.NetworkMode networkMode, Map<String, String> expectedDetails)
+            throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
         SharedFS sharedFS = prepareDeploySharedFS();
-        when(sharedFS.getAccountId()).thenReturn(s_ownerId);
+        when(sharedFS.getNetworkMode()).thenReturn(networkMode);
+        String requestedIp = networkMode == SharedFS.NetworkMode.STATIC ? "10.10.77.77" : null;
+        when(sharedFS.getIpAddress()).thenReturn(requestedIp);
 
         Account owner = mock(Account.class);
         when(owner.getId()).thenReturn(s_ownerId);
@@ -281,9 +298,10 @@ public class StorageVmSharedFSLifeCycleTest {
         when(vm.getId()).thenReturn(s_vmId);
         when(userVmService.createAdvancedVirtualMachine(
                 any(DataCenter.class), any(ServiceOffering.class), any(VirtualMachineTemplate.class), anyList(), any(Account.class), anyString(),
-                anyString(), anyLong(), anyLong(), isNull(), any(Hypervisor.HypervisorType.class), any(BaseCmd.HTTPMethod.class), anyString(),
-                isNull(), isNull(), anyList(), isNull(), any(Network.IpAddresses.class), isNull(), isNull(), isNull(),
-                anyMap(), isNull(), isNull(), isNull(), isNull(),
+                anyString(), anyLong(), anyLong(), isNull(), any(Hypervisor.HypervisorType.class), any(BaseCmd.HTTPMethod.class),
+                networkMode == SharedFS.NetworkMode.STATIC ? isNull() : anyString(),
+                isNull(), isNull(), anyList(), isNull(), argThat(addresses -> Objects.equals(requestedIp, addresses.getIp4Address())), isNull(), isNull(), isNull(),
+                eq(expectedDetails), isNull(), isNull(), isNull(), isNull(),
                 anyBoolean(), anyString(), isNull())).thenReturn(vm);
 
         VolumeVO rootVol = mock(VolumeVO.class);

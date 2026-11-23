@@ -148,6 +148,7 @@ import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
 import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 import org.apache.cloudstack.storage.datastore.db.TemplateDataStoreDao;
 import org.apache.cloudstack.storage.datastore.db.TemplateDataStoreVO;
+import org.apache.cloudstack.storage.sharedfs.SharedFS;
 import org.apache.cloudstack.storage.template.VnfTemplateManager;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import org.apache.cloudstack.storage.to.VolumeObjectTO;
@@ -4961,6 +4962,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         if (customParameters.containsKey(VmDetailConstants.NAME_ON_HYPERVISOR)) {
             hiddenDetails.add(VmDetailConstants.NAME_ON_HYPERVISOR);
         }
+        if (customParameters.containsKey(SHAREDFS_NETWORK_MODE)) {
+            hiddenDetails.add(SHAREDFS_NETWORK_MODE);
+        }
         _vmDao.saveDetails(vm, hiddenDetails);
         if (!isImport) {
             logger.debug("Allocating in the DB for vm");
@@ -5384,11 +5388,13 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         return vm;
     }
 
-    private void addUserVMCmdlineArgs(Long vmId, VirtualMachineProfile profile, DeployDestination dest, StringBuilder buf) {
-        UserVmVO vm = _vmDao.findById(vmId);
+    private void addUserVMCmdlineArgs(UserVmVO vm, VirtualMachineProfile profile, DeployDestination dest, StringBuilder buf) {
         buf.append(" template=domP");
         buf.append(" name=").append(profile.getHostName());
         buf.append(" type=").append(vm.getUserVmType());
+        if (SHAREDFSVM.equals(vm.getUserVmType()) && SharedFS.NetworkMode.STATIC.name().equals(vm.getDetail(SHAREDFS_NETWORK_MODE))) {
+            buf.append(" sharedfsnetworkmode=static");
+        }
         for (NicProfile nic : profile.getNics()) {
             int deviceId = nic.getDeviceId();
             if (nic.getIPv4Address() == null) {
@@ -5430,7 +5436,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         vm.setDetails(details);
         StringBuilder buf = profile.getBootArgsBuilder();
         if (CKS_NODE.equals(vm.getUserVmType()) || SHAREDFSVM.equals(vm.getUserVmType())) {
-            addUserVMCmdlineArgs(vm.getId(), profile, dest, buf);
+            addUserVMCmdlineArgs(vm, profile, dest, buf);
         }
         // add userdata info into vm profile
         Nic defaultNic = _networkModel.getDefaultNic(vm.getId());
