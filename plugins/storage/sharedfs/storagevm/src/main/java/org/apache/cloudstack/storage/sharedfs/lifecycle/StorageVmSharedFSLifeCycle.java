@@ -168,6 +168,9 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
         String hostName = getStorageVmName(name);
         Network.IpAddresses addrs = new Network.IpAddresses(networkMode == SharedFS.NetworkMode.STATIC ? requestedIp : null, null);
         Map<String, String> customParameterMap = new HashMap<String, String>();
+        if (networkMode == SharedFS.NetworkMode.STATIC) {
+            customParameterMap.put(UserVmManager.SHAREDFS_NETWORK_MODE, networkMode.name());
+        }
         if (minIops != null) {
             customParameterMap.put("minIopsDo", minIops.toString());
             customParameterMap.put("maxIopsDo", maxIops.toString());
