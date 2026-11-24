@@ -2,7 +2,7 @@
 Description=CloudStack service to initialize interfaces
 DefaultDependencies=no
 
-Before=network-pre.target
+Before=network-pre.target ablestack-sharedfs-network.service
 Wants=network-pre.target
 
 Requires=local-fs.target

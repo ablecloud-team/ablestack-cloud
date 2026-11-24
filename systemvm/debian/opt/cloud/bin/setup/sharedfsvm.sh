@@ -45,8 +45,7 @@ setup_sharedfsvm() {
     enable_fwding 0
     enable_irqbalance 0
     setup_ntp
-    if [ -s /etc/ablestack-storage/sharedfs-network.json ] ||
-        grep -sEq '(^|[[:space:]])sharedfsnetworkmode=static([[:space:]]|$)' /var/cache/cloud/cmdline; then
+    if sharedfs_uses_static_network; then
       log_it "Skipping DHCP for static SharedFS networking"
     else
       mkdir -p /var/lib/dhcp
