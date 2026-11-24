@@ -207,10 +207,12 @@ setup_interface_sshd() {
       setup_sshd $ETH1_IP "eth1"
     fi
 
-  elif [ "$TYPE" == "cksnode" ]; then
-    setup_common eth0
+  elif [ "$TYPE" == "sharedfsvm" ] && sharedfs_uses_static_network; then
+    log_it "SharedFS static networking is managed by ablestack-sharedfs-network.service"
+    printf 'auto lo\niface lo inet loopback\n' > /etc/network/interfaces
+    setup_guest_hostname_and_dns
 
-  elif [ "$TYPE" == "sharedfsvm" ]; then
+  elif [ "$TYPE" == "cksnode" ] || [ "$TYPE" == "sharedfsvm" ]; then
     setup_common eth0
   fi
 

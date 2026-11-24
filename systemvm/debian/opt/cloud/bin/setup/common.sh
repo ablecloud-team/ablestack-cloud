@@ -66,6 +66,11 @@ EOF
   fi
 }
 
+sharedfs_uses_static_network() {
+  [ -s /etc/ablestack-storage/sharedfs-network.json ] ||
+    grep -sEq '(^|[[:space:]])sharedfsnetworkmode=static([[:space:]]|$)' /var/cache/cloud/cmdline
+}
+
 setup_interface() {
   local intfnum=$1
   local ip=$2
@@ -320,25 +325,10 @@ restore_ipv6() {
 }
 
 
-setup_common() {
-  init_interfaces $1 $2 $3
-  if [ -n "$ETH0_IP" ]
-  then
-    setup_interface "0" $ETH0_IP $ETH0_MASK $GW
-  fi
-  if [ -n "$ETH1_IP" ]
-  then
-    setup_interface "1" $ETH1_IP $ETH1_MASK $GW
-  fi
-  if [ -n "$ETH2_IP" ]
-  then
-    setup_interface "2" $ETH2_IP $ETH2_MASK $GW
-  fi
-  setup_ipv6
-
-  echo $NAME > /etc/hostname
+setup_guest_hostname_and_dns() {
+  echo "$NAME" > /etc/hostname
   echo 'AVAHI_DAEMON_DETECT_LOCAL=0' > /etc/default/avahi-daemon
-  hostnamectl set-hostname $NAME
+  hostnamectl set-hostname "$NAME"
 
   #Nameserver
   sed -i -e "/^nameserver.*$/d" /etc/resolv.conf # remove previous entries
@@ -376,6 +366,25 @@ setup_common() {
     echo "nameserver $IP6_NS2" >> /etc/dnsmasq-resolv.conf
     echo "nameserver $IP6_NS2" >> /etc/resolv.conf
   fi
+}
+
+setup_common() {
+  init_interfaces $1 $2 $3
+  if [ -n "$ETH0_IP" ]
+  then
+    setup_interface "0" $ETH0_IP $ETH0_MASK $GW
+  fi
+  if [ -n "$ETH1_IP" ]
+  then
+    setup_interface "1" $ETH1_IP $ETH1_MASK $GW
+  fi
+  if [ -n "$ETH2_IP" ]
+  then
+    setup_interface "2" $ETH2_IP $ETH2_MASK $GW
+  fi
+  setup_ipv6
+
+  setup_guest_hostname_and_dns
 
   if [ -n "$MGMTNET"  -a -n "$LOCAL_GW" ]
   then
