@@ -40,6 +40,12 @@
   text-overflow: ellipsis;
 }
 
+.mold-list-table .ant-table-cell.ant-table-selection-column {
+  padding-inline: 0 !important;
+  text-align: center;
+  text-overflow: clip;
+}
+
 .mold-list-table .ant-table-cell:not(.ant-table-selection-column) :where(span, div, a, p, small, strong) {
   min-width: 0;
   max-width: 100%;
