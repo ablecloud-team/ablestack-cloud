@@ -36,7 +36,8 @@
         v-else-if="requestFailed"
         type="error"
         show-icon
-        :message="$t('message.request.failed')" />
+        :message="$t('message.request.failed')"
+        :description="requestStatus ? 'HTTP ' + requestStatus : undefined" />
       <template v-else-if="delivery">
         <status :text="delivery.success ? 'success' : 'error'" displayText />
         <div v-if="responseDuration !== null">{{ $t('label.duration') }} {{ responseDuration }}</div>
@@ -76,6 +77,7 @@ export default {
       delivery: null,
       loading: false,
       requestFailed: false,
+      requestStatus: null,
       inputRevision: 0
     }
   },
@@ -105,12 +107,14 @@ export default {
       this.inputRevision++
       this.delivery = null
       this.requestFailed = false
+      this.requestStatus = null
     },
     async testWebhookDelivery () {
       if (this.disabled || this.loading || (!this.resource?.id && !this.testTarget)) return
       const revision = this.inputRevision
       this.delivery = null
       this.requestFailed = false
+      this.requestStatus = null
       this.loading = true
       this.$emit('change-loading', true)
       const params = {}
@@ -131,7 +135,7 @@ export default {
       } catch (error) {
         if (revision === this.inputRevision) {
           this.requestFailed = true
-          this.$notifyError(error)
+          this.requestStatus = error.response?.status || null
         }
       } finally {
         this.loading = false

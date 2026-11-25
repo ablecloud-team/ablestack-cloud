@@ -24,7 +24,7 @@ jest.mock('@/api', () => ({ postAPI: jest.fn() }))
 const makeWrapper = (props = {}) => shallowMount(TestWebhookDeliveryView, {
   props,
   global: {
-    mocks: { $t: key => key, $notifyError: jest.fn() },
+    mocks: { $t: key => key },
     stubs: ['a-space', 'a-button', 'a-alert']
   }
 })
