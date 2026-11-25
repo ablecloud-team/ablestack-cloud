@@ -17,18 +17,14 @@
 
 <template>
   <div class="content-breadcrumb">
-    <a-card class="breadcrumb-card">
-      <a-row>
-        <a-col
-          :span="device === 'mobile' ? 24 : 12"
-          style="padding-left: 12px; margin-top: 10px"
-        >
+    <a-card class="breadcrumb-card breadcrumb-toolbar">
+      <a-row class="breadcrumb-toolbar-row">
+        <a-col class="breadcrumb-toolbar-path">
           <breadcrumb :resource="resource">
             <template #end>
               <a-tooltip placement="bottom">
                 <template #title>{{ $t('label.refresh') }}</template>
                 <a-button
-                  style="margin-top: 4px"
                   :loading="serverMetricsLoading"
                   shape="round"
                   size="small"
@@ -43,30 +39,22 @@
             </template>
           </breadcrumb>
         </a-col>
-        <a-col
-          :span="device === 'mobile' ? 24 : 12"
-          :style="device === 'mobile' ? { float: 'right', 'margin-top': '12px', 'margin-bottom': '-6px', display: 'table' } : { float: 'right', display: 'table', 'margin-top': '6px' }"
-        >
-          <a-row justify="end">
-            <a-col>
-              <tooltip-button
-                v-if="'generateUsageRecords' in $store.getters.apis"
-                type="primary"
-                icon="hdd-outlined"
-                :tooltip="$t('label.usage.records.generate')"
-                @onClick="generateModal = true"
-              />
-            </a-col>&nbsp;&nbsp;
-            <a-col>
-              <tooltip-button
-                v-if="'removeRawUsageRecords' in $store.getters.apis"
-                type="danger"
-                icon="delete-outlined"
-                :tooltip="$t('label.usage.records.purge')"
-                @onClick="() => purgeModal = true"
-              />
-            </a-col>
-          </a-row>
+        <a-col class="breadcrumb-toolbar-actions">
+          <a-button
+            v-if="'generateUsageRecords' in $store.getters.apis"
+            type="primary"
+            shape="round"
+            @click="generateModal = true">
+            <template #icon><hdd-outlined /></template>
+            {{ $t('label.usage.records.generate') }}
+          </a-button>
+          <tooltip-button
+            v-if="'removeRawUsageRecords' in $store.getters.apis"
+            shape="circle"
+            danger
+            icon="delete-outlined"
+            :tooltip="$t('label.usage.records.purge')"
+            @onClick="purgeModal = true" />
         </a-col>
       </a-row>
     </a-card>

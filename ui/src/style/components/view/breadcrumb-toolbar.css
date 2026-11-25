@@ -1,0 +1,303 @@
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file for ownership.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * http://www.apache.org/licenses/LICENSE-2.0
+ */
+
+.breadcrumb-card.breadcrumb-toolbar {
+  background: var(--ui-bg-elevated);
+  border: 1px solid var(--ui-border);
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  container: breadcrumb-toolbar / inline-size;
+  --breadcrumb-font-size: 14px;
+  --breadcrumb-line-height: 22px;
+}
+
+.breadcrumb-toolbar .breadcrumb-toolbar-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 8px !important;
+  padding-inline: 12px;
+}
+
+.breadcrumb-toolbar .breadcrumb-toolbar-path {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
+  gap: 8px 12px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.breadcrumb-toolbar .breadcrumb-toolbar-actions {
+  display: flex;
+  flex: 0 1 auto;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+  margin-inline-start: auto;
+}
+
+.breadcrumb-toolbar .breadcrumb-toolbar-actions > *,
+.breadcrumb-toolbar .breadcrumb-controls > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.breadcrumb-toolbar .breadcrumb-controls > .ant-select {
+  min-width: 100px;
+}
+
+.breadcrumb-toolbar .breadcrumb-toolbar-actions > .row-action-button {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+.breadcrumb-toolbar .breadcrumb-toolbar-actions > .row-action-button > .ant-btn {
+  margin: 0;
+}
+
+.breadcrumb-toolbar .breadcrumb-toolbar-actions .breadcrumb-toolbar-search {
+  display: block !important;
+  flex: 0 1 240px;
+  width: 240px !important;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.breadcrumb-toolbar .breadcrumb-toolbar-search .ant-input-group-addon:first-child > .ant-btn {
+  display: block;
+  width: 20px;
+  height: 24px;
+  padding: 0;
+}
+
+.breadcrumb-toolbar .breadcrumb-toolbar-search .ant-input-search-button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+.breadcrumb-toolbar .breadcrumb-toolbar-actions .ant-btn-circle {
+  min-width: 32px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+.breadcrumb-toolbar .breadcrumb-toolbar-search .input-search {
+  width: 100%;
+  margin: 0;
+}
+
+.breadcrumb-toolbar .breadcrumb {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.breadcrumb-toolbar .breadcrumb > span {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.breadcrumb-toolbar .breadcrumb .ant-breadcrumb-link {
+  min-width: 0;
+}
+
+.breadcrumb-toolbar .breadcrumb .ant-breadcrumb-link > a,
+.breadcrumb-toolbar .breadcrumb .breadcrumb-page {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.breadcrumb-toolbar .breadcrumb-controls {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 6px 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.breadcrumb-toolbar :is(.breadcrumb, .breadcrumb-controls, .ant-btn, .ant-tag, .ant-select, .ant-input, .ant-switch-inner) {
+  font-size: var(--breadcrumb-font-size);
+  font-weight: 400;
+  line-height: var(--breadcrumb-line-height);
+}
+
+/* Scope the path palette above Ant and the generated theme stylesheet. */
+.breadcrumb-toolbar .breadcrumb :is(.ant-breadcrumb-link, .ant-breadcrumb-separator),
+.breadcrumb-toolbar .breadcrumb .breadcrumb-current {
+  color: var(--ui-breadcrumb-text) !important;
+}
+
+.breadcrumb-toolbar .breadcrumb .ant-breadcrumb-link a,
+.breadcrumb-toolbar .breadcrumb .ant-breadcrumb-link a > span,
+.breadcrumb-toolbar .breadcrumb .breadcrumb-page,
+.breadcrumb-toolbar .breadcrumb-controls > a {
+  color: var(--ui-link) !important;
+}
+
+.breadcrumb-toolbar .breadcrumb .breadcrumb-current > * {
+  color: inherit !important;
+}
+
+.breadcrumb-toolbar .breadcrumb .breadcrumb-current {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.breadcrumb-toolbar .breadcrumb .ant-breadcrumb-link a:hover,
+.breadcrumb-toolbar .breadcrumb .ant-breadcrumb-link a:hover > span,
+.breadcrumb-toolbar .breadcrumb-controls > a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-toolbar .breadcrumb-controls .ant-btn,
+.breadcrumb-toolbar .breadcrumb-toolbar-actions .ant-btn {
+  max-width: 100%;
+  height: auto;
+  min-height: 24px;
+  white-space: nowrap;
+}
+
+.breadcrumb-toolbar .breadcrumb-toolbar-actions .ant-btn:not(.ant-btn-sm) {
+  min-height: 32px;
+}
+
+.breadcrumb-toolbar :is(.breadcrumb-controls, .breadcrumb-toolbar-actions) .ant-btn > span {
+  color: inherit;
+}
+
+.breadcrumb-toolbar .ant-btn.ant-btn-default:not(.ant-btn-dangerous):not([disabled]),
+.breadcrumb-toolbar :is(.breadcrumb-toolbar-search.ant-input-search, .breadcrumb-toolbar-search .ant-input-search) > .ant-input-group > .ant-input-group-addon:last-child .ant-input-search-button:not([disabled]) {
+  color: var(--ui-text-secondary) !important;
+}
+
+.breadcrumb-toolbar .ant-btn.ant-btn-default:not(.ant-btn-dangerous):not([disabled]):hover,
+.breadcrumb-toolbar :is(.breadcrumb-toolbar-search.ant-input-search, .breadcrumb-toolbar-search .ant-input-search) > .ant-input-group > .ant-input-group-addon:last-child .ant-input-search-button:not([disabled]):hover {
+  color: var(--ui-link) !important;
+}
+
+.breadcrumb-toolbar .ant-btn-primary {
+  color: var(--ui-action-primary-text);
+  background: var(--ui-action-primary-bg);
+  border-color: var(--ui-action-primary-bg);
+  text-shadow: none;
+}
+
+.breadcrumb-toolbar .ant-btn-primary:not([disabled]):not(.ant-btn-loading):not(.ant-btn-dangerous):is(:hover, :active) {
+  color: var(--ui-action-primary-text);
+  background: var(--ui-action-primary-hover);
+  border-color: var(--ui-action-primary-hover);
+}
+
+.breadcrumb-toolbar .ant-btn-primary.ant-btn-dangerous {
+  background: var(--ui-action-danger-bg);
+  border-color: var(--ui-action-danger-bg);
+}
+
+.breadcrumb-toolbar .ant-btn[disabled] {
+  color: var(--ui-text-disabled);
+  background: var(--ui-bg-disabled);
+  border-color: var(--ui-border);
+}
+
+.breadcrumb-toolbar .ant-btn.ant-btn-loading::before {
+  background: transparent;
+}
+
+.breadcrumb-toolbar .ant-input:not([disabled]),
+.breadcrumb-toolbar .ant-select:not(.ant-select-disabled) .ant-select-selection-item {
+  color: var(--ui-text-primary);
+}
+
+.breadcrumb-toolbar .ant-input::placeholder,
+.breadcrumb-toolbar .ant-select-selection-placeholder {
+  color: var(--ui-text-muted);
+  opacity: 1;
+}
+
+.breadcrumb-toolbar :is(a, button, [tabindex]):focus-visible,
+.breadcrumb-toolbar .ant-select-focused .ant-select-selector,
+.breadcrumb-toolbar .ant-input-affix-wrapper:focus-within {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 2px;
+}
+
+/* A wide work area keeps both groups aligned with each other. */
+@container breadcrumb-toolbar (min-width: 900px) {
+  .breadcrumb-toolbar .breadcrumb-toolbar-row {
+    flex-wrap: nowrap;
+  }
+
+  .breadcrumb-toolbar .breadcrumb-toolbar-path:not(:has(.breadcrumb-current)) {
+    flex-shrink: 0;
+  }
+
+  .breadcrumb-toolbar .breadcrumb-toolbar-actions .breadcrumb-toolbar-search {
+    min-width: 120px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1100px) {
+  .breadcrumb-toolbar .breadcrumb-toolbar-actions .breadcrumb-toolbar-search {
+    flex-basis: 150px;
+    width: 150px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .breadcrumb-toolbar .breadcrumb-toolbar-path {
+    flex: 1 1 100%;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .breadcrumb-toolbar .breadcrumb,
+  .breadcrumb-toolbar .breadcrumb-controls,
+  .breadcrumb-toolbar .breadcrumb-toolbar-actions,
+  .breadcrumb-toolbar .breadcrumb-toolbar-actions > .row-action-button {
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb-toolbar .breadcrumb,
+  .breadcrumb-toolbar .breadcrumb .breadcrumb-current,
+  .breadcrumb-toolbar :is(.breadcrumb-controls, .breadcrumb-toolbar-actions) .ant-btn {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .breadcrumb-toolbar .breadcrumb .breadcrumb-current,
+  .breadcrumb-toolbar .breadcrumb .ant-breadcrumb-link > a,
+  .breadcrumb-toolbar .breadcrumb .breadcrumb-page {
+    overflow: visible;
+    overflow-wrap: anywhere;
+  }
+
+  .breadcrumb-toolbar .breadcrumb-toolbar-actions {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+    margin-inline-start: 0;
+  }
+}

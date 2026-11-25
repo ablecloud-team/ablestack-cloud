@@ -31,7 +31,7 @@
             @exec-action="execAction" />
         </div>
       </template>
-      <a-button type="primary" class="autogen-action-dropdown__button">
+      <a-button type="primary" shape="round" class="autogen-action-dropdown__button">
         <template #icon><DownOutlined /></template>
         {{ $t('label.actions') }}
       </a-button>

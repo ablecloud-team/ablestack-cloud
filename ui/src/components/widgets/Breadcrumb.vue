@@ -31,14 +31,14 @@
         <render-icon v-if="index == 0" :icon="item.meta.icon" style="font-size: 16px" @click="resetToMainView" />
         {{ $t(item.meta.title) }}
       </router-link>
-      <span v-else-if="item.current" class="vm-acl-breadcrumb-current" aria-current="page">
+      <span v-else-if="item.current" :class="$route.params.id ? 'breadcrumb-current' : 'breadcrumb-page'" aria-current="page">
         {{ item.text || $t(item.meta.title) }}
       </span>
       <span
         v-else-if="$route.params.id"
-        :class="{ 'vm-acl-breadcrumb-current': standardLayout }"
-        :aria-current="standardLayout ? 'page' : undefined"
-        :title="standardLayout ? resourceTitle : undefined">
+        class="breadcrumb-current"
+        aria-current="page"
+        :title="resourceTitle">
         <label
           v-if="'name' in resource &&
             ['USER.LOGIN', 'USER.LOGOUT', 'ROUTER.HEALTH.CHECKS', 'FIREWALL.CLOSE', 'ALERT.SERVICE.DOMAINROUTER'].includes(resource.name)">
@@ -55,18 +55,15 @@
           {{ resourceTitle }}
         </label>
       </span>
-      <span v-else>
+      <span v-else :class="{ 'breadcrumb-page': index === resolvedTrail.length - 1 }" :aria-current="index === resolvedTrail.length - 1 ? 'page' : undefined">
         {{ $t(item.meta.title) }}
       </span>
-      <BreadcrumbControls
-        v-if="!standardLayout && index === resolvedTrail.length - 1"
-        :doc-url="helpUrl(item)"
-        :parent-location="kmsParentLocation">
-        <template #end><slot name="end" /></template>
-      </BreadcrumbControls>
     </a-breadcrumb-item>
   </a-breadcrumb>
-  <BreadcrumbControls v-if="standardLayout && resolvedTrail.length" standard :doc-url="helpUrl(resolvedTrail.at(-1))">
+  <BreadcrumbControls
+    v-if="resolvedTrail.length"
+    :doc-url="helpUrl(resolvedTrail.at(-1))"
+    :parent-location="kmsParentLocation">
     <template #end><slot name="end" /></template>
   </BreadcrumbControls>
 </template>
@@ -114,7 +111,6 @@ export default {
   inheritAttrs: false,
   components: { BreadcrumbControls, KeyboardTooltip },
   props: {
-    standardLayout: { type: Boolean, default: false },
     trail: { type: Array, default: null },
     resource: {
       type: Object,
@@ -277,3 +273,5 @@ export default {
 }
 .kms-parent-link { margin-inline-end: 8px; }
 </style>
+
+<style src="@/style/components/view/breadcrumb-toolbar.css" />

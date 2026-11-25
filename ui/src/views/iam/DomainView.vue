@@ -17,10 +17,10 @@
 
 <template>
   <div>
-    <a-card class="breadcrumb-card content-breadcrumb">
-      <div class="domain-page-toolbar">
-        <div class="domain-page-location">
-          <breadcrumb :resource="breadcrumbResource" standard-layout>
+    <a-card class="breadcrumb-card breadcrumb-toolbar content-breadcrumb">
+      <div class="breadcrumb-toolbar-row">
+        <div class="breadcrumb-toolbar-path">
+          <breadcrumb :resource="breadcrumbResource">
             <template #end>
               <a-button
                 ref="domainRefresh"
@@ -41,8 +41,8 @@
             {{ resource.path || resource.name }}
           </router-link>
         </div>
-        <div class="domain-page-actions">
-          <a-button v-if="createAction" ref="domainCreate" :aria-label="$t(createAction.label)" type="primary" shape="round" @click="execAction(createAction)">
+        <div class="breadcrumb-toolbar-actions">
+          <a-button v-if="createAction && !detailActions.length" ref="domainCreate" :aria-label="$t(createAction.label)" type="primary" shape="round" @click="execAction(createAction)">
             <template #icon><plus-outlined /></template>
             {{ $t(createAction.label) }}
           </a-button>
@@ -64,11 +64,16 @@
                   @exec-action="handleDropdownAction" />
               </div>
             </template>
-            <a-button ref="domainActions" type="primary" class="autogen-action-dropdown__button">
+            <a-button ref="domainActions" type="primary" shape="round" class="autogen-action-dropdown__button">
               <template #icon><down-outlined /></template>
               {{ $t('label.actions') }}
             </a-button>
           </a-dropdown>
+          <a-tooltip v-if="createAction && detailActions.length" :title="$t(createAction.label)">
+            <a-button ref="domainCreate" shape="circle" :aria-label="$t(createAction.label)" @click="execAction(createAction)">
+              <template #icon><plus-outlined /></template>
+            </a-button>
+          </a-tooltip>
         </div>
       </div>
     </a-card>
@@ -720,25 +725,11 @@ export default {
     margin-bottom: 12px;
   }
 
-  .domain-page-toolbar,
-  .domain-page-location,
-  .domain-page-actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .domain-page-toolbar { justify-content: space-between; }
-  .domain-page-location { min-width: 0; flex: 1 1 380px; }
   .domain-breadcrumb-path {
     max-width: ~"min(100%, 420px)";
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-  }
-  @media (max-width: 600px) {
-    .domain-page-actions { width: 100%; }
   }
 
   .row-element {

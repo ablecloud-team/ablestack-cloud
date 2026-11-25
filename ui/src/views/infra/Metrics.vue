@@ -18,23 +18,26 @@
 <template>
   <div>
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <a-card class="breadcrumb-card content-breadcrumb">
-      <breadcrumb>
-        <template #end>
-          <a-tooltip placement="bottom">
-            <template #title>{{ $t('label.refresh') }}</template>
-            <a-button
-              style="margin-top: 4px"
-              :loading="loading"
-              shape="round"
-              size="small"
-              @click="fetchDetails()">
-              <template #icon><ReloadOutlined /></template>
-              {{ $t('label.refresh') }}
-            </a-button>
-          </a-tooltip>
-        </template>
-      </breadcrumb>
+    <a-card class="breadcrumb-card breadcrumb-toolbar content-breadcrumb">
+      <div class="breadcrumb-toolbar-row">
+        <div class="breadcrumb-toolbar-path">
+          <breadcrumb>
+            <template #end>
+              <a-tooltip placement="bottom">
+                <template #title>{{ $t('label.refresh') }}</template>
+                <a-button
+                  :loading="loading"
+                  shape="round"
+                  size="small"
+                  @click="fetchDetails()">
+                  <template #icon><ReloadOutlined /></template>
+                  {{ $t('label.refresh') }}
+                </a-button>
+              </a-tooltip>
+            </template>
+          </breadcrumb>
+        </div>
+      </div>
     </a-card>
     <a-card>
       <a-row :gutter="12">

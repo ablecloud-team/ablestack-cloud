@@ -18,14 +18,13 @@
 <template>
   <div>
     <div class="content-breadcrumb">
-      <a-card class="breadcrumb-card" style="z-index: 10">
-        <a-row>
-          <a-col :span="device === 'mobile' ? 24 : 12" style="padding-left: 12px">
+      <a-card class="breadcrumb-card breadcrumb-toolbar" style="z-index: 10">
+        <a-row class="breadcrumb-toolbar-row">
+          <a-col class="breadcrumb-toolbar-path">
             <breadcrumb :resource="resource">
               <template #end>
                 <a-button
                   :loading="loading"
-                  style="margin-bottom: 5px"
                   shape="round"
                   size="small"
                   @click="fetchData({ irefresh: true })">
@@ -34,14 +33,12 @@
                 </a-button>
                 <a-switch
                   v-if="!dataView && ['vm', 'volume', 'zone', 'cluster', 'host', 'storagepool', 'managementserver'].includes($route.name)"
-                  style="margin-left: 8px"
                   :checked-children="$t('label.metrics')"
                   :un-checked-children="$t('label.metrics')"
                   :checked="$store.getters.metrics"
                   @change="(checked, event) => { $store.dispatch('SetMetrics', checked) }"/>
                 <a-switch
                   v-if="!projectView && hasProjectId"
-                  style="margin-left: 8px"
                   :checked-children="$t('label.projects')"
                   :un-checked-children="$t('label.projects')"
                   :checked="$store.getters.listAllProjects"
@@ -51,13 +48,14 @@
                     {{ $t('label.filterby') }}
                   </template>
                   <a-select
+                    size="small"
                     v-if="!dataView && filters && filters.length > 0"
                     :placeholder="$t('label.filterby')"
                     :value="$route.query.filter || (projectView && $route.name === 'vm' ||
                       ['Admin', 'DomainAdmin'].includes($store.getters.userInfo.roletype) && ['vm', 'iso', 'template'].includes($route.name)
                       ? 'all' : ['publicip'].includes($route.name)
                         ? 'allocated' : ['guestnetwork', 'guestvlans'].includes($route.name) ? 'all' : 'self')"
-                    style="min-width: 120px; margin-left: 10px"
+                    class="breadcrumb-display-filter"
                     @change="changeFilter"
                     showSearch
                     optionFilterProp="label"
@@ -83,11 +81,10 @@
               </template>
             </breadcrumb>
           </a-col>
-          <a-col
-            :span="device === 'mobile' ? 24 : 12"
-            :style="device === 'mobile' ? { float: 'right', 'margin-top': '12px', 'margin-bottom': '-6px', display: 'table' } : { float: 'right', display: 'table', 'margin-bottom': '-6px' }" >
+          <a-col class="breadcrumb-toolbar-actions">
             <slot name="action" v-if="dataView && $route.path.startsWith('/publicip')"></slot>
             <action-button
+              breadcrumb-toolbar
               v-else-if="visibleActions.length > 0"
               :style="dataView ? { float: device === 'mobile' ? 'left' : 'right' } : { 'margin-right': '10px', display: getStyle(), padding: '5px' }"
               :loading="loading"
@@ -98,6 +95,7 @@
               :resource="resource"
               @exec-action="(action) => execAction(action, action.groupAction && !dataView)"/>
             <search-view
+              class="breadcrumb-toolbar-search"
               v-if="!dataView"
               :searchFilters="searchFilters"
               :searchParams="searchParams"

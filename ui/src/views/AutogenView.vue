@@ -16,22 +16,17 @@
 // under the License.
 
 <template>
-  <div :class="{ 'autoscale-screen': $route.meta?.name === 'autoscalevmgroup', 'userdata-library': $route.meta?.name === 'userdata', 'affinity-library': $route.meta?.name === 'affinitygroup', 'snapshot-list-page': isSnapshotList, 'object-storage-ui': isObjectStorageUi, 'bucket-list-page': isBucketList, 'vm-list-page': isVmList, 'event-list-page': isEventList, 'vm-acl-standard': standardResourceToolbar, 'vpn-user-page': isVpnUser, 'vpn-customer-gateway-page': isVpnCustomerGateway, 'project-standard-page': isProjectUi, 'role-standard-page': isRoleUi, 'account-standard-page': isAccountUi, 'account-standard-list': isAccountList, 'acl-page': isAclUi, 'kms-management-page': kmsRoute($route), 'kms-list-page': kmsListRoute($route),  'public-ip-page': isPublicIpUi, 'volume-list-page': isVolumeList, 'template-list-page': isTemplateList, 'iso-list-page': isIsoList, 'kubernetes-iso-page': $route.meta?.name === 'kubernetesiso', 'kubernetes-iso-list-page': isKubernetesIsoList, 's2s-gateway-list-page': s2sGatewayListRoute($route), 's2s-connection-page': vpnConnectionRoute($route), 'asn-list-page': !!asnSearchAuth, 'host-standard-page': isHostUi, 'oauth-list-page': isOauthUi && !dataView, 'themed-list-toolbar': (isSystemOfferingUi && !dataView) || ((isLdapUi || isOauthUi) && !dataView) || isSecondaryStorageList || isPrimaryStorageList || isClusterList || isHostList || isZoneList || isZoneRelatedList || isAccountList || isRoleList || isGuestVlan || isIpv4Subnet || isDnsZone || isDnsServer || isVpnCustomerGateway || isVpnUser || vpnConnectionRoute($route) || isS2sSearchList || !!asnSearchAuth || isKubernetesIsoList || isPublicIpUi || isTemplateList || isIsoList || isVpcUi || isVmList || isProjectList || isAclUi || isEventList || isVolumeList || isGuestNetworkList || ($route.name === 'extension' && !dataView) || ($route.name === 'sharedfs' && !dataView), 'guest-network-page': isGuestNetworkUi, 'runtime-catalog-screen': $route.meta?.name === 'runtimebundle' }">
+  <div :class="{ 'autoscale-screen': $route.meta?.name === 'autoscalevmgroup', 'userdata-library': $route.meta?.name === 'userdata', 'affinity-library': $route.meta?.name === 'affinitygroup', 'snapshot-list-page': isSnapshotList, 'object-storage-ui': isObjectStorageUi, 'bucket-list-page': isBucketList, 'vm-list-page': isVmList, 'event-list-page': isEventList, 'vm-acl-standard': standardResourceTabs, 'vpn-user-page': isVpnUser, 'vpn-customer-gateway-page': isVpnCustomerGateway, 'project-standard-page': isProjectUi, 'role-standard-page': isRoleUi, 'account-standard-page': isAccountUi, 'account-standard-list': isAccountList, 'acl-page': isAclUi, 'kms-management-page': kmsRoute($route), 'kms-list-page': kmsListRoute($route),  'public-ip-page': isPublicIpUi, 'volume-list-page': isVolumeList, 'template-list-page': isTemplateList, 'iso-list-page': isIsoList, 'kubernetes-iso-page': $route.meta?.name === 'kubernetesiso', 'kubernetes-iso-list-page': isKubernetesIsoList, 's2s-gateway-list-page': s2sGatewayListRoute($route), 's2s-connection-page': vpnConnectionRoute($route), 'asn-list-page': !!asnSearchAuth, 'host-standard-page': isHostUi, 'oauth-list-page': isOauthUi && !dataView, 'guest-network-page': isGuestNetworkUi, 'runtime-catalog-screen': $route.meta?.name === 'runtimebundle' }">
     <div class="content-breadcrumb">
-      <a-card class="breadcrumb-card" style="z-index: 10">
-        <a-row>
-          <a-col
-            :class="{ 'vm-acl-breadcrumb-layout': standardResourceToolbar }"
-            :span="device === 'mobile' ? 24 : 12"
-            style="padding-left: 12px; margin-top: 10px"
-          >
-            <breadcrumb :resource="resource" :standard-layout="standardResourceToolbar">
+      <a-card class="breadcrumb-card breadcrumb-toolbar" style="z-index: 10">
+        <a-row class="breadcrumb-toolbar-row">
+          <a-col class="breadcrumb-toolbar-path">
+            <breadcrumb :resource="resource">
               <template #end>
                 <a-button
                   :data-testid="isRuntimeCatalog ? 'runtime-catalog-refresh' : undefined"
                   :loading="loading || ($route.meta?.name === 'vnfapp' && vnfProjectSync) || ((isSecondaryStorageUi || isPrimaryStorageUi || isClusterUi || isZoneUi || isPhysicalNetworkUi || vpnConnectionRoute($route) || ['vmgroup', 'vnfapp'].includes($route.meta?.name) || isSnapshotList || isAclUi) && listRequestPending)"
                   :disabled="(isSnapshotList || isAclUi) && listRequestPending || isVpnUser && (vpnUserProjectSwitching || listRequestPending)"
-                  style="margin-bottom: 5px"
                   shape="round"
                   size="small"
                   @click="fetchData({ irefresh: true })"
@@ -95,7 +90,6 @@
                     :aria-label="aclDisplayFilterId ? $t('label.acl.display.filter') : s2sDisplayFilterId ? $t('label.s2s.display.filter') : isSystemOfferingUi ? $t('label.state') : undefined"
                     :id="aclDisplayFilterId || s2sDisplayFilterId || (isPublicIpUi ? 'public-ip-state-filter' : (isTemplateList || isIsoList) ? templateFilterId : undefined)"
                     :value="filterValue"
-                    style="min-width: 100px; margin-left: 10px; margin-bottom: 5px"
                     size=small
                     @change="changeFilter"
                     showSearch
@@ -129,7 +123,7 @@
                 </a-tooltip>
                 <a-switch
                   v-if="!dataView && ($route.name !== 'vm' || vmMetricsAvailable($store.getters.apis)) && ['vm', 'volume', 'zone', 'cluster', 'host', 'storagepool', 'managementserver', 'sharedfs'].includes($route.name)"
-                  style="margin-left: 8px; min-height: 23px; margin-bottom: 4px"
+                  style="min-height: 23px"
                   :checked-children="$t('label.metrics')"
                   :un-checked-children="$t('label.metrics')"
                   :checked="$store.getters.metrics"
@@ -144,7 +138,7 @@
                 <a-tag v-if="isEventList && !isEventTimeline && eventScopeDiffers">{{ $t('message.events.scope', { scope: eventTimelineScopeLabel }) }}</a-tag>
                 <a-switch
                   v-if="!isEventTimeline && !projectView && hasProjectId && (!(vpnConnectionRoute($route) || isVpnUser || isVpnCustomerGateway) || !dataView)"
-                  style="margin-left: 8px; min-height: 23px; margin-bottom: 4px"
+                  style="min-height: 23px"
                   :checked-children="$t('label.projects')"
                   :un-checked-children="$t('label.projects')"
                   :checked="isVpnUser ? vpnUserScope === '-1' : isEventList ? eventProjectScope($route, $store.getters) === '-1' : $store.getters.listAllProjects"
@@ -155,19 +149,9 @@
               </template>
             </breadcrumb>
           </a-col>
-          <a-col
-            class="autogen-toolbar-actions"
-            :class="{ 'snapshot-list-actions': isSnapshotList }"
-            :span="device === 'mobile' ? 24 : 12"
-            :style="device === 'mobile' ? { float: 'right', 'margin-top': '12px', 'margin-bottom': '-6px', display: 'table' } : { float: 'right', display: 'table', 'margin-top': '6px' }" >
+          <a-col class="autogen-toolbar-actions breadcrumb-toolbar-actions">
             <slot name="action" v-if="dataView && $route.path.startsWith('/publicip') && $slots.action"></slot>
             <template v-else>
-              <a-button
-                v-if="isGuestVlan && dataView && resource.physicalnetworkid && $store.getters.apis.listPhysicalNetworks && $store.getters.apis.listDedicatedGuestVlanRanges"
-                class="guest-vlan-range-link"
-                @click="$router.push({ path: '/physicalnetwork/' + resource.physicalnetworkid, query: { tab: 'dedicated.vlan.vni.ranges' } })">
-                {{ $t('label.dedicated.vlan.vni.ranges') }}
-              </a-button>
               <a-tooltip v-if="isSnapshotList && 'createSnapshot' in $store.getters.apis && 'listVolumes' in $store.getters.apis" :title="$t('message.snapshot.list.create.volume')">
                 <a-button type="primary" shape="round" @click="$router.push(snapshotSourceVolumeRoute($route))">
                   <plus-outlined /> {{ $t('label.snapshot.list.create') }}
@@ -175,8 +159,7 @@
               </a-tooltip>
               <div
                 v-if="dataView && visibleDataViewActions.length > 0"
-                class="autogen-action-dropdown__trigger"
-                :style="{ float: device === 'mobile' ? 'left' : 'right' }">
+                class="autogen-action-dropdown__trigger">
                 <a-dropdown
                   v-model:visible="detailActionsVisible"
                   :trigger="['click']"
@@ -194,7 +177,7 @@
                         @exec-action="handleDataViewAction"/>
                     </div>
                   </template>
-                  <a-button ref="detailActionsTrigger" type="primary" class="autogen-action-dropdown__button">
+                  <a-button ref="detailActionsTrigger" type="primary" shape="round" class="autogen-action-dropdown__button">
                     <template #icon>
                       <down-outlined />
                     </template>
@@ -204,7 +187,9 @@
               </div>
               <action-button
                 v-else-if="!dataView && visibleListActions.length > 0"
-                :style="{ 'margin-right': '10px', display: getStyle() }"
+                breadcrumb-toolbar
+                :has-toolbar-primary="isSnapshotList && 'createSnapshot' in $store.getters.apis && 'listVolumes' in $store.getters.apis"
+                :style="{ display: getStyle() }"
                 :loading="loading"
                 :actions="visibleListActions"
                 :selectedRowKeys="selectedRowKeys"
@@ -212,23 +197,36 @@
                 :dataView="false"
                 :resource="resource"
                 @exec-action="(action) => execAction(action, action.groupAction && !dataView)"/>
+              <a-tooltip
+                v-if="isGuestVlan && dataView && resource.physicalnetworkid && $store.getters.apis.listPhysicalNetworks && $store.getters.apis.listDedicatedGuestVlanRanges"
+                :title="$t('label.dedicated.vlan.vni.ranges')">
+                <a-button
+                  shape="circle"
+                  :aria-label="$t('label.dedicated.vlan.vni.ranges')"
+                  @click="$router.push({ path: '/physicalnetwork/' + resource.physicalnetworkid, query: { tab: 'dedicated.vlan.vni.ranges' } })">
+                  <template #icon><bars-outlined /></template>
+                </a-button>
+              </a-tooltip>
               <span v-if="isVpnUser && !dataView && selectedRowKeys.length" class="vpn-user-selection-count" role="status">
                 {{ $t('label.vpn.user.selected', [selectedRowKeys.length]) }}
               </span>
             </template>
-            <a-button
-              v-if="$route.meta?.name === 'runtimebundle' && !dataView"
-              :aria-pressed="$route.query.history === 'deleted'"
-              data-testid="runtime-catalog-history"
-              @click="toggleRuntimeCatalogHistory">
-              {{ $t($route.query.history === 'deleted' ? 'label.runtime.catalog.active.list' : 'label.runtime.catalog.deleted.history') }}
-            </a-button>
+            <a-tooltip v-if="$route.meta?.name === 'runtimebundle' && !dataView" :title="runtimeHistoryLabel">
+              <a-button
+                shape="circle"
+                :aria-label="runtimeHistoryLabel"
+                :aria-pressed="$route.query.history === 'deleted'"
+                data-testid="runtime-catalog-history"
+                @click="toggleRuntimeCatalogHistory">
+                <template #icon><clock-circle-outlined /></template>
+              </a-button>
+            </a-tooltip>
             <AsnListTools v-if="asnSearchAuth" :selected="selectedItems" :ready="asnListReady" :scope="listScope()" @refresh="resetSelection(); $refs.listview?.resetSelection(); fetchData({ irefresh: true })" />
-            <ProjectListSearch v-if="isProjectList" class="project-toolbar-search" @search="onSearch" />
+            <ProjectListSearch v-if="isProjectList" class="breadcrumb-toolbar-search" @search="onSearch" />
             <search-view
               v-else-if="!dataView"
               ref="ldapSearch"
-              :class="{ 'kms-toolbar-search': kmsListRoute($route), 'vm-acl-toolbar-search': standardResourceToolbar, 'account-toolbar-search': isAccountList }"
+              class="breadcrumb-toolbar-search"
               :searchFilters="searchFilters"
               :searchParams="searchParams"
               :apiName="apiName"
@@ -1806,7 +1804,7 @@ export default {
     isWebhookUi () { return ['webhook', 'webhookdeliveries'].includes(this.$route.meta?.name) },
     isExtensionUi () { return ['extension', 'customaction'].includes(this.$route.meta?.name) },
     isSystemOfferingUi () { return this.$route.meta?.name === 'systemoffering' },
-    standardResourceToolbar () { return this.isSystemOfferingUi || this.isWebhookUi || this.isExtensionUi || this.isLdapUi || this.isOauthUi || this.isSecondaryStorageUi || this.isPrimaryStorageUi || this.isClusterUi || this.isHostUi || this.isZoneUi || this.isPhysicalNetworkUi || this.isZoneRelatedList || this.isRoleUi || this.isVmUi || this.isRuntimeCatalog || this.isAclUi || this.isVpnUser || this.isProjectUi || this.isVpnCustomerGateway || this.isGuestVlan || this.isIpv4Subnet || this.isDnsZone || this.isDnsServer },
+    standardResourceTabs () { return this.isSystemOfferingUi || this.isWebhookUi || this.isExtensionUi || this.isLdapUi || this.isOauthUi || this.isSecondaryStorageUi || this.isPrimaryStorageUi || this.isClusterUi || this.isHostUi || this.isZoneUi || this.isPhysicalNetworkUi || this.isZoneRelatedList || this.isRoleUi || this.isVmUi || this.isRuntimeCatalog || this.isAclUi || this.isVpnUser || this.isProjectUi || this.isVpnCustomerGateway || this.isGuestVlan || this.isIpv4Subnet || this.isDnsZone || this.isDnsServer },
     vpnUserAuth () { return this.isVpnUser ? vpnUserSearchAuth(this.$store.getters, this.$store.state?.user?.token) : null },
     vpnUserScope () { return this.isVpnUser ? vpnUserProject(this.$route.query, this.$store.getters) : null },
     vpnUserDeleteScope () {
@@ -2025,6 +2023,9 @@ export default {
         }
       }
       return activeFilters
+    },
+    runtimeHistoryLabel () {
+      return this.$t(this.$route.query.history === 'deleted' ? 'label.runtime.catalog.active.list' : 'label.runtime.catalog.deleted.history')
     },
     showSearchFilters () {
       if (this.$route.meta?.name === 'runtimebundle') return !this.dataView && this.activeFiltersList.length > 0
@@ -5836,16 +5837,12 @@ export default {
 }
 </script>
 
-<style scoped src="@/style/components/view/list-toolbar.css" />
-
 <style scoped src="@/style/components/view/vm-acl-standard.css" />
 <style scoped src="@/style/components/view/project-standard.css" />
 <style src="@/style/components/view/s2s-connection.css" />
 <style scoped>
 .vpn-user-read-error { margin-block-end: 12px; }
 </style>
-<style scoped src="@/style/components/view/public-ip-breadcrumb.css" />
-
 <style scoped>
 .vm-action-error { overflow-wrap: anywhere; margin-bottom: 16px; }
 .ldap-list-return { color: var(--ui-link); }
@@ -5857,20 +5854,11 @@ export default {
   max-width: 100%;
   overflow-wrap: anywhere;
 }
-@media (max-width: 767px) {
-  .runtime-catalog-screen :deep(.autogen-toolbar-actions .vm-acl-toolbar-search) {
-    flex-basis: 100%;
-    width: 100% !important;
-  }
-}
 
 .kms-management-page { min-width: 0; max-width: 100%; }
 .kms-display-filter { min-width: 100px; margin-inline-start: 8px; margin-bottom: 5px; }
-.kms-management-page :deep(.ant-breadcrumb) { overflow-wrap: anywhere; }
-.kms-management-page :deep(.breadcrumb-controls) { display: inline-flex; flex-wrap: wrap; gap: 4px; vertical-align: middle; }
 @media (max-width: 767px) {
   .kms-management-page .breadcrumb-card { margin-inline: -12px; }
-  .kms-list-page .kms-toolbar-search { flex-basis: 100%; }
 }
 .breadcrumb-card {
   margin-left: -24px;
@@ -5930,10 +5918,6 @@ export default {
 }
 
 .snapshot-list-page { min-width: 0; max-width: 100%; }
-.snapshot-list-actions { display: flex !important; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
-.snapshot-list-actions :deep(.row-action-button) { display: inline-flex !important; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 !important; }
-.snapshot-list-actions :deep(.ant-btn) { margin: 0; }
-.snapshot-list-actions :deep(.snapshot-search-control) { flex: 1 1 180px; min-width: 0; }
 .snapshot-list-page :deep(.ant-pagination) { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
 @media (max-width: 767px) {
   .snapshot-list-page .breadcrumb-card { margin-left: -12px; margin-right: -12px; }
@@ -5942,9 +5926,6 @@ export default {
 @media (max-width: 767px) {
   .guest-network-page .breadcrumb-card { margin-left: -12px; margin-right: -12px; }
   .bucket-list-page .breadcrumb-card { margin-left: -12px; margin-right: -12px; }
-  .bucket-list-page .autogen-toolbar-actions { display: flex !important; flex-wrap: wrap; align-items: center; gap: 8px; }
-  .bucket-list-page .autogen-toolbar-actions :deep(.row-action-button) { display: inline-flex !important; flex-wrap: wrap; gap: 8px; margin: 0 !important; }
-  .bucket-list-page .autogen-toolbar-actions > span:last-child { display: block !important; flex: 1 1 180px; width: auto !important; min-width: 0; }
 }
 
 </style>
@@ -5984,21 +5965,6 @@ export default {
 </style>
 
 <style scoped lang="less">
-.account-standard-list .autogen-toolbar-actions {
-  display: flex !important;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-.account-standard-list .autogen-toolbar-actions :deep(.row-action-button) {
-  display: inline-flex !important;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0 !important;
-}
-.account-standard-list .account-toolbar-search { flex: 0 1 228px; min-width: 165px; }
 .account-standard-page :deep(.resource-content-card),
 .account-standard-page :deep(.ant-tabs-content-holder) { min-width: 0; }
 .account-standard-page :deep(.resource-details__name h4),
@@ -6006,11 +5972,5 @@ export default {
 .account-standard-page :deep(.account-settings-search) { width: 248px !important; max-width: 100%; }
 @media (max-width: 767px) {
   .account-standard-page .breadcrumb-card { margin-left: -12px; margin-right: -12px; }
-  .account-standard-list .autogen-toolbar-actions { justify-content: flex-start; }
-  .account-standard-list .account-toolbar-search {
-    display: block !important;
-    flex: 1 1 100%;
-    min-width: 0;
-  }
 }
 </style>

@@ -56,7 +56,9 @@
             </div>
           </a-form>
         </template>
-        <a-button :aria-label="$t('label.advanced.search')"><filter-outlined /></a-button>
+        <a-button class="filter-button" size="small" :aria-label="$t('label.advanced.search')" :aria-expanded="visible">
+          <filter-outlined />
+        </a-button>
       </a-popover>
     </template>
   </a-input-search>

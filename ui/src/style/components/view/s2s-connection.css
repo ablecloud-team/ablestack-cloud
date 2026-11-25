@@ -4,14 +4,9 @@
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 
-.s2s-connection-page .s2s-connection-breadcrumb-name,
 .s2s-connection-page .resource-details__name .name,
 .s2s-connection-page .resource-detail-item__details {
   overflow-wrap: anywhere;
-}
-
-.s2s-connection-page .s2s-connection-breadcrumb-name {
-  color: var(--ui-text-primary);
 }
 
 .s2s-connection-page .resource-details__name > div:last-child {
@@ -40,7 +35,6 @@
 .s2s-connection-page .ant-badge-status-processing::after { border-color: var(--ui-info-icon); }
 
 .s2s-connection-page .ant-table-content a,
-.s2s-connection-page .ant-breadcrumb a,
 .s2s-connection-page .resource-detail-item__details a,
 .s2s-connection-page .ant-tabs-tab-active .ant-tabs-tab-btn,
 .s2s-connection-dialog a.s2s-connection-dialog-help {
@@ -83,25 +77,4 @@
 .s2s-connection-dialog .ant-select-focused .ant-select-selector {
   outline: 2px solid var(--ui-focus) !important;
   outline-offset: 2px;
-}
-
-@media (max-width: 767px) {
-  .s2s-connection-page .autogen-toolbar-actions {
-    display: flex !important;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-  }
-
-  .s2s-connection-page .autogen-toolbar-actions > span:last-child {
-    display: block !important;
-    flex: 1 1 180px;
-    width: auto !important;
-    min-width: 0;
-  }
-
-  .s2s-connection-page .autogen-toolbar-actions .input-search {
-    margin-left: 0;
-  }
 }

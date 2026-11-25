@@ -16,12 +16,12 @@
 // under the License.
 
 <template>
-  <div class="vm-acl-standard themed-list-toolbar secondary-storage-selectors">
+  <div class="secondary-storage-selectors">
     <div class="content-breadcrumb">
-      <a-card class="breadcrumb-card" style="z-index: 10">
-        <a-row>
-          <a-col :span="mobile ? 24 : 12" class="vm-acl-breadcrumb-layout">
-            <breadcrumb :trail="breadcrumbTrail" standard-layout>
+      <a-card class="breadcrumb-card breadcrumb-toolbar" style="z-index: 10">
+        <a-row class="breadcrumb-toolbar-row">
+          <a-col class="breadcrumb-toolbar-path">
+            <breadcrumb :trail="breadcrumbTrail">
               <template #end>
                 <a-button :loading="loading || loadingZones" shape="round" size="small" @click="refresh">
                   <template #icon><reload-outlined /></template>
@@ -41,9 +41,9 @@
               </template>
             </breadcrumb>
           </a-col>
-          <a-col :span="mobile ? 24 : 12" class="autogen-toolbar-actions">
+          <a-col class="breadcrumb-toolbar-actions">
             <a-dropdown v-if="isDetail && activeRule && !activeRule.removed && (canEdit || canRemove)" :trigger="['click']" placement="bottomRight">
-              <a-button ref="detailActions" type="primary" class="autogen-action-dropdown__button">
+              <a-button ref="detailActions" type="primary" shape="round" class="autogen-action-dropdown__button">
                 <template #icon><down-outlined /></template>
                 {{ $t('label.actions') }}
               </a-button>
@@ -78,7 +78,7 @@
                 <template #icon><plus-outlined /></template>
                 {{ $t('label.secondary.selector.add') }}
               </a-button>
-              <div class="vm-acl-toolbar-search filter-group">
+              <div class="breadcrumb-toolbar-search filter-group">
                 <a-input-search
                   v-model:value="keywordDraft"
                   class="input-search"
@@ -552,8 +552,6 @@ export default {
 }
 </script>
 
-<style scoped src="@/style/components/view/list-toolbar.css" />
-<style scoped src="@/style/components/view/vm-acl-standard.css" />
 <style scoped lang="less" src="@/style/components/view/search-view.less" />
 
 <style scoped>
