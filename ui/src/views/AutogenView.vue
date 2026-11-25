@@ -149,7 +149,7 @@
               </template>
             </breadcrumb>
           </a-col>
-          <a-col class="autogen-toolbar-actions breadcrumb-toolbar-actions">
+          <a-col class="autogen-toolbar-actions breadcrumb-toolbar-actions" :class="{ 'vm-list-bulk-toolbar': isVmList && selectedRowKeys.length > 1 }">
             <slot name="action" v-if="dataView && $route.path.startsWith('/publicip') && $slots.action"></slot>
             <template v-else>
               <a-tooltip v-if="isSnapshotList && 'createSnapshot' in $store.getters.apis && 'listVolumes' in $store.getters.apis" :title="$t('message.snapshot.list.create.volume')">
@@ -195,8 +195,8 @@
                 :selectedRowKeys="selectedRowKeys"
                 :selectedItems="selectedItems"
                 :dataView="false"
-                :resource="resource"
-                @exec-action="(action) => execAction(action, action.groupAction && !dataView)"/>
+                :resource="isVmList && selectedItems.length > 1 ? selectedItems[0] : resource"
+                @exec-action="handleListAction"/>
               <a-tooltip
                 v-if="isGuestVlan && dataView && resource.physicalnetworkid && $store.getters.apis.listPhysicalNetworks && $store.getters.apis.listDedicatedGuestVlanRanges"
                 :title="$t('label.dedicated.vlan.vni.ranges')">
@@ -2133,6 +2133,7 @@ export default {
         if (!(action.api in this.$store.getters.apis)) {
           return false
         }
+        if (this.isVmList && action.groupAction) return this.canUseVmBulkToolbarAction(action)
         if (selectionCount > 0) {
           // Explicitly named bulk actions stay in the existing toolbar position.
           const showExplicitGroup = action.groupAction && action.toolbarLabel &&
@@ -2152,6 +2153,9 @@ export default {
         !(this.currentAction.invokedAsGroupAction && this.selectedRowKeys.length > 0)
     },
     isSubmitDisabled () {
+      const toolbarKeys = this.currentAction?.vmToolbarTargetKeys
+      if (toolbarKeys && (!this.isVmList || toolbarKeys.some((key, index) => key !== this.selectedRowKeys[index]) ||
+        toolbarKeys.length !== this.selectedRowKeys.length || !this.canUseVmBulkToolbarAction(this.currentAction))) return true
       if (this.isSshKeyPairDetail && !this.sshKeyPairDetailActionReady) return true
       return this.requiresNameConfirmation &&
         (!this.resource?.name || this.actionConfirmText.trim() !== this.resource.name.trim())
@@ -3968,6 +3972,24 @@ export default {
 
       this.setModalWidthByScreen()
     },
+    canUseVmBulkToolbarAction (action) {
+      const { selectedItems: items, selectedRowKeys: keys } = this
+      const getters = this.$store.getters
+      return keys.length > 1 && items.length === keys.length && !this.listRefreshError &&
+        action.api in getters.apis &&
+        (!action.groupShow || action.groupShow(items, getters)) &&
+        items.every(row => (!action.show || action.show(row, getters)) &&
+          (!action.disabled || !action.disabled(row, getters, items)))
+    },
+    handleListAction (action) {
+      const isGroupAction = action.groupAction && !this.dataView
+      if (this.isVmList && isGroupAction) {
+        if (!this.canUseVmBulkToolbarAction(action)) return
+        this.execAction({ ...action, resource: this.selectedItems[0], vmToolbarTargetKeys: [...this.selectedRowKeys] }, true)
+        return
+      }
+      this.execAction(action, isGroupAction)
+    },
     handleDataViewAction (action) {
       this.detailActionsVisible = false
       this.execAction(action, false)
@@ -4715,7 +4737,7 @@ export default {
       if (this.actionLoading || this.isSubmitDisabled || (this.vmStandardDialog && (this.vmActionValidationPending || this.vmActionUnknown))) return
       this.promises = []
       const groupDeletion = this.currentAction.api === 'deleteInstanceGroup' && this.currentAction.invokedAsGroupAction
-      const selectedKeys = groupDeletion ? (this.currentAction.vmGroupTargets || []).map(group => group.id) : this.selectedRowKeys
+      const selectedKeys = groupDeletion ? (this.currentAction.vmGroupTargets || []).map(group => group.id) : (this.currentAction.vmToolbarTargetKeys || this.selectedRowKeys)
       if (!this.dataView && this.currentAction.invokedAsGroupAction && selectedKeys.length > 0) {
         if (selectedKeys.length > 0) {
           this.bulkColumns = bulkColumns(this.chosenColumns)
@@ -4742,6 +4764,7 @@ export default {
         this.formRef.value.validate().then(() => {
           if (vmScope && (!this.showAction || submittedAction !== this.currentAction || vmScope !== vmEditScope(this.resource, this.$route, this.$store) || vmTargets !== JSON.stringify(this.selectedRowKeys))) return
           if (vmScope) this.vmActionValidationPending = false
+          if (submittedAction.vmToolbarTargetKeys && submittedAction !== this.currentAction) return
           const values = toRaw(this.form)
           this.actionLoading = true
           const itemsNameMap = {}
@@ -4749,7 +4772,7 @@ export default {
           namedItems.map(x => {
             itemsNameMap[x.id] = isVmIdentityRoute(this.$route) ? vmDisplayName(x) : x.name || x.displaytext || x.id
           })
-          const paramsList = this.currentAction.groupMap(groupDeletion ? selectedKeys : this.selectedRowKeys, values, this.items)
+          const paramsList = this.currentAction.groupMap(groupDeletion || submittedAction.vmToolbarTargetKeys ? selectedKeys : this.selectedRowKeys, values, this.items)
           for (const params of paramsList) {
             var resourceName = itemsNameMap[params.id]
             // Using a method for this since it's an async call and don't want wrong prarms to be passed
@@ -5972,5 +5995,22 @@ export default {
 .account-standard-page :deep(.account-settings-search) { width: 248px !important; max-width: 100%; }
 @media (max-width: 767px) {
   .account-standard-page .breadcrumb-card { margin-left: -12px; margin-right: -12px; }
+}
+@media (min-width: 1200px) and (max-width: 1350px) {
+  .breadcrumb-toolbar-actions.vm-list-bulk-toolbar {
+    gap: 5px;
+
+    > :deep(.row-action-button) {
+      gap: 5px;
+    }
+
+    :deep(.breadcrumb-toolbar-search) {
+      min-width: 132px;
+    }
+
+    :deep(.breadcrumb-toolbar-search .ant-input-affix-wrapper) {
+      padding-inline: 6px;
+    }
+  }
 }
 </style>
