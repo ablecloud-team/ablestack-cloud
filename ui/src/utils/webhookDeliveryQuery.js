@@ -52,3 +52,30 @@ export function webhookDetailParams (params, id) {
   const { listall, projectid } = params
   return { id, listall, projectid }
 }
+
+const webhookListFields = ['keyword', 'q', 'name', 'id', 'scope', 'state', 'domainid', 'account', 'projectid', 'page', 'pagesize', 'sortkey', 'sortorder']
+
+export function webhookListQuery (query) {
+  return Object.fromEntries(webhookListFields.flatMap(key => typeof query?.[key] === 'string' && query[key].trim()
+    ? [[key, query[key].trim()]]
+    : []))
+}
+
+export function webhookListDetailQuery (query) {
+  const list = webhookListQuery(query)
+  return {
+    ...(list.projectid ? { projectid: list.projectid } : {}),
+    ...(Object.keys(list).length ? { webhookList: JSON.stringify(list) } : {})
+  }
+}
+
+export function webhookBackQuery (query) {
+  if (typeof query.webhookList === 'string') {
+    try {
+      return webhookListQuery(JSON.parse(query.webhookList))
+    } catch {
+      // Keep the explicit project context if an older bookmark has an unusable list query.
+    }
+  }
+  return webhookListQuery({ projectid: query.projectid })
+}

@@ -137,10 +137,10 @@
           </template>
           <a-switch v-model:checked="form.state" />
         </a-form-item>
-        <div :span="24" class="action-button">
+        <mold-dialog-actions :busy="loading || testDeliveryLoading">
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
           <a-button :loading="loading" :disabled="testDeliveryLoading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-        </div>
+        </mold-dialog-actions>
       </a-form>
     </a-spin>
   </div>
@@ -151,6 +151,7 @@ import { ref, reactive, toRaw } from 'vue'
 import { postAPI } from '@/api'
 import { mixinForm } from '@/utils/mixin'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import TestWebhookDeliveryView from '@/components/view/TestWebhookDeliveryView'
 import InfiniteScrollSelect from '@/components/widgets/InfiniteScrollSelect.vue'
 
@@ -159,6 +160,7 @@ export default {
   mixins: [mixinForm],
   components: {
     TooltipLabel,
+    MoldDialogActions,
     TestWebhookDeliveryView,
     InfiniteScrollSelect
   },
@@ -288,14 +290,6 @@ export default {
 </script>
 
 <style scoped lang="less">
-  .form-layout {
-    width: 80vw;
-
-    @media (min-width: 700px) {
-      width: 650px;
-    }
-  }
-
   .ssl-alert {
     margin: 0 0 10px 0;
   }

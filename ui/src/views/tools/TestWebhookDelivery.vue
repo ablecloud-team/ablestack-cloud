@@ -39,10 +39,10 @@
           @change-loading="updateLoading" />
         <a-divider />
 
-        <div class="actions">
+        <mold-dialog-actions :busy="loading">
           <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
           <a-button type="primary" ref="submit" :disabled="loading" @click="submitForm">{{ $t('label.test') }}</a-button>
-        </div>
+        </mold-dialog-actions>
       </a-form>
     </a-spin>
   </div>
@@ -52,14 +52,14 @@
 import { ref, reactive } from 'vue'
 import { mixinForm } from '@/utils/mixin'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
-import Status from '@/components/widgets/Status'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import TestWebhookDeliveryView from '@/components/view/TestWebhookDeliveryView'
 
 export default {
   name: 'TestWebhookDelivery',
   mixins: [mixinForm],
   components: {
-    Status,
+    MoldDialogActions,
     TooltipLabel,
     TestWebhookDeliveryView
   },
@@ -71,27 +71,14 @@ export default {
   },
   data () {
     return {
-      response: {},
       loading: false
     }
-  },
-  watch: {
   },
   beforeCreate () {
     this.apiParams = this.$getApiParams('executeWebhookDelivery')
   },
   created () {
     this.initForm()
-  },
-  computed: {
-    responseDuration () {
-      if (!this.response.startdate || !this.response.enddate) {
-        return ''
-      }
-      var start = Date.parse(this.response.startdate)
-      var end = Date.parse(this.response.enddate)
-      return (end - start) + ''
-    }
   },
   methods: {
     initForm () {
@@ -102,7 +89,7 @@ export default {
       this.$emit('close-action')
     },
     submitForm (e) {
-      e.preventDefault()
+      if (e && typeof e.preventDefault === 'function') e.preventDefault()
       if (this.loading) return
       this.formRef.value.validate().then(() => {
         this.$refs.dispatchview.testWebhookDelivery()
@@ -114,89 +101,3 @@ export default {
   }
 }
 </script>
-
-<style scoped lang="scss">
-  .form {
-    width: 80vw;
-
-    @media (min-width: 600px) {
-      max-width: 550px;
-    }
-  }
-
-  .top-spaced {
-    margin-top: 20px;
-  }
-
-  .response-details {
-    text-align: center;
-    margin-bottom: 20px;
-
-    &__name {
-      display: flex;
-      align-items: center;
-
-      .avatar {
-        margin-right: 20px;
-        overflow: hidden;
-        min-width: 50px;
-        cursor: pointer;
-
-        img {
-          height: 100%;
-          width: 100%;
-        }
-      }
-
-      .name {
-        margin-bottom: 0;
-        font-size: 18px;
-        line-height: 1;
-        word-break: break-all;
-        text-align: left;
-      }
-
-    }
-  }
-  .response-detail-item {
-    margin-bottom: 20px;
-    word-break: break-all;
-
-    &__details {
-      display: flex;
-      align-items: center;
-
-      &--start {
-        align-items: flex-start;
-
-        i {
-          margin-top: 4px;
-        }
-
-      }
-
-    }
-
-    .anticon {
-      margin-right: 10px;
-    }
-
-    &__label {
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-
-  }
-
-  .actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
-
-    button {
-      &:not(:last-child) {
-        margin-right: 10px;
-      }
-    }
-  }
-</style>

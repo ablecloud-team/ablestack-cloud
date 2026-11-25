@@ -188,6 +188,13 @@
             <div v-if="dataResource.scopeenabled === false">{{ $t('message.oauth.scope.disabled') }}</div>
             <div v-if="dataResource.pluginavailable === false">{{ $t('message.oauth.plugin.unavailable') }}</div>
           </div>
+          <div v-else-if="$route.meta.name === 'webhook' && ['scope', 'state', 'sslverification'].includes(item)">
+            {{ item === 'sslverification' ? $t(dataResource[item] ? 'label.yes' : 'label.no') : dataResource[item] ? $t('label.' + dataResource[item].toLowerCase()) : '—' }}
+          </div>
+          <div v-else-if="$route.meta.name === 'webhook' && item === 'payloadurl'" class="webhook-long-value">
+            <span>{{ dataResource[item] }}</span>
+            <tooltip-button v-if="dataResource[item]" :tooltip="$t('label.copy')" icon="copy-outlined" size="small" :copyResource="dataResource[item]" @copy-success="$message.success($t('label.copied.clipboard'))" />
+          </div>
           <div v-else-if="$route.meta.name === 'webhook' && item === 'secretkeyconfigured'">{{ $t((dataResource.secretkeyconfigured ?? !!dataResource.secretkey) ? 'label.yes' : 'label.no') }}</div>
           <div v-else-if="$route.meta.name === 'oauthsetting' && ['secretkeyconfigured', 'configuredenabled'].includes(item)">{{ $t(dataResource[item] ? 'label.yes' : 'label.no') }}</div>
           <div v-else-if="['vm', 'vnfapp'].includes($route.meta.name) && item !== 'deleteprotection' && (vmBooleanFields.has(item) || typeof dataResource[item] === 'boolean')">{{ $t(vmBooleanLabel(dataResource[item])) }}</div>
@@ -1062,6 +1069,7 @@ export default {
 <style scoped src="@/style/components/view/resource-details-list.css" />
 
 <style scoped>
+.webhook-long-value { display: flex; gap: 8px; min-width: 0; overflow-wrap: anywhere; }
 .network-ip-usage-detail p { color: var(--ui-text-secondary); margin: 4px 0 0; overflow-wrap: anywhere; }
 :deep(.resource-details-list .ant-list-item) {
   padding: 12px 8px;

@@ -165,7 +165,7 @@
                     v-else-if="field.type==='input'"
                     v-model:value="form[field.name]"
                     :id="isOauthSearch ? 'oauth-filter-' + field.name : isInfrastructureSearch ? infrastructureFilterId(field.name) : isZoneSearch ? 'zone-filter-' + field.name : isVpnUserSearch ? 'vpn-user-filter-' + field.name : undefined"
-                    :aria-label="isOauthSearch || isInfrastructureSearch || isZoneSearch || isEventSearch || isVpnUserSearch ? retrieveFieldLabel(field.name) : undefined" />
+                    :aria-label="apiName === 'listWebhooks' || isOauthSearch || isInfrastructureSearch || isZoneSearch || isEventSearch || isVpnUserSearch ? retrieveFieldLabel(field.name) : undefined" />
                   <div v-else-if="field.type==='tag'">
                     <a-input-group
                       type="text"
@@ -562,6 +562,8 @@ export default {
       return (this.isPrimaryStorageSearch ? 'primary-storage-filter-' : this.isClusterSearch ? 'cluster-filter-' : 'host-filter-') + key
     },
     retrieveFieldLabel (fieldName) {
+      if (this.apiName === 'listWebhooks' && fieldName === 'id') return 'UUID'
+      if (this.apiName === 'listWebhooks' && fieldName === 'name') return this.$t('label.webhook.search.exact')
       if (this.apiName === 'listExtensions') return this.$t(fieldName === 'id' ? 'label.extension.uuid' : 'label.extension.name.exact')
       if (this.apiName === 'listBackups' && fieldName === 'virtualmachineid') return this.$t('label.virtualmachinename')
       if ((this.isClusterSearch || this.isPrimaryStorageSearch) && fieldName === 'storageaccessgroup') return this.$t('label.storageaccessgroups')

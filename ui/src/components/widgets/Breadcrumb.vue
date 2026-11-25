@@ -78,6 +78,7 @@ import { ldapConfigRoute, ldapEndpointLabel, ldapListQuery } from '@/utils/ldapC
 import { dnsServerListQuery } from '@/utils/dnsServer'
 import { physicalNetworkZoneLocation, zoneListQuery } from '@/utils/zone'
 import { extensionListQuery, extensionActionListQuery } from '@/utils/extension'
+import { webhookBackQuery } from '@/utils/webhookDeliveryQuery'
 import { clusterListQuery } from '@/utils/clusterSearch'
 import { primaryStorageListQuery } from '@/utils/primaryStorageSearch'
 import { secondaryStorageListQuery } from '@/utils/secondaryStorageSearch'
@@ -187,6 +188,7 @@ export default {
     breadcrumbLocation (item) {
       if (item.location) return item.location
       if (item.path === '/runtimebundle' && this.$route.params?.id) return { path: item.path, query: runtimeCatalogListQuery(this.$route.query) }
+      if (item.path === '/webhook' && this.$route.params?.id) return { path: item.path, query: webhookBackQuery(this.$route.query) }
       if (item.path === '/extension' && this.$route.params?.id) return { path: item.path, query: extensionListQuery(this.$route.query) }
       if (item.path === '/oauthsetting' && this.$route.params?.id) return oauthListLocation(this.$route)
       if (item.path === '/ldapsetting' && this.$route.params?.id) return { path: item.path, query: ldapListQuery(this.$route.query) }

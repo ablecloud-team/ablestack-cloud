@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { webhookDeliveryQuery, webhookDeliverySearch, webhookDetailParams } from '@/utils/webhookDeliveryQuery'
+import { webhookDeliveryQuery, webhookDeliverySearch, webhookDetailParams, webhookListDetailQuery, webhookBackQuery } from '@/utils/webhookDeliveryQuery'
 
 describe('Webhook delivery route', () => {
   it('keeps child filters out of the parent UUID request', () => {
@@ -54,5 +54,13 @@ describe('Webhook delivery route', () => {
       tab: 'recent.deliveries', deliveryKeyword: 'older', deliveryStart: '2026-11-24', deliveryPage: '4'
     }, {}, 'all', null, null, 1, 10)
     expect(query).toEqual({ tab: 'recent.deliveries', deliveryPeriod: 'all', deliveryPageSize: '10' })
+  })
+
+  it('round trips list filters without injecting them into the delivery tab', () => {
+    const list = { keyword: 'browse', state: 'Disabled', projectid: 'project', page: '2', pagesize: '20' }
+    const detail = webhookListDetailQuery(list)
+    expect(webhookDeliverySearch({ ...detail, tab: 'recent.deliveries' })).toEqual({})
+    expect(webhookBackQuery(detail)).toEqual(list)
+    expect(webhookBackQuery({ webhookList: 'invalid', projectid: 'project' })).toEqual({ projectid: 'project' })
   })
 })

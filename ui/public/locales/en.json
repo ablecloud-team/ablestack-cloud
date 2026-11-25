@@ -3368,6 +3368,8 @@
   "message.webhook.delivery.delete.partial": "Deleted {count} delivery records. Failed to delete {failed}.",
   "message.webhook.delivery.receiver.failed": "The receiver did not accept the redelivery.",
   "message.webhook.delivery.request.failed": "Could not complete the redelivery request.",
+  "label.webhook.search.exact": "Exact name",
+  "message.webhook.search.invalid.uuid": "Enter a valid webhook UUID.",
   "label.webhook.test.send": "Send test delivery",
   "message.webhook.scope.change": "The webhook will receive events in the {scope} scope. Its owner will remain the same.",
   "message.webhook.test.sending": "Sending test delivery…",
