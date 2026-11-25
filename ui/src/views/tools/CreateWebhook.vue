@@ -118,9 +118,10 @@
           <template #label>
             <tooltip-label :title="$t('label.secretkey')" :tooltip="apiParams.secretkey.description"/>
           </template>
-          <a-input
+          <a-input-password
             v-model:value="form.secretkey"
-            :placeholder="apiParams.secretkey.description" />
+            :placeholder="apiParams.secretkey.description"
+            autocomplete="new-password" />
         </a-form-item>
         <test-webhook-delivery-view
           v-if="'executeWebhookDelivery' in $store.getters.apis"
@@ -238,7 +239,7 @@ export default {
         if (this.isValidValueForKey(values, 'sslverification')) {
           params.sslverification = values.sslverification
         }
-        if (this.isValidValueForKey(values, 'secretkey')) {
+        if (values.secretkey?.trim()) {
           params.secretkey = values.secretkey
         }
         if (values.domainid) {

@@ -109,6 +109,7 @@ public class WebhookApiServiceImpl extends ManagerBase implements WebhookApiServ
         response.setState(webhookVO.getState().toString());
         response.setPayloadUrl(webhookVO.getPayloadUrl());
         response.setSecretKey(webhookVO.getSecretKey());
+        response.setSecretKeyConfigured(StringUtils.isNotBlank(webhookVO.getSecretKey()));
         response.setSslVerification(webhookVO.isSslVerification());
         response.setScope(webhookVO.getScope().toString());
         response.setCreated(webhookVO.getCreated());

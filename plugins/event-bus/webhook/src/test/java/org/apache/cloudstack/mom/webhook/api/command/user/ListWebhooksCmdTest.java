@@ -102,4 +102,23 @@ public class ListWebhooksCmdTest {
         cmd.execute();
         Assert.assertNotNull(cmd.getResponseObject());
     }
+
+    @Test
+    public void redactSecretKeyKeepsOnlyTheConfigurationFlag() {
+        ListWebhooksCmd cmd = new ListWebhooksCmd();
+        cmd.webhookApiService = webhookApiService;
+        ReflectionTestUtils.setField(cmd, "redactSecretKey", true);
+        WebhookResponse webhook = new WebhookResponse();
+        webhook.setSecretKey("synthetic-key");
+        webhook.setSecretKeyConfigured(true);
+        ListResponse<WebhookResponse> response = new ListResponse<>();
+        response.setResponses(List.of(webhook), 1);
+        Mockito.when(webhookApiService.listWebhooks(cmd)).thenReturn(response);
+
+        cmd.execute();
+
+        Assert.assertNull(ReflectionTestUtils.getField(webhook, "secretKey"));
+        Assert.assertEquals(Boolean.TRUE, ReflectionTestUtils.getField(webhook, "secretKeyConfigured"));
+        Assert.assertEquals(Integer.valueOf(1), response.getCount());
+    }
 }

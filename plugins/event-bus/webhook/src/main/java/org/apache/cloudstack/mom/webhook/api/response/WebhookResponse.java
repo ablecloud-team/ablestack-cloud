@@ -76,8 +76,12 @@ public class WebhookResponse extends BaseResponse implements ControlledViewEntit
     private String payloadUrl;
 
     @SerializedName(ApiConstants.SECRET_KEY)
-    @Param(description = "The secret key for the Webhook")
+    @Param(description = "The secret key for the Webhook", isSensitive = true)
     private String secretKey;
+
+    @SerializedName("secretkeyconfigured")
+    @Param(description = "Whether the webhook has a signing key")
+    private boolean secretKeyConfigured;
 
     @SerializedName(ApiConstants.SSL_VERIFICATION)
     @Param(description = "Whether SSL verification is enabled for the Webhook")
@@ -147,6 +151,10 @@ public class WebhookResponse extends BaseResponse implements ControlledViewEntit
 
     public void setSecretKey(String secretKey) {
         this.secretKey = secretKey;
+    }
+
+    public void setSecretKeyConfigured(boolean secretKeyConfigured) {
+        this.secretKeyConfigured = secretKeyConfigured;
     }
 
     public void setSslVerification(boolean sslVerification) {

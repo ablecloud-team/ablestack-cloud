@@ -748,6 +748,19 @@
                     v-model:value="form[field.name]"
                     :placeholder="actionFieldDescription(field)"
                   />
+                  <template v-else-if="currentAction.webhookEdit && field.name === 'secretkey'">
+                    <a-radio-group v-model:value="form.webhookSecretAction" @change="form.secretkey = undefined">
+                      <a-radio value="keep">{{ $t('label.webhook.secret.keep') }}</a-radio>
+                      <a-radio value="replace">{{ $t('label.webhook.secret.replace') }}</a-radio>
+                      <a-radio v-if="resource.secretkeyconfigured ?? !!resource.secretkey" value="remove">{{ $t('label.remove') }}</a-radio>
+                    </a-radio-group>
+                    <a-input-password
+                      v-if="form.webhookSecretAction === 'replace'"
+                      v-model:value="form.secretkey"
+                      :aria-label="$t('label.webhook.secret.replace')"
+                      autocomplete="new-password" />
+                    <a-alert v-if="form.webhookSecretAction === 'remove'" type="warning" show-icon :message="$t('message.webhook.secret.remove')" />
+                  </template>
                   <a-input-password
                     v-else-if="field.name==='password' || field.name==='currentpassword' || field.name==='confirmpassword' || field.name==='secretkey'"
                     v-model:value="form[field.name]"
@@ -4634,6 +4647,10 @@ export default {
     },
     fillEditFormFieldValues () {
       this.currentAction.paramFields.map(field => {
+        if (this.currentAction.webhookEdit && field.name === 'secretkey') {
+          this.form.webhookSecretAction = 'keep'
+          return
+        }
         let fieldValue = null
         let fieldName = null
         if (field.type === 'list' || field.name === 'account') {
@@ -4884,6 +4901,19 @@ export default {
         }
         const params = {}
         const action = this.currentAction
+        if (action.webhookEdit) {
+          const { webhookSecretAction, secretkey, ...editableValues } = values
+          values = editableValues
+          if (webhookSecretAction === 'replace') {
+            if (!secretkey?.trim()) {
+              this.$message.warning(this.$t('message.error.required.input'))
+              return
+            }
+            values.secretkey = secretkey
+          } else if (webhookSecretAction === 'remove') {
+            values.secretkey = ''
+          }
+        }
         if (action.webhookEdit && (!values.scope || values.scope === this.resource.scope || !this.resource.editablescopes?.includes(values.scope))) {
           const { scope, ...unchangedScopeValues } = values
           values = unchangedScopeValues
@@ -5061,7 +5091,7 @@ export default {
             }
             return
           }
-          if (!isVmGroupAction(action.api)) console.log(error)
+          if (!isVmGroupAction(action.api) && !action.webhookEdit) console.log(error)
           if (projectScope && this.currentAction === action && projectScope === this.listScope()) {
             this.projectActionError = Object.values(error.response?.data || {}).find(value => value?.errortext)?.errortext || this.$t('message.request.failed')
           }

@@ -183,6 +183,7 @@
             <div v-if="dataResource.scopeenabled === false">{{ $t('message.oauth.scope.disabled') }}</div>
             <div v-if="dataResource.pluginavailable === false">{{ $t('message.oauth.plugin.unavailable') }}</div>
           </div>
+          <div v-else-if="$route.meta.name === 'webhook' && item === 'secretkeyconfigured'">{{ $t((dataResource.secretkeyconfigured ?? !!dataResource.secretkey) ? 'label.yes' : 'label.no') }}</div>
           <div v-else-if="$route.meta.name === 'oauthsetting' && ['secretkeyconfigured', 'configuredenabled'].includes(item)">{{ $t(dataResource[item] ? 'label.yes' : 'label.no') }}</div>
           <div v-else-if="['vm', 'vnfapp'].includes($route.meta.name) && item !== 'deleteprotection' && (vmBooleanFields.has(item) || typeof dataResource[item] === 'boolean')">{{ $t(vmBooleanLabel(dataResource[item])) }}</div>
           <div v-else-if="['vm', 'vnfapp'].includes($route.meta.name) && item === 'deleteprotection'">
@@ -819,6 +820,7 @@ export default {
       return detailsKeys
     },
     getDetailTitle (detail) {
+      if (this.$route.meta.name === 'webhook' && detail === 'secretkeyconfigured') return 'label.webhook.secret.configured'
       if (this.$route.meta.name === 's2svpn' && detail === 'fordisplay') return 'label.public.ip.display'
       if (this.$route.meta.name === 'publicip' && publicIpDetailFields.includes(detail)) return publicIpFieldLabel(detail)
       if (['vm', 'vnfapp'].includes(this.$route.meta.name) && ['osdisplayname', 'ostypename'].includes(detail)) return 'label.ostypename'
