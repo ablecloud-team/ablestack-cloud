@@ -57,3 +57,22 @@ under the License.
 
 - 기준은 `ablecloud-team/ablestack-cloud:ablestack-europa`의 `d88cdbff7a1f18994a3d95f78b2933898521cdf6`이다. 준비 시점의 로컬 기준과 upstream 차이는 `0 0`이다.
 - 통합 브랜치는 `dhslove/ablestack-cloud:dhslove/epic-1963-webhooks`다. 초안 PR에서 구현 커밋과 이슈별 검증 결과를 추적한다.
+
+## 13번 클러스터 통합 검증 결과
+
+2026-11-25 KST에 13번 클러스터에서 변경분을 통합 검증했다. 기능 산출물 기준 커밋은 `7651fbe4ff87f4d5413e5c1278bf5e6edb5f2632`이다. 로컬과 upstream Europa 기준 `46f19c47527097ae3a81b46311786f241018f26a`의 차이는 `0 0`이었다.
+
+| 확인 항목 | 결과 |
+| --- | --- |
+| Webhook 모듈 | Maven 패키지, 단위 테스트 257건 통과 |
+| UI | 변경 파일 린트, 단위 테스트 7건, UI 모듈 번들 빌드 통과 |
+| 13번 산출물 | UI 인덱스 SHA-256 `e5b7c89a3fb3749010250fac6785d2d9a18e9fbadd8e70b33ee54558beb8568f`, 관리 JAR SHA-256 `6462ae14cf0932a2de168082d93c302b536f17f6de862090ea6016b1d8c41772` |
+| 클러스터 | UI HTTP 200, 관리 서비스 active, 라우팅 호스트 3/3 Up·Enabled, 시험 웹훅 재조회 0건 |
+| GitHub CI | 저장소 전체 License Check의 RAT 미승인 파일 4,074건이 앞선 검증 커밋과 최신 기능 커밋 모두에서 집계됐다. [실행 기록](https://github.com/ablecloud-team/ablestack-cloud/actions/runs/45541412332) |
+
+- 시험 전송은 입력·취소·저장 중 Mold API 요청 0건, 명시 동작 1건으로 확인했다. 합성 HTTP 오류를 폼 안에 표시해 목록의 생성 버튼을 가리지 않도록 했다. 합성 성공 결과와 입력 변경 후 결과 초기화도 확인했다.
+- 범위 편집·소유 문맥, 마스킹된 응답과 서명 키 유지·교체·제거, 필터 21건 조회·검색·삭제를 배포 UI와 Mold API에서 확인했다.
+- 전송 이력 기간·검색 복원, 행 상세, 재전송 결과와 삭제 요청의 웹훅 범위는 배포 UI에서 확인했다. 성공·실패, 재전송 및 이력 삭제에는 합성 응답을 사용했다.
+- 가상머신 기준 툴바와 대화상자, 정확 이름·UUID 및 breadcrumb 복귀는 #1973에서 검증했다. 실제 웹훅 서버 연동과 수신기별 호환성은 후속 검토 범위다.
+
+[통합 검증 #1974](https://github.com/ablecloud-team/ablestack-cloud/issues/1974) · [Draft PR #1975](https://github.com/ablecloud-team/ablestack-cloud/pull/1975)
