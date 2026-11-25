@@ -1,0 +1,88 @@
+/*
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+*/
+
+.mold-list-table {
+  --mold-list-row-height: 47px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.mold-list-table .ant-table > .ant-table-container > .ant-table-content,
+.mold-list-table .ant-table > .ant-table-container > .ant-table-body {
+  max-width: 100%;
+}
+
+.mold-list-table .ant-table-thead > tr > .ant-table-cell,
+.mold-list-table .ant-table-tbody > tr.ant-table-row > .ant-table-cell {
+  box-sizing: border-box;
+  height: var(--mold-list-row-height) !important;
+  padding-block: 0 !important;
+  vertical-align: middle;
+  overflow: hidden;
+  white-space: nowrap !important;
+  overflow-wrap: normal !important;
+  text-overflow: ellipsis;
+}
+
+.mold-list-table .ant-table-cell:not(.ant-table-selection-column) :where(span, div, a, p, small, strong) {
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  text-overflow: ellipsis;
+}
+
+.mold-list-table .ant-table-cell:not(.ant-table-selection-column) :is(.table-overflow-text, .ant-table-column-title, .ant-badge-status-text, .ant-tag, a, p) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mold-list-table .ant-table-cell :is(.ant-badge-status, .ant-tag, .ant-space, .ant-typography) {
+  max-width: 100%;
+}
+
+.mold-list-table .ant-table-cell :is(.ant-table-column-sorter, .ant-table-filter-trigger, .ant-table-row-expand-icon, .ant-badge-status-dot, .summary-more) {
+  flex-shrink: 0;
+}
+
+.mold-list-table .ant-table-tbody > tr.ant-table-row[tabindex]:focus-visible {
+  outline: 2px solid var(--ui-link, #0969da);
+  outline-offset: -2px;
+}
+
+.mold-list-table .ant-table-row > .ant-table-cell > .mold-list-cell-line,
+.mold-list-table .mold-list-cell-line > :where(div, p) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mold-list-table .mold-list-cell-line {
+  max-height: calc(var(--mold-list-row-height) - 4px);
+  max-width: 100%;
+}
+
+.mold-list-table .mold-list-cell-line > :where(div, p) {
+  display: inline;
+  margin: 0;
+}
+
+.mold-list-table .mold-list-cell-line > :where(div, p) + :where(div, p)::before {
+  content: ' · ';
+}

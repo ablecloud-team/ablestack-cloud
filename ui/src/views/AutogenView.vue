@@ -195,7 +195,8 @@
                 :selectedRowKeys="selectedRowKeys"
                 :selectedItems="selectedItems"
                 :dataView="false"
-                :resource="isVmList && selectedItems.length > 1 ? selectedItems[0] : resource"
+                :resource="resource"
+                :group-resource="selectedItems[0]"
                 @exec-action="handleListAction"/>
               <a-tooltip
                 v-if="isGuestVlan && dataView && resource.physicalnetworkid && $store.getters.apis.listPhysicalNetworks && $store.getters.apis.listDedicatedGuestVlanRanges"
@@ -998,6 +999,7 @@ import { snapshotSecurityScope as storageSnapshotSecurityScope } from '@/utils/s
 import { snapshotDetailRoute, snapshotDetailParams, snapshotDetailPermissions, readSnapshotDetail } from '@/utils/storageSnapshotDetail'
 import { snapshotListPage, snapshotSourceVolumeRoute, loadSnapshotListColumns, saveSnapshotListColumns } from '@/utils/storageSnapshotPresentation'
 import { storageSnapshotListQuery, storageSnapshotSortColumn, storageSnapshotSortQuery } from '@/utils/storageSnapshotList'
+import { listGroupActionAvailable } from '@/utils/moldListSelection'
 import { normalizeSnapshotSearch, snapshotSearchError, snapshotSearchPermissionError, snapshotSearchQuery, snapshotCopyList, snapshotListRoute } from '@/utils/storageSnapshotSearch'
 import { canDeletePolicy } from '@/utils/snapshotPolicyDeletion'
 import { snapshotBusy, snapshotSubmissions, trackUnknownSnapshotSubmission } from '@/utils/vmSnapshotActions'
@@ -2127,23 +2129,11 @@ export default {
       if (!this.actions || this.actions.length === 0 || this.dataView) {
         return []
       }
-      const selectionCount = this.selectedRowKeys.length
       return this.actions.filter(action => {
         if ((isEventMutation(action.api) || (this.isProjectList && action.projectBulkAction) || (this.isVpnCustomerGateway && action.groupAction)) && !this.storageActionReady) return false
-        if (!(action.api in this.$store.getters.apis)) {
-          return false
-        }
-        if (this.isVmList && action.groupAction) return this.canUseVmBulkToolbarAction(action)
-        if (selectionCount > 0) {
-          // Explicitly named bulk actions stay in the existing toolbar position.
-          const showExplicitGroup = action.groupAction && action.toolbarLabel &&
-            ('groupShow' in action ? action.groupShow(this.selectedItems, this.$store.getters) : true)
-          return showExplicitGroup || (action.listView && !action.groupAction && ('show' in action ? action.show(this.resource, this.$store.getters) : true))
-        }
-        const showOnList = action.listView && ('show' in action ? action.show(this.resource, this.$store.getters) : true)
-        const showOnGroup = action.groupAction && selectionCount > 0 &&
-          ('groupShow' in action ? action.groupShow(this.selectedItems, this.$store.getters) : true)
-        return showOnList || showOnGroup
+        if (!(action.api in this.$store.getters.apis)) return false
+        if (action.groupAction) return this.canUseListBulkAction(action)
+        return action.listView && (!action.show || action.show(this.resource, this.$store.getters))
       }).map(action => (this.isPolicyList && !this.canOpenPolicyCreate(action, false) || this.isVpnUser && action.api === 'removeVpnUser') && !this.storageActionReady
         ? { ...action, disabled: () => true }
         : action)
@@ -2153,9 +2143,9 @@ export default {
         !(this.currentAction.invokedAsGroupAction && this.selectedRowKeys.length > 0)
     },
     isSubmitDisabled () {
-      const toolbarKeys = this.currentAction?.vmToolbarTargetKeys
-      if (toolbarKeys && (!this.isVmList || toolbarKeys.some((key, index) => key !== this.selectedRowKeys[index]) ||
-        toolbarKeys.length !== this.selectedRowKeys.length || !this.canUseVmBulkToolbarAction(this.currentAction))) return true
+      const toolbarKeys = this.currentAction?.listToolbarTargetKeys
+      if (toolbarKeys && (this.dataView || toolbarKeys.some((key, index) => key !== this.selectedRowKeys[index]) ||
+        toolbarKeys.length !== this.selectedRowKeys.length || !this.canUseListBulkAction(this.currentAction))) return true
       if (this.isSshKeyPairDetail && !this.sshKeyPairDetailActionReady) return true
       return this.requiresNameConfirmation &&
         (!this.resource?.name || this.actionConfirmText.trim() !== this.resource.name.trim())
@@ -3972,20 +3962,17 @@ export default {
 
       this.setModalWidthByScreen()
     },
-    canUseVmBulkToolbarAction (action) {
+    canUseListBulkAction (action) {
       const { selectedItems: items, selectedRowKeys: keys } = this
       const getters = this.$store.getters
       return keys.length > 1 && items.length === keys.length && !this.listRefreshError &&
-        action.api in getters.apis &&
-        (!action.groupShow || action.groupShow(items, getters)) &&
-        items.every(row => (!action.show || action.show(row, getters)) &&
-          (!action.disabled || !action.disabled(row, getters, items)))
+        listGroupActionAvailable(action, items, getters)
     },
     handleListAction (action) {
       const isGroupAction = action.groupAction && !this.dataView
-      if (this.isVmList && isGroupAction) {
-        if (!this.canUseVmBulkToolbarAction(action)) return
-        this.execAction({ ...action, resource: this.selectedItems[0], vmToolbarTargetKeys: [...this.selectedRowKeys] }, true)
+      if (isGroupAction) {
+        if (!this.canUseListBulkAction(action)) return
+        this.execAction({ ...action, resource: this.selectedItems[0], listToolbarTargetKeys: [...this.selectedRowKeys] }, true)
         return
       }
       this.execAction(action, isGroupAction)
@@ -4737,7 +4724,7 @@ export default {
       if (this.actionLoading || this.isSubmitDisabled || (this.vmStandardDialog && (this.vmActionValidationPending || this.vmActionUnknown))) return
       this.promises = []
       const groupDeletion = this.currentAction.api === 'deleteInstanceGroup' && this.currentAction.invokedAsGroupAction
-      const selectedKeys = groupDeletion ? (this.currentAction.vmGroupTargets || []).map(group => group.id) : (this.currentAction.vmToolbarTargetKeys || this.selectedRowKeys)
+      const selectedKeys = groupDeletion ? (this.currentAction.vmGroupTargets || []).map(group => group.id) : (this.currentAction.listToolbarTargetKeys || this.selectedRowKeys)
       if (!this.dataView && this.currentAction.invokedAsGroupAction && selectedKeys.length > 0) {
         if (selectedKeys.length > 0) {
           this.bulkColumns = bulkColumns(this.chosenColumns)
@@ -4764,7 +4751,7 @@ export default {
         this.formRef.value.validate().then(() => {
           if (vmScope && (!this.showAction || submittedAction !== this.currentAction || vmScope !== vmEditScope(this.resource, this.$route, this.$store) || vmTargets !== JSON.stringify(this.selectedRowKeys))) return
           if (vmScope) this.vmActionValidationPending = false
-          if (submittedAction.vmToolbarTargetKeys && submittedAction !== this.currentAction) return
+          if (submittedAction.listToolbarTargetKeys && submittedAction !== this.currentAction) return
           const values = toRaw(this.form)
           this.actionLoading = true
           const itemsNameMap = {}
@@ -4772,7 +4759,7 @@ export default {
           namedItems.map(x => {
             itemsNameMap[x.id] = isVmIdentityRoute(this.$route) ? vmDisplayName(x) : x.name || x.displaytext || x.id
           })
-          const paramsList = this.currentAction.groupMap(groupDeletion || submittedAction.vmToolbarTargetKeys ? selectedKeys : this.selectedRowKeys, values, this.items)
+          const paramsList = this.currentAction.groupMap(groupDeletion || submittedAction.listToolbarTargetKeys ? selectedKeys : this.selectedRowKeys, values, this.items)
           for (const params of paramsList) {
             var resourceName = itemsNameMap[params.id]
             // Using a method for this since it's an async call and don't want wrong prarms to be passed
