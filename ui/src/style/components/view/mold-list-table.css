@@ -78,13 +78,19 @@
   max-width: 100%;
 }
 
-.mold-list-table .mold-list-cell-line > :where(div, p) {
+.mold-list-table .mold-list-cell-line > :where(div:not([class]), p:not([class])) {
   display: inline;
   margin: 0;
 }
 
-.mold-list-table .mold-list-cell-line > :where(div, p) + :where(div, p)::before {
-  content: ' · ';
+.mold-list-table .mold-list-cell-line > .ant-space {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  vertical-align: middle;
+}
+
+.mold-list-table .mold-list-cell-line > .ant-space > .ant-space-item {
+  min-width: 0;
 }
 
 .mold-list-table .ant-table-cell :is(.mold-list-name-cell, .mold-list-ip-value, .vpn-user-owner, .acl-scope-value) {
