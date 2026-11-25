@@ -22,6 +22,7 @@ import contextlib
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
 import shlex
 import subprocess
@@ -30,7 +31,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-spec = importlib.util.spec_from_file_location("netbackup_host_config", Path(__file__).with_name("netbackup-host-config.py"))
+spec = importlib.util.spec_from_file_location("netbackup_host_config", Path(__file__).with_name("netbackup_host_setup.py"))
 config = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(config)
 
@@ -42,7 +43,8 @@ class NetBackupConfigurationTest(unittest.TestCase):
         patcher = patch.object(config, "CONFIG_OUTPUT_DIR", Path(directory.name))
         patcher.start()
         self.addCleanup(patcher.stop)
-        patcher = patch.object(config, "get_configuration_value", return_value="false")
+        patcher = patch.object(config, "get_configuration_value", side_effect=lambda key, *args, **kwargs:
+                              "86400" if key == config.NETBACKUP_HOOK_TIMEOUT_CONFIG_NAME else "true")
         patcher.start()
         self.addCleanup(patcher.stop)
 
@@ -51,6 +53,7 @@ class NetBackupConfigurationTest(unittest.TestCase):
             root = Path(temporary).resolve()
             args = self.arguments("--vm-schedule-backup", "false")
             args.kvm_hostname = "host-test"
+            args.kvm_host_id = "host-uuid"
             with patch.object(config, "SECRET_OUTPUT_DIR", root / "secrets with spaces"), \
                     patch.object(config, "SECRET_KEY_FILE", root / "host.key"):
                 path = root / "policy.conf"
@@ -59,7 +62,35 @@ class NetBackupConfigurationTest(unittest.TestCase):
             self.assertEqual([str(root / "secrets with spaces/secret.enc")], shlex.split(values["MOLD_SECRET_FILE"]))
             self.assertEqual([str(root / "host.key")], shlex.split(values["SECRET_KEY_FILE"]))
             self.assertEqual([args.policy_name], shlex.split(values["NETBACKUP_POLICY_NAME"]))
+            self.assertEqual([args.kvm_host_id], shlex.split(values["KVM_HOST_ID"]))
             self.assertNotIn("ADMIN_SECRETKEY=", path.read_text())
+
+    def test_client_notify_and_read_limits_use_global_hook_timeout_and_preserve_other_settings(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'bp.conf'
+            path.write_text('SERVER = primary\nBPSTART_TIMEOUT = 300\nBPSTART_TIMEOUT = 600\nCLIENT_READ_TIMEOUT = 300\n')
+            with patch.object(config, 'NETBACKUP_BP_CONF_PATH', path):
+                self.assertTrue(config.apply_netbackup_bp_conf(172800))
+            values = path.read_text()
+            self.assertIn('SERVER = primary\n', values)
+            for key in ('BPSTART_TIMEOUT', 'BPEND_TIMEOUT', 'CLIENT_READ_TIMEOUT'):
+                self.assertEqual(1, values.count(key + ' = '))
+                self.assertIn(key + ' = 172800\n', values)
+            for key in ('CLIENT_CONNECT_TIMEOUT', 'SERVER_CONNECT_TIMEOUT'):
+                self.assertIn(key + ' = 1800\n', values)
+
+    def test_host_setup_reads_global_hook_timeout_and_rejects_invalid_values_before_writes(self):
+        args = self.arguments()
+        for value in ('86400', '172800', '1'):
+            with patch.object(config, 'get_configuration_value', return_value=value) as read:
+                self.assertEqual(int(value), config.read_hook_timeout(args))
+                read.assert_called_once_with(config.NETBACKUP_HOOK_TIMEOUT_CONFIG_NAME, args.mold_url, args.admin_apikey, args.admin_secretkey)
+        for value in (None, '', '0', '-1', 'bad', '1.5', 1.5, True, '2147483648'):
+            with self.subTest(value=value), patch.object(config, 'get_configuration_value', return_value=value), \
+                    patch.object(config, 'apply_netbackup_bp_conf') as apply, contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit):
+                    config.generate_host_outputs('zone-1', args)
+                apply.assert_not_called()
 
     def test_policy_secret_decryption_receives_its_configured_key_without_export(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -95,6 +126,7 @@ load_admin_secretkey
 
     def test_policy_check_uses_raw_api_auth_and_accepts_serial_limits_during_configuration(self):
         args = self.arguments("--vm-schedule-backup", "true")
+        args.kvm_hostname = "host-test"
         response = {"data": {"attributes": {"policy": self.policy()}}}
         with patch.object(config, "urlopen", return_value=io.BytesIO(json.dumps(response).encode())) as request, \
                 patch.object(config, "get_configuration_value", return_value="1"), contextlib.redirect_stderr(io.StringIO()):
@@ -129,69 +161,359 @@ load_admin_secretkey
         argv = ["netbackup-host-config.py", "--policy-name", "host-test", "--mold-url", "http://mold.test/client/api",
                 "--admin-apikey", "synthetic-key", "--admin-secretkey", "synthetic-secret",
                 "--netbackup-url", "https://netbackup.test/netbackup", "--netbackup-apikey", "synthetic-netbackup-key"]
-        with patch.object(sys, "argv", argv + list(options)), patch.object(config.socket, "gethostname", return_value="host-test"):
+        with patch.object(sys, "argv", argv + list(options)):
             return config.parse_args()
 
-    def test_host_context_uses_the_local_host_independently_of_the_policy_name(self):
-        args = self.arguments("--policy-name", "prod-weekly")
-        hosts = [{"name": "prod-weekly", "zoneid": "wrong-zone", "clusterid": "wrong-cluster"},
-                 {"name": "host-test", "zoneid": "zone", "clusterid": "cluster"}]
-        with patch.object(config, "invoke_mold_api", return_value={"listhostsresponse": {"host": hosts}}) as api, \
-                contextlib.redirect_stderr(io.StringIO()):
-            self.assertEqual(("zone", "cluster"), config.resolve_host_context(args))
-        self.assertEqual("host-test", api.call_args.args[2]["name"])
-        self.assertEqual("prod-weekly", args.policy_name)
+    def test_private_credentials_file_can_replace_command_line_secrets(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "credentials.json"
+            values = dict(moldurl="http://mold.test/client/api", adminapikey="synthetic-key",
+                          adminsecretkey="synthetic-secret", netbackupurl="https://netbackup.test/netbackup",
+                          netbackupapikey="synthetic-netbackup-key")
+            path.write_text(json.dumps(values)); path.chmod(0o600)
+            argv = ["netbackup-host-config.py", "--host-only", "--check-only", "--policy-name", "host-test",
+                    "--credentials-file", str(path)]
+            with patch.object(sys, "argv", argv):
+                args = config.parse_args()
+            self.assertEqual(values["adminsecretkey"], args.admin_secretkey)
+            self.assertEqual(values["netbackupurl"], args.netbackup_url)
+            self.assertTrue(args.check_only)
+            self.assertIsNone(args.incremental_backup)
+            for mode in (0o644, 0o640, 0o400):
+                path.chmod(mode)
+                with patch.object(sys, "argv", argv), contextlib.redirect_stderr(io.StringIO()):
+                    with self.assertRaises(SystemExit):
+                        config.parse_args()
+            path.chmod(0o600)
+            link = Path(directory) / "credentials-link.json"
+            link.symlink_to(path)
+            with patch.object(sys, "argv", argv[:-1] + [str(link)]), contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit):
+                    config.parse_args()
 
-    def test_host_ip_override_saves_the_exact_mold_host_name(self):
-        args = self.arguments("--policy-name", "prod-weekly", "--kvm-ip", "192.0.2.2")
-        hosts = [{"name": "host-test", "ipaddress": "192.0.2.1", "zoneid": "wrong-zone", "clusterid": "wrong-cluster"},
-                 {"name": "Mold-Host-2", "ipaddress": "192.0.2.2", "zoneid": "zone", "clusterid": "cluster"}]
-        with patch.object(config, "invoke_mold_api", return_value={"listhostsresponse": {"host": hosts}}), \
-                contextlib.redirect_stderr(io.StringIO()):
-            self.assertEqual(("zone", "cluster"), config.resolve_host_context(args))
-        self.assertEqual("Mold-Host-2", args.kvm_hostname)
+    def test_host_only_uses_ui_worker_receipt_and_never_updates_shared_settings(self):
+        import netbackup_host_configuration as configuration
+        for check_only, action in ((True, "CHECK"), (False, "APPLY")):
+            args = self.arguments("--host-only", *( ["--check-only"] if check_only else []))
+            args.kvm_host_id = "host-uuid"
+            with tempfile.TemporaryDirectory() as directory, patch.object(configuration, "ROOT", Path(directory)), \
+                    patch.object(config, "resolve_host_context", return_value=("zone", "cluster")), \
+                    patch.object(config, "update_configuration_value") as update, \
+                    patch.object(config, "ensure_backup_framework_configuration") as shared, \
+                    patch.object(configuration, "start") as start, contextlib.redirect_stdout(io.StringIO()) as output:
+                def submit(path):
+                    request = configuration.read_request(path)
+                    self.assertEqual(action, request["action"])
+                    self.assertEqual("host-uuid", request["hostid"])
+                    self.assertTrue(request["vmschedulebackup"])
+                    self.assertTrue(request["incrementalbackup"])
+                    self.assertEqual("synthetic-secret", request["adminsecretkey"])
+                    Path(path).unlink()
+                    return dict(state="RUNNING", action=action, operationid=request["operationid"])
+                start.side_effect = submit
+                config.configure_host_only(args)
+                start.assert_called_once()
+                update.assert_not_called(); shared.assert_not_called()
+                self.assertIn('"state": "RUNNING"', output.getvalue())
+                self.assertNotIn("synthetic-secret", output.getvalue())
+                self.assertNotIn("synthetic-netbackup-key", output.getvalue())
 
-    def test_explicit_host_name_is_used_instead_of_the_local_name(self):
-        args = self.arguments("--policy-name", "prod-weekly", "--kvm-hostname", "mold-host")
-        host = {"name": "mold-host", "zoneid": "zone", "clusterid": "cluster"}
-        with patch.object(config, "invoke_mold_api", return_value={"listhostsresponse": {"host": host}}), \
-                contextlib.redirect_stderr(io.StringIO()):
-            self.assertEqual(("zone", "cluster"), config.resolve_host_context(args))
+    def test_host_only_rejects_requested_shared_setting_changes(self):
+        import netbackup_host_configuration as configuration
+        for options in (("--backup-chain-size", "4"), ("--vm-schedule-backup", "false"),
+                        ("--incremental-backup", "false")):
+            args = self.arguments("--host-only", *options)
+            with patch.object(config, "resolve_host_context", return_value=("zone", "cluster")), \
+                    patch.object(configuration, "start") as start, contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit):
+                    config.configure_host_only(args)
+                start.assert_not_called()
 
-    def test_unmatched_or_ambiguous_hosts_never_fall_back_to_the_first_result(self):
-        args = self.arguments("--policy-name", "prod-weekly")
-        for names in (("prod-weekly",), ("host-test", "host-test")):
-            hosts = [{"name": name, "zoneid": "zone", "clusterid": "cluster"} for name in names]
-            with self.subTest(names=names), \
-                    patch.object(config, "invoke_mold_api", return_value={"listhostsresponse": {"host": hosts}}), \
+    def test_host_only_launch_failure_removes_private_request_and_redacts_secrets(self):
+        import netbackup_host_configuration as configuration
+        args = self.arguments("--host-only")
+        args.kvm_host_id = "host-uuid"
+        with tempfile.TemporaryDirectory() as directory, patch.object(configuration, "ROOT", Path(directory)), \
+                patch.object(config, "resolve_host_context", return_value=("zone", "cluster")), \
+                patch.object(configuration, "start", side_effect=ValueError("failed: " + args.admin_secretkey)), \
+                contextlib.redirect_stderr(io.StringIO()) as error:
+            with self.assertRaises(SystemExit):
+                config.configure_host_only(args)
+            self.assertEqual([], list(Path(directory).iterdir()))
+            self.assertNotIn(args.admin_secretkey, error.getvalue())
+            self.assertIn("<hidden>", error.getvalue())
+
+    def host(self, **values):
+        return dict(dict(id="host-uuid", name="host-test", ipaddress="192.0.2.1", hypervisor="KVM",
+                         zoneid="zone", clusterid="cluster"), **values)
+
+    def resolve(self, args, hosts=None, client="host-test", addresses=None):
+        policy = self.policy()
+        policy["clients"] = [{"hostName": client}]
+        def lookup(name):
+            return {"192.0.2.1"} if name in (client, "192.0.2.1") else set()
+        with patch.object(config, "read_netbackup_policy", return_value=policy), \
+                patch.object(config, "local_host_addresses", return_value=addresses or {"192.0.2.1"}), \
+                patch.object(config, "resolve_addresses", side_effect=lookup), \
+                patch.object(config, "invoke_mold_api", return_value={"listhostsresponse": {"host": hosts if hosts is not None else [self.host()]}}), \
+                contextlib.redirect_stderr(io.StringIO()):
+            return config.resolve_host_context(args)
+
+    def test_existing_and_custom_policy_names_resolve_the_same_local_mold_host(self):
+        for policy in ("host-test", "HOST-TEST", "custom-policy", "PoC.GFS_01+full", "ends-"):
+            with self.subTest(policy=policy):
+                args = self.arguments("--policy-name", policy)
+                self.assertIsNone(args.kvm_hostname)
+                self.assertEqual(("zone", "cluster"), self.resolve(args))
+                self.assertEqual("host-test", args.kvm_hostname)
+                self.assertEqual("host-uuid", args.kvm_host_id)
+                self.assertEqual("192.0.2.1", args.kvm_ip)
+                self.assertEqual(policy, args.policy_name)
+                self.assertEqual("host-test", args.netbackup_client)
+
+    def test_policy_client_fqdn_alias_and_ip_can_identify_a_differently_named_mold_host(self):
+        for client in ("host-test.example.test", "192.0.2.1", "backup-alias.example.test"):
+            with self.subTest(client=client):
+                args = self.arguments("--policy-name", "independent-policy")
+                self.assertEqual(("zone", "cluster"), self.resolve(args, client=client))
+                self.assertEqual("host-test", args.kvm_hostname)
+
+    def test_same_host_name_in_another_cluster_does_not_change_verified_uuid(self):
+        args = self.arguments()
+        hosts = [self.host(), self.host(id="other-host-uuid", ipaddress="192.0.2.2", clusterid="other-cluster")]
+        self.assertEqual(("zone", "cluster"), self.resolve(args, hosts=hosts))
+        self.assertEqual("host-uuid", args.kvm_host_id)
+
+    def test_policy_client_on_another_machine_cannot_be_overridden_with_kvm_arguments(self):
+        args = self.arguments("--kvm-hostname", "host-test", "--kvm-ip", "192.0.2.1")
+        with self.assertRaises(SystemExit):
+            self.resolve(args, addresses={"192.0.2.99"})
+
+    def test_optional_legacy_arguments_are_assertions_of_the_verified_host(self):
+        self.resolve(self.arguments("--kvm-hostname", "host-test", "--kvm-ip", "192.0.2.1"))
+        for options in (("--kvm-hostname", "other-host"), ("--kvm-ip", "192.0.2.2")):
+            with self.subTest(options=options), self.assertRaises(SystemExit):
+                self.resolve(self.arguments(*options))
+
+    def test_missing_ambiguous_non_kvm_or_incomplete_mold_hosts_are_rejected(self):
+        other = dict(self.host(), ipaddress="192.0.2.2")
+        for hosts in ([], [other], [self.host(), self.host()], [dict(self.host(), hypervisor="VMware")],
+                      [dict(self.host(), clusterid="")], [dict(self.host(), id="")]):
+            with self.subTest(hosts=hosts), self.assertRaises(SystemExit):
+                self.resolve(self.arguments(), hosts=hosts)
+
+    def test_dns_client_matching_multiple_mold_hosts_is_ambiguous_even_when_one_is_local(self):
+        policy = self.policy()
+        hosts = [self.host(), dict(self.host(), name="host-other", ipaddress="192.0.2.2")]
+        with patch.object(config, "read_netbackup_policy", return_value=policy), \
+                patch.object(config, "local_host_addresses", return_value={"192.0.2.1"}), \
+                patch.object(config, "resolve_addresses", side_effect=lambda name: {"192.0.2.1", "192.0.2.2"} if name == "host-test" else {name}), \
+                patch.object(config, "invoke_mold_api", return_value={"listhostsresponse": {"host": hosts}}), \
+                contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            config.resolve_host_context(self.arguments())
+
+    def test_hosts_on_later_inventory_pages_are_checked_before_accepting_uniqueness(self):
+        rows = [dict(self.host(), ipaddress="192.0.2.99")] * 500
+        policy = self.policy()
+        args = self.arguments("--policy-name", "custom-policy")
+        with patch.object(config, "read_netbackup_policy", return_value=policy), \
+                patch.object(config, "local_host_addresses", return_value={"192.0.2.1"}), \
+                patch.object(config, "resolve_addresses", side_effect=lambda name: {"192.0.2.1"} if name == "host-test" else {name}), \
+                patch.object(config, "invoke_mold_api", side_effect=[{"listhostsresponse": {"host": rows}},
+                    {"listhostsresponse": {"host": [self.host()]}}]) as api, contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(("zone", "cluster"), config.resolve_host_context(args))
+        self.assertEqual(["1", "2"], [call.args[2]["page"] for call in api.call_args_list])
+        self.assertNotIn("name", api.call_args.args[2])
+
+    def test_policy_read_checks_registration_one_client_and_exact_encoded_name(self):
+        args = self.arguments("--policy-name", "PoC.GFS_01+full")
+        response = {"data": {"id": args.policy_name, "attributes": {"policy": self.policy()}}}
+        with patch.object(config, "urlopen", return_value=io.BytesIO(json.dumps(response).encode())) as request:
+            config.read_netbackup_policy(args)
+        self.assertTrue(request.call_args.args[0].full_url.endswith("/PoC.GFS_01%2Bfull"))
+        for clients in ([], [{"hostName": "host-test"}, {"hostName": "other"}], [{}]):
+            args = self.arguments()
+            policy = self.policy()
+            policy["clients"] = clients
+            with self.subTest(clients=clients), patch.object(config, "urlopen", return_value=io.BytesIO(
+                    json.dumps({"data": {"attributes": {"policy": policy}}}).encode())), \
                     contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
-                config.resolve_host_context(args)
+                config.read_netbackup_policy(args)
 
-    def test_runtime_selects_the_configured_mold_host_and_keeps_the_policy_name(self):
+    def test_invalid_policy_names_fail_before_any_configuration_or_file_changes(self):
+        for name in ("", "with space", "with\ttab", "-start", ".start", "end.", "a/b", "a;cmd", "a$(cmd)", "a'quote", "한글"):
+            with self.subTest(name=name), contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+                config.validate_args(self.arguments("--policy-name=" + name))
+        self.assertNotEqual(config.sanitize_name("a+b"), config.sanitize_name("a_b"))
+
+    def test_netbackup_policy_length_boundary_is_checked_before_configuration(self):
+        config.validate_policy_name("p" * 128)
+        with patch.object(config, "configure_vm_selection") as selection, \
+                contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            config.validate_args(self.arguments("--policy-name", "p" * 129))
+        selection.assert_not_called()
+
+    def test_policy_client_verification_stops_before_settings_secrets_or_hooks_change(self):
+        args = self.arguments("--policy-name", "custom-policy")
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(patch.object(config, "parse_args", return_value=args))
+            stack.enter_context(patch.object(config, "validate_args"))
+            stack.enter_context(patch.object(config, "load_common_staging"))
+            stack.enter_context(patch.object(config, "read_netbackup_policy", side_effect=SystemExit(1)))
+            downstream = [stack.enter_context(patch.object(config, name)) for name in (
+                "prepare_secret_key", "ensure_backup_framework_configuration", "ensure_netbackup_offering", "generate_host_outputs")]
+            stack.enter_context(contextlib.redirect_stderr(io.StringIO()))
+            with self.assertRaises(SystemExit):
+                config.main()
+        for operation in downstream:
+            operation.assert_not_called()
+
+    def test_local_interface_detection_excludes_loopback_and_does_not_use_dns_as_local_proof(self):
+        result = subprocess.CompletedProcess([], 0, json.dumps([{"addr_info": [
+            {"local": "127.0.0.1"}, {"local": "192.0.2.1"}, {"local": "::1"}, {"local": "2001:db8::1"}]}]))
+        with patch.object(config.subprocess, "run", return_value=result):
+            self.assertEqual({"192.0.2.1", "2001:db8::1"}, config.local_host_addresses())
+
+    def test_plus_is_preserved_in_shell_config_and_transfer_hook_names(self):
+        args = self.arguments("--policy-name", "poc+gfs_01")
+        self.resolve(args)
+        with tempfile.TemporaryDirectory() as directory, patch.object(config, "HOOK_OUTPUT_DIR", Path(directory)):
+            config.write_transfer_hooks(config.sanitize_name(args.policy_name))
+            self.assertTrue((Path(directory) / "bpstart_notify.poc+gfs_01.mold-transfer").is_file())
+            path = Path(directory) / "config"
+            config.write_config_file(path, args)
+            shell = subprocess.run(["bash", "-c", 'source "$1"; printf "%s\n%s" "$NETBACKUP_POLICY_NAME" "$KVM_HOSTNAME"', "test", str(path)],
+                                   capture_output=True, text=True, check=True)
+            self.assertEqual("poc+gfs_01\nhost-test", shell.stdout)
+
+    def test_policy_runtime_keeps_plus_and_underscore_contexts_separate(self):
+        script = r'''
+set -euo pipefail
+source "$1"
+POLICY_NAME="$3"
+resolve_context
+[[ "$POLICY_SAFE" == "$3" ]]
+CONFIG_ROOT="$2"
+log() { :; }
+load_admin_secretkey() { :; }
+load_backup_staging_root_from_mold() { :; }
+load_staging_timeout_from_data_operation_config() { :; }
+load_policy_schedule_config
+[[ "$KVM_HOSTNAME" == mold-host-2 ]]
+'''
+        for requested in ("poc+gfs", "poc_gfs"):
+            for configured in (requested, "wrong-policy"):
+                with self.subTest(requested=requested, configured=configured), tempfile.TemporaryDirectory() as directory:
+                    path = Path(directory) / ("netbackup-host-" + requested + ".conf")
+                    path.write_text("KVM_HOSTNAME=mold-host-2\nNETBACKUP_POLICY_NAME=" + configured
+                                    + "\nMOLD_URL=http://mold.test/client/api\nADMIN_APIKEY=synthetic-key\n")
+                    result = subprocess.run(["bash", "-c", script, "test", str(Path(config.__file__).with_name("netbackup-host-common.sh")),
+                                             directory, requested], capture_output=True, text=True, timeout=10)
+                    self.assertEqual(0 if requested == configured else 1, result.returncode, result.stderr)
+
+    def candidate_lookup(self, host_id="host-uuid", host_name="host-test", inventories=None, candidates=None,
+                         client="192.0.2.1", local_addresses=("192.0.2.1",)):
         script = r'''
 set -euo pipefail
 source "$1"
 MOLD_VM_CACHE_FILE="$2/cache"
-KVM_HOSTNAME="$3"
-CLIENT_NAME=netbackup-client
+TEST_ROOT="$2"
+KVM_HOST_ID="$3"
+KVM_HOSTNAME="$4"
+CLIENT_NAME="$5"
 POLICY_NAME=prod-weekly
-VM_SCHEDULE_BACKUP=true
+MOLD_LIST_VMS_API_URL=http://mold.test/client/api
 log() { :; }
 invoke_mold_api() {
-  printf '%s\n' "$@" > "${MOLD_VM_CACHE_FILE}.request"
-  printf '%s\n' '{"listexternalbackupcandidatesresponse":{"externalbackupcandidates":{"selectionmode":"SCHEDULE","candidate":[]}}}'
+  printf '%s\n' "$@" >> "${MOLD_VM_CACHE_FILE}.request"
+  case "$3" in
+    listHosts) cat "$TEST_ROOT/hosts-${@: -1}.json" ;;
+    listExternalBackupCandidates) cat "$TEST_ROOT/candidates.json" ;;
+    *) return 1 ;;
+  esac
 }
 cache_mold_virtual_machines
-cat "${MOLD_VM_CACHE_FILE}.request"
+printf '%s\n%s' "$KVM_HOST_ID" "$KVM_HOSTNAME"
 '''
-        for host, expected in (("host-test", "host-test"), ("", "netbackup-client")):
-            with self.subTest(host=host), tempfile.TemporaryDirectory() as directory:
-                result = subprocess.run(["bash", "-c", script, "test", str(Path(__file__).with_name("netbackup-host-common.sh")),
-                                         directory, host], capture_output=True, text=True, timeout=10)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            ip = root / "ip"
+            interfaces = json.dumps([{"addr_info": [{"local": address} for address in local_addresses]}])
+            ip.write_text("#!/bin/sh\nprintf '%s\\n' " + shlex.quote(interfaces) + "\n")
+            ip.chmod(0o755)
+            for page, inventory in enumerate([self.host()] if inventories is None else inventories, start=1):
+                (root / f"hosts-{page}.json").write_text(json.dumps({"listhostsresponse": {"host": inventory}}))
+            (root / "candidates.json").write_text(json.dumps({"listexternalbackupcandidatesresponse": {
+                "externalbackupcandidates": {"selectionmode": "CONFIG", "candidate": candidates or []}}}))
+            result = subprocess.run(["bash", "-c", script, "test", str(Path(__file__).with_name("netbackup-host-common.sh")),
+                                     directory, host_id, host_name, client], capture_output=True, text=True, timeout=10,
+                                    env=dict(os.environ, PATH=str(root) + os.pathsep + os.environ["PATH"]))
+            request = root / "cache.request"
+            return result, request.read_text().splitlines() if request.exists() else []
+
+    def test_runtime_verifies_current_uuid_for_identically_named_hosts_and_keeps_policy_name(self):
+        for host_id in ("cluster-a-host-uuid", "cluster-b-host-uuid"):
+            with self.subTest(host_id=host_id):
+                inventory = [self.host(id=host_id), self.host(id="other-host-uuid", ipaddress="192.0.2.2", clusterid="other-cluster")]
+                result, params = self.candidate_lookup(host_id=host_id, inventories=[inventory])
                 self.assertEqual(0, result.returncode, result.stderr)
-                params = result.stdout.splitlines()
-                self.assertEqual(expected, params[params.index("hostname") + 1])
+                self.assertEqual(host_id, params[params.index("hostid") + 1])
                 self.assertEqual("prod-weekly", params[params.index("policyid") + 1])
+                self.assertNotIn("hostname", params)
+                self.assertIn("listHosts", params)
+                self.assertNotIn("name", params)
+
+    def test_runtime_refreshes_renamed_reregistered_and_legacy_host_identity(self):
+        for saved_id, saved_name in (("host-uuid", "old-name"), ("deleted-host-uuid", "host-test"), ("", "")):
+            with self.subTest(saved_id=saved_id, saved_name=saved_name):
+                inventory = [self.host(id="current-uuid", name="current-host"),
+                             self.host(id=saved_id or "other-uuid", name=saved_name or "other-host", ipaddress="192.0.2.2")]
+                result, params = self.candidate_lookup(host_id=saved_id, host_name=saved_name, inventories=[inventory])
+                self.assertEqual(0, result.returncode, result.stderr)
+                self.assertEqual("current-uuid", params[params.index("hostid") + 1])
+                self.assertEqual(["current-uuid", "current-host"], result.stdout.splitlines())
+                self.assertNotIn("hostname", params)
+
+    def test_runtime_rejects_missing_ambiguous_or_incomplete_hosts_before_selection(self):
+        for inventory in ([], [self.host(), self.host(id="other-uuid", clusterid="other-cluster")],
+                          [self.host(id="")], [self.host(hypervisor="VMware")], "invalid"):
+            with self.subTest(inventory=inventory):
+                result, params = self.candidate_lookup(host_id="", inventories=[inventory])
+                self.assertNotEqual(0, result.returncode)
+                self.assertNotIn("listExternalBackupCandidates", params)
+
+    def test_runtime_checks_later_pages_before_accepting_host_identity(self):
+        first = [self.host()] + [self.host(name="other-host", ipaddress="192.0.2.99")] * 499
+        for second, accepted in (([], True), ([self.host(id="second-host-uuid")], False)):
+            with self.subTest(accepted=accepted):
+                result, params = self.candidate_lookup(host_id="", inventories=[first, second])
+                self.assertEqual(accepted, result.returncode == 0, result.stderr)
+                self.assertEqual(2, params.count("listHosts"))
+                self.assertEqual(accepted, "listExternalBackupCandidates" in params)
+
+    def test_runtime_cannot_accept_a_saved_uuid_when_client_is_not_local(self):
+        for addresses in ((), ("192.0.2.2",), ("127.0.0.1",)):
+            with self.subTest(addresses=addresses):
+                result, params = self.candidate_lookup(local_addresses=addresses)
+                self.assertNotEqual(0, result.returncode)
+                self.assertNotIn("listExternalBackupCandidates", params)
+                self.assertNotIn("listHosts", params)
+
+    def test_runtime_inventory_failure_cannot_fall_back_to_the_saved_uuid(self):
+        result, params = self.candidate_lookup(inventories=[])
+        self.assertNotEqual(0, result.returncode)
+        self.assertNotIn("listExternalBackupCandidates", params)
+
+    def test_candidate_response_cannot_redirect_execution_to_another_host_uuid(self):
+        candidate = dict(virtualmachineid="vm-uuid", instancename="i-2-1-VM", hostid="host-uuid", backupofferingid="offering-uuid")
+        for host_id in ("host-uuid", "other-host-uuid"):
+            with self.subTest(host_id=host_id):
+                result, _ = self.candidate_lookup(host_id=host_id, inventories=[[self.host(id=host_id)]], candidates=[candidate])
+                self.assertEqual(host_id == "host-uuid", result.returncode == 0)
+
+    def assert_cluster_incremental_update(self, update, args, value):
+        update.assert_called_once_with("kvm.incremental.backup", value, args.mold_url, args.admin_apikey,
+                                       args.admin_secretkey, cluster_id="cluster-id")
 
     def configure(self, args, current_incremental="true", chain="8", global_incremental=None, global_plugins="ablestack-netbackup", zone_plugins="ablestack-netbackup", global_schedule="false"):
         if global_incremental is None:
@@ -228,68 +550,55 @@ cat "${MOLD_VM_CACHE_FILE}.request"
         self.assertIsNone(args.backup_chain_size)
         restart, read, update = self.configure(args, chain="25")
         self.assertFalse(restart)
-        update.assert_not_called()
+        self.assert_cluster_incremental_update(update, args, "true")
         self.assertNotIn("kvm.backup.chain.size", [call.args[0] for call in read.call_args_list])
 
-    def test_interactive_selection_asks_mode_before_host_filters(self):
-        args = self.arguments()
-        with patch.object(sys.stdin, "isatty", return_value=True), patch("builtins.input", side_effect=["false", "i-2-1-VM", "i-2-2-VM"]) as read:
-            config.configure_vm_selection(args)
-        self.assertFalse(args.vm_schedule_backup)
-        self.assertEqual("i-2-1-VM", args.vm_include)
-        self.assertEqual("i-2-2-VM", args.vm_exclude)
-        self.assertIn("per-VM", read.call_args_list[0].args[0])
-        self.assertIn("VM_INCLUDE", read.call_args_list[1].args[0])
-        self.assertIn("VM_EXCLUDE", read.call_args_list[2].args[0])
 
-    def test_schedule_mode_skips_both_filter_prompts(self):
-        args = self.arguments()
-        with patch.object(sys.stdin, "isatty", return_value=True), patch("builtins.input", return_value="true") as read:
-            config.configure_vm_selection(args)
-        self.assertTrue(args.vm_schedule_backup)
-        self.assertEqual(("*", ""), (args.vm_include, args.vm_exclude))
-        self.assertEqual(1, read.call_count)
+    def test_mode_prompt_does_not_ask_for_vm_filters(self):
+        for mode in ("true", "false"):
+            args = self.arguments()
+            with patch.object(sys.stdin, "isatty", return_value=True), patch("builtins.input", return_value=mode) as read:
+                config.configure_vm_selection(args)
+            self.assertEqual(mode == "true", args.vm_schedule_backup)
+            self.assertEqual(1, read.call_count)
+            self.assertFalse(hasattr(args, "vm_include"))
+            self.assertFalse(hasattr(args, "vm_exclude"))
 
-    def test_noninteractive_selection_defaults_to_all_host_vms(self):
-        args = self.arguments()
-        with patch.object(sys.stdin, "isatty", return_value=False), patch("builtins.input") as read:
-            config.configure_vm_selection(args)
-        self.assertFalse(args.vm_schedule_backup)
-        self.assertEqual(("*", ""), (args.vm_include, args.vm_exclude))
-        read.assert_not_called()
+    def test_removed_netbackup_filter_arguments_are_rejected(self):
+        for argument in ("--vm-include", "--vm-exclude"):
+            with self.subTest(argument=argument), contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+                self.arguments(argument, "*")
 
-    def test_explicit_selection_and_filters_support_unattended_configuration(self):
-        args = self.arguments("--vm-schedule-backup", "false", "--vm-include", "i-2-1-VM", "--vm-exclude", "i-2-2-VM")
-        with patch.object(sys.stdin, "isatty", return_value=True), patch("builtins.input") as read:
-            config.configure_vm_selection(args)
-        self.assertEqual(("i-2-1-VM", "i-2-2-VM"), (args.vm_include, args.vm_exclude))
-        read.assert_not_called()
-
-    def test_schedule_flag_is_only_stored_in_mold_and_host_filters_remain_usable(self):
-        args = self.arguments("--vm-schedule-backup", "true", "--policy-name", "prod-weekly")
-        with patch.object(sys.stdin, "isatty", return_value=False):
-            config.configure_vm_selection(args)
-        with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / "policy.conf"
+    def test_generated_policy_has_no_vm_filters_in_either_mode(self):
+        for mode in ("true", "false"):
+            args = self.arguments("--vm-schedule-backup", mode)
+            self.resolve(args)
+            path = config.CONFIG_OUTPUT_DIR / "new-policy.conf"
             config.write_config_file(path, args)
             text = path.read_text()
-        self.assertNotIn("VM_SCHEDULE_BACKUP=", text)
-        self.assertIn('VM_INCLUDE="*"', text)
-        self.assertIn('VM_EXCLUDE=""', text)
-        self.assertIn("KVM_HOSTNAME=host-test", text)
-        self.assertIn("/bootstrap/prod-weekly", text)
+            for key in ("VM_SCHEDULE_BACKUP=", "VM_INCLUDE=", "VM_EXCLUDE="):
+                self.assertNotIn(key, text)
+            self.assertIn("NETBACKUP_POLICY_NAME=host-test", text)
+            self.assertIn("/bootstrap/host-test", text)
 
-    def test_schedule_mode_rejects_manual_filters(self):
-        args = self.arguments("--vm-schedule-backup", "true", "--vm-include", "*")
-        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
-            config.configure_vm_selection(args)
+    def test_custom_template_cannot_reintroduce_removed_filter_keys(self):
+        template = config.CONFIG_OUTPUT_DIR / "template.conf"
+        template.write_text('VM_SCHEDULE_BACKUP=true\nVM_INCLUDE="*"\nVM_EXCLUDE="*"\n')
+        args = self.arguments("--vm-schedule-backup", "false")
+        self.resolve(args)
+        path = config.CONFIG_OUTPUT_DIR / "new-policy.conf"
+        with patch.object(config, "POLICY_TEMPLATE_PATH", template):
+            config.write_config_file(path, args)
+        for key in ("VM_SCHEDULE_BACKUP=", "VM_INCLUDE=", "VM_EXCLUDE="):
+            self.assertNotIn(key, path.read_text())
 
     def test_dynamic_global_schedule_update_does_not_require_restart(self):
         args = self.arguments("--vm-schedule-backup", "true")
         restart, read, update = self.configure(args)
         self.assertFalse(restart)
-        update.assert_called_once_with(config.NETBACKUP_VM_SCHEDULE_CONFIG_NAME, "true",
-                                       args.mold_url, args.admin_apikey, args.admin_secretkey)
+        self.assertEqual([config.NETBACKUP_VM_SCHEDULE_CONFIG_NAME, "kvm.incremental.backup"],
+                         [call.args[0] for call in update.call_args_list])
+        self.assertEqual("true", update.call_args_list[0].args[1])
 
     def test_omitted_noninteractive_mode_retains_current_mold_value(self):
         for current in ("true", "false"):
@@ -301,7 +610,7 @@ cat "${MOLD_VM_CACHE_FILE}.request"
                 self.assertEqual(current == "true", args.vm_schedule_backup)
                 restart, read, update = self.configure(args, global_schedule=current)
                 self.assertFalse(restart)
-                update.assert_not_called()
+                self.assert_cluster_incremental_update(update, args, "true")
 
     def test_interactive_default_comes_from_mold_and_mentions_global_scope(self):
         args = self.arguments()
@@ -319,56 +628,55 @@ cat "${MOLD_VM_CACHE_FILE}.request"
                     contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
                 config.configure_vm_selection(self.arguments())
 
-    def test_reconfiguration_preserves_filters_in_both_modes(self):
-        path = config.CONFIG_OUTPUT_DIR / "netbackup-host-host-test.conf"
-        path.write_text('VM_INCLUDE="i-2-1-VM,i-2-2-VM"\nVM_EXCLUDE="i-2-2-VM"\n')
-        for enabled in ("true", "false"):
-            with self.subTest(enabled=enabled), patch.object(sys.stdin, "isatty", return_value=False):
-                args = self.arguments("--vm-schedule-backup", enabled)
-                config.configure_vm_selection(args)
-                config.write_config_file(path, args)
-                self.assertEqual(("i-2-1-VM,i-2-2-VM", "i-2-2-VM"), (args.vm_include, args.vm_exclude))
-                self.assertNotIn("VM_SCHEDULE_BACKUP=", path.read_text())
 
-    def test_legacy_schedule_sentinel_is_removed_without_clearing_intentional_exclude_all(self):
-        path = config.CONFIG_OUTPUT_DIR / "netbackup-host-host-test.conf"
-        for legacy_mode, expected in (("true", ""), ("false", "*")):
-            path.write_text(f'VM_SCHEDULE_BACKUP={legacy_mode}\nVM_INCLUDE="*"\nVM_EXCLUDE="*"\n')
-            args = self.arguments("--vm-schedule-backup", "false")
-            with self.subTest(legacy_mode=legacy_mode), patch.object(sys.stdin, "isatty", return_value=False), \
-                    contextlib.redirect_stderr(io.StringIO()):
-                config.configure_vm_selection(args)
-            self.assertEqual(expected, args.vm_exclude)
-
-    def test_legacy_policy_template_does_not_reintroduce_host_mode(self):
-        template = config.CONFIG_OUTPUT_DIR / "old-template.conf"
-        template.write_text('VM_SCHEDULE_BACKUP=true\nVM_INCLUDE="*"\nVM_EXCLUDE="*"\n')
-        args = self.arguments("--vm-schedule-backup", "false", "--vm-exclude", "")
-        with patch.object(sys.stdin, "isatty", return_value=False):
-            config.configure_vm_selection(args)
-        path = config.CONFIG_OUTPUT_DIR / "new-policy.conf"
-        with patch.object(config, "POLICY_TEMPLATE_PATH", template):
-            config.write_config_file(path, args)
-        self.assertNotIn("VM_SCHEDULE_BACKUP=", path.read_text())
-        self.assertIn('VM_EXCLUDE=""', path.read_text())
-
-    def test_full_mode_updates_global_and_cluster_flags_and_requires_restart(self):
+    def test_full_mode_updates_only_cluster_flag_and_requires_restart(self):
         args = self.arguments("--incremental-backup", "false")
         restart, read, update = self.configure(args)
         self.assertTrue(restart)
-        self.assertEqual(2, update.call_count)
-        self.assertEqual([("kvm.incremental.backup", "false"), ("kvm.incremental.backup", "false")],
-                         [call.args[:2] for call in update.call_args_list])
-        self.assertEqual({}, update.call_args_list[0].kwargs)
-        self.assertEqual({"cluster_id": "cluster-id"}, update.call_args_list[1].kwargs)
+        self.assert_cluster_incremental_update(update, args, "false")
         self.assertNotIn("kvm.backup.chain.size", [call.args[0] for call in read.call_args_list])
 
-    def test_global_flag_is_updated_even_when_cluster_already_matches(self):
+    def test_global_flag_is_preserved_when_cluster_already_matches(self):
         args = self.arguments("--incremental-backup", "false")
         restart, _, update = self.configure(args, current_incremental="false", global_incremental="true")
-        self.assertTrue(restart)
-        update.assert_called_once_with("kvm.incremental.backup", "false", args.mold_url, args.admin_apikey,
-                                       args.admin_secretkey)
+        self.assertFalse(restart)
+        self.assert_cluster_incremental_update(update, args, "false")
+
+    def test_configuring_multiple_clusters_pins_each_choice_without_changing_global(self):
+        for initial_global in ("false", "true"):
+            with self.subTest(initial_global=initial_global):
+                args = self.arguments("--vm-schedule-backup", "true")
+                values = {"backup.framework.enabled": "true", "backup.framework.provider.plugin": "ablestack-netbackup",
+                          "kvm.incremental.backup": initial_global, "backup.plugin.netbackup.url": args.netbackup_url,
+                          "backup.plugin.netbackup.apikey": args.netbackup_apikey,
+                          config.NETBACKUP_VM_SCHEDULE_CONFIG_NAME: "true"}
+                overrides = {}
+
+                def read_value(name, *unused, cluster_id=None):
+                    return overrides.get(cluster_id, values[name]) if cluster_id else values[name]
+
+                def write_value(name, value, *unused, cluster_id=None):
+                    self.assertEqual("kvm.incremental.backup", name)
+                    self.assertIsNotNone(cluster_id)
+                    overrides[cluster_id] = value
+
+                with patch.object(config, "get_configuration_value", side_effect=read_value), \
+                        patch.object(config, "update_configuration_value", side_effect=write_value), \
+                        contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                    restart_a = config.ensure_backup_framework_configuration("zone", "cluster-a", args)
+                    args.incremental_backup = False
+                    restart_b = config.ensure_backup_framework_configuration("zone", "cluster-b", args)
+                    self.assertFalse(config.ensure_backup_framework_configuration("zone", "cluster-b", args))
+
+                self.assertEqual(initial_global == "false", restart_a)
+                self.assertEqual(initial_global == "true", restart_b)
+                self.assertEqual(initial_global, values["kvm.incremental.backup"])
+                self.assertEqual({"cluster-a": "true", "cluster-b": "false"}, overrides)
+                # Simulate a later administrator change to the Global default.
+                values["kvm.incremental.backup"] = "true" if initial_global == "false" else "false"
+                self.assertEqual("true", read_value("kvm.incremental.backup", cluster_id="cluster-a"))
+                self.assertEqual("false", read_value("kvm.incremental.backup", cluster_id="cluster-b"))
+                self.assertEqual(values["kvm.incremental.backup"], read_value("kvm.incremental.backup", cluster_id="unconfigured-cluster"))
 
     def test_cluster_override_is_updated_even_when_global_already_matches(self):
         args = self.arguments("--incremental-backup", "false")
@@ -378,19 +686,19 @@ cat "${MOLD_VM_CACHE_FILE}.request"
                                        args.admin_secretkey, cluster_id="cluster-id")
 
     def test_rerunning_full_mode_is_idempotent(self):
-        restart, _, update = self.configure(self.arguments("--incremental-backup", "false"), current_incremental="false")
+        args = self.arguments("--incremental-backup", "false")
+        restart, _, update = self.configure(args, current_incremental="false")
         self.assertFalse(restart)
-        update.assert_not_called()
+        self.assert_cluster_incremental_update(update, args, "false")
 
     def test_reenabling_incremental_applies_the_requested_chain_size(self):
         args = self.arguments("--incremental-backup", "true", "--backup-chain-size", "4")
         restart, _, update = self.configure(args, current_incremental="false")
         self.assertTrue(restart)
-        self.assertEqual([("kvm.incremental.backup", "true"), ("kvm.incremental.backup", "true"), ("kvm.backup.chain.size", "4")],
+        self.assertEqual([("kvm.incremental.backup", "true"), ("kvm.backup.chain.size", "4")],
                          [call.args[:2] for call in update.call_args_list])
-        self.assertNotIn("cluster_id", update.call_args_list[0].kwargs)
-        self.assertEqual("cluster-id", update.call_args_list[1].kwargs["cluster_id"])
-        self.assertNotIn("cluster_id", update.call_args_list[2].kwargs)
+        self.assertEqual("cluster-id", update.call_args_list[0].kwargs["cluster_id"])
+        self.assertNotIn("cluster_id", update.call_args_list[1].kwargs)
 
     def test_chain_change_alone_does_not_require_restart(self):
         restart, _, update = self.configure(self.arguments("--backup-chain-size", "6"))
@@ -423,7 +731,7 @@ cat "${MOLD_VM_CACHE_FILE}.request"
     def test_full_configuration_never_updates_chain_even_if_validation_is_bypassed(self):
         args = self.arguments("--incremental-backup", "false", "--backup-chain-size", "7")
         _, read, update = self.configure(args, current_incremental="false")
-        update.assert_not_called()
+        self.assert_cluster_incremental_update(update, args, "false")
         self.assertNotIn("kvm.backup.chain.size", [call.args[0] for call in read.call_args_list])
 
     def test_local_directory_preflight_and_creation_use_the_same_filesystem_validator(self):
@@ -483,6 +791,7 @@ cat "${MOLD_VM_CACHE_FILE}.request"
                     patch.object(config, "STAGING_MOUNT_PATH", None), \
                     patch.object(config, "get_configuration_value", side_effect=read_value), \
                     patch.object(config.subprocess, "run", side_effect=check_mount) as mounted, \
+                    patch.object(config, "read_netbackup_policy"), \
                     patch.object(config, "resolve_host_context", return_value=("zone-id", "cluster-id")), \
                     patch.object(config, "check_netbackup_policy"), \
                     patch.object(config, "ensure_key", side_effect=lambda *a, **kw: events.append("key")) as key, \
@@ -542,12 +851,13 @@ cat "${MOLD_VM_CACHE_FILE}.request"
         self.assertLess(events.index("mount"), events.index("key"))
         key.assert_called_once()
         mounted.assert_called_once()
-        update.assert_not_called()
+        self.assert_cluster_incremental_update(update, self.arguments(), "true")
         offering.assert_called_once()
         output.assert_called_once()
 
     def test_host_reconfiguration_migrates_the_daemon_to_a_timer_and_is_retryable(self):
         args = self.arguments("--vm-schedule-backup", "false")
+        self.resolve(args)
         with patch.object(sys.stdin, "isatty", return_value=False):
             config.configure_vm_selection(args)
         with tempfile.TemporaryDirectory() as directory, contextlib.ExitStack() as stack:
@@ -649,8 +959,10 @@ cat "${MOLD_VM_CACHE_FILE}.request"
             inode = lock.stat().st_ino
             path = base / "watcher.conf"
             path.write_text(f"STATE_FILE={shlex.quote(str(state))}\nLOCK_FILE={shlex.quote(str(lock))}\nPOLL_INTERVAL_SECONDS=30\n")
+            args = self.arguments()
+            self.resolve(args)
             with contextlib.redirect_stdout(io.StringIO()):
-                config.write_watcher_config(path, self.arguments())
+                config.write_watcher_config(path, args)
             values = {line.split("=", 1)[0]: shlex.split(line.split("=", 1)[1])[0]
                       for line in path.read_text().splitlines() if "=" in line}
             self.assertEqual("host-test", values["MOLD_HOST_NAME"])

@@ -59,7 +59,11 @@ import com.cloud.storage.dao.VolumeDao;
 import com.cloud.storage.dao.VolumeDaoImpl;
 import com.cloud.utils.db.TransactionContextInterceptor;
 import com.cloud.utils.exception.CloudRuntimeException;
+import com.cloud.utils.Pair;
+import com.cloud.vm.VmWork;
+import com.cloud.vm.VmWorkAttachVolume;
 import com.cloud.vm.VmWorkJobHandler;
+import org.apache.cloudstack.jobs.JobInfo;
 
 @RunWith(Parameterized.class)
 public class AblestackSharedRawSpringContextTest {
@@ -146,7 +150,7 @@ public class AblestackSharedRawSpringContextTest {
     }
 
     @Test
-    public void allowedApiMutationRetainsActionEventsInsideTheGuardLease() throws Throwable {
+    public void allowedApiMutationRetainsActionEventsAfterPreflightReleasesItsLease() throws Throwable {
         CircularVolumeService target = new CircularVolumeService();
         try (GenericApplicationContext context = context(target)) {
             context.refresh();
@@ -157,13 +161,45 @@ public class AblestackSharedRawSpringContextTest {
                 return (AblestackSharedRawBackupService.Lease) () -> held.set(false);
             });
             when(events.invoke(any(MethodInvocation.class))).thenAnswer(call -> {
-                assertTrue(held.get());
+                assertFalse(held.get());
                 return ((MethodInvocation) call.getArgument(0)).proceed();
             });
             service.attachVolumeToVM(20L, 10L, 1L, false, false);
             assertTrue(target.attached);
             assertFalse(held.get());
             verify(events).invoke(any(MethodInvocation.class));
+        }
+    }
+
+    @Test
+    public void workerEntryRetainsProtectionThroughTheExistingSpringProxy() throws Exception {
+        CircularVolumeService target = new CircularVolumeService();
+        try (GenericApplicationContext context = context(target)) {
+            context.refresh();
+            VmWorkJobHandler worker = (VmWorkJobHandler) earlyReference(context);
+            AtomicBoolean held = new AtomicBoolean();
+            when(guards.guardVolume(20L, 10L, null, null)).thenAnswer(call -> {
+                held.set(true);
+                return (AblestackSharedRawBackupService.Lease) () -> held.set(false);
+            });
+            target.workerAction = () -> assertTrue(held.get());
+            worker.handleVmWorkJob(new VmWorkAttachVolume(2L, 2L, 20L, "handler", 10L, 1L));
+            assertFalse(held.get());
+            verify(guards).guardVolume(20L, 10L, null, null);
+        }
+    }
+
+    @Test
+    public void unrelatedVmWorkKeepsItsExistingBehavior() throws Exception {
+        CircularVolumeService target = new CircularVolumeService();
+        try (GenericApplicationContext context = context(target)) {
+            context.refresh();
+            VmWorkJobHandler worker = (VmWorkJobHandler) earlyReference(context);
+            AtomicBoolean invoked = new AtomicBoolean();
+            target.workerAction = () -> invoked.set(true);
+            worker.handleVmWorkJob(mock(VmWork.class));
+            assertTrue(invoked.get());
+            verifyNoInteractions(guards);
         }
     }
 
@@ -218,6 +254,13 @@ public class AblestackSharedRawSpringContextTest {
     public static class CircularVolumeService extends VolumeApiServiceImpl implements DependsOnPeer {
         private CircularPeer peer;
         private boolean attached;
+        private Runnable workerAction = () -> {};
+
+        @Override
+        public Pair<JobInfo.Status, String> handleVmWorkJob(VmWork work) {
+            workerAction.run();
+            return null;
+        }
 
         @Override
         public void setPeer(CircularPeer peer) {

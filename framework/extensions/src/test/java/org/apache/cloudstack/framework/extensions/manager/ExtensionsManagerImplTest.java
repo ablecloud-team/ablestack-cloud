@@ -803,7 +803,7 @@ public class ExtensionsManagerImplTest {
         doReturn(resp1).when(extensionsManager).createExtensionResponse(eq(ext1), any());
         doReturn(resp2).when(extensionsManager).createExtensionResponse(eq(ext2), any());
 
-        List<ExtensionResponse> result = extensionsManager.listExtensions(cmd);
+        List<ExtensionResponse> result = extensionsManager.listExtensions(cmd).first();
 
         assertEquals(2, result.size());
         assertTrue(result.contains(resp1));
@@ -829,7 +829,7 @@ public class ExtensionsManagerImplTest {
         ExtensionResponse resp = mock(ExtensionResponse.class);
         doReturn(resp).when(extensionsManager).createExtensionResponse(eq(ext), any());
 
-        List<ExtensionResponse> result = extensionsManager.listExtensions(cmd);
+        List<ExtensionResponse> result = extensionsManager.listExtensions(cmd).first();
 
         assertEquals(1, result.size());
         assertEquals(resp, result.get(0));
@@ -854,7 +854,7 @@ public class ExtensionsManagerImplTest {
         ExtensionResponse resp = mock(ExtensionResponse.class);
         doReturn(resp).when(extensionsManager).createExtensionResponse(eq(ext), any());
 
-        List<ExtensionResponse> result = extensionsManager.listExtensions(cmd);
+        List<ExtensionResponse> result = extensionsManager.listExtensions(cmd).first();
 
         assertEquals(1, result.size());
         assertEquals(resp, result.get(0));
@@ -1117,6 +1117,7 @@ public class ExtensionsManagerImplTest {
         when(cmd.getResourceId()).thenReturn(UUID.randomUUID().toString());
         when(cmd.getExtensionId()).thenReturn(1L);
         ExtensionVO extension = mock(ExtensionVO.class);
+        when(extension.getType()).thenReturn(Extension.Type.Orchestrator);
         ClusterVO clusterVO = mock(ClusterVO.class);
         when(clusterVO.getHypervisorType()).thenReturn(Hypervisor.HypervisorType.External);
         when(clusterDao.findByUuid(anyString())).thenReturn(clusterVO);
@@ -1154,6 +1155,7 @@ public class ExtensionsManagerImplTest {
         when(clusterVO.getHypervisorType()).thenReturn(Hypervisor.HypervisorType.External);
         when(clusterDao.findByUuid(anyString())).thenReturn(clusterVO);
         ExtensionVO extension = mock(ExtensionVO.class);
+        when(extension.getType()).thenReturn(Extension.Type.Orchestrator);
         when(extensionDao.findById(1L)).thenReturn(extension);
         when(extensionResourceMapDao.persist(any())).thenThrow(CloudRuntimeException.class);
         extensionsManager.registerExtensionWithResource(cmd);
@@ -1164,6 +1166,7 @@ public class ExtensionsManagerImplTest {
         Cluster cluster = mock(Cluster.class);
         when(cluster.getHypervisorType()).thenReturn(Hypervisor.HypervisorType.External);
         Extension extension = mock(Extension.class);
+        when(extension.getType()).thenReturn(Extension.Type.Orchestrator);
         Map<String, String> details = Map.of("key1", "value1");
         ExtensionResourceMapVO resourceMap = mock(ExtensionResourceMapVO.class);
         when(extensionResourceMapDao.persist(any())).thenReturn(resourceMap);
@@ -1173,10 +1176,22 @@ public class ExtensionsManagerImplTest {
     }
 
     @Test
+    public void registerExtensionWithClusterRejectsNetworkOrchestrator() {
+        Cluster cluster = mock(Cluster.class);
+        when(cluster.getHypervisorType()).thenReturn(Hypervisor.HypervisorType.External);
+        Extension extension = mock(Extension.class);
+        when(extension.getType()).thenReturn(Extension.Type.NetworkOrchestrator);
+
+        assertThrows(InvalidParameterValueException.class, () -> extensionsManager.registerExtensionWithCluster(cluster, extension, null));
+        verify(extensionResourceMapDao, never()).persist(any());
+    }
+
+    @Test
     public void registerExtensionWithClusterHandlesNullDetails() {
         Cluster cluster = mock(Cluster.class);
         when(cluster.getHypervisorType()).thenReturn(Hypervisor.HypervisorType.External);
         Extension extension = mock(Extension.class);
+        when(extension.getType()).thenReturn(Extension.Type.Orchestrator);
         ExtensionResourceMapVO resourceMap = mock(ExtensionResourceMapVO.class);
         when(extensionResourceMapDao.persist(any())).thenReturn(resourceMap);
         ExtensionResourceMap result = extensionsManager.registerExtensionWithCluster(cluster, extension, null);
@@ -1342,6 +1357,7 @@ public class ExtensionsManagerImplTest {
         when(cluster.getHypervisorType()).thenReturn(Hypervisor.HypervisorType.External);
 
         Extension extension = mock(Extension.class);
+        when(extension.getType()).thenReturn(Extension.Type.Orchestrator);
         when(extension.getId()).thenReturn(5L);
 
         ExtensionResourceMapVO persistedMap = mock(ExtensionResourceMapVO.class);
@@ -1595,7 +1611,7 @@ public class ExtensionsManagerImplTest {
 
         try (MockedStatic<CallContext> ignored = mockStatic(CallContext.class)) {
             mockCallerRole(RoleType.Admin);
-            List<ExtensionCustomActionResponse> result = extensionsManager.listCustomActions(cmd);
+            List<ExtensionCustomActionResponse> result = extensionsManager.listCustomActions(cmd).first();
 
             assertEquals(2, result.size());
             assertTrue(result.contains(resp1));

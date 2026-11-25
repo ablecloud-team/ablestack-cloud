@@ -31,9 +31,9 @@
             <div v-if="isExpired && !showRestoreDetails" class="backup-progress-tooltip-row">
               <span>{{ $t('message.backup.catalog.expired') }}</span>
             </div>
-            <template v-if="record.externalrestorevalidation">
-              <div class="backup-progress-tooltip-row"><span>{{ $t('label.backup.external.restore.job') }} :</span><span>{{ record.externalrestorevalidation.jobid }} · {{ record.externalrestorevalidation.state }}</span></div>
-              <div class="backup-progress-tooltip-row"><span>{{ $t('message.backup.external.selection.' + record.externalrestorevalidation.code) }}</span></div>
+            <template v-if="externalRestoreValidation">
+              <div class="backup-progress-tooltip-row"><span>{{ $t('label.backup.external.restore.job') }} :</span><span>{{ externalRestoreValidation.jobid }} · {{ externalRestoreValidation.state }}</span></div>
+              <div class="backup-progress-tooltip-row"><span>{{ $t('message.backup.external.selection.' + externalRestoreValidation.code) }}</span></div>
             </template>
             <div v-if="showRestoreDetails && !isRestoring && latestRestoreState" class="backup-progress-tooltip-row">
               <span>{{ $t('label.latest.restore.result') }} :</span><span>{{ latestRestoreState }}</span>
@@ -236,8 +236,19 @@ export default {
       }
       return this.$t('message.backup.catalog.expiration.blocked') + ' ' + (this.record.cleanupdetails || '')
     },
+    externalRestoreValidation () {
+      const validation = this.record.externalrestorevalidation
+      if (!validation) return null
+      const committedAt = this.hasCurrentVmRestore && this.vmRestore.outcome === 'COMMITTED'
+        ? Date.parse(this.vmRestore.committedat) : NaN
+      // A confirmed later VM restore resolves an earlier selection warning.
+      // Use the external Job's end time, since its report may arrive late.
+      if (['WAITING_SELECTION', 'WAITING_METADATA'].includes(validation.state) &&
+          Number(validation.endedat) > 0 && Number(validation.endedat) <= committedAt) return null
+      return validation
+    },
     externalSelectionWaiting () {
-      return ['WAITING_SELECTION', 'WAITING_METADATA'].includes(this.record.externalrestorevalidation?.state)
+      return ['WAITING_SELECTION', 'WAITING_METADATA'].includes(this.externalRestoreValidation?.state)
     },
     isCancellationPending () {
       return !this.isRestoring && String(this.jobState || '').toUpperCase() === 'CANCEL_PENDING'
@@ -317,7 +328,7 @@ export default {
     },
     showJobDetails () {
       const backupDetails = !this.showRestoreDetails && (this.record?.catalogstate || this.record?.cleanupdetails || this.record?.sourcecleanupdetails)
-      return !!this.record.externalrestorevalidation || !!this.record.deletionpending || !!this.vmRestore || !!this.stagingQueue || !!backupDetails || !!this.record?.restorecleanupdetails || !!this.failureDetails || (this.isActive && (this.showProgress || !!this.jobState || !!this.displayStep || !!this.logPath ||
+      return !!this.externalRestoreValidation || !!this.record.deletionpending || !!this.vmRestore || !!this.stagingQueue || !!backupDetails || !!this.record?.restorecleanupdetails || !!this.failureDetails || (this.isActive && (this.showProgress || !!this.jobState || !!this.displayStep || !!this.logPath ||
         (!this.isRestoring && !this.isRbdBackup && (this.bandwidthLimitMbps !== null || !!this.bandwidthStatus))))
     },
     showRestoreFailure () {

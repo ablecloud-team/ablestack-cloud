@@ -60,9 +60,9 @@ public class ListExternalBackupCandidatesCmd extends BaseCmd {
                     "or backup.plugin.ablestack-veeam.vm.schedule.enabled for the selected provider.")
     private Boolean vmScheduleBackup;
 
-    @Parameter(name = "vminclude", type = CommandType.STRING, description = "Host VM_INCLUDE filter; required to claim a hostless CONFIG target")
+    @Parameter(name = "vminclude", type = CommandType.STRING, description = "Veeam-only VM_INCLUDE filter; NetBackup selects explicitly assigned offerings")
     private String vmInclude;
-    @Parameter(name = "vmexclude", type = CommandType.STRING, description = "Host VM_EXCLUDE filter, applied before CONFIG Worker assignment")
+    @Parameter(name = "vmexclude", type = CommandType.STRING, description = "Veeam-only VM_EXCLUDE filter; ignored for NetBackup")
     private String vmExclude;
     @Parameter(name = "vmautoexclude", type = CommandType.BOOLEAN, description = "Veeam VM_AUTO_EXCLUDE setting; defaults to true")
     private Boolean vmAutoExclude;

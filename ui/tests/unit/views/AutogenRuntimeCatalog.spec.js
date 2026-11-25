@@ -1,4 +1,20 @@
-// Licensed under the Apache License, Version 2.0. See the NOTICE file.
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import { shallowMount, flushPromises } from '@vue/test-utils'
 import Autogen from '@/views/AutogenView'
 import store from '@/store'
@@ -49,16 +65,17 @@ function render (detail, device, name = 'runtimebundle') {
 }
 beforeEach(() => { jest.clearAllMocks(); getAPI.mockResolvedValue({ liststorageserviceruntimebundlesresponse: { count: 1, storageserviceruntimebundle: [{ ...row }] } }); callAPI.mockImplementation(getAPI) })
 afterEach(() => wrapper?.unmount())
-test.each([[false, 'desktop'], [true, 'desktop'], [false, 'mobile'], [true, 'mobile']])('actual AutogenView %s/%s renders one update after the primary action and refreshes the current scope', async (detail, device) => {
+test.each([[false, 'desktop'], [true, 'desktop'], [false, 'mobile'], [true, 'mobile']])('actual AutogenView %s/%s renders one update in the common breadcrumb and refreshes the current scope', async (detail, device) => {
   await render(detail, device)
   await flushPromises()
   const refresh = wrapper.findAll('[data-testid="runtime-catalog-refresh"]')
   expect(refresh).toHaveLength(1)
   expect(refresh[0].text()).toContain('label.refresh')
   expect(refresh[0].find('[data-icon="reload"]').exists()).toBe(true)
+  expect(wrapper.find('nav [data-testid="runtime-catalog-refresh"]').exists()).toBe(true)
   const toolbar = wrapper.find('.autogen-toolbar-actions')
-  expect(toolbar.html().indexOf('data-testid="runtime-catalog-refresh"')).toBeGreaterThan(toolbar.html().indexOf(detail ? 'autogen-action-dropdown__trigger' : 'data-primary'))
-  if (!detail) expect(toolbar.html().indexOf('data-testid="search"')).toBeGreaterThan(toolbar.html().indexOf('runtime-catalog-refresh'))
+  expect(toolbar.find(detail ? '.autogen-action-dropdown__trigger' : '[data-primary]').exists()).toBe(true)
+  if (!detail) expect(toolbar.find('[data-testid="search"]').exists()).toBe(true)
   let clickParams
   fetch.mockImplementation(params => { clickParams = { ...params }; return Autogen.methods.fetchData.call(wrapper.vm, params) })
   await refresh[0].trigger('click')

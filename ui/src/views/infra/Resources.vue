@@ -16,12 +16,13 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="fetchLoading" :class="{ 'zone-capacity': isZone }">
-    <a-alert v-if="isZone && listRefreshFailed" type="error" show-icon :message="$t('message.zone.capacity.load.failed')">
+  <a-spin :spinning="fetchLoading" :class="{ 'zone-capacity': standardCapacity }">
+    <resource-table-toolbar v-if="isCluster" :loading="fetchLoading || listRefreshing > 0" @refresh="fetchData" />
+    <a-alert v-if="standardCapacity && listRefreshFailed" type="error" show-icon :message="$t(isCluster ? 'message.cluster.capacity.load.failed' : 'message.zone.capacity.load.failed')">
       <template #description><a-button size="small" @click="fetchData">{{ $t('label.retry') }}</a-button></template>
     </a-alert>
     <p v-else-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <a-empty v-if="isZone && !resourcesList.length && !fetchLoading && !listRefreshFailed" />
+    <a-empty v-if="standardCapacity && !resourcesList.length && !fetchLoading && !listRefreshFailed" />
     <a-list>
       <a-list-item v-for="item in resourcesList" :key="item.id || item.type" class="list-item" :data-capacity-type="item.type">
         <div class="list-item__container">
@@ -71,6 +72,7 @@
 </template>
 
 <script>
+import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { getAPI } from '@/api'
@@ -78,6 +80,7 @@ import { getAPI } from '@/api'
 export default {
   mixins: [listRefreshMixin(['fetchData'])],
   name: 'Resources',
+  components: { ResourceTableToolbar },
   props: {
     resource: {
       type: Object,
@@ -95,7 +98,8 @@ export default {
     }
   },
   computed: {
-    isZone () { return this.$route.meta.name === 'zone' }
+    isCluster () { return this.$route.meta.name === 'cluster' },
+    standardCapacity () { return this.isCluster || this.$route.meta.name === 'zone' }
   },
   data () {
     return {
@@ -114,8 +118,8 @@ export default {
       const params = {}
       params[entity] = this.resource.id
       this.fetchLoading = !listRequest.loaded
-      if (this.isZone && !listRequest.loaded) this.resourcesList = []
-      return getAPI('listCapacity', params, { preserveOnFailure: this.isZone }).then(response => {
+      if (this.standardCapacity && !listRequest.loaded) this.resourcesList = []
+      return getAPI('listCapacity', params, { preserveOnFailure: this.standardCapacity }).then(response => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
 
         this.resourcesList = response.listcapacityresponse.capacity || []
@@ -125,7 +129,7 @@ export default {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
         listRequest.failed = true
         this.listRefreshFailed = true
-        if (listRequest.loaded || this.isZone) return
+        if (listRequest.loaded || this.standardCapacity) return
 
         this.$notifyError(error)
       }).finally(() => {
@@ -167,19 +171,19 @@ export default {
     },
     capacityDescription (item) {
       const { type, capacityused, capacitytotal } = item
-      if (this.isZone) {
+      if (this.standardCapacity) {
         if (!this.capacityNumber(capacityused) || !this.capacityNumber(capacitytotal)) return this.$t('label.zone.capacity.unmeasured')
         if (Number(type) === 19 && Number(capacitytotal) === 0) return this.$t('label.zone.capacity.unsupported')
       }
-      const label = this.isZone ? this.$t([2, 6, 9, 11, 19].includes(Number(type)) ? 'label.used' : 'label.allocated') : 'Allocated'
+      const label = this.standardCapacity ? this.$t([2, 6, 9, 11, 19].includes(Number(type)) ? 'label.used' : 'label.allocated') : 'Allocated'
       return label + ' ' + this.convertByType(type, capacityused) + ' / ' + this.convertByType(type, capacitytotal)
     },
     showCapacityPercent (item) {
-      return !this.isZone || (this.capacityNumber(item.capacityused) && this.capacityNumber(item.capacitytotal) &&
+      return !this.standardCapacity || (this.capacityNumber(item.capacityused) && this.capacityNumber(item.capacitytotal) &&
         Number(item.capacitytotal) > 0 && this.capacityNumber(item.percentused))
     },
     convertBytes (val) {
-      if (this.isZone) return this.$bytesToHumanReadableSize(Number(val))
+      if (this.standardCapacity) return this.$bytesToHumanReadableSize(Number(val))
       if (val < 1024 * 1024) return `${(val / 1024).toFixed(2)} KB`
       if (val < 1024 * 1024 * 1024) return `${(val / 1024 / 1024).toFixed(2)} MB`
       if (val < 1024 * 1024 * 1024 * 1024) return `${(val / 1024 / 1024 / 1024).toFixed(2)} GB`
@@ -187,7 +191,7 @@ export default {
       return val
     },
     convertHz (val) {
-      if (this.isZone && val < 1000) return String(val) + ' MHz'
+      if (this.standardCapacity && val < 1000) return String(val) + ' MHz'
       if (val < 1000) return `${val} Mhz`
       return `${(val / 1000).toFixed(2)} GHz`
     },

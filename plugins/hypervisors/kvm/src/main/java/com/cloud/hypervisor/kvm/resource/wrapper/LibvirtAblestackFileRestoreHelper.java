@@ -302,7 +302,7 @@ final class LibvirtAblestackFileRestoreHelper {
                 options, quote(backupPath), quote(volumePath));
         final Pair<Integer, String> result;
         try {
-            result = runCommandWithOutput(convertCommand, timeout * 1000);
+            result = LibvirtAblestackDataProgress.execute(convertCommand, timeout, "qemu", logger::warn);
         } catch (CloudRuntimeException e) {
             throw new QemuImgException("File restore convert command failed: " + e.getMessage());
         }

@@ -72,6 +72,14 @@ public abstract class Command {
     }
 
     /**
+     * Response wait in seconds; zero selects the management server's common wait setting.
+     * Detached operations may acknowledge their start before their data processing finishes.
+     */
+    public int getResponseWait() {
+        return getWait();
+    }
+
+    /**
      * This is the time in seconds that the agent will wait before waiting for an answer from the endpoint.
      * The actual wait time is twice the value of this variable.
      * See {@link com.cloud.agent.manager.AgentAttache#send(com.cloud.agent.transport.Request, int) AgentAttache#send}  implementation for more details.

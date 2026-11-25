@@ -150,7 +150,13 @@ def run_backup(file, source):
     previous_term = signal.signal(signal.SIGTERM, interrupt)
     previous_int = signal.signal(signal.SIGINT, interrupt)
     try:
-        result = process.wait(timeout=max(300, source.get("timeout", 43200)) + 120)
+        # Each export has its own data deadline and native no-progress monitor.
+        # This is only a worker safety bound: previous disks must not consume
+        # the next disk's budget. Reserve separate mount and control/cleanup time.
+        count = len(source["diskPaths"])
+        data_timeout = source.get("timeout", 43200)
+        worker_timeout = count * data_timeout + max(300, source.get("mountTimeout", 300)) + (count + 1) * 300
+        result = process.wait(timeout=worker_timeout)
     except BaseException:
         process.terminate()
         raise

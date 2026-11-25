@@ -16,14 +16,22 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="spinning" :tip="$t('message.redfishdata.loading')">
-    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-  <a-tabs
-    :tabPosition="resourceTabPosition"
-    :activeKey="category"
-    :animated="true"
-    @change="onTabChange">
-    <a-tab-pane :tab="$t('label.details')" key="summary">
+  <section class="host-redfish-content">
+    <resource-table-toolbar :loading="spinning" @refresh="fetchData">
+      <a-select id="host-redfish-category" class="redfish-select" :aria-label="$t('label.host.redfish.category')" :value="category" :options="categoryOptions" @change="chooseCategory" />
+      <a-select v-if="sections.length" id="host-redfish-section" class="redfish-select" :aria-label="$t('label.host.redfish.section')" :value="selectedSection?.value" :options="sections" @change="chooseSection" />
+    </resource-table-toolbar>
+    <a-alert v-if="readError" type="error" show-icon>
+      <template #message>
+        <a-space wrap>
+          <span>{{ $t('message.host.redfish.failed') }}</span>
+          <a-button size="small" @click="fetchData">{{ $t('label.retry') }}</a-button>
+        </a-space>
+      </template>
+    </a-alert>
+    <a-spin :spinning="spinning && !hasContent" :tip="$t('message.redfishdata.loading')">
+      <a-empty v-if="!hasContent && !spinning && !readError" />
+    <section v-if="category === 'summary' && hasContent">
       <a-card :title="dataMap.model">
         <a-row v-for="(item, index) in dataMap['summary']" :key="index" :gutter="12" class="cus-row">
           <a-col :span="12"><strong>{{ $t('label.' + item.name) }}</strong></a-col>
@@ -32,9 +40,9 @@
           </a-col>
         </a-row>
       </a-card>
-    </a-tab-pane>
-    <a-tab-pane :tab="$t('label.processor')" key="processor">
-      <a-list :grid="{ gutter: 16, column: 2 }" :data-source="dataMap['processor']" >
+    </section>
+    <section v-if="category === 'processor' && hasContent">
+      <a-list :grid="{ gutter: 16, xs: 1, sm: 1, lg: 2 }" :data-source="dataMap['processor']" >
         <template #renderItem="{ item }">
           <a-list-item>
             <a-card :title="item.name">
@@ -70,8 +78,8 @@
           </a-list-item>
         </template>
       </a-list>
-    </a-tab-pane>
-    <a-tab-pane :tab="$t('label.memory')" key="memory">
+    </section>
+    <section v-if="category === 'memory' && hasContent">
       <div v-if="dataMap['memory'].memmorysummary">
         <a-divider>{{ $t('label.advanced.memory.protection') }}</a-divider>
         <a-row :gutter="[16,8]">
@@ -101,7 +109,7 @@
           <a-table
             v-if="dataMap['memory']"
             size="small"
-            style="overflow-y: auto"
+            :scroll="{ x: 'max-content' }"
             :columns="memorySummaryColumns"
             :dataSource="dataMap['memory'].memmorysummary?.memorylist"
             :pagination="false"
@@ -121,7 +129,7 @@
       <a-table
         v-if="dataMap['memory']"
         size="small"
-        style="overflow-y: auto"
+        :scroll="{ x: 'max-content' }"
         :columns="memoryListInfoColumns"
         :dataSource="dataMap['memory'].memlistinfo"
         :pagination="false"
@@ -152,8 +160,8 @@
           </a-card>
         </template>
       </a-table>
-    </a-tab-pane>
-    <a-tab-pane :tab="$t('label.network')" key="network">
+    </section>
+    <section v-if="category === 'network' && hasContent">
       <a-list :grid="{ gutter: 8, column: 1 }" :dataSource="dataMap['network']">
         <template #renderItem="{item}">
           <a-card :title="item.model || 'UnKnown'" style="width: 99%; margin-bottom: 10px;" :bordered="true">
@@ -189,7 +197,7 @@
               <a-divider>{{ $t('label.port') }}</a-divider>
               <a-table
                 size="small"
-                style="overflow-y: auto"
+                :scroll="{ x: 'max-content' }"
                 :columns="networkColumns"
                 :dataSource="item.port"
                 :pagination="false"
@@ -211,22 +219,14 @@
           </a-card>
         </template>
       </a-list>
-    </a-tab-pane>
-    <a-tab-pane :tab="$t('label.storage')" key="storage">
-      <a-tabs
-        v-model:activeKey="storageDataType"
-        @update:activeKey="changeStorageTab"
-        type="card">
-        <a-tab-pane
-          v-for="item, index in dataMap['storage']"
-          :key="index"
-          :tab="$t('label.hardware.storage.' + index)">
+    </section>
+    <section v-if="category === 'storage' && hasContent">
           <a-table
-            v-if="item"
+            v-if="selectedSection"
             size="small"
-            style="overflow-y: auto"
+            :scroll="{ x: 'max-content' }"
             :columns="storageColumns"
-            :dataSource="item"
+            :dataSource="selectedSection.rows"
             :pagination="false"
             :rowKey="(record, index) => index"
             :expandRowByClick="true">
@@ -238,7 +238,7 @@
                 {{ autoFormatBytes(record.capacitybytes) }}
               </template>
               <template v-if="column.key === 'location'">
-                {{ PartLocation }}
+                {{ typeof record.location === 'string' ? record.location : record.location?.partlocation?.servicelabel || '—' }}
               </template>
               <template v-if="column.key === 'predictedmedialifeleftpercent'">
                 {{ attachSign(record.predictedmedialifeleftpercent, '%') }}
@@ -258,14 +258,12 @@
               </a-card>
             </template>
           </a-table>
-        </a-tab-pane>
-      </a-tabs>
-    </a-tab-pane>
-    <a-tab-pane :tab="$t('label.devices')" key="device">
+    </section>
+    <section v-if="category === 'device' && hasContent">
       <a-table
         v-if="dataMap['device']"
         size="small"
-        style="overflow-y: auto"
+        :scroll="{ x: 'max-content' }"
         :columns="deviceColumns"
         :dataSource="dataMap['device'].devicelist"
         :pagination="false"
@@ -293,12 +291,12 @@
           </a-card>
         </template>
       </a-table>
-    </a-tab-pane>
-    <a-tab-pane :tab="$t('label.firmware')" key="firmware">
+    </section>
+    <section v-if="category === 'firmware' && hasContent">
       <a-table
         v-if="dataMap['firmware']"
         size="small"
-        style="overflow-y: auto"
+        :scroll="{ x: 'max-content' }"
         :columns="firmwareColumns"
         :dataSource="dataMap['firmware'].firmwarelist"
         :pagination="false"
@@ -323,21 +321,14 @@
           </a-card>
         </template>
       </a-table>
-    </a-tab-pane>
-    <a-tab-pane :tab="$t('label.log')" key="log">
-      <a-tabs
-        v-model:activeKey="logDataType"
-        type="card">
-        <a-tab-pane
-          v-for="item, index in dataMap['log'].loglist"
-          :key="index"
-          :tab="camelToSentence(item.name)">
+    </section>
+    <section v-if="category === 'log' && hasContent">
           <a-table
-            v-if="item"
+            v-if="selectedSection"
             size="small"
-            style="overflow-y: auto"
+            :scroll="{ x: 'max-content' }"
             :columns="logColumns"
-            :dataSource="item.members"
+            :dataSource="selectedSection.rows"
             :pagination="false"
             :rowKey="record => record.id"
             :expandRowByClick="true">
@@ -363,23 +354,32 @@
               </a-card>
             </template>
           </a-table>
-        </a-tab-pane>
-      </a-tabs>
-    </a-tab-pane>
-  </a-tabs>
-  </a-spin>
+    </section>
+    </a-spin>
+  </section>
 </template>
 <script>
-import { mixinDevice } from '@/utils/mixin.js'
-import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
 
 import { getAPI } from '@/api'
 import Status from '@/components/widgets/Status'
+const categories = {
+  summary: 'label.details',
+  processor: 'label.processor',
+  memory: 'label.memory',
+  network: 'label.network',
+  storage: 'label.storage',
+  device: 'label.devices',
+  firmware: 'label.firmware',
+  log: 'label.log'
+}
+const emptyData = () => ({ model: '', summary: [], processor: [], memory: {}, network: [], device: [], storage: {}, firmware: [], log: {} })
+
 export default {
-  mixins: [mixinDevice, listRefreshMixin(['fetchData'])],
   name: 'HostRedfishTab',
   components: {
-    Status
+    Status,
+    ResourceTableToolbar
   },
   props: {
     resource: {
@@ -396,11 +396,16 @@ export default {
     }
   },
   watch: {
-    resource: {
-      handler () {
+    category () { this.fetchData() },
+    'resource.id' (value, previous) {
+      if (value !== previous) {
+        this.dataMap = emptyData()
         this.fetchData()
       }
     }
+  },
+  beforeUnmount () {
+    this.readVersion++
   },
   data () {
     return {
@@ -645,42 +650,63 @@ export default {
           dataIndex: 'chassistype'
         }
       ],
-      dataMap: {
-        model: '',
-        summary: [],
-        processor: [],
-        memory: [],
-        network: [],
-        device: [],
-        storage: [],
-        firmware: [],
-        log: []
-      },
-      storageColumns: [],
-      logDataType: 0,
-      storageDataType: 'controllerlist',
-      category: 'summary',
-      spinning: false
+      dataMap: emptyData(),
+      spinning: false,
+      readError: false,
+      readVersion: 0
     }
   },
   computed: {
-    filteredColumns () {
-      return this.columns.filter(col =>
-        this.dataMap[this.category].some(row =>
-          row[col.dataIndex] !== undefined && row[col.dataIndex] !== null && row[col.dataIndex] !== ''
-        )
-      )
+    category () {
+      const value = this.$route.query.hardware
+      return typeof value === 'string' && Object.prototype.hasOwnProperty.call(categories, value) ? value : 'summary'
+    },
+    categoryOptions () {
+      return Object.entries(categories).map(([value, label]) => ({ value, label: this.$t(label) }))
+    },
+    sections () {
+      if (this.category === 'storage') {
+        return Object.entries(this.dataMap.storage).filter(([, rows]) => Array.isArray(rows)).map(([value, rows]) => {
+          const key = 'label.hardware.storage.' + value
+          return { value, label: this.$te(key) ? this.$t(key) : this.camelToSentence(value), rows }
+        })
+      }
+      if (this.category === 'log') {
+        return (this.dataMap.log.loglist || []).map((item, index) => ({
+          value: String(item.id ?? item.name ?? index),
+          label: this.camelToSentence(item.name),
+          rows: item.members || []
+        }))
+      }
+      return []
+    },
+    selectedSection () {
+      return this.sections.find(section => section.value === this.$route.query.hardwaresection) || this.sections[0]
+    },
+    storageColumns () {
+      return {
+        controllerlist: this.storageContollerColumns,
+        volumelist: this.storageVolumeColumns,
+        drivelist: this.storageDriveColumns,
+        enclosurelist: this.storageEncColumns
+      }[this.selectedSection?.value] || this.storageContollerColumns
+    },
+    hasContent () {
+      if (['storage', 'log'].includes(this.category)) return this.sections.length > 0
+      const data = this.dataMap[this.category]
+      return (this.category === 'summary' && !!this.dataMap.model) || Object.keys(data || {}).length > 0
     }
   },
-  created () {
-    this.fetchData()
-  },
+  created () { this.fetchData() },
   methods: {
-    onTabChange (tabkey) {
-      this.category = tabkey
-      if (!this.checkExsitData(tabkey)) {
-        this.fetchData()
-      }
+    chooseCategory (hardware) {
+      if (hardware === this.category) return
+      const query = { ...this.$route.query, tab: 'hostredfishdata', hardware }
+      delete query.hardwaresection
+      this.$router.push({ query })
+    },
+    chooseSection (hardwaresection) {
+      this.$router.push({ query: { ...this.$route.query, hardware: this.category, hardwaresection } })
     },
     camelToSentence (str) {
       if (!str) return str
@@ -717,24 +743,6 @@ export default {
       }
       return result
     },
-    changeStorageTab (val) {
-      switch (val) {
-        case 'controllerlist':
-          this.storageColumns = this.storageContollerColumns
-          break
-        case 'volumelist':
-          this.storageColumns = this.storageVolumeColumns
-          break
-        case 'drivelist':
-          this.storageColumns = this.storageDriveColumns
-          break
-        case 'enclosurelist':
-          this.storageColumns = this.storageEncColumns
-          break
-        default:
-          break
-      }
-    },
     autoFormatBytes (bytes) {
       if (typeof bytes !== 'number' || bytes < 0) return '0'
       const tb = bytes / (1024 ** 4)
@@ -753,18 +761,6 @@ export default {
         return val + ' ' + sign
       }
       return ''
-    },
-    checkExsitData (param) {
-      const data = this.dataMap[param]
-      if (Array.isArray(data)) {
-        return data.length > 0
-      }
-      // 객체 체크 (null 제외, 실제 프로퍼티가 1개 이상 있는 경우)
-      if (data && typeof data === 'object') {
-        // Object.keys(data).length > 0 이면 true
-        return Object.keys(data).length > 0
-      }
-      return false
     },
     dateFmt (val) {
       // null, 빈문자, 타입체크
@@ -826,45 +822,52 @@ export default {
       // 기본형(문자/숫자/불리언/null)은 그대로 반환
       return obj
     },
-    fetchData () {
-      const listRequest = this.listRequestToken('fetchData')
+    async fetchData () {
+      const hostid = this.resource.id
+      if (!hostid || this.$route.query.tab !== 'hostredfishdata') return
+      const category = this.category
+      const version = ++this.readVersion
+      const current = () => this.resource.id === hostid && this.category === category && this.readVersion === version
       this.spinning = true
-      this.dataMap[this.category] = []
-      return getAPI('listHostRedfishData', { category: this.category, hostid: this.resource.id }).then(json => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
-
-        var items = json.listhostredfishdataresponse.outofbandmanagement
-        this.jsonObject = JSON.parse(items.redfishdata)
-      }).finally(() => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
-
-        this.makeData(this.jsonObject)
-        this.spinning = false
-      }).catch(error => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
-        listRequest.failed = true
-        this.listRefreshFailed = true
-        if (!listRequest.loaded) this.$notifyError(error)
-      })
+      this.readError = false
+      try {
+        const response = await getAPI('listHostRedfishData', { category, hostid }, { preserveOnFailure: true })
+        if (!current()) return
+        const payload = response.listhostredfishdataresponse?.outofbandmanagement?.redfishdata
+        const parsed = payload ? JSON.parse(payload) : {}
+        const previous = this.dataMap[category]
+        const previousModel = this.dataMap.model
+        this.dataMap[category] = emptyData()[category]
+        try {
+          this.makeData(parsed, category)
+        } catch (error) {
+          this.dataMap[category] = previous
+          this.dataMap.model = previousModel
+          throw error
+        }
+      } catch {
+        if (current()) this.readError = true
+      } finally {
+        if (current()) this.spinning = false
+      }
     },
-    makeData (obj) {
+    makeData (obj, category) {
       if (obj) {
         obj = this.keysToLowerCaseDeep(obj)
-        console.log('obj :>> ', obj)
-        switch (this.category) {
+        switch (category) {
           case 'summary':
             this.dataMap.model = obj.model
             if (obj?.oem?.hpe?.aggregatehealthstatus) {
               for (const [key, value] of Object.entries(obj?.oem?.hpe?.aggregatehealthstatus)) {
                 if (value.status?.health) {
-                  this.dataMap[this.category].push({ name: key, status: value.status?.health })
+                  this.dataMap[category].push({ name: key, status: value.status?.health })
                 } else {
-                  this.dataMap[this.category].push({ name: key, status: value })
+                  this.dataMap[category].push({ name: key, status: value })
                 }
               }
             } else if (obj?.oem?.dell?.dellsystem) {
               const dellSystem = obj?.oem?.dell?.dellsystem
-              this.dataMap[this.category] = Object.entries(dellSystem)
+              this.dataMap[category] = Object.entries(dellSystem)
                 .filter(([key, value]) => key.toLowerCase().includes('status') && value !== null)
                 .map(([key, value]) => ({ name: key, status: value }))
             }
@@ -883,7 +886,7 @@ export default {
                 varL2cache = this.hasObjProp(obj[key].oem?.dell?.dellprocessor, 'cache2installedsizekb', '')
                 varL3cache = this.hasObjProp(obj[key].oem?.dell?.dellprocessor, 'cache3installedsizekb', '')
               }
-              this.dataMap[this.category].push({
+              this.dataMap[category].push({
                 name: this.hasArrProp(obj, key, 'model', 'Unknown'),
                 manufacturer: this.hasArrProp(obj, key, 'manufacturer', 'Unknown'),
                 status: this.hasObjProp(obj[key].status, 'health', 'Unknown'),
@@ -899,29 +902,38 @@ export default {
           case 'network':
           case 'device':
           case 'firmware':
-            this.dataMap[this.category] = obj
+            this.dataMap[category] = obj
             break
           case 'log':
-            obj.loglist.forEach(item => {
-              item.members.sort((a, b) => b.id - a.id)
-            })
-            this.dataMap[this.category] = obj
+            for (const item of obj.loglist || []) item.members = (item.members || []).sort((a, b) => b.id - a.id)
+            this.dataMap[category] = obj
             break
           case 'storage':
-            this.storageColumns = this.storageContollerColumns
-            this.dataMap[this.category] = obj
+            this.dataMap[category] = obj
             break
           default:
             break
         }
       }
-      console.log(this.category + ' :>> ' + this.dataMap[this.category])
     }
   }
 }
 </script>
 
 <style scoped>
+.host-redfish-content {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.redfish-select {
+  width: min(100%, 180px);
+}
+
+.host-redfish-content :deep(.ant-alert) {
+  margin-bottom: 12px;
+}
+
 .cus-row {
   margin-bottom: 10px;
 }

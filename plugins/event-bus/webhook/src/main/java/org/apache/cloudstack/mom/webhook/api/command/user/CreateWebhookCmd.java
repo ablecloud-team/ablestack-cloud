@@ -93,6 +93,10 @@ public class CreateWebhookCmd extends BaseCmd {
         authorized = {RoleType.Admin, RoleType.DomainAdmin})
     private String scope;
 
+    @Parameter(name = "redactsecretkey", type = CommandType.BOOLEAN,
+            description = "Exclude the webhook secret key value from the response")
+    private Boolean redactSecretKey;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -153,6 +157,9 @@ public class CreateWebhookCmd extends BaseCmd {
             WebhookResponse response = webhookApiService.createWebhook(this);
             if (response == null) {
                 throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to create webhook");
+            }
+            if (Boolean.TRUE.equals(redactSecretKey)) {
+                response.setSecretKey(null);
             }
             response.setResponseName(getCommandName());
             setResponseObject(response);

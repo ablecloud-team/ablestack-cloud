@@ -18,7 +18,7 @@
 import { vueProps } from '@/vue-app'
 import Cookies from 'js-cookie'
 import { i18n } from './locales'
-import router from './router'
+import router, { pendingRouteName } from './router'
 import store from './store'
 
 import NProgress from 'nprogress' // progress bar
@@ -56,17 +56,11 @@ router.beforeEach((to, from, next) => {
 
   const validLogin = vueProps.$localStorage.get(ACCESS_TOKEN) || Cookies.get('userid') || Cookies.get('userid', { path: '/client' })
   if (validLogin) {
-    var currentURL = new URL(window.location.href)
-    var urlParams = new URLSearchParams(currentURL.search)
-    var code = urlParams.get('code')
-    if (code != null) {
-      urlParams.delete('code')
+    const currentURL = new URL(window.location.href)
+    if (currentURL.search) {
+      currentURL.search = ''
+      window.history.replaceState(window.history.state, '', currentURL.toString())
     }
-    currentURL.search = ''
-    // Keep KMS list-return state when cleaning the outer login URL.
-    const kmsHistoryEntry = /^#\/(?:kmskey|hsmprofile)(?:[/?]|$)/.test(currentURL.hash) ||
-      (/^#\/volume\//.test(currentURL.hash) && window.history.state?.kmsRelatedReturn)
-    window.history.replaceState(kmsHistoryEntry ? window.history.state : null, null, currentURL.toString())
     if (to.path === '/user/login') {
       next({ path: '/dashboard' })
       NProgress.done()
@@ -146,12 +140,13 @@ router.beforeEach((to, from, next) => {
             }
 
             store.dispatch('GenerateRoutes', { apis }).then(() => {
-              store.getters.addRouters.map(route => {
+              store.getters.addRouters.forEach(route => {
                 router.addRoute(route)
               })
+              if (router.hasRoute(pendingRouteName)) router.removeRoute(pendingRouteName)
               const redirect = decodeURIComponent(from.query.redirect || to.path)
               if (to.path === redirect) {
-                next({ ...to, replace: true })
+                next({ path: to.path, query: to.query, hash: to.hash, replace: true })
               } else {
                 next({ path: redirect })
               }
@@ -190,13 +185,10 @@ router.beforeEach((to, from, next) => {
     }
   } else {
     if (window.location.search.includes('verifyOauth') && to.name !== 'VerifyOauth') {
-      currentURL = new URL(window.location.href)
-      urlParams = new URLSearchParams(currentURL.search)
-      code = urlParams.get('code')
-      urlParams.delete('verifyOauth')
-      urlParams.delete('state')
-      currentURL.search = '?code=' + code
-      window.history.replaceState(null, null, currentURL.toString())
+      const currentURL = new URL(window.location.href)
+      const code = currentURL.searchParams.get('code')
+      currentURL.search = new URLSearchParams({ code }).toString()
+      window.history.replaceState(window.history.state, '', currentURL.toString())
       next({ path: '/verifyOauth', query: { redirect: to.fullPath } })
     } else if (allowList.includes(to.name)) {
       next()

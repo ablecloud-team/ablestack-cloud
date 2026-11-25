@@ -16,6 +16,9 @@
 // under the License.
 package org.apache.cloudstack.storage.heuristics;
 
+import java.io.IOException;
+import java.util.List;
+
 import com.cloud.hypervisor.Hypervisor;
 import com.cloud.storage.Storage;
 import com.cloud.storage.VMTemplateVO;
@@ -29,6 +32,8 @@ import org.apache.cloudstack.secstorage.HeuristicVO;
 import org.apache.cloudstack.secstorage.dao.SecondaryStorageHeuristicDao;
 import org.apache.cloudstack.secstorage.heuristics.HeuristicType;
 import org.apache.cloudstack.storage.heuristics.presetvariables.PresetVariables;
+import org.apache.cloudstack.storage.heuristics.presetvariables.SecondaryStorage;
+import org.apache.cloudstack.storage.heuristics.presetvariables.Template;
 import org.apache.cloudstack.utils.jsinterpreter.JsInterpreter;
 import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
@@ -86,6 +91,36 @@ public class HeuristicRuleHelperTest {
         Mockito.doReturn("volume-name").when(volumeVOMock).getName();
         Mockito.doReturn(Storage.ImageFormat.RAW).when(volumeVOMock).getFormat();
         Mockito.doReturn(2048L).when(volumeVOMock).getSize();
+    }
+
+    @Test
+    public void secondaryStorageRulesSupportDocumentedFilterAndLegacySyntax() throws IOException {
+        String targetId = "7432f961-c602-4e8e-8580-2496ffbbc45d";
+        SecondaryStorage otherStorage = new SecondaryStorage();
+        otherStorage.setId("1ea0109a-299d-4e37-8460-3e9823f9f25c");
+        SecondaryStorage targetStorage = new SecondaryStorage();
+        targetStorage.setId(targetId);
+        Template template = new Template();
+        template.setFormat("QCOW2");
+        PresetVariables variables = new PresetVariables();
+        variables.setSecondaryStorages(List.of(otherStorage, targetStorage));
+        variables.setTemplate(template);
+
+        String documentedFilter = String.join("\n",
+                "function findStorageWithSpecificId(pool) {",
+                "    return pool.id === '" + targetId + "';",
+                "}",
+                "",
+                "secondaryStorages.filter(findStorageWithSpecificId)[0].id");
+        try (JsInterpreter interpreter = new JsInterpreter(5000)) {
+            heuristicRuleHelperSpy.injectPresetVariables(interpreter, variables);
+            Assert.assertEquals(targetId, interpreter.executeScript(documentedFilter));
+            Assert.assertEquals(Boolean.TRUE, interpreter.executeScript("Array.isArray(secondaryStorages)"));
+            Assert.assertEquals(targetId, interpreter.executeScript("'" + targetId + "'"));
+            Assert.assertEquals(targetId, interpreter.executeScript(
+                    "if (template.format === 'QCOW2' && !secondaryStorages.isEmpty() && secondaryStorages.size() === 2) {" +
+                            " secondaryStorages.get(1).id }"));
+        }
     }
 
     @Test

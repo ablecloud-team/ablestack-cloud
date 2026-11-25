@@ -44,7 +44,6 @@ public class AblestackNasRestoreBackupCommand extends AblestackRestoreBackupComm
     private Integer mountTimeout;
     private String cacheMode;
     private String restoreJobId;
-    private boolean waitForCompletion = true;
 
     protected AblestackNasRestoreBackupCommand() {
         super();
@@ -210,11 +209,4 @@ public class AblestackNasRestoreBackupCommand extends AblestackRestoreBackupComm
         this.restoreJobId = restoreJobId;
     }
 
-    public boolean isWaitForCompletion() {
-        return waitForCompletion;
-    }
-
-    public void setWaitForCompletion(boolean waitForCompletion) {
-        this.waitForCompletion = waitForCompletion;
-    }
 }

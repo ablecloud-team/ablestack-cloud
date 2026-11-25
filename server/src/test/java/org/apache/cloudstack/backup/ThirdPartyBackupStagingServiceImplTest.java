@@ -525,6 +525,50 @@ public class ThirdPartyBackupStagingServiceImplTest {
     }
 
     @Test
+    public void cleanupUsesRecoveredHostStateInsteadOfTheObjectCapturedAtStartup() throws Exception {
+        HostVO captured = host(1L, "cube1");
+        when(captured.getStatus()).thenReturn(Status.Disconnected);
+        HostVO recovered = host(1L, "cube1");
+        when(agentManager.send(eq(1L), any(AblestackThirdPartyStagingCommand.class))).thenReturn(new Answer(null, true, "0"));
+        service.prepareCleanup(captured, "/mnt/staging/jobs/ablestack-netbackup", service.captureConfiguration());
+        verify(hostDao).findById(1L, true);
+        verify(agentManager).send(eq(1L), any(AblestackThirdPartyStagingCommand.class));
+        assertEquals(Status.Up, recovered.getStatus());
+    }
+
+    @Test
+    public void cleanupRejectsAHostDisabledAfterItsInitialSnapshotWasRead() throws Exception {
+        HostVO captured = host(1L, "cube1");
+        HostVO current = host(1L, "cube1");
+        when(current.getResourceState()).thenReturn(ResourceState.Disabled);
+        assertThrows(CloudRuntimeException.class, () -> service.prepareCleanup(captured,
+                "/mnt/staging/jobs/ablestack-netbackup", service.captureConfiguration()));
+        verify(agentManager, never()).send(anyLong(), any(AblestackThirdPartyStagingCommand.class));
+    }
+
+    @Test
+    public void cleanupRetriesWithCurrentHostStateAfterTheFailureBackoffExpires() throws Exception {
+        AtomicLong now = new AtomicLong(1000);
+        Clock clock = mock(Clock.class);
+        when(clock.millis()).thenAnswer(call -> now.get());
+        ReflectionTestUtils.setField(service, "validationClock", clock);
+        HostVO captured = host(1L, "cube1");
+        HostVO disconnected = host(1L, "cube1");
+        when(disconnected.getStatus()).thenReturn(Status.Disconnected);
+        String path = "/mnt/staging/jobs/ablestack-netbackup";
+        Snapshot configuration = service.captureConfiguration();
+        assertThrows(CloudRuntimeException.class, () -> service.prepareCleanup(captured, path, configuration));
+        assertThrows(CloudRuntimeException.class, () -> service.prepareCleanup(captured, path, configuration));
+        HostVO recovered = host(1L, "cube1");
+        when(agentManager.send(eq(1L), any(AblestackThirdPartyStagingCommand.class))).thenReturn(new Answer(null, true, "0"));
+        now.addAndGet(30001);
+        service.prepareCleanup(captured, path, configuration);
+        verify(hostDao, times(2)).findById(1L, true);
+        verify(agentManager).send(eq(1L), any(AblestackThirdPartyStagingCommand.class));
+        assertEquals(Status.Up, recovered.getStatus());
+    }
+
+    @Test
     public void cleanupMountFailureBacksOffAcrossPointsAndRetriesAfterRecovery() throws Exception {
         AtomicLong now = new AtomicLong(1000);
         Clock clock = mock(Clock.class);
@@ -625,6 +669,7 @@ public class ThirdPartyBackupStagingServiceImplTest {
         when(host.getHypervisorType()).thenReturn(HypervisorType.KVM);
         when(host.getStatus()).thenReturn(Status.Up);
         when(host.getResourceState()).thenReturn(ResourceState.Enabled);
+        when(hostDao.findById(id, true)).thenReturn(host);
         return host;
     }
 }

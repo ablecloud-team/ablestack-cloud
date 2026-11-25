@@ -49,16 +49,17 @@
             :placeholder="$t('label.confirmpassword.description')"/>
         </a-form-item>
 
-        <div :span="24" class="action-button">
+        <mold-dialog-actions :busy="loading">
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
           <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-        </div>
+        </mold-dialog-actions>
       </a-form>
     </a-spin>
   </div>
 </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { ref, reactive, toRaw } from 'vue'
 import { postAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -66,6 +67,7 @@ import TooltipLabel from '@/components/widgets/TooltipLabel'
 export default {
   name: 'ChangeHostPassword',
   components: {
+    MoldDialogActions,
     TooltipLabel
   },
   props: {
@@ -141,10 +143,7 @@ export default {
 
 <style scoped lang="less">
 .form-layout {
-  width: 80vw;
-
-  @media (min-width: 600px) {
-    width: 450px;
-  }
+  width: 100%;
+  min-width: 0;
 }
 </style>

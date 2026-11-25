@@ -167,6 +167,7 @@
             <status v-else-if="$route.meta.name === 's2svpnconn'" class="status" :text="resource.state || ''" :display-label="$t(vpnConnectionState(resource))" display-text />
             <status v-else-if="$route.meta.name === 'systemoffering'" class="status" :text="resource.state" :display-label="$t(systemOfferingStateLabel(resource.state))" display-text />
             <status v-else-if="['role', 'account'].includes($route.meta.name)" class="status" :text="resource.state" :display-label="$t('label.' + resource.state)" display-text />
+            <RuntimeCatalogValue v-else-if="$route.meta.name === 'runtimebundle'" group="state" :value="resource.state" status />
             <status v-else class="status" :text="resource.state || resource.status" displayText/>
           </div>
         </div>
@@ -204,7 +205,8 @@
         <div class="resource-detail-item" v-if="resource.resourcestate">
           <div class="resource-detail-item__label">{{ $t('label.resourcestate') }}</div>
           <div class="resource-detail-item__details">
-            <status class="status" :text="resource.resourcestate" displayText/>
+            <a-tag v-if="$route.meta.name === 'host'" :color="hostStatusColor(resource.resourcestate)">{{ $t(hostStatusLabel(resource.resourcestate)) }}</a-tag>
+            <status v-else class="status" :text="resource.resourcestate" displayText/>
           </div>
         </div>
         <div class="resource-detail-item" v-if="$route.meta.name === 'buckets'">
@@ -228,21 +230,20 @@
         <div class="resource-detail-item" v-if="($route.meta.name === 'zone' && resource.id) || ($route.meta.name === 'cluster' && resource.resourcedetails)">
           <div class="resource-detail-item__label">{{ $t('label.haenable') }}</div>
           <div class="resource-detail-item__details">
-            <status v-if="$route.meta.name === 'zone'" class="status" :text="zoneFeatureState(resource.resourcedetails?.resourceHAEnabled ?? false)" :display-label="$t(zoneFeatureLabel(resource.resourcedetails?.resourceHAEnabled ?? false))" display-text />
-            <status v-else class="status" :text="resource.resourcedetails.resourceHAEnabled === 'true' ? 'enabled' : 'disabled'" display-text />
+            <status class="status" :text="zoneFeatureState(resource.resourcedetails?.resourceHAEnabled ?? false)" :display-label="$t(zoneFeatureLabel(resource.resourcedetails?.resourceHAEnabled ?? false))" display-text />
           </div>
         </div>
         <div class="resource-detail-item" v-if="$route.meta.name === 'host' && resource.outofbandmanagement">
           <div class="resource-detail-item__label">{{ $t('label.powerstate') }}</div>
           <div class="resource-detail-item__details">
-            <status class="status" :text="resource.outofbandmanagement?.powerstate" displayText/>
+            <a-tag :color="hostStatusColor(resource.outofbandmanagement.powerstate)">{{ $t(hostStatusLabel(resource.outofbandmanagement.powerstate)) }}</a-tag>
           </div>
         </div>
         <div class="resource-detail-item" v-if="$route.meta.name === 'host' && resource.hostha">
           <div class="resource-detail-item__label">{{ $t('label.haenable') }}</div>
           <div class="resource-detail-item__details">
-            <status class="status" :text="resource.hostha.haenable ? 'enabled' : 'disabled'" displayText/>
-            <a-tag style="margin-left: 5px; margin-bottom: 5px;">{{ resource.hostha.hastate }}</a-tag>
+            <a-tag :color="hostStatusColor(resource.hostha.haenable)">{{ $t(hostStatusLabel(resource.hostha.haenable)) }}</a-tag>
+            <a-tag :color="hostStatusColor(resource.hostha.hastate)">{{ $t(hostStatusLabel(resource.hostha.hastate)) }}</a-tag>
           </div>
         </div>
         <div class="resource-detail-item" v-if="('success' in resource) && $route.meta.name === 'webhookdeliveries'">
@@ -266,7 +267,18 @@
         <div class="resource-detail-item" v-if="$route.meta.name === 'template' && templateRuntimeToolVisible">
           <router-link to="/runtimebundle">{{ $t('label.runtime.catalog') }}</router-link>
         </div>
-        <div class="resource-detail-item" v-if="resource.id && $route.meta.name !== 'vpnuser'">
+        <div v-if="resource.id && $route.meta.name === 'oauthsetting'" class="resource-detail-item">
+          <div class="resource-detail-item__label">{{ $t('label.scope') }}</div>
+          <div class="resource-detail-item__details">
+            <router-link v-if="resource.domainid && 'listDomains' in $store.getters.apis" :to="{ path: '/domain/' + resource.domainid, query: { tab: 'details' } }">{{ resource.domainpath || resource.domainid }}</router-link>
+            <span v-else>{{ resource.domainid ? resource.domainpath || resource.domainid : $t('label.oauth.scope.global') }}</span>
+          </div>
+        </div>
+        <div v-if="resource.id && $route.meta.name === 'ldapsetting'" class="resource-detail-item">
+          <div class="resource-detail-item__label">{{ $t('label.scope') }}</div>
+          <div class="resource-detail-item__details">{{ $t(resource.domainid ? 'label.domain' : 'label.ldap.scope.global') }}</div>
+        </div>
+        <div class="resource-detail-item" v-if="resource.id && !['vpnuser', 'ldapsetting'].includes($route.meta.name)">
           <div class="resource-detail-item__label">{{ $t('label.id') }}</div>
           <div class="resource-detail-item__details">
             <tooltip-button
@@ -1058,7 +1070,7 @@
                 <span v-else>{{ resource.rolename || resource.role || resource.roleid }}</span>
               </div>
             </div>
-            <div class="resource-detail-item" v-if="$route.meta.name !== 'vpnuser' && resource.domainid">
+            <div class="resource-detail-item" v-if="!['vpnuser', 'ldapsetting', 'oauthsetting'].includes($route.meta.name) && resource.domainid">
               <div class="resource-detail-item__label">{{ $t('label.domain') }}</div>
               <div class="resource-detail-item__details">
                 <resource-icon v-if="images.domain" :image="images.domain" size="1x" style="margin-right: 5px"/>
@@ -1153,6 +1165,10 @@
               {{ resource.leaseexpiryaction }}
             </div>
           </div>
+          <div v-if="$route.meta?.name === 'extension'" class="resource-detail-item">
+            <strong>{{ $t('label.pathready') }}</strong>
+            <div><a-tag :color="resource.pathready ? 'success' : 'default'">{{ $t(resource.pathready ? 'label.yes' : 'label.no') }}</a-tag></div>
+          </div>
           <div class="account-center-tags" :class="{ 'account-related-actions': $route.meta.name === 'account' }" v-if="$route.meta.related">
             <a-divider/>
             <div v-for="item in $route.meta.related" :key="item.path">
@@ -1206,6 +1222,7 @@
 </template>
 
 <script>
+import { hostStatusColor, hostStatusLabel } from '@/utils/hostPresentation'
 import { systemOfferingStateLabel } from '@/utils/systemOfferingTypes'
 import { physicalNetworkZoneLocation, zoneFeatureLabel, zoneFeatureState, zoneMetricText } from '@/utils/zone'
 import AclScopeValue from '@/components/view/AclScopeValue'
@@ -1238,6 +1255,7 @@ import { validateLinksAsync } from '@/utils/links'
 import Console from '@/components/widgets/Console'
 import OsLogo from '@/components/widgets/OsLogo'
 import Status from '@/components/widgets/Status'
+import RuntimeCatalogValue from '@/components/view/RuntimeCatalogValue'
 import TemplateAvailability from '@/components/widgets/TemplateAvailability'
 import KubernetesIsoStatus from '@/components/widgets/KubernetesIsoStatus'
 import BackupProgress from '@/components/view/BackupProgress'
@@ -1258,11 +1276,13 @@ import { gatewayName } from '@/utils/s2sGateway'
 import { vpnConnectionState } from '@/utils/s2sConnection'
 import { vpnConnectionName, vpnConnectionRoute } from '@/utils/s2sGatewaySearch'
 import { vmDisplayName, isVmIdentityRoute } from '@/utils/vmIdentity'
+import { ldapEndpointLabel } from '@/utils/ldapConfiguration'
 
 export default {
   name: 'InfoCard',
   mixins: [vmNetworkAccessMixin()],
   components: {
+    RuntimeCatalogValue,
     AclScopeValue,
     PublicIpDetailValue,
     TemplateAvailability,
@@ -1411,6 +1431,7 @@ export default {
       if (this.$route.meta?.name === 'guestvlans' && this.resource.vlan) return this.$t('label.vlan') + ' ' + this.resource.vlan
       if (this.$route.meta?.name === 's2svpn') return gatewayName(this.resource)
       if (isVmIdentityRoute(this.$route)) return vmDisplayName(this.resource)
+      if (this.$route.meta?.name === 'ldapsetting') return ldapEndpointLabel(this.resource)
       return this.resource.displayname || this.resource.name || this.resource.displaytext || this.resource.username ||
         this.resource.ipaddress || this.resource.virtualmachinename || this.resource.osname || this.resource.osdisplayname || this.resource.templatetype || this.resource.rbdimagesname
     },
@@ -1493,6 +1514,8 @@ export default {
     systemOfferingStateLabel,
     physicalNetworkZoneLocation,
     zoneFeatureState,
+    hostStatusColor,
+    hostStatusLabel,
     zoneFeatureLabel,
     zoneMetricText,
     aclDisplayLabel,

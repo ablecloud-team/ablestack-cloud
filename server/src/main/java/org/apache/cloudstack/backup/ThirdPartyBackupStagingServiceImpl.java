@@ -328,6 +328,15 @@ public class ThirdPartyBackupStagingServiceImpl extends ManagerBase implements T
     }
 
     private long prepareHost(Host host, Snapshot configuration, String path, long requiredBytes, int timeoutSeconds) {
+        if (host != null) {
+            // Reconciliation may retain the Host object seen during management-server startup.
+            // Re-read its current state before rejecting cleanup and keeping the VM's staging slot indefinitely.
+            long requestedHostId = host.getId();
+            host = hostDao.findById(requestedHostId, true);
+            if (host != null && host.getId() != requestedHostId) {
+                throw new CloudRuntimeException("The staging worker identity changed during host validation.");
+            }
+        }
         if (host == null || host.getStatus() != Status.Up || host.getHypervisorType() != HypervisorType.KVM
                 || host.getResourceState() != ResourceState.Enabled) {
             throw new CloudRuntimeException("The staging host must be an enabled, connected KVM host.");

@@ -30,8 +30,8 @@
             <tooltip-label :title="$t('label.scope')" :tooltip="apiParams.scope.description"/>
           </template>
           <a-select
+            id="primary-storage-add-scope"
             v-model:value="form.scope"
-            v-focus="true"
             @change="val => changeScope(val)"
             showSearch
             optionFilterProp="label"
@@ -41,7 +41,7 @@
             :placeholder="apiParams.scope.description" >
             <a-select-option :value="'cluster'" :label="$t('label.clusterid')"> {{ $t('label.clusterid') }} </a-select-option>
             <a-select-option :value="'zone'" :label="$t('label.zoneid')"> {{ $t('label.zoneid') }} </a-select-option>
-            <a-select-option :value="'host'" :label="$t('label.hostid')"> {{ $t('label.hostid') }} </a-select-option>
+            <a-select-option v-if="canSelectHost" :value="'host'" :label="$t('label.hostid')"> {{ $t('label.hostid') }} </a-select-option>
           </a-select>
         </a-form-item>
         <div v-if="form.scope === 'zone'">
@@ -51,6 +51,7 @@
             </template>
             <a-select
               v-model:value="form.hypervisor"
+              @change="fetchHypervisor"
               showSearch
               optionFilterProp="value"
               :filterOption="(input, option) => {
@@ -69,7 +70,7 @@
           </template>
           <a-select
             v-model:value="form.zone"
-            @change="val => changeZone(val)"
+            @change="val => changeZone(val).catch(error => $notifyError(error))"
             showSearch
             optionFilterProp="label"
             :filterOption="(input, option) => {
@@ -91,7 +92,7 @@
             </template>
             <a-select
               v-model:value="form.pod"
-              @change="val => changePod(val)"
+              @change="val => changePod(val).catch(error => $notifyError(error))"
               showSearch
               optionFilterProp="label"
               :filterOption="(input, option) => {
@@ -109,7 +110,7 @@
             </template>
             <a-select
               v-model:value="form.cluster"
-              @change="val => fetchHypervisor(val)"
+              @change="val => changeCluster(val).catch(error => $notifyError(error))"
               showSearch
               optionFilterProp="label"
               :filterOption="(input, option) => {
@@ -143,7 +144,7 @@
           </template>
           <a-input v-model:value="form.name" :placeholder="apiParams.name.description"/>
         </a-form-item>
-        <div v-if="form.protocol !== 'Linstor'">
+        <div v-if="form.scope !== 'host' && form.protocol !== 'Linstor'">
           <a-form-item name="provider" ref="provider">
             <template #label>
               <tooltip-label :title="$t('label.providername')" :tooltip="apiParams.provider.description"/>
@@ -489,7 +490,7 @@
             <a-switch v-model:checked="form.linstorInsecureSsl" />
           </a-form-item>
         </div>
-        <a-form-item name="selectedTags" ref="selectedTags">
+        <a-form-item v-if="form.scope !== 'host'" name="selectedTags" ref="selectedTags">
           <template #label>
             <tooltip-label :title="$t('label.storagetags')" :tooltip="apiParams.tags.description"/>
           </template>
@@ -501,10 +502,22 @@
           </a-select>
         </a-form-item>
 
-        <div :span="24" class="action-button">
-          <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
-          <a-button type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-        </div>
+        <a-form-item v-if="canSetTagRule" name="istagarule" ref="istagarule" html-for="primary-storage-add-tag-rule" :label="$t('label.istagarule')">
+          <a-switch id="primary-storage-add-tag-rule" v-model:checked="form.istagarule" :disabled="!selectedTags.length" />
+        </a-form-item>
+        <a-form-item v-if="canSetAccessGroups" html-for="primary-storage-add-access-groups" :label="$t('label.storageaccessgroups')">
+          <a-select
+            id="primary-storage-add-access-groups"
+            v-model:value="selectedAccessGroups"
+            mode="tags"
+            option-filter-prop="label"
+            :options="accessGroups" />
+        </a-form-item>
+
+        <mold-dialog-actions :busy="submitting">
+          <a-button @click="closeModal" :disabled="submitting">{{ $t('label.cancel') }}</a-button>
+          <a-button type="primary" ref="submit" :loading="submitting" :disabled="loading" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+        </mold-dialog-actions>
       </a-form>
     </a-spin>
   </div>
@@ -515,15 +528,18 @@ import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import _ from 'lodash'
 import { mixinForm } from '@/utils/mixin'
+import { hostStorageGroups } from '@/utils/hostOperations'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 
 export default {
   name: 'AddPrimaryStorage',
   mixins: [mixinForm],
   components: {
     TooltipLabel,
-    ResourceIcon
+    ResourceIcon,
+    MoldDialogActions
   },
   props: {
     resource: {
@@ -534,7 +550,7 @@ export default {
   inject: ['parentFetchData'],
   data () {
     return {
-      hypervisors: ['KVM', 'VMware', 'Hyperv', 'Any', 'Simulator'],
+      hypervisors: ['KVM', 'VMware', 'Hyperv', 'LXC', 'Any', 'Simulator'],
       protocols: [],
       providers: [],
       scope: 'cluster',
@@ -544,6 +560,10 @@ export default {
       hosts: [],
       selectedTags: [],
       storageTags: [],
+      selectedAccessGroups: [],
+      accessGroups: [],
+      tagRulesEnabled: false,
+      submitting: false,
       hypervisorType: '',
       size: 'default',
       loading: false
@@ -556,6 +576,17 @@ export default {
     this.initForm()
     this.fetchData()
   },
+  computed: {
+    canSelectHost () {
+      return !!this.apiParams.scope && !!this.apiParams.url && !!this.$store.getters.apis.listHosts
+    },
+    canSetAccessGroups () {
+      return this.form.scope !== 'host' && !!this.apiParams.storageaccessgroups && !!this.$store.getters.apis.listStorageAccessGroups
+    },
+    canSetTagRule () {
+      return this.form.scope !== 'host' && !!this.apiParams.istagarule && this.tagRulesEnabled
+    }
+  },
   methods: {
     initForm () {
       this.formRef = ref()
@@ -563,7 +594,8 @@ export default {
         scope: 'cluster',
         hypervisor: this.hypervisors[0],
         provider: 'ABLESTACK',
-        linstorInsecureSsl: false
+        linstorInsecureSsl: false,
+        istagarule: false
       })
       this.rules = reactive({
         zone: [{ required: true, message: this.$t('label.required') }],
@@ -616,117 +648,117 @@ export default {
         ontapSvmName: [{ required: true, message: this.$t('label.required') }]
       })
     },
-    fetchData () {
-      this.getInfraData()
-      this.listStorageTags()
-      this.listStorageProviders()
-    },
-    getInfraData () {
+    async fetchData () {
       this.loading = true
-      getAPI('listZones', { showicon: true }).then(json => {
-        this.zones = json.listzonesresponse.zone || []
-        this.changeZone(this.zones[0] ? this.zones[0].id : '')
-      }).finally(() => {
-        this.loading = false
+      const results = await Promise.allSettled([
+        this.getInfraData(),
+        this.listStorageTags(),
+        this.listStorageProviders(),
+        this.listAccessGroups(),
+        this.readTagRulePolicy()
+      ])
+      this.loading = false
+      results.forEach(result => {
+        if (result.status === 'rejected') this.$notifyError(result.reason)
       })
+    },
+    async getInfraData () {
+      const json = await getAPI('listZones', { showicon: true })
+      this.zones = json.listzonesresponse.zone || []
+      await this.changeZone(this.zones[0]?.id)
     },
     changeScope (value) {
       if (value === 'host') {
-        const cluster = this.clusters.find(cluster => cluster.id === this.form.cluster)
-        this.hypervisorType = cluster.hypervisortype
-        if (this.hypervisorType === 'KVM') {
-          this.protocols.push('Filesystem')
-        }
+        this.form.provider = 'DefaultPrimary'
+        this.form.istagarule = false
+        this.selectedTags = []
+        this.selectedAccessGroups = []
       }
+      return this.changeZone(this.form.zone).catch(error => this.$notifyError(error))
     },
-    changeZone (value) {
+    async changeZone (value) {
+      const scope = this.form.scope
       this.form.zone = value
-      if (this.form.zone === '') {
-        this.form.pod = ''
-        return
-      }
-      getAPI('listPods', {
-        zoneid: this.form.zone
-      }).then(json => {
-        this.pods = json.listpodsresponse.pod || []
-        this.changePod(this.pods[0] ? this.pods[0].id : '')
-      })
+      this.form.pod = undefined
+      this.pods = []
+      await this.changePod(undefined)
+      if (!value || scope === 'zone') return
+      const json = await getAPI('listPods', { zoneid: value })
+      if (this.form.zone !== value || this.form.scope !== scope) return
+      this.pods = json.listpodsresponse.pod || []
+      await this.changePod(this.pods[0]?.id)
     },
-    changePod (value) {
+    async changePod (value) {
+      const { scope, zone } = this.form
       this.form.pod = value
-      if (this.form.pod === '') {
-        this.form.cluster = ''
-        return
-      }
-      getAPI('listClusters', {
-        podid: this.form.pod
-      }).then(json => {
-        this.clusters = json.listclustersresponse.cluster || []
-        if (this.clusters.length > 0) {
-          this.form.cluster = this.clusters[0].id
-          this.fetchHypervisor()
-        }
-      }).then(() => {
-        getAPI('listHosts', {
-          clusterid: this.form.cluster
-        }).then(json => {
-          this.hosts = json.listhostsresponse.host || []
-          if (this.hosts.length > 0) {
-            this.form.host = this.hosts[0].id
-          }
-        })
-      })
+      this.clusters = []
+      await this.changeCluster(undefined)
+      if (!value || scope === 'zone') return
+      const json = await getAPI('listClusters', { podid: value })
+      if (this.form.scope !== scope || this.form.pod !== value || this.form.zone !== zone) return
+      const clusters = json.listclustersresponse.cluster || []
+      this.clusters = scope === 'host' ? clusters.filter(cluster => cluster.hypervisortype === 'KVM') : clusters
+      await this.changeCluster(this.clusters[0]?.id)
     },
-    listStorageProviders () {
-      this.providers = []
-      this.loading = true
-      getAPI('listStorageProviders', { type: 'primary' }).then(json => {
-        var providers = json.liststorageprovidersresponse.dataStoreProvider || []
-        for (const provider of providers) {
-          this.providers.push(provider.name)
-        }
-      }).finally(() => {
-        this.loading = false
-      })
+    async changeCluster (value) {
+      this.form.cluster = value
+      this.form.host = undefined
+      this.hosts = []
+      this.fetchHypervisor()
+      if (!value || this.form.scope !== 'host' || !this.canSelectHost) return
+      const json = await getAPI('listHosts', { clusterid: value, type: 'Routing' })
+      if (this.form.scope !== 'host' || this.form.cluster !== value) return
+      this.hosts = json.listhostsresponse.host || []
+      this.form.host = this.hosts[0]?.id
     },
-    listStorageTags () {
-      this.loading = true
-      getAPI('listStorageTags').then(json => {
-        this.storageTags = json.liststoragetagsresponse.storagetag || []
-        if (this.storageTags) {
-          this.storageTags = _.uniqBy(this.storageTags, 'name')
-        }
-      }).finally(() => {
-        this.loading = false
-      })
+    async listStorageProviders () {
+      const json = await getAPI('listStorageProviders', { type: 'primary' })
+      this.providers = (json.liststorageprovidersresponse.dataStoreProvider || []).map(provider => provider.name)
     },
-    fetchHypervisor (value) {
+    async listStorageTags () {
+      const json = await getAPI('listStorageTags')
+      this.storageTags = _.uniqBy(json.liststoragetagsresponse.storagetag || [], 'name')
+    },
+    async listAccessGroups () {
+      if (!this.canSetAccessGroups) return
+      const json = await getAPI('listStorageAccessGroups', {}, { preserveOnFailure: true })
+      const names = hostStorageGroups((json.liststorageaccessgroupsresponse.storageaccessgroup || []).map(group => group.name))
+      this.accessGroups = names ? names.split(',').map(name => ({ value: name, label: name })) : []
+    },
+    async readTagRulePolicy () {
+      if (!this.apiParams.istagarule || !this.$store.getters.apis.listConfigurations) return
+      const name = 'js.interpretation.enabled'
+      const json = await getAPI('listConfigurations', { name, pagesize: -1 }, { preserveOnFailure: true })
+      const setting = (json.listconfigurationsresponse.configuration || []).find(item => item.name === name)
+      this.tagRulesEnabled = setting?.value === 'true' || setting?.value === true
+    },
+    fetchHypervisor () {
+      const scope = this.form.scope
       const cluster = this.clusters.find(cluster => cluster.id === this.form.cluster)
-      this.hypervisorType = cluster.hypervisortype
-      if (this.hypervisorType === 'KVM') {
-        this.protocols = ['Glue Block', 'Glue FileSystem', 'nfs', 'SharedMountPoint', 'RBD', 'CLVM', 'CLVM_NG', 'Gluster', 'Linstor', 'custom', 'FiberChannel']
-        if (this.form.scope === 'host') {
-          this.protocols.push('Filesystem')
-        }
-      } else if (this.hypervisorType === 'XenServer') {
-        this.protocols = ['nfs', 'PreSetup', 'iscsi', 'custom']
-      } else if (this.hypervisorType === 'VMware') {
-        this.protocols = ['nfs', 'vmfs', 'custom']
-        if ('importVsphereStoragePolicies' in this.$store.getters.apis) {
-          this.protocols = ['nfs', 'PreSetup', 'datastorecluster', 'custom']
-        }
-      } else if (this.hypervisorType === 'Hyperv') {
-        this.protocols = ['SMB']
-      } else if (this.hypervisorType === 'Ovm') {
-        this.protocols = ['nfs', 'ocfs2']
-      } else if (this.hypervisorType === 'LXC') {
-        this.protocols = ['nfs', 'SharedMountPoint', 'RBD']
+      this.hypervisorType = scope === 'zone' ? this.form.hypervisor : cluster?.hypervisortype
+      const byProvider = {
+        PowerFlex: ['custom'],
+        'Flash Array': ['FiberChannel'],
+        Primera: ['FiberChannel'],
+        ABLESTACK: ['Glue Block', 'Glue FileSystem'],
+        'NetApp ONTAP': ['NFS3', 'ISCSI']
+      }
+      const byHypervisor = {
+        KVM: ['Glue Block', 'Glue FileSystem', 'nfs', 'SharedMountPoint', 'RBD', 'CLVM', 'CLVM_NG', 'Gluster', 'Linstor', 'custom', 'FiberChannel'],
+        XenServer: ['nfs', 'PreSetup', 'iscsi', 'custom'],
+        VMware: 'importVsphereStoragePolicies' in this.$store.getters.apis ? ['nfs', 'PreSetup', 'datastorecluster', 'custom'] : ['nfs', 'vmfs', 'custom'],
+        Hyperv: ['SMB'],
+        Ovm: ['nfs', 'ocfs2'],
+        LXC: ['nfs', 'SharedMountPoint', 'RBD']
+      }
+      if (!this.hypervisorType) {
+        this.protocols = []
+      } else if (scope === 'host') {
+        this.protocols = this.hypervisorType === 'KVM' ? ['Filesystem'] : []
       } else {
-        this.protocols = ['Glue Block', 'Glue FileSystem', 'nfs']
+        this.protocols = byProvider[this.form.provider] || byHypervisor[this.hypervisorType] || ['Glue Block', 'Glue FileSystem', 'nfs']
       }
-      if (!value) {
-        this.form.protocol = this.protocols[0]
-      }
+      if (!this.protocols.includes(this.form.protocol)) this.form.protocol = this.protocols[0]
     },
     filesystemURL (hostId, path) {
       var url
@@ -891,22 +923,8 @@ export default {
       return url
     },
 
-    updateProviderAndProtocol (value) {
-      if (value === 'PowerFlex') {
-        this.protocols = ['custom']
-        this.form.protocol = 'custom'
-      } else if (value === 'Flash Array' || value === 'Primera') {
-        this.protocols = ['FiberChannel']
-        this.form.protocol = 'FiberChannel'
-      } else if (value === 'ABLESTACK') {
-        this.protocols = ['Glue Block', 'Glue FileSystem']
-        this.form.protocol = 'Glue Block'
-      } else if (value === 'NetApp ONTAP') {
-        this.protocols = ['NFS3', 'ISCSI']
-        this.form.protocol = 'NFS3'
-      } else {
-        this.fetchHypervisor(value)
-      }
+    updateProviderAndProtocol () {
+      this.fetchHypervisor()
     },
     updateProtocolGlue (value) {
       if (value === 'Glue Block' || value === 'Glue FileSystem') {
@@ -926,13 +944,10 @@ export default {
 
       return url
     },
-    checkParams (p) {
-      console.log(p)
-    },
     handleSubmit (e) {
-      // this.checkParams(toRaw(this.form))
-      e.preventDefault()
-      if (this.loading) return
+      if (e?.preventDefault) e.preventDefault()
+      if (this.loading || this.submitting) return
+      this.submitting = true
       this.formRef.value.validate().then(() => {
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
@@ -940,7 +955,7 @@ export default {
           scope: values.scope,
           zoneid: values.zone,
           name: values.name,
-          provider: values.provider
+          provider: this.form.provider
         }
         if (values.scope === 'zone') {
           params.hypervisor = values.hypervisor
@@ -948,9 +963,6 @@ export default {
         if (values.scope === 'cluster' || values.scope === 'host') {
           params.podid = values.pod
           params.clusterid = values.cluster
-        }
-        if (values.scope === 'host') {
-          params.hostid = values.host
         }
         var server = values.server ? values.server : null
         var path = values.path ? values.path : null
@@ -1070,7 +1082,7 @@ export default {
         }
 
         params.url = url
-        if (values.provider !== 'DefaultPrimary' && values.provider !== 'PowerFlex' && values.provider !== 'ABLESTACK') {
+        if (params.provider !== 'DefaultPrimary' && params.provider !== 'PowerFlex' && params.provider !== 'ABLESTACK') {
           if (values.managed) {
             params.managed = true
           } else {
@@ -1092,35 +1104,36 @@ export default {
             values.powerflexGatewayPassword, values.powerflexStoragePool)
         }
 
-        if (this.selectedTags.length > 0) {
+        if (values.scope !== 'host' && this.selectedTags.length > 0) {
           params.tags = this.selectedTags.join()
+          if (this.canSetTagRule && values.istagarule) params.istagarule = true
         }
-        this.loading = true
-        this.checkParams(params)
-        postAPI('createStoragePool', params).then(json => {
+        if (this.canSetAccessGroups) {
+          const groups = hostStorageGroups(this.selectedAccessGroups)
+          if (groups) params.storageaccessgroups = groups
+        }
+        return postAPI('createStoragePool', params, { preserveOnFailure: true }).then(() => {
           this.$notification.success({
             message: this.$t('label.add.primary.storage'),
             description: this.$t('label.add.primary.storage')
           })
           this.closeModal()
           this.parentFetchData()
-        }).catch(error => {
-          this.$notifyError(error)
-        }).finally(() => {
-          this.loading = false
         })
       }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
+        if (error.errorFields?.length) this.formRef.value.scrollToField(error.errorFields[0].name)
+        else {
+          const status = error.response?.status
+          const message = this.$t('message.request.failed')
+          this.$notification.error({ message: status ? message + ' (' + status + ')' : message })
+        }
+      }).finally(() => {
+        this.submitting = false
       })
     }
   }
 }
 </script>
-<style lang="scss" scoped>
-.form-layout {
-  width: 80vw;
-  @media (min-width: 1000px) {
-    width: 500px;
-  }
-}
+<style scoped>
+.form-layout { min-width: 0; width: 100%; }
 </style>

@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { h, resolveComponent } from 'vue'
+import { h, resolveComponent, toRaw } from 'vue'
 
 export default {
   name: 'RenderIcon',
@@ -49,7 +49,7 @@ export default {
         props.class = 'custom-icon'
       }
       return h('span', { role: 'img', class: 'anticon' }, [
-        h(this.svgIcon, { ...props }, this.event)
+        h(toRaw(this.svgIcon), props, this.event)
       ])
     }
   },

@@ -54,7 +54,8 @@ if os.environ.get('IGNORE_TERM'):
 child=subprocess.Popen([sys.executable,'-c','import time; time.sleep(60)'],close_fds=False)
 (root/'ready').write_text(json.dumps({'pid':os.getpid(),'child':child.pid,
  'retiredPid':os.environ.get('ABLESTACK_NETBACKUP_RETIRED_PRE_PID'),
- 'retiredToken':os.environ.get('ABLESTACK_NETBACKUP_RETIRED_PRE_TOKEN')}))
+ 'retiredToken':os.environ.get('ABLESTACK_NETBACKUP_RETIRED_PRE_TOKEN'),
+ 'deadlineMs':os.environ.get('ABLESTACK_NETBACKUP_HOOK_DEADLINE_MS')}))
 if os.environ.get('FINISH_EARLY'): sys.exit(0)
 while True: time.sleep(0.1)
 ''')
@@ -117,6 +118,14 @@ raise SystemExit(runner.run_supervised(sys.argv[2],'policy__schedule__host','PRE
         record = runner.read_json(runner.paths(self.state, self.context, 'PRE')[0])
         self.assertEqual('STOPPED', record['state'], (self.root / 'output').read_text())
         self.assertEqual('POST_STATUS_74', record['reason'])
+
+    def test_worker_receives_the_same_absolute_deadline_as_its_supervisor(self):
+        process = self.launch(timeout=10)
+        record = self.wait_ready()
+        worker = json.loads((self.root / 'ready').read_text())
+        self.assertEqual(int((record['startedAt'] + 10) * 1000), int(worker['deadlineMs']))
+        self.assertTrue(self.stop_request())
+        process.wait(timeout=5)
 
     def test_user_cancel_stops_its_own_pre_and_a_fresh_retry_can_acquire_the_lock(self):
         first = self.launch()
@@ -238,6 +247,28 @@ raise SystemExit(runner.run_supervised(sys.argv[2],'policy__schedule__host','PRE
                 patch.object(runner, 'request_stop', return_value=True) as stop:
             self.assertEqual(0, runner.main(['request-stop', '--context', self.context, '--status', '150']))
         self.assertEqual('150', stop.call_args.args[-1])
+
+    def test_run_cli_uses_the_supplied_global_timeout_for_pre_and_post(self):
+        for phase in ('PRE', 'POST'):
+            with self.subTest(phase=phase), patch.dict(os.environ, STATE_ROOT=str(self.state), BACKUP_ID='backup'), \
+                    patch.object(runner, 'run_supervised', return_value=0) as run:
+                self.assertEqual(0, runner.main(['run', '--context', self.context, '--phase', phase,
+                    '--timeout', '172800', '--', str(self.helper), '--worker-option']))
+                self.assertEqual(172800, run.call_args.kwargs['timeout'])
+                self.assertEqual([str(self.helper), '--worker-option'], run.call_args.args[-1])
+
+    def test_run_cannot_silently_use_a_fixed_timeout_when_configuration_is_missing(self):
+        with patch.dict(os.environ, BACKUP_ID='backup'), patch.object(runner, 'run_supervised') as run:
+            self.assertEqual(1, runner.main(['run', '--context', self.context, '--', str(self.helper)]))
+            run.assert_not_called()
+
+    def test_invalid_cli_timeouts_never_launch_a_worker(self):
+        with patch.object(runner, 'run_supervised') as run:
+            for value in ('0', '-1', '1.5', 'invalid', '2147483648'):
+                with self.subTest(value=value), patch('sys.stderr'):
+                    with self.assertRaises(SystemExit):
+                        runner.main(['run', '--context', self.context, '--timeout', value, '--', str(self.helper)])
+            run.assert_not_called()
 
 
 if __name__ == '__main__':

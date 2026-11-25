@@ -41,21 +41,31 @@ import { documentationUrl } from '@/utils/cniFileImport'
 export default {
   name: 'MoldDialog',
   inheritAttrs: false,
-  props: { visible: { type: Boolean, default: true }, title: { type: String, default: '' }, docHelp: { type: String, default: '' }, width: { type: [Number, String], default: 760 }, size: { type: String, default: '', validator: value => ['', 'sm', 'md', 'lg', 'xl'].includes(value) }, formActions: { type: Boolean, default: false }, focusGuard: { type: Boolean, default: false } },
+  props: { visible: { type: Boolean, default: true }, title: { type: String, default: '' }, docHelp: { type: String, default: '' }, width: { type: [Number, String], default: 760 }, size: { type: String, default: '', validator: value => ['', 'sm', 'md', 'lg', 'xl'].includes(value) }, formActions: { type: Boolean, default: false }, focusGuard: { type: Boolean, default: false }, initialFocus: { type: String, default: '' } },
   setup (props) {
     const footerTarget = shallowRef(null)
     const focusContent = shallowRef(null)
     let observer
-    watch(focusContent, node => {
+    watch([focusContent, () => props.visible], ([node, visible]) => {
       if (observer) observer.disconnect()
       const owner = node?.closest('.ant-modal')
-      if (!owner) return
+      if (!owner || !visible) return
+      let focused = false
+      const focusInitialControl = () => {
+        if (focused || !props.initialFocus) return
+        const control = owner.querySelector(props.initialFocus)
+        if (!control?.getClientRects().length || control.disabled) return
+        control.focus({ preventScroll: true })
+        focused = document.activeElement === control
+      }
       observer = new MutationObserver(() => {
+        focusInitialControl()
         // Disabled or removed controls can drop focus to BODY while the modal is open.
         // Preserve focus in this opt-in dialog; never steal focus from a live control or portal.
         if (props.focusGuard && document.activeElement === document.body && owner.isConnected && owner.getClientRects().length && getComputedStyle(owner).display !== 'none') node.focus({ preventScroll: true })
       })
       observer.observe(owner, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'aria-disabled', 'class', 'style'] })
+      focusInitialControl()
     }, { flush: 'post' })
     onBeforeUnmount(() => { if (observer) observer.disconnect() })
     const busyOwners = reactive(new Set())

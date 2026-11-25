@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.cloudstack.ldap.LdapConfigurationVO;
 
 import com.cloud.utils.Pair;
+import com.cloud.utils.db.Filter;
 import com.cloud.utils.db.GenericDao;
 
 /**
@@ -39,5 +40,6 @@ public interface LdapConfigurationDao extends GenericDao<LdapConfigurationVO, Lo
 
     Pair<List<LdapConfigurationVO>, Integer> searchConfigurations(String hostname, int port, Long domainId);
 
-    Pair<List<LdapConfigurationVO>, Integer> searchConfigurations(Long id, String hostname, int port, Long domainId, boolean listAll);
+    Pair<List<LdapConfigurationVO>, Integer> searchConfigurations(Long id, String hostname, int port, Long domainId,
+            boolean listAll, String keyword, Filter pageFilter);
 }

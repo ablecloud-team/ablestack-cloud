@@ -383,10 +383,10 @@ class LdapManagerImplSpec extends spock.lang.Specification {
         def ldapConfiguration = Mock(LdapConfiguration)
         ldapUserManagerFactory.getInstance(_) >> ldapUserManager
         List<LdapConfigurationVO> ldapConfigurationList = new ArrayList()
-        ldapConfigurationList.add(new LdapConfigurationVO("localhost", 389))
+        ldapConfigurationList.add(new LdapConfigurationVO("localhost", 389, null))
         Pair<List<LdapConfigurationVO>, Integer> configurations = new Pair<List<LdapConfigurationVO>, Integer>();
         configurations.set(ldapConfigurationList, ldapConfigurationList.size())
-        ldapConfigurationDao.searchConfigurations(_, _) >> configurations
+        ldapConfigurationDao.searchConfigurations(_, _, _, _, _, _, _) >> configurations
         def ldapManager = new LdapManagerImpl(ldapConfigurationDao, ldapContextFactory, ldapUserManagerFactory, ldapConfiguration)
         when: "A request for configurations is made"
         def result = ldapManager.listConfigurations(new LdapListConfigurationCmd())
@@ -403,10 +403,10 @@ class LdapManagerImplSpec extends spock.lang.Specification {
         def ldapConfiguration = Mock(LdapConfiguration)
         ldapUserManagerFactory.getInstance(_) >> ldapUserManager
         List<LdapConfigurationVO> ldapConfigurationList = new ArrayList()
-        ldapConfigurationList.add(new LdapConfigurationVO("localhost", 389))
+        ldapConfigurationList.add(new LdapConfigurationVO("localhost", 389, null))
         Pair<List<LdapConfigurationVO>, Integer> configurations = new Pair<List<LdapConfigurationVO>, Integer>();
         configurations.set(ldapConfigurationList, ldapConfigurationList.size())
-        ldapConfigurationDao.searchConfigurations(_, _) >> configurations
+        ldapConfigurationDao.searchConfigurations(null, 0, null) >> configurations
         def ldapManager = new LdapManagerImpl(ldapConfigurationDao, ldapContextFactory, ldapUserManagerFactory, ldapConfiguration)
         when: "A request to find out is ldap enabled"
         def result = ldapManager.isLdapEnabled();

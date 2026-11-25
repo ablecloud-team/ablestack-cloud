@@ -31,15 +31,16 @@
         <details-input
           v-model:value="form.details" />
       </a-form-item>
-      <div :span="24" class="action-button">
+      <mold-dialog-actions :busy="loading">
         <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
         <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-      </div>
+      </mold-dialog-actions>
     </a-form>
   </div>
 </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { ref, reactive, toRaw } from 'vue'
 import { postAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -48,6 +49,7 @@ import DetailsInput from '@/components/widgets/DetailsInput'
 export default {
   name: 'UpdateRegisteredExtension',
   components: {
+    MoldDialogActions,
     TooltipLabel,
     DetailsInput
   },
@@ -77,11 +79,11 @@ export default {
       })
     },
     handleSubmit (e) {
-      e.preventDefault()
+      if (typeof e?.preventDefault === 'function') e.preventDefault()
       if (this.loading) return
+      this.loading = true
       this.formRef.value.validate().then(() => {
         const values = toRaw(this.form)
-        this.loading = true
         const params = {
           extensionid: this.resource.id,
           resourceid: this.extensionResource.id,
@@ -94,7 +96,7 @@ export default {
         } else {
           params.cleanupdetails = true
         }
-        postAPI('updateRegisteredExtension', params).then(() => {
+        return postAPI('updateRegisteredExtension', params).then(() => {
           this.$emit('refresh-data')
           this.$notification.success({
             message: this.$t('label.action.update.extension.resource'),
@@ -107,11 +109,11 @@ export default {
             description: (error.response && error.response.headers && error.response.headers['x-description']) || error.message,
             duration: 0
           })
-        }).finally(() => {
-          this.loading = false
         })
       }).catch(error => {
-        this.$notifyError(error)
+        if (!error.errorFields) this.$notifyError(error)
+      }).finally(() => {
+        this.loading = false
       })
     },
     closeAction () {
@@ -122,10 +124,5 @@ export default {
 </script>
 
 <style scoped lang="less">
-.form-layout {
-  width: 80vw;
-  @media (min-width: 600px) {
-    width: 550px;
-  }
-}
+.form-layout { width: 100%; min-width: 0; }
 </style>

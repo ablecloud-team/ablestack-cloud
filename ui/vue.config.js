@@ -50,6 +50,9 @@ const vueConfig = {
       new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
       new webpack.IgnorePlugin(/@antv\/g2/),
       new webpack.DefinePlugin({
+        __VUE_I18N_FULL_INSTALL__: true,
+        __VUE_I18N_LEGACY_API__: true,
+        __INTLIFY_PROD_DEVTOOLS__: false,
         'process.env': {
           PACKAGE_VERSION: '"' + version + '"'
         }

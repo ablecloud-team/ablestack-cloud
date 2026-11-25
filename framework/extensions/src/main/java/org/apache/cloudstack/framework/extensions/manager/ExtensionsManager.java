@@ -60,7 +60,7 @@ public interface ExtensionsManager extends Manager {
 
     boolean prepareExtensionPathAcrossServers(Extension extension);
 
-    List<ExtensionResponse> listExtensions(ListExtensionsCmd cmd);
+    Pair<List<ExtensionResponse>, Integer> listExtensions(ListExtensionsCmd cmd);
 
     boolean deleteExtension(DeleteExtensionCmd cmd);
 
@@ -84,7 +84,7 @@ public interface ExtensionsManager extends Manager {
 
     boolean deleteCustomAction(DeleteCustomActionCmd cmd);
 
-    List<ExtensionCustomActionResponse> listCustomActions(ListCustomActionCmd cmd);
+    Pair<List<ExtensionCustomActionResponse>, Integer> listCustomActions(ListCustomActionCmd cmd);
 
     ExtensionCustomAction updateCustomAction(UpdateCustomActionCmd cmd);
 

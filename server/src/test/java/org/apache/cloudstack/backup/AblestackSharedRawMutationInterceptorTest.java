@@ -30,8 +30,14 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
+import org.apache.cloudstack.api.command.user.volume.DetachVolumeCmd;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import org.apache.cloudstack.storage.to.VolumeObjectTO;
 import org.junit.Before;
@@ -50,6 +56,10 @@ import com.cloud.storage.VolumeApiService;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.vm.VMInstanceVO;
+import com.cloud.vm.VmWork;
+import com.cloud.vm.VmWorkAttachVolume;
+import com.cloud.vm.VmWorkDetachVolume;
+import com.cloud.vm.VmWorkJobHandler;
 import com.cloud.vm.dao.VMInstanceDao;
 
 public class AblestackSharedRawMutationInterceptorTest {
@@ -65,7 +75,7 @@ public class AblestackSharedRawMutationInterceptorTest {
         factory.addAdvisor(interceptor);
         return factory.getProxy();
     }
-    @Test public void attachmentIsGuardedBeforeAnyApiSideEffectAndLeaseClosesAfterward() {
+    @Test public void attachmentPreflightReleasesLeaseBeforeWaitingForWorker() {
         VolumeApiService original = mock(VolumeApiService.class);
         VolumeApiService proxy = (VolumeApiService) proxy(original);
         AtomicBoolean held = new AtomicBoolean();
@@ -73,9 +83,71 @@ public class AblestackSharedRawMutationInterceptorTest {
             held.set(true); return (AblestackSharedRawBackupService.Lease) () -> held.set(false);
         });
         when(original.attachVolumeToVM(20L, 10L, 1L, false, false)).thenAnswer(call -> {
-            assertTrue(held.get()); return null;
+            assertFalse(held.get()); return null;
         });
         proxy.attachVolumeToVM(20L, 10L, 1L, false, false);
+        assertFalse(held.get());
+    }
+    private void assertWorkerHandoff(boolean attach) throws Exception {
+        VolumeApiService original = mock(VolumeApiService.class, withSettings().extraInterfaces(VmWorkJobHandler.class));
+        VolumeApiService proxy = (VolumeApiService) proxy(original);
+        ReentrantLock lock = new ReentrantLock();
+        when(guards.guardVolume(20L, 10L, null, null)).thenAnswer(call -> {
+            if (!lock.tryLock()) throw new CloudRuntimeException("SHARED_RAW_BUSY");
+            return (AblestackSharedRawBackupService.Lease) lock::unlock;
+        });
+        VmWork work = attach ? new VmWorkAttachVolume(2L, 2L, 20L, "handler", 10L, 1L)
+                : new VmWorkDetachVolume(2L, 2L, 20L, "handler", 10L);
+        VmWorkJobHandler worker = (VmWorkJobHandler) proxy;
+        when(((VmWorkJobHandler) original).handleVmWorkJob(work)).thenAnswer(call -> {
+            assertTrue(lock.isHeldByCurrentThread());
+            // DAO persistence runs under the worker's lease, on the same thread.
+            VolumeDao dao = mock(VolumeDao.class);
+            ((VolumeDao) proxy(dao)).attachVolume(10L, 20L, 1L);
+            assertTrue(lock.isHeldByCurrentThread());
+            return null;
+        });
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            if (attach) {
+                when(original.attachVolumeToVM(20L, 10L, 1L, false, false)).thenAnswer(call -> {
+                    executor.submit(() -> worker.handleVmWorkJob(work)).get(3, TimeUnit.SECONDS); return null;
+                });
+                proxy.attachVolumeToVM(20L, 10L, 1L, false, false);
+            } else {
+                DetachVolumeCmd command = mock(DetachVolumeCmd.class);
+                when(command.getId()).thenReturn(10L); when(command.getVirtualMachineId()).thenReturn(20L);
+                when(original.detachVolumeFromVM(command)).thenAnswer(call -> {
+                    executor.submit(() -> worker.handleVmWorkJob(work)).get(3, TimeUnit.SECONDS); return null;
+                });
+                proxy.detachVolumeFromVM(command);
+            }
+            assertFalse(lock.isLocked());
+            verify((VmWorkJobHandler) original).handleVmWorkJob(work);
+        } finally { executor.shutdownNow(); }
+    }
+    @Test public void attachmentWorkerAcquiresLeaseAfterApiHandoff() throws Exception { assertWorkerHandoff(true); }
+    @Test public void detachmentWorkerAcquiresLeaseAfterApiHandoff() throws Exception { assertWorkerHandoff(false); }
+    @Test public void protectedDiskRejectsWorkerBeforeSideEffects() throws Exception {
+        VolumeApiService original = mock(VolumeApiService.class, withSettings().extraInterfaces(VmWorkJobHandler.class));
+        VmWorkJobHandler worker = (VmWorkJobHandler) proxy(original);
+        VmWork work = new VmWorkAttachVolume(2L, 2L, 20L, "handler", 10L, 1L);
+        when(guards.guardVolume(20L, 10L, null, null)).thenThrow(new CloudRuntimeException("protected"));
+        assertThrows(CloudRuntimeException.class, () -> worker.handleVmWorkJob(work));
+        verify((VmWorkJobHandler) original, never()).handleVmWorkJob(work);
+    }
+    @Test public void failedWorkerReleasesLease() throws Exception {
+        VolumeApiService original = mock(VolumeApiService.class, withSettings().extraInterfaces(VmWorkJobHandler.class));
+        VmWorkJobHandler worker = (VmWorkJobHandler) proxy(original);
+        VmWork work = new VmWorkDetachVolume(2L, 2L, 20L, "handler", 10L);
+        AtomicBoolean held = new AtomicBoolean();
+        when(guards.guardVolume(20L, 10L, null, null)).thenAnswer(call -> {
+            held.set(true); return (AblestackSharedRawBackupService.Lease) () -> held.set(false);
+        });
+        when(((VmWorkJobHandler) original).handleVmWorkJob(work)).thenAnswer(call -> {
+            assertTrue(held.get()); throw new CloudRuntimeException("native failure");
+        });
+        assertThrows(CloudRuntimeException.class, () -> worker.handleVmWorkJob(work));
         assertFalse(held.get());
     }
     @Test public void protectedDestinationRejectsAttachmentBeforeTheNativeApiIsCalled() {

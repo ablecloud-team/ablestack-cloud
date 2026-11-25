@@ -18,20 +18,27 @@
 <template>
   <div class="form-layout" v-ctrl-enter="handleSubmit">
     <a-spin :spinning="loading">
+      <a-alert
+        v-if="pendingStaging"
+        type="warning"
+        show-icon
+        :message="$t('message.secondary.storage.staging.pending', [pendingStaging.name])"
+        :description="pendingStaging.id" />
+      <a-alert v-if="error" type="error" show-icon :message="$t(error)" />
       <a-form
+        v-if="!pendingStaging"
         :ref="formRef"
         :model="form"
         :rules="rules"
         layout="vertical"
-        @finish="handleSubmit"
-       >
-        <a-form-item name="name" ref="name" :label="$t('label.name')">
-          <a-input v-model:value="form.name" v-focus="true" />
+        @finish="handleSubmit">
+        <a-form-item name="name" ref="name" html-for="secondary-storage-name" :label="$t('label.name')">
+          <a-input id="secondary-storage-name" v-model:value="form.name" />
         </a-form-item>
         <a-form-item name="provider" ref="provider" :label="$t('label.providername')">
           <a-select
             v-model:value="form.provider"
-            @change="val => { form.provider = val }"
+            @change="onProviderChange"
             showSearch
             optionFilterProp="value"
             :filterOption="(input, option) => {
@@ -96,7 +103,7 @@
             <a-input v-model:value="form.username" />
           </a-form-item>
           <a-form-item name="key" ref="key" :label="$t('label.key')">
-            <a-input v-model:value="form.key" />
+            <a-input-password v-model:value="form.key" />
           </a-form-item>
           <a-form-item name="storagepolicy" ref="storagepolicy" :label="$t('label.storagepolicy')">
             <a-input v-model:value="form.storagepolicy" />
@@ -129,7 +136,7 @@
             <a-input v-model:value="form.secondaryStorageAccessKey" />
           </a-form-item>
           <a-form-item name="secondaryStorageSecretKey" ref="secondaryStorageSecretKey" :label="$t('label.s3.secret.key')">
-            <a-input v-model:value="form.secondaryStorageSecretKey" />
+            <a-input-password v-model:value="form.secondaryStorageSecretKey" />
           </a-form-item>
           <a-form-item name="secondaryStorageBucket" ref="secondaryStorageBucket" :label="$t('label.s3.bucket')">
             <a-input v-model:value="form.secondaryStorageBucket"/>
@@ -149,11 +156,11 @@
           <a-form-item name="secondaryStorageSocketTimeout" ref="secondaryStorageSocketTimeout" :label="$t('label.s3.socket.timeout')">
             <a-input v-model:value="form.secondaryStorageSocketTimeout"/>
           </a-form-item>
-          <a-form-item name="secondaryStorageNFSStaging" ref="secondaryStorageNFSStaging" :label="$t('label.create.nfs.secondary.staging.storage')">
-            <a-switch v-model:checked="form.secondaryStorageNFSStaging" @change="val => secondaryStorageNFSStaging = val" />
+          <a-form-item v-if="canCreateStaging" name="secondaryStorageNFSStaging" ref="secondaryStorageNFSStaging" :label="$t('label.create.nfs.secondary.staging.storage')">
+            <a-switch v-model:checked="form.secondaryStorageNFSStaging" />
           </a-form-item>
         </div>
-        <div v-if="secondaryStorageNFSStaging">
+        <div v-if="stagingRequested">
           <a-form-item name="secondaryStorageNFSServer" ref="secondaryStorageNFSServer" :label="$t('label.s3.nfs.server')">
             <a-input v-model:value="form.secondaryStorageNFSServer" />
           </a-form-item>
@@ -172,23 +179,24 @@
             />
           </a-form-item>
         </div>
-        <div :span="24" class="action-button">
-          <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
-          <a-button type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-        </div>
       </a-form>
+      <mold-dialog-actions :busy="loading">
+        <a-button :disabled="loading" @click="closeModal">{{ $t('label.cancel') }}</a-button>
+        <a-button type="primary" ref="submit" :loading="loading" @click="handleSubmit">
+          {{ $t(pendingStaging ? 'label.retry' : 'label.ok') }}
+        </a-button>
+      </mold-dialog-actions>
     </a-spin>
   </div>
 </template>
 <script>
-import { ref, reactive, toRaw } from 'vue'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
+import { ref, reactive } from 'vue'
 import { getAPI, postAPI } from '@/api'
-import { mixinForm } from '@/utils/mixin'
 import ResourceIcon from '@/components/view/ResourceIcon'
 
 export default {
-  name: 'AddSecondryStorage',
-  mixins: [mixinForm],
+  name: 'AddSecondaryStorage',
   props: {
     resource: {
       type: Object,
@@ -196,6 +204,7 @@ export default {
     }
   },
   components: {
+    MoldDialogActions,
     ResourceIcon
   },
   inject: ['parentFetchData'],
@@ -204,9 +213,16 @@ export default {
       providers: ['NFS', 'SMB/CIFS', 'S3', 'Swift'],
       zones: [],
       loading: false,
-      secondaryStorageNFSStaging: false,
+      pendingStaging: null,
+      error: null,
       showCopyTemplatesToggle: false,
       copyTemplatesTouched: false
+    }
+  },
+  computed: {
+    canCreateStaging () { return !!this.$store.getters.apis.createSecondaryStagingStore },
+    stagingRequested () {
+      return this.form.provider === 'S3' && this.canCreateStaging && this.form.secondaryStorageNFSStaging
     }
   },
   created () {
@@ -222,7 +238,12 @@ export default {
         copyTemplatesFromOtherSecondaryStorages: true
       })
       this.rules = reactive({
-        zone: [{ required: true, message: this.$t('label.required') }],
+        zone: [{
+          validator: (_, value) => {
+            if (value || (this.form.provider === 'S3' && !this.stagingRequested)) return Promise.resolve()
+            return Promise.reject(new Error(this.$t('label.required')))
+          }
+        }],
         server: [{ required: true, message: this.$t('label.required') }],
         path: [{ required: true, message: this.$t('label.required') }],
         smbUsername: [{ required: true, message: this.$t('label.required') }],
@@ -241,245 +262,140 @@ export default {
     },
     fetchData () {
       this.listZones()
-      this.checkOtherSecondaryStorages()
+      if (!this.$store.getters.apis.listImageStores) return
+      getAPI('listImageStores', {}, { preserveOnFailure: true }).then(json => {
+        this.showCopyTemplatesToggle = !!json.listimagestoresresponse?.imagestore?.length
+      }).catch(() => {})
     },
     closeModal () {
+      if (this.loading) return
+      this.pendingStaging = null
+      this.error = null
+      this.copyTemplatesTouched = false
+      this.initForm()
+      this.form.zone = this.zones[0]?.id
+      this.fetchCopyTemplatesConfig()
       this.$emit('close-action')
     },
     fetchCopyTemplatesConfig () {
-      if (!this.form.zone) {
-        return
-      }
-
+      const zone = this.form.zone
+      if (!zone || !this.$store.getters.apis.listConfigurations) return
       getAPI('listConfigurations', {
         name: 'copy.templates.from.other.secondary.storages',
-        zoneid: this.form.zone
-      }).then(json => {
-        const items =
-          json?.listconfigurationsresponse?.configuration || []
-
-        items.forEach(item => {
-          if (item.name === 'copy.templates.from.other.secondary.storages') {
-            this.form.copyTemplatesFromOtherSecondaryStorages =
-              item.value === 'true'
-          }
-        })
-      })
+        zoneid: zone
+      }, { preserveOnFailure: true }).then(json => {
+        if (this.form.zone !== zone || this.copyTemplatesTouched || this.loading || this.pendingStaging) return
+        const configuration = json.listconfigurationsresponse?.configuration?.find(item =>
+          item.name === 'copy.templates.from.other.secondary.storages')
+        if (configuration) this.form.copyTemplatesFromOtherSecondaryStorages = configuration.value === 'true'
+      }).catch(() => {})
     },
-    onZoneChange (val) {
-      this.form.zone = val
+    onZoneChange (value) {
+      this.form.zone = value
       this.copyTemplatesTouched = false
       this.fetchCopyTemplatesConfig()
     },
+    onProviderChange (provider) {
+      this.form.provider = provider
+      this.form.secondaryStorageNFSStaging = false
+    },
     listZones () {
-      getAPI('listZones', { showicon: true }).then(json => {
-        this.zones = json.listzonesresponse.zone || []
-
-        if (this.zones.length > 0) {
-          this.form.zone = this.zones[0].id
-          this.fetchCopyTemplatesConfig()
-        }
-      })
+      if (!this.$store.getters.apis.listZones) return
+      getAPI('listZones', { showicon: true }, { preserveOnFailure: true }).then(json => {
+        this.zones = json.listzonesresponse?.zone || []
+        this.onZoneChange(this.form.zone || this.zones[0]?.id)
+      }).catch(() => { this.error = 'error.fetching.data' })
     },
-    checkOtherSecondaryStorages () {
-      getAPI('listImageStores', { listall: true }).then(json => {
-        const stores = json?.listimagestoresresponse?.imagestore || []
-
-        this.showCopyTemplatesToggle = stores.length > 0
-      })
-    },
-    onCopyTemplatesToggleChanged (val) {
+    onCopyTemplatesToggleChanged () {
       this.copyTemplatesTouched = true
     },
-    nfsURL (server, path) {
-      var url
-      if (path.substring(0, 1) !== '/') {
-        path = '/' + path
-      }
-      if (server.indexOf('://') === -1) {
-        url = 'nfs://' + server + path
-      } else {
-        url = server + path
-      }
-      return url
+    storageUrl (protocol, server, path) {
+      const host = server.trim().replace(/\/$/, '')
+      const directory = path.trim().replace(/^\//, '')
+      return (host.includes('://') ? host : protocol + '://' + host) + '/' + directory
     },
-    smbURL (server, path, smbUsername, smbPassword, smbDomain) {
-      var url = ''
-      if (path.substring(0, 1) !== '/') {
-        path = '/' + path
+    registrationParams () {
+      const form = this.form
+      const provider = form.provider === 'SMB/CIFS' ? 'SMB' : form.provider
+      const params = { provider }
+      if (form.name?.trim()) params.name = form.name.trim()
+      let details = {}
+      if (provider === 'NFS' || provider === 'SMB') {
+        params.zoneid = form.zone
+        params.url = this.storageUrl(provider === 'SMB' ? 'cifs' : 'nfs', form.server, form.path)
       }
-      if (server.indexOf('://') === -1) {
-        url += 'cifs://'
+      if (provider === 'SMB') {
+        details = { user: form.smbUsername, password: form.smbPassword, domain: form.smbDomain }
+      } else if (provider === 'Swift') {
+        params.url = form.url.trim()
+        details = { account: form.account, username: form.username, key: form.key, storagepolicy: form.storagepolicy }
+      } else if (provider === 'S3') {
+        details = {
+          accesskey: form.secondaryStorageAccessKey,
+          secretkey: form.secondaryStorageSecretKey,
+          bucket: form.secondaryStorageBucket,
+          usehttps: !!form.secondaryStorageHttps,
+          endpoint: form.secondaryStorageEndpoint,
+          connectiontimeout: form.secondaryStorageConnectionTimeout,
+          maxerrorretry: form.secondaryStorageMaxError,
+          sockettimeout: form.secondaryStorageSocketTimeout
+        }
       }
-      url += (server + path)
-      return url
+      if (this.showCopyTemplatesToggle && this.copyTemplatesTouched) {
+        details.copytemplatesfromothersecondarystorages = String(form.copyTemplatesFromOtherSecondaryStorages)
+      }
+      Object.entries(details).filter(([, value]) => value !== undefined && value !== '').forEach(([key, value], index) => {
+        params[`details[${index}].key`] = key
+        params[`details[${index}].value`] = value
+      })
+      return params
     },
-    handleSubmit (e) {
-      e.preventDefault()
+    async handleSubmit (event) {
+      if (event?.preventDefault) event.preventDefault()
       if (this.loading) return
-      this.formRef.value.validate().then(async () => {
-        const formRaw = toRaw(this.form)
-        const values = this.handleRemoveFields(formRaw)
-
-        var data = {
-          name: values.name
-        }
-        var url = ''
-        var provider = values.provider
-        if (provider === 'NFS') {
-          url = this.nfsURL(values.server, values.path)
-        }
-        if (provider === 'SMB/CIFS') {
-          provider = 'SMB'
-          url = this.smbURL(values.server, values.path, values.smbUsername, values.smbPassword, values.smbDomain)
-          const smbParams = {
-            user: values.smbUsername,
-            password: values.smbPassword,
-            domain: values.smbDomain
-          }
-          Object.keys(smbParams).forEach((key, index) => {
-            data['details[' + index.toString() + '].key'] = key
-            data['details[' + index.toString() + '].value'] = smbParams[key]
-          })
-        }
-        if (provider === 'Swift') {
-          url = values.url
-          const swiftParams = {
-            account: values.account,
-            username: values.username,
-            key: values.key
-          }
-          if (values.storagepolicy) {
-            swiftParams.storagepolicy = values.storagepolicy
-          }
-          Object.keys(swiftParams).forEach((key, index) => {
-            data['details[' + index.toString() + '].key'] = key
-            data['details[' + index.toString() + '].value'] = swiftParams[key]
-          })
-        } else if (provider === 'S3') {
-          let detailIdx = 0
-          const s3Params = {
-            accesskey: values.secondaryStorageAccessKey,
-            secretkey: values.secondaryStorageSecretKey,
-            bucket: values.secondaryStorageBucket,
-            usehttps: values?.secondaryStorageHttps || false
-          }
-          Object.keys(s3Params).forEach((key, index) => {
-            data['details[' + index.toString() + '].key'] = key
-            data['details[' + index.toString() + '].value'] = s3Params[key]
-            detailIdx = index
-          })
-
-          if (values.secondaryStorageEndpoint && values.secondaryStorageEndpoint.length > 0) {
-            detailIdx++
-            data['details[' + detailIdx.toString() + '].key'] = 'endpoint'
-            data['details[' + detailIdx.toString() + '].value'] = values.secondaryStorageEndpoint
-          }
-
-          if (values.secondaryStorageConnectionTimeout && values.secondaryStorageConnectionTimeout.length > 0) {
-            detailIdx++
-            data['details[' + detailIdx.toString() + '].key'] = 'connectiontimeout'
-            data['details[' + detailIdx.toString() + '].value'] = values.secondaryStorageConnectionTimeout
-          }
-
-          if (values.secondaryStorageMaxError && values.secondaryStorageMaxError.length > 0) {
-            detailIdx++
-            data['details[' + detailIdx.toString() + '].key'] = 'maxerrorretry'
-            data['details[' + detailIdx.toString() + '].value'] = values.secondaryStorageMaxError
-          }
-
-          if (values.secondaryStorageSocketTimeout && values.secondaryStorageSocketTimeout.length > 0) {
-            detailIdx++
-            data['details[' + detailIdx.toString() + '].key'] = 'sockettimeout'
-            data['details[' + detailIdx.toString() + '].value'] = values.secondaryStorageSocketTimeout
+      this.loading = true
+      this.error = null
+      let completed = false
+      try {
+        if (!this.pendingStaging) {
+          await this.formRef.value.validate()
+          const params = this.registrationParams()
+          const staging = this.stagingRequested
+            ? { provider: 'nfs', zoneid: this.form.zone, url: this.storageUrl('nfs', this.form.secondaryStorageNFSServer, this.form.secondaryStorageNFSPath) }
+            : null
+          const result = await postAPI('addImageStore', params, { preserveOnFailure: true })
+          if (staging) {
+            const response = result.addimagestoreresponse
+            const store = response?.imagestore || response
+            this.pendingStaging = { id: store?.id, name: store?.name || params.name || params.provider, params: staging }
+            this.parentFetchData()
           }
         }
-
-        if (provider !== 'S3') {
-          data.url = url
+        if (this.pendingStaging) {
+          await postAPI('createSecondaryStagingStore', this.pendingStaging.params, { preserveOnFailure: true })
         }
-        data.provider = provider
-        if (values.zone && !['Swift', 'S3'].includes(provider)) {
-          data.zoneid = values.zone
+        completed = true
+        this.$notification.success({ message: this.$t('label.add.secondary.storage') })
+      } catch (error) {
+        if (error?.errorFields?.length) {
+          this.formRef.value.scrollToField(error.errorFields[0].name)
+        } else {
+          this.error = this.pendingStaging ? 'message.secondary.storage.staging.failed' : 'message.secondary.storage.registration.failed'
         }
-
-        const nfsParams = {}
-        if (values.secondaryStorageNFSStaging) {
-          const nfsServer = values.secondaryStorageNFSServer
-          const path = values.secondaryStorageNFSPath
-          const nfsUrl = this.nfsURL(nfsServer, path)
-
-          nfsParams.provider = 'nfs'
-          nfsParams.zoneid = values.zone
-          nfsParams.url = nfsUrl
-        }
-
-        if (
-          this.showCopyTemplatesToggle &&
-          this.copyTemplatesTouched
-        ) {
-          const copyTemplatesKey = 'copytemplatesfromothersecondarystorages'
-
-          const detailIdx = Object.keys(data)
-            .filter(k => k.startsWith('details['))
-            .map(k => parseInt(k.match(/details\[(\d+)\]/)[1]))
-            .reduce((a, b) => Math.max(a, b), -1) + 1
-
-          data[`details[${detailIdx}].key`] = copyTemplatesKey
-          data[`details[${detailIdx}].value`] =
-            values.copyTemplatesFromOtherSecondaryStorages.toString()
-        }
-
-        this.loading = true
-
-        try {
-          await this.addImageStore(data)
-
-          if (values.secondaryStorageNFSStaging) {
-            await this.createSecondaryStagingStore(nfsParams)
-          }
-          this.$notification.success({
-            message: this.$t('label.add.secondary.storage'),
-            description: this.$t('label.add.secondary.storage')
-          })
-          this.loading = false
-          this.closeModal()
-          this.parentFetchData()
-        } catch (error) {
-          this.$notifyError(error)
-          this.loading = false
-        }
-      }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
-      })
-    },
-    addImageStore (params) {
-      return new Promise((resolve, reject) => {
-        postAPI('addImageStore', params).then(json => {
-          resolve()
-        }).catch(error => {
-          reject(error)
-        })
-      })
-    },
-    createSecondaryStagingStore (params) {
-      return new Promise((resolve, reject) => {
-        postAPI('createSecondaryStagingStore', params).then(json => {
-          resolve()
-        }).catch(error => {
-          reject(error)
-        })
-      })
+      } finally {
+        this.loading = false
+      }
+      if (completed) {
+        this.closeModal()
+        this.parentFetchData()
+      }
     }
   }
 }
 </script>
 <style lang="scss" scoped>
 .form-layout {
-  width: 85vw;
+  .ant-alert { margin-bottom: 12px; }
 
-  @media (min-width: 1000px) {
-    width: 35vw;
-  }
 }
 </style>

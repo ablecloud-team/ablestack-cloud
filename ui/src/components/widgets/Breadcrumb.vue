@@ -17,13 +17,13 @@
 
 <template>
   <a-breadcrumb class="breadcrumb" v-bind="$attrs">
-    <a-breadcrumb-item v-for="(item, index) in breadList" :key="index">
+    <a-breadcrumb-item v-for="(item, index) in resolvedTrail" :key="index">
       <router-link
         v-if="item && item.name && !tungstenPaths.includes(item.path)"
         :to="breadcrumbLocation(item)"
       >
         <render-icon v-if="index == 0" :icon="item.meta.icon" style="font-size: 16px" @click="resetToMainView" />
-        <span v-if="item.meta.title">{{ item.vpcParent ? $t('label.vpc') + ' · ' + (resource.vpcname || resource.vpcid) : $t(item.meta.title) }}</span>
+        <span v-if="item.text || item.meta.title">{{ item.text || (item.vpcParent ? $t('label.vpc') + ' · ' + (resource.vpcname || resource.vpcid) : $t(item.meta.title)) }}</span>
       </router-link>
       <router-link
         v-else-if="tungstenPaths.includes(item.path)"
@@ -31,6 +31,9 @@
         <render-icon v-if="index == 0" :icon="item.meta.icon" style="font-size: 16px" @click="resetToMainView" />
         {{ $t(item.meta.title) }}
       </router-link>
+      <span v-else-if="item.current" class="vm-acl-breadcrumb-current" aria-current="page">
+        {{ item.text || $t(item.meta.title) }}
+      </span>
       <span
         v-else-if="$route.params.id"
         :class="{ 'vm-acl-breadcrumb-current': standardLayout }"
@@ -56,22 +59,31 @@
         {{ $t(item.meta.title) }}
       </span>
       <BreadcrumbControls
-        v-if="!standardLayout && index === breadList.length - 1"
+        v-if="!standardLayout && index === resolvedTrail.length - 1"
         :doc-url="helpUrl(item)"
         :parent-location="kmsParentLocation">
         <template #end><slot name="end" /></template>
       </BreadcrumbControls>
     </a-breadcrumb-item>
   </a-breadcrumb>
-  <BreadcrumbControls v-if="standardLayout && breadList.length" standard :doc-url="helpUrl(breadList.at(-1))">
+  <BreadcrumbControls v-if="standardLayout && resolvedTrail.length" standard :doc-url="helpUrl(resolvedTrail.at(-1))">
     <template #end><slot name="end" /></template>
   </BreadcrumbControls>
 </template>
 
 <script>
+import { runtimeCatalogListQuery } from '@/utils/runtimeCatalog'
+import { oauthListLocation } from '@/utils/oauthConfiguration'
+import { ldapConfigRoute, ldapEndpointLabel, ldapListQuery } from '@/utils/ldapConfiguration'
 import { dnsServerListQuery } from '@/utils/dnsServer'
 import { systemOfferingListQuery } from '@/utils/systemOfferingTypes'
 import { physicalNetworkZoneLocation, zoneListQuery } from '@/utils/zone'
+import { extensionListQuery, extensionActionListQuery } from '@/utils/extension'
+import { webhookBackQuery } from '@/utils/webhookDeliveryQuery'
+import { clusterListQuery } from '@/utils/clusterSearch'
+import { primaryStorageListQuery } from '@/utils/primaryStorageSearch'
+import { secondaryStorageListQuery } from '@/utils/secondaryStorageSearch'
+import { hostListQuery } from '@/utils/hostSearch'
 import { dnsZoneListQuery } from '@/utils/dnsZone'
 import { ipv4SubnetListQuery } from '@/utils/ipv4Subnet'
 import BreadcrumbControls from '@/components/widgets/BreadcrumbControls'
@@ -103,6 +115,7 @@ export default {
   components: { BreadcrumbControls, KeyboardTooltip },
   props: {
     standardLayout: { type: Boolean, default: false },
+    trail: { type: Array, default: null },
     resource: {
       type: Object,
       default: function () {
@@ -119,9 +132,26 @@ export default {
     }
   },
   computed: {
+    resolvedTrail () {
+      const trail = this.trail || this.breadList
+      if (this.$route.meta?.name !== 'customaction' || !this.resource.extensionid || !trail.length || !('listExtensions' in this.$store.getters.apis)) return trail
+      const list = extensionListQuery(this.$route.query)
+      return [
+        trail[0],
+        { name: 'extension', path: '/extension', location: { path: '/extension', query: list }, meta: { title: 'label.extensions' } },
+        {
+          name: 'extension-parent',
+          text: this.resource.extensionname || this.resource.extensionid,
+          location: { path: '/extension/' + this.resource.extensionid, query: { ...list, ...extensionActionListQuery(this.$route.query), tab: 'customactions' } },
+          meta: {}
+        },
+        trail.at(-1)
+      ]
+    },
     resourceTitle () {
       if (s2sGatewayRoute(this.$route)) return gatewayName(this.resource)
       if (isVmIdentityRoute(this.$route)) return vmDisplayName(this.resource)
+      if (ldapConfigRoute(this.$route)) return ldapEndpointLabel(this.resource) || this.$route.params.id
       if (this.$route.meta?.name === 'ipv4subnets' && this.resource.subnet) return this.resource.subnet
       if (guestVlanRoute(this.$route) && this.resource.vlan) return this.$t('label.vlan') + ' ' + this.resource.vlan
       const row = this.resource
@@ -157,6 +187,12 @@ export default {
     isEventDetailRoute,
     eventBreadcrumbTitle (event) { return eventDisplayTitle(event, this.$t, date => this.$toLocaleDate(date)) },
     breadcrumbLocation (item) {
+      if (item.location) return item.location
+      if (item.path === '/runtimebundle' && this.$route.params?.id) return { path: item.path, query: runtimeCatalogListQuery(this.$route.query) }
+      if (item.path === '/webhook' && this.$route.params?.id) return { path: item.path, query: webhookBackQuery(this.$route.query) }
+      if (item.path === '/extension' && this.$route.params?.id) return { path: item.path, query: extensionListQuery(this.$route.query) }
+      if (item.path === '/oauthsetting' && this.$route.params?.id) return oauthListLocation(this.$route)
+      if (item.path === '/ldapsetting' && this.$route.params?.id) return { path: item.path, query: ldapListQuery(this.$route.query) }
       if (item.path === '/account' && isAccountDetailRoute(this.$route)) {
         return accountListLocation(this.$route, this.$router.options.history.state, this.$store.getters, this.$store.state?.user?.token)
       }
@@ -181,6 +217,10 @@ export default {
       if (item.path === '/vpnuser' && vpnUserRoute(this.$route) && this.$route.params?.id) return vpnUserListLocation(this.$route, this.$store.getters)
       if (item.path === '/systemoffering' && this.$route.params?.id) return { path: item.path, query: systemOfferingListQuery(this.$route.query) }
       if (item.path === '/physicalnetwork' && this.$route.params?.id && this.resource?.zoneid) return physicalNetworkZoneLocation(this.$route, this.resource.zoneid)
+      if (item.path === '/imagestore' && this.$route.meta?.name === 'imagestore' && this.$route.params?.id) return { path: item.path, query: secondaryStorageListQuery(this.$route.query) }
+      if (item.path === '/storagepool' && this.$route.meta?.name === 'storagepool' && this.$route.params?.id) return { path: item.path, query: primaryStorageListQuery(this.$route.query) }
+      if (item.path === '/cluster' && this.$route.meta?.name === 'cluster' && this.$route.params?.id) return { path: item.path, query: clusterListQuery(this.$route.query) }
+      if (item.path === '/host' && this.$route.meta?.name === 'host' && this.$route.params?.id) return { path: item.path, query: hostListQuery(this.$route.query) }
       if (item.path === '/zone' && this.$route.params?.id) return { path: item.path, query: zoneListQuery(this.$route.query) }
       if (item.path === '/dnsserver' && this.$route.params?.id) return { path: item.path, query: dnsServerListQuery(this.$route.query) }
       if (item.path === '/dnszone' && this.$route.params?.id) return { path: item.path, query: dnsZoneListQuery(this.$route.query) }

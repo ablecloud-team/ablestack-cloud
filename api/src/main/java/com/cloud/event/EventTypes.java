@@ -493,6 +493,7 @@ public class EventTypes {
 
     // Host
     public static final String EVENT_HOST_RECONNECT = "HOST.RECONNECT";
+    public static final String EVENT_HOST_BACKUP_CONFIGURE = "HOST.BACKUP.CONFIGURE";
 
     // Host on Degraded ResourceState
     public static final String EVENT_DECLARE_HOST_DEGRADED = "HOST.DECLARE.DEGRADED";
@@ -1221,6 +1222,7 @@ public class EventTypes {
 
         // Host
         entityEventDetails.put(EVENT_HOST_RECONNECT, Host.class);
+        entityEventDetails.put(EVENT_HOST_BACKUP_CONFIGURE, Host.class);
 
         // Host Out-of-band management
         entityEventDetails.put(EVENT_HOST_OUTOFBAND_MANAGEMENT_ENABLE, Host.class);

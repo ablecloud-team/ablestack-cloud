@@ -777,6 +777,67 @@ test('external selection diagnostics keep the available backup idle and show the
   wrapper.unmount()
 })
 
+test('successful VM restoration clears an earlier selection warning during status polling', async () => {
+  const committedAt = '2026-11-13T13:30:32+0900'
+  const wrapper = shallowMount(BackupProgress, {
+    props: {
+      record: {
+        status: 'BackedUp',
+        restorejobid: 'mold-restore-1',
+        restorejobstate: 'RUNNING',
+        externalrestorevalidation: {
+          jobid: '1814',
+          state: 'WAITING_SELECTION',
+          code: 'UNKNOWN_FILES',
+          endedat: Date.parse('2026-11-13T13:28:51+0900'),
+          checkedat: Date.parse('2026-11-13T13:31:00+0900')
+        }
+      }
+    },
+    global: { stubs: { Status: statusWithTooltip }, mocks: { $t: key => key, $store: { getters: { apis: {} } } } }
+  })
+  expect(wrapper.vm.externalSelectionWaiting).toBe(true)
+  wrapper.vm.applyStatus({
+    status: 'BackedUp',
+    state: 'COMPLETED',
+    vmrestore: { stagingjobid: 'mold-restore-1', outcome: 'COMMITTED', phase: 'COMPLETED', committedat: committedAt }
+  })
+  await wrapper.vm.$nextTick()
+  expect(wrapper.vm.externalSelectionWaiting).toBe(false)
+  expect(wrapper.vm.displayStatus).toBe('BackedUp')
+  expect(wrapper.text()).not.toContain('1814')
+  expect(wrapper.text()).not.toContain('message.backup.external.selection.UNKNOWN_FILES')
+  wrapper.unmount()
+})
+
+test.each([
+  ['later external attempt', 'COMMITTED', 'mold-restore-1', '2026-11-13T13:31:00+0900'],
+  ['failed VM restoration', 'FAILED', 'mold-restore-1', '2026-11-13T13:28:51+0900'],
+  ['different restore attempt', 'COMMITTED', 'older-restore', '2026-11-13T13:28:51+0900'],
+  ['unconfirmed commit time', 'COMMITTED', 'mold-restore-1', '2026-11-13T13:28:51+0900']
+])('keeps an actionable selection warning for %s', (scenario, outcome, stagingjobid, endedAt) => {
+  const wrapper = shallowMount(BackupProgress, {
+    props: {
+      record: {
+        status: 'BackedUp',
+        restorejobid: 'mold-restore-1',
+        restorejobstate: 'COMPLETED',
+        vmrestore: {
+          stagingjobid,
+          outcome,
+          phase: 'COMPLETED',
+          committedat: scenario === 'unconfirmed commit time' ? undefined : '2026-11-13T13:30:32+0900'
+        },
+        externalrestorevalidation: { jobid: '1816', state: 'WAITING_SELECTION', code: 'UNKNOWN_FILES', endedat: Date.parse(endedAt) }
+      }
+    },
+    global: { stubs: { Status: statusWithTooltip }, mocks: { $t: key => key, $store: { getters: { apis: {} } } } }
+  })
+  expect(wrapper.vm.externalSelectionWaiting).toBe(true)
+  expect(wrapper.text()).toContain('1816')
+  wrapper.unmount()
+})
+
 test('catalog status and check time remain visible without the restore entry instruction', () => {
   const wrapper = shallowMount(BackupProgress, {
     props: {

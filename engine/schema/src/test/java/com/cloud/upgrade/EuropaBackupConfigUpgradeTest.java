@@ -59,10 +59,13 @@ public class EuropaBackupConfigUpgradeTest {
     private final PreparedStatement insert = mock(PreparedStatement.class);
     private final PreparedStatement delete = mock(PreparedStatement.class);
     private final PreparedStatement deleteZoneSetting = mock(PreparedStatement.class);
+    private final PreparedStatement deleteLegacyStages = mock(PreparedStatement.class);
+    private final PreparedStatement deleteLegacyZoneStages = mock(PreparedStatement.class);
     private final Map<String, String[]> rows = new LinkedHashMap<>();
     private final Map<Integer, String> selectArgs = new HashMap<>();
     private final Map<Integer, String> insertArgs = new HashMap<>();
     private final Map<Integer, String> deleteArgs = new HashMap<>();
+    private final Map<Integer, String> stageDeleteArgs = new HashMap<>();
 
     @Before
     public void setup() throws Exception {
@@ -70,9 +73,16 @@ public class EuropaBackupConfigUpgradeTest {
         when(connection.prepareStatement(startsWith("INSERT INTO cloud.configuration"))).thenReturn(insert);
         when(connection.prepareStatement(startsWith("DELETE FROM cloud.configuration"))).thenReturn(delete);
         when(connection.prepareStatement("DELETE FROM cloud.data_center_details WHERE name = ?")).thenReturn(deleteZoneSetting);
+        when(connection.prepareStatement("DELETE FROM cloud.configuration WHERE name IN (?, ?, ?, ?, ?)"))
+                .thenReturn(deleteLegacyStages);
+        when(connection.prepareStatement("DELETE FROM cloud.data_center_details WHERE name IN (?, ?, ?)"))
+                .thenReturn(deleteLegacyZoneStages);
+        when(connection.prepareStatement(startsWith("UPDATE cloud.configuration enabled JOIN")))
+                .thenReturn(mock(PreparedStatement.class));
         capture(select, selectArgs);
         capture(insert, insertArgs);
         capture(delete, deleteArgs);
+        capture(deleteLegacyStages, stageDeleteArgs);
         when(select.executeQuery()).thenAnswer(call -> {
             List<String[]> snapshot = new ArrayList<>();
             rows.forEach((key, value) -> {
@@ -89,6 +99,10 @@ public class EuropaBackupConfigUpgradeTest {
             return 1;
         });
         when(delete.executeUpdate()).thenAnswer(call -> removeObsolete());
+        when(deleteLegacyStages.executeUpdate()).thenAnswer(call -> {
+            stageDeleteArgs.values().forEach(rows::remove);
+            return 1;
+        });
     }
 
     private void capture(PreparedStatement statement, Map<Integer, String> arguments) throws SQLException {
@@ -105,6 +119,30 @@ public class EuropaBackupConfigUpgradeTest {
 
     private void put(String name, String value, String defaultValue) {
         rows.put(name, new String[]{value, defaultValue});
+    }
+
+    @Test
+    public void followUpCleanupRemovesRetiredSettingsWithoutChangingCurrentStagingOrTimeout() throws Exception {
+        put(CURRENT, "50000", "43200");
+        put(COMMAND, "7200", "7200");
+        put("backup.plugin.commvault.stage.root.path", "/tmp/old-commvault", "/tmp/old-commvault");
+        put("backup.plugin.netbackup.stage.root.path", "/tmp/old-netbackup", "/tmp/old-netbackup");
+        put("backup.plugin.ablestack-veeam.stage.root.path", "/tmp/old-veeam", "/tmp/old-veeam");
+        put("backup.thirdparty.staging.root.path", "/mnt/gfs2/current-staging", "");
+        put("backup.thirdparty.staging.storage.type", "GFS2", "NFS");
+        EuropaBackupConfigUpgrade.migrateRetiredSettings(connection);
+        assertFalse(rows.containsKey(COMMAND));
+        assertFalse(rows.containsKey("backup.plugin.commvault.stage.root.path"));
+        assertFalse(rows.containsKey("backup.plugin.netbackup.stage.root.path"));
+        assertFalse(rows.containsKey("backup.plugin.ablestack-veeam.stage.root.path"));
+        assertEquals("50000", rows.get(CURRENT)[0]);
+        assertEquals("/mnt/gfs2/current-staging", rows.get("backup.thirdparty.staging.root.path")[0]);
+        assertEquals("GFS2", rows.get("backup.thirdparty.staging.storage.type")[0]);
+        verify(deleteLegacyZoneStages).setString(1, "backup.plugin.commvault.stage.root.path");
+        verify(deleteLegacyZoneStages).setString(2, "backup.plugin.netbackup.stage.root.path");
+        verify(deleteLegacyZoneStages).executeUpdate();
+        EuropaBackupConfigUpgrade.migrateRetiredSettings(connection);
+        assertEquals(3, rows.size());
     }
 
     @Test

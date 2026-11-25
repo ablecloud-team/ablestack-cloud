@@ -39,7 +39,6 @@ public class AblestackCommvaultRestoreBackupCommand extends AblestackRestoreBack
     private Boolean vmExists;
     private String restoreVolumeUUID;
     private VirtualMachine.State vmState;
-    private Integer timeout;
     private String cacheMode;
     private String hostName;
     private List<String> backupSourceHosts;
@@ -48,7 +47,6 @@ public class AblestackCommvaultRestoreBackupCommand extends AblestackRestoreBack
 
     public ThirdPartyBackupRestore.Plan getVolumeRestorePlan() { return volumeRestorePlan; }
     public void setVolumeRestorePlan(ThirdPartyBackupRestore.Plan plan) { volumeRestorePlan = plan; }
-    private boolean waitForCompletion = true;
 
     protected AblestackCommvaultRestoreBackupCommand() {
         super();
@@ -166,15 +164,6 @@ public class AblestackCommvaultRestoreBackupCommand extends AblestackRestoreBack
         this.restorePlan = restorePlan;
     }
 
-    public Integer getTimeout() {
-        return this.timeout == null ? 0 : this.timeout;
-    }
-
-    public void setTimeout(Integer timeout) {
-        this.timeout = timeout;
-        setWait(timeout == null ? 0 : timeout);
-    }
-
     public String getCacheMode() {
         return cacheMode;
     }
@@ -207,11 +196,4 @@ public class AblestackCommvaultRestoreBackupCommand extends AblestackRestoreBack
         this.restoreJobId = restoreJobId;
     }
 
-    public boolean isWaitForCompletion() {
-        return waitForCompletion;
-    }
-
-    public void setWaitForCompletion(boolean waitForCompletion) {
-        this.waitForCompletion = waitForCompletion;
-    }
 }

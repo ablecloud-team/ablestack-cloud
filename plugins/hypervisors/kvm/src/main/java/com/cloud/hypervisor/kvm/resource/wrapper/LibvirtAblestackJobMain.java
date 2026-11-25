@@ -78,12 +78,24 @@ public final class LibvirtAblestackJobMain {
                 throw new IllegalStateException("Unable to configure KVM resource for detached backup job");
             }
             final Answer answer = resource.executeRequest(command);
-            exitCode = answer != null && answer.getResult() ? 0 : 1;
+            exitCode = reportResult(answer);
         } catch (Exception e) {
             System.err.println("Detached backup job failed: " + e.getMessage());
             e.printStackTrace(System.err);
         }
         System.exit(exitCode);
+    }
+
+    static int reportResult(final Answer answer) {
+        if (answer != null && answer.getResult()) {
+            return 0;
+        }
+        final String details = answer != null ? answer.getDetails() : null;
+        // The status reader uses worker output after a non-zero exit. Keep the
+        // command failure after any JVM/logging warnings instead of losing it.
+        System.err.println("Detached backup job failed: "
+                + (details == null || details.isBlank() ? "No failure details returned" : details));
+        return 1;
     }
 
     private static void enableSynchronousExecution(final Command command) {

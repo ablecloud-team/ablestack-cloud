@@ -42,7 +42,7 @@ export default {
     },
     {
       name: 'settings',
-      component: shallowRef(defineAsyncComponent(() => import('@/components/view/SettingsTab.vue')))
+      component: shallowRef(defineAsyncComponent(() => import('@/views/setting/ScopedSettingsTab.vue')))
     },
     {
       name: 'management.server.peers',

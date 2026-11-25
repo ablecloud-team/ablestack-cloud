@@ -32,6 +32,7 @@ import org.apache.cloudstack.auth.UserOAuth2Authenticator;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.Configurable;
 import org.apache.cloudstack.oauth2.api.command.DeleteOAuthProviderCmd;
+import org.apache.cloudstack.oauth2.api.command.ListOAuthProviderConfigurationsCmd;
 import org.apache.cloudstack.oauth2.api.command.ListOAuthProvidersCmd;
 import org.apache.cloudstack.oauth2.api.command.OauthLoginAPIAuthenticatorCmd;
 import org.apache.cloudstack.oauth2.api.command.RegisterOAuthProviderCmd;
@@ -111,6 +112,7 @@ public class OAuth2AuthManagerImpl extends ManagerBase implements OAuth2AuthMana
     @Override
     public List<Class<?>> getCommands() {
         List<Class<?>> cmdList = new ArrayList<>();
+        cmdList.add(ListOAuthProviderConfigurationsCmd.class);
         cmdList.add(RegisterOAuthProviderCmd.class);
         cmdList.add(DeleteOAuthProviderCmd.class);
         cmdList.add(UpdateOAuthProviderCmd.class);

@@ -894,6 +894,7 @@ import com.cloud.network.vpc.dao.VpcDao;
 import com.cloud.offering.ServiceOffering;
 import com.cloud.org.Cluster;
 import com.cloud.org.Grouping.AllocationState;
+import com.cloud.org.Managed.ManagedState;
 import com.cloud.projects.Project;
 import com.cloud.projects.Project.ListProjectResourcesCriteria;
 import com.cloud.projects.ProjectManager;
@@ -1566,6 +1567,19 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
         final Object hypervisorType = cmd.getHypervisorType();
         final Object clusterType = cmd.getClusterType();
         final Object allocationState = cmd.getAllocationState();
+        final String managedStateValue = cmd.getManagedstate();
+        ManagedState managedState = null;
+        if (StringUtils.isNotBlank(managedStateValue)) {
+            for (ManagedState state : ManagedState.values()) {
+                if (state.name().equalsIgnoreCase(managedStateValue.trim())) {
+                    managedState = state;
+                    break;
+                }
+            }
+            if (managedState == null) {
+                throw new InvalidParameterValueException("Invalid cluster managed state: " + managedStateValue);
+            }
+        }
         final String keyword = cmd.getKeyword();
         final CPU.CPUArch arch = cmd.getArch();
         final String storageAccessGroup = cmd.getStorageAccessGroup();
@@ -1581,6 +1595,7 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
         sb.and("hypervisorType", sb.entity().getHypervisorType(), SearchCriteria.Op.EQ);
         sb.and("clusterType", sb.entity().getClusterType(), SearchCriteria.Op.EQ);
         sb.and("allocationState", sb.entity().getAllocationState(), SearchCriteria.Op.EQ);
+        sb.and("managedState", sb.entity().getManagedState(), SearchCriteria.Op.EQ);
         sb.and("arch", sb.entity().getArch(), SearchCriteria.Op.EQ);
         if (storageAccessGroup != null) {
             sb.and().op("storageAccessGroupExact", sb.entity().getStorageAccessGroups(), SearchCriteria.Op.EQ);
@@ -1619,6 +1634,10 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
 
         if (allocationState != null) {
             sc.setParameters("allocationState", allocationState);
+        }
+
+        if (managedState != null) {
+            sc.setParameters("managedState", managedState);
         }
 
         if (keyword != null) {

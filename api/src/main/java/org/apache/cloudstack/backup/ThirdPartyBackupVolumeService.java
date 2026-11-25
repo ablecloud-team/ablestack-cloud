@@ -46,6 +46,17 @@ public interface ThirdPartyBackupVolumeService {
         if (java.util.Set.of("WAITING", "RUNNING").contains(
                 org.apache.commons.lang3.StringUtils.defaultString(backup.getDetail(ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY)))) { return true; }
         if (!"COMPLETED".equals(backup.getDetail(ThirdPartyBackupManifest.CLEANUP_STATE_KEY))) { return true; }
+        if (StringUtils.isBlank(backup.getDetail(ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY))
+                && backup.getStatus() != null
+                && java.util.Set.of(Backup.Status.Failed, Backup.Status.Error, Backup.Status.Canceled).contains(backup.getStatus())
+                && ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
+            // Older NetBackup failures released staging without scheduling Host record cleanup.
+            // Keep reconciling until the Host acknowledges it; missing evidence is not completion.
+            try {
+                if ("ablestack-netbackup".equals(ThirdPartyBackupManifest.fromJson(
+                        backup.getDetail(ThirdPartyBackupManifest.DETAIL_KEY)).getProvider())) { return true; }
+            } catch (RuntimeException error) { return true; }
+        }
         String json = backup.getDetail(ThirdPartyBackupAdmission.BACKUP_KEY);
         if (json == null || json.isBlank()) { return false; }
         try {
@@ -62,12 +73,50 @@ public interface ThirdPartyBackupVolumeService {
                 || StringUtils.isNotBlank(backup.getDetail(ThirdPartyBackupManifest.DELETE_PROGRESS_KEY));
     }
 
+    /** A failed NetBackup point stops owning ancestors only after every reader has closed. */
+    static boolean closedFailedNetBackupDependency(Backup backup) {
+        if (!java.util.Set.of(Backup.Status.Failed, Backup.Status.Error, Backup.Status.Canceled).contains(backup.getStatus())
+                || !"COMPLETED".equals(backup.getDetail(ThirdPartyBackupManifest.CLEANUP_STATE_KEY))
+                || !"COMPLETED".equals(backup.getDetail(ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY))
+                || needsBackupCleanup(backup)
+                || StringUtils.isNotBlank(backup.getDetail(ThirdPartyExternalRestore.PENDING_KEY))) { return false; }
+        String source = backup.getDetail(ThirdPartyBackupManifest.SOURCE_CLEANUP_STATE_KEY);
+        if (StringUtils.isNotBlank(source) && !java.util.Set.of("NONE", "COMPLETED").contains(source)) { return false; }
+        if ((StringUtils.isNotBlank(backup.getDetail(ThirdPartyBackupRestore.PLAN_KEY))
+                || StringUtils.isNotBlank(backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL)))
+                && !"COMPLETED".equals(backup.getDetail(ThirdPartyBackupRestore.CLEANUP_STATE_KEY))) { return false; }
+        try {
+            com.google.gson.JsonObject retention = new Gson().fromJson(
+                    backup.getDetail(ThirdPartyBackupManifest.RETENTION_PROTECTION_KEY), com.google.gson.JsonObject.class);
+            if (retention == null || !retention.has("version") || retention.get("version").getAsInt() != 2
+                    || !retention.has("backupUuid") || !backup.getUuid().equals(retention.get("backupUuid").getAsString())
+                    || !retention.has("leaseActive") || retention.get("leaseActive").getAsBoolean()
+                    || !retention.has("readersClosed") || !retention.get("readersClosed").getAsBoolean()) { return false; }
+            if (backup.getDetails() != null) {
+                for (var entry : backup.getDetails().entrySet()) {
+                    if (!entry.getKey().startsWith(ThirdPartyBackupRestore.HISTORY_PREFIX)
+                            || !entry.getKey().substring(ThirdPartyBackupRestore.HISTORY_PREFIX.length()).matches("[0-9a-fA-F-]{36}\\.operation")) { continue; }
+                    ThirdPartyBackupRestore.Operation operation = new Gson().fromJson(entry.getValue(), ThirdPartyBackupRestore.Operation.class);
+                    if (operation != null && operation.plan != null && !"COMPLETED".equals(operation.cleanupState)) { return false; }
+                }
+            }
+            return true;
+        } catch (RuntimeException e) { return false; }
+    }
+
     /** Deletion remains inspectable; only its existing coordinator may change cleanup state. */
     static boolean needsStagingManagement(Backup backup, BackupStagingInfoResponse.VmRestoreInfo restore) {
         if (!ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
             return false;
         }
         if (isDeletionPending(backup)) { return true; }
+        if (StringUtils.isNotBlank(backup.getDetail(ThirdPartyBackupManifest.RETENTION_PROTECTION_KEY))) {
+            try {
+                com.google.gson.JsonObject retention = new Gson().fromJson(
+                        backup.getDetail(ThirdPartyBackupManifest.RETENTION_PROTECTION_KEY), com.google.gson.JsonObject.class);
+                if (retention == null || !retention.has("state") || !"COMPLETED".equals(retention.get("state").getAsString())) { return true; }
+            } catch (RuntimeException e) { return true; }
+        }
         // Older successful backups retained staging metadata. Keep their recheck
         // action available until complete directory removal has been confirmed.
         if (Backup.Status.BackedUp.equals(backup.getStatus()) && ThirdPartyBackupManifest.hasCompletedTransfers(backup)
@@ -136,6 +185,11 @@ public interface ThirdPartyBackupVolumeService {
 
     /** Serialize parent selection with deletion of artifacts shared by an incremental chain. */
     Lease acquireLifecycle(long vmId);
+
+    /** A busy initial acquisition may be retried, but no backup may have been allocated yet. */
+    default Lease acquireBackupPreparation(long vmId) {
+        return acquireLifecycle(vmId);
+    }
 
     /** Hold across VM start admission and dispatch, including its transition to Starting. */
     Lease guardVmStart(long vmId);
@@ -220,6 +274,12 @@ public interface ThirdPartyBackupVolumeService {
          * Throw ThirdPartyBackupSubmissionException only for a confirmed rejection before source preparation.
          */
         default boolean ready() { return true; }
+
+        /** Called only before source IO, after the external parent gate opens; never during failure cleanup. */
+        default void beforeSourceStart(Backup backup) { }
+
+        /** Renew provider retention while queued/exporting/transferring, without replaying external jobs. */
+        default void protectActiveBackup(Backup backup) { }
 
         /** Explain a closed source-preparation gate without claiming that file export has started. */
         default String preparationWaitReason() { return "Waiting for the external parent backup Job to finish"; }

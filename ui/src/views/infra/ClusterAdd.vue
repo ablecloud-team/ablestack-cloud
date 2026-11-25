@@ -24,14 +24,14 @@
       :rules="rules"
       layout="vertical"
       @submit="handleSubmitForm">
-      <a-form-item name="zoneid" ref="zoneid">
+      <a-form-item name="zoneid" ref="zoneid" html-for="cluster-add-zone">
         <template #label>
           <tooltip-label :title="$t('label.zoneid')" :tooltip="apiParams.zoneid.description"/>
         </template>
         <a-select
           v-model:value="form.zoneid"
           @change="fetchPods"
-          v-focus="true"
+          id="cluster-add-zone"
           :placeholder="apiParams.zoneid.description"
           showSearch
           optionFilterProp="label"
@@ -170,6 +170,23 @@
         </div>
       </div>
 
+      <a-form-item v-if="apiParams.allocationstate" name="allocationstate" ref="allocationstate" :label="$t('label.allocationstate')" html-for="cluster-add-allocation-state">
+        <a-select
+          id="cluster-add-allocation-state"
+          v-model:value="form.allocationstate"
+          allow-clear
+          :placeholder="$t('label.default')"
+          :options="[{ value: 'Enabled', label: $t('label.enabled') }, { value: 'Disabled', label: $t('label.disabled') }]" />
+      </a-form-item>
+      <a-form-item v-if="apiParams.storageaccessgroups" name="storageaccessgroups" ref="storageaccessgroups" :label="$t('label.storageaccessgroups')" html-for="cluster-add-storage-groups">
+        <a-select
+          id="cluster-add-storage-groups"
+          v-model:value="form.storageaccessgroups"
+          mode="tags"
+          option-filter-prop="label"
+          :options="storageAccessGroups"
+          :loading="storageAccessGroupsLoading" />
+      </a-form-item>
       <a-form-item name="isdedicated" ref="isdedicated" :label="$t('label.isdedicated')">
         <a-switch v-model:checked="showDedicated" @change="toggleDedicated" />
       </a-form-item>
@@ -181,12 +198,10 @@
           :error="false" />
       </template>
 
-      <a-divider />
-
-      <div :span="24" class="action-button">
-        <a-button @click="() => $emit('close-action')">{{ $t('label.cancel') }}</a-button>
-        <a-button @click="handleSubmitForm" ref="submit" type="primary">{{ $t('label.ok') }}</a-button>
-      </div>
+      <mold-dialog-actions :busy="submitting">
+        <a-button @click="$emit('close-action')">{{ $t('label.cancel') }}</a-button>
+        <a-button :disabled="loading" @click="handleSubmitForm" ref="submit" type="primary">{{ $t('label.ok') }}</a-button>
+      </mold-dialog-actions>
     </a-form>
   </div>
 </template>
@@ -199,6 +214,8 @@ import TooltipLabel from '@/components/widgets/TooltipLabel'
 import DedicateDomain from '../../components/view/DedicateDomain'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import DetailsInput from '@/components/widgets/DetailsInput'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
+import { hostStorageGroups as normalizeGroups } from '@/utils/hostOperations'
 
 export default {
   name: 'ClusterAdd',
@@ -207,7 +224,8 @@ export default {
     TooltipLabel,
     DedicateDomain,
     ResourceIcon,
-    DetailsInput
+    DetailsInput,
+    MoldDialogActions
   },
   props: {
     resource: {
@@ -215,10 +233,13 @@ export default {
       required: true
     }
   },
-  inject: ['parentFetchData', 'parentToggleLoading'],
+  inject: ['parentFetchData'],
   data () {
     return {
       loading: false,
+      submitting: false,
+      storageAccessGroups: [],
+      storageAccessGroupsLoading: false,
       clustertype: 'CloudManaged',
       zonesList: [],
       hypervisorsList: [],
@@ -232,7 +253,7 @@ export default {
     }
   },
   beforeCreate () {
-    this.apiParams = this.$getApiParams('addCluster')
+    this.apiParams = this.$getApiParams('addCluster') || {}
   },
   created () {
     this.initForm()
@@ -242,7 +263,8 @@ export default {
     initForm () {
       this.formRef = ref()
       this.form = reactive({
-        usedefaultvmwarecred: false
+        usedefaultvmwarecred: false,
+        storageaccessgroups: []
       })
       this.rules = reactive({
         zoneid: [{ required: true, message: this.$t('message.error.select') }],
@@ -259,6 +281,7 @@ export default {
       this.fetchZones()
       this.fetchHypervisors()
       this.fetchExtensionsList()
+      if (this.apiParams.storageaccessgroups) this.fetchStorageAccessGroups()
       this.architectureTypes.opts = this.$fetchCpuArchitectureTypes()
       this.form.arch = this.architectureTypes?.opts?.[0]?.id || null
     },
@@ -337,29 +360,46 @@ export default {
       this.dedicatedDomainId = null
       this.dedicatedAccount = null
     },
-    handleSubmitForm () {
-      if (this.loading) return
-      this.formRef.value.validate().then(() => {
-        const formRaw = toRaw(this.form)
-        const values = this.handleRemoveFields(formRaw)
+    async fetchStorageAccessGroups () {
+      if (!this.$store.getters.apis?.listStorageAccessGroups) return
+      this.storageAccessGroupsLoading = true
+      try {
+        const result = await getAPI('listStorageAccessGroups', {}, { preserveOnFailure: true })
+        const groups = result.liststorageaccessgroupsresponse?.storageaccessgroup || []
+        this.storageAccessGroups = [...new Set(groups.map(group => group.name))].map(name => ({ value: name, label: name }))
+      } catch (error) {
+        this.$notifyError(error)
+      } finally {
+        this.storageAccessGroupsLoading = false
+      }
+    },
+    async handleSubmitForm () {
+      if (this.loading || this.submitting) return
+      this.submitting = true
+      try {
+        await this.formRef.value.validate()
+        const values = this.handleRemoveFields({ ...toRaw(this.form) })
         if (values.hypervisor === 'Ovm3') {
           values.ovm3pool = 'on'
           values.ovm3cluster = 'undefined'
           values.ovm3vip = ''
         }
-        this.addCluster(values)
-      })
+        await this.addCluster(values)
+      } catch (error) {
+        if (error.errorFields?.[0]) this.formRef.value.scrollToField(error.errorFields[0].name)
+        else this.$notifyError(error)
+      } finally {
+        this.submitting = false
+      }
     },
-    addCluster (values) {
-      var clustername = values.clustername
-      var url = ''
+    async addCluster (values) {
+      let clustername = values.clustername
+      let url = ''
       if (values.hypervisor === 'VMware') {
         clustername = `${this.form.host}/${this.form.datacenter}/${clustername}`
         url = `http://${clustername}`
       }
-      this.loading = true
-      this.parentToggleLoading()
-      var data = {
+      const data = {
         zoneid: values.zoneid,
         hypervisor: values.hypervisor,
         clustertype: this.clustertype,
@@ -393,23 +433,15 @@ export default {
           })
         }
       }
-      postAPI('addCluster', data).then(response => {
-        const cluster = response.addclusterresponse.cluster[0] || {}
-        if (cluster.id && this.showDedicated) {
-          this.dedicateCluster(cluster.id)
-        }
-        this.parentFetchData()
-        this.parentToggleLoading()
-        this.$emit('close-action')
-      }).catch(error => {
-        this.$notification.error({
-          message: `${this.$t('label.error')} ${error.response.status}`,
-          description: error.response.data.addclusterresponse.errortext,
-          duration: 0
-        })
-      }).finally(() => {
-        this.loading = false
-      })
+      if (this.apiParams.allocationstate && values.allocationstate) data.allocationstate = values.allocationstate
+      const groups = normalizeGroups(values.storageaccessgroups)
+      if (this.apiParams.storageaccessgroups && groups) data.storageaccessgroups = groups
+
+      const response = await postAPI('addCluster', data, { preserveOnFailure: true })
+      const cluster = response.addclusterresponse?.cluster?.[0]
+      if (cluster?.id && this.showDedicated) this.dedicateCluster(cluster.id)
+      this.parentFetchData()
+      this.$emit('close-action')
     },
     dedicateCluster (clusterId) {
       this.loading = true
@@ -478,13 +510,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .form-layout {
-    width: 60vw;
-    @media (min-width: 600px) {
-      width: 550px;
-    }
-  }
-
   .required {
     color: #ff0000;
 

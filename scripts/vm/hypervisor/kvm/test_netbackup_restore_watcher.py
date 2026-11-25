@@ -63,6 +63,7 @@ class NetBackupRestoreWatcherTest(unittest.TestCase):
         resolver = patch.object(self.watcher, "resolve_restore_reference", side_effect=lambda *_: self.resolution())
         resolver.start()
         self.addCleanup(resolver.stop)
+        self.file_list_query = self.watcher.fetch_restore_job_file_list
         files = patch.object(self.watcher, "fetch_restore_job_file_list", side_effect=lambda *_: self.selections)
         files.start()
         self.addCleanup(files.stop)
@@ -89,7 +90,7 @@ class NetBackupRestoreWatcherTest(unittest.TestCase):
                 attrs[key] = datetime.fromtimestamp(attrs[key], timezone.utc).isoformat().replace("+00:00", "Z")
         return {"id": "200", "type": "job", "attributes": attrs}
 
-    def poll(self, job=None, state=None, logs=None, detail_error=None):
+    def poll(self, job=None, state=None, logs=None, detail_error=None, file_list_payload=None):
         job = job or self.job()
         state = {} if state is None else state
         def api(path, params=None):
@@ -98,7 +99,9 @@ class NetBackupRestoreWatcherTest(unittest.TestCase):
                     raise detail_error
                 return {"data": {"attributes": {"log": self.logs if logs is None else logs}}}
             if path.endswith("/file-lists"):
-                return {"data": {"attributes": {"fileList": self.selections}}}
+                return file_list_payload if file_list_payload is not None else {
+                    "data": {"type": "file-lists", "id": "200", "attributes": {"fileList": self.selections},
+                             "links": {"self": {"href": "/admin/jobs/200/file-lists"}}}}
             if path.endswith("/200"):
                 return {"data": job}
             self.fail("Unexpected API call: " + path)
@@ -107,6 +110,61 @@ class NetBackupRestoreWatcherTest(unittest.TestCase):
                 patch.object(self.watcher, "invoke_restore_notify", return_value="submitted") as notify:
             self.watcher.poll_once(state)
         return state, notify
+
+    def test_json_api_links_are_not_restored_files(self):
+        from thirdparty_restore_metadata import write_netbackup_entry
+        write_netbackup_entry(self.root, lambda path, value: path.write_text(json.dumps(value)))
+        for name in ("backup-manifest.json", "domain-config.xml", ".staging.complete"):
+            (self.root / name).unlink()
+        self.selections = [str(self.root / "MOLD-RESTORE.json")]
+        with patch.object(self.watcher, "fetch_restore_job_file_list", side_effect=self.file_list_query):
+            state, notify = self.poll(self.job(0))
+        notify.assert_called_once_with("host-test_1792458000", "200", unittest.mock.ANY)
+        self.assertEqual("backup-test", state["processed"]["200"]["validation"]["backupUuid"])
+        self.assertNotIn("200", state["restoreValidation"])
+
+    def test_actual_file_selection_outside_staging_is_still_blocked(self):
+        self.selections = [str(self.root), "/admin/jobs/200/file-lists"]
+        with patch.object(self.watcher, "fetch_restore_job_file_list", side_effect=self.file_list_query):
+            state, notify = self.poll(self.job(0))
+        notify.assert_not_called()
+        self.assertEqual("UNKNOWN_FILES", state["restoreValidation"]["200"]["code"])
+        self.assertNotIn("200", state["processed"])
+
+    def test_mold_owned_metadata_and_volume_jobs_do_not_report_external_selection_warnings(self):
+        resolved = self.resolution()
+        resolved.update(tracked=True, artifacttype="VOLUME", restoreallowed=False)
+        for selections in ([str(self.root)], [str(self.root / "root.root-volume.qcow2")],
+                           [str(self.root), "/admin/jobs/200/file-lists"]):
+            with self.subTest(selections=selections), \
+                    patch.object(self.watcher, "resolve_restore_reference", return_value=resolved):
+                self.selections = selections
+                state, notify = self.poll(self.job(0), state={
+                    "restoreValidation": {"200": {"code": "UNKNOWN_FILES"}}})
+            notify.assert_not_called()
+            self.report.assert_not_called()
+            self.assertEqual("moldManagedRestore", state["processed"]["200"]["skipped"])
+            self.assertNotIn("200", state["restoreValidation"])
+
+    def test_unmatched_tracked_flag_cannot_bypass_file_selection_validation(self):
+        resolved = self.resolution()
+        resolved.update(matched=False, tracked=True)
+        self.selections = [str(self.root), "/outside/selection"]
+        with patch.object(self.watcher, "resolve_restore_reference", return_value=resolved):
+            state, notify = self.poll(self.job(0))
+        notify.assert_not_called()
+        self.assertEqual("UNKNOWN_FILES", state["restoreValidation"]["200"]["code"])
+
+    def test_unconfirmed_file_list_format_cannot_start_vm_restore(self):
+        for payload in ({"data": {"links": {"self": {"href": str(self.root)}}}},
+                        {"data": {"attributes": {"fileList": [str(self.root), None]}}},
+                        {"data": {"attributes": {"fileList": str(self.root)}}}):
+            with self.subTest(payload=payload), \
+                    patch.object(self.watcher, "fetch_restore_job_file_list", side_effect=self.file_list_query):
+                state, notify = self.poll(self.job(0), file_list_payload=payload)
+            notify.assert_not_called()
+            self.assertEqual("VOLUME_ONLY", state["restoreValidation"]["200"]["code"])
+            self.assertNotIn("200", state["processed"])
 
     def test_entry_only_restore_requires_no_materialized_metadata_files(self):
         from thirdparty_restore_metadata import write_netbackup_entry

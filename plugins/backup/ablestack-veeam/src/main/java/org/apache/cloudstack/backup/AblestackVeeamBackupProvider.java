@@ -384,7 +384,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
             command.setVolumeStagingManifest(manifest.toJson());
             command.setStagingQueueTimeout(BackupManager.ThirdPartyStagingQueueTimeout.value());
             command.setStagingBufferPercent(thirdPartyBackupStagingService.getCapacityBufferPercent());
-            command.setWait(BackupDataOperationTimeout.value());
+            command.setTimeout(BackupDataOperationTimeout.value());
             command.setBackupJobId(backupVO.getUuid());
             command.setQuiesce(quiesceVM);
             command.setVolumePools(volumePoolsAndPaths.first());
@@ -568,7 +568,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
         final AblestackDeleteBackupCommand command = new AblestackDeleteBackupCommand(backup.getExternalId(), null, null, null, true);
         final int deleteTimeout = BackupDataOperationTimeout.value();
         if (deleteTimeout > 0) {
-            command.setWait(deleteTimeout);
+            command.setTimeout(deleteTimeout);
         }
         command.setBackupProvider(getName());
         final VMInstanceVO vm = vmInstanceDao.findByIdIncludingRemoved(backup.getVmId());
@@ -3054,7 +3054,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
         final AblestackDeleteBackupCommand command = new AblestackDeleteBackupCommand(backup.getExternalId(), null, null, null, true);
         final int deleteTimeout = BackupDataOperationTimeout.value();
         if (deleteTimeout > 0) {
-            command.setWait(deleteTimeout);
+            command.setTimeout(deleteTimeout);
         }
         command.setBackupProvider(getName());
         final VMInstanceVO vm = vmInstanceDao.findByIdIncludingRemoved(backup.getVmId());

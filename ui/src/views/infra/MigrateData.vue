@@ -16,210 +16,125 @@
 // under the License.
 
 <template>
-  <div class="form-layout" v-ctrl-enter="handleSubmit">
-    <a-spin :spinning="loading">
-      <a-form
-        :ref="formRef"
-        :model="form"
-        :rules="rules"
-        @finish="handleSubmit"
-        layout="vertical"
-       >
-        <a-form-item
-          name="srcpool"
-          ref="srcpool"
-          :label="$t('migrate.from')">
-          <a-select
-            v-model:value="form.srcpool"
-            @change="filterStores"
-            :loading="loading"
-            v-focus="true"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
-            <a-select-option
-              v-for="store in imageStores"
-              :key="store.id"
-              :label="store.name || opt.url"> {{ store.name || opt.url }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item
-          name="destpools"
-          ref="destpools"
-          :label="$t('migrate.to')">
-          <a-select
-            v-model:value="form.destpools"
-            mode="multiple"
-            :loading="loading"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
-            <a-select-option
-              v-for="store in destStores"
-              :key="store.id"
-              :label="store.name || opt.url"> {{ store.name || opt.url }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item name="migrationtype" ref="migrationtype" :label="$t('migrationPolicy')">
-          <a-select
-            v-model:value="form.migrationtype"
-            :loading="loading"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
-            <a-select-option value="Complete" :label="$t('label.complete')">{{ $t('label.complete') }}</a-select-option>
-            <a-select-option value="Balance" :label="$t('label.balance')">{{ $t('label.balance') }}</a-select-option>
-          </a-select>
-        </a-form-item>
-        <div :span="24" class="action-button">
-          <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-          <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-        </div>
-      </a-form>
-    </a-spin>
+  <div class="form-layout" v-ctrl-enter="submit">
+    <a-alert v-if="readFailed" type="error" show-icon :message="$t('message.secondary.storage.list.failed')">
+      <template #description>
+        <a-button size="small" @click="fetchStores">{{ $t('label.retry') }}</a-button>
+      </template>
+    </a-alert>
+    <a-alert
+      v-else-if="!loading && !sources.length"
+      type="info"
+      show-icon
+      :message="$t('message.secondary.storage.migration.no.sources')" />
+    <a-alert
+      v-else-if="!loading && !destinations.length"
+      type="info"
+      show-icon
+      :message="$t('message.secondary.storage.migration.no.targets')"
+      :description="$t('message.secondary.storage.migration.destination.rules')" />
+    <a-alert v-if="migrationError" type="error" show-icon :message="migrationError" />
+    <a-form layout="vertical" :model="form" @finish="submit">
+      <a-form-item name="srcpool" html-for="secondary-migration-source" :label="$t('label.secondary.storage.migration.source')">
+        <a-select
+          id="secondary-migration-source"
+          v-model:value="form.srcpool"
+          :options="sources.map(storeOption)"
+          :disabled="locked || readFailed || !sources.length"
+          :loading="loading"
+          option-filter-prop="label"
+          show-search
+          @change="changeSource" />
+      </a-form-item>
+      <a-form-item name="destpools" html-for="secondary-migration-destinations" :label="$t('label.secondary.storage.migration.destinations')">
+        <a-select
+          id="secondary-migration-destinations"
+          v-model:value="form.destpools"
+          :options="destinations.map(storeOption)"
+          :disabled="locked || readFailed || !destinations.length"
+          mode="multiple"
+          option-filter-prop="label"
+          show-search />
+      </a-form-item>
+      <a-form-item name="migrationtype" :label="$t('migrationPolicy')">
+        <a-select v-model:value="form.migrationtype" :disabled="locked">
+          <a-select-option value="Complete">{{ $t('label.complete') }}</a-select-option>
+          <a-select-option value="Balance">{{ $t('label.balance') }}</a-select-option>
+        </a-select>
+      </a-form-item>
+      <mold-dialog-actions :busy="migrating">
+        <a-button :disabled="migrating" @click="$emit('close-action')">{{ $t('label.cancel') }}</a-button>
+        <a-button type="primary" @click="submit" :loading="migrating" :disabled="!canSubmit">
+          {{ $t(migrationJobId ? 'label.retry' : 'label.ok') }}
+        </a-button>
+      </mold-dialog-actions>
+    </a-form>
   </div>
 </template>
+
 <script>
-import { ref, reactive, toRaw } from 'vue'
-import { getAPI, postAPI } from '@/api'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
+import { isNfsImageStore, listMigrationStores, migrationDestinations, secondaryStorageMigrationJob } from '@/utils/secondaryStorageMigration'
 
 export default {
   name: 'MigrateData',
-  inject: ['parentFetchData'],
+  mixins: [secondaryStorageMigrationJob],
+  components: { MoldDialogActions },
+  emits: ['close-action', 'refresh-data'],
   data () {
     return {
-      imageStores: [],
-      destStores: [],
-      loading: false
+      stores: [],
+      form: { srcpool: undefined, destpools: [], migrationtype: 'Complete' },
+      loading: false,
+      readFailed: false
     }
   },
-  async created () {
-    this.initForm()
-    await this.fetchImageStores()
-    this.filterStores()
+  computed: {
+    sources () { return this.stores.filter(isNfsImageStore) },
+    source () { return this.sources.find(row => row.id === this.form.srcpool) },
+    destinations () { return migrationDestinations(this.source, this.stores) },
+    locked () { return this.loading || this.migrating || !!this.migrationJobId },
+    canSubmit () {
+      return !this.migrating && (!!this.migrationJobId || (!this.loading && !this.readFailed &&
+        this.form.destpools.length > 0 && this.form.destpools.every(id => this.destinations.some(row => row.id === id))))
+    }
   },
+  created () { this.fetchStores() },
   methods: {
-    initForm () {
-      this.formRef = ref()
-      this.form = reactive({
-        migrationtype: 'Complete'
-      })
-      this.rules = reactive({
-        srcpool: [{ required: true, message: this.$t('message.error.select') }],
-        destpools: [{ type: 'array', required: true, message: this.$t('message.select.destination.image.stores') }],
-        migrationtype: [{ required: true, message: this.$t('message.select.migration.policy') }]
-      })
+    async fetchStores () {
+      if (this.locked) return
+      this.loading = true
+      this.readFailed = false
+      try {
+        this.stores = await listMigrationStores()
+        this.changeSource(this.source?.id || this.sources[0]?.id)
+      } catch {
+        this.readFailed = true
+      } finally {
+        this.loading = false
+      }
     },
-    fetchImageStores () {
-      return new Promise((resolve, reject) => {
-        this.loading = true
-        getAPI('listImageStores').then(json => {
-          this.imageStores = json.listimagestoresresponse.imagestore || []
-          this.form.srcpool = this.imageStores[0].id || ''
-          resolve(this.imageStores)
-        }).catch((error) => {
-          reject(error)
-        }).finally(() => {
-          this.loading = false
-        })
-      })
+    storeOption (store) { return { value: store.id, label: store.name || store.url || store.id } },
+    changeSource (id) {
+      this.form.srcpool = id
+      this.form.destpools = this.form.destpools.filter(id => this.destinations.some(row => row.id === id))
+      this.migrationError = ''
     },
-    filterStores () {
-      this.destStores = this.imageStores.filter(store => { return store.id !== this.form.srcpool })
-    },
-    handleSubmit (e) {
-      e.preventDefault()
-      if (this.loading) return
-      this.formRef.value.validate().then(() => {
-        const values = toRaw(this.form)
-        const params = {}
-        for (const key in values) {
-          const input = values[key]
-          if (input === undefined) {
-            continue
-          }
-          if (key === 'destpools') {
-            params[key] = input.join(',')
-          } else {
-            params[key] = input
-          }
-        }
-
-        const title = this.$t('message.data.migration')
-        this.loading = true
-        const loadingJob = this.$message.loading({ content: this.$t('label.migrating.data'), duration: 0 })
-
-        const result = this.migrateData(params, title)
-        result.then(json => {
-          const result = json.jobresult
-          const success = result.imagestore.success || false
-          const message = result.imagestore.message || ''
-          if (success) {
-            this.$notification.success({
-              message: title,
-              description: message
-            })
-          } else {
-            this.$notification.error({
-              message: title,
-              description: message,
-              duration: 0
-            })
-          }
-          this.parentFetchData()
-          this.closeAction()
-        }).catch(error => {
-          console.log(error)
-        }).finally(() => {
-          this.loading = false
-          setTimeout(loadingJob)
-          this.closeAction()
-        })
-      }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
-      })
-    },
-    migrateData (args, title) {
-      return new Promise((resolve, reject) => {
-        postAPI('migrateSecondaryStorageData', args).then(async json => {
-          const jobId = json.migratesecondarystoragedataresponse.jobid
-          if (jobId) {
-            this.$pollJob({
-              jobId,
-              title,
-              description: this.$t('message.data.migration.progress'),
-              successMethod: (result) => resolve(result),
-              errorMethod: (result) => reject(result.jobresult.errortext),
-              showLoading: false,
-              catchMessage: this.$t('error.fetching.async.job.result'),
-              catchMethod: () => { this.closeAction() }
-            })
-          }
-        }).catch(error => {
-          reject(error)
-        })
-      })
-    },
-    closeAction () {
-      this.$emit('close-action')
+    async submit (event) {
+      if (event?.preventDefault) event.preventDefault()
+      if (!this.canSubmit) return
+      const { srcpool, destpools, migrationtype } = this.form
+      if (await this.runMigration('migrateSecondaryStorageData', { srcpool, destpools: destpools.join(','), migrationtype })) {
+        this.$emit('refresh-data')
+        this.$emit('close-action')
+      }
     }
   }
 }
 </script>
+
 <style lang="scss" scoped>
 .form-layout {
-  width: 85vw;
-
-  @media (min-width: 1000px) {
-    width: 40vw;
-  }
+  .ant-alert { margin-bottom: 12px; }
 }
 </style>

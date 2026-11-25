@@ -79,6 +79,7 @@ class RejectedMetadataCleanupTest(unittest.TestCase):
                                              vmName=plan['vmName'], checkpointName=checkpoint,
                                              parentCheckpointName=parent, diskPaths=['rbd:pool/image'])))
         worker = pipeline.Backup(plan_file)
+        worker.engine.write_text('{}')
         # Exercise the real RBD metadata writer; only the external Ceph commands are mocked.
         with patch.object(pipeline, 'run', return_value=json.dumps([dict(name=parent)])):
             worker.begin_rbd()

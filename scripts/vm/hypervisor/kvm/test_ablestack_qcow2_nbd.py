@@ -234,6 +234,7 @@ class NbdCopyTest(unittest.TestCase):
             worker.nbd = module_for(source)
             worker.plan = {}
             worker.labels = ["vda"]
+            worker.progress = Mock()
             worker.manifest = {"volumes": [{"uuid": "volume-1", "provisionedBytes": SECTOR}]}
             worker.count, worker.timeout = 1, 300
             worker.job, worker.socket = Path(directory), Path(directory) / "source.sock"

@@ -58,6 +58,8 @@ public class CreateNetBackupCmd extends BaseAsyncCreateCmd {
         createdBackupId = value;
     }
 
+    public String getCreatedBackupId() { return createdBackupId; }
+
     /////////////////////////////////////////////////////
     //////////////// API parameters /////////////////////
     /////////////////////////////////////////////////////
@@ -86,7 +88,8 @@ public class CreateNetBackupCmd extends BaseAsyncCreateCmd {
             required = false,
             description = "Attempt to freeze guest filesystems through QEMU Guest Agent while establishing source recovery points, then thaw before volume export and transfer. " +
                     "In SCHEDULE mode, the stored backup schedule setting takes precedence over this parameter. " +
-                    "Backup continues if freezing is unsupported or fails; application consistency is not guaranteed.",
+                    "Requested freezing must succeed and remain active until recovery points are established; otherwise backup fails. " +
+                    "Filesystem quiescing does not guarantee application consistency.",
             since = "4.21.0")
     private Boolean quiesceVM;
 
@@ -104,6 +107,13 @@ public class CreateNetBackupCmd extends BaseAsyncCreateCmd {
             description = "the backup schedule ID that triggered this NetBackup staging request",
             since = "4.23.0")
     private Long scheduleId;
+
+    @Parameter(name = "preparationdeadline", type = CommandType.LONG,
+            description = "Latest initial backup admission time as Unix epoch milliseconds. "
+                    + "Hosts use their remaining PRE Hook and async-response budget; data processing has its own timeout.")
+    private Long preparationDeadline;
+
+    public Long getPreparationDeadline() { return preparationDeadline; }
 
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////

@@ -20,6 +20,8 @@ package org.apache.cloudstack.framework.extensions.api;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,11 +29,15 @@ import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.cloudstack.api.ApiConstants;
+import org.apache.cloudstack.api.response.ExtensionResponse;
+import org.apache.cloudstack.api.response.ListResponse;
+import org.apache.cloudstack.framework.extensions.manager.ExtensionsManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.cloud.exception.InvalidParameterValueException;
+import com.cloud.utils.Pair;
 
 public class ListExtensionsCmdTest {
 
@@ -105,6 +111,20 @@ public class ListExtensionsCmdTest {
     public void testGetTypeReturnsNullWhenUnset() {
         setPrivateField("type", null);
         assertNull(cmd.getType());
+    }
+
+    @Test
+    public void executeReturnsTotalBeyondCurrentPage() throws Exception {
+        ExtensionsManager manager = mock(ExtensionsManager.class);
+        List<ExtensionResponse> page = Collections.singletonList(mock(ExtensionResponse.class));
+        ReflectionTestUtils.setField(cmd, "extensionsManager", manager);
+        when(manager.listExtensions(cmd)).thenReturn(new Pair<>(page, 21));
+
+        cmd.execute();
+
+        ListResponse<?> result = (ListResponse<?>) cmd.getResponseObject();
+        assertEquals(page, result.getResponses());
+        assertEquals(Integer.valueOf(21), result.getCount());
     }
 
 }

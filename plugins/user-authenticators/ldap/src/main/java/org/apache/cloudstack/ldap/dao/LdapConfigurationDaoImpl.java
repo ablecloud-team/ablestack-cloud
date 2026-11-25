@@ -22,8 +22,10 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import org.apache.cloudstack.ldap.LdapConfigurationVO;
+import org.apache.commons.lang3.StringUtils;
 
 import com.cloud.utils.Pair;
+import com.cloud.utils.db.Filter;
 import com.cloud.utils.db.GenericDaoBase;
 import com.cloud.utils.db.SearchBuilder;
 import com.cloud.utils.db.SearchCriteria;
@@ -75,9 +77,19 @@ public class LdapConfigurationDaoImpl extends GenericDaoBase<LdapConfigurationVO
     }
 
     @Override
-    public Pair<List<LdapConfigurationVO>, Integer> searchConfigurations(final Long id, final String hostname, final int port, final Long domainId, final boolean listAll) {
+    public Pair<List<LdapConfigurationVO>, Integer> searchConfigurations(final Long id, final String hostname, final int port,
+            final Long domainId, final boolean listAll, final String keyword, final Filter pageFilter) {
         SearchCriteria<LdapConfigurationVO> sc = getSearchCriteria(id, hostname, port, domainId, listAll);
-        return searchAndCount(sc, null);
+        if (id != null) {
+            return searchAndCount(sc, null);
+        }
+
+        String term = StringUtils.trimToNull(keyword);
+        if (term != null) {
+            String literal = term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+            sc.addAnd("hostname", Op.LIKE, "%" + literal + "%");
+        }
+        return searchAndCount(sc, pageFilter);
     }
 
     private SearchCriteria<LdapConfigurationVO> getSearchCriteria(Long id, String hostname, int port, Long domainId,boolean listAll) {
@@ -86,7 +98,9 @@ public class LdapConfigurationDaoImpl extends GenericDaoBase<LdapConfigurationVO
             // If id is present, ignore all other parameters
             sc = listDomainConfigurationsSearch.create();
             sc.setParameters("id", id);
-        } else if (domainId != null) {
+            return sc;
+        }
+        if (domainId != null) {
             // If domainid is present, ignore listall
             sc = listDomainConfigurationsSearch.create();
             sc.setParameters("domain_id", domainId);

@@ -313,6 +313,12 @@ public class KVMStoragePoolManager {
         return this.getStoragePool(type, uuid, false, true);
     }
 
+    /** Read-only monitoring must not wait for libvirt pool discovery or recreate a missing pool. */
+    public String getRegisteredStoragePoolPath(StoragePoolType type, String uuid) {
+        StoragePoolInformation info = uuid == null ? null : _storagePools.get(uuid);
+        return info != null && info.isType() && info.getPoolType() == type ? info.getPath() : null;
+    }
+
     public KVMStoragePool getStoragePool(StoragePoolType type, String uuid, boolean refreshInfo, boolean addDetails) {
         return withStoragePoolLock(uuid, () -> getStoragePoolLocked(type, uuid, refreshInfo, addDetails));
     }

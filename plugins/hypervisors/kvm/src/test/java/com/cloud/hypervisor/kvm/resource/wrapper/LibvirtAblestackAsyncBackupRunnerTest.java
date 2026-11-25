@@ -41,6 +41,49 @@ public class LibvirtAblestackAsyncBackupRunnerTest {
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Test
+    public void successfulThawCommandWithoutThawedStatusCannotReleaseFreezeReceipt() {
+        int[] attempts = {0};
+        assertFalse(LibvirtAblestackAsyncBackupRunner.thawGuest(action -> {
+            if ("guest-fsfreeze-thaw".equals(action)) {
+                attempts[0]++;
+                return new Pair<>(0, "{\"return\":2}");
+            }
+            return new Pair<>(0, "{\"return\":\"frozen\"}");
+        }, () -> false));
+        assertEquals(3, attempts[0]);
+    }
+
+    @Test
+    public void lostThawResponseIsRecoveredThroughStatusVerification() {
+        boolean[] thawed = {false};
+        int[] attempts = {0};
+        assertTrue(LibvirtAblestackAsyncBackupRunner.thawGuest(action -> {
+            if ("guest-fsfreeze-thaw".equals(action)) {
+                attempts[0]++;
+                thawed[0] = true;
+                return new Pair<>(124, "response lost");
+            }
+            return new Pair<>(0, thawed[0] ? "{\"return\":\"thawed\"}" : "{\"return\":\"frozen\"}");
+        }, () -> false));
+        assertEquals(1, attempts[0]);
+    }
+
+    @Test
+    public void unavailableStatusStillAttemptsOwnedThawAndRetainsUnconfirmedOwnership() {
+        int[] attempts = {0};
+        assertFalse(LibvirtAblestackAsyncBackupRunner.thawGuest(action -> {
+            if ("guest-fsfreeze-thaw".equals(action)) { attempts[0]++; }
+            return new Pair<>(124, "Guest Agent unavailable");
+        }, () -> false));
+        assertEquals(3, attempts[0]);
+    }
+
+    @Test
+    public void confirmedShutdownAllowsClearingAnUnreachableGuestsFreezeReceipt() {
+        assertTrue(LibvirtAblestackAsyncBackupRunner.thawGuest(action -> new Pair<>(124, "Guest Agent unavailable"), () -> true));
+    }
+
+    @Test
     public void restorePhasesRetainVolumeIdentityThroughCleanup() {
         Properties properties = new Properties();
         properties.setProperty("state", "RUNNING");

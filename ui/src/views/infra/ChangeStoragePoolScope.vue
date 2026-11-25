@@ -16,208 +16,140 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="loading">
-    <div class="form-layout" v-ctrl-enter="handleSubmitForm">
-      <div class="form">
-        <a-form
-          :ref="formRef"
-          :model="form"
-          :rules="rules"
-          layout="vertical"
-          @submit="handleSubmitForm">
-          <a-alert type="warning">
-            <template #message>
-              <span
-                v-html="(resource.scope=='ZONE' ? $t('message.action.primary.storage.scope.cluster') : $t('message.action.primary.storage.scope.zone')) +
-                        '<br><br>' + $t('message.warn.change.primary.storage.scope')"></span>
-            </template>
-          </a-alert>
-          <p></p>
-          <a-form-item name="clusterid" ref="clusterid" v-if="resource.scope=='ZONE'">
-            <template #label>
-              <tooltip-label :title="$t('label.clustername')" :tooltip="placeholder.clusterid"/>
-            </template>
-            <a-select
-              v-model:value="form.clusterid"
-              :placeholder="placeholder.clusterid"
-              showSearch
-              optionFilterProp="label"
-              :filterOption="(input, option) => {
-                return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }"
-              @change="handleChangeCluster">
-              <a-select-option
-                v-for="cluster in clustersList"
-                :value="cluster.id"
-                :key="cluster.id"
-                :label="cluster.name">
-                {{ cluster.name }}
-              </a-select-option>
-            </a-select>
-          </a-form-item>
-
-          <div :span="24" class="action-button">
-            <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-            <a-button @click="handleSubmitForm" ref="submit" type="primary">{{ $t('label.ok') }}</a-button>
-          </div>
-        </a-form>
-      </div>
-    </div>
+  <a-spin :spinning="targetsLoading || submitting">
+    <a-form
+      :ref="formRef"
+      :model="form"
+      :rules="rules"
+      layout="vertical"
+      v-ctrl-enter="handleSubmitForm"
+      @finish="handleSubmitForm">
+      <a-alert :type="targetsFailed || saveFailed ? 'error' : 'warning'" show-icon class="scope-message">
+        <template #message>
+          <span v-if="saveFailed">{{ $t('message.change.scope.failed') }}</span>
+          <span v-else-if="targetsFailed">{{ $t('message.primary.storage.scope.targets.failed') }}</span>
+          <span v-else-if="requiresCluster && !targetsLoading && !clustersList.length">{{ $t('message.primary.storage.scope.targets.empty') }}</span>
+          <template v-else>
+            <strong>{{ resource.name }}</strong>
+            <div v-html="$t(requiresCluster ? 'message.action.primary.storage.scope.cluster' : 'message.action.primary.storage.scope.zone')"></div>
+            <div v-html="$t('message.warn.change.primary.storage.scope')"></div>
+          </template>
+        </template>
+      </a-alert>
+      <a-form-item v-if="requiresCluster" name="clusterid" html-for="primary-storage-scope-cluster">
+        <template #label>
+          <tooltip-label :title="$t('label.clustername')" :tooltip="clusterHint" />
+        </template>
+        <a-select
+          id="primary-storage-scope-cluster"
+          v-model:value="form.clusterid"
+          :placeholder="clusterHint"
+          :options="clustersList"
+          :disabled="targetsLoading || targetsFailed || !clustersList.length || submitting || !!jobId"
+          option-filter-prop="label"
+          show-search />
+      </a-form-item>
+      <mold-dialog-actions :busy="submitting">
+        <a-button :disabled="submitting" @click="$emit('close-action')">{{ $t('label.cancel') }}</a-button>
+        <a-button :disabled="!canSubmit" :loading="submitting" type="primary" @click="handleSubmitForm">
+          {{ $t(jobId ? 'label.host.operation.recheck' : 'label.ok') }}
+        </a-button>
+      </mold-dialog-actions>
+    </a-form>
   </a-spin>
 </template>
 
 <script>
-import { ref, reactive, toRaw } from 'vue'
+import { ref, reactive } from 'vue'
 import { getAPI, postAPI } from '@/api'
-import { mixinForm } from '@/utils/mixin'
-import DedicateDomain from '../../components/view/DedicateDomain'
-import ResourceIcon from '@/components/view/ResourceIcon'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
   name: 'ChangeStoragePoolScope',
-  mixins: [mixinForm],
-  components: {
-    DedicateDomain,
-    ResourceIcon,
-    TooltipLabel
-  },
+  components: { MoldDialogActions, TooltipLabel },
+  emits: ['refresh-data', 'close-action'],
   props: {
-    resource: {
-      type: Object,
-      required: true
-    }
+    resource: { type: Object, required: true }
   },
   data () {
     return {
-      loading: false,
-      clustersList: [],
-      selectedCluster: null,
-      placeholder: {
-        clusterid: null
-      }
+      targetsLoading: false,
+      targetsFailed: false,
+      submitting: false,
+      saveFailed: false,
+      jobId: '',
+      scopeJobObserved: false,
+      clustersList: []
+    }
+  },
+  computed: {
+    requiresCluster () { return this.resource.scope === 'ZONE' },
+    canSubmit () {
+      return !!this.$store.getters.apis.changeStoragePoolScope && this.resource.state === 'Disabled' && !this.targetsLoading && !this.submitting &&
+        (!!this.jobId || !this.requiresCluster || this.clustersList.some(cluster => cluster.value === this.form.clusterid))
     }
   },
   created () {
-    this.initForm()
-    this.fetchData()
+    this.formRef = ref()
+    this.form = reactive({ clusterid: undefined })
+    this.rules = { clusterid: [{ required: true, message: this.$t('message.error.select') }] }
+    this.clusterHint = this.$getApiParams('changeStoragePoolScope')?.clusterid?.description || this.$t('label.clustername')
+    if (this.requiresCluster) this.fetchClusters()
   },
   methods: {
-    initForm () {
-      this.formRef = ref()
-      this.form = reactive({ })
-      this.rules = reactive({
-        clusterid: [{ required: true, message: this.$t('message.error.select') }]
-      })
+    async fetchClusters () {
+      if (!this.resource.zoneid || !this.$store.getters.apis.listClusters) {
+        this.targetsFailed = true
+        return
+      }
+      this.targetsLoading = true
+      try {
+        const response = await getAPI('listClusters', { zoneid: this.resource.zoneid }, { preserveOnFailure: true })
+        this.clustersList = (response.listclustersresponse?.cluster || []).map(cluster => ({ value: cluster.id, label: cluster.name }))
+        this.form.clusterid = this.clustersList[0]?.value
+      } catch {
+        this.targetsFailed = true
+      } finally {
+        this.targetsLoading = false
+      }
     },
-    fetchData () {
-      this.fetchClusters(this.resource.zoneid)
-    },
-    fetchClusters (zoneId) {
-      this.form.clusterid = null
-      this.clustersList = []
-      if (!zoneId) return
-      this.zoneId = zoneId
-      this.loading = true
-      getAPI('listClusters', { zoneid: zoneId }).then(response => {
-        this.clustersList = response.listclustersresponse.cluster || []
-        this.form.clusterid = this.clustersList[0].id || null
-        if (this.form.clusterid) {
-          this.handleChangeCluster(this.form.clusterid)
+    async handleSubmitForm () {
+      if (!this.canSubmit) return
+      this.submitting = true
+      this.saveFailed = false
+      try {
+        if (!this.jobId) {
+          if (this.requiresCluster) await this.formRef.value.validate()
+          const args = this.requiresCluster
+            ? { id: this.resource.id, scope: 'CLUSTER', clusterid: this.form.clusterid }
+            : { id: this.resource.id, scope: 'ZONE' }
+          const response = await postAPI('changeStoragePoolScope', args, { preserveOnFailure: true })
+          this.jobId = response.changestoragepoolscoperesponse?.jobid || ''
+          this.scopeJobObserved = false
         }
-      }).catch(error => {
-        this.$notifyError(error)
-        this.clustersList = []
-        this.form.clusterid = null
-      }).finally(() => {
-        this.loading = false
-      })
-    },
-    handleChangeCluster (value) {
-      this.form.clusterid = value
-      this.selectedCluster = this.clustersList.find(i => i.id === this.form.clusterid)
-    },
-    handleSubmitForm () {
-      if (this.loading) return
-      this.formRef.value.validate().then(() => {
-        const formRaw = toRaw(this.form)
-        const values = this.handleRemoveFields(formRaw)
-
-        this.args = {}
-        if (this.resource.scope === 'ZONE') {
-          this.args = {
-            id: this.resource.id,
-            scope: 'CLUSTER',
-            clusterid: values.clusterid
+        if (this.jobId) {
+          const result = await this.$pollJob({ jobId: this.jobId, showLoading: false, retry: this.scopeJobObserved })
+          this.scopeJobObserved = true
+          if (result.jobstatus === 1) {
+            this.$emit('refresh-data')
+            this.$emit('close-action')
+            return
           }
-        } else {
-          this.args = {
-            id: this.resource.id,
-            scope: 'ZONE'
-          }
+          if (result.jobstatus === 2) this.jobId = ''
         }
-
-        this.changeStoragePoolScope(this.args)
-      }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
-      })
-    },
-    closeAction () {
-      this.$emit('close-action')
-    },
-    changeStoragePoolScope (args) {
-      postAPI('changeStoragePoolScope', args).then(json => {
-        this.$pollJob({
-          jobId: json.changestoragepoolscoperesponse.jobid,
-          title: this.$t('message.success.change.scope'),
-          description: args.name,
-          successMessage: this.$t('message.success.change.scope'),
-          successMethod: (result) => {
-            this.closeAction()
-          },
-          errorMessage: this.$t('message.change.scope.failed'),
-          loadingMessage: this.$t('message.change.scope.processing'),
-          catchMessage: this.$t('error.fetching.async.job.result')
-        })
-        this.closeAction()
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.loading = false
-      })
+        this.saveFailed = true
+      } catch (error) {
+        if (error.errorFields?.[0]) this.formRef.value.scrollToField(error.errorFields[0].name)
+        else this.saveFailed = true
+      } finally {
+        this.submitting = false
+      }
     }
-
   }
 }
 </script>
 
-<style lang="scss">
-  .form {
-    &__label {
-      margin-bottom: 5px;
-
-      .required {
-        margin-left: 10px;
-      }
-    }
-    &__item {
-      margin-bottom: 20px;
-    }
-    .ant-select {
-      width: 85vw;
-      @media (min-width: 760px) {
-        width: 400px;
-      }
-    }
-  }
-
-  .required {
-    color: #ff0000;
-    &-label {
-      display: none;
-      &--error {
-        display: block;
-      }
-    }
-  }
+<style scoped>
+.scope-message { margin-bottom: 16px; }
 </style>

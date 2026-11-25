@@ -31,6 +31,7 @@ public final class EuropaBackupConfigUpgrade {
     public static final String PHASE = "europa-4.23-s14-backup-config-v1";
     public static final String FOLLOW_UP_PHASE = "europa-4.23-s15-netbackup-timeout-config-v1";
     public static final String VEEAM_VOLUME_PHASE = "europa-4.23-s16-veeam-volume-config-v1";
+    public static final String RETIRED_SETTINGS_PHASE = "europa-4.23-s17-retired-backup-config-v1";
     private static final String DATA_TIMEOUT = "backup.data.operation.timeout";
     private static final int DEFAULT_DATA_TIMEOUT = 43200;
     private static final String[] LEGACY_TIMEOUTS = {"backup.command.timeout", "backup.restore.timeout", "nas.backup.restore.timeout", "netbackup.restore.timeout"};
@@ -38,6 +39,12 @@ public final class EuropaBackupConfigUpgrade {
             "backup.plugin.ablestack-veeam.sync.delete.missing.catalog", "backup.plugin.ablestack-veeam.sync.delete.rbd.diff", "backup.plugin.ablestack-veeam.staging.path"};
 
     private EuropaBackupConfigUpgrade() { }
+
+    /** Rerun cleanup for installations that already completed the older checkpoints. */
+    public static void migrateRetiredSettings(Connection conn) {
+        migrate(conn);
+        EuropaThirdPartyStagingConfigUpgrade.migrate(conn);
+    }
 
     public static void migrate(Connection conn) {
         try {

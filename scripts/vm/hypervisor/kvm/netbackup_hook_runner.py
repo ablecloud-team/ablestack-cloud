@@ -208,7 +208,7 @@ def recover_worker(record, stop_path, state_root, context, grace):
     return True
 
 
-def run_supervised(state_root, context, phase, backup_id, job_id, command, timeout=86400, grace=10, poll=0.5):
+def run_supervised(state_root, context, phase, backup_id, job_id, command, timeout, grace=10, poll=0.5):
     record_path, stop_path, lock_path = paths(state_root, context, phase)
     lock_path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     with lock_path.open('a+') as lock:
@@ -230,8 +230,9 @@ def run_supervised(state_root, context, phase, backup_id, job_id, command, timeo
             raise RuntimeError('Retry reused the previous notify identity; a fresh NetBackup client attempt is required')
         record = dict(version=1, state='RUNNING', phase=phase, context=context, backupId=backup_id,
                       jobId=job_id, attempt=uuid.uuid4().hex, supervisor=supervisor, callers=callers,
-                      netbackupCaller=caller, worker=None, startedAt=time.time())
-        environment = dict(os.environ, ABLESTACK_NETBACKUP_HOOK_WORKER=phase)
+                      netbackupCaller=caller, worker=None, startedAt=time.time(), timeoutSeconds=timeout)
+        environment = dict(os.environ, ABLESTACK_NETBACKUP_HOOK_WORKER=phase,
+                           ABLESTACK_NETBACKUP_HOOK_DEADLINE_MS=str(int((record['startedAt'] + timeout) * 1000)))
         for name in ('ABLESTACK_NETBACKUP_RETIRED_PRE_PID', 'ABLESTACK_NETBACKUP_RETIRED_PRE_TOKEN'):
             environment.pop(name, None)
         if (phase == 'PRE' and previous and previous.get('worker')
@@ -291,12 +292,23 @@ def run_supervised(state_root, context, phase, backup_id, job_id, command, timeo
         return exit_code
 
 
+def positive_timeout(value):
+    try:
+        seconds = int(value)
+        if not 1 <= seconds <= 2147483647:
+            raise ValueError()
+        return seconds
+    except (ValueError, TypeError) as error:
+        raise argparse.ArgumentTypeError('Hook timeout must be a positive Integer in seconds') from error
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['run', 'request-stop', 'accept-post'])
     parser.add_argument('--phase', choices=['PRE', 'POST'], default='PRE')
     parser.add_argument('--context', required=True)
     parser.add_argument('--status', default='74')
+    parser.add_argument('--timeout', type=positive_timeout)
     argv = list(sys.argv[1:] if argv is None else argv)
     split = argv.index('--') if '--' in argv else len(argv)
     args = parser.parse_args(argv[:split])
@@ -311,7 +323,12 @@ def main(argv=None):
             return 0 if request_stop(root, args.context, backup_id, job_id, args.status) else 2
         if not command or not backup_id:
             raise RuntimeError('Hook command and Backup ID are required')
-        return run_supervised(root, args.context, args.phase, backup_id, job_id, command)
+        if args.timeout is None:
+            raise RuntimeError('Hook timeout from backup.plugin.netbackup.hook.timeout is required')
+        from netbackup_hook_timeout import ready_for_hook
+        ready_for_hook(Path(os.environ.get('NETBACKUP_CONFIGURATION_DIR', str(Path(root) / 'configuration'))),
+                       args.timeout, Path(os.environ.get('NETBACKUP_BP_CONF_PATH', '/usr/openv/netbackup/bp.conf')))
+        return run_supervised(root, args.context, args.phase, backup_id, job_id, command, timeout=args.timeout)
     except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
         log(str(error))
         return 1

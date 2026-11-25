@@ -57,7 +57,7 @@ class RestoreEntryTest(unittest.TestCase):
                 worker.manifest = dict(version=1, provider=provider, backupUuid='backup-id', vmName=worker.vm, backupType='FULL',
                                        volumes=[dict(uuid='disk-id', chain=[dict(backupUuid='backup-id', path=str(stage / 'root.raw'))])])
                 worker.check_cancel = Mock()
-                worker.reserve = Mock()
+                worker.reserve = Mock(side_effect=lambda: worker.engine.write_text('{}'))
                 worker.progress = Mock()
                 worker.begin_rbd = Mock()
                 worker.export_rbd = lambda index, path: path.write_bytes(b'payload')

@@ -21,10 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -35,8 +32,9 @@ import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.framework.extensions.manager.ExtensionsManager;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import com.cloud.utils.Pair;
 
 public class ListCustomActionCmdTest {
 
@@ -140,14 +138,12 @@ public class ListCustomActionCmdTest {
     @Test
     public void executeSetsListResponse() {
         List<ExtensionCustomActionResponse> responses = Arrays.asList(mock(ExtensionCustomActionResponse.class));
-        when(extensionsManager.listCustomActions(cmd)).thenReturn(responses);
+        when(extensionsManager.listCustomActions(cmd)).thenReturn(new Pair<>(responses, 21));
 
-        ListCustomActionCmd spyCmd = Mockito.spy(cmd);
-        doNothing().when(spyCmd).setResponseObject(any());
+        cmd.execute();
 
-        spyCmd.execute();
-
-        verify(extensionsManager).listCustomActions(spyCmd);
-        verify(spyCmd).setResponseObject(any(ListResponse.class));
+        ListResponse<?> result = (ListResponse<?>) cmd.getResponseObject();
+        assertEquals(responses, result.getResponses());
+        assertEquals(Integer.valueOf(21), result.getCount());
     }
 }

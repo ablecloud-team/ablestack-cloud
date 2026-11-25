@@ -53,7 +53,7 @@ final class LibvirtAblestackPrimaryRestoreCapacity {
     private LibvirtAblestackPrimaryRestoreCapacity() { }
 
     private static PrimaryClaim filesystem(LibvirtComputingResource resource, Path path, boolean prepare) {
-        Path script = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("thirdparty_primary_capacity.py");
+        Path script = Path.of(resource.getThirdPartyVolumeBackupPath()).getParent().resolve("thirdparty_primary_capacity.py");
         String output = Script.runSimpleBashScriptWithFullResult("python3 " + quote(script.toString()) + " --path " + quote(path.toString())
                 + (prepare ? " --prepare-identity" : ""), 30000);
         PrimaryClaim result = new Gson().fromJson(output, PrimaryClaim.class);

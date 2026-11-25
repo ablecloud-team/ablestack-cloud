@@ -27,6 +27,7 @@ import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.framework.messagebus.MessageBus;
 import org.apache.cloudstack.framework.messagebus.MessageSubscriber;
 import org.apache.cloudstack.oauth2.api.command.DeleteOAuthProviderCmd;
+import org.apache.cloudstack.oauth2.api.command.ListOAuthProviderConfigurationsCmd;
 import org.apache.cloudstack.oauth2.api.command.RegisterOAuthProviderCmd;
 import org.apache.cloudstack.oauth2.api.command.UpdateOAuthProviderCmd;
 import org.apache.cloudstack.oauth2.dao.OauthProviderDao;
@@ -307,6 +308,7 @@ public class OAuth2AuthManagerImplTest {
     @Test
     public void testGetCommands() {
         List<Class<?>> expectedCmdList = new ArrayList<>();
+        expectedCmdList.add(ListOAuthProviderConfigurationsCmd.class);
         expectedCmdList.add(RegisterOAuthProviderCmd.class);
         expectedCmdList.add(DeleteOAuthProviderCmd.class);
         expectedCmdList.add(UpdateOAuthProviderCmd.class);

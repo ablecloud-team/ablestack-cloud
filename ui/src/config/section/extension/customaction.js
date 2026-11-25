@@ -51,6 +51,7 @@ export default {
     },
     {
       api: 'updateCustomAction',
+      standardDialogSize: 'md',
       icon: 'edit-outlined',
       label: 'label.update.custom.action',
       message: 'message.action.update.extension',

@@ -53,13 +53,13 @@
           </a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item name="name" ref="name">
+      <a-form-item name="name" ref="name" :extra="$t('message.extension.action.name.rules')">
         <template #label>
           <tooltip-label :title="$t('label.name')" :tooltip="apiParams.name.description"/>
         </template>
         <a-input
           v-model:value="form.name"
-          :placeholder="apiParams.name.description"
+          :placeholder="$t('label.name')"
           v-focus="true" />
       </a-form-item>
       <a-form-item name="description" ref="description">
@@ -135,16 +135,18 @@
         </template>
         <a-switch v-model:checked="form.enabled" />
       </a-form-item>
-      <div :span="24" class="action-button">
+      <mold-dialog-actions :busy="loading">
         <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
         <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-      </div>
+      </mold-dialog-actions>
     </a-form>
   </div>
 </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { ref, reactive, toRaw } from 'vue'
+import { customActionResourceTypes } from '@/utils/extension'
 import { postAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import InfiniteScrollSelect from '@/components/widgets/InfiniteScrollSelect'
@@ -154,6 +156,7 @@ import DetailsInput from '@/components/widgets/DetailsInput'
 export default {
   name: 'AddCustomAction',
   components: {
+    MoldDialogActions,
     TooltipLabel,
     InfiniteScrollSelect,
     ParametersInput,
@@ -197,31 +200,26 @@ export default {
       })
       this.rules = reactive({
         extensionid: [{ required: true, message: `${this.$t('message.error.select')}` }],
-        name: [{ required: true, message: `${this.$t('message.error.name')}` }],
+        name: [
+          { required: true, message: this.$t('message.error.name') },
+          { pattern: /^[A-Za-z0-9 _-]{1,255}$/, message: this.$t('message.extension.action.name.rules') }
+        ],
         resourcetype: [{ required: true, message: `${this.$t('message.error.select')}` }]
       })
     },
     updateResourceTypeByExtension (selectedExtension) {
-      const type = selectedExtension?.type
-      if (type === 'NetworkOrchestrator') {
-        this.resourceTypeOptions = ['Network', 'Vpc']
-        this.form.resourcetype = 'Network'
-      } else if (type === 'Orchestrator') {
-        this.resourceTypeOptions = ['VirtualMachine']
-        this.form.resourcetype = 'VirtualMachine'
-      } else {
-        this.resourceTypeOptions = ['VirtualMachine', 'Network', 'Vpc']
-        if (!this.form.resourcetype) {
-          this.form.resourcetype = 'VirtualMachine'
-        }
+      const allowed = customActionResourceTypes(selectedExtension?.type)
+      this.resourceTypeOptions = allowed.length ? allowed : ['VirtualMachine', 'Network', 'Vpc']
+      if (!this.resourceTypeOptions.includes(this.form.resourcetype)) {
+        this.form.resourcetype = this.resourceTypeOptions[0]
       }
     },
     handleSubmit (e) {
-      e.preventDefault()
+      if (typeof e?.preventDefault === 'function') e.preventDefault()
       if (this.loading) return
+      this.loading = true
       this.formRef.value.validate().then(() => {
         const values = toRaw(this.form)
-        this.loading = true
         const params = {
           extensionid: values.extensionid || this.extension.id,
           name: values.name,
@@ -246,10 +244,10 @@ export default {
             params['details[0].' + key] = value
           })
         }
-        postAPI('addCustomAction', params).then(response => {
+        return postAPI('addCustomAction', params).then(response => {
           this.$emit('refresh-data')
           this.$notification.success({
-            message: this.$t('label.create.extension'),
+            message: this.$t('label.add.custom.action'),
             description: this.$t('message.success.create.extension')
           })
           this.closeAction()
@@ -260,11 +258,11 @@ export default {
             description: (error.response && error.response.headers && error.response.headers['x-description']) || error.message,
             duration: 0
           })
-        }).finally(() => {
-          this.loading = false
         })
       }).catch(error => {
-        this.$notifyError(error)
+        if (!error.errorFields) this.$notifyError(error)
+      }).finally(() => {
+        this.loading = false
       })
     },
     closeAction () {
@@ -275,10 +273,5 @@ export default {
 </script>
 
 <style scoped lang="less">
-.form-layout {
-  width: 100vw;
-  @media (min-width: 1000px) {
-    width: 950px;
-  }
-}
+.form-layout { width: 100%; min-width: 0; }
 </style>

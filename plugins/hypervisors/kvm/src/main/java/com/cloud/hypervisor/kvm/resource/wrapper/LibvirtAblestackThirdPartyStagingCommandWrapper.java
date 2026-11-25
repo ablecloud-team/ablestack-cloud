@@ -35,13 +35,13 @@ public class LibvirtAblestackThirdPartyStagingCommandWrapper
         extends CommandWrapper<AblestackThirdPartyStagingCommand, Answer, LibvirtComputingResource> {
     @Override
     public Answer execute(AblestackThirdPartyStagingCommand command, LibvirtComputingResource resource) {
-        if (StringUtils.isBlank(resource.getAbleCvtBackupPath()) || command.getTimeoutSeconds() <= 0
+        if (StringUtils.isBlank(resource.getThirdPartyVolumeBackupPath()) || command.getTimeoutSeconds() <= 0
                 || command.getTimeoutSeconds() > Integer.MAX_VALUE - 30 || command.getRequiredBytes() < 0
                 || (!"MOUNT".equals(command.getLocalMode()) && !"DIRECTORY".equals(command.getLocalMode()))
                 || ("DIRECTORY".equals(command.getLocalMode()) && !"LOCAL".equals(command.getStorageType()))) {
             return new Answer(command, false, "Invalid staging preparation command or missing KVM backup script directory.");
         }
-        Path scriptPath = Path.of(resource.getAbleCvtBackupPath()).resolveSibling("thirdparty_staging.sh");
+        Path scriptPath = Path.of(resource.getThirdPartyVolumeBackupPath()).resolveSibling("thirdparty_staging.sh");
         if (!Files.isRegularFile(scriptPath)) {
             return new Answer(command, false, "The staging preparation script is not installed on this KVM host: " + scriptPath);
         }

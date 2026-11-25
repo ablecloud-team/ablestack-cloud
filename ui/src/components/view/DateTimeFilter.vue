@@ -32,7 +32,7 @@
     </div>
     <div v-show="showStartDate">
       <a-form-item :label="$t('label.only.start.date.and.time')" ref="allData" name="allData">
-        <a-switch v-model:checked="onlyStartDateIsChecked" @change="onToggleStartDate"/>
+        <a-switch v-model:checked="onlyStartDateIsChecked" :aria-label="$t('label.only.start.date.and.time')" @change="onToggleStartDate"/>
       </a-form-item>
       <a-form-item :label="$t('label.start.date.and.time')" ref="startDate" name="startDate">
         <a-date-picker
@@ -43,7 +43,7 @@
     </div>
     <div v-show="showEndDate">
       <a-form-item :label="$t('label.only.end.date.and.time')">
-        <a-switch v-model:checked="onlyEndDateIsChecked"  @change="onToggleEndDate"/>
+        <a-switch v-model:checked="onlyEndDateIsChecked" :aria-label="$t('label.only.end.date.and.time')" @change="onToggleEndDate"/>
       </a-form-item>
       <a-form-item :label="$t('label.end.date.and.time')" ref="endDate" name="endDate">
         <a-date-picker
@@ -53,21 +53,24 @@
       </a-form-item>
     </div>
   </a-form>
-  <div :span="24" class="action-button">
+  <component :is="standardDialog ? 'MoldDialogActions' : 'div'" class="action-button">
     <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
     <a-button type="primary" @click="handleSubmit">{{ submitButtonLabel }}</a-button>
-  </div>
+  </component>
 </template>
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
 // import moment from 'moment'
 import dayjs from 'dayjs'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 
 export default {
   name: 'DateTimeFilter',
+  components: { MoldDialogActions },
   emits: ['closeAction', 'onSubmit'],
   props: {
+    standardDialog: { type: Boolean, default: false },
     startDateProp: {
       type: [Date, String, Number],
       required: false
@@ -122,7 +125,7 @@ export default {
       })
     },
     handleSubmit (e) {
-      e.preventDefault()
+      if (e && typeof e.preventDefault === 'function') e.preventDefault()
       this.formRef.value.validate().then(() => {
         this.submitButtonLabel = this.$t('label.refresh')
         const values = toRaw(this.form)

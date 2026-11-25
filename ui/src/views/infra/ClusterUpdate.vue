@@ -25,65 +25,38 @@
       :rules="rules"
       v-ctrl-enter="handleSubmit"
       @finish="handleSubmit">
-      <a-form-item name="name" ref="name">
-        <template #label>
-          <tooltip-label :title="$t('label.name')" :tooltip="apiParams.clustername.description"/>
-        </template>
-        <a-input
-          v-model:value="form.name"
-          v-focus="true" />
-      </a-form-item>
-      <a-form-item
-        name="arch"
-        ref="arch">
-        <template #label>
-          <tooltip-label :title="$t('label.arch')" :tooltip="apiParams.arch.description"/>
-        </template>
+      <a-alert v-if="saveStage" type="info" show-icon class="cluster-save-status" :message="$t(saveStage)" />
+      <a-alert v-if="baseSaved && saveError" type="success" show-icon class="cluster-save-status" :message="$t('message.cluster.update.fields.saved')" />
+      <a-alert v-if="saveError" :type="groupUnknown ? 'warning' : 'error'" show-icon class="cluster-save-status" :message="$t(saveError)" />
+      <fieldset :disabled="loading || baseComplete">
+        <a-form-item v-if="apiParams.clustername && resource.hypervisortype !== 'VMware'" name="name" :label="$t('label.name')">
+          <a-input v-model:value="form.name" v-focus="true" />
+        </a-form-item>
+        <a-form-item v-if="apiParams.arch" name="arch" :label="$t('label.arch')" html-for="cluster-edit-arch">
+          <a-select id="cluster-edit-arch" v-model:value="form.arch" show-search option-filter-prop="label" :options="architectureOptions" :disabled="loading || baseComplete" />
+        </a-form-item>
+        <a-form-item v-if="resource.hypervisortype === 'External' && resource.extensionid && apiParams.externaldetails" name="externaldetails" :label="$t('label.configuration.details')">
+          <p>{{ $t('message.add.extension.resource.details') }}</p>
+          <details-input v-model:value="form.externaldetails" />
+        </a-form-item>
+      </fieldset>
+      <a-form-item v-if="canConfigureStorage" name="storageaccessgroups" :label="$t('label.storageaccessgroups')" html-for="cluster-edit-storage-groups">
         <a-select
-          showSearch
-          optionFilterProp="label"
-          :filterOption="(input, option) => {
-            return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }"
-          v-model:value="form.arch"
-          :placeholder="apiParams.arch.description">
-          <a-select-option v-for="opt in architectureTypes.opts" :key="opt.id">
-            {{ opt.name || opt.description }}
-          </a-select-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item name="storageaccessgroups" ref="storageaccessgroups">
-        <template #label>
-          <tooltip-label :title="$t('label.storageaccessgroups')" :tooltip="apiParamsConfigureStorageAccess.storageaccessgroups.description"/>
-        </template>
-        <a-select
-          mode="tags"
+          id="cluster-edit-storage-groups"
           v-model:value="form.storageaccessgroups"
-          showSearch
-          optionFilterProp="label"
-          :filterOption="(input, option) => {
-            return option.children?.[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }"
+          mode="tags"
+          option-filter-prop="label"
+          :disabled="loading || groupUnknown"
+          :options="storageAccessGroups"
           :loading="storageAccessGroupsLoading"
-          :placeholder="apiParamsConfigureStorageAccess.storageaccessgroups.description">
-          <a-select-option v-for="(opt) in storageAccessGroups" :key="opt">
-            {{ opt }}
-          </a-select-option>
-        </a-select>
+          :placeholder="apiParamsConfigureStorageAccess.storageaccessgroups.description" />
       </a-form-item>
-      <a-form-item name="externaldetails" ref="externaldetails" v-if="resource.hypervisortype === 'External' && resource.extensionid">
-        <template #label>
-          <tooltip-label :title="$t('label.configuration.details')" :tooltip="apiParams.externaldetails.description"/>
-        </template>
-        <div style="margin-bottom: 10px">{{ $t('message.add.extension.resource.details') }}</div>
-        <details-input
-          v-model:value="form.externaldetails" />
-      </a-form-item>
-
-      <div :span="24" class="action-button">
-        <a-button :loading="loading" @click="onCloseAction">{{ $t('label.cancel') }}</a-button>
-        <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-      </div>
+      <mold-dialog-actions :busy="loading">
+        <a-button :disabled="loading" @click="onCloseAction">{{ $t('label.cancel') }}</a-button>
+        <a-button type="primary" ref="submit" :loading="loading" @click="handleSubmit">
+          {{ $t(groupUnknown ? 'label.host.operation.recheck' : saveError ? 'label.retry' : 'label.ok') }}
+        </a-button>
+      </mold-dialog-actions>
     </a-form>
   </a-spin>
 </template>
@@ -91,13 +64,14 @@
 <script>
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
-import TooltipLabel from '@/components/widgets/TooltipLabel'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
+import { createHostJobTracker as createJobTracker, hostRequestRejected as requestRejected, hostStorageGroups as normalizeGroups } from '@/utils/hostOperations'
 import DetailsInput from '@/components/widgets/DetailsInput'
 
 export default {
   name: 'ClusterUpdate',
   components: {
-    TooltipLabel,
+    MoldDialogActions,
     DetailsInput
   },
   props: {
@@ -113,66 +87,69 @@ export default {
   data () {
     return {
       loading: false,
-      architectureTypes: {},
+      baseComplete: false,
+      baseSaved: false,
+      saveStage: '',
+      saveError: '',
+      groupJobId: '',
+      groupUnknown: false,
+      requestedGroups: '',
+      initialExternalDetails: null,
       storageAccessGroups: [],
       storageAccessGroupsLoading: false
     }
   },
+  computed: {
+    canConfigureStorage () {
+      return Boolean(this.apiParamsConfigureStorageAccess?.clusterid &&
+        this.apiParamsConfigureStorageAccess?.storageaccessgroups &&
+        this.$store.getters.apis?.queryAsyncJobResult)
+    },
+    architectureOptions () {
+      const options = this.$fetchCpuArchitectureTypes().map(opt => ({ value: opt.id, label: opt.name || opt.description || opt.id }))
+      if (this.resource.arch && !options.some(opt => opt.value === this.resource.arch)) {
+        options.push({ value: this.resource.arch, label: this.resource.arch })
+      }
+      return options
+    }
+  },
   beforeCreate () {
-    this.apiParams = this.$getApiParams('updateCluster')
+    this.apiParams = this.$getApiParams('updateCluster') || {}
     this.apiParamsConfigureStorageAccess = this.$getApiParams('configureStorageAccess')
   },
   created () {
     this.initForm()
-    this.fetchData()
+    this.groupTracker = createJobTracker()
+    if (this.canConfigureStorage) this.fetchStorageAccessGroupsData()
+    this.fetchExtensionResourceMapDetails()
+  },
+  beforeUnmount () {
+    this.groupTracker.clear()
   },
   methods: {
     initForm () {
       this.formRef = ref()
       this.form = reactive({
         name: this.resource.name,
+        arch: this.resource.arch,
         storageaccessgroups: this.resource.storageaccessgroups
           ? this.resource.storageaccessgroups.split(',')
           : []
       })
       this.rules = reactive({})
     },
-    fetchStorageAccessGroupsData () {
-      const params = {}
+    async fetchStorageAccessGroupsData () {
+      if (!this.$store.getters.apis?.listStorageAccessGroups) return
       this.storageAccessGroupsLoading = true
-      getAPI('listStorageAccessGroups', params).then(json => {
-        const sags = json.liststorageaccessgroupsresponse.storageaccessgroup || []
-        for (const sag of sags) {
-          if (!this.storageAccessGroups.includes(sag.name)) {
-            this.storageAccessGroups.push(sag.name)
-          }
-        }
-      }).finally(() => {
+      try {
+        const response = await getAPI('listStorageAccessGroups', {}, { preserveOnFailure: true })
+        const groups = response.liststorageaccessgroupsresponse?.storageaccessgroup || []
+        this.storageAccessGroups = [...new Set(groups.map(group => group.name))].map(name => ({ value: name, label: name }))
+      } catch (error) {
+        this.$notifyError(error)
+      } finally {
         this.storageAccessGroupsLoading = false
-      })
-      this.rules = reactive({})
-    },
-    fetchData () {
-      this.fetchArchitectureTypes()
-      this.fetchStorageAccessGroupsData()
-      this.fetchExtensionResourceMapDetails()
-    },
-    fetchArchitectureTypes () {
-      this.architectureTypes.opts = []
-      const typesList = []
-      typesList.push({
-        id: 'x86_64',
-        description: 'AMD 64 bits (x86_64)'
-      })
-      typesList.push({
-        id: 'aarch64',
-        description: 'ARM 64 bits (aarch64)'
-      })
-      typesList.push({
-        id: 's390x',
-        description: 'IBM Z 64 bits (s390x)'
-      })
-      this.architectureTypes.opts = typesList
+      }
     },
     fetchExtensionResourceMapDetails () {
       this.form.externaldetails = null
@@ -188,7 +165,8 @@ export default {
         const resources = json?.listextensionsresponse?.extension?.[0]?.resources || []
         const resourceMap = resources.find(r => r.id === this.resource.id)
         if (resourceMap && resourceMap.details && typeof resourceMap.details === 'object') {
-          this.form.externaldetails = resourceMap.details
+          this.initialExternalDetails = { ...resourceMap.details }
+          this.form.externaldetails = { ...resourceMap.details }
         }
       }).catch(error => {
         this.$notifyError(error)
@@ -196,80 +174,111 @@ export default {
         this.loading = false
       })
     },
-    handleSubmit () {
-      this.formRef.value.validate().then(() => {
-        const values = toRaw(this.form)
-        const params = {}
-        params.id = this.resource.id
-        params.clustername = values.name
-        if (values.externaldetails) {
-          Object.entries(values.externaldetails).forEach(([key, value]) => {
-            params['externaldetails[0].' + key] = value
-          })
+    baseChanges (values) {
+      const changes = {}
+      if (this.apiParams.clustername && this.resource.hypervisortype !== 'VMware' && values.name !== this.resource.name) changes.clustername = values.name
+      if (this.apiParams.arch && values.arch && values.arch !== this.resource.arch) changes.arch = values.arch
+      if (this.apiParams.externaldetails && this.resource.hypervisortype === 'External' && this.resource.extensionid) {
+        const previous = Object.entries(this.initialExternalDetails || {}).sort()
+        const entries = Object.entries(values.externaldetails || {}).sort()
+        if (JSON.stringify(entries) !== JSON.stringify(previous)) {
+          entries.forEach(([key, value]) => { changes['externaldetails[0].' + key] = value })
         }
-        this.loading = true
-
-        postAPI('updateCluster', params).then(json => {
-          this.$message.success({
-            content: `${this.$t('label.action.update.cluster')} - ${values.name}`,
-            duration: 2
-          })
-
-          if (values.storageaccessgroups != null && values.storageaccessgroups.length > 0) {
-            params.storageaccessgroups = values.storageaccessgroups.join(',')
-          } else {
-            params.storageaccessgroups = ''
+      }
+      return changes
+    },
+    async handleSubmit () {
+      if (this.loading) return
+      this.loading = true
+      this.saveError = ''
+      try {
+        await this.formRef.value.validate()
+        const values = toRaw(this.form)
+        const id = this.resource.id
+        if (!this.baseComplete) {
+          const changes = this.baseChanges(values)
+          if (Object.keys(changes).length) {
+            this.saveStage = 'message.cluster.update.fields.saving'
+            await postAPI('updateCluster', { id, ...changes }, { preserveOnFailure: true })
+            this.baseSaved = true
           }
-
-          if (params.storageaccessgroups !== undefined && (this.resource.storageaccessgroups ? this.resource.storageaccessgroups.split(',').join(',') : '') !== params.storageaccessgroups) {
-            postAPI('configureStorageAccess', {
-              clusterid: params.id,
-              storageaccessgroups: params.storageaccessgroups
-            }).then(response => {
-              this.$pollJob({
-                jobId: response.configurestorageaccessresponse.jobid,
-                successMethod: () => {
-                  this.$message.success({
-                    content: this.$t('label.action.configure.storage.access.group'),
-                    duration: 2
-                  })
-                },
-                errorMessage: this.$t('message.configuring.storage.access.failed')
-              })
-            })
-          }
-
-          this.$emit('refresh-data')
-          this.onCloseAction()
-        }).catch(error => {
+          this.baseComplete = true
+        }
+        const groups = normalizeGroups(values.storageaccessgroups)
+        if (this.groupUnknown || (this.canConfigureStorage && groups !== normalizeGroups(this.resource.storageaccessgroups))) {
+          if (!this.groupUnknown) this.requestedGroups = groups
+          if (!(await this.saveStorageGroups(id))) return
+        }
+        this.$message.success(this.$t('message.cluster.update.complete'))
+        this.$emit('refresh-data')
+        this.$emit('close-action')
+      } catch (error) {
+        if (error.errorFields?.[0]) this.formRef.value.scrollToField(error.errorFields[0].name)
+        else {
+          this.saveError = 'message.cluster.update.fields.failed'
           this.$notifyError(error)
-        }).finally(() => { this.loading = false })
-      }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
-      })
+        }
+      } finally {
+        this.saveStage = ''
+        this.loading = false
+      }
+    },
+    async saveStorageGroups (id) {
+      this.saveStage = 'message.host.update.groups.saving'
+      if (this.groupUnknown && !this.groupJobId) {
+        try {
+          const response = await getAPI('listClusters', { id }, { preserveOnFailure: true, timeout: 10000 })
+          const cluster = response.listclustersresponse?.cluster?.find(item => item.id === id)
+          if (cluster && normalizeGroups(cluster.storageaccessgroups) === this.requestedGroups) return true
+        } catch {}
+        this.saveError = 'message.host.update.groups.unknown'
+        return false
+      }
+      if (!this.groupJobId) {
+        try {
+          const response = await postAPI('configureStorageAccess', {
+            clusterid: id,
+            storageaccessgroups: this.requestedGroups
+          }, { preserveOnFailure: true, timeout: 15000 })
+          this.groupJobId = response.configurestorageaccessresponse?.jobid
+        } catch (error) {
+          if (requestRejected(error)) {
+            this.saveError = 'message.host.update.groups.failed'
+            return false
+          }
+        }
+      }
+      if (this.groupJobId) {
+        const result = await this.groupTracker.track(this.groupJobId, {}, this.groupUnknown)
+        if (result.jobstatus === 1) return true
+        if (result.jobstatus === 2) {
+          this.groupJobId = ''
+          this.groupUnknown = false
+          this.saveError = 'message.host.update.groups.failed'
+          return false
+        }
+      }
+      this.groupUnknown = true
+      this.saveError = 'message.host.update.groups.unknown'
+      return false
     },
     onCloseAction () {
+      if (this.loading) return
+      if (this.baseSaved || this.groupUnknown) this.$emit('refresh-data')
       this.$emit('close-action')
     }
   }
 }
 </script>
 
-<style scoped lang="less">
-.form-layout {
-  width: 80vw;
+<style scoped>
+.form-layout fieldset {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+}
 
-  @media (min-width: 600px) {
-    width: 450px;
-  }
-
-  .action-button {
-    text-align: right;
-    margin-top: 20px;
-
-    button {
-      margin-right: 5px;
-    }
-  }
+.cluster-save-status {
+  margin-bottom: 12px;
 }
 </style>

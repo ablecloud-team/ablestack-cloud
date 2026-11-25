@@ -477,9 +477,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     private String vmActivityCheckPathClvm;
     private String nasBackupPath;
     private String ableNasBackupPath;
-    private String ableCvtBackupPath;
-    private String ableNetBackupPath;
-    private String ableVeeamPath;
+    private String thirdPartyVolumeBackupPath;
     private String imageServerPath;
     private boolean imageServerTlsEnabled = false;
     private String imageServerListenAddress;
@@ -840,10 +838,15 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             guestCpuArch = cpuArchOverride;
         }
         try {
-            hypervisorPath = getHypervisorPath(LibvirtConnection.getConnection());
+            final Connect connection = LibvirtConnection.getConnection();
+            hypervisorPath = getHypervisorPath(connection);
+            // A detached worker has not run the Agent's normal host discovery.
+            // Load real versions before applying incremental-backup capability checks.
+            hypervisorLibvirtVersion = connection.getLibVirVersion();
+            hypervisorQemuVersion = connection.getVersion();
         } catch (LibvirtException e) {
             final ConfigurationException configurationException =
-                    new ConfigurationException("Unable to resolve the KVM emulator for detached backup job");
+                    new ConfigurationException("Unable to resolve the KVM emulator or hypervisor versions for detached backup job");
             configurationException.initCause(e);
             throw configurationException;
         }
@@ -861,17 +864,12 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         if (ableNasBackupPath == null) {
             throw new ConfigurationException("Unable to find ablestack_nasbackup.sh");
         }
-        ableCvtBackupPath = Script.findScript(kvmScriptsDir, "ablestack_cvtbackup.sh");
-        if (ableCvtBackupPath == null) {
-            throw new ConfigurationException("Unable to find ablestack_cvtbackup.sh");
+        thirdPartyVolumeBackupPath = Script.findScript(kvmScriptsDir, "thirdparty_volume_backup.py");
+        if (thirdPartyVolumeBackupPath == null) {
+            throw new ConfigurationException("Unable to find thirdparty_volume_backup.py");
         }
-        ableNetBackupPath = Script.findScript(kvmScriptsDir, "ablestack_netbackup.sh");
-        if (ableNetBackupPath == null) {
-            throw new ConfigurationException("Unable to find ablestack_netbackup.sh");
-        }
-        ableVeeamPath = Script.findScript(kvmScriptsDir, "ablestack_veeam.sh");
-        if (ableVeeamPath == null) {
-            throw new ConfigurationException("Unable to find ablestack_veeam.sh");
+        if (Script.findScript(kvmScriptsDir, "thirdparty_backup_cleanup.sh") == null) {
+            throw new ConfigurationException("Unable to find thirdparty_backup_cleanup.sh");
         }
     }
 
@@ -1115,16 +1113,8 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         return ableNasBackupPath;
     }
 
-    public String getAbleCvtBackupPath() {
-        return ableCvtBackupPath;
-    }
-
-    public String getAbleNetBackupPath() {
-        return ableNetBackupPath;
-    }
-
-    public String getAbleVeeamPath() {
-        return ableVeeamPath;
+    public String getThirdPartyVolumeBackupPath() {
+        return thirdPartyVolumeBackupPath;
     }
 
     public String getImageServerPath() {

@@ -2,11 +2,15 @@
 // contributor license agreements. See NOTICE. Apache License, Version 2.0.
 package org.apache.cloudstack.storage.dataservice;
 import java.lang.reflect.Field;
-import java.nio.file.*;
-import com.google.gson.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.apache.cloudstack.api.command.user.storage.dataservice.DeleteStorageServiceProtocolCmd;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 public class StorageProtocolDeletionIntentTest {
     @Test public void actualDeleteCommandPublicIntentsDefineTheUiContract() throws Exception {
         JsonArray cases=new JsonArray();

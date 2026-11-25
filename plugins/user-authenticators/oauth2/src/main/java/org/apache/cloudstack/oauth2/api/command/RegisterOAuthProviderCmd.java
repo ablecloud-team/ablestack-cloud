@@ -27,7 +27,6 @@ import org.apache.cloudstack.api.BaseCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.response.DomainResponse;
-import org.apache.cloudstack.api.response.SuccessResponse;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.oauth2.OAuth2AuthManager;
 import org.apache.cloudstack.oauth2.api.response.OauthProviderResponse;
@@ -40,7 +39,8 @@ import com.cloud.api.ApiDBUtils;
 import com.cloud.domain.Domain;
 import com.cloud.exception.ConcurrentOperationException;
 
-@APICommand(name = "registerOauthProvider", responseObject = SuccessResponse.class, description = "Register the OAuth2 provider in CloudStack", since = "4.19.0")
+@APICommand(name = "registerOauthProvider", responseObject = OauthProviderResponse.class,
+        description = "Register the OAuth2 provider in CloudStack", since = "4.19.0")
 public class RegisterOAuthProviderCmd extends BaseCmd {
 
     /////////////////////////////////////////////////////
@@ -146,9 +146,9 @@ public class RegisterOAuthProviderCmd extends BaseCmd {
         OauthProviderVO provider = _oauth2mgr.registerOauthProvider(this);
 
         Domain domain = provider.getDomainId() != null ? ApiDBUtils.findDomainById(provider.getDomainId()) : null;
-        OauthProviderResponse response = new OauthProviderResponse(provider.getUuid(), provider.getProvider(),
-                provider.getDescription(), provider.getClientId(), provider.getSecretKey(), provider.getRedirectUri(),
-                provider.getAuthorizeUrl(), provider.getTokenUrl(), domain);
+        boolean available = _oauth2mgr.listUserOAuth2AuthenticationProviders().stream()
+                .anyMatch(authenticator -> provider.getProvider().equals(authenticator.getName()));
+        OauthProviderResponse response = OauthProviderResponse.forManagement(provider, domain, available);
         response.setResponseName(getCommandName());
         response.setObjectName(ApiConstants.OAUTH_PROVIDER);
         setResponseObject(response);

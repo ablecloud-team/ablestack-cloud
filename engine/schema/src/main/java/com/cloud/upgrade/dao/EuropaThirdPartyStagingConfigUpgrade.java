@@ -37,7 +37,9 @@ public final class EuropaThirdPartyStagingConfigUpgrade {
                         "SET enabled.value = 'false' WHERE enabled.name = 'backup.thirdparty.staging.enable' " +
                         "AND UPPER(TRIM(storage_type.value)) = 'GLUEFS'");
                 PreparedStatement statement = conn.prepareStatement(
-                        "DELETE FROM cloud.configuration WHERE name IN (?, ?, ?, ?, ?)")) {
+                        "DELETE FROM cloud.configuration WHERE name IN (?, ?, ?, ?, ?)");
+                PreparedStatement zoneSettings = conn.prepareStatement(
+                        "DELETE FROM cloud.data_center_details WHERE name IN (?, ?, ?)")) {
             disableUnsupported.executeUpdate();
             statement.setString(1, "backup.plugin.commvault.stage.root.path");
             statement.setString(2, "backup.plugin.netbackup.stage.root.path");
@@ -45,6 +47,10 @@ public final class EuropaThirdPartyStagingConfigUpgrade {
             statement.setString(4, "backup.thirdparty.staging.gluefs.name");
             statement.setString(5, "backup.thirdparty.staging.gluefs.path");
             statement.executeUpdate();
+            zoneSettings.setString(1, "backup.plugin.commvault.stage.root.path");
+            zoneSettings.setString(2, "backup.plugin.netbackup.stage.root.path");
+            zoneSettings.setString(3, "backup.plugin.ablestack-veeam.stage.root.path");
+            zoneSettings.executeUpdate();
         } catch (SQLException e) {
             throw new CloudRuntimeException("Unable to remove obsolete third-party host staging settings", e);
         }

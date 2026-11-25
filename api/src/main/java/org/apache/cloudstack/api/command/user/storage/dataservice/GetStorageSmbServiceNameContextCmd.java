@@ -18,8 +18,11 @@
 package org.apache.cloudstack.api.command.user.storage.dataservice;
 import javax.inject.Inject;
 import org.apache.cloudstack.acl.RoleType;
-import org.apache.cloudstack.api.*;
-import org.apache.cloudstack.api.response.*;
+import org.apache.cloudstack.api.APICommand;
+import org.apache.cloudstack.api.BaseCmd;
+import org.apache.cloudstack.api.Parameter;
+import org.apache.cloudstack.api.response.StorageServiceInstanceResponse;
+import org.apache.cloudstack.api.response.StorageSmbServiceNameContextResponse;
 import org.apache.cloudstack.api.command.user.UserCmd;
 @APICommand(name="getStorageSmbServiceNameContext",responseObject=StorageSmbServiceNameContextResponse.class,
  description="Read joined AD computer context without modifying DNS, SPNs, accounts or configuration",

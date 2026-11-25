@@ -111,10 +111,12 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
             "The backup and recovery background sync task polling interval in seconds.", true, BackupFrameworkEnabled.key());
 
     ConfigKey<Boolean> NetBackupVmScheduleEnabled = new ConfigKey<>("Advanced", Boolean.class,
-            "backup.plugin.netbackup.vm.schedule.enabled", "false",
+            "backup.plugin.netbackup.vm.schedule.enabled", "true",
             "Use Mold per-VM schedules for all ABLESTACK NetBackup host policies. " +
-                    "When false, use each host policy's VM include/exclude filters. " +
-                    "When true, an empty due schedule list skips backup without falling back to host filters.",
+                    "Only VMs explicitly assigned a matching NetBackup backup offering are eligible in either mode. " +
+                    "When false, back up all eligible assigned VMs when the NetBackup policy runs. " +
+                    "When true, require a due Mold VM schedule; an empty due list skips backup. " +
+                    "Changing modes requires idle NetBackup work and inactive configured host policies; existing VM schedules are preserved.",
             true, ConfigKey.Scope.Global, BackupFrameworkEnabled.key());
 
     ConfigKey<Boolean> AblestackVeeamVmScheduleEnabled = new ConfigKey<>("Advanced", Boolean.class,
@@ -122,6 +124,15 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
             "Use Mold per-VM schedules for all ABLESTACK Veeam host jobs. " +
                     "When false, use each host job's VM include/exclude filters. " +
                     "When true, an empty due schedule list skips backup without falling back to host filters.",
+            true, ConfigKey.Scope.Global, BackupFrameworkEnabled.key());
+
+    ConfigKey<Integer> NetBackupHookTimeout = new ConfigKey<>("Advanced", Integer.class,
+            "backup.plugin.netbackup.hook.timeout", "86400",
+            "Execution timeout in seconds for each ABLESTACK NetBackup PRE or POST hook invocation. " +
+                    "Must be positive. Each new invocation reads this Global value; running hooks retain their original limit. " +
+                    "Separate from VM staging queue and data-operation timeouts. Host setup and Global changes apply this value to managed Client notify/read timeouts. " +
+                    "Changes require idle configured Hosts and inactive policies; resaving reconciles incomplete Host updates. " +
+                    "Also verify notify/read timeouts on the NetBackup Primary and Media servers.",
             true, ConfigKey.Scope.Global, BackupFrameworkEnabled.key());
 
     ConfigKey<Long> BackupActiveJobSyncPollingInterval = new ConfigKey<>("Advanced", Long.class,
@@ -132,7 +143,8 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
     ConfigKey<Integer> BackupDataOperationTimeout = new ConfigKey<>("Advanced", Integer.class,
             "backup.data.operation.timeout",
             "43200",
-            "Maximum execution time in seconds for host-side KVM backup and restore data operations, external staging, and backup data cleanup.",
+            "Execution timeout in seconds for each host-side KVM backup/restore data operation, external staging transfer, " +
+                    "and backup data cleanup. Separate from staging queue wait and detached start/control response timeouts.",
             true,
             BackupFrameworkEnabled.key());
 
@@ -254,12 +266,12 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
             true, ConfigKey.Scope.Global, BackupFrameworkEnabled.key());
 
     ConfigKey<Integer> ThirdPartyStagingConcurrentCluster = new ConfigKey<>("Advanced", Integer.class,
-            "backup.thirdparty.staging.concurrent.jobs.per.cluster", "4",
+            "backup.thirdparty.staging.concurrent.jobs.per.cluster", "1",
             "Maximum concurrent volume staging Backup and Restore jobs combined in one cluster.",
             true, ConfigKey.Scope.Global, BackupFrameworkEnabled.key());
 
     ConfigKey<Integer> ThirdPartyStagingConcurrentTotal = new ConfigKey<>("Advanced", Integer.class,
-            "backup.thirdparty.staging.concurrent.jobs.total", "4",
+            "backup.thirdparty.staging.concurrent.jobs.total", "1",
             "Maximum concurrent Backup and Restore jobs combined across all Hosts and all three ABLESTACK third-party providers using common staging.",
             true, ConfigKey.Scope.Global, BackupFrameworkEnabled.key());
 
@@ -277,7 +289,7 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
 
     ConfigKey<Boolean> KvmIncrementalBackup = new ConfigKey<>("Advanced", Boolean.class,
             "kvm.incremental.backup",
-            "false",
+            "true",
             "Enable KVM incremental backups for supported backup providers.",
             false,
             ConfigKey.Scope.Cluster,

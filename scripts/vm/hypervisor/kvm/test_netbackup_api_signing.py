@@ -107,6 +107,21 @@ invoke_mold_api POST reportBackupArtifactRestoreValidation validation "$TEST_VAL
         self.assertEqual('901', params['jobid'])
         self.assertEqual('reportBackupArtifactRestoreValidation', params['command'])
 
+    def test_host_filter_names_preserve_internal_spaces_and_signature(self):
+        include = "ERP Server, Finance  DB, 팀 업무 VM"
+        exclude = "Finance  DB"
+        self.env.update(TEST_INCLUDE=include, TEST_EXCLUDE=exclude)
+        result = self.shell(r'''
+source "$TEST_COMMON"
+params="$(build_mold_api_params listExternalBackupCandidates provider ablestack-netbackup vminclude "$TEST_INCLUDE" vmexclude "$TEST_EXCLUDE")"
+build_mold_signed_url https://mold.test/client/api "$params"
+''')
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.verify_signature(result.stdout, reason=None, proof=None)
+        params = dict(parse_qsl(urlsplit(result.stdout.strip()).query))
+        self.assertEqual(include, params["vminclude"])
+        self.assertEqual(exclude, params["vmexclude"])
+
     def test_large_ownership_proof_uses_form_body_with_the_same_signature(self):
         proof = json.dumps(dict(hostName='ablecube4', restoredFiles=[dict(path='/stage/' + 'x'*500)]*20))
         self.env['MOLD_EXTERNAL_RESTORE_PROOF'] = proof

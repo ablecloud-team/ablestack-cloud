@@ -44,6 +44,7 @@ export default {
   components: {
     ActionButton
   },
+  emits: ['exec-action', 'update:visible'],
   props: {
     actions: {
       type: Array,

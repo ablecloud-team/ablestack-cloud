@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.cloudstack.mom.webhook.vo.WebhookFilterVO;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.cloud.utils.Pair;
 import com.cloud.utils.db.Filter;
@@ -36,11 +37,12 @@ public class WebhookFilterDaoImpl extends GenericDaoBase<WebhookFilterVO, Long> 
         IdWebhookIdSearch = createSearchBuilder();
         IdWebhookIdSearch.and("id", IdWebhookIdSearch.entity().getId(), SearchCriteria.Op.EQ);
         IdWebhookIdSearch.and("webhookId", IdWebhookIdSearch.entity().getWebhookId(), SearchCriteria.Op.EQ);
+        IdWebhookIdSearch.and("keyword", IdWebhookIdSearch.entity().getValue(), SearchCriteria.Op.LIKE);
         IdWebhookIdSearch.done();
     }
 
     @Override
-    public Pair<List<WebhookFilterVO>, Integer> searchBy(Long id, Long webhookId, Long startIndex, Long pageSize) {
+    public Pair<List<WebhookFilterVO>, Integer> searchBy(Long id, Long webhookId, String keyword, Long startIndex, Long pageSize) {
         Filter searchFilter = new Filter(WebhookFilterVO.class, "id", false, startIndex,
                 pageSize);
         SearchCriteria<WebhookFilterVO> sc = IdWebhookIdSearch.create();
@@ -49,6 +51,9 @@ public class WebhookFilterDaoImpl extends GenericDaoBase<WebhookFilterVO, Long> 
         }
         if (webhookId != null) {
             sc.setParameters("webhookId", webhookId);
+        }
+        if (StringUtils.isNotBlank(keyword)) {
+            sc.setParameters("keyword", "%" + keyword.trim() + "%");
         }
         return searchAndCount(sc, searchFilter);
     }

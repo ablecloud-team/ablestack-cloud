@@ -64,6 +64,8 @@ class FakeApi(config.MoldApi):
         self.calls.append((command, params))
         if command == "listConfigurations":
             key = (params["name"], params.get("zoneid", params.get("clusterid", "")))
+            if key not in self.settings and key[1]:
+                key = (key[0], "")
             return {"configuration": [{"name": key[0], "value": self.settings[key]}]} if key in self.settings else {}
         if command == "updateConfiguration":
             self.settings[(params["name"], params.get("zoneid", params.get("clusterid", "")))] = params["value"]
@@ -145,7 +147,9 @@ class VeeamHostConfigTest(unittest.TestCase):
         result, output = self.run_config()
         self.assertEqual(0, result, output)
         self.assertNotIn("Restart the management server", output)
-        self.assertFalse(any(cmd in ("updateConfiguration", "importBackupOffering") for cmd, _ in self.api.calls))
+        self.assertEqual([{"name": "kvm.incremental.backup", "value": "true", "clusterid": "cluster"}],
+                         [params for cmd, params in self.api.calls if cmd == "updateConfiguration"])
+        self.assertFalse(any(cmd == "importBackupOffering" for cmd, _ in self.api.calls))
         for path, expected in before.items():
             self.assertEqual(expected, (path.read_bytes(), path.stat().st_mtime_ns), str(path))
         self.assertEqual(1, len(self.api.offers))
@@ -166,7 +170,9 @@ class VeeamHostConfigTest(unittest.TestCase):
         result, output = self.run_config(options)
         self.assertEqual(0, result, output)
         self.assertIn("/new-root/ablestack-veeam/bootstrap/host-test/Job_with_spaces", conf.read_text())
-        self.assertFalse(any(cmd in ("updateConfiguration", "importBackupOffering") for cmd, _ in self.api.calls))
+        self.assertEqual([{"name": "kvm.incremental.backup", "value": "true", "clusterid": "cluster"}],
+                         [params for cmd, params in self.api.calls if cmd == "updateConfiguration"])
+        self.assertFalse(any(cmd == "importBackupOffering" for cmd, _ in self.api.calls))
 
     def test_refresh_syncs_common_payload_after_staging_moves_to_local_directory(self):
         options = self.options[:]
@@ -336,19 +342,42 @@ class VeeamHostConfigTest(unittest.TestCase):
         self.assertEqual(0, self.run_config()[0])
         self.assertEqual(1, len(self.api.offers))
 
-    def test_full_mode_updates_global_and_cluster_without_changing_chain(self):
+    def test_full_mode_updates_only_cluster_without_changing_global_or_chain(self):
         result, output = self.run_config(self.options + ["--incremental-backup", "false"])
         self.assertEqual(1, result)
         self.assertIn("Restart the management server", output)
         updates = [params for cmd, params in self.api.calls if cmd == "updateConfiguration"]
-        self.assertEqual([{"name": "kvm.incremental.backup", "value": "false"},
-                          {"name": "kvm.incremental.backup", "value": "false", "clusterid": "cluster"}], updates)
+        self.assertEqual([{"name": "kvm.incremental.backup", "value": "false", "clusterid": "cluster"}], updates)
+        self.assertEqual("true", self.api.settings[("kvm.incremental.backup", "")])
         self.assertFalse(self.api.offers)
         self.api.calls.clear()
         result, output = self.run_config(self.options + ["--incremental-backup", "false"])
         self.assertEqual(0, result, output)
         self.assertNotIn("Restart the management server", output)
-        self.assertFalse(any(cmd == "updateConfiguration" for cmd, _ in self.api.calls))
+        self.assertEqual([{"name": "kvm.incremental.backup", "value": "false", "clusterid": "cluster"}],
+                         [params for cmd, params in self.api.calls if cmd == "updateConfiguration"])
+
+    def test_multiple_clusters_pin_incremental_choices_while_preserving_global_default(self):
+        for initial_global in ("false", "true"):
+            with self.subTest(initial_global=initial_global), contextlib.redirect_stderr(io.StringIO()):
+                api = FakeApi(self.root / "stage")
+                api.settings[("kvm.incremental.backup", "")] = initial_global
+                args = config.parse_args(self.options)
+                restart_a = config.configure_mold(api, {"zoneid": "zone", "clusterid": "cluster-a"}, args)
+                args.incremental_backup = False
+                restart_b = config.configure_mold(api, {"zoneid": "zone", "clusterid": "cluster-b"}, args)
+                self.assertFalse(config.configure_mold(api, {"zoneid": "zone", "clusterid": "cluster-b"}, args))
+                self.assertEqual(initial_global == "false", restart_a)
+                self.assertEqual(initial_global == "true", restart_b)
+                self.assertEqual(initial_global, api.configuration("kvm.incremental.backup"))
+                self.assertTrue(all(params.get("clusterid") in {"cluster-a", "cluster-b"}
+                                    for cmd, params in api.calls if cmd == "updateConfiguration"))
+                api.settings[("kvm.incremental.backup", "")] = "true" if initial_global == "false" else "false"
+                self.assertEqual("true", api.configuration("kvm.incremental.backup", clusterid="cluster-a"))
+                self.assertEqual("false", api.configuration("kvm.incremental.backup", clusterid="cluster-b"))
+                self.assertEqual("true", api.configuration("kvm.incremental.backup", clusterid="cluster"))
+                self.assertEqual(api.configuration("kvm.incremental.backup"),
+                                 api.configuration("kvm.incremental.backup", clusterid="unconfigured-cluster"))
 
     def test_provider_lists_preserve_others_in_both_scopes(self):
         self.api.settings[("backup.framework.provider.plugin", "")] = "ablestack-nas"
@@ -507,11 +536,13 @@ class VeeamHostConfigTest(unittest.TestCase):
     def test_encrypted_remote_password_is_preserved_unless_explicitly_rotated(self):
         self.api.settings[("backup.plugin.ablestack-veeam.password", "zone")] = "opaque-encrypted-value"
         self.assertEqual(0, self.run_config()[0])
-        self.assertFalse(any(cmd == "updateConfiguration" for cmd, _ in self.api.calls))
+        self.assertFalse(any(cmd == "updateConfiguration" and params["name"] == "backup.plugin.ablestack-veeam.password"
+                             for cmd, params in self.api.calls))
         self.api.calls.clear()
         result, output = self.run_config(self.options + ["--update-veeam-credentials"])
         self.assertEqual(0, result, output)
-        password_updates = [p for cmd, p in self.api.calls if cmd == "updateConfiguration"]
+        password_updates = [p for cmd, p in self.api.calls if cmd == "updateConfiguration"
+                            and p["name"] == "backup.plugin.ablestack-veeam.password"]
         self.assertEqual([{"name": "backup.plugin.ablestack-veeam.password", "value": "synthetic-password", "zoneid": "zone"}], password_updates)
         self.assertNotIn("synthetic-password", output)
         self.assertNotIn("synthetic-api-secret", output)

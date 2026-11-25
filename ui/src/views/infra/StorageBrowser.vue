@@ -17,115 +17,149 @@
 
 <template>
   <div>
-    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
+    <p v-if="listRefreshFailed" :role="hasBrowserData ? 'status' : 'alert'">
+      {{ $t(browserErrorLabel) }}
+    </p>
     <a-card class="breadcrumb-card">
       <a-row>
         <a-col :span="24" style="padding-left: 12px">
-          <a-breadcrumb :routes="getRoutes()">
+          <a-breadcrumb :routes="getRoutes()" class="storage-browser-path">
             <template #itemRender="{ route }">
-              <span v-if="['/', ''].includes(route.path) && route.breadcrumbName === 'root'">
-                <a @click="openDir('')">
-                  <home-outlined/>
-                </a>
-              </span>
-              <span v-else>
-                <a @click="openDir(route.path)">
-                {{ route.breadcrumbName }}
-                </a>
-              </span>
+              <a v-if="route.breadcrumbName === 'root'" href="#" :aria-label="$t('label.home')" @click.prevent="openDir('')">
+                <home-outlined />
+              </a>
+              <a v-else href="#" @click.prevent="openDir(route.path)">{{ route.breadcrumbName }}</a>
             </template>
           </a-breadcrumb>
-          </a-col>
-          <a-divider/>
-          <a-col :span="24" class="storage-browser-toolbar">
-            <a-input-search
-              v-if="resourceType === 'PrimaryStorage'"
-              class="storage-browser-search"
-              allowClear
-              size="medium"
-              v-model:value="keyword"
-              :placeholder="$t('label.objectstore.search')"
-              :loading="loading"
-              @search="fetchData()"
-              :enter-button="$t('label.search')"/>
-            <a-button v-if="resourceType === 'PrimaryStorage' && resource.hypervisor === 'KVM' && ['SharedMountPoint', 'RBD', 'NetworkFilesystem'].includes(resource.type) && 'importVolume' in $store.getters.apis" class="storage-browser-action" type="primary" @click="openVolumeImport('')">{{ $t('label.creation.source.import') }}</a-button>
-            <a-tooltip placement="bottom">
-              <template #title>{{ $t('label.refresh') }}</template>
-              <a-button
-                class="storage-browser-action"
-                :loading="loading"
-                shape="round"
-                size="medium"
-                @click="fetchData()"
-              >
-                <template #icon><ReloadOutlined /></template>
-                {{ $t('label.refresh') }}
-              </a-button>
-            </a-tooltip>
-            <template v-if="resource.type === 'RBD'">
-              <a-button
-                type="primary"
-                class="storage-browser-action"
-                shape="round"
-                @click="showAddVolModal"
-                :loading="loading"
-                :disabled="('CreateRbdImage' in $store.getters.apis)">
-                <template #icon><plus-outlined /></template> {{ $t('label.create.rbd.image') }}
-              </a-button>
-            </template>
-          </a-col>
+        </a-col>
+        <a-divider />
+        <a-col :span="24" class="storage-browser-toolbar">
+          <a-input-search
+            v-if="isPrimaryStorage"
+            v-model:value="keywordDraft"
+            class="storage-browser-search"
+            allow-clear
+            :placeholder="$t('label.objectstore.search')"
+            :loading="loading"
+            :enter-button="$t('label.search')"
+            @search="searchPrimaryStore" />
+          <a-button v-if="canImportVolume" ref="importVolumeButton" class="storage-browser-action" type="primary" @click="openVolumeImport('')">
+            {{ $t('label.creation.source.import') }}
+          </a-button>
+          <a-tooltip placement="bottom" :title="$t('label.refresh')">
+            <a-button
+              ref="browserRefreshButton"
+              class="storage-browser-action"
+              :loading="loading || listRefreshing > 0"
+              shape="round"
+              @click="fetchData">
+              <template #icon><reload-outlined /></template>
+              {{ $t('label.refresh') }}
+            </a-button>
+          </a-tooltip>
+          <a-button
+            v-if="canCreateRbdImage"
+            ref="createImageButton"
+            class="storage-browser-action"
+            type="primary"
+            shape="round"
+            :loading="loading"
+            @click="showAddVolModal">
+            <template #icon><plus-outlined /></template>
+            {{ $t('label.create.rbd.image') }}
+          </a-button>
+        </a-col>
       </a-row>
-      <a-modal
-        :visible="showAddVolumeModal"
-        :title="$t('label.create.rbd.image')"
-        :maskClosable="false"
-        :closable="true"
-        :footer="null"
-        @click="fetchData()"
-        @cancel="closeModals">
-          <CreateRbdImage :resource="resource" @close-action="closeModals" />
-      </a-modal>
     </a-card>
 
-    <a-modal :visible="showImportVolumeModal" :title="$t('label.creation.source.import')" :footer="null" :mask-closable="false" @cancel="showImportVolumeModal = false">
+    <mold-dialog
+      v-if="canCreateRbdImage"
+      :visible="showAddVolumeModal"
+      :title="$t('label.create.rbd.image')"
+      size="md"
+      form-actions
+      focus-guard
+      initial-focus="#primary-rbd-image-name"
+      :after-close="restoreBrowserFocus"
+      @cancel="closeModals">
+      <create-rbd-image v-if="showAddVolumeModal" :resource="resource" @close-action="closeModals" />
+    </mold-dialog>
+    <mold-dialog
+      v-if="canImportVolume"
+      :visible="showImportVolumeModal"
+      :title="$t('label.creation.source.import')"
+      size="md"
+      form-actions
+      focus-guard
+      initial-focus="#import-volume-path"
+      :after-close="restoreBrowserFocus"
+      @cancel="showImportVolumeModal = false">
       <import-storage-volume v-if="showImportVolumeModal" :key="importVolumePath" :resource="resource" :initial-path="importVolumePath" @close-action="showImportVolumeModal = false" />
-    </a-modal>
+    </mold-dialog>
+    <mold-dialog
+      v-if="canDeleteRbdImage"
+      :visible="!!rbdDeleteTarget"
+      :title="$t('label.delete.rbd.image')"
+      size="md"
+      focus-guard
+      initial-focus=".rbd-delete-cancel"
+      :closable="!deletingRbd"
+      :keyboard="!deletingRbd"
+      :after-close="restoreBrowserFocus"
+      @cancel="cancelRbdDelete">
+      <p><strong>{{ rbdDeleteTarget?.name }}</strong></p>
+      <p>{{ $t('message.primary.storage.rbd.delete.confirm') }}</p>
+      <template #footer>
+        <a-button class="rbd-delete-cancel" :disabled="deletingRbd" @click="cancelRbdDelete">{{ $t('label.cancel') }}</a-button>
+        <a-button danger type="primary" :loading="deletingRbd" @click="deleteRbdImage(rbdDeleteTarget)">{{ $t('label.delete') }}</a-button>
+      </template>
+    </mold-dialog>
 
     <a-modal
       :title="$t('message.data.migration')"
       :visible="showMigrateModal"
       :maskClosable="true"
       :confirmLoading="migrateModalLoading"
-      @cancel="showMigrateModal = false"
+      @cancel="closeMigrationModal"
       :footer="null"
       width="50%"
       :okText="$t('label.ok')"
       :cancelText="$t('label.cancel')">
       <div>
         <migrate-image-store-resource
+          v-if="showMigrateModal"
           :sourceImageStore="resource"
           :templateIdsToMigrate="templateIdsToMigrate"
           :snapshotIdsToMigrate="snapshotIdsToMigrate"
-          @close-action="showMigrateModal = false"
+          @refresh-data="fetchData"
+          @close-action="closeMigrationModal"
         />
       </div>
     </a-modal>
 
-    <div>
+    <div v-if="!listRefreshFailed || hasBrowserData">
       <a-table
-        :columns="columns"
+        :columns="visibleColumns"
+        :loading="resourceType === 'ImageStore' && loading"
+        :scroll="primaryTableScroll"
         :row-key="record => record.name"
         :data-source="dataSource"
         :pagination="false" >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key == 'name'">
             <template v-if="record.isdirectory">
-              <a @click="openDir(`${this.browserPath}${record.name}/`)">
+              <a-button v-if="isPrimaryStorage" class="storage-browser-directory" type="link" @click="openDir(browserPath + record.name + '/')">
+                <folder-outlined /> {{ record.name }}
+              </a-button>
+              <a v-else href="#" @click.prevent="openImageFolder(record)">
                 <folder-outlined /> {{ record.name }}
               </a>
             </template>
             <template v-else-if="resourceType === 'ImageStore'">
-              <a @click="downloadFile(record)">
+              <component
+                :is="canDownloadImage ? 'a' : 'span'"
+                :href="canDownloadImage ? '#' : undefined"
+                @click.prevent="downloadFile(record)">
                 <template v-if="record.snapshotid">
                   <build-outlined/>
                 </template>
@@ -137,7 +171,7 @@
                     <save-outlined v-else />
                 </template>
                 {{ record.name }}
-              </a>
+              </component>
             </template>
             <template v-else>
               <template v-if="record.snapshotid">
@@ -184,45 +218,41 @@
               {{ $t('label.unknown') }}
             </template>
           </template>
-          <template v-else-if="column.key === 'actions' && (record.templateid || record.snapshotid)">
+          <template v-else-if="column.key === 'actions' && canMigrateImage && (record.templateid || record.snapshotid)">
               <tooltip-button
               tooltipPlacement="top"
               :tooltip="$t('label.migrate.data.from.image.store')"
               icon="arrows-alt-outlined"
-              :copyResource="String(resource.id)"
               @onClick="openMigrationModal(record)" />
             </template>
-            <template v-else-if="column.key == 'deleteactions' && (record.templateid || record.volumeid) == null && !['MOLD-DR', 'MOLD-AC', 'MOLD-HB','ccvm'].some(forbiddenName => record.name.includes(forbiddenName))">
-              <a-col flex="auto">
-              <a-tooltip
-              :title="$t('label.action.create.volume')">
-                <a-button
-                  type="primary"
-                  size="medium"
-                  shape="circle"
-                  @click="openVolumeImport(`${browserPath}${record.name}`)"
-                  :loading="loading">
-                <template #icon><plus-outlined /></template>
-              </a-button>
-            </a-tooltip>
-                <a-popconfirm
-                  :title="`${$t('label.delete.rbd.image')}?`"
-                  @confirm="deleteRbdImage(record.name)"
-                  :okText="$t('label.yes')"
-                  :cancelText="$t('label.no')"
-                  placement="left">
-                <a-tooltip
-                :title="$t('label.delete')">
-                <a-button
-                  type="primary"
-                  size="medium"
-                  shape="circle"
-                  danger="true">
+            <template v-else-if="column.key === 'deleteactions' && eligibleRbdObject(record)">
+              <a-space>
+                <a-tooltip v-if="canImportVolume" :title="$t('label.action.create.volume')">
+                  <a-button
+                    type="primary"
+                    shape="circle"
+                    :aria-label="$t('label.action.create.volume')"
+                    :data-rbd-target="record.name"
+                    data-rbd-action="import"
+                    :loading="loading"
+                    @click="openVolumeImport(browserPath + record.name, record.name)">
+                    <template #icon><plus-outlined /></template>
+                  </a-button>
+                </a-tooltip>
+                <a-tooltip v-if="canDeleteRbdImage" :title="$t('label.delete')">
+                  <a-button
+                    type="primary"
+                    shape="circle"
+                    danger
+                    :aria-label="$t('label.delete')"
+                    :data-rbd-target="record.name"
+                    data-rbd-action="delete"
+                    :loading="deletingRbd && rbdDeleteTarget?.name === record.name"
+                    @click="openRbdDelete(record)">
                     <template #icon><delete-outlined /></template>
                   </a-button>
                 </a-tooltip>
-                </a-popconfirm>
-              </a-col>
+              </a-space>
             </template>
           </template>
       </a-table>
@@ -269,13 +299,29 @@ import { getAPI, postAPI } from '@/api'
 import { ref, reactive } from 'vue'
 import InfoCard from '@/components/view/InfoCard'
 import TooltipButton from '@/components/widgets/TooltipButton'
+import MoldDialog from '@/components/view/MoldDialog'
 import MigrateImageStoreResource from '@/views/storage/MigrateImageStoreResource'
 import CreateRbdImage from '@/views/storage/CreateRbdImage'
 import ImportStorageVolume from '@/views/storage/ImportStorageVolume'
 
+function positiveInteger (value, fallback) {
+  const number = Number(value)
+  return Number.isSafeInteger(number) && number > 0 ? number : fallback
+}
+
+function browserQuery (query, primary) {
+  return {
+    browserPath: typeof query.browserPath === 'string' ? query.browserPath : '',
+    page: positiveInteger(query.browserPage, 1),
+    pageSize: positiveInteger(query.browserPageSize, 10),
+    keyword: primary && typeof query.browserKeyword === 'string' ? query.browserKeyword.trim() : ''
+  }
+}
+
 export default {
   mixins: [listRefreshMixin(['fetchImageStoreObjects', 'fetchPrimaryStoreObjects'], {
     interval: 60000,
+    active: vm => vm.$route.query?.tab === 'browser',
     select: vm => vm.resourceType === 'ImageStore' ? ['fetchImageStoreObjects'] : vm.resourceType === 'PrimaryStorage' ? ['fetchPrimaryStoreObjects'] : [],
     // URL normalization must not invalidate a response for the same listing.
     scopeKey: vm => [vm.$route?.path, vm.$store?.state?.user?.token,
@@ -288,7 +334,8 @@ export default {
     MigrateImageStoreResource,
     TooltipButton,
     CreateRbdImage,
-    ImportStorageVolume
+    ImportStorageVolume,
+    MoldDialog
   },
   props: {
     resource: {
@@ -331,12 +378,19 @@ export default {
         title: this.$t('label.actions')
       })
     }
+    const query = this.$route.query
+    const browser = browserQuery(query, this.resourceType === 'PrimaryStorage')
     return {
       loading: false,
       dataSource: [],
-      browserPath: this.$route.query.browserPath || '',
-      page: parseInt(this.$route.query.browserPage) || 1,
-      pageSize: parseInt(this.$route.query.browserPageSize) || 10,
+      ...browser,
+      keywordDraft: browser.keyword,
+      hasPrimaryData: false,
+      hasImageData: false,
+      downloadingImage: false,
+      deletingRbd: false,
+      rbdDeleteTarget: null,
+      browserFocus: null,
       total: 0,
       columns: columns,
       migrateModalLoading: false,
@@ -350,12 +404,48 @@ export default {
       rootSwitch: true,
       dataDiskSwitch: false,
       volumetype: 'ROOT',
-      keyword: '',
       targetName: '',
       targetSize: ''
     }
   },
   computed: {
+    isPrimaryStorage () {
+      return this.resourceType === 'PrimaryStorage'
+    },
+    isRbdPool () {
+      return this.isPrimaryStorage && this.resource.type === 'RBD'
+    },
+    canImportVolume () {
+      return this.isPrimaryStorage && this.resource.state === 'Up' && this.resource.hypervisor === 'KVM' &&
+        ['SharedMountPoint', 'RBD', 'NetworkFilesystem'].includes(this.resource.type) && !!this.$store.getters.apis.importVolume
+    },
+    canCreateRbdImage () {
+      return this.isRbdPool && this.resource.state === 'Up' && !!this.$store.getters.apis.createRbdImage
+    },
+    canDeleteRbdImage () {
+      return this.isRbdPool && this.resource.state === 'Up' && !!this.$store.getters.apis.deleteRbdImage
+    },
+    canDownloadImage () {
+      return this.resourceType === 'ImageStore' && !!this.$store.getters.apis.downloadImageStoreObject
+    },
+    canMigrateImage () {
+      return this.resourceType === 'ImageStore' && !!this.$store.getters.apis.migrateResourceToAnotherSecondaryStorage
+    },
+    hasBrowserData () { return this.isPrimaryStorage ? this.hasPrimaryData : this.hasImageData },
+    browserErrorLabel () {
+      if (this.hasBrowserData) return 'message.list.refresh.stale'
+      return this.isPrimaryStorage ? 'message.primary.storage.browser.load.failed' : 'message.secondary.storage.browser.load.failed'
+    },
+    visibleColumns () {
+      const columns = this.columns.filter(column => (column.key !== 'deleteactions' || this.canImportVolume || this.canDeleteRbdImage) &&
+        (column.key !== 'actions' || this.canMigrateImage))
+      if (!this.isPrimaryStorage) return columns
+      const widths = { name: 224, size: 92, lastupdated: 144, associatedResource: 148, deleteactions: 112 }
+      return columns.map(column => ({ ...column, width: widths[column.key] }))
+    },
+    primaryTableScroll () {
+      return this.isPrimaryStorage ? { x: this.visibleColumns.reduce((total, column) => total + column.width, 0) } : undefined
+    },
     pageSizeOptions () {
       var sizes = [20, 50, 100, 200, this.$store.getters.defaultListViewPageSize]
       if (this.device !== 'desktop') {
@@ -366,12 +456,67 @@ export default {
       }).map(String)
     }
   },
+  watch: {
+    '$route.query' (query) {
+      if (this.$route.params.id !== this.resource.id || query.tab !== 'browser') return
+      const next = browserQuery(query, this.isPrimaryStorage)
+      if (Object.keys(next).every(key => this[key] === next[key])) return
+      Object.assign(this, next, { keywordDraft: next.keyword })
+      this.fetchData()
+    }
+  },
   created () {
     this.initForm()
     this.fetchData()
   },
   methods: {
-    openVolumeImport (path) { this.importVolumePath = path; this.showImportVolumeModal = true },
+    eligibleRbdObject (record) {
+      return this.isRbdPool && !!record.name && !record.isdirectory && !record.templateid &&
+        !record.volumeid && !record.snapshotid && !/MOLD-DR|MOLD-AC|MOLD-HB|ccvm/i.test(record.name)
+    },
+    openVolumeImport (path, rowName) {
+      if (!this.canImportVolume) return
+      this.browserFocus = { id: this.resource.id, rowName, action: 'import', ref: 'importVolumeButton' }
+      this.importVolumePath = path
+      this.showImportVolumeModal = true
+    },
+    restoreBrowserFocus () {
+      const previous = this.browserFocus
+      this.browserFocus = null
+      if (!previous || previous.id !== this.$route.params?.id || previous.id !== this.resource.id) return
+      const target = previous.rowName
+        ? Array.from(this.$el?.querySelectorAll('button[data-rbd-action]') || []).find(button =>
+          button.dataset.rbdTarget === previous.rowName && button.dataset.rbdAction === previous.action)
+        : this.$refs[previous.ref]?.$el
+      const anchor = target || this.$refs.browserRefreshButton?.$el
+      if (anchor?.isConnected) anchor.focus({ preventScroll: true })
+    },
+    openRbdDelete (record) {
+      if (!this.canDeleteRbdImage || !this.eligibleRbdObject(record)) return
+      this.browserFocus = { id: this.resource.id, rowName: record.name, action: 'delete' }
+      this.rbdDeleteTarget = record
+    },
+    cancelRbdDelete () {
+      if (!this.deletingRbd) this.rbdDeleteTarget = null
+    },
+    navigateBrowser (changes) {
+      const state = { browserPath: this.browserPath, page: this.page, pageSize: this.pageSize, keyword: this.keyword, ...changes }
+      if (Object.keys(state).every(key => this[key] === state[key])) return this.fetchData()
+      return this.$router.push({
+        query: {
+          ...this.$route.query,
+          tab: 'browser',
+          browserPath: state.browserPath || undefined,
+          browserPage: String(state.page),
+          browserPageSize: String(state.pageSize),
+          browserKeyword: this.isPrimaryStorage ? state.keyword || undefined : undefined
+        }
+      })
+    },
+    searchPrimaryStore (keyword) {
+      this.keywordDraft = (keyword || '').trim()
+      return this.navigateBrowser({ keyword: this.keywordDraft, page: 1 })
+    },
     initForm () {
       this.formRef = ref()
       this.form = reactive({
@@ -379,22 +524,19 @@ export default {
       this.rules = reactive({})
     },
     openMigrationModal (record) {
-      if (record.snapshotid) {
-        this.snapshotIdsToMigrate.push(record.snapshotid)
-      } else if (record.templateid) {
-        this.templateIdsToMigrate.push(record.templateid)
-      }
+      if (!this.$store.getters.apis.migrateResourceToAnotherSecondaryStorage) return
+      this.snapshotIdsToMigrate = record.snapshotid ? [record.snapshotid] : []
+      this.templateIdsToMigrate = !record.snapshotid && record.templateid ? [record.templateid] : []
       this.showMigrateModal = true
     },
-    changePage (page, pageSize) {
-      this.page = page
-      this.pageSize = pageSize
-      this.fetchData()
+    closeMigrationModal () {
+      this.showMigrateModal = false
+      this.snapshotIdsToMigrate = []
+      this.templateIdsToMigrate = []
     },
-    handleTableChange (pagination, filters, sorter) {
-      this.page = pagination.current
-      this.pageSize = pagination.pageSize
-      this.fetchData()
+    changePage (page, pageSize) {
+      const size = positiveInteger(pageSize, this.pageSize)
+      return this.navigateBrowser({ page: size === this.pageSize ? positiveInteger(page, this.page) : 1, pageSize: size })
     },
     volumeTypeChange (val) {
       this.volumetype = val
@@ -439,78 +581,90 @@ export default {
         this.$notifyError(error)
       })
     },
-    deleteRbdImage (name) {
-      getAPI('deleteRbdImage', {
-        name: name,
-        id: this.resource.id
-      }).then(json => {
-        this.dataSource = json.liststoragepoolobjectsresponse.datastoreobject
-        this.total = json.liststoragepoolobjectsresponse.count
-      }).finally(() => {
-        this.fetchData()
-        this.loading = false
-      })
+    async deleteRbdImage (record) {
+      if (!record || !this.canDeleteRbdImage || this.deletingRbd) return
+      const current = this.dataSource.find(item => item.name === record.name)
+      if (!current || !this.eligibleRbdObject(current)) return
+      const id = this.resource.id
+      this.deletingRbd = true
+      try {
+        await postAPI('deleteRbdImage', { name: record.name, id }, { preserveOnFailure: true })
+        if (this.resource.id === id) {
+          await this.fetchPrimaryStoreObjects()
+          this.rbdDeleteTarget = null
+        }
+      } catch (error) {
+        this.$notifyError(error)
+      } finally {
+        this.deletingRbd = false
+      }
     },
-    fetchImageStoreObjects () {
+    async fetchImageStoreObjects () {
+      if (!this.$store.getters.apis.listImageStoreObjects || !this.resource.id) return
       const listRequest = this.listRequestToken('fetchImageStoreObjects')
       this.loading = !listRequest.loaded
-      return getAPI('listImageStoreObjects', {
-        path: this.browserPath,
-        id: this.resource.id,
-        page: this.page,
-        pagesize: this.pageSize
-      }).then(json => {
+      if (!listRequest.loaded) {
+        this.hasImageData = false
+        this.dataSource = []
+        this.total = 0
+        this.listRefreshFailed = false
+      }
+      try {
+        const json = await getAPI('listImageStoreObjects', {
+          path: this.browserPath,
+          id: this.resource.id,
+          page: this.page,
+          pagesize: this.pageSize
+        }, { preserveOnFailure: true })
         if (!this.isListRequestCurrent('fetchImageStoreObjects', listRequest)) return
-
         this.dataSource = json.listimagestoreobjectsresponse.datastoreobject || []
         this.total = json.listimagestoreobjectsresponse.count || 0
-      }).finally(() => {
-        if (!this.isListRequestCurrent('fetchImageStoreObjects', listRequest)) return
-
-        this.loading = false
-      }).catch(error => {
+        this.hasImageData = true
+      } catch {
         if (!this.isListRequestCurrent('fetchImageStoreObjects', listRequest)) return
         listRequest.failed = true
         this.listRefreshFailed = true
-        if (!listRequest.loaded) this.$notifyError(error)
-      }).finally(() => {
-        if (!this.isListRequestCurrent('fetchImageStoreObjects', listRequest)) return
-        this.loading = false
-      })
+      } finally {
+        if (this.isListRequestCurrent('fetchImageStoreObjects', listRequest)) this.loading = false
+      }
     },
-    fetchPrimaryStoreObjects () {
+    async fetchPrimaryStoreObjects () {
+      if (!this.$store.getters.apis.listStoragePoolObjects || !this.resource.id) return
       const listRequest = this.listRequestToken('fetchPrimaryStoreObjects')
       this.loading = !listRequest.loaded
-      return getAPI('listStoragePoolObjects', {
-        path: this.browserPath,
-        id: this.resource.id,
-        page: this.page,
-        pagesize: this.pageSize,
-        keyword: this.keyword
-      }).then(json => {
+      if (!listRequest.loaded) {
+        this.hasPrimaryData = false
+        this.dataSource = []
+        this.total = 0
+        this.listRefreshFailed = false
+      }
+      try {
+        const json = await getAPI('listStoragePoolObjects', {
+          path: this.browserPath,
+          id: this.resource.id,
+          page: this.page,
+          pagesize: this.pageSize,
+          keyword: this.keyword
+        }, { preserveOnFailure: true })
         if (!this.isListRequestCurrent('fetchPrimaryStoreObjects', listRequest)) return
-
         this.dataSource = json.liststoragepoolobjectsresponse.datastoreobject || []
         this.total = json.liststoragepoolobjectsresponse.count || 0
-      }).finally(() => {
-        if (!this.isListRequestCurrent('fetchPrimaryStoreObjects', listRequest)) return
-
-        this.loading = false
-      }).catch(error => {
+        this.hasPrimaryData = true
+      } catch {
         if (!this.isListRequestCurrent('fetchPrimaryStoreObjects', listRequest)) return
         listRequest.failed = true
         this.listRefreshFailed = true
-        if (!listRequest.loaded) this.$notifyError(error)
-      }).finally(() => {
-        if (!this.isListRequestCurrent('fetchPrimaryStoreObjects', listRequest)) return
-        this.loading = false
-      })
+      } finally {
+        if (this.isListRequestCurrent('fetchPrimaryStoreObjects', listRequest)) this.loading = false
+      }
     },
     deleteDetail (index) {
       this.details.splice(index, 1)
       this.runApi()
     },
     showAddVolModal () {
+      if (!this.canCreateRbdImage) return
+      this.browserFocus = { id: this.resource.id, ref: 'createImageButton' }
       this.showAddVolumeModal = true
     },
     showAddTyModal (name, size) {
@@ -524,22 +678,8 @@ export default {
       this.fetchData()
     },
     fetchData () {
-      this.$router.replace(
-        {
-          path: this.$route.path,
-          query: {
-            ...this.$route.query,
-            browserPath: this.browserPath,
-            browserPage: this.page,
-            browserPageSize: this.pageSize
-          }
-        }
-      )
-      if (this.resourceType === 'ImageStore') {
-        this.fetchImageStoreObjects()
-      } else if (this.resourceType === 'PrimaryStorage') {
-        this.fetchPrimaryStoreObjects()
-      }
+      if (this.isPrimaryStorage) return this.fetchPrimaryStoreObjects()
+      if (this.resourceType === 'ImageStore') return this.fetchImageStoreObjects()
     },
     getRoutes () {
       let path = ''
@@ -566,46 +706,38 @@ export default {
       return val
     },
     openDir (name) {
-      this.browserPath = name
-      this.page = 1
-      this.pageSize = 10
-      this.fetchData()
+      return this.navigateBrowser({ browserPath: name, page: 1 })
     },
-    downloadFile (record) {
-      this.loading = true
-      const params = {
-        id: this.resource.id,
-        path: `${this.browserPath}${record.name}`
+    openImageFolder (record) {
+      if (this.loading || !this.hasImageData || !this.dataSource.includes(record)) return
+      return this.openDir(this.browserPath + record.name + '/')
+    },
+    async downloadFile (record) {
+      if (!this.canDownloadImage || this.downloadingImage || this.loading || !this.dataSource.includes(record)) return
+      this.downloadingImage = true
+      const id = this.resource.id
+      try {
+        const response = await postAPI('downloadImageStoreObject', { id, path: this.browserPath + record.name }, { preserveOnFailure: true })
+        const jobId = response.downloadimagestoreobjectresponse?.jobid
+        if (!jobId) throw new Error()
+        const result = await this.$pollJob({ jobId, showSuccessMessage: false })
+        if (result.jobstatus !== 1 || this.resource.id !== id || this.$route.params.id !== id || this.listRefreshDisposed) return
+        const download = result.jobresult?.downloadimagestoreobjectresponse
+        const url = new URL(download.url)
+        if (!['http:', 'https:'].includes(url.protocol)) throw new Error()
+        const link = document.createElement('a')
+        link.href = url.href
+        link.download = download.name || record.name
+        link.target = '_blank'
+        link.rel = 'noopener'
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
+      } catch {
+        this.$message.error(this.$t('message.secondary.storage.browser.download.failed'))
+      } finally {
+        this.downloadingImage = false
       }
-      postAPI('downloadImageStoreObject', params).then(response => {
-        const jobId = response.downloadimagestoreobjectresponse.jobid
-        this.$pollJob({
-          jobId: jobId,
-          successMethod: (result) => {
-            const url = result.jobresult.downloadimagestoreobjectresponse.url
-            const name = result.jobresult.downloadimagestoreobjectresponse.name
-            var elem = window.document.createElement('a')
-            elem.setAttribute('href', new URL(url))
-            elem.setAttribute('download', name)
-            elem.setAttribute('target', '_blank')
-            document.body.appendChild(elem)
-            elem.click()
-            document.body.removeChild(elem)
-            this.loading = false
-          },
-          errorMethod: () => {
-            this.loading = false
-          },
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.loading = false
-          }
-        })
-      }).catch(error => {
-        console.error(error)
-        this.$message.error(error)
-        this.loading = false
-      })
     }
   }
 }
@@ -618,6 +750,9 @@ export default {
   flex-wrap: wrap;
   gap: 8px;
 }
+
+.storage-browser-path { min-width: 0; overflow-wrap: anywhere; }
+.storage-browser-directory { padding-inline: 0; }
 
 .storage-browser-search {
   flex: 1 1 240px;

@@ -55,6 +55,8 @@ import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.GuestOSDao;
 import com.cloud.storage.dao.LaunchPermissionDao;
 import com.cloud.storage.dao.SnapshotDao;
+import com.cloud.storage.dao.SnapshotDetailsDao;
+import com.cloud.storage.dao.VolumeDetailsDao;
 import com.cloud.storage.dao.StoragePoolHostDao;
 import com.cloud.storage.dao.VMTemplateDao;
 import com.cloud.storage.dao.VMTemplateDetailsDao;
@@ -1274,6 +1276,16 @@ public class TemplateManagerImplTest {
         @Bean
         public SnapshotDao snapshotDao() {
             return Mockito.mock(SnapshotDao.class);
+        }
+
+        @Bean
+        public SnapshotDetailsDao snapshotDetailsDao() {
+            return Mockito.mock(SnapshotDetailsDao.class);
+        }
+
+        @Bean
+        public VolumeDetailsDao volumeDetailsDao() {
+            return Mockito.mock(VolumeDetailsDao.class);
         }
 
         @Bean

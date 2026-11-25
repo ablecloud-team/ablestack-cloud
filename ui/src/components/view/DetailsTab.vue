@@ -53,9 +53,14 @@
     show-icon
     class="l2-details-notice"
     :message="$t(l2Network.configDrive ? 'message.l2.network.configdrive' : 'message.l2.network.basic')" />
+  <router-link
+    v-if="$route.meta.name === 'webhookdeliveries' && dataResource.webhookid"
+    :to="{ path: '/webhook/' + dataResource.webhookid, query: { tab: 'recent.deliveries' } }">
+    {{ $t('label.webhook.delivery.back') }}
+  </router-link>
   <a-list
     class="resource-details-list"
-    :class="{ 'template-details-list': ['template', 'iso'].includes($route.meta.name), 's2s-gateway-details': $route.meta.name === 's2svpn', 'vm-details-list': kmsRoute($route) || ['vm', 'vnfapp', 'systemoffering', 'publicip', 's2svpn', 'acllist', 'event', 'vpnuser', 'project', 'guestvlans', 'ipv4subnets', 'dnszone', 'dnsserver', 'zone', 'physicalnetwork'].includes($route.meta.name) }"
+    :class="{ 'template-details-list': ['template', 'iso'].includes($route.meta.name), 's2s-gateway-details': $route.meta.name === 's2svpn', 'vm-details-list': kmsRoute($route) || ['vm', 'vnfapp', 'systemoffering', 'publicip', 's2svpn', 'acllist', 'event', 'vpnuser', 'project', 'guestvlans', 'ipv4subnets', 'dnszone', 'dnsserver', 'zone', 'physicalnetwork', 'host', 'cluster', 'ldapsetting', 'oauthsetting', 'storagepool', 'imagestore', 'secondarystorageselector'].includes($route.meta.name) }"
     size="small"
     :dataSource="(fetchDetails() || []).concat(Object.keys(allocationDetails))">
     <template #renderItem="{item}">
@@ -71,6 +76,29 @@
           <div v-else-if="item === 'protocol'">{{ kmsProtocolOptions($store.getters.features, dataResource.protocol).find(provider => provider.id === dataResource.protocol)?.name || $t('label.unknown') }}</div>
           <div v-else-if="item === 'vendorname'">{{ dataResource.vendor || dataResource.vendorname || $t('label.unknown') }}</div>
           <div v-else>{{ dataResource[item] ?? $t(item === 'state' ? 'label.hsm.connection.unavailable' : 'label.unknown') }}</div>
+        </div>
+      </a-list-item>
+      <a-list-item v-else-if="$route.meta.name === 'host' && ['state', 'resourcestate'].includes(item)">
+        <div>
+          <strong>{{ $t('label.' + item) }}</strong>
+          <div><a-tag :color="hostStatusColor(dataResource[item])">{{ $t(hostStatusLabel(dataResource[item])) }}</a-tag></div>
+        </div>
+      </a-list-item>
+      <a-list-item v-else-if="$route.meta.name === 'runtimebundle' && dataResource.id && ['state', 'validationstatus', 'serviceimpact', 'artifactsize', 'compatibility', 'eligibilityreason'].includes(item)">
+        <div class="runtime-catalog-detail-field">
+          <strong>{{ $t(['compatibility', 'eligibilityreason'].includes(item) ? 'label.runtime.catalog.' + item : 'label.' + item) }}</strong>
+          <div><RuntimeCatalogValue :group="item" :value="dataResource[item]" /></div>
+          <small v-if="item === 'compatibility'">{{ $t('message.runtime.catalog.profile.compatibility') }}</small>
+        </div>
+      </a-list-item>
+      <a-list-item v-else-if="$route.meta.name === 'cluster' && ['allocationstate', 'managedstate', 'clustertype', 'haenable'].includes(item)">
+        <div>
+          <strong>{{ $t('label.' + item) }}</strong>
+          <div>
+            <status v-if="item === 'allocationstate'" :text="dataResource.allocationstate || ''" :display-label="$t(clusterStateLabel(item, dataResource[item]))" display-text />
+            <status v-else-if="item === 'haenable'" :text="zoneFeatureState(dataResource.resourcedetails?.resourceHAEnabled ?? false)" :display-label="$t(zoneFeatureLabel(dataResource.resourcedetails?.resourceHAEnabled ?? false))" display-text />
+            <span v-else>{{ $t(clusterStateLabel(item, dataResource[item])) }}</span>
+          </div>
         </div>
       </a-list-item>
       <a-list-item v-else-if="$route.meta.name === 'zone' && ['allocationstate', 'haenable', 'localstorageenabled', 'securitygroupsenabled'].includes(item)">
@@ -166,13 +194,32 @@
           <div v-else-if="$route.meta.name === 'event' && item === 'type'">{{ eventTypeLabel(dataResource.type, $t) }}</div>
           <status v-else-if="['vm', 'vnfapp'].includes($route.meta.name) && ['state', 'hostcontrolstate'].includes(item)" :text="String(dataResource[item] || '')" :display-label="dataResource[item] ? '' : $t('label.unknown')" display-text />
           <div v-else-if="['vm', 'vnfapp'].includes($route.meta.name) && ['ostypename', 'osdisplayname'].includes(item)">{{ creationVmOsName(dataResource, $t) || $t('label.unknown') }}</div>
+          <div v-else-if="$route.meta.name === 'oauthsetting' && item === 'enabled'">
+            <status :text="String(dataResource.enabled)" :display-label="$t(dataResource.enabled ? 'label.enabled' : 'label.disabled')" display-text />
+            <div v-if="dataResource.scopeenabled === false">{{ $t('message.oauth.scope.disabled') }}</div>
+            <div v-if="dataResource.pluginavailable === false">{{ $t('message.oauth.plugin.unavailable') }}</div>
+          </div>
+          <div v-else-if="$route.meta.name === 'webhook' && ['scope', 'state', 'sslverification'].includes(item)">
+            {{ item === 'sslverification' ? $t(dataResource[item] ? 'label.yes' : 'label.no') : dataResource[item] ? $t('label.' + dataResource[item].toLowerCase()) : '—' }}
+          </div>
+          <div v-else-if="$route.meta.name === 'webhook' && item === 'payloadurl'" class="webhook-long-value">
+            <span>{{ dataResource[item] }}</span>
+            <tooltip-button v-if="dataResource[item]" :tooltip="$t('label.copy')" icon="copy-outlined" size="small" :copyResource="dataResource[item]" @copy-success="$message.success($t('label.copied.clipboard'))" />
+          </div>
+          <div v-else-if="$route.meta.name === 'webhook' && item === 'secretkeyconfigured'">{{ $t((dataResource.secretkeyconfigured ?? !!dataResource.secretkey) ? 'label.yes' : 'label.no') }}</div>
+          <div v-else-if="$route.meta.name === 'oauthsetting' && ['secretkeyconfigured', 'configuredenabled'].includes(item)">{{ $t(dataResource[item] ? 'label.yes' : 'label.no') }}</div>
           <div v-else-if="['vm', 'vnfapp'].includes($route.meta.name) && item !== 'deleteprotection' && (vmBooleanFields.has(item) || typeof dataResource[item] === 'boolean')">{{ $t(vmBooleanLabel(dataResource[item])) }}</div>
           <div v-else-if="['vm', 'vnfapp'].includes($route.meta.name) && item === 'deleteprotection'">
             <a-tag :color="dataResource.deleteprotection === true ? 'warning' : dataResource.deleteprotection === false ? 'success' : 'default'">{{ $t('label.vm.protection.' + (resourceReadFailed() ? 'failed' : dataResource.deleteprotection === true ? 'protected' : dataResource.deleteprotection === false ? 'unprotected' : 'unknown')) }}</a-tag>
             <div>{{ $t('message.vm.delete.edit') }}</div>
           </div>
+          <div v-else-if="$route.meta.name === 'extension' && ['pathready', 'isuserdefined', 'orchestratorrequirespreparevm'].includes(item)">{{ $t(dataResource[item] ? 'label.yes' : 'label.no') }}</div>
+          <div v-else-if="$route.meta.name === 'extension' && ['path', 'id'].includes(item)" class="extension-long-value">
+            <span>{{ dataResource[item] }}</span>
+            <tooltip-button :tooltip="$t('label.copy')" icon="copy-outlined" size="small" :copyResource="dataResource[item]" @copy-success="$message.success($t('label.copied.clipboard'))" />
+          </div>
           <a-tag v-else-if="$route.meta.name === 'acllist' && item === 'fordisplay'">{{ $t(aclDisplayLabel(dataResource.fordisplay)) }}</a-tag>
-          <div v-else-if="$route.meta.name === 'acllist' && item === 'id'" class="acl-details-id">
+          <div v-else-if="['acllist', 'ldapsetting'].includes($route.meta.name) && item === 'id'" :class="{ 'acl-details-id': $route.meta.name === 'acllist' }">
             <span>{{ dataResource.id }}</span>
             <tooltip-button
               :tooltip="$t('label.copyid')"
@@ -181,6 +228,10 @@
               :copyResource="dataResource.id"
               @copy-success="$message.success($t('label.copied.clipboard'))" />
           </div>
+          <template v-else-if="$route.meta.name === 'ldapsetting' && item === 'domainpath'">
+            <router-link v-if="dataResource.domainid && 'listDomains' in $store.getters.apis" :to="{ path: '/domain/' + dataResource.domainid, query: { tab: 'details' } }">{{ dataResource.domainpath }}</router-link>
+            <span v-else>{{ dataResource.domainid ? dataResource.domainpath : '—' }}</span>
+          </template>
           <Ipv4SubnetResourceLink v-else-if="$route.meta?.name === 'ipv4subnets' && ['networkname', 'vpcname'].includes(item)" :record="dataResource" :field="item" />
           <network-ip-vm-link v-else-if="$route.meta.name === 'publicip' && item === 'virtualmachinename'" :record="dataResource" />
           <InternalLbRules v-else-if="$route.meta.name === 'ilb' && item === 'loadbalancerrule'" :record="dataResource" :loading="loading" />
@@ -396,13 +447,6 @@ display-text />
           <div v-else>{{ dataResource[item] }}</div>
         </div>
       </a-list-item>
-      <a-list-item v-else-if="['cluster', 'zone'].includes($route.meta.name) && item === 'haenable'">
-        <div>
-          <strong>{{ $t('label.ha.enable') }}</strong>
-          <br/>
-          <div>{{ dataResource.resourcedetails?.resourceHAEnabled }}</div>
-        </div>
-      </a-list-item>
       <a-list-item v-else-if="item === 'ipsecpsk'">
         <div style="width: 100%">
           <strong>{{ $t('label.ipsecpsk') }}</strong><br/>
@@ -522,6 +566,9 @@ display-text />
 </template>
 
 <script>
+import RuntimeCatalogValue from '@/components/view/RuntimeCatalogValue'
+import { hostStatusColor, hostStatusLabel } from '@/utils/hostPresentation'
+import { clusterStateLabel } from '@/utils/clusterSearch'
 import { systemOfferingDetailLabels, systemOfferingValue } from '@/utils/systemOfferingTypes'
 import { zoneDnsSearchOrder, zoneFeatureLabel, zoneFeatureState } from '@/utils/zone'
 import Ipv4SubnetResourceLink from '@/components/widgets/Ipv4SubnetResourceLink'
@@ -568,6 +615,7 @@ import VnfAccessNotice from '@/components/compute/VnfAccessNotice'
 export default {
   name: 'DetailsTab',
   components: {
+    RuntimeCatalogValue,
     Ipv4SubnetResourceLink,
     VpnUserValue,
     AclScopeValue,
@@ -732,7 +780,10 @@ export default {
   methods: {
     systemOfferingValue,
     zoneDnsSearchOrder,
+    clusterStateLabel,
     zoneFeatureState,
+    hostStatusColor,
+    hostStatusLabel,
     zoneFeatureLabel,
     eventTypeLabel,
     kmsRoute,
@@ -795,6 +846,7 @@ export default {
       return detailsKeys
     },
     getDetailTitle (detail) {
+      if (this.$route.meta.name === 'webhook' && detail === 'secretkeyconfigured') return 'label.webhook.secret.configured'
       if (this.$route.meta.name === 's2svpn' && detail === 'fordisplay') return 'label.public.ip.display'
       if (this.$route.meta.name === 'publicip' && publicIpDetailFields.includes(detail)) return publicIpFieldLabel(detail)
       if (['vm', 'vnfapp'].includes(this.$route.meta.name) && ['osdisplayname', 'ostypename'].includes(detail)) return 'label.ostypename'
@@ -1028,13 +1080,11 @@ export default {
 }
 </script>
 
-<style scoped>
-.network-ip-usage-detail p { color: var(--ui-text-secondary); margin: 4px 0 0; overflow-wrap: anywhere; }
-.resource-details-list {
-  color: var(--ui-text-secondary);
-  background: var(--ui-bg-surface);
-}
+<style scoped src="@/style/components/view/resource-details-list.css" />
 
+<style scoped>
+.webhook-long-value { display: flex; gap: 8px; min-width: 0; overflow-wrap: anywhere; }
+.network-ip-usage-detail p { color: var(--ui-text-secondary); margin: 4px 0 0; overflow-wrap: anywhere; }
 :deep(.resource-details-list .ant-list-item) {
   padding: 12px 8px;
   color: var(--ui-text-secondary);
@@ -1046,11 +1096,6 @@ export default {
   color: var(--ui-text-primary);
 }
 
-.template-details-list :deep(.ant-list-item > div), .vm-details-list :deep(.ant-list-item > div) {
-  min-width: 0;
-  max-width: 100%;
-  overflow-wrap: anywhere;
-}
 /* Same row rhythm as the VM InstanceTab details. */
 .s2s-gateway-details :deep(.ant-list-item) { padding-top: 12px; padding-bottom: 12px; }
 .system-offering-detail-value { width: 100%; }
@@ -1066,4 +1111,9 @@ export default {
 
 <style scoped>
 .kms-metadata { min-width: 0; overflow-wrap: anywhere; }
+</style>
+
+<style scoped>
+.extension-long-value { display: flex; align-items: flex-start; gap: 8px; }
+.extension-long-value span { min-width: 0; overflow-wrap: anywhere; }
 </style>

@@ -786,7 +786,7 @@ public class ExtensionsManagerImpl extends ManagerBase implements ExtensionsMana
     }
 
     @Override
-    public List<ExtensionResponse> listExtensions(ListExtensionsCmd cmd) {
+    public Pair<List<ExtensionResponse>, Integer> listExtensions(ListExtensionsCmd cmd) {
         Long id = cmd.getExtensionId();
         String name = cmd.getName();
         String keyword = cmd.getKeyword();
@@ -829,7 +829,7 @@ public class ExtensionsManagerImpl extends ManagerBase implements ExtensionsMana
             responses.add(response);
         }
 
-        return responses;
+        return new Pair<>(responses, result.second());
     }
 
     @Override
@@ -1089,6 +1089,9 @@ public class ExtensionsManagerImpl extends ManagerBase implements ExtensionsMana
             throw new CloudRuntimeException(
                     String.format("Cluster ID: %s is not of %s hypervisor type", cluster.getId(),
                             cluster.getHypervisorType()));
+        }
+        if (!Extension.Type.Orchestrator.equals(extension.getType())) {
+            throw new InvalidParameterValueException("Only Orchestrator extensions can be registered with an External cluster");
         }
         final ExtensionResourceMap.ResourceType resourceType = ExtensionResourceMap.ResourceType.Cluster;
         ExtensionResourceMapVO existing =
@@ -1580,7 +1583,7 @@ public class ExtensionsManagerImpl extends ManagerBase implements ExtensionsMana
     }
 
     @Override
-    public List<ExtensionCustomActionResponse> listCustomActions(ListCustomActionCmd cmd) {
+    public Pair<List<ExtensionCustomActionResponse>, Integer> listCustomActions(ListCustomActionCmd cmd) {
         Long id = cmd.getId();
         String name = cmd.getName();
         Long extensionId = cmd.getExtensionId();
@@ -1639,7 +1642,7 @@ public class ExtensionsManagerImpl extends ManagerBase implements ExtensionsMana
             sc.setParameters("keyword",  "%" + keyword + "%");
         }
         if (enabled != null) {
-            sc.setParameters("enabled",  true);
+            sc.setParameters("enabled", enabled);
         }
         if (resourceType != null) {
             sc.setParameters("resourceType",  resourceType);
@@ -1653,7 +1656,7 @@ public class ExtensionsManagerImpl extends ManagerBase implements ExtensionsMana
             responses.add(createCustomActionResponse(customAction));
         }
 
-        return responses;
+        return new Pair<>(responses, result.second());
     }
 
     @Override

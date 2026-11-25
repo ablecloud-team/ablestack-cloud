@@ -17,6 +17,8 @@
 import Autogen from '@/views/AutogenView'
 import { postAPI } from '@/api'
 import { flushPromises } from '@vue/test-utils'
+import { computed, nextTick, reactive, watch } from 'vue'
+import store from '@/store'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), callAPI: jest.fn(), postAPI: jest.fn() }))
 jest.mock('@/store', () => ({ getters: {}, state: { user: { token: 'session' } } }))
 const id = '11111111-1111-4111-8111-111111111111'
@@ -55,9 +57,9 @@ test('an old accepted response cannot close or update the next target dialog', a
 })
 
 test('target or authentication context invalidates the open common dialog', () => {
-  Autogen.watch.vmDialogScope.call(c)
+  Autogen.watch.vmDialogScope.handler.call(c)
   expect(c.closeAction).toHaveBeenCalledTimes(1)
-  c.showAction = false; Autogen.watch.vmDialogScope.call(c)
+  c.showAction = false; Autogen.watch.vmDialogScope.handler.call(c)
   expect(c.closeAction).toHaveBeenCalledTimes(1)
 })
 
@@ -123,4 +125,55 @@ test.each(['permission', 'state', 'group'])('Public IP %s gate prevents opening 
   c.$store.getters.apis = kind === 'permission' ? {} : { reserveIpAddress: {} }; c.showAction = false
   c.execAction({ api: 'reserveIpAddress', component: {} }, kind === 'group')
   expect(c.showAction).toBe(false)
+})
+
+function watchVmListDialog (api, routeName = 'vm') {
+  postAPI.mockClear()
+  c.$route = { name: routeName, meta: { name: routeName }, path: '/' + routeName, fullPath: '/' + routeName, params: {}, query: {} }
+  c.resource = {}; c.showAction = false; c.currentAction = {}; c.dataView = false
+  c.storageActionReady = true
+  c.$emit = jest.fn()
+  c.$store.getters.apis = { [api]: { params: [] } }
+  store.getters.apis = c.$store.getters.apis
+  c = reactive(c)
+  c.execAction = Autogen.methods.execAction.bind(c)
+  c.getArgs = jest.fn(() => [])
+  c.getFilters = jest.fn()
+  c.getFirstIndexFocus = jest.fn()
+  c.closeAction = jest.fn(() => { c.showAction = false })
+  const config = Autogen.watch.vmDialogScope
+  const handler = typeof config === 'function' ? config : config.handler
+  const stop = watch(computed(() => Autogen.computed.vmDialogScope.call(c)), handler.bind(c), { flush: config.flush })
+  const resource = { id, name: 'target', state: api === 'startVirtualMachine' ? 'Stopped' : 'Running' }
+  c.execAction({ api, resource, popup: true }, false)
+  return stop
+}
+
+test.each(['vm', 'vnfapp'].flatMap(route => ['startVirtualMachine', 'stopVirtualMachine', 'rebootVirtualMachine'].map(api => [route, api])))('%s row %s keeps its confirmation open after Vue updates', async (route, api) => {
+  const stop = watchVmListDialog(api, route)
+  try {
+    expect(c.showAction).toBe(true)
+    await nextTick()
+    expect(c.showAction).toBe(true)
+    expect(c.resource.id).toBe(id)
+    expect(c.closeAction).not.toHaveBeenCalled()
+    expect(postAPI).not.toHaveBeenCalled()
+  } finally { stop() }
+})
+
+test.each(['target', 'token', 'project', 'role', 'route', 'permission'])('%s change still closes an already open VM list dialog', async kind => {
+  const stop = watchVmListDialog('startVirtualMachine')
+  try {
+    await nextTick()
+    expect(c.showAction).toBe(true)
+    if (kind === 'target') c.resource = { ...c.resource, id: 'other' }
+    if (kind === 'token') c.$store.state.user.token = 'next'
+    if (kind === 'project') c.$store.getters.project = { id: 'other' }
+    if (kind === 'role') c.$store.getters.userInfo.roletype = 'User'
+    if (kind === 'route') c.$route.fullPath = '/vm?page=2'
+    if (kind === 'permission') c.$store.getters.apis = {}
+    await nextTick()
+    expect(c.showAction).toBe(false)
+    expect(c.closeAction).toHaveBeenCalledTimes(1)
+  } finally { stop() }
 })

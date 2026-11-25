@@ -35,7 +35,7 @@ function context () {
     currentAction: {},
     showAction: false,
     actionLoading: true,
-    $route: { path: '/oauthsetting' },
+    $route: { path: '/oauthsetting', params: {} },
     $store: store,
     $nextTick: nextTick,
     $emit: jest.fn(),
@@ -66,10 +66,11 @@ describe('OAuth API schema compatibility', () => {
   it.each([register, edit])('renders every configured field with the Europa schema ($api)', action => {
     store.getters.apis[action.api] = { params: schema([...base, 'authorizeurl', 'tokenurl', 'domainid']) }
     const vm = context()
-    vm.execAction(action, false)
+    if (action.dataView) vm.$route.params.id = 'provider-id'
+    vm.execAction({ ...action, resource: action.dataView ? { id: 'provider-id' } : {} }, false)
     expect(vm.showAction).toBe(true)
     expect(vm.currentAction.paramFields.map(field => field.name)).toEqual(action.args)
-    expect(vm.setRules).toHaveBeenCalledTimes(action.args.length)
+    expect(vm.setRules).toHaveBeenCalledTimes(action.oauthForm ? 0 : action.args.length)
     expect(vm.$message.error).not.toHaveBeenCalled()
   })
 

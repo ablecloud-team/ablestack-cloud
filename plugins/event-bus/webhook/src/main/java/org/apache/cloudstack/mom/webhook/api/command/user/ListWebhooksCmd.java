@@ -62,6 +62,10 @@ public class ListWebhooksCmd extends BaseListProjectAndAccountResourcesCmd {
         authorized = {RoleType.Admin, RoleType.DomainAdmin})
     private String scope;
 
+    @Parameter(name = "redactsecretkey", type = CommandType.BOOLEAN,
+            description = "Exclude the webhook secret key value from the response")
+    private Boolean redactSecretKey;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -87,6 +91,9 @@ public class ListWebhooksCmd extends BaseListProjectAndAccountResourcesCmd {
     @Override
     public void execute() throws ServerApiException {
         ListResponse<WebhookResponse> response = webhookApiService.listWebhooks(this);
+        if (Boolean.TRUE.equals(redactSecretKey)) {
+            response.getResponses().forEach(webhook -> webhook.setSecretKey(null));
+        }
         response.setResponseName(getCommandName());
         setResponseObject(response);
     }

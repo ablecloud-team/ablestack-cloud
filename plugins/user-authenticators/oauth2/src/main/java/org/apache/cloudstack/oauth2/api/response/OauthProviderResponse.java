@@ -21,6 +21,7 @@ import java.util.Objects;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.BaseResponse;
 import org.apache.cloudstack.api.EntityReference;
+import org.apache.cloudstack.oauth2.OAuth2AuthManager;
 import org.apache.cloudstack.oauth2.vo.OauthProviderVO;
 
 import com.cloud.domain.Domain;
@@ -51,8 +52,12 @@ public class OauthProviderResponse extends BaseResponse {
     private String clientId;
 
     @SerializedName(ApiConstants.OAUTH_SECRET_KEY)
-    @Param(description = "Secret key registered in the OAuth provider")
+    @Param(description = "Secret key registered in the OAuth provider", isSensitive = true)
     private String secretKey;
+
+    @SerializedName("secretkeyconfigured")
+    @Param(description = "Whether a client secret is configured")
+    private Boolean secretKeyConfigured;
 
     @SerializedName(ApiConstants.REDIRECT_URI)
     @Param(description = "Redirect URI registered in the OAuth provider")
@@ -82,6 +87,18 @@ public class OauthProviderResponse extends BaseResponse {
     @Param(description = "Whether the OAuth provider is enabled or not")
     private boolean enabled;
 
+    @SerializedName("configuredenabled")
+    @Param(description = "Whether the provider is configured to be enabled")
+    private Boolean configuredEnabled;
+
+    @SerializedName("scopeenabled")
+    @Param(description = "Whether OAuth login is allowed in the provider's scope")
+    private Boolean scopeEnabled;
+
+    @SerializedName("pluginavailable")
+    @Param(description = "Whether an authenticator for the provider is available")
+    private Boolean pluginAvailable;
+
     public OauthProviderResponse(String id, String provider, String description, String clientId, String secretKey, String redirectUri, String authorizeUrl, String tokenUrl, Domain domain) {
         this.id = id;
         this.provider = provider;
@@ -97,6 +114,18 @@ public class OauthProviderResponse extends BaseResponse {
             this.domainName = domain.getName();
             this.domainPath = prettifyDomainPath(domain.getPath());
         }
+    }
+
+    public static OauthProviderResponse forManagement(OauthProviderVO provider, Domain domain, boolean pluginAvailable) {
+        OauthProviderResponse response = new OauthProviderResponse(provider.getUuid(), provider.getProvider(),
+                provider.getDescription(), provider.getClientId(), null, provider.getRedirectUri(),
+                provider.getAuthorizeUrl(), provider.getTokenUrl(), domain);
+        response.secretKeyConfigured = provider.getSecretKey() != null && !provider.getSecretKey().isBlank();
+        response.configuredEnabled = provider.isEnabled();
+        response.scopeEnabled = OAuth2AuthManager.isPluginEnabledForDomain(provider.getDomainId());
+        response.pluginAvailable = pluginAvailable;
+        response.enabled = response.configuredEnabled && response.scopeEnabled && response.pluginAvailable;
+        return response;
     }
 
     private static String prettifyDomainPath(String path) {

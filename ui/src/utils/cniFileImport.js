@@ -19,6 +19,7 @@ import { canonicalCni } from './cniRegistration'
 
 export const cniHelpMarker = 'local:cni-configuration'
 export function documentationUrl (base, section, locale = 'en') {
+  if (section?.startsWith('https://')) return section
   return section === cniHelpMarker ? 'help/cni-configuration.' + (locale.toLowerCase().startsWith('ko') ? 'ko' : 'en') + '.html' : base + '/' + section
 }
 const fail = key => { throw new Error('message.cni.file.' + key) }

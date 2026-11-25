@@ -111,7 +111,8 @@ def parse_args(argv=None):
                              "If omitted, use the current Mold value (initial default: false).")
     parser.add_argument("--vm-include", default=None)
     parser.add_argument("--vm-exclude", default=None)
-    parser.add_argument("--incremental-backup", type=boolean, default=True)
+    parser.add_argument("--incremental-backup", type=boolean, default=True,
+                        help="Set only this Cluster's kvm.incremental.backup; preserve the Global default (default: true)")
     parser.add_argument("--backup-chain-size", type=int, help="optional positive kvm.backup.chain.size; Mold default is 8")
     parser.add_argument("--agent-payload-path", help="optional parent marker directory; default: common staging/ablestack-veeam/bootstrap/<host>/<job>")
     parser.add_argument("--script-timeout", type=int, default=1800)
@@ -354,8 +355,13 @@ def configure_mold(api, host, args):
         if PROVIDER not in [item.lower() for item in plugins]:
             api.ensure_configuration("backup.framework.provider.plugin", ",".join(plugins + [PROVIDER]), **scope)
     api.ensure_configuration(VM_SCHEDULE_CONFIG_NAME, str(args.vm_schedule_backup).lower())
-    for scope in ({}, {"clusterid": host["clusterid"]}):
-        restart |= api.ensure_configuration("kvm.incremental.backup", str(args.incremental_backup).lower(), **scope)
+    desired_incremental = str(args.incremental_backup).lower()
+    current_incremental = api.configuration("kvm.incremental.backup", clusterid=host["clusterid"])
+    # The lookup can return an inherited value. Pin this Cluster's choice even
+    # when it matches, without modifying the Global default or another Cluster.
+    api.call("updateConfiguration", name="kvm.incremental.backup", value=desired_incremental, clusterid=host["clusterid"])
+    info(f"SET setting kvm.incremental.backup (clusterid={host['clusterid']})")
+    restart |= current_incremental != desired_incremental
     if args.backup_chain_size is not None:
         api.ensure_configuration("kvm.backup.chain.size", str(args.backup_chain_size))
     credentials_changed = False

@@ -23,8 +23,9 @@
     <span v-else>
       {{ title }}
     </span>
-    <a-tooltip v-if="tooltip" :title="tooltip" :placement="tooltipPlacement">
-      <info-circle-outlined class="tooltip-icon" />
+    <a-tooltip v-if="tooltip" :title="tooltip" :placement="tooltipPlacement" :trigger="focusable ? ['hover', 'focus'] : ['hover']">
+      <span v-if="focusable" class="tooltip-icon tooltip-icon--focusable" tabindex="0" role="img" :aria-label="tooltip"><info-circle-outlined aria-hidden="true" /></span>
+      <info-circle-outlined v-else class="tooltip-icon" />
     </a-tooltip>
   </span>
 </template>
@@ -46,7 +47,8 @@ export default {
       type: String,
       default: 'top'
     },
-    bold: Boolean
+    bold: Boolean,
+    focusable: Boolean
   }
 }
 </script>
@@ -55,5 +57,13 @@ export default {
   .tooltip-icon {
     color: rgba(0,0,0,.45);
     margin-left: 2px;
+  }
+  .tooltip-icon--focusable {
+    color: var(--ui-text-muted);
+  }
+  .tooltip-icon--focusable:focus-visible {
+    outline: 2px solid var(--ui-focus);
+    outline-offset: 2px;
+    border-radius: 2px;
   }
 </style>

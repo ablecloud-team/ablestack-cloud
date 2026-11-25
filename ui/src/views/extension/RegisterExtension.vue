@@ -20,27 +20,14 @@
     <a-form
       :ref="formRef"
       :model="form"
+      :rules="rules"
       :loading="loading"
       layout="vertical"
       @finish="handleSubmit">
-      <a-form-item ref="resourcetype" name="resourcetype">
-        <template #label>
-          <tooltip-label :title="$t('label.resourcetype')" :tooltip="apiParams.resourcetype.description"/>
-        </template>
-        <a-select
-          showSearch
-          v-model:value="form.resourcetype"
-          :placeholder="apiParams.resourcetype.description"
-          optionFilterProp="label"
-          :filterOption="(input, option) => {
-            return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }"
-          @change="handleResourceTypeChange" >
-          <a-select-option v-for="opt in resourceTypes" :key="opt.id" :label="opt.description || opt.id">
-            {{ opt.description || opt.id }}
-          </a-select-option>
-        </a-select>
+      <a-form-item name="resourcetype" :label="$t('label.resourcetype')">
+        <a-input :value="$t(resourceType === 'Cluster' ? 'label.cluster' : 'label.physicalnetworkid')" readonly />
       </a-form-item>
+      <a-alert v-if="resourceType === 'PhysicalNetwork'" class="registration-notice" type="info" show-icon :message="$t('message.extension.register.provider')" />
       <a-form-item ref="resourceid" name="resourceid">
         <template #label>
           <tooltip-label :title="$t('label.resourceid')" :tooltip="apiParams.resourceid.description"/>
@@ -48,15 +35,22 @@
         <a-select
           showSearch
           v-model:value="form.resourceid"
-          :placeholder="apiParams.resourceid.description"
+          :placeholder="$t('message.error.select')"
+          :loading="resources.loading"
+          :disabled="resources.loading || !resources.options.length"
+          :aria-label="$t('label.resourceid')"
+          allow-clear
           optionFilterProp="label"
           :filterOption="(input, option) => {
             return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
           }" >
-          <a-select-option v-for="opt in resources.opts" :key="opt.id" :label="opt.name || opt.description">
-            {{ opt.name || opt.description }}
+          <a-select-option v-for="opt in resources.options" :key="opt.id" :label="resourceLabel(opt)">
+            {{ resourceLabel(opt) }}
           </a-select-option>
         </a-select>
+        <a-alert v-if="resources.message" class="registration-notice" :type="resources.retry ? 'warning' : 'info'" show-icon :message="$t(resources.message)">
+          <template v-if="resources.retry" #description><a-button size="small" @click="fetchResources">{{ $t('label.refresh') }}</a-button></template>
+        </a-alert>
       </a-form-item>
       <a-form-item>
         <template #label>
@@ -66,16 +60,17 @@
         <details-input
           v-model:value="form.details" />
       </a-form-item>
-      <div :span="24" class="action-button">
+      <mold-dialog-actions :busy="loading">
         <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-        <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-      </div>
+        <a-button :loading="loading" ref="submit" type="primary" :disabled="!form.resourceid" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+      </mold-dialog-actions>
     </a-form>
   </div>
 </template>
 
 <script>
-import { ref, reactive, toRaw } from 'vue'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
+import { ref, reactive } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import DetailsInput from '@/components/widgets/DetailsInput'
@@ -83,6 +78,7 @@ import DetailsInput from '@/components/widgets/DetailsInput'
 export default {
   name: 'RegisterExtension',
   components: {
+    MoldDialogActions,
     TooltipLabel,
     DetailsInput
   },
@@ -94,11 +90,7 @@ export default {
   },
   data () {
     return {
-      resourceTypes: [],
-      resources: {
-        loading: false,
-        opts: []
-      },
+      resources: { loading: false, options: [], message: '', retry: false },
       loading: false
     }
   },
@@ -106,82 +98,77 @@ export default {
     this.apiParams = this.$getApiParams('registerExtension')
   },
   created () {
-    this.initForm()
-    this.fetchExtensionResourceTypes()
+    this.formRef = ref()
+    this.form = reactive({})
+    this.rules = { resourceid: [{ required: true, message: this.$t('message.error.select') }] }
+    this.fetchResources()
+  },
+  computed: {
+    resourceType () {
+      return { Orchestrator: 'Cluster', NetworkOrchestrator: 'PhysicalNetwork' }[this.resource.type]
+    },
+    listApi () {
+      return { Cluster: 'listClusters', PhysicalNetwork: 'listPhysicalNetworks' }[this.resourceType]
+    }
   },
   methods: {
-    initForm () {
-      this.formRef = ref()
-      this.form = reactive({})
-      this.rules = reactive({
-        resourcetype: [{ required: true, message: `${this.$t('message.error.select')}` }],
-        resourceid: [{ required: true, message: `${this.$t('message.error.select')}` }]
-      })
+    resourceLabel (candidate) {
+      const zone = candidate.zonename || this.$store.getters.zones?.find(zone => zone.id === candidate.zoneid)?.name || candidate.zoneid
+      return zone ? candidate.name + ' · ' + zone : candidate.name
     },
-    fetchExtensionResourceTypes () {
-      this.resourceTypes = []
-      const resourceTypesList = ['Cluster', 'PhysicalNetwork']
-      resourceTypesList.forEach((item) => {
-        this.resourceTypes.push({
-          id: item,
-          description: item
-        })
-      })
-    },
-    handleResourceTypeChange (id) {
-      this.resources.opts = []
-      if (!id) {
+    async fetchResources () {
+      if (!this.listApi || !(this.listApi in this.$store.getters.apis)) {
+        this.resources.message = 'message.extension.register.unavailable'
         return
       }
       this.resources.loading = true
-      const resourceApi = 'list' + id + 's'
-      const type = id.toLowerCase()
-      const params = {}
-      if (['cluster'].includes(type)) {
-        params.hypervisor = 'External'
-      }
-      getAPI(resourceApi, params).then(json => {
-        this.resources.opts = json?.[resourceApi.toLowerCase() + 'response']?.[type] || []
-      }).finally(() => {
+      this.resources.message = ''
+      this.resources.retry = false
+      try {
+        const cluster = this.resourceType === 'Cluster'
+        const params = cluster ? { hypervisor: 'External' } : {}
+        const data = await getAPI(this.listApi, params, { preserveOnFailure: true })
+        const candidates = data[this.listApi.toLowerCase() + 'response']?.[this.resourceType.toLowerCase()] || []
+        const linked = new Set((this.resource.resources || []).map(resource => resource.id))
+        const eligible = candidates.filter(candidate => !cluster || candidate.hypervisortype === 'External')
+        this.resources.options = eligible.filter(candidate => !linked.has(candidate.id))
+        if (!this.resources.options.length) {
+          this.resources.message = eligible.length ? 'message.extension.register.already.linked' : 'message.extension.register.no.candidates'
+        }
+      } catch (error) {
+        this.resources.options = []
+        this.resources.retry = true
+        this.resources.message = error.response?.status === 403
+          ? 'message.extension.register.unavailable'
+          : 'message.extension.register.load.failed'
+      } finally {
         this.resources.loading = false
-        this.form.resourceid = this.resources?.opts?.[0]?.id || null
-      })
+      }
     },
-    handleSubmit (e) {
-      e.preventDefault()
-      if (this.loading) return
-      this.formRef.value.validate().then(() => {
-        const values = toRaw(this.form)
-        this.loading = true
+    async handleSubmit (event) {
+      if (typeof event?.preventDefault === 'function') event.preventDefault()
+      if (this.loading || !this.resources.options.some(option => option.id === this.form.resourceid)) return
+      this.loading = true
+      try {
+        await this.formRef.value.validate()
         const params = {
           extensionid: this.resource.id,
-          resourcetype: values.resourcetype,
-          resourceid: values.resourceid
+          resourcetype: this.resourceType,
+          resourceid: this.form.resourceid
         }
-        if (values.details) {
-          Object.entries(values.details).forEach(([key, value]) => {
-            params['details[0].' + key] = value
-          })
-        }
-        postAPI('registerExtension', params).then(response => {
-          this.$emit('refresh-data')
-          this.$notification.success({
-            message: this.$t('label.register.extension'),
-            description: this.$t('message.success.register.extension')
-          })
-          this.closeAction()
-        }).catch(error => {
-          this.$notification.error({
-            message: this.$t('message.request.failed'),
-            description: (error.response && error.response.headers && error.response.headers['x-description']) || error.message,
-            duration: 0
-          })
-        }).finally(() => {
-          this.loading = false
+        for (const [key, value] of Object.entries(this.form.details || {})) params['details[0].' + key] = value
+        await postAPI('registerExtension', params)
+        this.$emit('refresh-data')
+        this.$notification.success({
+          message: this.$t('label.register.extension'),
+          description: this.$t('message.success.register.extension')
         })
-      }).catch(error => {
-        this.$notifyError(error)
-      })
+        this.closeAction()
+      } catch (error) {
+        if (!error.errorFields) this.$notifyError(error)
+      } finally {
+        this.loading = false
+      }
     },
     closeAction () {
       this.$emit('close-action')
@@ -191,10 +178,6 @@ export default {
 </script>
 
 <style scoped lang="less">
-.form-layout {
-  width: 80vw;
-  @media (min-width: 600px) {
-    width: 550px;
-  }
-}
+.form-layout { width: 100%; min-width: 0; }
+.registration-notice { margin: 8px 0; }
 </style>

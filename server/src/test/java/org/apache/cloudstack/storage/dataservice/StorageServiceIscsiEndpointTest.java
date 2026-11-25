@@ -2,12 +2,21 @@
 // contributor license agreements. See NOTICE. Apache License, Version 2.0.
 package org.apache.cloudstack.storage.dataservice;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import com.cloud.utils.exception.CloudRuntimeException;
-import org.apache.cloudstack.storage.dataservice.dao.*;
+import org.apache.cloudstack.storage.dataservice.dao.StorageBlockTargetDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageServiceProtocolDao;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.springframework.test.util.ReflectionTestUtils;
 
 public class StorageServiceIscsiEndpointTest {

@@ -103,15 +103,16 @@
         </template>
         <a-switch v-model:checked="form.state" />
       </a-form-item>
-      <div :span="24" class="action-button">
+      <mold-dialog-actions :busy="loading">
         <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
         <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-      </div>
+      </mold-dialog-actions>
     </a-form>
   </div>
 </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { ref, reactive, toRaw } from 'vue'
 import { postAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -120,6 +121,7 @@ import DetailsInput from '@/components/widgets/DetailsInput'
 export default {
   name: 'CreateExtension',
   components: {
+    MoldDialogActions,
     TooltipLabel,
     DetailsInput
   },
@@ -186,11 +188,11 @@ export default {
       this.form.path = value + '.sh'
     },
     handleSubmit (e) {
-      e.preventDefault()
+      if (typeof e?.preventDefault === 'function') e.preventDefault()
       if (this.loading) return
+      this.loading = true
       this.formRef.value.validate().then(() => {
         const values = toRaw(this.form)
-        this.loading = true
         const params = {
           name: values.name,
           type: values.type,
@@ -198,6 +200,9 @@ export default {
         }
         if (values.description) {
           params.description = values.description
+        }
+        if (values.type === 'Orchestrator' && typeof values.orchestratorrequirespreparevm === 'boolean') {
+          params.orchestratorrequirespreparevm = values.orchestratorrequirespreparevm
         }
         var path = values.path
         if (!path) {
@@ -212,7 +217,7 @@ export default {
         if (values.reservedresourcedetails) {
           params.reservedresourcedetails = values.reservedresourcedetails
         }
-        postAPI('createExtension', params).then(response => {
+        return postAPI('createExtension', params).then(response => {
           this.$emit('refresh-data')
           this.$notification.success({
             message: this.$t('label.create.extension'),
@@ -225,11 +230,11 @@ export default {
             description: (error.response && error.response.headers && error.response.headers['x-description']) || error.message,
             duration: 0
           })
-        }).finally(() => {
-          this.loading = false
         })
       }).catch(error => {
-        this.$notifyError(error)
+        if (!error.errorFields) this.$notifyError(error)
+      }).finally(() => {
+        this.loading = false
       })
     },
     closeAction () {
@@ -240,12 +245,7 @@ export default {
 </script>
 
 <style scoped lang="less">
-.form-layout {
-  width: 80vw;
-  @media (min-width: 600px) {
-    width: 550px;
-  }
-}
+.form-layout { width: 100%; min-width: 0; }
 
 .path-input-container {
   display: flex;

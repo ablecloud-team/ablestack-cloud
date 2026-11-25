@@ -86,7 +86,7 @@ import { isAblestackOriginalVmUnavailable, isKbossBackupProvider } from '@/utils
 import BackupProgress from '@/components/view/BackupProgress'
 
 const vmApis = ['createBackup', 'assignVirtualMachineToBackupOffering', 'removeVirtualMachineFromBackupOffering', 'createBackupSchedule', 'finishBackupChain']
-const rowApis = ['restoreVolumeFromBackupAndAttachToVM', 'createVMFromBackup', 'deleteBackup', 'cancelBackupStagingJob', 'getBackupStagingInfo']
+const rowApis = ['restoreVolumeFromBackupAndAttachToVM', 'createVMFromBackup', 'deleteBackup', 'cancelBackupStagingJob', 'getBackupImageInfo', 'getBackupStagingInfo']
 const activeStates = ['Allocated', 'Queued', 'BackingUp', 'ReadyForImageTransfer', 'FinalizingImageTransfer', 'Restoring']
 export default {
   name: 'VmBackupsTab',
@@ -101,7 +101,7 @@ export default {
     supportsQuickRestore () { return isKbossBackupProvider({ provider: this.provider(this.selected) }) },
     selectedAction () { return this.definition(this.actionApi) || {} },
     modalComponent () { return unref(this.selectedAction.component) },
-    modalWidth () { return this.actionApi === 'createVMFromBackup' ? '90%' : this.actionApi === 'getBackupStagingInfo' ? 1200 : 680 },
+    modalWidth () { return this.actionApi === 'createVMFromBackup' ? '90%' : ['getBackupImageInfo', 'getBackupStagingInfo'].includes(this.actionApi) ? 1200 : 680 },
     settings () { return vmApis.filter(api => api !== 'createBackup' && this.visible(api)).map(this.definition) },
     columns () { return ['name', 'status', 'size', 'type', 'created', 'actions'].map(key => ({ key, dataIndex: key, title: this.$t(key === 'size' ? 'label.vmbackup.sizes' : key === 'type' ? 'label.vmbackup.types' : 'label.' + key), ...(key === 'actions' ? { width: 165, fixed: 'right' } : {}) })) }
   },
@@ -130,7 +130,7 @@ export default {
       return !!action && this.allowed(api) && (!action.show || !!action.show(this.context(row), this.$store.getters))
     },
     disabled (api, row = this.resource) {
-      if (['cancelBackupStagingJob', 'getBackupStagingInfo'].includes(api)) return !this.visible(api, row) || this.opening || this.submitting
+      if (['cancelBackupStagingJob', 'getBackupImageInfo', 'getBackupStagingInfo'].includes(api)) return !this.visible(api, row) || this.opening || this.submitting
       if (['restoreBackup', 'restoreVolumeFromBackupAndAttachToVM', 'createVMFromBackup'].includes(api) && row.restoreavailable === false) return true
       const action = this.definition(api)
       return !this.visible(api, row) || this.opening || this.submitting || this.pending || this.unknown || this.rows.some(item => activeStates.includes(item.status)) || this.resource.hostcontrolstate === 'Offline' || !!action?.disabled?.(this.context(row), this.$store.getters, [])

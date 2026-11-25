@@ -2,14 +2,19 @@
 // contributor license agreements. See NOTICE. Apache License, Version 2.0.
 // http://www.apache.org/licenses/LICENSE-2.0
 package org.apache.cloudstack.storage.dataservice;
-import java.util.*;
-import com.google.gson.*;
+import java.util.List;
+import java.util.Map;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.cloud.exception.InvalidParameterValueException;
-import org.apache.cloudstack.api.command.user.storage.dataservice.*;
+import org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageSmbShareCmd;
 import org.apache.cloudstack.api.response.StorageSmbShareResponse;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class StorageSmbClientAccessPolicyTest {
     @Test public void canonicalNetworkAndDuplicateContracts() {

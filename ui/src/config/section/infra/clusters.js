@@ -17,6 +17,7 @@
 
 import { shallowRef, defineAsyncComponent } from 'vue'
 import store from '@/store'
+import { clusterSearchFields } from '@/utils/clusterSearch'
 
 export default {
   name: 'cluster',
@@ -24,7 +25,7 @@ export default {
   icon: 'cluster-outlined',
   docHelp: 'conceptsandterminology/concepts.html#about-clusters',
   permission: ['listClustersMetrics'],
-  searchFilters: ['name', 'zoneid', 'podid', 'arch', 'hypervisor'],
+  searchFilters: clusterSearchFields,
   columns: () => {
     const fields = ['name', 'allocationstate', 'clustertype', 'arch', 'hypervisortype']
     const metricsFields = ['haenable', 'state', 'hosts', 'cpuused', 'cpumaxdeviation', 'cpuallocated', 'cputotal', 'memoryused', 'memorymaxdeviation', 'memoryallocated', 'memorytotal', 'drsimbalance']
@@ -57,7 +58,7 @@ export default {
     component: shallowRef(defineAsyncComponent(() => import('@/views/infra/Resources.vue')))
   }, {
     name: 'settings',
-    component: shallowRef(defineAsyncComponent(() => import('@/components/view/SettingsTab.vue')))
+    component: shallowRef(defineAsyncComponent(() => import('@/views/setting/ScopedSettingsTab.vue')))
   }, {
     name: 'drs',
     component: shallowRef(defineAsyncComponent(() => import('@/views/infra/ClusterDRSTab.vue'))),
@@ -80,6 +81,8 @@ export default {
       docHelp: 'installguide/configuration.html#adding-a-cluster',
       listView: true,
       popup: true,
+      standardDialogSize: 'md',
+      standardDialogInitialFocus: '#cluster-add-zone',
       component: shallowRef(defineAsyncComponent(() => import('@/views/infra/ClusterAdd.vue')))
     },
     {
@@ -88,6 +91,7 @@ export default {
       label: 'label.edit',
       dataView: true,
       popup: true,
+      standardDialogSize: 'md',
       component: shallowRef(defineAsyncComponent(() => import('@/views/infra/ClusterUpdate.vue')))
     },
     {
@@ -95,6 +99,7 @@ export default {
       icon: 'play-circle-outlined',
       label: 'label.action.enable.cluster',
       message: 'message.action.enable.cluster',
+      impact: 'message.cluster.action.enable.impact',
       docHelp: 'adminguide/hosts.html#disabling-and-enabling-zones-pods-and-clusters',
       dataView: true,
       defaultArgs: { allocationstate: 'Enabled' },
@@ -105,6 +110,8 @@ export default {
       icon: 'pause-circle-outlined',
       label: 'label.action.disable.cluster',
       message: 'message.action.disable.cluster',
+      impact: 'message.cluster.action.disable.impact',
+      danger: true,
       docHelp: 'adminguide/hosts.html#disabling-and-enabling-zones-pods-and-clusters',
       dataView: true,
       defaultArgs: { allocationstate: 'Disabled' },
@@ -115,6 +122,7 @@ export default {
       icon: 'plus-square-outlined',
       label: 'label.action.manage.cluster',
       message: 'message.action.manage.cluster',
+      impact: 'message.cluster.action.manage.impact',
       dataView: true,
       defaultArgs: { managedstate: 'Managed' },
       show: (record) => { return record.managedstate !== 'Managed' }
@@ -124,6 +132,8 @@ export default {
       icon: 'minus-square-outlined',
       label: 'label.action.unmanage.cluster',
       message: 'message.action.unmanage.cluster',
+      impact: 'message.cluster.action.unmanage.impact',
+      danger: true,
       dataView: true,
       defaultArgs: { managedstate: 'Unmanaged' },
       show: (record) => { return record.managedstate === 'Managed' }
@@ -257,6 +267,8 @@ export default {
       icon: 'delete-outlined',
       label: 'label.action.delete.cluster',
       message: 'message.action.delete.cluster',
+      impact: 'message.cluster.action.delete.impact',
+      danger: true,
       dataView: true
     }
   ]

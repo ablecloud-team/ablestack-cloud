@@ -29,6 +29,7 @@ SECRET_KEY_FILE_DEFAULT="${SECRET_KEY_FILE:-${ABLESTACK_SECRET_KEY_FILE:-/root/.
 BACKUP_STAGING_ROOT_DEFAULT="/tmp/mold/netbackup"
 NETBACKUP_STAGE_ROOT_CONFIG_NAME="backup.thirdparty.staging.root.path"
 BACKUP_DATA_OPERATION_TIMEOUT_CONFIG_NAME="backup.data.operation.timeout"
+NETBACKUP_HOOK_TIMEOUT_CONFIG_NAME="backup.plugin.netbackup.hook.timeout"
 
 CONFIG_ROOT="${CONFIG_ROOT:-$CONFIG_ROOT_DEFAULT}"
 STATE_ROOT="${STATE_ROOT:-$STATE_ROOT_DEFAULT}"
@@ -40,8 +41,6 @@ SECRET_KEY_FILE="$SECRET_KEY_FILE_DEFAULT"
 MOLD_SECRET_FILE="${MOLD_SECRET_FILE:-}"
 BACKUP_STAGING_ROOT="${BACKUP_STAGING_ROOT:-$BACKUP_STAGING_ROOT_DEFAULT}"
 
-VM_INCLUDE="${VM_INCLUDE:-*}"
-VM_EXCLUDE="${VM_EXCLUDE:-}"
 MOLD_URL="${MOLD_URL:-}"
 ADMIN_APIKEY="${ADMIN_APIKEY:-}"
 ADMIN_SECRETKEY="${ADMIN_SECRETKEY:-}"
@@ -66,6 +65,7 @@ POLICY_NAME="${POLICY_NAME:-}"
 SCHEDULE_NAME="${SCHEDULE_NAME:-}"
 CLIENT_NAME="${CLIENT_NAME:-}"
 KVM_HOSTNAME="${KVM_HOSTNAME:-}"
+KVM_HOST_ID="${KVM_HOST_ID:-}"
 SESSION_TIMESTAMP="${SESSION_TIMESTAMP:-}"
 JOB_STATUS="${JOB_STATUS:-}"
 NETBACKUP_REQUIRE_JOB_SUCCESS="${NETBACKUP_REQUIRE_JOB_SUCCESS:-true}"
@@ -156,7 +156,7 @@ cleanup_runtime_history() {
 
 sanitize_name() {
   local value="$1"
-  value="${value//[^A-Za-z0-9._-]/_}"
+  value="${value//[^A-Za-z0-9._+-]/_}"
   builtin echo "${value}"
 }
 
@@ -213,6 +213,25 @@ resolve_context() {
   CLIENT_SAFE="$(sanitize_name "${CLIENT_NAME}")"
   BACKUP_ID_SAFE="$(sanitize_name "${BACKUP_ID}")"
   CONTEXT_KEY="${POLICY_SAFE}__${SCHEDULE_SAFE}__${CLIENT_SAFE}"
+  # The session filename adds 25 bytes to this key. Keep existing short keys,
+  # but bound long names before opening locks, context markers or session files.
+  if [[ ${#CONTEXT_KEY} -gt 230 ]]; then
+    local legacy_context="${CONTEXT_KEY}"
+    if [[ ${#legacy_context} -le 244 && -e "${STATE_ROOT}/contexts/${legacy_context}.inprogress" ]]; then
+      fail "A legacy long-name NetBackup context remains pending; reconcile its owner before retrying."
+    fi
+    if [[ ${#legacy_context} -le 250 && -f "${STATE_ROOT}/locks/${legacy_context}.lock" ]]; then
+      flock -n "${STATE_ROOT}/locks/${legacy_context}.lock" true || fail "A legacy long-name NetBackup Hook is still running."
+    fi
+    CONTEXT_KEY="ctx-$(python3 - "${POLICY_NAME}" "${SCHEDULE_NAME}" "${CLIENT_NAME}" <<'PY'
+import hashlib
+import json
+import sys
+
+print(hashlib.sha256(json.dumps(sys.argv[1:], separators=(',', ':')).encode()).hexdigest())
+PY
+)"
+  fi
   LOCK_FILE="${STATE_ROOT}/locks/${CONTEXT_KEY}.lock"
   CONTEXT_FILE="${STATE_ROOT}/contexts/${CONTEXT_KEY}.env"
   RUNTIME_DIR="${STATE_ROOT}/runtime/${POLICY_SAFE}"
@@ -553,16 +572,15 @@ wait_for_vm_staging_complete() {
   local backup_path=""
   local preparation_state="" preparation_rc=0
 
+  [[ -n "$backup_id" ]] || fail "Mold backup UUID is required to confirm preparation; update the management API and Host scripts together"
   wait_start_epoch="$(date +%s)"
   last_log_epoch=0
 
   while true; do
     preparation_rc=0
-    if [[ -n "$backup_id" ]]; then
-      preparation_state="$(check_mold_backup_preparation "$backup_id" 2>&1)" || preparation_rc=$?
-      if [[ "$preparation_rc" -eq 2 ]]; then
-        fail "$preparation_state"
-      fi
+    preparation_state="$(check_mold_backup_preparation "$backup_id" 2>&1)" || preparation_rc=$?
+    if [[ "$preparation_rc" -eq 2 ]]; then
+      fail "$preparation_state"
     fi
     if [[ "$preparation_rc" -eq 0 ]]; then
       backup_path="$(discover_completed_vm_backup_path "${vm_name}" "${stage_start_epoch}" "$backup_id" 2>/dev/null || true)"
@@ -726,14 +744,14 @@ load_staging_timeout_from_data_operation_config() {
   log -ne "Loaded ${BACKUP_DATA_OPERATION_TIMEOUT_CONFIG_NAME}=${configured_timeout}; stagingTimeout=${NETBACKUP_STAGING_TIMEOUT}"
 }
 
-load_policy_schedule_config() {
+load_policy_connection_config() {
   local config_file
   config_file="$(resolve_config_file_path)"
 
-  VM_INCLUDE="*"
-  VM_EXCLUDE=""
   NETBACKUP_PARENT_PAYLOAD_PATH=""
   KVM_HOSTNAME=""
+  KVM_HOST_ID=""
+  NETBACKUP_POLICY_NAME=""
   MOLD_URL=""
   ADMIN_APIKEY=""
   ADMIN_SECRETKEY=""
@@ -743,13 +761,12 @@ load_policy_schedule_config() {
   if [[ -f "${config_file}" ]]; then
     # shellcheck disable=SC1090
     source "${config_file}"
+    [[ -z "${NETBACKUP_POLICY_NAME}" || "${NETBACKUP_POLICY_NAME}" == "${POLICY_NAME}" ]] || fail "Configured NetBackup policy differs from requested policy."
     log -ne "Loaded NetBackup config: ${config_file}"
   else
     log -ne "No NetBackup config found for policy=${POLICY_NAME}"
   fi
 
-  VM_INCLUDE="${VM_INCLUDE:-*}"
-  VM_EXCLUDE="${VM_EXCLUDE:-}"
   # Legacy policy files may still contain this flag; Mold owns NetBackup mode selection.
   unset VM_SCHEDULE_BACKUP
   MOLD_CREATE_BACKUP_API_URL="${MOLD_CREATE_BACKUP_API_URL:-${MOLD_URL}}"
@@ -768,38 +785,39 @@ load_policy_schedule_config() {
   [[ "${NETBACKUP_STAGING_TIMEOUT}" =~ ^[1-9][0-9]*$ ]] || fail "Invalid NETBACKUP_STAGING_TIMEOUT=${NETBACKUP_STAGING_TIMEOUT}. It must be a positive integer."
 
   load_admin_secretkey
+}
+
+load_policy_schedule_config() {
+  load_policy_connection_config
   load_backup_staging_root_from_mold
   load_staging_timeout_from_data_operation_config
 
-  log -ne "VM selection include=${VM_INCLUDE} exclude=${VM_EXCLUDE}"
+  log -ne "VM selection uses explicitly assigned NetBackup backup offerings"
 }
 
-match_csv_glob() {
-  local value="$1"
-  local patterns="$2"
-  local pattern
+load_hook_timeout_from_mold() {
+  local response
+  response="$(invoke_mold_api "${MOLD_LIST_VMS_API_METHOD}" "${MOLD_LIST_VMS_API_URL}" \
+    listConfigurations name "${NETBACKUP_HOOK_TIMEOUT_CONFIG_NAME}")" || \
+    fail "Failed to query Mold Global configuration ${NETBACKUP_HOOK_TIMEOUT_CONFIG_NAME}; no Hook worker was started"
+  NETBACKUP_HOOK_TIMEOUT="$(python3 - "$response" "${NETBACKUP_HOOK_TIMEOUT_CONFIG_NAME}" <<'PY'
+import json
+import sys
 
-  [[ -z "${patterns}" ]] && return 1
-  while IFS= read -r pattern; do
-    pattern="${pattern#"${pattern%%[![:space:]]*}"}"
-    pattern="${pattern%"${pattern##*[![:space:]]}"}"
-    [[ -z "${pattern}" ]] && continue
-    if [[ "${value}" == ${pattern} ]]; then
-      return 0
-    fi
-  done < <(tr ',' '\n' <<< "${patterns}")
-  return 1
-}
-
-vm_is_selected() {
-  local vm_name="$1"
-  if match_csv_glob "${vm_name}" "${VM_EXCLUDE}"; then
-    return 1
-  fi
-  if match_csv_glob "${vm_name}" "${VM_INCLUDE}"; then
-    return 0
-  fi
-  return 1
+try:
+    rows = json.loads(sys.argv[1])["listconfigurationsresponse"]["configuration"]
+    matches = [row for row in rows if row.get("name") == sys.argv[2] and row.get("scope", "Global") == "Global"]
+    if len(matches) != 1 or type(matches[0].get("value")) not in (str, int):
+        raise ValueError("Missing or ambiguous Global value")
+    seconds = int(matches[0]["value"])
+    if not 1 <= seconds <= 2147483647:
+        raise ValueError("Timeout outside positive Integer range")
+    print(seconds)
+except (ValueError, TypeError, KeyError, AttributeError):
+    sys.exit(1)
+PY
+  )" || fail "Invalid ${NETBACKUP_HOOK_TIMEOUT_CONFIG_NAME}; use a positive whole number of seconds and update Management and Host scripts together"
+  log -ne "Loaded ${NETBACKUP_HOOK_TIMEOUT_CONFIG_NAME}=${NETBACKUP_HOOK_TIMEOUT}"
 }
 
 list_mold_virtual_machine_names() {
@@ -854,15 +872,9 @@ vm_exists_in_mold_cache() {
 }
 
 list_target_vms() {
-  local vm_name selection_mode
-  selection_mode="$(lookup_mold_candidate_field "" selectionmode)" || return 1
+  local vm_name
   while IFS= read -r vm_name; do
     [[ -z "${vm_name}" ]] && continue
-    if [[ "${selection_mode}" == "CONFIG" ]] && ! vm_is_selected "${vm_name}"; then
-      log -ne "Skipping VM ${vm_name}: not selected by VM_INCLUDE/VM_EXCLUDE"
-      continue
-    fi
-
     if vm_exists_in_mold_cache "${vm_name}"; then
       builtin echo "${vm_name}"
     else
@@ -882,8 +894,10 @@ supervise_netbackup_hook() {
   local phase="$1"
   shift
   [[ "${ABLESTACK_NETBACKUP_HOOK_WORKER:-}" != "$phase" ]] || return 0
+  load_policy_connection_config
+  load_hook_timeout_from_mold
   export STATE_ROOT POLICY_NAME SCHEDULE_NAME CLIENT_NAME SESSION_TIMESTAMP BACKUP_ID NETBACKUP_JOB_ID
-  exec python3 "${SCRIPT_DIR}/netbackup_hook_runner.py" run --phase "$phase" --context "$CONTEXT_KEY" -- "$@"
+  exec python3 "${SCRIPT_DIR}/netbackup_hook_runner.py" run --phase "$phase" --context "$CONTEXT_KEY" --timeout "$NETBACKUP_HOOK_TIMEOUT" -- "$@"
 }
 
 sanity_checks() {
@@ -1122,13 +1136,40 @@ wait_for_mold_async_job() {
   done
 }
 
+resolve_mold_host_identity() {
+  local identity_helper="${BASH_SOURCE[0]%/*}/netbackup_host_identity.py"
+  local addresses
+  addresses="$(python3 "$identity_helper" client "$CLIENT_NAME")" || \
+    fail "Cannot verify the local NetBackup Client identity; no backups were dispatched."
+  local page=1 matches=0 resolved_id="" resolved_name="" response rows count host_id host_name
+  while true; do
+    response="$(invoke_mold_api "${MOLD_LIST_VMS_API_METHOD}" "${MOLD_LIST_VMS_API_URL}" \
+      listHosts type Routing listall true pagesize 500 page "$page")" || fail "Cannot read current Mold Host inventory."
+    response="$(printf '%s' "$response" | python3 "$identity_helper" inventory "$addresses")" || \
+      fail "Cannot verify current Mold Host identity; no backups were dispatched."
+    IFS=$'\t' read -r rows count host_id host_name <<< "$response"
+    matches=$((matches + count))
+    if (( count > 0 )); then resolved_id="$host_id"; resolved_name="$host_name"; fi
+    (( matches <= 1 )) || fail "NetBackup Client matches multiple Mold KVM Hosts; check the Client DNS/IP and Host registrations."
+    if (( rows < 500 )); then break; fi
+    page=$((page + 1))
+    (( page <= 10000 )) || fail "Mold Host inventory pagination did not terminate."
+  done
+  [[ "$matches" -eq 1 ]] || fail "The local NetBackup Client does not match a registered Mold KVM Host."
+  if [[ "$KVM_HOST_ID" != "$resolved_id" || "$KVM_HOSTNAME" != "$resolved_name" ]]; then
+    log -ne "Refreshed Mold Host identity host=${resolved_name} hostId=${resolved_id}"
+  fi
+  KVM_HOST_ID="$resolved_id"
+  KVM_HOSTNAME="$resolved_name"
+}
+
 cache_mold_virtual_machines() {
   [[ -n "${MOLD_VM_CACHE_FILE}" ]] || fail "MOLD_VM_CACHE_FILE is not initialized."
   local response
-  local mold_host="${KVM_HOSTNAME:-$CLIENT_NAME}"
-  log -ne "Calling Mold listExternalBackupCandidates host=${mold_host} client=${CLIENT_NAME} policy=${POLICY_NAME}"
-  local -a selection_args=("provider" "ablestack-netbackup" "hostname" "$mold_host" "policyid" "$POLICY_NAME")
-  selection_args+=("vminclude" "${VM_INCLUDE-*}" "vmexclude" "${VM_EXCLUDE-}")
+  resolve_mold_host_identity
+  local mold_host="$KVM_HOSTNAME"
+  log -ne "Calling Mold listExternalBackupCandidates host=${mold_host} hostId=${KVM_HOST_ID} client=${CLIENT_NAME} policy=${POLICY_NAME}"
+  local -a selection_args=("provider" "ablestack-netbackup" "hostid" "$KVM_HOST_ID" "policyid" "$POLICY_NAME")
   response="$(invoke_mold_api \
     "${MOLD_LIST_NETBACKUP_CANDIDATES_API_METHOD}" \
     "${MOLD_LIST_NETBACKUP_CANDIDATES_API_URL}" \
@@ -1149,6 +1190,8 @@ try:
         require(isinstance(candidate, dict))
         for key in ("virtualmachineid", "instancename", "hostid"):
             require(isinstance(candidate.get(key), str) and candidate[key].strip())
+        require(candidate["hostid"] == sys.argv[1])
+        require(isinstance(candidate.get("backupofferingid"), str) and candidate["backupofferingid"].strip())
         require(candidate["virtualmachineid"] not in seen)
         seen.add(candidate["virtualmachineid"])
         if mode == "SCHEDULE":
@@ -1159,7 +1202,7 @@ try:
     print(json.dumps(response))
 except (ValueError, KeyError, TypeError, AssertionError):
     sys.exit("Invalid Mold schedule response; configuration fallback is forbidden")
-' > "${MOLD_VM_CACHE_FILE}" || fail "Mold schedule response validation failed; no backups were dispatched"
+' "$KVM_HOST_ID" > "${MOLD_VM_CACHE_FILE}" || fail "Mold schedule response validation failed; no backups were dispatched"
   log -ne "Mold target selection mode=$(lookup_mold_candidate_field "" selectionmode)"
 }
 
@@ -1260,6 +1303,31 @@ run_stage_vm_backup() {
 
   log -ne "Calling Mold createNetBackup API for vm=${vm_name} vmId=${vm_id} scheduleId=${schedule_id} url=${MOLD_CREATE_BACKUP_API_URL}"
   stage_start_epoch="$(date +%s)"
+  # Keep the admission wait inside this PRE invocation. A delayed async worker
+  # must not admit another backup after its caller's preparation budget expired.
+  local preparation_deadline
+  if ! preparation_deadline="$(python3 - "$MOLD_ASYNC_JOB_TIMEOUT" "${ABLESTACK_NETBACKUP_HOOK_DEADLINE_MS:-}" <<'PY'
+import sys, time
+try:
+    timeout = int(sys.argv[1])
+    if timeout <= 0:
+        raise ValueError("Async response timeout must be positive")
+    now = int(time.time() * 1000)
+    deadline = now + timeout * 1000
+    if sys.argv[2]:
+        deadline = min(deadline, int(sys.argv[2]))
+    if deadline <= now:
+        raise ValueError("PRE Hook preparation deadline expired")
+    print(deadline)
+except ValueError as error:
+    print(str(error), file=sys.stderr)
+    sys.exit(1)
+PY
+  )"; then
+    printf 'FAILED\t%s\t\t\t%s\n' "$vm_id" "Preparation deadline is unavailable or expired; no request was submitted"
+    return 1
+  fi
+  api_args+=("preparationdeadline" "$preparation_deadline")
   if ! initial_response="$(invoke_mold_api \
     "${MOLD_CREATE_BACKUP_API_METHOD}" \
     "${MOLD_CREATE_BACKUP_API_URL}" \
@@ -1284,7 +1352,9 @@ run_stage_vm_backup() {
 
   backup_id="$(extract_json_value_by_key "$final_response" backupid 2>/dev/null || true)"
   if [[ -z "$backup_id" ]]; then
-    log -ne "Mold did not return a backup UUID; using legacy marker discovery without preparation status checks"
+    printf 'FAILED\t%s\t%s\t\t%s\n' "${vm_id}" "${job_id}" \
+      "$(tsv_escape "Mold createNetBackup did not return a backup UUID; preparation cannot be confirmed. Update the management API and Host scripts together; do not resubmit this request.")"
+    return 1
   fi
   log -ne "Waiting for NetBackup staging completion vm=${vm_name} vmId=${vm_id} jobId=${job_id} backupId=${backup_id}"
   if ! backup_path="$(wait_for_vm_staging_complete "${vm_name}" "${stage_start_epoch}" "$backup_id" 2>&1)"; then

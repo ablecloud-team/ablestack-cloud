@@ -26,7 +26,9 @@ import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.vm.NicVO;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class StorageServiceSmbEndpointTest {
     static class Harness extends StorageServiceManagerImpl {

@@ -71,7 +71,7 @@ final class LibvirtAblestackSharedRawGuard {
 
     static void control(LibvirtComputingResource resource, String action, AblestackSharedRawBackup.Plan plan) throws Exception {
         List<String> sources = paths(resource, plan);
-        Path helper = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("ablestack_shared_raw.py");
+        Path helper = Path.of(resource.getThirdPartyVolumeBackupPath()).getParent().resolve("ablestack_shared_raw.py");
         if (!Files.isRegularFile(helper)) throw new IllegalArgumentException("Offline RAW helper is not installed");
         Path directory = Path.of("/var/lib/ablestack/backup/shared-raw");
         Files.createDirectories(directory);

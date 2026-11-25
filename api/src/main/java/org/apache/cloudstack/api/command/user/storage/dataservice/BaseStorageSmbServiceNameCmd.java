@@ -17,8 +17,9 @@
 
 package org.apache.cloudstack.api.command.user.storage.dataservice;
 import javax.inject.Inject;
-import org.apache.cloudstack.api.*;
-import org.apache.cloudstack.api.response.*;
+import org.apache.cloudstack.api.Parameter;
+import org.apache.cloudstack.api.response.StorageServiceInstanceResponse;
+import org.apache.cloudstack.api.response.StorageSmbServiceNameResponse;
 import org.apache.cloudstack.api.command.user.UserCmd;
 public abstract class BaseStorageSmbServiceNameCmd extends BaseStorageServiceConfigurationCmd implements UserCmd {
     @Inject private org.apache.cloudstack.storage.dataservice.StorageService storageService;

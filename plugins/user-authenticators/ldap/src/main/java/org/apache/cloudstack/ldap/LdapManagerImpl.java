@@ -64,6 +64,7 @@ import com.cloud.user.DomainManager;
 import com.cloud.user.dao.AccountDao;
 import com.cloud.utils.Pair;
 import com.cloud.utils.component.ComponentLifecycleBase;
+import com.cloud.utils.db.Filter;
 import com.cloud.utils.exception.CloudRuntimeException;
 
 @Component
@@ -184,7 +185,7 @@ public class LdapManagerImpl extends ComponentLifecycleBase implements LdapManag
                 return createLdapConfigurationResponse(configuration);
             } catch (NamingException | IOException e) {
                 logger.debug("NamingException while doing an LDAP bind", e);
-                throw new InvalidParameterValueException("Unable to bind to the given LDAP server");
+                throw new LdapRegistrationException(LdapRegistrationException.BIND_FAILED, "Unable to bind to the given LDAP server");
             } catch (RuntimeException e) {
                 if (e.getMessage().contains("Invalid truststore")) {
                     throw new InvalidParameterValueException("Invalid truststore or truststore password");
@@ -194,7 +195,7 @@ public class LdapManagerImpl extends ComponentLifecycleBase implements LdapManag
                 closeContext(context);
             }
         } else {
-            throw new InvalidParameterValueException("Duplicate configuration");
+            throw new LdapRegistrationException(LdapRegistrationException.DUPLICATE, "Duplicate configuration");
         }
     }
 
@@ -382,14 +383,12 @@ public class LdapManagerImpl extends ComponentLifecycleBase implements LdapManag
 
     @Override
     public boolean isLdapEnabled() {
-        return listConfigurations(new LdapListConfigurationCmd(this)).second() > 0;
+        return _ldapConfigurationDao.searchConfigurations(null, 0, null).second() > 0;
     }
 
     @Override
     public boolean isLdapEnabled(long domainId) {
-        LdapListConfigurationCmd cmd = new LdapListConfigurationCmd(this);
-        cmd.setDomainId(domainId);
-        return listConfigurations(cmd).second() > 0;
+        return _ldapConfigurationDao.searchConfigurations(null, 0, domainId).second() > 0;
     }
 
     @Override
@@ -399,7 +398,11 @@ public class LdapManagerImpl extends ComponentLifecycleBase implements LdapManag
         final Long domainId = cmd.getDomainId();
         final boolean listAll = cmd.listAll();
         final Long id = cmd.getId();
-        final Pair<List<LdapConfigurationVO>, Integer> result = _ldapConfigurationDao.searchConfigurations(id, hostname, port, domainId, listAll);
+        final Filter pageFilter = id == null
+                ? new Filter(LdapConfigurationVO.class, "id", true, cmd.getStartIndex(), cmd.getPageSizeVal())
+                : null;
+        final Pair<List<LdapConfigurationVO>, Integer> result = _ldapConfigurationDao.searchConfigurations(
+                id, hostname, port, domainId, listAll, cmd.getKeyword(), pageFilter);
         return new Pair<>(result.first(), result.second());
     }
 

@@ -28,34 +28,35 @@
      >
       <a-form-item ref="name" name="name">
         <template #label>
-          <tooltip-label :title="$t('label.name')" :tooltip="apiParams.name.description"/>
+          <tooltip-label :title="$t('label.name')" :tooltip="apiParams.name?.description"/>
         </template>
         <a-input
-          v-focus="true"
+          id="primary-rbd-image-name"
           v-model:value="form.name"
           :placeholder="$t('message.rbd.name')" />
       </a-form-item>
 
         <a-form-item ref="size" name="size">
           <template #label>
-            <tooltip-label :title="$t('label.sizegb')" :tooltip="apiParams.size.description"/>
+            <tooltip-label :title="$t('label.sizegb')" :tooltip="apiParams.size?.description"/>
           </template>
           <a-input
             v-model:value="form.size"
             :placeholder="$t('message.rbd.size')"/>
       </a-form-item>
 
-      <div :span="24" class="action-button">
-        <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
-        <a-button type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-      </div>
+      <mold-dialog-actions :busy="loading">
+        <a-button :disabled="loading" @click="closeModal">{{ $t('label.cancel') }}</a-button>
+        <a-button type="primary" ref="submit" :loading="loading" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+      </mold-dialog-actions>
     </a-form>
   </a-spin>
 </template>
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { getAPI } from '@/api'
+import { postAPI } from '@/api'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { mixinForm } from '@/utils/mixin'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -65,7 +66,8 @@ export default {
   mixins: [mixinForm],
   components: {
     ResourceIcon,
-    TooltipLabel
+    TooltipLabel,
+    MoldDialogActions
   },
   props: {
     resource: {
@@ -84,7 +86,7 @@ export default {
     }
   },
   beforeCreate () {
-    this.apiParams = this.$getApiParams('createVolume')
+    this.apiParams = this.$getApiParams('createRbdImage')
   },
   created () {
     this.initForm()
@@ -100,25 +102,20 @@ export default {
       })
     },
     fetchData () {},
-    handleSubmit (e) {
-      if (this.loading) return
-      this.formRef.value.validate().then(() => {
-        const formRaw = toRaw(this.form)
-        const values = this.handleRemoveFields(formRaw)
-        values.zoneid = this.resource.zoneid
-        values.id = this.resource.id
-        this.loading = true
-        getAPI('createRbdImage', values).then(json => {
-          this.data = json.createrbdimageresponse.successmessage
-          this.closeModal()
-        }).catch(error => {
-          this.$notifyError(error)
-        }).finally(() => {
-          this.loading = false
-        })
-      }).catch((error) => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
-      })
+    async handleSubmit () {
+      if (this.loading || !this.$store.getters.apis.createRbdImage) return
+      this.loading = true
+      try {
+        await this.formRef.value.validate()
+        const values = this.handleRemoveFields(toRaw(this.form))
+        await postAPI('createRbdImage', { ...values, id: this.resource.id, zoneid: this.resource.zoneid }, { preserveOnFailure: true })
+        this.closeModal()
+      } catch (error) {
+        if (error.errorFields?.[0]) this.formRef.value.scrollToField(error.errorFields[0].name)
+        else this.$notifyError(error)
+      } finally {
+        this.loading = false
+      }
     },
     closeModal () {
       this.$emit('close-action')
@@ -127,13 +124,6 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-.form {
-  width: 80vw;
-
-  @media (min-width: 500px) {
-    min-width: 400px;
-    width: 100%;
-  }
-}
+<style scoped>
+.form { min-width: 0; width: 100%; }
 </style>

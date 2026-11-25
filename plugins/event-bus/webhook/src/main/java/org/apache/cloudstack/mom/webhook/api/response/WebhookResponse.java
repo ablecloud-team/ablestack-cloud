@@ -18,6 +18,7 @@
 package org.apache.cloudstack.mom.webhook.api.response;
 
 import java.util.Date;
+import java.util.List;
 
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.BaseResponse;
@@ -75,8 +76,12 @@ public class WebhookResponse extends BaseResponse implements ControlledViewEntit
     private String payloadUrl;
 
     @SerializedName(ApiConstants.SECRET_KEY)
-    @Param(description = "The secret key for the Webhook")
+    @Param(description = "The secret key for the Webhook", isSensitive = true)
     private String secretKey;
+
+    @SerializedName("secretkeyconfigured")
+    @Param(description = "Whether the webhook has a signing key")
+    private boolean secretKeyConfigured;
 
     @SerializedName(ApiConstants.SSL_VERIFICATION)
     @Param(description = "Whether SSL verification is enabled for the Webhook")
@@ -85,6 +90,10 @@ public class WebhookResponse extends BaseResponse implements ControlledViewEntit
     @SerializedName(ApiConstants.SCOPE)
     @Param(description = "The scope of the Webhook")
     private String scope;
+
+    @SerializedName("editablescopes")
+    @Param(description = "Webhook scopes available to the caller for this owner")
+    private List<String> editableScopes;
 
     @SerializedName(ApiConstants.CREATED)
     @Param(description = "The date when this Webhook was created")
@@ -144,12 +153,20 @@ public class WebhookResponse extends BaseResponse implements ControlledViewEntit
         this.secretKey = secretKey;
     }
 
+    public void setSecretKeyConfigured(boolean secretKeyConfigured) {
+        this.secretKeyConfigured = secretKeyConfigured;
+    }
+
     public void setSslVerification(boolean sslVerification) {
         this.sslVerification = sslVerification;
     }
 
     public void setScope(String scope) {
         this.scope = scope;
+    }
+
+    public void setEditableScopes(List<String> editableScopes) {
+        this.editableScopes = editableScopes;
     }
 
     public void setCreated(Date created) {

@@ -25,7 +25,7 @@
       v-for="filter in this.searchFilters"
       :key="filter.key + filter.value"
     >
-      <a-col v-if="(kms && filter.key === 'projectid') || !['page', 'pagesize', 'q', 'keyword', 'tags', 'projectid', 'sortkey', 'sortorder'].includes(filter.key)">
+      <a-col v-if="(kms && filter.key === 'projectid') || (runtimeCatalog && filter.key === 'keyword') || !['page', 'pagesize', 'q', 'keyword', 'tags', 'projectid', 'sortkey', 'sortorder'].includes(filter.key)">
         <a-tag
           v-if="!filter.isTag"
           closable
@@ -65,6 +65,7 @@ import { publicIpPickerConfig } from '@/utils/publicIpSearch'
 import { affinityPolicy } from '@/utils/affinityGroupPresentation'
 import { snapshotSearchLabel, snapshotSearchValue, snapshotPickerScope } from '@/utils/storageSnapshotSearch'
 import { networkPickerApi, networkPickerParams } from '@/utils/guestNetworkSearch'
+import { runtimeCatalogApi, runtimeCatalogChoices } from '@/utils/runtimeCatalog'
 
 export default {
   name: 'SearchFilter',
@@ -192,6 +193,7 @@ export default {
     }
   },
   computed: {
+    runtimeCatalog () { return this.apiName === runtimeCatalogApi },
     kms () { return kmsApis.includes(this.apiName) },
     lookupScope () { return JSON.stringify([this.$store?.getters?.userInfo?.id, this.$store?.getters?.userInfo?.roletype, this.$store?.getters?.userInfo?.roleid, Object.keys(this.$store?.getters?.apis || {}).sort(), this.$store?.state?.user?.token, this.$store?.getters?.project?.id, this.$route.query?.projectid, this.$route.path, this.apiName]) }
   },
@@ -202,6 +204,9 @@ export default {
   },
   methods: {
     publicIpFilterValue (filter) {
+      if (this.runtimeCatalog && runtimeCatalogChoices[filter.key]?.includes(filter.value)) {
+        return this.$t('label.runtime.catalog.' + filter.key + '.' + filter.value)
+      }
       if (this.apiName !== 'listPublicIpAddresses') return filter.value
       const value = filter.rawValue ?? filter.value
       if (filter.key === 'state') return this.$t(publicIpState(value).key)
@@ -232,7 +237,9 @@ export default {
       const resolved = await Promise.all(cloned.map(async filter => {
         if (filter.key === 'tags') return { ...filter, isTag: true }
         try {
-          const value = await this.getSearchFilters(filter.key, filter.value)
+          const value = this.apiName === 'listLdapConfigurations' && filter.key === 'scope'
+            ? this.$t('label.ldap.scope.global')
+            : await this.getSearchFilters(filter.key, filter.value)
           return { ...filter, value: value !== undefined && value !== null && value !== '' ? value : filter.value }
         } catch (_) { return filter }
       }))
@@ -245,6 +252,19 @@ export default {
       return (text.length <= length) ? text : (text.substring(0, length - 3) + '...')
     },
     retrieveFieldLabel (fieldName) {
+      if (this.runtimeCatalog && fieldName === 'keyword') return this.$t('label.runtime.catalog.keyword')
+      if (this.runtimeCatalog && fieldName === 'version') return this.$t('label.runtime.catalog.version.exact')
+      if (this.apiName === 'listOauthProviderConfigurations') {
+        if (fieldName === 'provider') return this.$t('label.oauth.search.provider')
+        if (fieldName === 'domainid') return this.$t('label.domain')
+        if (fieldName === 'keyword') return this.$t('label.search')
+      }
+      if (this.apiName === 'listLdapConfigurations') {
+        if (fieldName === 'id') return this.$t('label.ldap.configuration.uuid')
+        if (fieldName === 'domainid') return this.$t('label.domain')
+        if (fieldName === 'scope') return this.$t('label.scope')
+      }
+      if (this.apiName === 'listBackups' && fieldName === 'virtualmachineid') return this.$t('label.virtualmachinename')
       if (this.apiName === 'listVpnUsers' && fieldName === 'username') return this.$t('label.vpn.user.search.exact')
       if (this.apiName === 'listVpnUsers' && fieldName === 'domainid') return this.$t('label.domain')
       if (this.kms && fieldName === 'projectid') return this.$t('label.project')
@@ -291,6 +311,9 @@ export default {
       }
     },
     getStaticFieldValue (key, value) {
+      if (this.apiName === 'listOauthProviderConfigurations' && key === 'scope') return this.$t(value === 'global' ? 'label.oauth.scope.global' : 'label.domain')
+      if (this.apiName === 'listBackupSchedule' && key === 'quiescevm') return this.$t(String(value) === 'true' ? 'label.yes' : 'label.no')
+      if (this.apiName === 'listBackupSchedule' && key === 'intervaltype' && ['HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY'].includes(String(value).toUpperCase())) return this.$t('label.' + String(value).toLowerCase())
       if (this.$route.meta?.name === 'systemoffering') {
         const labels = { systemvmtype: systemOfferingFilterTypes, storagetype: systemOfferingStorageLabels }
         const label = labels[key]?.get(value)
@@ -351,6 +374,16 @@ export default {
     },
     async getDynamicFieldValue (key, value) {
       let formattedValue = ''
+      if (['listBackups', 'listBackupSchedule'].includes(this.apiName) && key === 'virtualmachineid') {
+        if (!this.$store.getters.apis?.listVirtualMachines || !this.$isValidUuid(value)) return value
+        const query = this.$route.query || {}
+        const params = { id: value, listall: true }
+        for (const field of ['projectid', 'zoneid', 'domainid', 'account']) {
+          if (query[field]) params[field] = query[field]
+        }
+        const response = await getAPI('listVirtualMachines', params, { preserveOnFailure: true })
+        return response?.listvirtualmachinesresponse?.virtualmachine?.find(vm => vm.id === value)?.name || value
+      }
       if ((this.apiName === 'listNetworks' && ['networkofferingid', 'physicalnetworkid'].includes(key)) || (this.apiName === 'listGuestVlans' && key === 'physicalnetworkid')) {
         const { api, field } = networkPickerApi(key)
         if (!this.$store.state?.user?.token || !this.$store.getters.apis?.[api]) return value

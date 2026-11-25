@@ -535,6 +535,23 @@ public class ConfigurationManagerImplTest {
     }
 
     @Test
+    public void testNetBackupHookTimeoutAcceptsOnlyPositiveGlobalIntegerValues() {
+        ConfigurationVO cfg = mock(ConfigurationVO.class);
+        when(cfg.getScopes()).thenReturn(List.of(ConfigKey.Scope.Global));
+        ConfigKey<Integer> key = org.apache.cloudstack.backup.BackupManager.NetBackupHookTimeout;
+        Mockito.doReturn(cfg).when(configDao).findByName(key.key());
+        Mockito.doReturn(key).when(configurationManagerImplSpy._configDepot).get(key.key());
+        configurationManagerImplSpy.populateConfigValuesForValidationSet();
+        for (String value : List.of("1", "86400", "172800", "2147483647")) {
+            Assert.assertNull(value, configurationManagerImplSpy.validateConfigurationValue(key.key(), value, ConfigKey.Scope.Global));
+        }
+        for (String value : List.of("0", "-1", "1.5", "invalid", "2147483648")) {
+            Assert.assertNotNull(value, configurationManagerImplSpy.validateConfigurationValue(key.key(), value, ConfigKey.Scope.Global));
+        }
+        Assert.assertNotNull(configurationManagerImplSpy.validateConfigurationValue(key.key(), "86400", ConfigKey.Scope.Zone));
+    }
+
+    @Test
     public void testValidateConfig_ThreadsOnKVMHostToTransferVMwareVMFiles_Success() {
         ConfigurationVO cfg = mock(ConfigurationVO.class);
         when(cfg.getScopes()).thenReturn(List.of(ConfigKey.Scope.Global));

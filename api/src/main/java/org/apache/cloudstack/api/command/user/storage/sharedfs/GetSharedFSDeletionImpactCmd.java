@@ -17,7 +17,9 @@
 package org.apache.cloudstack.api.command.user.storage.sharedfs;
 import javax.inject.Inject;
 import org.apache.cloudstack.acl.RoleType;
-import org.apache.cloudstack.api.*;
+import org.apache.cloudstack.api.APICommand;
+import org.apache.cloudstack.api.BaseCmd;
+import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.command.user.UserCmd;
 import org.apache.cloudstack.api.response.SharedFSDeletionResponse;
 import org.apache.cloudstack.context.CallContext;
@@ -28,7 +30,7 @@ public class GetSharedFSDeletionImpactCmd extends BaseCmd implements UserCmd {
     @Parameter(name="id",type=CommandType.STRING,description="SharedFS UUID, including a removed service for durable operation lookup.") private String id;
     @Parameter(name="requestid",type=CommandType.STRING,length=64,description="Deletion request key.") private String requestId;
     @Parameter(name="operationid",type=CommandType.STRING,description="Deletion operation UUID.") private String operationId;
-    
+
     public long getEntityOwnerId(){return CallContext.current().getCallingAccount().getId();}
     public void execute(){
         SharedFSDeletionResponse response=new SharedFSDeletionResponse(service.getDeletionImpact(id));

@@ -16,9 +16,6 @@
 // under the License.
 package org.apache.cloudstack.oauth2.api.command;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.inject.Inject;
 
 import org.apache.cloudstack.api.APICommand;
@@ -29,7 +26,6 @@ import org.apache.cloudstack.api.BaseCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.response.DomainResponse;
-import org.apache.cloudstack.auth.UserOAuth2Authenticator;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.oauth2.OAuth2AuthManager;
 import org.apache.cloudstack.oauth2.api.response.OauthProviderResponse;
@@ -39,7 +35,7 @@ import com.cloud.api.ApiDBUtils;
 import com.cloud.domain.Domain;
 
 @APICommand(name = "updateOauthProvider", description = "Updates the registered OAuth provider details", responseObject = OauthProviderResponse.class,
-        requestHasSensitiveInfo = false, responseHasSensitiveInfo = false, since = "4.19.0")
+        requestHasSensitiveInfo = true, responseHasSensitiveInfo = false, since = "4.19.0")
 public final class UpdateOAuthProviderCmd extends BaseCmd {
 
 
@@ -149,22 +145,9 @@ public final class UpdateOAuthProviderCmd extends BaseCmd {
         OauthProviderVO result = _oauthMgr.updateOauthProvider(this);
         if (result != null) {
             Domain domain = result.getDomainId() != null ? ApiDBUtils.findDomainById(result.getDomainId()) : null;
-            OauthProviderResponse r = new OauthProviderResponse(result.getUuid(), result.getProvider(),
-                    result.getDescription(), result.getClientId(), result.getSecretKey(), result.getRedirectUri(),
-                    result.getAuthorizeUrl(), result.getTokenUrl(), domain);
-
-            List<UserOAuth2Authenticator> userOAuth2AuthenticatorPlugins = _oauthMgr.listUserOAuth2AuthenticationProviders();
-            List<String> authenticatorPluginNames = new ArrayList<>();
-            for (UserOAuth2Authenticator authenticator : userOAuth2AuthenticatorPlugins) {
-                String name = authenticator.getName();
-                authenticatorPluginNames.add(name);
-            }
-            boolean oauthEnabled = OAuth2AuthManager.isPluginEnabledForDomain(result.getDomainId());
-            if (oauthEnabled && authenticatorPluginNames.contains(result.getProvider()) && result.isEnabled()) {
-                r.setEnabled(true);
-            } else {
-                r.setEnabled(false);
-            }
+            boolean available = _oauthMgr.listUserOAuth2AuthenticationProviders().stream()
+                    .anyMatch(authenticator -> result.getProvider().equals(authenticator.getName()));
+            OauthProviderResponse r = OauthProviderResponse.forManagement(result, domain, available);
 
             r.setObjectName(ApiConstants.OAUTH_PROVIDER);
             r.setResponseName(getCommandName());

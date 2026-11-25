@@ -6,13 +6,22 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import com.google.gson.*;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.cloudstack.api.BaseCmd;
 import org.apache.cloudstack.api.Parameter;
-import org.apache.cloudstack.api.command.user.storage.dataservice.*;
-import org.apache.cloudstack.api.response.*;
+import org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceConfigurationCmd;
+import org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageSmbShareCmd;
+import org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageSmbShareCmd;
+import org.apache.cloudstack.api.response.ListResponse;
+import org.apache.cloudstack.api.response.StorageServiceConfigurationPreflightResponse;
+import org.apache.cloudstack.api.response.StorageSmbShareResponse;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class StorageSmbCreationPolicyTest {
     static void set(Object o,String name,Object v)throws Exception {Field f=o.getClass().getDeclaredField(name);f.setAccessible(true);f.set(o,v);}

@@ -19,13 +19,12 @@
 
 package org.apache.cloudstack.backup;
 
-import com.cloud.agent.api.Command;
 import com.cloud.agent.api.LogLevel;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 
 import java.util.List;
 
-public class AblestackNasTakeBackupCommand extends Command {
+public class AblestackNasTakeBackupCommand extends AblestackDataOperationCommand {
     @LogLevel(LogLevel.Log4jLevel.Off)
     private String sourceStartPlan;
     private boolean stoppedSourceProtectionRequired;
@@ -43,7 +42,7 @@ public class AblestackNasTakeBackupCommand extends Command {
                 "backupFiles", "quiesce", "mountOptions", "mountTimeout", "bandwidthLimitMbps", "stoppedSourceProtectionRequired")) {
             if (serialized.has(field)) { identity.add(field, serialized.get(field)); }
         }
-        identity.addProperty("wait", getWait());
+        identity.addProperty("wait", getTimeout());
         try {
             byte[] digest = java.security.MessageDigest.getInstance("SHA-256")
                     .digest(identity.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
@@ -70,7 +69,6 @@ public class AblestackNasTakeBackupCommand extends Command {
     private List<String> volumePaths;
     private List<String> backupFiles;
     private Boolean quiesce;
-    private boolean waitForCompletion = true;
     @LogLevel(LogLevel.Log4jLevel.Off)
     private String mountOptions;
     private Integer mountTimeout;
@@ -208,14 +206,6 @@ public class AblestackNasTakeBackupCommand extends Command {
 
     public void setQuiesce(Boolean quiesce) {
         this.quiesce = quiesce;
-    }
-
-    public boolean isWaitForCompletion() {
-        return waitForCompletion;
-    }
-
-    public void setWaitForCompletion(final boolean waitForCompletion) {
-        this.waitForCompletion = waitForCompletion;
     }
 
     public Integer getBandwidthLimitMbps() {

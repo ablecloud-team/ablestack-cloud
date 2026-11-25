@@ -39,6 +39,25 @@ final class LibvirtAblestackTakeBackupCommandHelper {
     private LibvirtAblestackTakeBackupCommandHelper() {
     }
 
+    static BackupAnswer executeVolumeBackup(final Command command, final Logger logger, final String trace,
+            final String provider, final BackupCommandContext context, final String manifest, final String startPlan,
+            final Supplier<String[]> commandSupplier) {
+        if (StringUtils.isBlank(manifest)) {
+            return new BackupAnswer(command, false, "Volume backup manifest is required; submit a new backup from Management");
+        }
+        if (context.waitForCompletion) {
+            return new BackupAnswer(command, false, "Volume backups require asynchronous submission from Management");
+        }
+        logger.info("{} phase=[AGENT_ENTER], vm=[{}], backupPath=[{}], backupType=[{}]",
+                trace, context.vmName, context.backupPath, context.backupType);
+        if (startPlan != null) {
+            return LibvirtAblestackBackupStartHelper.launch(command, logger, trace, provider, context.jobId, context.vmName,
+                    context.backupPath, context.backupType, startPlan, commandSupplier);
+        }
+        return LibvirtAblestackAsyncBackupRunner.startDetached(command, logger, trace, provider, context.jobId,
+                context.vmName, context.backupPath, context.backupType, commandSupplier.get(), false);
+    }
+
     static BackupAnswer execute(final Command command, final Logger logger, final String trace, final String provider,
             final BackupCommandContext context, final Supplier<String[]> detachedCommandSupplier,
             final Supplier<Pair<Integer, String>> backupTask, final int cleanupFailureExitCode,
@@ -48,16 +67,6 @@ final class LibvirtAblestackTakeBackupCommandHelper {
                 trace, context.vmName, context.backupPath, context.backupType);
 
         if (!context.waitForCompletion) {
-            String startPlan = command instanceof org.apache.cloudstack.backup.AblestackCommvaultTakeBackupCommand
-                    ? ((org.apache.cloudstack.backup.AblestackCommvaultTakeBackupCommand) command).getVolumeBackupStartPlan()
-                    : command instanceof org.apache.cloudstack.backup.AblestackNetBackupTakeBackupCommand
-                    ? ((org.apache.cloudstack.backup.AblestackNetBackupTakeBackupCommand) command).getVolumeBackupStartPlan()
-                    : command instanceof org.apache.cloudstack.backup.AblestackVeeamTakeBackupCommand
-                    ? ((org.apache.cloudstack.backup.AblestackVeeamTakeBackupCommand) command).getVolumeBackupStartPlan() : null;
-            if (startPlan != null) {
-                return LibvirtAblestackBackupStartHelper.launch(command, logger, trace, provider, context.jobId, context.vmName,
-                        context.backupPath, context.backupType, startPlan, detachedCommandSupplier);
-            }
             final String[] detachedCommand = detachedCommandSupplier.get();
             if (detachedCommand != null) {
                 final boolean liveBandwidthSupported = Arrays.asList(detachedCommand).contains("backup-running");

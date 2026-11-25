@@ -55,6 +55,9 @@ public class BackupStagingInfoResponse extends BaseResponse {
     @SerializedName("jobcleanupreason") @Param(description = "Why Host job record cleanup is pending") public String jobcleanupreason;
     @SerializedName("finalizationstate") @Param(description = "Logical backup finalization after every external transfer completes") public String finalizationstate;
     @SerializedName("finalizationreason") @Param(description = "Why logical backup finalization is pending") public String finalizationreason;
+    @SerializedName("retentionstate") @Param(description = "External image copy retention protection state") public String retentionstate;
+    @SerializedName("retentionreason") @Param(description = "Why external image retention protection is pending") public String retentionreason;
+    @SerializedName("retentionuntil") @Param(description = "Target expiration required for all dependent image copies; check retentionstate for verification") public String retentionuntil;
     @SerializedName("startstate") @Param(description = "Persisted backup or restore start state; null for legacy operations") public String startstate;
     @SerializedName("startreason") @Param(description = "Backup or restore start failure or unconfirmed preparation reason") public String startreason;
     @SerializedName("startsubmittedat") @Param(description = "Time of the dispatch intent before the Host call") public Date startsubmittedat;

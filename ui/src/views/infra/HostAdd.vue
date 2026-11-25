@@ -25,6 +25,10 @@
         :rules="rules"
         layout="vertical"
         @submit="handleSubmitForm">
+        <a-alert v-if="createdHost" class="host-save-alert" type="success" show-icon :message="$t('message.host.add.created', [createdHost.name || createdHost.id])" />
+        <a-alert v-if="submitStage" class="host-save-alert" type="info" show-icon :message="$t(submitStage)" />
+        <a-alert v-if="submitError" class="host-save-alert" :type="createUnknown || dedicateUnknown ? 'warning' : 'error'" show-icon :message="$t(submitError)" />
+        <fieldset :disabled="submitting || !!createdHost || createUnknown">
         <a-form-item name="zoneid" ref="zoneid">
           <template #label>
             <tooltip-label :title="$t('label.zonenamelabel')" :tooltip="placeholder.zoneid"/>
@@ -217,6 +221,22 @@
             <a-select-option v-for="tag in hostTagsList" :key="tag.name">{{ tag.name }}</a-select-option>
           </a-select>
         </a-form-item>
+        <a-form-item v-if="apiParams.allocationstate" name="allocationstate" :label="$t('label.allocationstate')" html-for="host-add-allocation-state">
+          <a-select
+            id="host-add-allocation-state"
+            v-model:value="form.allocationstate"
+            allow-clear
+            :placeholder="$t('label.default')"
+            :options="[{ value: 'Enabled', label: $t('label.enabled') }, { value: 'Disabled', label: $t('label.disabled') }]" />
+        </a-form-item>
+        <a-form-item v-if="apiParams.storageaccessgroups" name="storageaccessgroups" :label="$t('label.storageaccessgroups')" html-for="host-add-storage-groups">
+          <a-select
+            id="host-add-storage-groups"
+            v-model:value="form.storageaccessgroups"
+            mode="tags"
+            :options="storageAccessGroups"
+            :loading="storageAccessGroupsLoading" />
+        </a-form-item>
         <a-form-item name="externaldetails" ref="externaldetails" v-if="selectedClusterHyperVisorType === 'External'">
           <template #label>
             <tooltip-label :title="$t('label.configuration.details')" :tooltip="apiParams.externaldetails.description"/>
@@ -228,7 +248,7 @@
               v-model:value="form.externaldetails" />
           </a-card>
         </a-form-item>
-        <a-form-item name="isdedicated" ref="isdedicated">
+        <a-form-item v-if="canDedicate" name="isdedicated" ref="isdedicated">
           <template #label>
             <tooltip-label :title="$t('label.isdedicated')"/>
           </template>
@@ -236,23 +256,24 @@
         </a-form-item>
         <template v-if="showDedicated">
           <DedicateDomain
-            @domainChange="id => dedicatedDomainId = id"
+            @domainChange="id => { dedicatedDomainId = id; dedicatedAccount = null; domainError = false }"
             @accountChange="id => dedicatedAccount = id"
             :error="domainError" />
         </template>
 
-        <a-divider></a-divider>
+        </fieldset>
 
-        <div :span="24" class="action-button">
-          <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-          <a-button @click="handleSubmitForm" ref="submit" type="primary">{{ $t('label.ok') }}</a-button>
-        </div>
+        <mold-dialog-actions :busy="submitting">
+          <a-button :disabled="submitting" @click="closeAction">{{ $t('label.cancel') }}</a-button>
+          <a-button :loading="submitting" :disabled="createUnknown || loading" @click="handleSubmitForm" ref="submit" type="primary">{{ $t(dedicateUnknown ? 'label.host.operation.recheck' : submitError ? 'label.retry' : 'label.ok') }}</a-button>
+        </mold-dialog-actions>
       </a-form>
     </a-spin>
   </div>
 </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import { mixinForm } from '@/utils/mixin'
@@ -260,11 +281,13 @@ import DedicateDomain from '../../components/view/DedicateDomain'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import DetailsInput from '@/components/widgets/DetailsInput'
+import { createHostJobTracker, hostRequestRejected, hostStorageGroups } from '@/utils/hostOperations'
 
 export default {
   name: 'HostAdd',
   mixins: [mixinForm],
   components: {
+    MoldDialogActions,
     DedicateDomain,
     ResourceIcon,
     TooltipLabel,
@@ -280,6 +303,15 @@ export default {
   data () {
     return {
       loading: false,
+      submitting: false,
+      createdHost: null,
+      submitStage: '',
+      submitError: '',
+      createUnknown: false,
+      dedicateUnknown: false,
+      dedicateJobId: '',
+      storageAccessGroups: [],
+      storageAccessGroupsLoading: false,
       zonesList: [],
       clustersList: [],
       podsList: [],
@@ -306,6 +338,10 @@ export default {
     }
   },
   computed: {
+    canDedicate () {
+      const apis = this.$store.getters.apis || {}
+      return Boolean(apis.dedicateHost && apis.queryAsyncJobResult)
+    },
     hostTagRules () {
       let rules = []
       if (this.selectedClusterHyperVisorType === 'BareMetal') {
@@ -321,12 +357,18 @@ export default {
   created () {
     this.initForm()
     this.fetchData()
+    if (this.apiParams.storageaccessgroups) this.fetchStorageAccessGroups()
+    this.dedicationTracker = createHostJobTracker()
+  },
+  beforeUnmount () {
+    if (this.dedicationTracker) this.dedicationTracker.clear()
   },
   methods: {
     initForm () {
       this.formRef = ref()
       this.form = reactive({
-        authmethod: this.authMethod
+        authmethod: this.authMethod,
+        storageaccessgroups: []
       })
       this.rules = reactive({
         zoneid: [{ required: true, message: this.$t('message.error.select') }],
@@ -351,7 +393,7 @@ export default {
       this.loading = true
       getAPI('listZones', { showicon: true }).then(response => {
         this.zonesList = response.listzonesresponse.zone || []
-        this.form.zoneid = this.zonesList[0].id || null
+        this.form.zoneid = this.zonesList[0]?.id || null
         this.fetchPods(this.form.zoneid)
       }).catch(error => {
         this.$notifyError(error)
@@ -361,12 +403,20 @@ export default {
     },
     fetchPods (zoneId) {
       this.form.zoneid = zoneId
+      this.podsList = []
+      this.form.podid = null
+      this.form.clusterid = null
+      this.clustersList = []
+      this.selectedCluster = null
+      this.selectedClusterHyperVisorType = null
+      if (!zoneId) return
       this.loading = true
       getAPI('listPods', {
         zoneid: this.form.zoneid
       }).then(response => {
+        if (this.form.zoneid !== zoneId) return
         this.podsList = response.listpodsresponse.pod || []
-        this.form.podid = this.podsList[0].id || null
+        this.form.podid = this.podsList[0]?.id || null
         this.fetchClusters(this.form.podid)
       }).catch(error => {
         this.$notifyError(error)
@@ -379,14 +429,17 @@ export default {
     fetchClusters (podId) {
       this.form.clusterid = null
       this.clustersList = []
+      this.selectedCluster = null
+      this.selectedClusterHyperVisorType = null
       if (!podId) return
       this.podId = podId
       this.loading = true
       getAPI('listClusters', {
         podid: this.form.podid
       }).then(response => {
+        if (this.form.podid !== podId) return
         this.clustersList = response.listclustersresponse.cluster || []
-        this.form.clusterid = this.clustersList[0].id || null
+        this.form.clusterid = this.clustersList[0]?.id || null
         if (this.form.clusterid) {
           this.handleChangeCluster(this.form.clusterid)
         }
@@ -421,7 +474,7 @@ export default {
     handleChangeCluster (value) {
       this.form.clusterid = value
       this.selectedCluster = this.clustersList.find(i => i.id === this.form.clusterid)
-      this.selectedClusterHyperVisorType = this.selectedCluster.hypervisortype
+      this.selectedClusterHyperVisorType = this.selectedCluster?.hypervisortype
     },
     toggleDedicated () {
       this.dedicatedDomainId = null
@@ -431,104 +484,158 @@ export default {
     handleAuthMethodChange (val) {
       this.authMethod = val
     },
-    handleSubmitForm () {
-      if (this.loading) return
-      this.formRef.value.validate().then(() => {
-        const formRaw = toRaw(this.form)
-        const values = this.handleRemoveFields(formRaw)
-
-        var url = values.hostname
-        if (values.hostname.indexOf('http://') === -1 && this.selectedClusterHyperVisorType !== 'External') {
-          url = `http://${values.hostname}`
-        }
-
-        if (this.selectedClusterHyperVisorType === 'External') {
-          values.username = 'external'
-          values.password = 'external'
-        }
-
-        var args = {
-          zoneid: values.zoneid,
-          podid: values.podid,
-          clusterid: values.clusterid,
-          hypervisor: this.selectedClusterHyperVisorType,
-          clustertype: this.selectedCluster.clustertype,
-          hosttags: values.hosttags ? values.hosttags.join() : null,
-          username: values.username,
-          password: this.authMethod !== 'password' ? '' : values.password,
-          url: url,
-          agentusername: values.agentusername,
-          agentpassword: values.agentpassword,
-          agentport: values.agentport
-        }
-
-        if (this.selectedClusterHyperVisorType === 'BareMetal') {
-          args.cpunumber = values.baremetalcpucores
-          args.cpuspeed = values.baremetalcpu
-          args.memory = values.baremetalmemory
-          args.hostmac = values.baremetalmac
-        }
-        if (values.externaldetails) {
-          Object.entries(values.externaldetails).forEach(([key, value]) => {
-            args['externaldetails[0].' + key] = value
-          })
-        }
-        Object.keys(args).forEach((key) => (args[key] == null) && delete args[key])
-        this.loading = true
-        postAPI('addHost', args).then(response => {
-          const host = response.addhostresponse.host[0] || {}
-          if (host.id && this.showDedicated) {
-            this.dedicateHost(host.id)
-          }
-          this.parentFetchData()
-          this.closeAction()
-        }).catch(error => {
-          this.$notification.error({
-            message: `${this.$t('label.error')} ${error.response.status}`,
-            description: error.response.data.addhostresponse.errortext,
-            duration: 0
-          })
-        }).finally(() => {
-          this.loading = false
-        })
-      }).catch(error => {
-        console.log(error)
-        this.formRef.value.scrollToField(error?.errorFields[0]?.name)
-      })
+    async fetchStorageAccessGroups () {
+      if (!this.$store.getters.apis?.listStorageAccessGroups) return
+      this.storageAccessGroupsLoading = true
+      try {
+        const result = await getAPI('listStorageAccessGroups', {}, { preserveOnFailure: true })
+        const groups = result.liststorageaccessgroupsresponse?.storageaccessgroup || []
+        this.storageAccessGroups = [...new Set(groups.map(group => group.name))].map(name => ({ value: name, label: name }))
+      } catch (error) {
+        this.$notifyError(error)
+      } finally {
+        this.storageAccessGroupsLoading = false
+      }
     },
-    dedicateHost (hostId) {
-      this.loading = true
-      postAPI('dedicateHost', {
-        hostId,
-        domainId: this.dedicatedDomainId,
-        account: this.dedicatedAccount
-      }).then(response => {
-        this.$pollJob({
-          jobId: response.dedicatehostresponse.jobid,
-          title: this.$t('message.host.dedicated'),
-          description: `${this.$t('label.domainid')} : ${this.dedicatedDomainId}`,
-          successMessage: this.$t('message.host.dedicated'),
-          successMethod: () => {
-            this.loading = false
-          },
-          errorMessage: this.$t('error.dedicate.host.failed'),
-          errorMethod: () => {
-            this.loading = false
-          },
-          loadingMessage: this.$t('message.dedicating.host'),
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.loading = false
+    async handleSubmitForm () {
+      if (this.loading || this.submitting || this.createUnknown) return
+      if (this.showDedicated && !this.dedicatedDomainId) {
+        this.domainError = true
+        return
+      }
+      this.submitting = true
+      this.submitError = ''
+      try {
+        if (!this.createdHost) {
+          await this.formRef.value.validate()
+          if (!this.selectedCluster || this.selectedCluster.id !== this.form.clusterid) return
+          if (!(await this.registerHost())) return
+        }
+        if (this.showDedicated && !(await this.dedicateHost(this.createdHost.id))) return
+        this.parentFetchData()
+        this.$emit('close-action')
+      } catch (error) {
+        if (error.errorFields?.[0]) this.formRef.value.scrollToField(error.errorFields[0].name)
+        else this.$notifyError(error)
+      } finally {
+        this.submitStage = ''
+        this.submitting = false
+      }
+    },
+    async registerHost () {
+      const formRaw = toRaw(this.form)
+      const values = this.handleRemoveFields(formRaw)
+
+      let url = values.hostname
+      if (values.hostname.indexOf('http://') === -1 && this.selectedClusterHyperVisorType !== 'External') {
+        url = `http://${values.hostname}`
+      }
+
+      if (this.selectedClusterHyperVisorType === 'External') {
+        values.username = 'external'
+        values.password = 'external'
+      }
+
+      const args = {
+        zoneid: values.zoneid,
+        podid: values.podid,
+        clusterid: values.clusterid,
+        hypervisor: this.selectedClusterHyperVisorType,
+        clustertype: this.selectedCluster.clustertype,
+        hosttags: values.hosttags ? values.hosttags.join() : null,
+        username: values.username,
+        password: this.authMethod !== 'password' ? '' : values.password,
+        url: url,
+        agentusername: values.agentusername,
+        agentpassword: values.agentpassword,
+        agentport: values.agentport
+      }
+
+      if (this.selectedClusterHyperVisorType === 'BareMetal') {
+        args.cpunumber = values.baremetalcpucores
+        args.cpuspeed = values.baremetalcpu
+        args.memory = values.baremetalmemory
+        args.hostmac = values.baremetalmac
+      }
+      if (values.externaldetails) {
+        Object.entries(values.externaldetails).forEach(([key, value]) => {
+          args['externaldetails[0].' + key] = value
+        })
+      }
+      if (this.apiParams.allocationstate && formRaw.allocationstate) args.allocationstate = formRaw.allocationstate
+      const groups = hostStorageGroups(formRaw.storageaccessgroups)
+      if (this.apiParams.storageaccessgroups && groups) args.storageaccessgroups = groups
+      Object.keys(args).forEach((key) => (args[key] == null) && delete args[key])
+      this.submitStage = 'message.host.add.creating'
+      try {
+        const response = await postAPI('addHost', args, { preserveOnFailure: true })
+        const host = response.addhostresponse?.host?.[0]
+        if (host?.id) {
+          this.createdHost = { id: host.id, name: host.name }
+          this.$message.success(this.$t('message.host.add.created', [host.name || host.id]))
+          return true
+        }
+      } catch (error) {
+        if (hostRequestRejected(error)) {
+          this.submitError = 'message.host.add.failed'
+          this.$notifyError(error)
+          return false
+        }
+      }
+      this.createUnknown = true
+      this.submitError = 'message.host.add.unknown'
+      return false
+    },
+    async dedicateHost (hostId) {
+      this.submitStage = 'message.dedicating.host'
+      if (this.dedicateUnknown && !this.dedicateJobId) {
+        if (await this.confirmDedication(hostId)) return true
+        this.submitError = 'message.host.dedicate.unknown'
+        return false
+      }
+      if (!this.dedicateJobId) {
+        try {
+          const response = await postAPI('dedicateHost', {
+            hostid: hostId,
+            domainid: this.dedicatedDomainId,
+            account: this.dedicatedAccount
+          }, { preserveOnFailure: true, timeout: 15000 })
+          this.dedicateJobId = response.dedicatehostresponse?.jobid
+        } catch (error) {
+          if (hostRequestRejected(error)) {
+            this.submitError = 'error.dedicate.host.failed'
+            return false
           }
-        })
-      }).catch(error => {
-        this.$notification.error({
-          message: `${this.$t('label.error')} ${error.response.status}`,
-          description: error.response.data.errorresponse.errortext,
-          duration: 0
-        })
-        this.loading = false
-      })
+        }
+      }
+      if (this.dedicateJobId) {
+        const result = await this.dedicationTracker.track(this.dedicateJobId, {}, this.dedicateUnknown)
+        if (result.jobstatus === 1) {
+          this.$message.success(this.$t('message.host.dedicated'))
+          return true
+        }
+        if (result.jobstatus === 2) {
+          this.dedicateJobId = ''
+          this.dedicateUnknown = false
+          this.submitError = 'error.dedicate.host.failed'
+          return false
+        }
+      }
+      this.dedicateUnknown = true
+      this.submitError = 'message.host.dedicate.unknown'
+      return false
+    },
+    async confirmDedication (hostid) {
+      try {
+        const result = await getAPI('listDedicatedHosts', { hostid }, { preserveOnFailure: true, timeout: 10000 })
+        const host = result.listdedicatedhostsresponse?.dedicatedhost?.find(row => row.hostid === hostid)
+        if (host?.domainid !== this.dedicatedDomainId) return false
+        if (!this.dedicatedAccount) return !host.accountid
+        const accounts = await getAPI('listAccounts', { id: host.accountid }, { preserveOnFailure: true })
+        return accounts.listaccountsresponse?.account?.some(row => row.id === host.accountid && row.name === this.dedicatedAccount) ?? false
+      } catch {
+        return false
+      }
     },
     returnPlaceholder (field) {
       this.params.find(i => {
@@ -536,6 +643,8 @@ export default {
       })
     },
     closeAction () {
+      if (this.submitting) return
+      if (this.createdHost || this.createUnknown) this.parentFetchData()
       this.$emit('close-action')
     },
     onExternalDetailsEnabledChange (val) {
@@ -548,12 +657,20 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
   .form-layout {
-    width: 60vw;
-    @media (min-width: 600px) {
-      width: 550px;
+    fieldset {
+      min-width: 0;
+      padding: 0;
+      border: 0;
     }
+
+    .host-save-alert {
+      margin-bottom: 12px;
+    }
+
+    width: 100%;
+  min-width: 0;
   }
 
   .required {

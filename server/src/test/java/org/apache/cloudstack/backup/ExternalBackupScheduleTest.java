@@ -117,8 +117,10 @@ public class ExternalBackupScheduleTest {
         depot = mock(ConfigDepotImpl.class);
         ConfigKey.init(depot);
         when(depot.getConfigStringValue(eq(BackupManager.NetBackupVmScheduleEnabled.key()), eq(ConfigKey.Scope.Global), isNull())).thenReturn("true");
+        when(depot.getConfigStringValue(eq(BackupManager.NetBackupHookTimeout.key()), eq(ConfigKey.Scope.Global), isNull())).thenReturn("86400");
         when(depot.getConfigStringValue(eq(BackupManager.AblestackVeeamVmScheduleEnabled.key()), eq(ConfigKey.Scope.Global), isNull())).thenReturn("true");
         manager = spy(new BackupManagerImpl());
+        ReflectionTestUtils.setField(manager, "netBackupScheduleModeGuard", mock(NetBackupScheduleModeGuard.class));
         schedules = mock(BackupScheduleDao.class);
         offerings = mock(BackupOfferingDao.class);
         vms = mock(VMInstanceDao.class);
@@ -203,12 +205,12 @@ public class ExternalBackupScheduleTest {
     }
 
     @Test
-    public void noSchedulesReturnsConfigCandidatesIncludingUnassignedVm() {
+    public void configCandidatesRequireAnOfferingForNetBackup() {
         selectMode(false);
         when(vm.getBackupOfferingId()).thenReturn(null);
         final ExternalBackupCandidatesResponse response = manager.listExternalBackupCandidates(cmd);
         assertEquals("CONFIG", response.getSelectionMode());
-        assertEquals(1, response.getCandidates().size());
+        assertEquals(provider.endsWith("netbackup") ? 0 : 1, response.getCandidates().size());
     }
 
     @Test
@@ -331,12 +333,12 @@ public class ExternalBackupScheduleTest {
     }
 
     @Test
-    public void defaultGlobalModeUsesHostFiltersEvenWithSchedulesAndALegacyTrueFlag() {
+    public void defaultGlobalModeUsesProviderDefaultAndIgnoresALegacyHostFlag() {
         when(depot.getConfigStringValue(eq(scheduleKey()), eq(ConfigKey.Scope.Global), isNull())).thenReturn(null);
         when(cmd.getVmScheduleBackup()).thenReturn(true);
         schedule(5L, 1L);
-        assertEquals("CONFIG", manager.listExternalBackupCandidates(cmd).getSelectionMode());
-        verify(schedules, never()).listAll();
+        assertEquals(provider.endsWith("netbackup") ? "SCHEDULE" : "CONFIG", manager.listExternalBackupCandidates(cmd).getSelectionMode());
+        if (provider.endsWith("veeam")) { verify(schedules, never()).listAll(); }
     }
 
     @Test
@@ -396,7 +398,7 @@ public class ExternalBackupScheduleTest {
         when(vms.listByLastHostIdAndStates(14L, VirtualMachine.State.Stopped)).thenReturn(List.of(vm));
         final ExternalBackupCandidatesResponse response = manager.listExternalBackupCandidates(cmd);
         assertEquals("CONFIG", response.getSelectionMode());
-        assertEquals(1, response.getCandidates().size());
+        assertEquals(provider.endsWith("netbackup") ? 0 : 1, response.getCandidates().size());
         verify(schedules, never()).listAll();
     }
 
@@ -494,6 +496,7 @@ public class ExternalBackupScheduleTest {
 
     @Test
     public void excludedHostlessVmCannotBeClaimedBeforeTheHookAppliesItsFilter() {
+        org.junit.Assume.assumeTrue(provider.endsWith("veeam"));
         selectMode(false);
         when(cmd.getVmExclude()).thenReturn("i-2-*-VM");
         when(vm.getState()).thenReturn(VirtualMachine.State.Stopped);
@@ -526,7 +529,21 @@ public class ExternalBackupScheduleTest {
     }
 
     @Test
+    public void netbackupUsesExplicitOfferingAssignmentInsteadOfHostFilters() {
+        org.junit.Assume.assumeTrue(provider.endsWith("netbackup"));
+        selectMode(false);
+        when(cmd.getVmInclude()).thenReturn("unrelated-vm");
+        when(cmd.getVmExclude()).thenReturn("*");
+        assertEquals(1, manager.listExternalBackupCandidates(cmd).getCandidates().size());
+        when(vm.getBackupOfferingId()).thenReturn(null);
+        assertEquals(0, manager.listExternalBackupCandidates(cmd).getCandidates().size());
+        assertThrows(CloudRuntimeException.class, () -> validate("CONFIG", null, null));
+        verify(vm, never()).setBackupOfferingId(anyLong());
+    }
+
+    @Test
     public void olderConfigurationHooksCannotClaimHostlessVmsWithoutFilterContext() {
+        org.junit.Assume.assumeTrue(provider.endsWith("veeam"));
         selectMode(false);
         when(cmd.getVmInclude()).thenReturn(null);
         when(cmd.getVmExclude()).thenReturn(null);
@@ -667,6 +684,12 @@ public class ExternalBackupScheduleTest {
 
     @Test
     public void configModeAssignsDefaultOfferingOnlyToAnUnassignedVm() {
+        if (provider.endsWith("netbackup")) {
+            when(vm.getBackupOfferingId()).thenReturn(null);
+            assertThrows(CloudRuntimeException.class, () -> ReflectionTestUtils.invokeMethod(manager, "resolveExternalBackupOffering", vm, provider, true));
+            verify(offerings, never()).findByExternalId(any(), anyLong());
+            return;
+        }
         when(vm.getBackupOfferingId()).thenReturn(null);
         when(offerings.findByExternalId(offering.getExternalId(), 1L)).thenReturn(offering);
         final BackupProvider backupProvider = mock(BackupProvider.class);
@@ -728,7 +751,7 @@ public class ExternalBackupScheduleTest {
         acceptedBackup.setDetails(new HashMap<>());
         acceptedBackup.getDetails().put(ThirdPartyBackupManifest.MODE_KEY, ThirdPartyBackupManifest.VOLUME_MODE);
         when(backups.findById(40L)).thenReturn(acceptedBackup);
-        when(backupProvider.takeNetBackup(eq(vm), eq("parent-policy"), eq(5L), any())).thenReturn(new Pair<>(accepted, acceptedBackup));
+        when(backupProvider.takeNetBackup(eq(vm), eq("parent-policy"), eq(5L), any(), anyLong())).thenReturn(new Pair<>(accepted, acceptedBackup));
         when(backupProvider.takeBackup(eq(vm), any(), eq(5L), eq("parent-policy"))).thenReturn(new Pair<>(accepted, null));
         final Map<String, BackupProvider> providers = new HashMap<>();
         providers.put(provider, backupProvider);
@@ -783,7 +806,7 @@ public class ExternalBackupScheduleTest {
     public void scheduledQuiesceTakesPrecedenceOverADisabledRequest() throws Exception {
         final BackupProvider backupProvider = executeScheduledBackup(true, true, false);
         if (provider.endsWith("netbackup")) {
-            verify(backupProvider).takeNetBackup(vm, "parent-policy", 5L, true);
+            verify(backupProvider).takeNetBackup(eq(vm), eq("parent-policy"), eq(5L), eq(true), anyLong());
         } else {
             verify(backupProvider).takeBackup(vm, true, 5L, "parent-policy");
         }
@@ -793,7 +816,7 @@ public class ExternalBackupScheduleTest {
     public void scheduleCanDisableQuiesceEvenWhenTheRequestEnablesIt() throws Exception {
         final BackupProvider backupProvider = executeScheduledBackup(true, false, true);
         if (provider.endsWith("netbackup")) {
-            verify(backupProvider).takeNetBackup(vm, "parent-policy", 5L, false);
+            verify(backupProvider).takeNetBackup(eq(vm), eq("parent-policy"), eq(5L), eq(false), anyLong());
         } else {
             verify(backupProvider).takeBackup(vm, false, 5L, "parent-policy");
         }

@@ -35,10 +35,10 @@ public class LibvirtAblestackBackupStagingSyncCommandWrapper
         extends CommandWrapper<AblestackBackupStagingSyncCommand, Answer, LibvirtComputingResource> {
     @Override
     public Answer execute(AblestackBackupStagingSyncCommand command, LibvirtComputingResource resource) {
-        if (StringUtils.isAnyBlank(resource.getAbleCvtBackupPath(), command.getRequestJson())) {
+        if (StringUtils.isAnyBlank(resource.getThirdPartyVolumeBackupPath(), command.getRequestJson())) {
             return new Answer(command, false, "Missing staging synchronization command or backup script directory");
         }
-        Path helper = Path.of(resource.getAbleCvtBackupPath()).resolveSibling("thirdparty_staging_sync.py");
+        Path helper = Path.of(resource.getThirdPartyVolumeBackupPath()).resolveSibling("thirdparty_staging_sync.py");
         if (!Files.isRegularFile(helper)) {
             return new Answer(command, false, "Staging synchronization helper is missing; update the KVM Agent and host scripts");
         }

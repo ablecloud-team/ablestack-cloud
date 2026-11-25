@@ -48,4 +48,5 @@ test('CNI help is local and language-specific; other help destinations remain id
   expect(documentationUrl('https://docs.example', 'local:cni-configuration', 'ko_KR')).toBe('help/cni-configuration.ko.html')
   expect(documentationUrl('', 'local:cni-configuration', 'fr')).toBe('help/cni-configuration.en.html')
   expect(documentationUrl('https://docs.example', 'adminguide/vm.html#ssh', 'ko_KR')).toBe('https://docs.example/adminguide/vm.html#ssh')
+  expect(documentationUrl('https://docs.example', 'https://other.example/storage.html#rules')).toBe('https://other.example/storage.html#rules')
 })

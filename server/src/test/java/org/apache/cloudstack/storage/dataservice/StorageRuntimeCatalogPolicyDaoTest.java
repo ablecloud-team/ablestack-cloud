@@ -25,6 +25,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleDaoImpl;
@@ -135,7 +136,7 @@ public class StorageRuntimeCatalogPolicyDaoTest {
             if (datasource != null) datasource.set(null, previous);
             if (vm != null) {
                 try (var paths = Files.walk(vm)) {
-                    for (Path path : paths.sorted(java.util.Comparator.reverseOrder()).toList()) Files.delete(path);
+                    for (Path path : paths.sorted(java.util.Comparator.reverseOrder()).collect(Collectors.toList())) Files.delete(path);
                 }
             }
         }

@@ -20,15 +20,39 @@ package org.apache.cloudstack.storage.sharedfs;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.cloudstack.api.response.SharedFSCapacityResponse;
 import org.apache.cloudstack.api.response.SharedFSResponse;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.Configurable;
-import org.apache.cloudstack.storage.dataservice.*;
-import org.apache.cloudstack.storage.dataservice.dao.*;
+import org.apache.cloudstack.storage.dataservice.StorageServiceGuestCommand;
+import org.apache.cloudstack.storage.dataservice.StorageServiceGuestCommandDispatcher;
+import org.apache.cloudstack.storage.dataservice.StorageServiceGuestCommandResult;
+import org.apache.cloudstack.storage.dataservice.StorageServiceInstance;
+import org.apache.cloudstack.storage.dataservice.StorageServiceInstanceVO;
+import org.apache.cloudstack.storage.dataservice.dao.StorageBlockTargetDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDao;
 import org.apache.cloudstack.storage.sharedfs.dao.SharedFSDao;
 import org.apache.cloudstack.storage.sharedfs.query.vo.SharedFSJoinVO;
 import com.cloud.storage.Volume;
@@ -38,7 +62,10 @@ import com.cloud.utils.component.ManagerBase;
 import com.cloud.utils.concurrency.NamedThreadFactory;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 /** SharedFS-only derived statistics. Listing never initiates a guest command. */
 public class SharedFSCapacityService extends ManagerBase implements Configurable {
@@ -225,7 +252,7 @@ public class SharedFSCapacityService extends ManagerBase implements Configurable
             .append(CONNECTED.contains(String.valueOf(v.getState())) ? "CONNECTED" : v.getState()).append(':')
             .append(v.getAttached() == null ? "" : v.getAttached().getTime()).append(';');
         try {
-            return java.util.HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.toString().getBytes(StandardCharsets.UTF_8)));
+            return Hex.encodeHexString(MessageDigest.getInstance("SHA-256").digest(value.toString().getBytes(StandardCharsets.UTF_8)));
         } catch (java.security.NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
     }
 

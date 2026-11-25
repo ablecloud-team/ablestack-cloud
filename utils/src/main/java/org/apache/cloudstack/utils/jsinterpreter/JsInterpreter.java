@@ -42,12 +42,12 @@ import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 import javax.script.SimpleScriptContext;
 
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openjdk.nashorn.api.scripting.ClassFilter;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
+import org.openjdk.nashorn.api.scripting.ScriptObjectMirror;
 
 import com.cloud.utils.exception.CloudRuntimeException;
 
@@ -65,6 +65,14 @@ public class JsInterpreter implements Closeable {
             "Java", "java", "Packages", "javax", "load", "loadWithNewGlobal", "print", "factory", "getClass",
             "runCommand", "Runtime", "exec", "ProcessBuilder", "Thread", "thread", "Threads", "Class", "class");
 
+    // Keep the Java List accessors used by older rules alongside native array methods.
+    private static final String CREATE_ARRAY = String.join("\n",
+            "Object.defineProperties([], {",
+            "    get: { value: function (index) { return this[index]; } },",
+            "    size: { value: function () { return this.length; } },",
+            "    isEmpty: { value: function () { return this.length === 0; } }",
+            "})");
+
     protected ScriptEngine interpreter;
     protected String interpreterName;
     private final String injectingLogMessage = "Injecting variable [{}] with value [{}] into the JS interpreter.";
@@ -75,6 +83,14 @@ public class JsInterpreter implements Closeable {
 
     // Store variables as Objects; they go into Bindings (no code splicing)
     protected Map<String, Object> variables = new LinkedHashMap<>();
+
+    private static final class ArrayBinding {
+        private final Object[] values;
+
+        private ArrayBinding(List<?> values) {
+            this.values = values == null ? new Object[0] : values.toArray();
+        }
+    }
 
     /** Deny-all filter: no Java class is visible from scripts. */
     static final class DenyAllClassFilter implements ClassFilter {
@@ -148,6 +164,20 @@ public class JsInterpreter implements Closeable {
         variables.put(key, value);
     }
 
+    /** Exposes values as a native JavaScript array with the legacy list accessors. */
+    public void injectArray(String key, List<?> values) {
+        injectVariable(key, new ArrayBinding(values));
+    }
+
+    private ScriptObjectMirror createArray(ScriptContext context, ArrayBinding binding) throws ScriptException {
+        ScriptObjectMirror array = (ScriptObjectMirror) interpreter.eval(CREATE_ARRAY, context);
+        Object[] values = binding.values;
+        for (int index = 0; index < values.length; index++) {
+            array.setSlot(index, values[index]);
+        }
+        return array;
+    }
+
     /**
      * Injects the variables via Bindings and executes the script with a fresh context.
      * @param script Code to be executed.
@@ -171,18 +201,19 @@ public class JsInterpreter implements Closeable {
             final SimpleScriptContext ctx = new SimpleScriptContext();
 
             final Bindings engineBindings = new SimpleBindings();
-            if (MapUtils.isNotEmpty(variables)) {
-                engineBindings.putAll(variables);
-            }
-            for (String token : RESTRICTED_TOKENS) {
-                engineBindings.put(token, null);
-            }
             ctx.setBindings(engineBindings, ScriptContext.ENGINE_SCOPE);
 
             final StringWriter out = new StringWriter();
             ctx.setWriter(out);
 
             try {
+                for (Map.Entry<String, Object> entry : variables.entrySet()) {
+                    Object value = entry.getValue();
+                    engineBindings.put(entry.getKey(), value instanceof ArrayBinding ? createArray(ctx, (ArrayBinding) value) : value);
+                }
+                for (String token : RESTRICTED_TOKENS) {
+                    engineBindings.put(token, null);
+                }
                 final CompiledScript compiled = ((Compilable) interpreter).compile(script);
                 Object result = compiled.eval(ctx);
                 if (out.getBuffer().length() > 0) {

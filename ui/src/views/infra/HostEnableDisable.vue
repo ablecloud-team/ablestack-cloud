@@ -36,29 +36,30 @@
           class="form__item"
           name="reason"
           ref="reason"
-          :label="'The Auto Enable/Disable KVM Hosts functionality is enabled, ' +
-            ' can specify a reason for ' + (resourcestate === 'Enabled' ? 'disabling' : 'enabling') + ' this host'">
+          :label="$t('label.host.allocation.reason')">
           <a-textarea
             v-model:value="form.reason"
-            :placeholder="'(Optional) Reason to ' + (resourcestate === 'Enabled' ? 'disable' : 'enable') + ' this host'"
+            :placeholder="$t('label.optional')"
             rows="3"
           />
         </a-form-item>
       </div>
-      <div :span="24" class="action-button">
+      <mold-dialog-actions :busy="saving">
         <a-button @click="$emit('close-action')">{{ $t('label.cancel') }}</a-button>
         <a-button type="primary" @click="handleSubmit" ref="submit">{{ $t('label.ok') }}</a-button>
-      </div>
+      </mold-dialog-actions>
     </a-form>
   </div>
 </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
 
 export default {
   name: 'HostEnableDisable',
+  components: { MoldDialogActions },
   props: {
     resource: {
       type: Object,
@@ -69,6 +70,7 @@ export default {
     return {
       resourcestate: '',
       allocationstate: '',
+      saving: false,
       kvmAutoEnableDisableSetting: false
     }
   },
@@ -89,35 +91,31 @@ export default {
       }
       getAPI('listConfigurations', { name: 'enable.kvm.host.auto.enable.disable', clusterid: this.resource.clusterid }).then(json => {
         if (json.listconfigurationsresponse.configuration?.[0]) {
-          this.kvmAutoEnableDisableSetting = json?.listconfigurationsresponse?.configuration?.[0]?.value || false
+          this.kvmAutoEnableDisableSetting = json?.listconfigurationsresponse?.configuration?.[0]?.value === 'true'
         }
       })
     },
-    handleSubmit (e) {
-      this.$refs.formRef.validate().then(() => {
-        const values = toRaw(this.form)
-        const data = {
+    async handleSubmit () {
+      if (this.saving) return
+      this.saving = true
+      try {
+        await this.$refs.formRef.validate()
+        const { reason } = toRaw(this.form)
+        await postAPI('updateHost', {
           allocationstate: this.allocationstate,
-          id: this.resource.id
-        }
-        if (values.reason) {
-          data.annotation = values.reason
-        }
-        postAPI('updateHost', data).then(_ => {
-          const messageLabel = this.allocationstate === 'Disable' ? 'label.disable.host' : 'label.enable.host'
-          this.$message.success({
-            content: `${this.$t(messageLabel)} - ${this.resource.name}`,
-            duration: 2
-          })
-          this.$emit('refresh-data')
-          this.$emit('close-action')
-          this.$emit('refresh-data')
-        }).catch(err => {
-          this.$message.error(err.message || 'Failed to update host status')
-        })
-      }).catch(() => {
-        this.$message.error('Validation failed. Please check the inputs.')
-      })
+          id: this.resource.id,
+          annotation: reason || undefined
+        }, { preserveOnFailure: true })
+        const label = this.allocationstate === 'Disable' ? 'label.disable.host' : 'label.enable.host'
+        this.$message.success(this.$t(label) + ' · ' + this.resource.name)
+        this.$emit('refresh-data')
+        this.$emit('close-action')
+      } catch (error) {
+        if (error.errorFields?.[0]) this.$refs.formRef.scrollToField(error.errorFields[0].name)
+        else this.$notifyError(error)
+      } finally {
+        this.saving = false
+      }
     }
   }
 }

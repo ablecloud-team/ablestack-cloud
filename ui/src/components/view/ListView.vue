@@ -16,15 +16,14 @@
 // under the License.
 
 <template>
-  <div class="list-view-table-wrapper" :class="{ 'kms-table': kmsTable, 'autoscale-list': $route.name === 'autoscalevmgroup', 'snapshot-list-table': $route.name === 'snapshot', 'snapshot-policy-list-table': $route.name === 'snapshotpolicy', 'kubernetes-iso-list-table': isKubernetesIsoMainList }" :tabindex="scrollRegionLabel ? 0 : undefined" :role="scrollRegionLabel ? 'region' : undefined" :aria-label="scrollRegionLabel" @keydown="scrollWideTable" @contextmenu="handleGlobalContextMenu">
+  <div class="list-view-table-wrapper" :class="{ 'kms-table': kmsTable, 'autoscale-list': $route.name === 'autoscalevmgroup', 'snapshot-list-table': $route.name === 'snapshot', 'snapshot-policy-list-table': $route.name === 'snapshotpolicy', 'kubernetes-iso-list-table': isKubernetesIsoMainList, 'usage-records-list-table': isUsageList }" :tabindex="scrollRegionLabel ? 0 : undefined" :role="scrollRegionLabel ? 'region' : undefined" :aria-label="scrollRegionLabel" @keydown="scrollWideTable" @contextmenu="handleGlobalContextMenu">
     <a-table
       size="middle"
       :loading="loading"
-      :locale="emptyText ? { emptyText } : undefined"
       :columns="displayColumns"
       :dataSource="items"
-      :tableLayout="isIsoMainList || scrollRegionLabel ? 'fixed' : undefined"
-      :scroll="kmsTableScroll || tableScroll || systemOfferingTableScroll || kubernetesIsoTableScroll || isoTableScroll || templateTableScroll || ($route.name === 'snapshot' ? { x: 1400 } : ['autoscalevmgroup', 'affinitygroup'].includes($route.name) ? { x: 980 } : undefined)"
+      :tableLayout="isIsoMainList || $route.meta?.name === 'ldapsetting' || scrollRegionLabel ? 'fixed' : undefined"
+      :scroll="kmsTableScroll || tableScroll || systemOfferingTableScroll || kubernetesIsoTableScroll || isoTableScroll || templateTableScroll || (isRuntimeCatalogList ? { x: 850 } : $route.name === 'snapshot' ? { x: 1400 } : ['autoscalevmgroup', 'affinitygroup'].includes($route.name) ? { x: 980 } : undefined)"
       :rowKey="listRowKey"
       :pagination="false"
       :rowSelection="explicitlyAllowRowSelection || enableGroupAction() || $route.name === 'event' ? {selectedRowKeys: selectedRowKeys, onChange: onSelectChange, getCheckboxProps: record => ({ disabled: selectionDisabled(record) }), columnWidth: 30} : null"
@@ -34,6 +33,9 @@
       @resizeColumn="handleResizeColumn"
       :style="{ 'overflow-y': this.$route.name === 'usage' ? 'hidden' : 'auto' }"
     >
+    <template v-if="emptyText" #emptyText>
+      <Empty :description="emptyText" :image="emptyTableImage" />
+    </template>
     <template #customFilterDropdown>
       <div
         style="padding: 8px"
@@ -54,7 +56,7 @@
         </a-menu>
       </div>
     </template>
-    <template v-if="isIsoMainList || isKubernetesIsoMainList || kmsTable" #headerCell="{ column }">
+    <template v-if="isIsoMainList || isKubernetesIsoMainList || kmsTable || isUsageList" #headerCell="{ column }">
       <a-popover v-if="isKubernetesIsoMainList && column.key === 'filtercolumn'" :visible="columnPickerVisible" @update:visible="columnPickerVisibility" trigger="click" placement="bottomRight">
         <template #content>
           <div ref="columnPickerContent" @vue:mounted="columnPickerContentMounted" class="kubernetes-iso-column-picker" role="group" :aria-label="$t('label.select.columns')" @keydown.esc.stop.prevent="closeColumnPicker">
@@ -64,15 +66,23 @@
         <a-button ref="columnPickerTrigger" type="text" size="small" class="kubernetes-iso-columns-trigger" :aria-expanded="columnPickerVisible" :aria-label="$t('label.select.columns')" @keydown.esc.stop.prevent="closeColumnPicker"><filter-outlined /></a-button>
       </a-popover>
       <keyboard-tooltip v-else-if="isKubernetesIsoMainList && typeof column.title === 'string' && column.title" :title="column.title"><span tabindex="0" class="kubernetes-iso-header-text">{{ column.title }}</span></keyboard-tooltip>
-      <TableOverflowText v-else-if="kmsTable && column.key !== 'filtercolumn'" :text="column.title" />
+      <TableOverflowText v-else-if="isUsageList || (kmsTable && column.key !== 'filtercolumn')" :text="column.title" />
       <a-tooltip v-else-if="column.sorter" :title="$t('message.iso.search.sort.page')" :trigger="['hover', 'focus']"><span tabindex="0">{{ column.title }}</span></a-tooltip>
       <span v-else>{{ column.title }}</span>
     </template>
     <template #bodyCell="{ column, text, record }">
-      <TableOverflowText v-if="kmsTable && column.key !== 'filtercolumn'" :text="kmsValue(column.key, text)" :location="kmsCellLink(column.key, record)">
+      <TableOverflowText v-if="isUsageList && column.key === 'usageid'" :text="text ?? ''">
+        <CopyLabel v-if="text != null && text !== ''" :label="String(text)" hide-tooltip />
+      </TableOverflowText>
+      <TableOverflowText
+        v-else-if="isUsageList && column.key !== 'usageActions'"
+        :text="usageCellText(column.key, text, record)"
+        :location="usageCellLocation(column.key, text, record)" />
+      <TableOverflowText v-else-if="kmsTable && column.key !== 'filtercolumn'" :text="kmsValue(column.key, text)" :location="kmsCellLink(column.key, record)">
         <Status v-if="['enabled', 'state'].includes(column.key) && text != null" :text="String(text)" :display-label="kmsValue(column.key, text)" display-text />
         <template v-else>{{ kmsValue(column.key, text) }}</template>
       </TableOverflowText>
+      <TableOverflowText v-else-if="$route.meta?.name === 'oauthsetting' && ['description', 'clientid', 'redirecturi'].includes(column.key)" :text="text || '—'" />
       <TableOverflowText v-else-if="isProjectMainList && column.key === 'displaytext'" :text="text || '—'" />
       <TableOverflowText
         v-else-if="isProjectMainList && column.key === 'domain'"
@@ -145,6 +155,7 @@
           :class="{ 'template-name-cell': (isTemplateMainList || isKubernetesIsoMainList) && record.id, 'project-list-name-cell': isProjectMainList }"
           :style="{ minWidth: (isTemplateMainList || isKubernetesIsoMainList) && record.id ? 0 : '120px' }">
           <QuickView
+            v-if="$route.path !== '/extension' || resourcePath"
             style="margin-left: 5px"
             :actions="actions"
             :resource="record"
@@ -213,17 +224,39 @@
             <router-link :to="networkDetailLocation($route, record)">{{ text }}</router-link>
             <router-link v-if="record.hasannotations" :to="networkDetailLocation($route, record, 'comments')"><message-filled style="padding-left: 10px" size="small" /></router-link>
           </span>
+          <TableOverflowText v-else-if="$route.meta?.name === 'oauthsetting' && record.id" :text="text" :location="{ path: '/oauthsetting/' + record.id, query: oauthListQuery($route.query) }" />
           <router-link v-else-if="isAclListRoute($route) && !resourcePath && record.id" :to="aclListDetailLocation($route, record, $store.getters)">{{ text }}</router-link>
           <router-link v-else-if="$route.meta?.name === 'project' && !resourcePath && record.id" class="project-list-name-link" :title="text" :to="projectDetailLocation($route, record, $store.getters, $store.state?.user?.token)">{{ text }}</router-link>
           <router-link v-else-if="$route.meta?.name === 'account' && !resourcePath && record.id" :title="text" :to="accountDetailLocation($route, record, $store.getters, $store.state?.user?.token)">{{ text }}</router-link>
           <router-link v-else-if="$route.meta?.name === 'role' && !resourcePath && record.id" :title="text" :to="roleDetailLocation($route, record, $store.getters, $store.state?.user?.token)">{{ text }}</router-link>
           <router-link v-else-if="kmsListRoute($route) && !resourcePath && record.id" :to="kmsDetailLocation($route, record, $store.getters, $store.state?.user?.token)">{{ text }}</router-link>
+          <router-link v-else-if="$route.path === '/webhook' && !resourcePath && record.id" :title="text" :to="{ path: '/webhook/' + record.id, query: webhookListDetailQuery($route.query) }">{{ text }}</router-link>
+          <router-link v-else-if="$route.path === '/extension' && !resourcePath && record.id" :to="{ path: '/extension/' + record.id, query: extensionListQuery($route.query) }">{{ text }}</router-link>
+          <span v-else-if="$route.path === '/imagestore' && !resourcePath && record.id">
+            <router-link :to="{ path: '/imagestore/' + record.id, query: secondaryStorageListQuery($route.query) }">{{ text }}</router-link>
+            <router-link v-if="record.hasannotations" :aria-label="$t('label.comments')" :to="{ path: '/imagestore/' + record.id, query: { ...secondaryStorageListQuery($route.query), tab: 'comments' } }"><message-filled /></router-link>
+          </span>
+          <span v-else-if="$route.path === '/storagepool' && !resourcePath && record.id">
+            <router-link :to="{ path: '/storagepool/' + record.id, query: primaryStorageListQuery($route.query) }">{{ text }}</router-link>
+            <router-link v-if="record.hasannotations" :aria-label="$t('label.comments')" :to="{ path: '/storagepool/' + record.id, query: { ...primaryStorageListQuery($route.query), tab: 'comments' } }"><message-filled /></router-link>
+          </span>
+          <span v-else-if="$route.path === '/cluster' && !resourcePath && record.id">
+            <router-link :to="{ path: '/cluster/' + record.id, query: clusterListQuery($route.query) }">{{ text }}</router-link>
+            <router-link v-if="record.hasannotations" :aria-label="$t('label.comments')" :to="{ path: '/cluster/' + record.id, query: { ...clusterListQuery($route.query), tab: 'comments' } }"><message-filled /></router-link>
+          </span>
+          <span v-else-if="$route.path === '/host' && !resourcePath && record.id">
+            <router-link :to="{ path: '/host/' + record.id, query: hostListQuery($route.query) }">{{ text }}</router-link>
+            <router-link v-if="record.hasannotations" :aria-label="$t('label.comments')" :to="{ path: '/host/' + record.id, query: { ...hostListQuery($route.query), tab: 'comments' } }"><message-filled /></router-link>
+          </span>
           <span v-else-if="$route.path === '/zone' && !resourcePath && record.id">
             <router-link :to="{ path: '/zone/' + record.id, query: zoneListQuery($route.query) }">{{ text }}</router-link>
             <router-link v-if="record.hasannotations" :aria-label="$t('label.comments')" :to="{ path: '/zone/' + record.id, query: { ...zoneListQuery($route.query), tab: 'comments' } }"><message-filled /></router-link>
           </span>
           <router-link v-else-if="$route.path === '/dnsserver' && !resourcePath && record.id" :to="{ path: '/dnsserver/' + record.id, query: dnsServerListQuery($route.query) }">{{ text }}</router-link>
           <router-link v-else-if="$route.path === '/dnszone' && !resourcePath && record.id" :to="{ path: '/dnszone/' + record.id, query: dnsZoneListQuery($route.query) }">{{ text }}</router-link>
+          <router-link
+            v-else-if="isRuntimeCatalogList && record.id"
+            :to="{ path: '/runtimebundle/' + encodeURIComponent(record.id), query: runtimeCatalogListQuery($route.query) }">{{ text }}</router-link>
           <span v-else-if="resourcePath && record.id" class="embedded-resource-name"><router-link :to="resourceLink ? resourceLink(record) : { path: resourcePath === '/vm' ? createPathBasedOnVmType(record.vmtype, record.id) : resourcePath + '/' + record.id }">{{ text }}</router-link></span>
           <span v-else-if="record.hasannotations">
             <span v-if="record.id">
@@ -624,12 +657,13 @@
       <template v-if="column.key === 'isuserdefined'">
         <span>{{ text ? $t('label.yes') : $t('label.no') }}</span>
       </template>
-      <template v-if="column.key === 'ispublic'">
+      <template v-if="['ispublic', 'quiescevm'].includes(column.key)">
         <span>{{ text ? $t('label.yes') : $t('label.no') }}</span>
       </template>
       <template v-if="column.key === 'state'">
         <span class="list-state-with-flatten">
-          <status v-if="vpnConnectionListRoute($route)" :text="text || ''" :display-label="$t(vpnConnectionState(record))" display-text />
+          <RuntimeCatalogValue v-if="isRuntimeCatalogList" group="state" :value="text" status />
+          <status v-else-if="vpnConnectionListRoute($route)" :text="text || ''" :display-label="$t(vpnConnectionState(record))" display-text />
           <public-ip-status v-else-if="$route.meta?.name === 'publicip'" :value="text" />
           <template-availability v-else-if="['template', 'iso'].includes($route.meta?.name)" :kind="$route.meta.name" :record="record" compact single-line />
           <status v-else-if="$route.path.startsWith('/host')" :text="getHostState(record)" displayText />
@@ -665,10 +699,14 @@
         <status :text="text ? text : $t('label.unknown')" displayText />
       </template>
       <template v-if="column.key === 'validationstatus'">
-        <status :text="text ? text : $t('label.unknown')" displayText />
+        <RuntimeCatalogValue v-if="isRuntimeCatalogList" group="validationstatus" :value="text" status />
+        <status v-else :text="text ? text : $t('label.unknown')" displayText />
       </template>
       <template v-if="column.key === 'taken' && $route.meta?.name === 'guestvlans'">
         {{ text ? $toLocaleDate(text) : '—' }}
+      </template>
+      <template v-if="$route.meta.name === 'cluster' && column.key === 'clustertype'">
+        {{ $t(clusterStateLabel('clustertype', text)) }}
       </template>
       <template v-if="column.key === 'allocationstate'">
         <status
@@ -690,13 +728,17 @@
         />
       </template>
       <template v-if="column.key === 'resourcestate'">
+        <a-tag v-if="$route.meta.name === 'host'" :color="hostStatusColor(text)">{{ $t(hostStatusLabel(text)) }}</a-tag>
         <status
+          v-else
           :text="text ? text : ''"
           displayText
         />
       </template>
       <template v-if="column.key === 'powerstate'">
+        <a-tag v-if="$route.meta.name === 'host'" :color="hostStatusColor(text)">{{ $t(hostStatusLabel(text)) }}</a-tag>
         <status
+          v-else
           :text="text ? text : ''"
           displayText
         />
@@ -818,8 +860,13 @@
         <router-link :to="{ path: '/ipv4subnets/' + record.id, query: ipv4SubnetListQuery($route.query) }">{{ text }}</router-link>
       </template>
       <template v-if="column.key === 'hostname'">
+        <TableOverflowText
+          v-if="$route.meta?.name === 'ldapsetting' && record.id"
+          :text="text"
+          :location="{ path: '/ldapsetting/' + record.id, query: ldapListQuery($route.query) }"
+        />
         <router-link
-          v-if="record.hostid"
+          v-else-if="record.hostid"
           :to="{ path: '/host/' + record.hostid }"
         >{{ text }}</router-link>
         <router-link
@@ -942,8 +989,17 @@
         <span v-else>{{ text }}</span>
       </template>
       <template v-if="column.key === 'domainpath'">
+        <TableOverflowText
+          v-if="$route.meta?.name === 'oauthsetting'"
+          :text="record.domainid ? text || record.domainid : $t('label.oauth.scope.global')"
+          :location="record.domainid && 'listDomains' in $store.getters.apis ? { path: '/domain/' + record.domainid, query: { tab: 'details' } } : null" />
+        <TableOverflowText
+          v-else-if="$route.meta?.name === 'ldapsetting'"
+          :text="text"
+          :location="record.domainid && 'listDomains' in $store.getters.apis ? { path: '/domain/' + record.domainid, query: { tab: 'details' } } : null"
+        />
         <router-link
-          v-if="record.domainid && !record.domainid.includes(',') && $router.resolve('/domain/' + record.domainid).matched[0].redirect !== '/exception/404'"
+          v-else-if="record.domainid && !record.domainid.includes(',') && $router.resolve('/domain/' + record.domainid).matched[0].redirect !== '/exception/404'"
           :to="{ path: '/domain/' + record.domainid, query: { tab: 'details' } }"
         >{{ text }}</router-link>
         <span v-else>{{ text }}</span>
@@ -1026,8 +1082,11 @@
         <status v-else :text="record.current ? record.current.toString() : 'false'" />
       </template>
       <template v-if="column.key === 'enabled'">
-        <status :text="record.enabled ? record.enabled.toString() : 'false'" />
-        {{ record.enabled ? 'Enabled' : 'Disabled' }}
+        <status v-if="$route.meta?.name === 'oauthsetting'" :text="String(record.enabled)" :display-label="$t(record.enabled ? 'label.enabled' : 'label.disabled')" display-text />
+        <template v-else>
+          <status :text="record.enabled ? record.enabled.toString() : 'false'" />
+          {{ record.enabled ? 'Enabled' : 'Disabled' }}
+        </template>
       </template>
       <template v-if="$route.meta?.name === 'publicip' && ['allocated', 'issystem', 'issourcenat', 'isstaticnat', 'fordisplay'].includes(column.key)"><public-ip-detail-value :resource="record" :field="column.key" compact /></template>
       <template
@@ -1072,8 +1131,14 @@
         <span v-else>{{ text }}</span>
       </template>
       <template v-if="column.key === 'payload'">
+        <a-button
+          v-if="inlineWebhookDelivery"
+          type="link"
+          :aria-label="$t('label.webhook.delivery.details')"
+          @click="$emit('open-webhook-delivery', record)"
+        >{{ getTrimmedText(text, 48) || $t('label.webhook.delivery.details') }}</a-button>
         <router-link
-          v-if="$router.resolve('/webhookdeliveries/' + record.id).matched[0].redirect !== '/exception/404'"
+          v-else-if="$router.resolve('/webhookdeliveries/' + record.id).matched[0].redirect !== '/exception/404'"
           :to="{ path: '/webhookdeliveries/' + record.id }"
         >{{ getTrimmedText(text, 48) }}</router-link>
         <span v-else> {{ getTrimmedText(text, 48) }} </span>
@@ -1115,21 +1180,15 @@
         </span>
       </template>
       <template v-if="['cluster', 'zone'].includes($route.meta.name) && column.key === 'haenable'">
-        <status v-if="$route.meta.name === 'zone'" :text="zoneFeatureState(record.resourcedetails?.resourceHAEnabled ?? false)" :display-label="$t(zoneFeatureLabel(record.resourcedetails?.resourceHAEnabled ?? false))" display-text />
-        <status v-else :text="record.resourcedetails?.resourceHAEnabled === 'true' ? 'enabled' : 'disabled'" display-text />
+        <status :text="zoneFeatureState(record.resourcedetails?.resourceHAEnabled ?? false)" :display-label="$t(zoneFeatureLabel(record.resourcedetails?.resourceHAEnabled ?? false))" display-text />
       </template>
-      <template v-if="column.key === 'hastate'">
-        <!-- <a-tag>{{ record.hostha.hastate }}</a-tag> -->
-        <a-tag v-if="record.hostha.hastate === 'Available'" color="success" :styles="{ 'min-width': '250px' }">{{ record.hostha.hastate }}</a-tag>
-        <a-tag v-else-if="record.hostha.hastate === 'Suspect' || record.hostha.hastate === 'Checking'" color="processing">{{ record.hostha.hastate }}</a-tag>
-        <a-tag v-else-if="record.hostha.hastate === 'Fenced'" color="error">{{ record.hostha.hastate }}</a-tag>
-        <a-tag v-else-if="record.hostha.hastate === 'Degraded'" color="default">{{ record.hostha.hastate }}</a-tag>
-        <a-tag v-else color="warning">{{ record.hostha.hastate }}</a-tag>
+      <template v-if="$route.meta.name === 'host' && column.key === 'hastate'">
+        <a-tag :color="hostStatusColor(record.hostha?.hastate)">{{ $t(hostStatusLabel(record.hostha?.hastate)) }}</a-tag>
       </template>
       <template v-if="$route.meta.name === 'host' && column.key === 'haenable'">
-        <status :text="record.hostha.haenable ? 'enabled' : 'disabled'" displayText/>
+        <a-tag :color="hostStatusColor(record.hostha?.haenable)">{{ $t(hostStatusLabel(record.hostha?.haenable)) }}</a-tag>
       </template>
-      <template v-if="['startdate', 'enddate'].includes(column.key) && ['quotasummary', 'usage'].includes($route.path.split('/')[1])">
+      <template v-if="['startdate', 'enddate'].includes(column.key) && $route.path.split('/')[1] === 'quotasummary'">
         {{ $toLocaleDate(text.replace('\'T\'', ' ')) }}
       </template>
       <template v-if="['isfeatured'].includes(column.key) && ['guestoscategory'].includes($route.path.split('/')[1])">
@@ -1342,12 +1401,23 @@
 </template>
 
 <script>
+import { runtimeCatalogListQuery } from '@/utils/runtimeCatalog'
+import RuntimeCatalogValue from '@/components/view/RuntimeCatalogValue'
 import Ipv4SubnetResourceLink from '@/components/widgets/Ipv4SubnetResourceLink'
 import { dnsServerListQuery } from '@/utils/dnsServer'
+import { hostStatusColor, hostStatusLabel } from '@/utils/hostPresentation'
 import { systemOfferingListQuery, systemOfferingValue } from '@/utils/systemOfferingTypes'
 import { canReorderSystemOffering, readSystemOfferingOrder, systemOfferingOrderChanges } from '@/utils/systemOfferingOrder'
 import { zoneFeatureLabel, zoneFeatureState, zoneListQuery, zoneMetricText } from '@/utils/zone'
+import { extensionListQuery } from '@/utils/extension'
+import { webhookListDetailQuery } from '@/utils/webhookDeliveryQuery'
+import { clusterListQuery, clusterStateLabel } from '@/utils/clusterSearch'
+import { primaryStorageListQuery } from '@/utils/primaryStorageSearch'
+import { secondaryStorageListQuery } from '@/utils/secondaryStorageSearch'
+import { hostListQuery } from '@/utils/hostSearch'
 import { dnsZoneListQuery } from '@/utils/dnsZone'
+import { oauthListQuery } from '@/utils/oauthConfiguration'
+import { ldapListQuery } from '@/utils/ldapConfiguration'
 import { ipv4SubnetListQuery } from '@/utils/ipv4Subnet'
 import AclScopeValue from '@/components/view/AclScopeValue'
 import { projectDetailLocation } from '@/utils/projectSearch'
@@ -1384,6 +1454,7 @@ import KeyboardTooltip from '@/components/widgets/KeyboardTooltip'
 import CloneFlattenControl from '@/components/widgets/CloneFlattenControl'
 import { getFastClonePhase, getFastClonePhaseLabel, getFastClonePhaseColor } from '@/utils/fastClone'
 import ResourceContextMenu from '@/components/view/ResourceContextMenu'
+import QuickView from '@/components/view/QuickView'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import CopyLabel from '@/components/widgets/CopyLabel'
 import { cniDetailLink } from '@/utils/cniDeletion'
@@ -1407,6 +1478,7 @@ import cronstrue from 'cronstrue/i18n'
 import moment from 'moment-timezone'
 import { timeZoneName } from '@/utils/timezone'
 import { FileTextOutlined } from '@ant-design/icons-vue'
+import { Empty } from 'ant-design-vue'
 import SharedFSCapacitySummary from '@/views/storage/SharedFSCapacitySummary.vue'
 import SharedFSBootRecoverySummary from '@/views/storage/SharedFSBootRecoverySummary.vue'
 
@@ -1420,6 +1492,8 @@ import { vnfDetailLocation } from '@/utils/vnfSearch'
 export default {
   name: 'ListView',
   components: {
+    RuntimeCatalogValue,
+    Empty,
     Ipv4SubnetResourceLink,
     VpnUserValue,
     AclScopeValue,
@@ -1447,6 +1521,7 @@ export default {
     Status,
     CloneFlattenControl,
     ResourceContextMenu,
+    QuickView,
     CopyLabel,
     GuestNetworkSummary,
     TooltipButton,
@@ -1454,6 +1529,17 @@ export default {
     ResourceLabel,
     FileTextOutlined
   },
+  emits: [
+    'open-webhook-delivery',
+    'disable-gpu-device',
+    'edit-tariff-action',
+    'enable-gpu-device',
+    'refresh',
+    'selection-change',
+    'table-change',
+    'update-selected-columns',
+    'view-usage-record'
+  ],
   props: {
     tableScroll: { type: Object, default: null },
     kmsTable: { type: Boolean, default: false },
@@ -1489,6 +1575,7 @@ export default {
       type: Array,
       default: () => []
     },
+    inlineWebhookDelivery: { type: Boolean, default: false },
     explicitlyAllowRowSelection: {
       type: Boolean,
       default: false
@@ -1595,13 +1682,21 @@ export default {
     this.getUsageTypes()
   },
   computed: {
+    isUsageList () { return this.$route.path === '/usage' && !this.resourcePath },
+    isRuntimeCatalogList () { return this.$route.path === '/runtimebundle' && !this.resourcePath },
+    emptyTableImage () { return Empty.PRESENTED_IMAGE_SIMPLE },
     systemOfferingOrder () { return this.$route.path === '/systemoffering' },
     systemOfferingOrderAvailable () { return !!this.$store.getters.apis.listConfigurations && canReorderSystemOffering(this.$route.query, this.systemOfferingTableSorted) },
     systemOfferingOrderDisabled () { return this.systemOfferingOrder && (!this.systemOfferingOrderAvailable || this.systemOfferingOrderBusy) },
     isProjectMainList () { return this.$route.meta?.name === 'project' && !this.$route.params?.id && !this.resourcePath },
     scrollRegionLabel () {
+      if (this.isUsageList) return this.$t('label.usage')
+      if (this.isRuntimeCatalogList) return this.$t('label.runtime.catalog')
+      if (this.$route.meta?.name === 'oauthsetting') return this.$t('label.oauth.configuration')
       if (this.systemOfferingOrder) return this.$t('label.system.offerings')
       if (this.isProjectMainList) return this.$t('label.projects')
+      if (this.$route.path === '/imagestore' && !this.resourcePath) return this.$t('label.secondary.storage')
+      if (this.$route.meta?.name === 'secondarystorageselector' && !this.$route.params?.id) return this.$t('label.secondary.storage.selector')
       if (this.$route.meta?.name === 'guestvlans' && !this.$route.params?.id) return this.$t('label.guest.vlan')
       if (this.kmsTable) return this.$t(this.resourcePath === '/volume' ? 'label.volumes' : this.resourcePath === '/kmskey' ? 'label.kms.keys' : this.$route.meta.title)
       if (this.isKubernetesIsoMainList) return this.$t('label.kubernetes.isos')
@@ -1730,14 +1825,26 @@ export default {
     }
   },
   methods: {
+    runtimeCatalogListQuery,
     dnsServerListQuery,
     systemOfferingListQuery,
     systemOfferingValue,
     zoneListQuery,
+    hostListQuery,
+    clusterListQuery,
+    extensionListQuery,
+    webhookListDetailQuery,
+    primaryStorageListQuery,
+    secondaryStorageListQuery,
+    clusterStateLabel,
     zoneFeatureState,
+    hostStatusColor,
+    hostStatusLabel,
     zoneFeatureLabel,
     zoneMetricText,
     dnsZoneListQuery,
+    ldapListQuery,
+    oauthListQuery,
     ipv4SubnetListQuery,
     guestVlanNetworkLocation,
     guestVlanListQuery,
@@ -1801,6 +1908,54 @@ export default {
     snapshotListSizeValue,
     snapshotListInterval,
     volumeVmPath,
+    usageCellText (field, text, record) {
+      switch (field) {
+        case 'startdate':
+        case 'enddate':
+          return text ? this.$toLocaleDate(text.replace("'T'", ' ')) : ''
+        case 'usageType':
+          return this.usageTypeMap[record.usagetype] ?? record.usagetype ?? ''
+        case 'account':
+          return text?.startsWith('PrjAcct-')
+            ? (record.projectname || record.project || text) + ' (' + this.$t('label.project') + ')'
+            : text ?? ''
+        case 'domain':
+          return text || (this.$store.getters.userInfo.roletype !== 'User' ? record.domainid || '' : '')
+        case 'zone':
+          return text || (this.usageCellLocation(field, text, record) ? record.zoneid : '')
+        case 'vpcname':
+          return text || record.vpcid || ''
+        case 'type':
+          return this.translateEventType(text) ?? ''
+        default:
+          return text ?? ''
+      }
+    },
+    usageCellLocation (field, text, record) {
+      const canLinkScope = this.$store.getters.userInfo.roletype !== 'User'
+      switch (field) {
+        case 'account':
+          if (!text || text.startsWith('PrjAcct-')) return null
+          if (record.accountid) return { path: '/account/' + record.accountid }
+          return canLinkScope ? { path: '/account', query: { name: text, domainid: record.domainid, dataView: true } } : null
+        case 'domain':
+          return canLinkScope && record.domainid ? { path: '/domain/' + record.domainid, query: { tab: 'details' } } : null
+        case 'zone': {
+          const path = '/zone/' + record.zoneid
+          return record.zoneid && this.$router.resolve(path).matched[0]?.redirect !== '/exception/404' ? { path } : null
+        }
+        case 'virtualmachinename':
+          return record.virtualmachineid ? { path: this.getVmRouteUsingType(record) + record.virtualmachineid } : null
+        case 'templateid':
+          return record.templateid ? { path: '/template/' + record.templateid } : null
+        case 'project':
+          return this.canLinkProject(record) ? { path: '/project/' + record.projectid } : null
+        case 'vpcname':
+          return record.vpcid ? { path: '/vpc/' + record.vpcid } : null
+        default:
+          return null
+      }
+    },
     kmsValue (field, value) {
       return kmsCellLabel(field, value, this.$t, this.$te, this.$bytesToHumanReadableSize, this.$store.getters.features)
     },
@@ -2601,7 +2756,7 @@ export default {
 .kms-table { min-width: 0; max-width: 100%; }
 .kms-table:focus-visible { outline: 2px solid var(--ui-focus); outline-offset: 2px; }
 .kms-table :deep(.ant-table-cell) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.kms-table :deep(.ant-table-column-title) { min-width: 0; }
+.kms-table :deep(.ant-table-column-title), .usage-records-list-table :deep(.ant-table-column-title) { min-width: 0; }
 .kms-table :deep(a.table-overflow-text) { color: var(--ui-link); }
 .kubernetes-iso-column-picker :deep(.ant-checkbox-wrapper) { margin-left:0; }
 .kubernetes-iso-header-text { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }

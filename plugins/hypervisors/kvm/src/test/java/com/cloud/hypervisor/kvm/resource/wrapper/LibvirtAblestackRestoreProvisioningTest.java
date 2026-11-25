@@ -61,7 +61,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 public class LibvirtAblestackRestoreProvisioningTest {
     @Rule public TemporaryFolder folder = new TemporaryFolder();
 
-    private MockedStatic<Script> scripts(List<String> commands, boolean createOutput, boolean fail) {
+    private AutoCloseable scripts(List<String> commands, boolean createOutput, boolean fail) {
         MockedStatic<Script> scripts = Mockito.mockStatic(Script.class);
         scripts.when(() -> Script.runSimpleBashScriptWithFullResult(anyString(), anyInt())).thenAnswer(call -> {
             String command = call.getArgument(0);
@@ -73,7 +73,18 @@ public class LibvirtAblestackRestoreProvisioningTest {
             }
             return "\n__CMD_EXIT__=" + (fail ? "1" : "0");
         });
-        return scripts;
+        var data = Mockito.mockStatic(LibvirtAblestackDataProgress.class);
+        data.when(() -> LibvirtAblestackDataProgress.execute(anyString(), anyInt(), anyString(), any())).thenAnswer(call -> {
+            String command = call.getArgument(0);
+            commands.add(command);
+            if (createOutput && !fail) {
+                Matcher output = Pattern.compile("'([^']+)'$").matcher(command);
+                assertTrue(command, output.find());
+                Files.writeString(Path.of(output.group(1)), "restored-content");
+            }
+            return new com.cloud.utils.Pair<>(fail ? 1 : 0, "");
+        });
+        return () -> { data.close(); scripts.close(); };
     }
 
     private void convert(String target, QemuImg.PhysicalDiskFormat format) throws Exception {

@@ -16,22 +16,33 @@
 // under the License.
 
 <template>
-  <div>
-    <a-tabs :tabPosition="resourceTabPosition" v-model:activeKey="activeKey" @change="handleTabChange">
-      <a-tab-pane key="1" :tab="$t('label.other.devices')">
-        <a-input-search
-          v-model:value="otherSearchQuery"
-          :placeholder="$t('label.search')"
-          style="width: 500px; margin-bottom: 15px; float: right;"
-          @search="onOtherSearch"
-          @change="onOtherSearch"
-        />
+  <div class="host-devices-content">
+    <resource-table-toolbar
+      class="host-device-tools"
+      searchable
+      :search="searchQuery"
+      :search-label="$t('label.host.device.search')"
+      :loading="deviceListLoading"
+      @update:search="searchQuery = $event"
+      @search="commitSearch"
+      @refresh="refreshDevices">
+      <a-select
+        id="host-device-kind"
+        class="host-device-kind"
+        :aria-label="$t('label.host.device.type')"
+        :value="activeKey"
+        :options="deviceOptions"
+        @change="selectDeviceType" />
+    </resource-table-toolbar>
+    <a-alert v-if="deviceListFailed" type="error" show-icon :message="$t('message.host.device.read.failed')" />
+    <section v-if="activeKey === '1'" class="host-device-list">
         <a-table
           :columns="currentColumns"
           :dataSource="filteredOtherDevices"
+          :loading="deviceListLoading && !dataItems.length"
           :pagination="false"
           size="small"
-          :scroll="{ y: 1000 }">
+          :scroll="{ x: 720 }">
           <template #headerCell="{ column }">
             <template v-if="column.key === 'hostDevicesText'">
               {{ $t('label.details') }}
@@ -43,8 +54,8 @@
             </template>
             <template v-if="column.key === 'hostDevicesText'"><span v-html="formatHostDevicesText(record.hostDevicesText)" style="white-space: pre-line; line-height: 1.6; display: block;"></span></template>
             <template v-if="column.key === 'vmName'">
-              <a-spin v-if="vmNameLoading" size="small" />
-              <span v-else>{{ vmNames[record.hostDevicesName] || $t(' ') }}</span>
+              <span>{{ record.vmName || (record.virtualmachineid ? record.virtualmachineid : '—') }}</span>
+              <a-tag v-if="deviceOwnerNote(record)" color="warning">{{ deviceOwnerNote(record) }}</a-tag>
             </template>
             <template v-if="column.key === 'action'">
               <div style="display: flex; align-items: center; gap: 8px;">
@@ -52,9 +63,11 @@
                   :type="isDeviceAssigned(record) ? 'danger' : 'primary'"
                   size="middle"
                   shape="circle"
-                  :tooltip="isDeviceAssigned(record) ? $t('label.remove') : $t('label.create')"
+                  :aria-label="isDeviceAssigned(record) ? $t('label.remove') : $t('label.create')"
+                  :title="isDeviceAssigned(record) ? $t('label.remove') : $t('label.create')"
+                  :disabled="pciDetachPending || !deviceActionAvailable('updateHostDevices')"
                   @click="isDeviceAssigned(record) ? deallocatePciDevice(record) : openPciModal(record)"
-                  :loading="loading">
+                  :loading="actionLoading">
                   <template #icon>
                     <delete-outlined v-if="isDeviceAssigned(record)" />
                     <plus-outlined v-else />
@@ -65,27 +78,16 @@
             </template>
           </template>
         </a-table>
-      </a-tab-pane>
+      </section>
 
-      <a-tab-pane key="2" :tab="$t('label.hba.devices')">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-          <div style="display: flex; align-items: center; gap: 10px;">
-          </div>
-          <a-input-search
-            v-model:value="hbaSearchQuery"
-            :placeholder="$t('label.search')"
-            style="width: 500px;"
-            @search="onHbaSearch"
-            @change="onHbaSearch"
-          />
-        </div>
-        <a-table
+      <section v-if="activeKey === '2'" class="host-device-list">
+          <a-table
           :columns="currentColumns"
           :dataSource="filteredHbaDevices"
-          :loading="loading"
+          :loading="deviceListLoading && !dataItems.length"
           :pagination="false"
           size="small"
-          :scroll="{ y: 1000 }">
+          :scroll="{ x: 720 }">
           <template #headerCell="{ column }">
             <template v-if="column.key === 'hostDevicesText'">
               {{ $t('label.details') }}
@@ -128,8 +130,8 @@
             </template>
             <template v-if="column.key === 'vmName'">
               <template v-if="!record.isSummary">
-                <a-spin v-if="vmNameLoading" size="small" />
-                <span v-else>{{ vmNames[record.hostDevicesName] || $t('') }}</span>
+                <span>{{ record.vmName || (record.virtualmachineid ? record.virtualmachineid : '—') }}</span>
+              <a-tag v-if="deviceOwnerNote(record)" color="warning">{{ deviceOwnerNote(record) }}</a-tag>
               </template>
             </template>
             <template v-if="column.key === 'vhba'">
@@ -143,8 +145,8 @@
                     shape="circle"
                     :tooltip="$t('label.create.vhba')"
                     @click="openCreateVhbaModal(record)"
-                    :loading="loading"
-                    :disabled="loading"
+                    :loading="actionLoading"
+                    :disabled="actionLoading || !deviceActionAvailable('createVhbaDevice')"
                     style="z-index: 1; position: relative;">
                     <template #icon>
                       <FormOutlined />
@@ -158,8 +160,8 @@
                     shape="circle"
                     :tooltip="$t('label.delete.vhba')"
                     @click="deleteVhbaDevice(record)"
-                    :loading="loading"
-                    :disabled="loading"
+                    :loading="actionLoading"
+                    :disabled="actionLoading || !deviceActionAvailable('deleteVhbaDevice')"
                     style="z-index: 1; position: relative;">
                     <template #icon>
                       <delete-outlined />
@@ -179,8 +181,8 @@
                     shape="circle"
                     :tooltip="isVhbaDeviceAssigned(record) ? $t('label.remove') : $t('label.allocate')"
                     @click="isVhbaDeviceAssigned(record) ? deallocateVhbaDevice(record) : openVhbaAllocationModal(record)"
-                    :loading="loading"
-                    :disabled="loading"
+                    :loading="actionLoading"
+                    :disabled="actionLoading || !deviceActionAvailable('updateHostVhbaDevices')"
                     style="z-index: 1; position: relative;">
                     <template #icon>
                       <delete-outlined v-if="isVhbaDeviceAssigned(record)" />
@@ -195,8 +197,8 @@
                     shape="circle"
                     :tooltip="isDeviceAssigned(record) ? $t('label.remove') : $t('label.create')"
                     @click="isDeviceAssigned(record) ? deallocateHbaDevice(record) : openHbaModal(record)"
-                    :loading="loading"
-                    :disabled="loading"
+                    :loading="actionLoading"
+                    :disabled="actionLoading || !deviceActionAvailable('updateHostHbaDevices')"
                     style="z-index: 1; position: relative;">
                     <template #icon>
                       <delete-outlined v-if="isDeviceAssigned(record)" />
@@ -210,23 +212,16 @@
             </template>
           </template>
         </a-table>
-      </a-tab-pane>
+      </section>
 
-      <a-tab-pane key="3" :tab="$t('label.usb.devices')">
-        <a-input-search
-          v-model:value="usbSearchQuery"
-          :placeholder="$t('label.search')"
-          style="width: 500px; margin-bottom: 15px; float: right;"
-          @search="onUsbSearch"
-          @change="onUsbSearch"
-        />
+      <section v-if="activeKey === '3'" class="host-device-list">
         <a-table
           :columns="currentColumns"
           :dataSource="filteredUsbDevices"
-          :loading="loading"
+          :loading="deviceListLoading && !dataItems.length"
           :pagination="false"
           size="small"
-          :scroll="{ y: 1000 }">
+          :scroll="{ x: 720 }">
           <template #headerCell="{ column }">
             <template v-if="column.key === 'hostDevicesText'">
               {{ $t('label.details') }}
@@ -240,8 +235,8 @@
               <span v-html="formatHostDevicesText(record.hostDevicesText)" style="white-space: pre-line; line-height: 1.6; display: block;"></span>
             </template>
             <template v-if="column.dataIndex === 'vmName'">
-              <a-spin v-if="vmNameLoading" size="small" />
-              <span v-else>{{ vmNames[record.hostDevicesName] || '' }}</span>
+              <span>{{ record.vmName || (record.virtualmachineid ? record.virtualmachineid : '—') }}</span>
+              <a-tag v-if="deviceOwnerNote(record)" color="warning">{{ deviceOwnerNote(record) }}</a-tag>
             </template>
             <template v-if="column.key === 'action'">
               <div style="display: flex; align-items: center; gap: 8px;">
@@ -251,8 +246,8 @@
                   shape="circle"
                   :tooltip="isDeviceAssigned(record) ? $t('label.remove') : $t('label.create')"
                   @click="isDeviceAssigned(record) ? deallocateUsbDevice(record) : openUsbModal(record)"
-                  :loading="loading"
-                  :disabled="loading"
+                  :loading="actionLoading"
+                  :disabled="actionLoading || !deviceActionAvailable('updateHostUsbDevices')"
                   style="z-index: 1; position: relative;">
                   <template #icon>
                     <delete-outlined v-if="isDeviceAssigned(record)" />
@@ -264,23 +259,16 @@
             </template>
           </template>
         </a-table>
-      </a-tab-pane>
+      </section>
 
-      <a-tab-pane key="4" :tab="$t('label.lun.devices')">
-        <a-input-search
-          v-model:value="lunSearchQuery"
-          :placeholder="$t('label.search')"
-          style="width: 500px; margin-bottom: 15px; float: right;"
-          @search="onLunSearch"
-          @change="onLunSearch"
-        />
+      <section v-if="activeKey === '4'" class="host-device-list">
         <a-table
           :columns="currentColumns"
           :dataSource="filteredLunDevices"
-          :loading="loading"
+          :loading="deviceListLoading && !dataItems.length"
           :pagination="false"
           size="small"
-          :scroll="{ y: 1000 }">
+          :scroll="{ x: 720 }">
           <template #headerCell="{ column }">
             <template v-if="column.key === 'hostDevicesText'">
               {{ $t('label.details') }}
@@ -319,29 +307,22 @@
               </div>
             </template>
             <template v-if="column.dataIndex === 'vmName'">
-              <a-spin v-if="vmNameLoading" size="small" />
-              <span v-else>
-                <template v-if="record.allocatedInOtherTab">
-                  {{ record.vmName }}
-                </template>
-                <template v-else>
-                  {{ record.vmName || vmNames[record.hostDevicesName] || '' }}
-                </template>
-              </span>
+              <span>{{ record.vmName || (record.virtualmachineid ? record.virtualmachineid : '—') }}</span>
+              <a-tag v-if="deviceOwnerNote(record)" color="warning">{{ deviceOwnerNote(record) }}</a-tag>
             </template>
             <template v-if="column.key === 'action'">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <template v-if="activeKey === '4'">
                   <a-button
                     v-if="shouldShowAllocationButton(record)"
-                    :disabled="lunAllocationBlocked(record)"
+                    :disabled="lunAllocationBlocked(record) || !deviceActionAvailable('updateHostLunDevices')"
                     :title="lunAllocationReason(record)"
                     :type="(isDeviceAssigned(record) || record.allocatedInOtherTab) ? 'danger' : 'primary'"
                     size="middle"
                     shape="circle"
                     :tooltip="(isDeviceAssigned(record) || record.allocatedInOtherTab) ? $t('label.remove') : $t('label.create')"
                     @click="(isDeviceAssigned(record) || record.allocatedInOtherTab) ? deallocateLunDevice(record) : openLunModal(record)"
-                    :loading="loading">
+                    :loading="actionLoading">
                     <template #icon>
                       <delete-outlined v-if="(isDeviceAssigned(record) || record.allocatedInOtherTab)" />
                       <plus-outlined v-else />
@@ -351,14 +332,14 @@
                 <template v-else>
                   <a-button
                     v-if="shouldShowAllocationButton(record)"
-                    :disabled="lunAllocationBlocked(record)"
+                    :disabled="lunAllocationBlocked(record) || !deviceActionAvailable('updateHostLunDevices')"
                     :title="lunAllocationReason(record)"
                     :type="(isDeviceAssigned(record) || record.allocatedInOtherTab) ? 'danger' : 'primary'"
                     size="middle"
                     shape="circle"
                     :tooltip="(isDeviceAssigned(record) || record.allocatedInOtherTab) ? $t('label.remove') : $t('label.create')"
                     @click="(isDeviceAssigned(record) || record.allocatedInOtherTab) ? deallocateLunDevice(record) : openLunModal(record)"
-                    :loading="loading">
+                    :loading="actionLoading">
                     <template #icon>
                       <delete-outlined v-if="(isDeviceAssigned(record) || record.allocatedInOtherTab)" />
                       <plus-outlined v-else />
@@ -373,23 +354,16 @@
             </template>
           </template>
         </a-table>
-      </a-tab-pane>
+      </section>
 
-      <a-tab-pane key="5" :tab="$t('label.scsi.devices')">
-        <a-input-search
-          v-model:value="scsiSearchQuery"
-          :placeholder="$t('label.search')"
-          style="width: 500px; margin-bottom: 15px; float: right;"
-          @search="onScsiSearch"
-          @change="onScsiSearch"
-        />
+      <section v-if="activeKey === '5'" class="host-device-list">
         <a-table
           :columns="currentColumns"
           :dataSource="filteredScsiDevices"
-          :loading="loading"
+          :loading="deviceListLoading && !dataItems.length"
           :pagination="false"
           size="small"
-          :scroll="{ y: 1000 }">
+          :scroll="{ x: 720 }">
           <template #headerCell="{ column }">
             <template v-if="column.key === 'hostDevicesText'">
               {{ $t('label.details') }}
@@ -403,15 +377,8 @@
               <span v-html="formatScsiHostDevicesText(record.hostDevicesText)" style="white-space: pre-line; line-height: 1.6; display: block;"></span>
             </template>
             <template v-if="column.dataIndex === 'vmName'">
-              <a-spin v-if="vmNameLoading" size="small" />
-              <span v-else>
-                <template v-if="record.allocatedInOtherTab">
-                  {{ record.vmName }}
-                </template>
-                <template v-else>
-                  {{ record.vmName || vmNames[record.hostDevicesName] || '' }}
-                </template>
-              </span>
+              <span>{{ record.vmName || (record.virtualmachineid ? record.virtualmachineid : '—') }}</span>
+              <a-tag v-if="deviceOwnerNote(record)" color="warning">{{ deviceOwnerNote(record) }}</a-tag>
             </template>
             <template v-if="column.key === 'action'">
               <div style="display: flex; align-items: center; gap: 8px;">
@@ -422,8 +389,8 @@
                   shape="circle"
                   :tooltip="(isDeviceAssigned(record) || record.allocatedInOtherTab) ? $t('label.remove') : $t('label.create')"
                   @click="(isDeviceAssigned(record) || record.allocatedInOtherTab) ? deallocateScsiDevice(record) : openScsiModal(record)"
-                  :loading="loading"
-                  :disabled="loading"
+                  :loading="actionLoading"
+                  :disabled="actionLoading || !deviceActionAvailable('updateHostScsiDevices')"
                   style="z-index: 1; position: relative;">
                   <template #icon>
                     <delete-outlined v-if="(isDeviceAssigned(record) || record.allocatedInOtherTab)" />
@@ -438,8 +405,7 @@
             </template>
           </template>
         </a-table>
-      </a-tab-pane>
-    </a-tabs>
+      </section>
     <a-modal
       :visible="showAddModal"
       :title="$t('label.create.host.devices')"
@@ -564,11 +530,11 @@
 </template>
 
 <script>
+import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
 import { mixinDevice } from '@/utils/mixin.js'
 import { getAPI, postAPI } from '@/api'
 import { generatePciDeviceXml, matchesPciDeviceXml } from '@/utils/util'
 import { deviceBlocked } from '@/utils/vmDevices'
-import eventBus from '@/config/eventBus'
 import { IdcardOutlined, PlusOutlined, DeleteOutlined, FormOutlined, MinusOutlined } from '@ant-design/icons-vue'
 import HostDevicesTransfer from '@/views/storage/HostDevicesTransfer'
 import HostUsbDevicesTransfer from '@/views/storage/HostUsbDevicesTransfer'
@@ -577,10 +543,21 @@ import HostHbaDevicesTransfer from '@/views/storage/HostHbaDevicesTransfer'
 import HostScsiDevicesTransfer from '@/views/storage/HostScsiDevicesTransfer'
 import HostVhbaDevicesTransfer from '@/views/storage/HostVhbaDevicesTransfer'
 
+const deviceViews = [
+  { key: '1', id: 'other', label: 'label.other.devices' },
+  { key: '2', id: 'hba', label: 'label.hba.devices' },
+  { key: '3', id: 'usb', label: 'label.usb.devices' },
+  { key: '4', id: 'lun', label: 'label.lun.devices' },
+  { key: '5', id: 'scsi', label: 'label.scsi.devices' }
+]
+const deviceView = value => deviceViews.find(view => view.id === value || view.key === value) || deviceViews[0]
+const searchFromQuery = value => typeof value === 'string' ? value : ''
+
 export default {
   mixins: [mixinDevice],
   name: 'ListHostDevicesTab',
   components: {
+    ResourceTableToolbar,
     IdcardOutlined,
     PlusOutlined,
     DeleteOutlined,
@@ -597,21 +574,20 @@ export default {
     resource: {
       type: Object,
       required: true
+    },
+    loading: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
     return {
       dataItems: [],
-      loading: false,
+      actionLoading: false,
       showAddModal: false,
       selectedResource: null,
-      searchQuery: '',
-      activeKey: '1',
-      usbSearchQuery: '',
-      lunSearchQuery: '',
-      otherSearchQuery: '',
-      hbaSearchQuery: '',
-      scsiSearchQuery: '',
+      searchQuery: searchFromQuery(this.$route.query.deviceq),
+      activeKey: deviceView(this.$route.query.device).key,
       selectedDevices: [],
       selectedPciDevices: [],
       virtualmachines: [],
@@ -619,7 +595,10 @@ export default {
       selectedPciDevice: null,
       pciConfigs: {},
       vmNames: {},
-      vmNameLoading: false,
+      deviceReadVersion: 0,
+      deviceListLoading: false,
+      deviceListFailed: false,
+      pciDetachPending: false,
       showUsbDeleteModal: false,
       selectedUsbDevice: null,
       showLunDeleteModal: false,
@@ -639,8 +618,10 @@ export default {
     }
   },
   computed: {
+    deviceOptions () { return deviceViews.map(view => ({ value: view.key, label: this.$t(view.label) })) },
     tableSource () {
       return this.dataItems.map((item, index) => ({
+        ...item,
         key: index,
         hostDevicesName: Array.isArray(item.hostDevicesNames) ? item.hostDevicesNames[0] : item.hostDevicesName,
         hostDevicesText: Array.isArray(item.hostDevicesTexts) ? item.hostDevicesTexts[0] : item.hostDevicesText,
@@ -716,7 +697,7 @@ export default {
     },
 
     filteredOtherDevices () {
-      const query = this.otherSearchQuery.toLowerCase()
+      const query = this.searchQuery.toLowerCase()
       return this.tableSource.filter(item => {
         const deviceName = String(item.hostDevicesName || '')
         const deviceText = String(item.hostDevicesText || '')
@@ -733,7 +714,7 @@ export default {
     filteredUsbDevices () {
       if (!this.dataItems) return []
 
-      const query = this.usbSearchQuery.toLowerCase()
+      const query = this.searchQuery.toLowerCase()
       return this.dataItems.filter(item => {
         if (item.hostDevicesText && item.hostDevicesText.toLowerCase().includes('hub')) {
           return false
@@ -748,7 +729,7 @@ export default {
     },
 
     filteredLunDevices () {
-      const query = this.lunSearchQuery.toLowerCase()
+      const query = this.searchQuery.toLowerCase()
       const items = this.dataItems || []
       return items.filter(item => {
         const deviceName = String(item.hostDevicesName || '')
@@ -768,7 +749,7 @@ export default {
     },
 
     filteredHbaDevices () {
-      const query = this.hbaSearchQuery.toLowerCase()
+      const query = this.searchQuery.toLowerCase()
       const allHbaDevices = this.getHbaDevicesWithVhba()
 
       return allHbaDevices.filter(item => {
@@ -781,7 +762,7 @@ export default {
     },
 
     filteredScsiDevices () {
-      const query = this.scsiSearchQuery.toLowerCase()
+      const query = this.searchQuery.toLowerCase()
       return (this.dataItems || []).filter(item => {
         const deviceName = String(item.hostDevicesName || '')
         const displayName = String(item.scsiDisplayName || '')
@@ -811,265 +792,124 @@ export default {
       return vhbaCount
     }
   },
+  watch: {
+    'resource.id' (id, previous) {
+      if (id !== previous) {
+        this.resetDeviceList()
+        this.refreshDevices()
+      }
+    },
+    '$route.query.device' (value) {
+      const key = deviceView(value).key
+      if (key !== this.activeKey) {
+        this.activeKey = key
+        this.resetDeviceList()
+        this.refreshDevices()
+      }
+    },
+    '$route.query.deviceq' (value) {
+      this.searchQuery = searchFromQuery(value)
+    },
+    loading (loading, previous) {
+      if (previous && !loading) this.refreshDevices()
+    }
+  },
   created () {
-    this.fetchData()
-    this.setupVMEventListeners()
-    this.fetchHostInfo()
+    this.refreshDevices()
+  },
+  unmounted () {
+    this.deviceReadVersion++
   },
   methods: {
     formatDeviceName (deviceName) {
       if (!deviceName) return ''
-
       const match = deviceName.match(/^(.+?)\s*\((.+?)\)$/)
-      if (match) {
-        const [, mainName, bracketContent] = match
-        const result = `${mainName.trim()}\n(${bracketContent})`
-        return result
-      }
-
-      return deviceName
+      return match ? match[1].trim() + '\n(' + match[2].trim() + ')' : deviceName
     },
-    setupVMEventListeners () {
-      const eventTypes = ['DestroyVM', 'ExpungeVM', 'StopVM', 'RebootVM', 'StartVM']
-
-      eventTypes.forEach(eventType => {
-        eventBus.emit('register-event', {
-          eventType: eventType,
-          callback: async (event) => {
-            try {
-              const vmId = event.id
-
-              if (eventType === 'DestroyVM' || eventType === 'ExpungeVM') {
-                await Promise.all([
-                  this.deallocateDevicesOnVmDelete(vmId, 'listHostDevices', 'updateHostDevices'),
-                  this.deallocateDevicesOnVmDelete(vmId, 'listHostHbaDevices', 'updateHostHbaDevices'),
-                  this.deallocateDevicesOnVmDelete(vmId, 'listHostUsbDevices', 'updateHostUsbDevices'),
-                  this.deallocateDevicesOnVmDelete(vmId, 'listHostLunDevices', 'updateHostLunDevices'),
-                  this.deallocateDevicesOnVmDelete(vmId, 'listHostScsiDevices', 'updateHostScsiDevices')
-                ])
-
-                await this.refreshDataAfterVmDelete()
-              } else {
-                if (this.activeKey === '1') {
-                  await this.fetchData()
-                } else if (this.activeKey === '2') {
-                  await this.fetchHbaDevices()
-                } else if (this.activeKey === '3') {
-                  await this.fetchUsbDevices()
-                } else if (this.activeKey === '4') {
-                  await this.fetchLunDevices()
-                } else if (this.activeKey === '5') {
-                  await this.fetchScsiDevices()
-                }
-              }
-            } catch (error) {
-            }
-          }
-        })
-      })
-    },
-
-    async deallocateDevicesOnVmDelete (vmId, listApiMethod, updateApiMethod) {
-      try {
-        const response = await getAPI(listApiMethod, { id: this.resource.id })
-        const devices = this.extractDevicesFromResponse(response)
-
-        if (devices?.vmallocations) {
-          const allocatedDevices = Object.entries(devices.vmallocations)
-            .filter(([_, allocatedVmId]) => allocatedVmId === vmId)
-            .map(([deviceName]) => deviceName)
-
-          for (const deviceName of allocatedDevices) {
-            try {
-              let updateResponse
-              if (listApiMethod === 'listHostDevices') {
-                updateResponse = await postAPI('updateHostDevices', {
-                  hostid: this.resource.id,
-                  hostdevicesname: deviceName,
-                  virtualmachineid: null
-                })
-              } else if (listApiMethod === 'listHostHbaDevices') {
-                const xmlConfig = this.generateHbaDeallocationXmlConfig(deviceName)
-                updateResponse = await postAPI('updateHostHbaDevices', {
-                  hostid: this.resource.id,
-                  hostdevicesname: deviceName,
-                  virtualmachineid: null,
-                  xmlconfig: xmlConfig
-                })
-              } else if (listApiMethod === 'listHostUsbDevices') {
-                const xmlConfig = this.generateXmlUsbConfig(deviceName)
-                updateResponse = await postAPI('updateHostUsbDevices', {
-                  hostid: this.resource.id,
-                  hostdevicesname: deviceName,
-                  virtualmachineid: null,
-                  currentvmid: vmId,
-                  xmlconfig: xmlConfig
-                })
-              } else if (listApiMethod === 'listHostLunDevices') {
-                const xmlConfig = this.generateXmlLunConfig(deviceName)
-                updateResponse = await postAPI('updateHostLunDevices', {
-                  hostid: this.resource.id,
-                  hostdevicesname: deviceName,
-                  virtualmachineid: null,
-                  xmlconfig: xmlConfig
-                })
-              } else if (listApiMethod === 'listHostScsiDevices') {
-                const scsiResponse = await getAPI('listHostScsiDevices', { id: this.resource.id })
-                const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
-
-                let actualDeviceText = ''
-                if (scsiData && scsiData.hostdevicesname) {
-                  const deviceIndex = scsiData.hostdevicesname.indexOf(deviceName)
-                  if (deviceIndex !== -1 && scsiData.hostdevicestext) {
-                    actualDeviceText = scsiData.hostdevicestext[deviceIndex] || ''
-                  }
-                }
-
-                const xmlConfig = this.generateScsiXmlFromText(deviceName, actualDeviceText)
-                updateResponse = await postAPI('updateHostScsiDevices', {
-                  hostid: this.resource.id,
-                  hostdevicesname: deviceName,
-                  virtualmachineid: null,
-                  currentvmid: vmId,
-                  xmlconfig: xmlConfig
-                })
-              } else if (listApiMethod === 'listVhbaDevices') {
-                const xmlConfig = this.generateVhbaDeallocationXmlConfig(deviceName)
-                updateResponse = await postAPI('updateHostVhbaDevices', {
-                  hostid: this.resource.id,
-                  hostdevicesname: deviceName,
-                  virtualmachineid: null,
-                  currentvmid: vmId,
-                  xmlconfig: xmlConfig
-                })
-              }
-
-              if (!updateResponse || updateResponse.error) {
-                throw new Error(updateResponse?.error?.errortext || 'Failed to update host device')
-              }
-            } catch (error) {
-              this.$notification.error({
-                message: this.$t('label.error'),
-                description: error.message || this.$t('message.update.host.device.failed')
-              })
-            }
-          }
-
-          return allocatedDevices.length > 0
-        }
-        return false
-      } catch (error) {
-        return false
-      }
-    },
-
-    extractDevicesFromResponse (response) {
-      if (response.listhostdevicesresponse?.listhostdevices?.[0]) {
-        return response.listhostdevicesresponse.listhostdevices[0]
-      } else if (response.listhosthbadevicesresponse?.listhosthbadevices?.[0]) {
-        return response.listhosthbadevicesresponse.listhosthbadevices[0]
-      } else if (response.listhostusbdevicesresponse?.listhostusbdevices?.[0]) {
-        return response.listhostusbdevicesresponse.listhostusbdevices[0]
-      } else if (response.listhostlundevicesresponse?.listhostlundevices?.[0]) {
-        return response.listhostlundevicesresponse.listhostlundevices[0]
-      } else if (response.listhostscsidevicesresponse?.listhostscsidevices?.[0]) {
-        return response.listhostscsidevicesresponse.listhostscsidevices[0]
-      }
-      return null
-    },
-
-    async refreshDataAfterVmDelete () {
-      try {
-        await Promise.all([
-          this.fetchData(),
-          this.fetchHbaDevices(),
-          this.fetchUsbDevices(),
-          this.fetchLunDevices(),
-          this.fetchScsiDevices()
-        ])
-
-        this.vmNames = {}
-
-        if (this.activeKey === '1') {
-          await this.updateVmNames()
-        } else if (this.activeKey === '2') {
-          await this.updateHbaVmNames()
-        } else if (this.activeKey === '3') {
-          await this.updateUsbVmNames()
-        }
-
-        this.$nextTick(() => {
-          this.$forceUpdate()
-          setTimeout(() => {
-            this.$forceUpdate()
-          }, 100)
-        })
-
-        this.$message.info(this.$t('message.device.allocation.removed.vm.deleted'))
-      } catch (error) {
-      }
-    },
-
-    async fetchData () {
-      this.loading = true
+    resetDeviceList () {
+      this.deviceReadVersion++
+      this.dataItems = []
+      this.vmNames = {}
       this.selectedDevices = []
-
+      this.expandedVhbaDevices = {}
+      this.vhbaDevicesData = {}
+      this.vhbaLoading = {}
+      this.deviceListFailed = false
+      this.deviceListLoading = false
+    },
+    refreshDevices () {
+      return [
+        this.fetchData,
+        this.fetchHbaDevices,
+        this.fetchUsbDevices,
+        this.fetchLunDevices,
+        this.fetchScsiDevices
+      ][Number(this.activeKey) - 1]?.()
+    },
+    async readDeviceList (key, fetchRows) {
+      const id = this.resource.id
+      if (!id || this.activeKey !== key) return
+      const version = ++this.deviceReadVersion
+      const isCurrent = () => this.resource.id === id && this.activeKey === key && this.deviceReadVersion === version
+      this.deviceListLoading = true
+      if (key === '2') this.vhbaLoading = {}
+      this.deviceListFailed = false
       try {
-        const response = await getAPI('listHostDevices', { id: this.resource.id })
-        const data = response.listhostdevicesresponse?.listhostdevices?.[0]
-
-        if (data) {
-          const vmAllocations = data.vmallocations || {}
-
-          const vmIds = Object.values(vmAllocations)
-            .filter(id => id)
-            .map(id => id.toString())
-
-          const vmNameMap = {}
-          if (vmIds.length > 0) {
-            for (const vmId of vmIds) {
-              try {
-                const vmResponse = await getAPI('listVirtualMachines', {
-                  id: vmId,
-                  listall: true
-                })
-                const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-                if (vm) {
-                  vmNameMap[vmId] = vm.displayname || vm.name
-                }
-              } catch (error) {
-              }
-            }
-          }
-
-          this.vmNames = vmNameMap
-
-          this.dataItems = data.hostdevicesname.map((name, index) => {
-            const vmId = vmAllocations[name] || null
-            const vmName = vmId ? this.vmNames[vmId] : null
-
-            return {
-              hostDevicesName: name,
-              hostDevicesText: data.hostdevicestext[index] || '',
-              virtualmachineid: vmId,
-              vmName: vmName,
-              isAssigned: Boolean(vmId)
-            }
-          })
-
-          this.selectedDevices = Object.keys(vmAllocations).filter(key => vmAllocations[key])
-        } else {
-          this.dataItems = []
-          this.selectedDevices = []
-        }
+        const rows = await fetchRows(id)
+        if (!isCurrent()) return
+        const resolved = await this.lookupDeviceOwners(rows)
+        if (!isCurrent()) return
+        this.dataItems = resolved
+        this.selectedDevices = resolved.filter(row => row.virtualmachineid).map(row => row.hostDevicesName)
+        this.vmNames = Object.fromEntries(resolved.filter(row => row.vmName).map(row => [row.hostDevicesName, row.vmName]))
       } catch (error) {
-        this.$notifyError(error)
-        this.dataItems = []
-        this.selectedDevices = []
+        if (!isCurrent()) return
+        this.deviceListFailed = true
+        if (!this.dataItems.length) this.$notifyError(error)
       } finally {
-        this.loading = false
+        if (isCurrent()) this.deviceListLoading = false
       }
-      await this.updateVmNames()
+    },
+    async lookupDeviceOwners (rows) {
+      const ids = [...new Set(rows.map(row => row.virtualmachineid).filter(Boolean))]
+      const owners = {}
+      await Promise.all(ids.map(async id => {
+        try {
+          const result = await getAPI('listVirtualMachines', { id, listall: true }, { preserveOnFailure: true })
+          const vm = result.listvirtualmachinesresponse?.virtualmachine?.find(item => item.id === id)
+          owners[id] = vm
+            ? { vmName: vm.displayname || vm.name, vmLookup: vm.state === 'Expunging' ? 'cleanup' : 'found' }
+            : { vmLookup: 'unknown' }
+        } catch {
+          owners[id] = { vmLookup: 'failed' }
+        }
+      }))
+      return rows.map(row => ({ ...row, ...owners[row.virtualmachineid] }))
+    },
+    deviceActionAvailable (api) {
+      return Boolean(this.$store.getters.apis?.[api]) && !this.deviceListFailed
+    },
+    deviceOwnerNote (record) {
+      const labels = {
+        cleanup: 'label.host.device.cleanup.required',
+        unknown: 'label.host.device.owner.unknown',
+        failed: 'label.host.device.owner.failed'
+      }
+      return labels[record.vmLookup] ? this.$t(labels[record.vmLookup]) : ''
+    },
+    fetchData () {
+      return this.readDeviceList('1', id => this.readNamedDevices('listHostDevices', 'listhostdevices', id))
+    },
+    async readNamedDevices (api, key, id) {
+      const response = await getAPI(api, { id }, { preserveOnFailure: true })
+      const data = response[key + 'response']?.[key]?.[0]
+      return (data?.hostdevicesname || []).map((name, index) => ({
+        key: name,
+        hostDevicesName: name,
+        hostDevicesText: data.hostdevicestext?.[index] || '',
+        virtualmachineid: data.vmallocations?.[name] || null,
+        isAssigned: Boolean(data.vmallocations?.[name])
+      }))
     },
     isDeviceAssigned (record) {
       const deviceName = this.activeKey === '4' ? record.hostDevicesName : record.hostDevicesName
@@ -1150,25 +990,8 @@ export default {
     },
     closeAction () {
       this.showAddModal = false
-      this.loading = true
       this.selectedResource = null
-      if (this.activeKey === '2') {
-        this.fetchHbaDevices()
-      } else if (this.activeKey === '3') {
-        this.fetchUsbDevices()
-      } else if (this.activeKey === '4') {
-        this.fetchLunDevices()
-      } else if (this.activeKey === '5') {
-        this.fetchScsiDevices()
-      } else {
-        this.fetchData()
-      }
-    },
-    onUsbSearch (e) {
-    },
-    onLunSearch () {
-    },
-    onOtherSearch () {
+      return this.refreshDevices()
     },
     async handleDelete (record) {
       if (this.activeKey === '2') {
@@ -1211,120 +1034,41 @@ export default {
       }
     },
     handleAllocationCompleted () {
-      const currentActiveKey = this.activeKey
-      this.showAddModal = false
-      this.loading = true
-
-      if (this.activeKey === '2') {
-        this.fetchHbaDevices()
-      } else if (this.activeKey === '3') {
-        setTimeout(() => {
-          this.fetchUsbDevices()
-        }, 700)
-      } else if (this.activeKey === '4') {
-        setTimeout(() => {
-          this.fetchLunDevices()
-        }, 700)
-      } else if (this.activeKey === '5') {
-        setTimeout(() => {
-          this.fetchScsiDevices()
-        }, 700)
-        setTimeout(() => {
-          this.fetchLunDevices()
-        }, 1000)
-      } else {
-        this.fetchData()
-      }
-
-      this.updateDataWithVmNames()
-
-      this.$nextTick(() => {
-        this.activeKey = currentActiveKey
-      })
+      return this.closeAction()
     },
     handleDeviceAllocated () {
-      const currentActiveKey = this.activeKey
-      this.loading = true
-
-      if (this.activeKey === '2') {
-        this.fetchHbaDevices()
-      } else if (this.activeKey === '3') {
-        this.fetchUsbDevices()
-      } else if (this.activeKey === '4') {
-        this.fetchLunDevices()
-      } else if (this.activeKey === '5') {
-        this.fetchScsiDevices()
-        setTimeout(() => {
-          this.fetchLunDevices()
-        }, 500)
-      } else {
-        this.fetchData()
-      }
-
-      this.$nextTick(() => {
-        this.activeKey = currentActiveKey
-      })
+      return this.closeAction()
     },
-
-    async handleTabChange (activeKey) {
-      this.activeKey = activeKey
-      if (activeKey === '1') {
-        await this.fetchData()
-        await this.updateVmNames()
-      } else if (activeKey === '2') {
-        this.fetchHbaDevices() // HBA 탭 선택 시 호출
-      } else if (activeKey === '3') {
-        this.fetchUsbDevices() // USB 탭 선택 시 호출
-      } else if (activeKey === '4') {
-        this.fetchLunDevices() // LUN 탭 선택 시 호출
-      } else if (activeKey === '5') {
-        this.fetchScsiDevices() // SCSI 탭 선택 시 호출
-      }
+    selectDeviceType (key) {
+      if (key === this.activeKey) return
+      const query = { ...this.$route.query, tab: 'listhostdevices', device: deviceView(key).id }
+      delete query.deviceq
+      this.$router.push({ query })
+    },
+    commitSearch (value) {
+      const query = { ...this.$route.query }
+      const keyword = value?.trim()
+      if (keyword) query.deviceq = keyword
+      else delete query.deviceq
+      this.searchQuery = keyword || ''
+      this.$router.replace({ query })
     },
     fetchUsbDevices () {
-      this.loading = true
-      getAPI('listHostUsbDevices', {
-        id: this.resource.id
-      }).then(response => {
-        if (response.listhostusbdevicesresponse?.listhostusbdevices?.[0]) {
-          const usbData = response.listhostusbdevicesresponse.listhostusbdevices[0]
-
-          const usbDevices = usbData.hostdevicesname.map((name, index) => ({
-            key: index,
-            hostDevicesName: name,
-            hostDevicesText: usbData.hostdevicestext[index],
-            virtualmachineid: (usbData.vmallocations && usbData.vmallocations[name]) || null,
-            isAssigned: Boolean(usbData.vmallocations && usbData.vmallocations[name])
-          }))
-
-          this.dataItems = usbDevices
-          this.updateUsbVmNames()
-        } else {
-          this.dataItems = []
-        }
-      }).catch(error => {
-        this.$notification.error({
-          message: this.$t('label.error'),
-          description: error.message || this.$t('message.error.fetch.usb.devices')
-        })
-      }).finally(() => {
-        this.loading = false
-      })
+      return this.readDeviceList('3', id => this.readNamedDevices('listHostUsbDevices', 'listhostusbdevices', id))
     },
-    async fetchLunDevices () {
-      this.loading = true
-      try {
+    fetchLunDevices () {
+      return this.readDeviceList('4', async id => {
         const [singleSettled, multiSettled] = await Promise.allSettled([
           getAPI('listHostLunDevices', {
-            id: this.resource.id,
+            id,
             lunpathmode: 'single',
             lunPathMode: 'single'
-          }),
+          }, { preserveOnFailure: true }),
           getAPI('listHostLunDevices', {
-            id: this.resource.id,
+            id,
             lunpathmode: 'multipath',
             lunPathMode: 'multipath'
-          })
+          }, { preserveOnFailure: true })
         ])
         const singleRes = singleSettled.status === 'fulfilled' ? singleSettled.value : null
         const multiRes = multiSettled.status === 'fulfilled' ? multiSettled.value : null
@@ -1338,46 +1082,12 @@ export default {
 
         const multiHasRows = lun1 && Array.isArray(lun1.hostdevicesname) && lun1.hostdevicesname.length > 0
 
-        if (!lun0 && !lun1) {
-          this.dataItems = []
-          return
-        }
+        if (!lun0 && !lun1) return []
 
         const vmAllocations = { ...((lun0?.vmallocations) || {}), ...((lun1?.vmallocations) || {}) }
         const mergedPartitions = { ...((lun0?.haspartitions) || {}), ...((lun1?.haspartitions) || {}) }
         const mergedUsage = { ...((lun0?.deviceusagestatus) || {}), ...((lun1?.deviceusagestatus) || {}) }
         const mergedSafety = { ...((lun0?.devicesafetydetails) || {}), ...((lun1?.devicesafetydetails) || {}) }
-
-        const vmNameMap = {}
-        for (const name in vmAllocations) {
-          const vmId = vmAllocations[name]
-          if (vmId) {
-            try {
-              const vmResponse = await getAPI('listVirtualMachines', { id: vmId, listall: true })
-              const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-              if (vm && vm.state !== 'Expunging') {
-                vmNameMap[name] = vm.displayname || vm.name
-              } else if (vm?.state === 'Expunging') {
-                try {
-                  const xmlConfig = this.generateXmlLunConfig(name)
-                  const updateResponse = await postAPI('updateHostLunDevices', {
-                    hostid: this.resource.id,
-                    hostdevicesname: name,
-                    virtualmachineid: null,
-                    xmlconfig: xmlConfig
-                  })
-
-                  if (!updateResponse || updateResponse.error) {
-                  }
-                } catch (error) {
-                }
-              }
-            } catch (error) {
-              // A temporary lookup failure during reboot does not mean the VM was deleted.
-            }
-          }
-        }
-        this.vmNames = { ...this.vmNames, ...vmNameMap }
 
         const rowMap = new Map()
         const ingestLunBlock = (lunData) => {
@@ -1399,7 +1109,6 @@ export default {
                 hostDevicesText: tableText,
                 multipathLlFull,
                 virtualmachineid: vmAllocations[name] || null,
-                vmName: vmNameMap[name] || '',
                 isAssigned: Boolean(vmAllocations[name]),
                 usage: mergedUsage[name] || 'unknown',
                 safety: mergedSafety[name],
@@ -1432,7 +1141,7 @@ export default {
         )
 
         if (multiHasRows) {
-          this.dataItems = baseFiltered.filter(device => {
+          return baseFiltered.filter(device => {
             const name = device.hostDevicesName || ''
             const text = (device.hostDevicesText || '').replace(/<br\s*\/?>/gi, '\n')
             if (device.multipathLlFull) return true
@@ -1442,18 +1151,9 @@ export default {
             if (/\bmpath[a-z0-9]*/i.test(name)) return true
             return false
           })
-        } else {
-          this.dataItems = baseFiltered
         }
-      } catch (error) {
-        this.$notification.error({
-          message: this.$t('label.error'),
-          description: error.message || this.$t('message.error.fetch.lun.devices')
-        })
-      } finally {
-        this.loading = false
-      }
-      this.updateDataWithVmNames()
+        return baseFiltered
+      })
     },
     async handlePciDeviceDelete () {
       try {
@@ -1535,208 +1235,13 @@ export default {
         this.showPciDeleteModal = true
       }
     },
-    async updateDataWithVmNames () {
-      this.dataItems = this.dataItems.map(item => ({
-        ...item,
-        vmName: item.virtualmachineid
-          ? (this.vmNames[item.hostDevicesName] || this.vmNames[item.virtualmachineid] || item.vmName || '')
-          : ''
-      }))
-    },
-    async updateVmNames () {
-      this.vmNameLoading = true
-      try {
-        const response = await getAPI('listHostDevices', { id: this.resource.id })
-        const devices = response.listhostdevicesresponse?.listhostdevices?.[0]
-
-        if (devices?.vmallocations) {
-          const vmNamesMap = { ...this.vmNames }
-          const entries = Object.entries(devices.vmallocations)
-          const processedDevices = new Set()
-
-          for (const [deviceName, vmId] of entries) {
-            if (vmId && !processedDevices.has(deviceName)) {
-              try {
-                const vmResponse = await getAPI('listVirtualMachines', {
-                  id: vmId,
-                  listall: true
-                })
-
-                const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-                if (vm && vm.state !== 'Expunging') {
-                  vmNamesMap[deviceName] = vm.name || vm.displayname
-                } else if (vm?.state === 'Expunging') {
-                  try {
-                    const updateResponse = await postAPI('updateHostDevices', {
-                      hostid: this.resource.id,
-                      hostdevicesname: deviceName,
-                      virtualmachineid: null,
-                      isattach: false
-                    })
-
-                    if (!updateResponse || updateResponse.error) {
-                      throw new Error(updateResponse?.error?.errortext || 'Failed to update host device')
-                    }
-
-                    vmNamesMap[deviceName] = this.$t(' ')
-                    processedDevices.add(deviceName)
-
-                    this.dataItems = this.dataItems.map(item => {
-                      if (item.hostDevicesName === deviceName) {
-                        return {
-                          ...item,
-                          virtualmachineid: null,
-                          isAssigned: false
-                        }
-                      }
-                      return item
-                    })
-
-                    this.selectedDevices = this.selectedDevices.filter(device => device !== deviceName)
-                  } catch (error) {
-                    this.$notification.error({
-                      message: this.$t('label.error'),
-                      description: error.message || this.$t('message.update.host.device.failed')
-                    })
-                  }
-                }
-              } catch (error) {
-                // Keep the cached name and allocation on lookup failure.
-              }
-            }
-          }
-          this.vmNames = { ...this.vmNames, ...vmNamesMap }
-
-          this.dataItems = this.dataItems.map(item => {
-            const vmId = devices.vmallocations[item.hostDevicesName] || null
-            const isAssigned = Boolean(vmId) && !processedDevices.has(item.hostDevicesName)
-            return {
-              ...item,
-              virtualmachineid: isAssigned ? vmId : null,
-              isAssigned,
-              vmName: isAssigned ? (vmNamesMap[item.hostDevicesName] || item.vmName || '') : null
-            }
-          })
-
-          this.selectedDevices = Object.keys(devices.vmallocations).filter(deviceName =>
-            devices.vmallocations[deviceName] && !processedDevices.has(deviceName)
-          )
-
-          if (processedDevices.size > 0) {
-            await this.fetchData()
-          }
-        }
-      } catch (error) {
-      } finally {
-        this.vmNameLoading = false
-      }
-    },
-    async updateUsbVmNames () {
-      this.vmNameLoading = true
-      try {
-        const response = await getAPI('listHostUsbDevices', { id: this.resource.id })
-        const devices = response.listhostusbdevicesresponse?.listhostusbdevices?.[0]
-
-        if (devices?.vmallocations) {
-          const vmNamesMap = { ...this.vmNames }
-          const entries = Object.entries(devices.vmallocations)
-          const processedDevices = new Set()
-
-          for (const [deviceName, vmId] of entries) {
-            if (vmId && !processedDevices.has(deviceName)) {
-              try {
-                const vmResponse = await getAPI('listVirtualMachines', {
-                  id: vmId,
-                  listall: true
-                })
-
-                const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-                if (vm && vm.state !== 'Expunging') {
-                  vmNamesMap[deviceName] = vm.name || vm.displayname
-                } else if (vm?.state === 'Expunging') {
-                  try {
-                    const xmlConfig = this.generateXmlUsbConfig(deviceName)
-                    const updateResponse = await postAPI('updateHostUsbDevices', {
-                      hostid: this.resource.id,
-                      hostdevicesname: deviceName,
-                      virtualmachineid: null,
-                      currentvmid: vmId,
-                      xmlconfig: xmlConfig
-                    })
-
-                    if (!updateResponse || updateResponse.error) {
-                      throw new Error(updateResponse?.error?.errortext || 'Failed to update USB device')
-                    }
-
-                    vmNamesMap[deviceName] = this.$t(' ')
-                    processedDevices.add(deviceName)
-
-                    this.dataItems = this.dataItems.map(item => {
-                      if (item.hostDevicesName === deviceName) {
-                        return {
-                          ...item,
-                          virtualmachineid: null,
-                          vmName: null,
-                          isAssigned: false
-                        }
-                      }
-                      return item
-                    })
-
-                    this.selectedDevices = this.selectedDevices.filter(device => device !== deviceName)
-                  } catch (error) {
-                    this.$notification.error({
-                      message: this.$t('label.error'),
-                      description: error.message || this.$t('message.update.usb.device.failed')
-                    })
-                  }
-                }
-              } catch (error) {
-                // Keep the cached name and allocation on lookup failure.
-              }
-            }
-          }
-          this.vmNames = { ...this.vmNames, ...vmNamesMap }
-
-          this.dataItems = this.dataItems.map(item => {
-            const vmId = devices.vmallocations[item.hostDevicesName] || null
-            const isAssigned = Boolean(vmId) && !processedDevices.has(item.hostDevicesName)
-            return {
-              ...item,
-              virtualmachineid: isAssigned ? vmId : null,
-              isAssigned,
-              vmName: isAssigned ? (vmNamesMap[item.hostDevicesName] || item.vmName || '') : null
-            }
-          })
-
-          this.selectedDevices = Object.keys(devices.vmallocations).filter(deviceName =>
-            devices.vmallocations[deviceName] && !processedDevices.has(deviceName)
-          )
-
-          if (processedDevices.size > 0) {
-            await this.fetchUsbDevices()
-          }
-        }
-      } catch (error) {
-      } finally {
-        this.vmNameLoading = false
-      }
-    },
-    beforeDestroy () {
-      const eventTypes = ['DestroyVM', 'ExpungeVM', 'StopVM', 'RebootVM']
-      eventTypes.forEach(eventType => {
-        eventBus.emit('unregister-event', {
-          eventType: eventType
-        })
-      })
-    },
     async deallocateUsbDevice (record) {
       if (!this.resource || !this.resource.id) {
         this.$notifyError(this.$t('message.error.invalid.resource'))
         return
       }
 
-      this.loading = true
+      this.actionLoading = true
       const hostDevicesName = record.hostDevicesName
 
       try {
@@ -1762,7 +1267,7 @@ export default {
             message: this.$t('label.warning'),
             description: this.$t('message.cannot.remove.device.vm.stop')
           })
-          this.loading = false
+          this.actionLoading = false
           return
         }
 
@@ -1818,7 +1323,7 @@ export default {
       } catch (error) {
         this.$notifyError(error.message || 'Failed to deallocate USB device')
       } finally {
-        this.loading = false
+        this.actionLoading = false
       }
     },
 
@@ -1927,7 +1432,7 @@ export default {
         return
       }
 
-      this.loading = true
+      this.actionLoading = true
       const hostDevicesName = this.selectedUsbDevice.hostDevicesName
 
       try {
@@ -1977,7 +1482,7 @@ export default {
       } catch (error) {
         this.$notifyError(error.message || 'Failed to deallocate USB device')
       } finally {
-        this.loading = false
+        this.actionLoading = false
       }
     },
     closeUsbDeleteModal () {
@@ -1989,7 +1494,7 @@ export default {
         this.$notifyError(this.$t('message.error.invalid.resource'))
         return
       }
-      this.loading = true
+      this.actionLoading = true
       const hostDevicesName = record.hostDevicesName
       try {
         let vmId = null
@@ -2080,7 +1585,7 @@ export default {
             message: this.$t('label.warning'),
             description: this.$t('label.vmdevice.runningRequired')
           })
-          this.loading = false
+          this.actionLoading = false
           return
         }
 
@@ -2189,7 +1694,7 @@ export default {
       } catch (error) {
         this.$notifyError(error.message || 'Failed to deallocate LUN device')
       } finally {
-        this.loading = false
+        this.actionLoading = false
       }
     },
     closeLunDeleteModal () {
@@ -2201,7 +1706,7 @@ export default {
         this.$notifyError(this.$t('message.error.invalid.resource'))
         return
       }
-      this.loading = true
+      this.actionLoading = true
       const hostDevicesName = this.selectedLunDevice.hostDevicesName
       try {
         const response = await postAPI('updateHostLunDevices', {
@@ -2221,7 +1726,7 @@ export default {
       } catch (error) {
         this.$notifyError(error.message || 'Failed to deallocate LUN device')
       } finally {
-        this.loading = false
+        this.actionLoading = false
       }
     },
     async openLunModal (record) {
@@ -2273,137 +1778,85 @@ export default {
       this.showAddModal = true
     },
     async deallocatePciDevice (record) {
-      if (!this.resource || !this.resource.id) {
-        this.$notifyError(this.$t('message.error.invalid.resource'))
-        return
-      }
-      this.loading = true
-      const hostDevicesName = record.hostDevicesName
+      const hostId = this.resource.id
+      if (!hostId || this.pciDetachPending || !this.deviceActionAvailable('updateHostDevices')) return
+      this.pciDetachPending = true
+      this.actionLoading = true
+      let confirmOpened = false
+      const name = record.hostDevicesName
       try {
-        // 1. PCI 디바이스의 현재 할당 상태 확인
-        const response = await getAPI('listHostDevices', {
-          id: this.resource.id
-        })
-        const devices = response.listhostdevicesresponse?.listhostdevices?.[0]
-        const vmAllocations = devices?.vmallocations || {}
-        const vmId = vmAllocations[hostDevicesName]
-        if (!vmId) {
-          throw new Error('No VM allocation found for this device')
+        const response = await getAPI('listHostDevices', { id: hostId }, { preserveOnFailure: true })
+        const vmId = response.listhostdevicesresponse?.listhostdevices?.[0]?.vmallocations?.[name]
+        if (!vmId || vmId !== record.virtualmachineid) {
+          this.$message.warning(this.$t('message.host.device.allocation.changed'))
+          await this.fetchData()
+          return
         }
-
-        // PCI changes require a fully stopped VM.
-        const vmResponse = await getAPI('listVirtualMachines', {
-          id: vmId,
-          listall: true
-        })
-        const vm = vmResponse?.listvirtualmachinesresponse?.virtualmachine?.[0]
-
-        if (!vm || vm.state !== 'Stopped') {
+        const result = await getAPI('listVirtualMachines', { id: vmId, listall: true }, { preserveOnFailure: true })
+        const vm = result.listvirtualmachinesresponse?.virtualmachine?.find(item => item.id === vmId)
+        if (vm?.state !== 'Stopped') {
           this.$notification.warning({
             message: this.$t('label.warning'),
             description: this.$t('label.vmdevice.stopPci')
           })
-          this.loading = false
           return
         }
-
-        const vmName = this.vmNames[hostDevicesName] || 'Unknown VM'
+        if (hostId !== this.resource.id || this.activeKey !== '1') return
+        const vmName = vm.displayname || vm.name || vmId
+        let submitting = false
+        confirmOpened = true
         this.$confirm({
-          title: `${vmName} ${this.$t('message.delete.device.allocation')}`,
-          content: `${vmName} ${this.$t('message.confirm.delete.device')}`,
+          title: vmName + ' ' + this.$t('message.delete.device.allocation'),
+          content: vmName + ' ' + this.$t('message.confirm.delete.device'),
           onOk: async () => {
-            // PCI 디바이스 할당 해제 (서버에서 자동으로 extraconfig 삭제)
-            await postAPI('updateHostDevices', {
-              hostid: this.resource.id,
-              hostdevicesname: hostDevicesName,
-              virtualmachineid: null,
-              currentvmid: vmId
-            })
-            this.dataItems = this.dataItems.map(item =>
-              item.hostDevicesName === hostDevicesName
-                ? { ...item, virtualmachineid: null, vmName: '', isAssigned: false }
-                : item
-            )
-            if (this.vmNames[hostDevicesName]) {
-              delete this.vmNames[hostDevicesName]
+            if (submitting) return
+            if (hostId !== this.resource.id || this.activeKey !== '1' || !this.deviceActionAvailable('updateHostDevices')) {
+              this.pciDetachPending = false
+              return
             }
-            this.$message.success(this.$t('message.success.remove.allocation'))
-            await this.fetchData()
-            this.$emit('device-allocated')
-            this.$emit('allocation-completed')
-            this.$emit('close-action')
+            submitting = true
+            try {
+              await postAPI('updateHostDevices', {
+                hostid: hostId,
+                hostdevicesname: name,
+                currentvmid: vmId,
+                isattach: false
+              }, { preserveOnFailure: true })
+              this.$message.success(this.$t('message.success.remove.allocation'))
+              this.pciDetachPending = false
+              await this.fetchData()
+              this.$emit('device-allocated')
+              this.$emit('allocation-completed')
+              this.$emit('close-action')
+            } catch (error) {
+              this.$notifyError(error)
+              submitting = false
+              throw error
+            }
           },
-          onCancel () {}
+          onCancel: () => { this.pciDetachPending = false }
         })
       } catch (error) {
-        this.$notifyError(error.message || 'Failed to deallocate PCI device')
+        this.$notifyError(error)
       } finally {
-        this.loading = false
+        this.actionLoading = false
+        if (!confirmOpened) this.pciDetachPending = false
       }
     },
     closePciDeleteModal () {
       this.showPciDeleteModal = false
       this.selectedPciDevice = null
     },
-    onHbaSearch () {
 
-    },
-
-    onScsiSearch () {
-
-    },
-    async fetchHbaDevices () {
-      this.loading = true
-      try {
+    fetchHbaDevices () {
+      return this.readDeviceList('2', async id => {
         const response = await getAPI('listHostHbaDevices', {
-          id: this.resource.id
-        })
+          id
+        }, { preserveOnFailure: true })
 
         if (response.listhosthbadevicesresponse?.listhosthbadevices?.[0]) {
           const hbaData = response.listhosthbadevicesresponse.listhosthbadevices[0]
           const vmAllocations = hbaData.vmallocations || {}
-
-          const vmNameMap = { ...this.vmNames }
-
-          for (const name in vmAllocations) {
-            const vmId = vmAllocations[name]
-            if (vmId) {
-              try {
-                const vmResponse = await getAPI('listVirtualMachines', { id: vmId, listall: true })
-                const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-                if (vm && vm.state !== 'Expunging') {
-                  vmNameMap[name] = vm.displayname || vm.name
-                } else if (vm?.state === 'Expunging') {
-                  try {
-                    const xmlConfig = this.generateHbaDeallocationXmlConfig(name)
-                    const updateResponse = await postAPI('updateHostHbaDevices', {
-                      hostid: this.resource.id,
-                      hostdevicesname: name,
-                      virtualmachineid: null,
-                      currentvmid: vmId,
-                      xmlconfig: xmlConfig,
-                      isattach: false
-                    })
-
-                    if (!updateResponse || updateResponse.error) {
-                    }
-                  } catch (error) {
-                  }
-                }
-              } catch (error) {
-                // Preserve allocation when the VM lookup is temporarily unavailable.
-              }
-            }
-          }
-          this.vmNames = { ...this.vmNames, ...vmNameMap }
-
-          const vhbaAllocations = {}
-          for (const name in vmAllocations) {
-            const vmId = vmAllocations[name]
-            if (vmId) {
-              vhbaAllocations[name] = vmId
-            }
-          }
 
           const deviceTypes = hbaData.devicetypes || []
           const parentHbaNames = hbaData.parenthbanames || []
@@ -2412,9 +1865,8 @@ export default {
           const physicalHbaMap = new Map() // 물리 HBA 이름 -> 인덱스 매핑
 
           hbaData.hostdevicesname.forEach((name, index) => {
-            let deviceText = hbaData.hostdevicestext[index]
+            let deviceText = hbaData.hostdevicestext?.[index] || ''
             const vmId = vmAllocations[name] || null
-            const vmName = vmNameMap[name] || ''
             const isAssigned = Boolean(vmAllocations[name])
             const deviceType = deviceTypes[index] || 'physical'
             const parentHbaName = parentHbaNames[index] || ''
@@ -2441,7 +1893,6 @@ export default {
                 hostDevicesName: name,
                 hostDevicesText: deviceText,
                 virtualmachineid: vmId,
-                vmName: vmName,
                 isAssigned: isAssigned,
                 isPhysicalHba: true,
                 isVhba: false,
@@ -2458,7 +1909,6 @@ export default {
                 hostDevicesName: name,
                 hostDevicesText: deviceText,
                 virtualmachineid: vmId,
-                vmName: vmName,
                 isAssigned: isAssigned,
                 isPhysicalHba: false,
                 isVhba: true,
@@ -2476,27 +1926,10 @@ export default {
             }
           })
 
-          this.dataItems = hbaDevices
-          this.updateHbaVmNames()
-
-          this.$nextTick(() => {
-            this.$forceUpdate()
-            setTimeout(() => {
-              this.$forceUpdate()
-            }, 100)
-          })
-        } else {
-          this.dataItems = []
+          return hbaDevices
         }
-      } catch (error) {
-        this.$notification.error({
-          message: this.$t('label.error'),
-          description: error.message || this.$t('message.error.fetch.hba.devices')
-        })
-        this.dataItems = []
-      } finally {
-        this.loading = false
-      }
+        return []
+      })
     },
 
     findVhbaDevicesForHba (physicalHbaName, hbaData) {
@@ -2530,178 +1963,13 @@ export default {
              (vhbaName.includes(hbaName) || vhbaName.includes(hbaName.replace(/[^0-9]/g, '')))
     },
 
-    async updateHbaVmNames () {
-      this.vmNameLoading = true
-      try {
-        const response = await getAPI('listHostHbaDevices', { id: this.resource.id })
-        const devices = response.listhosthbadevicesresponse?.listhosthbadevices?.[0]
-
-        if (devices?.vmallocations) {
-          const vmNamesMap = { ...this.vmNames }
-          const entries = Object.entries(devices.vmallocations)
-          const processedDevices = new Set()
-
-          for (const [deviceName, vmId] of entries) {
-            if (vmId && !processedDevices.has(deviceName)) {
-              try {
-                const vmResponse = await getAPI('listVirtualMachines', {
-                  id: vmId,
-                  listall: true
-                })
-
-                const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-                if (vm && vm.state !== 'Expunging') {
-                  vmNamesMap[deviceName] = vm.name || vm.displayname
-                } else if (vm?.state === 'Expunging') {
-                  try {
-                    const xmlConfig = this.generateHbaDeallocationXmlConfig(deviceName)
-                    const updateResponse = await postAPI('updateHostHbaDevices', {
-                      hostid: this.resource.id,
-                      hostdevicesname: deviceName,
-                      virtualmachineid: null,
-                      xmlconfig: xmlConfig,
-                      isattach: false
-                    })
-
-                    if (!updateResponse || updateResponse.error) {
-                      throw new Error(updateResponse?.error?.errortext || 'Failed to update HBA device')
-                    }
-
-                    vmNamesMap[deviceName] = this.$t(' ')
-                    processedDevices.add(deviceName)
-
-                    this.dataItems = this.dataItems.map(item => {
-                      if (item.hostDevicesName === deviceName) {
-                        return {
-                          ...item,
-                          virtualmachineid: null,
-                          vmName: null,
-                          isAssigned: false
-                        }
-                      }
-                      return item
-                    })
-                    this.selectedDevices = this.selectedDevices.filter(device => device !== deviceName)
-                  } catch (error) {
-                    this.$notification.error({
-                      message: this.$t('label.error'),
-                      description: error.message || this.$t('message.update.hba.device.failed')
-                    })
-                  }
-                }
-              } catch (error) {
-                // Keep the cached name and allocation on lookup failure.
-              }
-            }
-          }
-          this.vmNames = { ...this.vmNames, ...vmNamesMap }
-
-          if (processedDevices.size > 0) {
-            await this.fetchHbaDevices()
-          }
-
-          await this.updateVhbaVmNames()
-        }
-      } catch (error) {
-      } finally {
-        this.vmNameLoading = false
-      }
-    },
-
-    async updateVhbaVmNames () {
-      if (this.vmNameLoading) return
-
-      this.vmNameLoading = true
-      try {
-        const response = await getAPI('listVhbaDevices', {
-          hostid: this.resource.id
-        })
-
-        if (response.listvhbadevicesresponse?.listvhbadevices?.[0]) {
-          const vhbaData = response.listvhbadevicesresponse.listvhbadevices[0]
-          const vmAllocations = vhbaData.vmallocations || {}
-
-          const vmNamesMap = { ...this.vmNames }
-          const processedDevices = new Set()
-
-          for (const [deviceName, vmId] of Object.entries(vmAllocations)) {
-            if (vmId && !processedDevices.has(deviceName)) {
-              try {
-                const vmResponse = await getAPI('listVirtualMachines', { id: vmId, listall: true })
-                const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-
-                if (vm && vm.state !== 'Expunging') {
-                  vmNamesMap[deviceName] = vm.name || vm.displayname
-                } else if (vm?.state === 'Expunging') {
-                  try {
-                    const xmlConfig = this.generateVhbaDeallocationXmlConfig(deviceName)
-                    const updateResponse = await postAPI('updateHostVhbaDevices', {
-                      hostid: this.resource.id,
-                      hostdevicesname: deviceName,
-                      virtualmachineid: null,
-                      currentvmid: vmId,
-                      xmlconfig: xmlConfig
-                    })
-
-                    if (!updateResponse || updateResponse.error) {
-                      throw new Error(updateResponse?.error?.errortext || 'Failed to update vHBA device')
-                    }
-
-                    vmNamesMap[deviceName] = this.$t(' ')
-                    processedDevices.add(deviceName)
-
-                    this.dataItems = this.dataItems.map(item => {
-                      if (item.hostDevicesName === deviceName) {
-                        return {
-                          ...item,
-                          virtualmachineid: null,
-                          vmName: null,
-                          isAssigned: false
-                        }
-                      }
-                      return item
-                    })
-                    this.selectedDevices = this.selectedDevices.filter(device => device !== deviceName)
-                  } catch (error) {
-                    this.$notification.error({
-                      message: this.$t('label.error'),
-                      description: error.message || this.$t('message.update.vhba.device.failed')
-                    })
-                  }
-                }
-              } catch (error) {
-                // Keep the cached name and allocation on lookup failure.
-              }
-            }
-          }
-          this.vmNames = { ...this.vmNames, ...vmNamesMap }
-
-          if (processedDevices.size > 0) {
-            await this.fetchHbaDevices()
-          }
-        }
-      } catch (error) {
-      } finally {
-        this.vmNameLoading = false
-      }
-    },
-
     async refreshVhbaDeviceList () {
-      try {
-        this.vhbaDevicesData = {}
-        this.vhbaLoading = {}
-
-        this.vmNames = {}
-
-        await this.fetchHbaDevices()
-
-        await this.updateVhbaVmNames()
-
-        this.$nextTick(() => {
-          this.$forceUpdate()
-        })
-      } catch (error) {
-      }
+      this.vhbaDevicesData = {}
+      this.vhbaLoading = {}
+      await this.fetchHbaDevices()
+      await Promise.all(this.dataItems
+        .filter(row => this.expandedVhbaDevices[row.hostDevicesName])
+        .map(row => this.fetchVhbaListForHba(row)))
     },
 
     async deallocateHbaDevice (record) {
@@ -2709,7 +1977,7 @@ export default {
         this.$notifyError(this.$t('message.error.invalid.resource'))
         return
       }
-      this.loading = true
+      this.actionLoading = true
       try {
         const response = await getAPI('listHostHbaDevices', {
           id: this.resource.id
@@ -2740,13 +2008,13 @@ export default {
               targetVmId = allocations[0].vmId
             },
             onCancel: () => {
-              this.loading = false
+              this.actionLoading = false
             }
           })
         }
 
         if (!targetVmId) {
-          this.loading = false
+          this.actionLoading = false
           return
         }
 
@@ -2799,7 +2067,7 @@ export default {
       } catch (error) {
         this.$notifyError(error.message || 'Failed to deallocate HBA device')
       } finally {
-        this.loading = false
+        this.actionLoading = false
       }
     },
     openHbaModal (record) {
@@ -2839,7 +2107,7 @@ export default {
           title: this.$t('label.delete.vhba'),
           content: this.$t('message.confirm.delete.vhba'),
           onOk: async () => {
-            this.loading = true
+            this.actionLoading = true
 
             let wwnn = null
             if (record.hostDevicesText) {
@@ -2850,7 +2118,7 @@ export default {
             }
 
             const params = {
-              hostid: this.numericHostId
+              hostid: this.resource.id
             }
 
             if (wwnn) {
@@ -2890,7 +2158,7 @@ export default {
           description: error.message || this.$t('message.error.delete.vhba')
         })
       } finally {
-        this.loading = false
+        this.actionLoading = false
       }
     },
     async openCreateVhbaModal (record) {
@@ -3174,8 +2442,6 @@ export default {
       }
       this.fetchHbaDevices()
 
-      this.updateVhbaVmNames()
-
       this.$nextTick(() => {
         this.$forceUpdate()
       })
@@ -3200,7 +2466,7 @@ export default {
         this.$notifyError(this.$t('message.error.invalid.resource'))
         return
       }
-      this.loading = true
+      this.actionLoading = true
       try {
         const response = await getAPI('listVhbaDevices', {
           hostid: this.resource.id
@@ -3274,7 +2540,7 @@ export default {
       } catch (error) {
         this.$notifyError(error.message || 'Failed to deallocate vHBA device')
       } finally {
-        this.loading = false
+        this.actionLoading = false
       }
     },
 
@@ -3387,6 +2653,9 @@ export default {
 
     async fetchVhbaListForHba (physicalHbaRecord) {
       const hbaName = physicalHbaRecord.hostDevicesName
+      const hostId = this.resource.id
+      const version = this.deviceReadVersion
+      const isCurrent = () => this.activeKey === '2' && this.resource.id === hostId && this.deviceReadVersion === version
 
       if (this.vhbaLoading[hbaName] || this.vhbaDevicesData[hbaName]) {
         return
@@ -3396,9 +2665,10 @@ export default {
 
       try {
         const response = await getAPI('listVhbaDevices', {
-          hostid: this.resource.id,
+          hostid: hostId,
           keyword: hbaName
-        })
+        }, { preserveOnFailure: true })
+        if (!isCurrent()) return
 
         let vhbaDevices = []
         if (response && response.listvhbadevicesresponse) {
@@ -3424,64 +2694,17 @@ export default {
             const parents = first.parenthbanames || []
             const allocations = first.vmallocations || {}
 
-            const allocatedVmIds = new Set()
             names.forEach((name, idx) => {
               const type = types[idx] || 'virtual'
               const parent = parents[idx] || ''
               if (type === 'virtual' && parent === hbaName) {
                 const vmId = allocations[name] || null
-                if (vmId) {
-                  allocatedVmIds.add(vmId)
-                }
-              }
-            })
-
-            const vmNamesMap = {}
-            if (allocatedVmIds.size > 0) {
-              const vmIdArray = Array.from(allocatedVmIds)
-              for (const vmId of vmIdArray) {
-                try {
-                  const vmResponse = await getAPI('listVirtualMachines', {
-                    id: vmId,
-                    listall: true
-                  })
-                  const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-                  if (vm && vm.state !== 'Expunging') {
-                    vmNamesMap[vmId] = vm.name || vm.displayname
-                  }
-                } catch (error) {
-                }
-              }
-
-              names.forEach((name, idx) => {
-                const type = types[idx] || 'virtual'
-                const parent = parents[idx] || ''
-                if (type === 'virtual' && parent === hbaName) {
-                  const vmId = allocations[name] || null
-                  if (vmId && vmNamesMap[vmId]) {
-                    this.vmNames[name] = vmNamesMap[vmId]
-                  }
-                }
-              })
-            }
-
-            names.forEach((name, idx) => {
-              const type = types[idx] || 'virtual'
-              const parent = parents[idx] || ''
-              if (type === 'virtual' && parent === hbaName) {
-                const vmId = allocations[name] || null
-
-                let vmName = ''
-                if (vmId) {
-                  vmName = vmNamesMap[vmId] || ''
-                }
 
                 formattedVhbaDevices.push({
                   key: `vhba-${hbaName}-${idx}`,
                   hostDevicesName: name,
                   hostDevicesText: String(texts[idx] || '').replace(/\n/g, '<br>'),
                   virtualmachineid: vmId,
-                  vmName: vmName,
                   isAssigned: Boolean(vmId),
                   isPhysicalHba: false,
                   isVhba: true,
@@ -3520,7 +2743,9 @@ export default {
             }))
           }
 
-          this.vhbaDevicesData[hbaName] = formattedVhbaDevices
+          const resolved = await this.lookupDeviceOwners(formattedVhbaDevices)
+          if (!isCurrent()) return
+          this.vhbaDevicesData[hbaName] = resolved
 
           this.$nextTick(() => {
             this.$forceUpdate()
@@ -3529,13 +2754,14 @@ export default {
           this.vhbaDevicesData[hbaName] = []
         }
       } catch (error) {
+        if (!isCurrent()) return
         this.$notification.error({
           message: this.$t('label.error'),
           description: error.message || this.$t('message.error.fetch.vhba.devices')
         })
         this.vhbaDevicesData[hbaName] = []
       } finally {
-        this.vhbaLoading[hbaName] = false
+        if (isCurrent()) this.vhbaLoading[hbaName] = false
       }
     },
 
@@ -3564,76 +2790,13 @@ export default {
 
       return result
     },
-    async fetchScsiDevices () {
-      this.loading = true
-      try {
-        const response = await getAPI('listHostScsiDevices', { id: this.resource.id })
-        if (response.listhostscsidevicesresponse?.listhostscsidevices?.[0]) {
-          const scsiData = response.listhostscsidevicesresponse.listhostscsidevices[0]
-          const vmAllocations = scsiData.vmallocations || {}
-          const vmNameMap = { ...this.vmNames }
-          for (const name in vmAllocations) {
-            const vmId = vmAllocations[name]
-            if (vmId) {
-              try {
-                const vmResponse = await getAPI('listVirtualMachines', { id: vmId, listall: true })
-                const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-                if (vm && vm.state !== 'Expunging') {
-                  vmNameMap[name] = vm.displayname || vm.name
-                } else if (vm?.state === 'Expunging') {
-                  try {
-                    const deviceIndex = scsiData.hostdevicesname.indexOf(name)
-                    const actualDeviceText = deviceIndex !== -1 ? scsiData.hostdevicestext[deviceIndex] : ''
-                    const xmlConfig = this.generateScsiXmlFromText(name, actualDeviceText)
-                    const updateResponse = await postAPI('updateHostScsiDevices', {
-                      hostid: this.resource.id,
-                      hostdevicesname: name,
-                      virtualmachineid: null,
-                      currentvmid: vmId,
-                      xmlconfig: xmlConfig,
-                      isattach: false
-                    })
-
-                    if (!updateResponse || updateResponse.error) {
-                    }
-                  } catch (error) {
-                  }
-                }
-              } catch (error) {
-                // Preserve allocation when the VM lookup is temporarily unavailable.
-              }
-            }
-          }
-          this.vmNames = { ...this.vmNames, ...vmNameMap }
-          const scsiDevices = scsiData.hostdevicesname.map((name, index) => {
-            const txt = scsiData.hostdevicestext[index] || ''
-            const devMatch = txt.match(/Device:\s*(\S+)/i)
-            return {
-              key: index,
-              hostDevicesName: name,
-              scsiDisplayName: devMatch ? devMatch[1] : name,
-              hostDevicesText: txt,
-              virtualmachineid: (scsiData.vmallocations && scsiData.vmallocations[name]) || null,
-              vmName: vmNameMap[name] || '',
-              isAssigned: Boolean(scsiData.vmallocations && scsiData.vmallocations[name])
-            }
-          })
-
-          this.dataItems = scsiDevices.filter(device =>
-            device.hostDevicesName && device.hostDevicesName.startsWith('/dev/sg')
-          )
-        } else {
-          this.dataItems = []
-        }
-      } catch (error) {
-        this.$notification.error({
-          message: this.$t('label.error'),
-          description: error.message || this.$t('message.error.fetch.scsi.devices')
-        })
-        this.dataItems = []
-      } finally {
-        this.loading = false
-      }
+    fetchScsiDevices () {
+      return this.readDeviceList('5', async id => {
+        const rows = await this.readNamedDevices('listHostScsiDevices', 'listhostscsidevices', id)
+        return rows
+          .filter(row => row.hostDevicesName?.startsWith('/dev/sg'))
+          .map(row => ({ ...row, scsiDisplayName: row.hostDevicesText.match(/Device:\s*(\S+)/i)?.[1] || row.hostDevicesName }))
+      })
     },
 
     extractScsiAddressString (text) {
@@ -3655,7 +2818,7 @@ export default {
         this.$notifyError(this.$t('message.error.invalid.resource'))
         return
       }
-      this.loading = true
+      this.actionLoading = true
       const hostDevicesName = record.hostDevicesName
       try {
         let vmId = null
@@ -3690,7 +2853,7 @@ export default {
             message: this.$t('label.warning'),
             description: this.$t('label.vmdevice.runningRequired')
           })
-          this.loading = false
+          this.actionLoading = false
           return
         }
 
@@ -3751,7 +2914,7 @@ export default {
       } catch (error) {
         this.$notifyError(error.message || 'Failed to deallocate SCSI device')
       } finally {
-        this.loading = false
+        this.actionLoading = false
       }
     },
 
@@ -3833,11 +2996,6 @@ export default {
       }
 
       return true
-    },
-    async fetchHostInfo () {
-      const hostResponse = await getAPI('listHosts', { id: this.resource.id })
-      const host = hostResponse.listhostsresponse?.host?.[0]
-      this.numericHostId = host.id
     },
     hasPartitionsFromText (hostDevicesText) {
       const hasPartitionsMatch = hostDevicesText.match(/HAS_PARTITIONS:\s*(true|false)/i)
@@ -4009,8 +3167,19 @@ export default {
 </script>
 
 <style lang="less" scoped>
+  .host-device-kind {
+    width: 180px;
+    max-width: 100%;
+  }
+
+  .host-devices-content,
+  .host-device-list {
+    min-width: 0;
+    max-width: 100%;
+  }
+
   .ant-table-wrapper {
-    margin: 2rem 0;
+    margin: 12px 0;
   }
 
   @media (max-width: 600px) {

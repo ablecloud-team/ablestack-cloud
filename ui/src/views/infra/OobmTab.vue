@@ -16,85 +16,39 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="fetchLoading">
-    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <a-list size="small">
-      <a-list-item v-if="host.outofbandmanagement">
-        <div>
-          <strong>{{ $t('label.outofbandmanagement.enable') }}</strong>
-          <div>
-            {{ host.outofbandmanagement.enabled }}
-          </div>
-        </div>
-      </a-list-item>
-      <a-list-item v-if="host.outofbandmanagement">
-        <div>
-          <strong>{{ $t('label.powerstate') }}</strong>
-          <div>
-            {{ host.outofbandmanagement.powerstate }}
-          </div>
-        </div>
-      </a-list-item>
-      <a-list-item v-if="host.outofbandmanagement && host.outofbandmanagement.driver">
-        <div>
-          <strong>{{ $t('label.driver') }}</strong>
-          <div>
-            {{ host.outofbandmanagement.driver }}
-          </div>
-        </div>
-      </a-list-item>
-      <a-list-item v-if="host.outofbandmanagement && host.outofbandmanagement.address">
-        <div>
-          <strong>{{ $t('label.address') }}</strong>
-          <div>
-            {{ host.outofbandmanagement.address }}
-          </div>
-        </div>
-      </a-list-item>
-      <a-list-item v-if="host.outofbandmanagement && host.outofbandmanagement.port">
-        <div>
-          <strong>{{ $t('label.port') }}</strong>
-          <div>
-            {{ host.outofbandmanagement.port }}
-          </div>
-        </div>
-      </a-list-item>
-      <a-list-item v-if="host.outofbandmanagement && host.outofbandmanagement.username">
-        <div>
-          <strong>{{ $t('label.username') }}</strong>
-          <div>
-            {{ host.outofbandmanagement.username }}
-          </div>
-        </div>
-      </a-list-item>
-      <a-list-item v-if="host.outofbandmanagement && host.details.manageconsoleprotocol">
-        <div>
-          <strong>{{ $t('label.manageconsoleprotocol') }}</strong>
-          <div>
-            {{ host.details.manageconsoleprotocol }}
-          </div>
-        </div>
-      </a-list-item>
-      <a-list-item v-if="host.outofbandmanagement && host.details.manageconsoleport">
-        <div>
-          <strong>{{ $t('label.manageconsoleport') }}</strong>
-          <div>
-            {{ host.details.manageconsoleport }}
-          </div>
-        </div>
-      </a-list-item>
-    </a-list>
-  </a-spin>
+  <section class="host-oobm-content" :aria-label="$t('label.outofbandmanagement')">
+    <resource-table-toolbar :loading="fetchLoading || listRefreshing > 0" @refresh="fetchData" />
+    <a-alert v-if="listRefreshFailed" type="error" show-icon :message="$t('message.host.oobm.failed')" />
+    <a-spin :spinning="fetchLoading">
+      <a-list v-if="items.length" class="resource-details-list vm-details-list" size="small" :data-source="items" :row-key="item => item.label">
+        <template #renderItem="{ item }">
+          <a-list-item>
+            <div>
+              <strong>{{ $t(item.label) }}</strong>
+              <div>
+                <a-tag v-if="item.status" :color="hostStatusColor(item.value)">{{ $t(hostStatusLabel(item.value)) }}</a-tag>
+                <template v-else>{{ item.value }}</template>
+              </div>
+            </div>
+          </a-list-item>
+        </template>
+      </a-list>
+      <a-empty v-else-if="!listRefreshFailed && !fetchLoading" :description="$t(host.hypervisor === 'External' ? 'message.host.oobm.unsupported' : 'message.host.oobm.unconfigured')" />
+    </a-spin>
+  </section>
 </template>
 
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { getAPI } from '@/api'
+import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
+import { hostStatusColor, hostStatusLabel } from '@/utils/hostPresentation'
 
 export default {
   mixins: [listRefreshMixin(['fetchData'])],
-  name: 'HostInfo',
+  name: 'OobmTab',
+  components: { ResourceTableToolbar },
   props: {
     resource: {
       type: Object,
@@ -127,14 +81,41 @@ export default {
       }
     }
   },
+  computed: {
+    items () {
+      const remote = this.host.outofbandmanagement
+      if (!remote) return []
+
+      const settings = this.host.details || {}
+      const fields = [
+        ['driver', remote.driver],
+        ['address', remote.address],
+        ['port', remote.port],
+        ['username', remote.username],
+        ['manageconsoleprotocol', settings.manageconsoleprotocol],
+        ['manageconsoleport', settings.manageconsoleport]
+      ]
+      return [
+        { label: 'label.outofbandmanagement.enable', value: remote.enabled, status: true },
+        { label: 'label.powerstate', value: remote.powerstate, status: true },
+        ...fields.filter(([, value]) => value !== undefined && value !== null && value !== '')
+          .map(([field, value]) => ({ label: 'label.' + field, value }))
+      ]
+    }
+  },
   methods: {
+    hostStatusColor,
+    hostStatusLabel,
     fetchData () {
       const listRequest = this.listRequestToken('fetchData')
       this.fetchLoading = !listRequest.loaded
-      return getAPI('listHosts', { id: this.resource.id }).then(json => {
+      return getAPI('listHosts', { id: this.resource.id }, { preserveOnFailure: true }).then(json => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
 
-        this.host = json.listhostsresponse.host[0]
+        const host = json.listhostsresponse?.host?.find(row => row.id === this.resource.id)
+        if (!host) throw new Error(this.$t('message.host.oobm.failed'))
+        this.host = host
+        this.listRefreshFailed = false
       }).catch(error => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
         listRequest.failed = true
@@ -144,10 +125,6 @@ export default {
         this.$notifyError(error)
       }).finally(() => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
-
-        this.fetchLoading = false
-      }).finally(() => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
         this.fetchLoading = false
       })
     }
@@ -155,6 +132,14 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
+<style scoped src="@/style/components/view/resource-details-list.css" />
 
+<style scoped>
+.host-oobm-content {
+  min-width: 0;
+}
+
+.host-oobm-content :deep(.ant-alert) {
+  margin-bottom: 12px;
+}
 </style>

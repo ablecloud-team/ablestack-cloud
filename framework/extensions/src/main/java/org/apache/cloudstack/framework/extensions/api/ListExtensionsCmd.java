@@ -38,6 +38,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import com.cloud.exception.ConcurrentOperationException;
 import com.cloud.exception.InvalidParameterValueException;
+import com.cloud.utils.Pair;
 
 @APICommand(name = "listExtensions",
         description = "Lists extensions",
@@ -113,10 +114,10 @@ public class ListExtensionsCmd extends BaseListCmd {
 
     @Override
     public void execute() throws ServerApiException, ConcurrentOperationException {
-        List<ExtensionResponse> responses = extensionsManager.listExtensions(this);
+        Pair<List<ExtensionResponse>, Integer> result = extensionsManager.listExtensions(this);
 
         ListResponse<ExtensionResponse> response = new ListResponse<>();
-        response.setResponses(responses, responses.size());
+        response.setResponses(result.first(), result.second());
         response.setResponseName(getCommandName());
         setResponseObject(response);
     }

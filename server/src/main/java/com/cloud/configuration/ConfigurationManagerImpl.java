@@ -365,6 +365,10 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
     @Inject
     private ThirdPartyBackupStagingService thirdPartyBackupStagingService;
     @Inject
+    private org.apache.cloudstack.backup.NetBackupScheduleModeGuard netBackupScheduleModeGuard;
+    @Inject
+    private org.apache.cloudstack.backup.NetBackupHookTimeoutService netBackupHookTimeoutService;
+    @Inject
     HostPodDao _podDao;
     @Inject
     HostDao _hostDao;
@@ -612,6 +616,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
     }
 
     protected void populateConfigValuesForValidationSet() {
+        configValuesForValidation.add(org.apache.cloudstack.backup.BackupManager.NetBackupHookTimeout.key());
         configValuesForValidation.add("event.purge.interval");
         configValuesForValidation.add("event.recent.minutes");
         configValuesForValidation.add("account.cleanup.interval");
@@ -792,6 +797,22 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
     @Override
     @DB
     public String updateConfiguration(final long userId, final String name, final String category, String value, ConfigKey.Scope scope, final Long resourceId) {
+        if (org.apache.cloudstack.backup.BackupManager.NetBackupHookTimeout.key().equals(name)) {
+            if ((scope != null && scope != ConfigKey.Scope.Global) || resourceId != null) {
+                throw new InvalidParameterValueException("NETBACKUP_HOOK_TIMEOUT_GLOBAL_ONLY: Global scope is required");
+            }
+            final String timeoutValue = value;
+            return netBackupHookTimeoutService.update(timeoutValue,
+                    () -> updateConfigurationInternal(userId, name, category, timeoutValue, scope, resourceId));
+        }
+        if (org.apache.cloudstack.backup.NetBackupScheduleModeGuard.isSetting(name)) {
+            if (scope != null && scope != ConfigKey.Scope.Global) {
+                throw new InvalidParameterValueException("NETBACKUP_VM_SCHEDULE_MODE_GLOBAL_ONLY: Global scope is required");
+            }
+            final String modeValue = value;
+            return netBackupScheduleModeGuard.update(modeValue,
+                    () -> updateConfigurationInternal(userId, name, category, modeValue, scope, resourceId));
+        }
         if (name.startsWith(ThirdPartyBackupStagingService.CONFIG_PREFIX)) {
             if (scope != null && scope != ConfigKey.Scope.Global) {
                 throw new InvalidParameterValueException("Third-party staging settings support Global scope only.");
@@ -1238,6 +1259,20 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_CONFIGURATION_VALUE_EDIT, eventDescription = "resetting configuration")
     public Pair<Configuration, String> resetConfiguration(final ResetCfgCmd cmd) throws InvalidParameterValueException {
+        boolean hookTimeout = org.apache.cloudstack.backup.BackupManager.NetBackupHookTimeout.key().equals(cmd.getCfgName());
+        if (hookTimeout || org.apache.cloudstack.backup.NetBackupScheduleModeGuard.isSetting(cmd.getCfgName())) {
+            if (cmd.getZoneId() != null || cmd.getClusterId() != null || cmd.getAccountId() != null || cmd.getDomainId() != null
+                    || cmd.getStoragepoolId() != null || cmd.getImageStoreId() != null || cmd.getManagementServerId() != null) {
+                throw new InvalidParameterValueException((hookTimeout ? "NETBACKUP_HOOK_TIMEOUT_" : "NETBACKUP_VM_SCHEDULE_MODE_")
+                        + "GLOBAL_ONLY: Global scope is required");
+            }
+            if (hookTimeout) {
+                return netBackupHookTimeoutService.update(org.apache.cloudstack.backup.BackupManager.NetBackupHookTimeout.defaultValue(),
+                        () -> resetConfigurationInternal(cmd));
+            }
+            return netBackupScheduleModeGuard.update(org.apache.cloudstack.backup.BackupManager.NetBackupVmScheduleEnabled.defaultValue(),
+                    () -> resetConfigurationInternal(cmd));
+        }
         if (cmd.getCfgName().startsWith(ThirdPartyBackupStagingService.CONFIG_PREFIX)) {
             ConfigKey<?> key = _configDepot.get(cmd.getCfgName());
             if (key == null) {

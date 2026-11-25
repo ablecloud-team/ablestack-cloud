@@ -24,11 +24,11 @@ jest.mock('@/api', () => ({ getAPI: jest.fn() }))
 
 const mountImage = (name, resource) => shallowMount(ImageDeployInstanceButton, {
   props: { resource },
-  global: { mocks: { $route: { meta: { name } }, $t: key => key, $notifyError: jest.fn(), $router: { push: jest.fn() }, $store: reactive({ getters: { userInfo: { id: 'admin', roletype: 'Admin' }, apis: { deployVirtualMachine: {} }, project: {} }, state: { user: { token: 'session' } } }) } }
+  global: { mocks: { $route: { meta: { name } }, $t: key => key, $notifyError: jest.fn(), $router: { push: jest.fn() }, $store: reactive({ getters: { userInfo: { id: 'admin', roletype: 'Admin' }, apis: { deployVirtualMachine: {}, listIsos: {}, listTemplates: {} }, project: {} }, state: { user: { token: 'session' } } }) } }
 })
 
 beforeEach(() => {
-  getAPI.mockReset().mockResolvedValue({ listtemplatesresponse: { template: [{ zoneid: 'zone', zonename: 'Zone' }] }, listisosresponse: { iso: [{ zoneid: 'zone' }] }, listzonesresponse: { zone: [{ id: 'zone' }] } })
+  getAPI.mockReset().mockResolvedValue({ listtemplatesresponse: { template: [{ zoneid: 'zone', zonename: 'Zone' }] }, listisosresponse: { iso: [{ zoneid: 'zone', isready: true, bootable: true }] }, listzonesresponse: { zone: [{ id: 'zone' }] } })
 })
 
 describe('Image deploy readiness', () => {

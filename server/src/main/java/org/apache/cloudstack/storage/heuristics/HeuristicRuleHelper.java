@@ -149,7 +149,7 @@ public class HeuristicRuleHelper {
      * @param presetVariables used for injecting in the JS interpreter.
      */
     protected void injectPresetVariables(JsInterpreter jsInterpreter, PresetVariables presetVariables) {
-        jsInterpreter.injectVariable("secondaryStorages", presetVariables.getSecondaryStorages());
+        jsInterpreter.injectArray("secondaryStorages", presetVariables.getSecondaryStorages());
 
         if (presetVariables.getTemplate() != null) {
             jsInterpreter.injectVariable("template", presetVariables.getTemplate());

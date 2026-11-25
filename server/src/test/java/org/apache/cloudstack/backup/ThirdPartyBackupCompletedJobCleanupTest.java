@@ -151,6 +151,58 @@ public class ThirdPartyBackupCompletedJobCleanupTest {
         }
     }
 
+    private void cleanFailure() {
+        GlobalLock lock = mock(GlobalLock.class);
+        when(lock.lock(Mockito.anyInt())).thenReturn(true);
+        try (MockedStatic<GlobalLock> locks = Mockito.mockStatic(GlobalLock.class);
+                MockedStatic<Transaction> transactions = Mockito.mockStatic(Transaction.class)) {
+            locks.when(() -> GlobalLock.getInternLock(anyString())).thenReturn(lock);
+            transactions.when(() -> Transaction.execute(Mockito.<TransactionCallback<Boolean>>any()))
+                    .thenAnswer(call -> call.<TransactionCallback<Boolean>>getArgument(0).doInTransaction(null));
+            ReflectionTestUtils.invokeMethod(service, "reconcileFailedBackup", backup, host, manifest,
+                    mock(ThirdPartyBackupVolumeService.Transfer.class));
+        }
+    }
+
+    @Test
+    public void cleanedNetBackupFailureRetiresItsRecordsBeforeReleasingTheParentDependency() throws Exception {
+        prepare("ablestack-netbackup");
+        when(backup.getStatus()).thenReturn(Backup.Status.Failed);
+        details.remove(ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY);
+        details.put(ThirdPartyBackupManifest.RETENTION_PROTECTION_KEY,
+                "{\"version\":2,\"backupUuid\":\"backup-1\",\"readersClosed\":true,\"leaseActive\":false}");
+        assertTrue(ThirdPartyBackupVolumeService.needsBackupCleanup(backup));
+        assertFalse(ThirdPartyBackupVolumeService.closedFailedNetBackupDependency(backup));
+        cleanFailure();
+        assertEquals("COMPLETED", details.get(ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY));
+        assertEquals("COMPLETED", details.get(ThirdPartyBackupManifest.CLEANUP_STATE_KEY));
+        assertFalse(ThirdPartyBackupVolumeService.needsBackupCleanup(backup));
+        assertTrue(ThirdPartyBackupVolumeService.closedFailedNetBackupDependency(backup));
+        verify(agent).send(eq(4L), any(AblestackBackupJobCleanupCommand.class));
+        verify(agent, never()).send(eq(4L), any(AblestackVolumeStagingCommand.class));
+    }
+
+    @Test
+    public void failedRecordCleanupRejectionKeepsTheParentProtectedUntilAConfirmedRetry() throws Exception {
+        prepare("ablestack-netbackup");
+        when(backup.getStatus()).thenReturn(Backup.Status.Failed);
+        details.remove(ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY);
+        details.put(ThirdPartyBackupManifest.RETENTION_PROTECTION_KEY,
+                "{\"version\":2,\"backupUuid\":\"backup-1\",\"readersClosed\":true,\"leaseActive\":false}");
+        when(agent.send(eq(4L), any(AblestackBackupJobCleanupCommand.class)))
+                .thenAnswer(call -> new Answer(call.getArgument(1), false, "Host cleanup not confirmed"))
+                .thenAnswer(call -> new Answer(call.getArgument(1), true, "records cleaned"));
+        cleanFailure();
+        assertEquals("WAITING", details.get(ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY));
+        assertEquals("COMPLETED", details.get(ThirdPartyBackupManifest.CLEANUP_STATE_KEY));
+        assertFalse(ThirdPartyBackupVolumeService.closedFailedNetBackupDependency(backup));
+        cleanFailure();
+        assertEquals("COMPLETED", details.get(ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY));
+        assertTrue(ThirdPartyBackupVolumeService.closedFailedNetBackupDependency(backup));
+        verify(agent, Mockito.times(2)).send(eq(4L), any(AblestackBackupJobCleanupCommand.class));
+        verify(agent, never()).send(eq(4L), any(AblestackVolumeStagingCommand.class));
+    }
+
     @Test
     public void completedRecordsAreRemovedForAllThreeProvidersWithoutChangingRecoveryMetadata() throws Exception {
         for (String provider : new String[]{"ablestack-commvault", "ablestack-netbackup", "ablestack-veeam"}) {

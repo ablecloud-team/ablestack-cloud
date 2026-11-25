@@ -16,59 +16,13 @@
 // under the License.
 import store from '@/store'
 import { shallowRef, defineAsyncComponent } from 'vue'
+import { runtimeCatalogReadParams } from '@/utils/runtimeCatalog'
 
 export default {
   name: 'tools',
   title: 'label.tools',
   icon: 'tool-outlined',
   children: [
-    {
-      name: 'runtimebundle',
-      title: 'label.runtime.catalog',
-      icon: 'SafetyCertificateOutlined',
-      permission: ['listStorageServiceRuntimeBundles'],
-      show: () => store.getters.userInfo.roletype === 'Admin',
-      columns: ['name', 'state', 'validationstatus', 'profileid', 'referencecount', 'signingkeyid'],
-      details: ['version', 'id', 'state', 'validationstatus', 'revision', 'runtimeabiversion', 'desiredstateschemaversion', 'serviceimpact', 'sha256', 'manifestsha256', 'signingkeyid', 'artifacturl', 'manifesturl', 'signatureurl', 'created'],
-      searchFilters: ['keyword', 'state', 'validationstatus'],
-      params: () => ({ purpose: 'catalog' }),
-      tabs: [
-        { name: 'details', component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailsTab.vue'))) },
-        ...['runtime.validations', 'runtime.usages', 'runtime.events'].map(name => ({ name, component: shallowRef(defineAsyncComponent(() => import('@/views/tools/RuntimeCatalogRecords.vue'))) }))
-      ],
-      actions: [
-        {
-          api: 'registerStorageServiceRuntimeBundle',
-          label: 'label.runtime.catalog.register',
-          icon: 'plus-outlined',
-          listView: true,
-          popup: true,
-          selfManagedDialog: true,
-          catalogAction: 'REGISTER',
-          component: shallowRef(defineAsyncComponent(() => import('@/views/tools/RuntimeCatalogAction.vue')))
-        },
-        ...['VALIDATE', 'PUBLISH', 'SUSPEND', 'RETIRE', 'REVOKE', 'DELETE'].map(action => ({
-          api: action === 'VALIDATE' ? 'validateStorageServiceRuntimeBundle' : 'transitionStorageServiceRuntimeBundle',
-          label: 'label.runtime.catalog.' + action.toLowerCase(),
-          icon: action === 'VALIDATE' ? 'SafetyCertificateOutlined' : 'setting-outlined',
-          dataView: true,
-          popup: true,
-          selfManagedDialog: true,
-          catalogAction: action,
-          component: shallowRef(defineAsyncComponent(() => import('@/views/tools/RuntimeCatalogAction.vue'))),
-          show: record => {
-            if (record.validationstatus === 'RUNNING') return false
-            if (action === 'VALIDATE') return ['DRAFT', 'PUBLISHED', 'SUSPENDED'].includes(record.state)
-            if (action === 'PUBLISH') return ['DRAFT', 'SUSPENDED'].includes(record.state) && record.validationstatus === 'VERIFIED'
-            if (action === 'SUSPEND') return record.state === 'PUBLISHED'
-            if (action === 'RETIRE') return ['DRAFT', 'PUBLISHED', 'SUSPENDED'].includes(record.state)
-            if (action === 'REVOKE') return !['REVOKED', 'DELETED'].includes(record.state)
-            return ['DRAFT', 'RETIRED'].includes(record.state)
-          }
-        }))
-      ]
-    },
-
     {
       name: 'comment',
       title: 'label.comments',
@@ -138,7 +92,7 @@ export default {
       name: 'webhook',
       title: 'label.webhooks',
       icon: 'node-index-outlined',
-      docHelp: 'adminguide/webhooks.html',
+      docHelp: 'https://docs.cloudstack.apache.org/en/4.23.0.0/adminguide/events.html#webhooks',
       permission: ['listWebhooks'],
       columns: () => {
         const cols = ['name', 'payloadurl', 'state', 'created']
@@ -150,9 +104,9 @@ export default {
         }
         return cols
       },
-      details: ['name', 'id', 'description', 'scope', 'payloadurl', 'sslverification', 'secretkey', 'state', 'account', 'domainid'],
+      details: ['name', 'id', 'description', 'scope', 'payloadurl', 'sslverification', 'secretkeyconfigured', 'state', 'account', 'domainid'],
       searchFilters: () => {
-        var filters = ['state']
+        const filters = ['name', 'id', 'state']
         if (['Admin', 'DomainAdmin'].includes(store.getters.userInfo.roletype)) {
           filters.push('scope', 'domainid', 'account')
         }
@@ -177,7 +131,7 @@ export default {
           api: 'createWebhook',
           icon: 'plus-outlined',
           label: 'label.create.webhook',
-          docHelp: 'adminguide/events.html#creating-webhooks',
+          docHelp: 'https://docs.cloudstack.apache.org/en/4.23.0.0/adminguide/events.html#creating-a-webhook',
           listView: true,
           popup: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/tools/CreateWebhook.vue')))
@@ -188,7 +142,11 @@ export default {
           label: 'label.update.webhook',
           dataView: true,
           popup: true,
-          args: ['name', 'description', 'payloadurl', 'sslverification', 'secretkey', 'state'],
+          webhookEdit: true,
+          args: (record) => [
+            'name', 'description', 'payloadurl', 'sslverification', 'secretkey', 'state',
+            ...(record?.editablescopes?.length > 1 ? ['scope'] : [])
+          ],
           mapping: {
             state: {
               options: ['Enabled', 'Disabled']
@@ -284,6 +242,56 @@ export default {
           popup: true,
           groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
         }
+      ]
+    },
+    {
+      name: 'runtimebundle',
+      title: 'label.runtime.catalog',
+      icon: 'SafetyCertificateOutlined',
+      permission: ['listStorageServiceRuntimeBundles'],
+      show: () => store.getters.userInfo.roletype === 'Admin',
+      columns: ['name', 'state', 'validationstatus', 'profileid', 'referencecount', 'signingkeyid'],
+      details: [
+        'version', 'id', 'state', 'validationstatus', 'revision', 'runtimeabiversion', 'desiredstateschemaversion',
+        'serviceimpact', 'artifactsize', 'compatibility', 'eligibilityreason', 'sha256', 'manifestsha256',
+        'signingkeyid', 'artifacturl', 'manifesturl', 'signatureurl', 'created'
+      ],
+      searchFilters: ['keyword', 'version', 'state', 'validationstatus', 'history'],
+      customParamHandler: runtimeCatalogReadParams,
+      tabs: [
+        { name: 'details', component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailsTab.vue'))) },
+        ...['runtime.validations', 'runtime.usages', 'runtime.events'].map(name => ({ name, component: shallowRef(defineAsyncComponent(() => import('@/views/tools/RuntimeCatalogRecords.vue'))) }))
+      ],
+      actions: [
+        {
+          api: 'registerStorageServiceRuntimeBundle',
+          label: 'label.runtime.catalog.register',
+          icon: 'plus-outlined',
+          listView: true,
+          popup: true,
+          selfManagedDialog: true,
+          catalogAction: 'REGISTER',
+          component: shallowRef(defineAsyncComponent(() => import('@/views/tools/RuntimeCatalogAction.vue')))
+        },
+        ...['VALIDATE', 'PUBLISH', 'SUSPEND', 'RETIRE', 'REVOKE', 'DELETE'].map(action => ({
+          api: action === 'VALIDATE' ? 'validateStorageServiceRuntimeBundle' : 'transitionStorageServiceRuntimeBundle',
+          label: 'label.runtime.catalog.' + action.toLowerCase(),
+          icon: action === 'VALIDATE' ? 'SafetyCertificateOutlined' : 'setting-outlined',
+          dataView: true,
+          popup: true,
+          selfManagedDialog: true,
+          catalogAction: action,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/tools/RuntimeCatalogAction.vue'))),
+          show: record => {
+            if (!record.id || record.state === 'DELETED' || record.validationstatus === 'RUNNING') return false
+            if (action === 'VALIDATE') return ['DRAFT', 'PUBLISHED', 'SUSPENDED'].includes(record.state)
+            if (action === 'PUBLISH') return ['DRAFT', 'SUSPENDED'].includes(record.state) && record.validationstatus === 'VERIFIED'
+            if (action === 'SUSPEND') return record.state === 'PUBLISHED'
+            if (action === 'RETIRE') return ['DRAFT', 'PUBLISHED', 'SUSPENDED'].includes(record.state)
+            if (action === 'REVOKE') return !['REVOKED', 'DELETED'].includes(record.state)
+            return ['DRAFT', 'RETIRED'].includes(record.state)
+          }
+        }))
       ]
     }
   ]

@@ -51,7 +51,7 @@ class StoppedBackupMetadataTest(unittest.TestCase):
         file.write_text(json.dumps(plan))
         worker = pipeline.Backup(file)
         worker.check_cancel = Mock()
-        worker.reserve = Mock()
+        worker.reserve = Mock(side_effect=lambda: worker.engine.write_text("{}"))
         worker.preflight_qcow2 = Mock()
         worker.progress = Mock()
         worker.begin_qcow2 = Mock()

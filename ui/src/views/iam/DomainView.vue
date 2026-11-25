@@ -74,9 +74,6 @@
     </a-card>
 
     <div class="row-element">
-      <p v-if="resource.id && ldapVisible" class="domain-ldap-status" role="status">
-        <a-tag>{{ $t('label.domain.ldap.' + ldapState) }}</a-tag>
-      </p>
       <template v-if="dataView">
         <a-alert v-if="readError" type="error" show-icon :message="readError">
           <template #description><a-button size="small" @click="fetchData()">{{ $t('label.retry') }}</a-button></template>
@@ -237,13 +234,6 @@ export default {
       return 'getDomainLdapStatus' in (this.$store.getters.apis || {})
     },
     ldapTargetId () { return this.ldapVisible ? this.resource.id : null },
-    ldapState () {
-      const status = this.resource.domainLdap
-      if (!status) return 'loading'
-      if (status.failed) return 'unavailable'
-      if (status.linked) return status.configured ? 'linked' : 'linked.unconfigured'
-      return status.configured ? 'unlinked' : 'unconfigured'
-    },
     searchMode () {
       return !!this.domainStore.keyword || Object.keys(this.domainStore.filters || {}).length > 0
     },

@@ -1,14 +1,29 @@
 // Licensed to the Apache Software Foundation (ASF) under one or more
 // contributor license agreements. See NOTICE. Apache License, Version 2.0.
 package org.apache.cloudstack.storage.dataservice;
-import java.util.*;
-import com.google.gson.*;
+import java.util.List;
+import java.util.Set;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.cloud.utils.exception.CloudRuntimeException;
-import org.junit.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-import org.apache.cloudstack.api.command.user.storage.dataservice.*;
-import org.apache.cloudstack.storage.dataservice.dao.*;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
+import org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageServiceProtocolDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageSmbServiceNameDao;
 
 public class StorageSmbServiceNamesContractTest {
     private StorageSmbServiceNameDao names;

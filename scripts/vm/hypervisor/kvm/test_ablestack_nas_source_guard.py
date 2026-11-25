@@ -170,6 +170,36 @@ class NasSourceGuardTest(unittest.TestCase):
         child.terminate.assert_called_once()
         self.assertFalse(self.proof()["released"])
 
+    def test_two_long_exports_do_not_share_one_data_deadline(self):
+        self.source["timeout"] = 43200
+        self.source["mountTimeout"] = 1800
+        child = Mock()
+
+        def wait(timeout):
+            # Two progressing seven-hour exports plus a slow allowed mount.
+            if timeout <= 2 * 7 * 3600 + self.source["mountTimeout"]:
+                raise subprocess.TimeoutExpired(self.source["script"], timeout)
+            nas.snapshots_complete(self.file, self.source)
+            return 0
+
+        child.wait.side_effect = wait
+        with patch.object(nas, "guest_is_off_or_absent", return_value=True), \
+                patch.object(nas, "run", return_value='[{"name":"point"}]'), \
+                patch.object(nas.subprocess, "Popen", return_value=child):
+            self.assertEqual(0, nas.run_backup(self.file, self.source))
+        child.terminate.assert_not_called()
+        self.assertEqual("SNAPSHOTS_COMPLETE", self.proof()["phase"])
+
+    def test_worker_safety_timeout_retains_source_protection(self):
+        child = Mock()
+        child.wait.side_effect = subprocess.TimeoutExpired(self.source["script"], 1800)
+        with patch.object(nas, "guest_is_off_or_absent", return_value=True), \
+                patch.object(nas.subprocess, "Popen", return_value=child):
+            with self.assertRaises(subprocess.TimeoutExpired):
+                nas.run_backup(self.file, self.source)
+        child.terminate.assert_called_once()
+        self.assertFalse(self.proof()["released"])
+
     def test_unknown_dummy_identity_is_rejected(self):
         self.qcow2()
         self.source["dummyName"] = "another-vm"
@@ -203,7 +233,7 @@ backup_domain_information() { :; }
 cleanup_created_rbd_snapshots() { :; }
 cleanup_parent_rbd_snapshot_after_success() { :; }
 cleanup() { :; }
-timeout() { shift; "$@"; }
+timeout() { if [[ "$1" == -k ]]; then shift 2; fi; shift; "$@"; }
 rbd() {
   if [[ "$1 $2" == 'snap create' ]]; then
     echo "snapshot:$3" >> "$TEST_DIRECTORY/events"

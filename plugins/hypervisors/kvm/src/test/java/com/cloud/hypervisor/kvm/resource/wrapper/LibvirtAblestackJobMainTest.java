@@ -16,7 +16,9 @@
 // under the License.
 package com.cloud.hypervisor.kvm.resource.wrapper;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,12 +27,43 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import com.cloud.agent.api.Answer;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class LibvirtAblestackJobMainTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+    @Test
+    public void failedAnswerPreservesItsReasonInWorkerOutput() {
+        PrintStream previous = System.err;
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try {
+            System.setErr(new PrintStream(output));
+            assertEquals(1, LibvirtAblestackJobMain.reportResult(new Answer(null, false, "Hypervisor version is insufficient")));
+            assertTrue(output.toString(StandardCharsets.UTF_8).contains("Detached backup job failed: Hypervisor version is insufficient"));
+            output.reset();
+            assertEquals(0, LibvirtAblestackJobMain.reportResult(new Answer(null, true, null)));
+            assertEquals("", output.toString(StandardCharsets.UTF_8));
+        } finally {
+            System.setErr(previous);
+        }
+    }
+
+    @Test
+    public void absentAnswerStillReportsAUsefulFailure() {
+        PrintStream previous = System.err;
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try {
+            System.setErr(new PrintStream(output));
+            assertEquals(1, LibvirtAblestackJobMain.reportResult(null));
+            assertTrue(output.toString(StandardCharsets.UTF_8).contains("No failure details returned"));
+        } finally {
+            System.setErr(previous);
+        }
+    }
 
     @Test
     public void detachedWorkerInitializesAgentFileLoggingInFreshJvm() throws Exception {

@@ -28,6 +28,7 @@ import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.response.LdapConfigurationResponse;
 import org.apache.cloudstack.ldap.LdapManager;
+import org.apache.cloudstack.ldap.LdapRegistrationException;
 
 import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.user.Account;
@@ -65,6 +66,11 @@ public class LdapAddConfigurationCmd extends BaseCmd {
             response.setObjectName("LdapAddConfiguration");
             response.setResponseName(getCommandName());
             setResponseObject(response);
+        } catch (final LdapRegistrationException e) {
+            ServerApiException failure = new ServerApiException(ApiErrorCode.INTERNAL_ERROR,
+                    InvalidParameterValueException.class.getName() + ": " + e.getMessage());
+            failure.setCSErrorCode(e.getReasonCode());
+            throw failure;
         } catch (final InvalidParameterValueException e) {
             throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, e.toString());
         }

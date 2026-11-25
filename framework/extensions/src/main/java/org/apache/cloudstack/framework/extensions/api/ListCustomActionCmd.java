@@ -32,6 +32,7 @@ import org.apache.cloudstack.api.response.ExtensionResponse;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.extension.ExtensionCustomAction;
 import org.apache.cloudstack.framework.extensions.manager.ExtensionsManager;
+import com.cloud.utils.Pair;
 
 @APICommand(name = "listCustomActions",
         description = "Lists the custom actions",
@@ -101,9 +102,9 @@ public class ListCustomActionCmd extends BaseListCmd {
 
     @Override
     public void execute() throws ServerApiException {
-        List<ExtensionCustomActionResponse> responses = extensionsManager.listCustomActions(this);
+        Pair<List<ExtensionCustomActionResponse>, Integer> result = extensionsManager.listCustomActions(this);
         ListResponse<ExtensionCustomActionResponse> response = new ListResponse<>();
-        response.setResponses(responses, responses.size());
+        response.setResponses(result.first(), result.second());
         response.setResponseName(getCommandName());
         setResponseObject(response);
     }

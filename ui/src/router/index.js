@@ -18,10 +18,16 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { constantRouterMap } from '@/config/router'
 
+export const pendingRouteName = 'pending-route-discovery'
+
 const router = createRouter({
   history: createWebHashHistory(process.env.BASE_URL),
   scrollBehavior: () => ({ top: 0 }),
-  routes: constantRouterMap
+  routes: [
+    ...constantRouterMap,
+    // Match deep links while the permission guard discovers their route records.
+    { path: '/:pendingPath(.*)', name: pendingRouteName, component: { render: () => null } }
+  ]
 })
 
 export default router

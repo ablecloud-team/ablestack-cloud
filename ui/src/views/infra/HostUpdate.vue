@@ -25,7 +25,11 @@
       :rules="rules"
       v-ctrl-enter="handleSubmit"
       @finish="handleSubmit">
-      <a-form-item name="name" ref="name">
+      <a-alert v-if="saveStage" class="host-save-alert" type="info" show-icon :message="$t(saveStage)" />
+      <a-alert v-if="baseSaved && saveError" class="host-save-alert" type="success" show-icon :message="$t('message.host.update.fields.saved')" />
+      <a-alert v-if="saveError" class="host-save-alert" :type="groupUnknown ? 'warning' : 'error'" show-icon :message="$t(saveError)" />
+      <fieldset :disabled="loading || baseComplete">
+      <a-form-item v-if="apiParams.name" name="name" ref="name">
         <template #label>
           <tooltip-label :title="$t('label.name')" :tooltip="apiParams.name.description"/>
         </template>
@@ -33,44 +37,25 @@
           v-model:value="form.name"
           v-focus="true" />
       </a-form-item>
-      <a-form-item name="hosttags" ref="hosttags">
+      <a-form-item v-if="apiParams.hosttags" name="hosttags" ref="hosttags">
         <template #label>
           <tooltip-label :title="$t('label.hosttags')" :tooltip="$t('label.hosttags.explicit.description')"/>
         </template>
         <a-input v-model:value="form.hosttags" />
       </a-form-item>
-      <a-form-item name="istagarule" ref="istagarule">
+      <a-form-item v-if="apiParams.istagarule" name="istagarule" ref="istagarule">
         <template #label>
           <tooltip-label :title="$t('label.istagarule')" :tooltip="apiParams.istagarule.description"/>
         </template>
         <a-switch v-model:checked="form.istagarule" />
       </a-form-item>
-      <a-form-item name="storageaccessgroups" ref="storageaccessgroups">
-        <template #label>
-          <tooltip-label :title="$t('label.storageaccessgroups')" :tooltip="apiParamsConfigureStorageAccess.storageaccessgroups.description"/>
-        </template>
-        <a-select
-          mode="tags"
-          v-model:value="form.storageaccessgroups"
-          showSearch
-          optionFilterProp="label"
-          :filterOption="(input, option) => {
-            return option.children?.[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }"
-          :loading="storageAccessGroupsLoading"
-          :placeholder="apiParamsConfigureStorageAccess.storageaccessgroups.description">
-          <a-select-option v-for="(opt) in storageAccessGroups" :key="opt">
-            {{ opt }}
-          </a-select-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item name="guestosasrule" ref="guestosasrule">
+      <a-form-item v-if="apiParams.guestosrule && apiParams.oscategoryid" name="guestosasrule" ref="guestosasrule">
         <template #label>
           <tooltip-label :title="$t('label.guestosasrule')"/>
         </template>
         <a-switch v-model:checked="form.guestosasrule"/>
       </a-form-item>
-      <a-form-item v-if="form.guestosasrule" name="guestosrule" ref="guestosrule">
+      <a-form-item v-if="form.guestosasrule && apiParams.guestosrule" name="guestosrule" ref="guestosrule">
         <template #label>
           <tooltip-label :title="$t('label.guestosrule')" :tooltip="apiParams.guestosrule.description"/>
         </template>
@@ -79,7 +64,7 @@
           :placeholder="apiParams.guestosrule.name">
         </a-textarea>
       </a-form-item>
-      <a-form-item v-if="!form.guestosasrule" name="oscategoryid" ref="oscategoryid">
+      <a-form-item v-if="!form.guestosasrule && apiParams.oscategoryid" name="oscategoryid" ref="oscategoryid">
         <template #label>
           <tooltip-label :title="$t('label.oscategoryid')" :tooltip="apiParams.oscategoryid.description"/>
         </template>
@@ -96,7 +81,7 @@
           </a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item name="externaldetails" ref="externaldetails" v-if="resource.hypervisor === 'External'">
+      <a-form-item name="externaldetails" ref="externaldetails" v-if="resource.hypervisor === 'External' && apiParams.externaldetails">
         <template #label>
           <tooltip-label :title="$t('label.configuration.details')" :tooltip="apiParams.externaldetails.description"/>
         </template>
@@ -104,30 +89,44 @@
         <details-input
           v-model:value="form.externaldetails" />
       </a-form-item>
-      <a-form-item name="migrationip" ref="migrationip">
+      <a-form-item v-if="apiParams.migrationip" name="migrationip" ref="migrationip">
         <template #label>
           <tooltip-label :title="$t('label.migrationip')" :tooltip="$t('label.migrationip')"/>
         </template>
         <a-input v-model:value="form.migrationip" />
       </a-form-item>
-      <div :span="24" class="action-button">
-        <a-button :loading="loading" @click="onCloseAction">{{ $t('label.cancel') }}</a-button>
-        <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-      </div>
+      </fieldset>
+      <a-form-item v-if="canConfigureStorage" name="storageaccessgroups" :label="$t('label.storageaccessgroups')" html-for="host-edit-storage-groups">
+        <a-select
+          id="host-edit-storage-groups"
+          v-model:value="form.storageaccessgroups"
+          mode="tags"
+          :disabled="loading || groupUnknown"
+          :options="storageAccessGroups"
+          :loading="storageAccessGroupsLoading"
+          :placeholder="apiParamsConfigureStorageAccess.storageaccessgroups.description" />
+      </a-form-item>
+      <mold-dialog-actions :busy="loading">
+        <a-button :disabled="loading" @click="onCloseAction">{{ $t('label.cancel') }}</a-button>
+        <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t(groupUnknown ? 'label.host.operation.recheck' : saveError ? 'label.retry' : 'label.ok') }}</a-button>
+      </mold-dialog-actions>
     </a-form>
   </a-spin>
 </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import DetailsInput from '@/components/widgets/DetailsInput'
 import { getFilteredExternalDetails } from '@/utils/extension'
+import { createHostJobTracker, hostRequestRejected, hostStorageGroups } from '@/utils/hostOperations'
 
 export default {
   name: 'HostUpdate',
   components: {
+    MoldDialogActions,
     TooltipLabel,
     DetailsInput
   },
@@ -144,6 +143,13 @@ export default {
   data () {
     return {
       loading: false,
+      baseComplete: false,
+      baseSaved: false,
+      saveStage: '',
+      saveError: '',
+      groupJobId: '',
+      groupUnknown: false,
+      requestedGroups: '',
       storageAccessGroups: [],
       storageAccessGroupsLoading: false,
       osCategories: {
@@ -159,9 +165,18 @@ export default {
   created () {
     this.initForm()
     this.fetchOsCategories()
-    this.fetchStorageAccessGroupsData()
+    if (this.canConfigureStorage) this.fetchStorageAccessGroupsData()
+    this.groupTracker = createHostJobTracker()
+  },
+  beforeUnmount () {
+    if (this.groupTracker) this.groupTracker.clear()
   },
   computed: {
+    canConfigureStorage () {
+      return Boolean(this.apiParamsConfigureStorageAccess?.hostid &&
+        this.apiParamsConfigureStorageAccess?.storageaccessgroups &&
+        this.$store.getters.apis?.queryAsyncJobResult)
+    },
     resourceExternalDetails () {
       return getFilteredExternalDetails(this.resource.details)
     }
@@ -205,20 +220,18 @@ export default {
         ]
       })
     },
-    fetchStorageAccessGroupsData () {
-      const params = {}
+    async fetchStorageAccessGroupsData () {
+      if (!this.$store.getters.apis?.listStorageAccessGroups) return
       this.storageAccessGroupsLoading = true
-      getAPI('listStorageAccessGroups', params).then(json => {
-        const sags = json.liststorageaccessgroupsresponse.storageaccessgroup || []
-        for (const sag of sags) {
-          if (!this.storageAccessGroups.includes(sag.name)) {
-            this.storageAccessGroups.push(sag.name)
-          }
-        }
-      }).finally(() => {
+      try {
+        const response = await getAPI('listStorageAccessGroups', {}, { preserveOnFailure: true })
+        const names = response.liststorageaccessgroupsresponse?.storageaccessgroup?.map(group => group.name) || []
+        this.storageAccessGroups = [...new Set(names)].map(name => ({ value: name, label: name }))
+      } catch (error) {
+        this.$notifyError(error)
+      } finally {
         this.storageAccessGroupsLoading = false
-      })
-      this.rules = reactive({})
+      }
     },
     fetchOsCategories () {
       this.osCategories.loading = true
@@ -231,73 +244,110 @@ export default {
         this.osCategories.loading = false
       })
     },
-    handleSubmit () {
-      this.formRef.value.validate().then(() => {
+    baseChanges (values) {
+      const changes = {}
+      const before = this.resource
+      for (const [field, original] of Object.entries({
+        name: before.name,
+        hosttags: before.explicithosttags,
+        migrationip: before.migrationip,
+        istagarule: before.istagarule
+      })) {
+        if (this.apiParams[field] && (values[field] ?? '') !== (original ?? '')) {
+          changes[field] = values[field] ?? ''
+        }
+      }
+      if (values.guestosasrule && this.apiParams.guestosrule) {
+        if (values.guestosrule !== before.guestosrule) changes.guestosrule = values.guestosrule ?? ''
+      } else if (this.apiParams.oscategoryid && (values.oscategoryid !== before.oscategoryid || before.guestosrule !== undefined)) {
+        const category = values.oscategoryid || this.osCategories.opts.find(os => os.name === 'None')?.id
+        if (category) changes.oscategoryid = category
+      }
+      if (before.hypervisor === 'External' && this.apiParams.externaldetails) {
+        const entries = Object.entries(values.externaldetails || {}).sort()
+        const previous = Object.entries(this.resourceExternalDetails || {}).sort()
+        if (JSON.stringify(entries) !== JSON.stringify(previous)) {
+          if (!entries.length && this.apiParams.cleanupexternaldetails) changes.cleanupexternaldetails = true
+          entries.forEach(([key, value]) => { changes['externaldetails[0].' + key] = value })
+        }
+      }
+      return changes
+    },
+    async handleSubmit () {
+      if (this.loading) return
+      this.loading = true
+      this.saveError = ''
+      try {
+        await this.formRef.value.validate()
         const values = toRaw(this.form)
-        const params = {}
-        params.id = this.resource.id
-        params.name = values.name
-        params.hosttags = values.hosttags
-        params.migrationip = values.migrationip
-        if (values.guestosasrule === true) {
-          params.guestosrule = values.guestosrule
-        } else {
-          params.oscategoryid = values.oscategoryid || this.osCategories.opts.filter(os => os.name === 'None')[0]?.id
-        }
-        if (values.istagarule !== undefined) {
-          params.istagarule = values.istagarule
-        }
-        if (values.externaldetails && Object.keys(values.externaldetails).length > 0) {
-          Object.entries(values.externaldetails).forEach(([key, value]) => {
-            params['externaldetails[0].' + key] = value
-          })
-        } else {
-          params.cleanupexternaldetails = true
-        }
-
-        Object.keys(params).forEach((key) => (params[key] == null) && delete params[key])
-        this.loading = true
-
-        postAPI('updateHost', params).then(() => {
-          this.$message.success({
-            content: `${this.$t('label.action.update.host')} - ${values.name}`,
-            duration: 2
-          })
-          if (values.storageaccessgroups != null && values.storageaccessgroups.length > 0) {
-            params.storageaccessgroups = values.storageaccessgroups.join(',')
-          } else {
-            params.storageaccessgroups = ''
+        const id = this.resource.id
+        if (!this.baseComplete) {
+          const changes = this.baseChanges(values)
+          if (Object.keys(changes).length) {
+            this.saveStage = 'message.host.update.fields.saving'
+            await postAPI('updateHost', { id, ...changes }, { preserveOnFailure: true })
+            this.baseSaved = true
           }
-
-          if (params.storageaccessgroups !== undefined && (this.resource.storageaccessgroups ? this.resource.storageaccessgroups.split(',').join(',') : '') !== params.storageaccessgroups) {
-            postAPI('configureStorageAccess', {
-              hostid: params.id,
-              storageaccessgroups: params.storageaccessgroups
-            }).then(response => {
-              this.$pollJob({
-                jobId: response.configurestorageaccessresponse.jobid,
-                successMethod: () => {
-                  this.$message.success({
-                    content: this.$t('label.action.configure.storage.access.group'),
-                    duration: 2
-                  })
-                },
-                errorMessage: this.$t('message.configuring.storage.access.failed')
-              })
-            })
+          this.baseComplete = true
+        }
+        const selected = hostStorageGroups(values.storageaccessgroups)
+        if (this.groupUnknown || (this.canConfigureStorage && selected !== hostStorageGroups(this.resource.storageaccessgroups))) {
+          if (!this.groupUnknown) this.requestedGroups = selected
+          if (!(await this.saveStorageGroups(id))) return
+        }
+        this.$message.success(this.$t('message.host.update.complete'))
+        this.$emit('refresh-data')
+        this.$emit('close-action')
+      } catch (error) {
+        if (error.errorFields?.[0]) this.formRef.value.scrollToField(error.errorFields[0].name)
+        else this.saveError = 'message.host.update.fields.failed'
+      } finally {
+        this.saveStage = ''
+        this.loading = false
+      }
+    },
+    async saveStorageGroups (id) {
+      this.saveStage = 'message.host.update.groups.saving'
+      if (this.groupUnknown && !this.groupJobId) {
+        try {
+          const response = await getAPI('listHosts', { id }, { preserveOnFailure: true, timeout: 10000 })
+          const host = response.listhostsresponse?.host?.find(item => item.id === id)
+          if (host && hostStorageGroups(host.storageaccessgroups) === this.requestedGroups) return true
+        } catch {}
+        this.saveError = 'message.host.update.groups.unknown'
+        return false
+      }
+      if (!this.groupJobId) {
+        try {
+          const response = await postAPI('configureStorageAccess', {
+            hostid: id,
+            storageaccessgroups: this.requestedGroups
+          }, { preserveOnFailure: true, timeout: 15000 })
+          this.groupJobId = response.configurestorageaccessresponse?.jobid
+        } catch (error) {
+          if (hostRequestRejected(error)) {
+            this.saveError = 'message.host.update.groups.failed'
+            return false
           }
-          this.$emit('refresh-data')
-          this.onCloseAction()
-        }).catch(error => {
-          this.$notifyError(error)
-        }).finally(() => {
-          this.loading = false
-        })
-      }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
-      })
+        }
+      }
+      if (this.groupJobId) {
+        const result = await this.groupTracker.track(this.groupJobId, {}, this.groupUnknown)
+        if (result.jobstatus === 1) return true
+        if (result.jobstatus === 2) {
+          this.groupJobId = ''
+          this.groupUnknown = false
+          this.saveError = 'message.host.update.groups.failed'
+          return false
+        }
+      }
+      this.groupUnknown = true
+      this.saveError = 'message.host.update.groups.unknown'
+      return false
     },
     onCloseAction () {
+      if (this.loading) return
+      if (this.baseSaved || this.groupUnknown) this.$emit('refresh-data')
       this.$emit('close-action')
     }
   }
@@ -306,10 +356,18 @@ export default {
 
 <style scoped lang="less">
 .form-layout {
-  width: 60vw;
-  @media (min-width: 600px) {
-    width: 550px;
+  fieldset {
+    min-width: 0;
+    padding: 0;
+    border: 0;
   }
+
+  .host-save-alert {
+    margin-bottom: 12px;
+  }
+
+  width: 100%;
+  min-width: 0;
 
   .action-button {
     text-align: right;

@@ -139,7 +139,9 @@ final class LibvirtAblestackRbdRestoreHelper {
             destVolumeFile = new QemuImgFile(buildQemuImageUri(storagePool, volumePath), QemuImg.PhysicalDiskFormat.RAW);
             LibvirtAblestackRestoreProgress.phase("RESTORE_CONVERT", srcBackupFile.getFormat() + " → RBD (RAW)");
             LOGGER.debug("{} phase=[RBD_CONVERT_BEGIN], source=[{}], targetVolume=[{}]", tracePrefix, backupPath, volumePath);
-            qemu.convert(srcBackupFile, destVolumeFile);
+            try (var observation = LibvirtAblestackDataProgress.unmeasured(LOGGER::warn)) {
+                qemu.convert(srcBackupFile, destVolumeFile);
+            }
             LOGGER.debug("{} phase=[RBD_CONVERT_DONE], source=[{}], targetVolume=[{}]", tracePrefix, backupPath, volumePath);
             return true;
         } catch (final QemuImgException | LibvirtException e) {
@@ -185,7 +187,7 @@ final class LibvirtAblestackRbdRestoreHelper {
                     throw new CloudRuntimeException(String.format("Required parent snapshot %s is missing on volume %s", parentCheckpoint, volumePath));
                 }
                 LibvirtAblestackRestoreProgress.phase("RESTORE_RBD_DIFF", "RBD · " + index + "/" + (backupPaths.size() - 1));
-                final CommandExecutionResult importDiffResult = executeBashCommandWithResult(
+                final CommandExecutionResult importDiffResult = executeDataCommand(
                         buildRbdCommand(storagePool, "import-diff", backupPath, volumePath), timeoutSeconds, "Import RBD diff to temporary volume");
                 if (importDiffResult.exitCode != 0) {
                     LOGGER.error("Failed to import RBD diff {} into volume {}. Exit code: {}, output: {}", backupPath, volumePath,
@@ -208,7 +210,7 @@ final class LibvirtAblestackRbdRestoreHelper {
         if (StringUtils.isBlank(parent) || StringUtils.isBlank(checkpoint) || !rbdSnapshotExists(pool, image, parent, timeout)) {
             throw new CloudRuntimeException("RBD restore diff does not match the prepared parent checkpoint");
         }
-        CommandExecutionResult result = executeBashCommandWithResult(buildRbdCommand(pool, "import-diff", file, image), timeout,
+        CommandExecutionResult result = executeDataCommand(buildRbdCommand(pool, "import-diff", file, image), timeout,
                 "Import staged RBD diff");
         if (result.exitCode != 0 || !ensureRbdSnapshotExists(pool, image, checkpoint, timeout)) {
             throw new CloudRuntimeException("Unable to apply staged RBD diff: " + result.output);
@@ -240,7 +242,7 @@ final class LibvirtAblestackRbdRestoreHelper {
             return false;
         }
 
-        final CommandExecutionResult importResult = executeBashCommandWithResult(
+        final CommandExecutionResult importResult = executeDataCommand(
                 buildRbdCommand(storagePool, "import", backupPath, volumePath), timeoutSeconds, "Import raw backup to RBD");
         if (importResult.exitCode != 0) {
             LOGGER.error("Failed to import raw backup {} into volume {}. Exit code: {}, output: {}", backupPath, volumePath,
@@ -594,6 +596,12 @@ final class LibvirtAblestackRbdRestoreHelper {
         return String.join(",", formattedHosts);
     }
 
+    private static CommandExecutionResult executeDataCommand(final String command, final int timeoutSeconds, final String description) {
+        final com.cloud.utils.Pair<Integer, String> result = LibvirtAblestackDataProgress.execute(command, timeoutSeconds, "rbd", LOGGER::warn);
+        if (result.first() != 0) { LOGGER.warn("{} did not complete; exitCode=[{}]", description, result.first()); }
+        return new CommandExecutionResult(result.first(), result.second());
+    }
+
     private static CommandExecutionResult executeBashCommandWithResult(final String command, final int timeoutSeconds, final String description) {
         LOGGER.debug("{} command: {}", description, command);
         final String wrappedCommand = String.format("set -o pipefail; { %s; } 2>&1; rc=$?; echo \"%s${rc}\"", command, COMMAND_EXIT_MARKER);
@@ -627,7 +635,7 @@ final class LibvirtAblestackRbdRestoreHelper {
         if (backupPaths.isEmpty() || !backupPaths.get(0).endsWith(".raw")) {
             throw new CloudRuntimeException("Incremental RBD backup chain is missing the base full backup");
         }
-        final CommandExecutionResult importResult = executeBashCommandWithResult(
+        final CommandExecutionResult importResult = executeDataCommand(
                 sourceImage.buildRbdCommand("import", backupPaths.get(0), temporaryVolumePath),
                 timeoutSeconds, "Import raw backup to temporary RBD");
         if (importResult.exitCode != 0) {
@@ -661,7 +669,7 @@ final class LibvirtAblestackRbdRestoreHelper {
                     throw new CloudRuntimeException(String.format("Required parent snapshot %s is missing on temporary image %s",
                             parentCheckpoint, temporaryVolumePath));
                 }
-                final CommandExecutionResult importDiffResult = executeBashCommandWithResult(
+                final CommandExecutionResult importDiffResult = executeDataCommand(
                         sourceImage.buildRbdCommand("import-diff", backupPath, temporaryVolumePath),
                         timeoutSeconds, "Import RBD diff to temporary image");
                 if (importDiffResult.exitCode != 0) {

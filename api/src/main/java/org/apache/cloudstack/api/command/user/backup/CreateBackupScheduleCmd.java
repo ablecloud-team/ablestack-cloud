@@ -86,7 +86,9 @@ public class CreateBackupScheduleCmd extends BaseCmd {
                     "Requires QEMU Guest Agent. Volume staging thaws guest filesystems after source recovery points are established, before export and transfer. " +
                     "NetBackup uses this setting when backup.plugin.netbackup.vm.schedule.enabled=true; " +
                     "Ablestack Veeam uses it when backup.plugin.ablestack-veeam.vm.schedule.enabled=true. " +
-                    "Volume staging continues if freezing is unsupported or fails; application consistency is not guaranteed.",
+                    "For ablestack-nas, ablestack-commvault, ablestack-netbackup and ablestack-veeam, " +
+                    "requested freezing must succeed and remain active until recovery points are established; otherwise backup fails. " +
+                    "Filesystem quiescing does not guarantee application consistency.",
             since = "4.21.0")
     private Boolean quiesceVM;
 

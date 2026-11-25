@@ -33,7 +33,7 @@ import org.apache.cloudstack.backup.BackupManager;
 public class ReportBackupArtifactRestoreValidationCmd extends BaseCmd implements AdminCmd {
     @Inject private BackupManager backupManager;
     @Parameter(name = ApiConstants.JOB_ID, type = CommandType.STRING, required = true, description = "NetBackup restore Job ID") private String jobId;
-    @Parameter(name = "validation", type = CommandType.STRING, required = true,
+    @Parameter(name = "validation", type = CommandType.STRING, required = true, length = 65536,
             description = "Bounded JSON selection state, reason, destination Host, completion window and exact artifact references") private String validation;
 
     @Override public long getEntityOwnerId() { return 0; }

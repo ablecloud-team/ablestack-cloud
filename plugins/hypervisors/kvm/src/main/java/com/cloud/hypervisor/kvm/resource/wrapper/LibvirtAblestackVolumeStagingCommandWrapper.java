@@ -101,7 +101,7 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
                     return new Answer(command, false, "Host staging engine is not active");
                 }
                 Path plan = directory.resolve("staging-admission-plan.json");
-                Path script = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("thirdparty_staging_admission.py");
+                Path script = Path.of(resource.getThirdPartyVolumeBackupPath()).getParent().resolve("thirdparty_staging_admission.py");
                 if (!Files.isRegularFile(plan) || !Files.isRegularFile(script)) {
                     return new Answer(command, false, "Staging admission request is not ready");
                 }
@@ -129,7 +129,7 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
             }
             if ("BACKUP_PRIMARY_CAPACITY".equals(command.getAction())) {
                 Path plan = directory.resolve("backup-primary-capacity.json");
-                Path script = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("thirdparty_primary_capacity.py");
+                Path script = Path.of(resource.getThirdPartyVolumeBackupPath()).getParent().resolve("thirdparty_primary_capacity.py");
                 String output = com.cloud.utils.script.Script.runSimpleBashScriptWithFullResult("python3 " + quote(script.toString())
                         + " --backup-plan-file " + quote(plan.toString()), 30000);
                 var capacity = new Gson().fromJson(output, org.apache.cloudstack.backup.ThirdPartyBackupAdmission.PrimaryCapacity.class);
@@ -143,7 +143,7 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
                 ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(command.getManifest());
                 manifest.validate(true);
                 Path plan = directory.resolve("volume-plan.json");
-                Path script = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("thirdparty_volume_backup.py");
+                Path script = Path.of(resource.getThirdPartyVolumeBackupPath());
                 if (!id.equals(manifest.getBackupUuid()) || !Files.isRegularFile(plan) || !Files.isRegularFile(script)) {
                     return new Answer(command, false, "Completed backup plan ownership or finalization helper is unconfirmed");
                 }
@@ -184,7 +184,7 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
                         || !id.equals(source.getAsJsonObject("manifest").get("backupUuid").getAsString())) {
                     return new Answer(command, false, "Source cleanup belongs to another backup");
                 }
-                Path script = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("thirdparty_volume_backup.py");
+                Path script = Path.of(resource.getThirdPartyVolumeBackupPath());
                 com.cloud.utils.script.Script.runSimpleBashScriptWithFullResult("python3 " + quote(script.toString())
                         + " --plan-file " + quote(plan.toString()) + " --action cleanup-completed", 300000);
                 String result = Files.readString(directory.resolve("source-cleanup.json"));
@@ -204,7 +204,7 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
                     return new Answer(command, false, "Backup engine is active or unconfirmed");
                 }
                 Path plan = directory.resolve("volume-plan.json");
-                Path script = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("thirdparty_volume_backup.py");
+                Path script = Path.of(resource.getThirdPartyVolumeBackupPath());
                 if (!Files.isRegularFile(plan) || !Files.isRegularFile(script)) {
                     return new Answer(command, false, "Failed backup plan or cleanup helper is missing");
                 }
@@ -440,7 +440,7 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
                 }
             }
         }
-        Path script = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("thirdparty_external_restore_cleanup.py");
+        Path script = Path.of(resource.getThirdPartyVolumeBackupPath()).getParent().resolve("thirdparty_external_restore_cleanup.py");
         if (!Files.isRegularFile(script)) { return new Answer(command, false, "Rejected metadata cleanup helper is not installed"); }
         Path receipts = jobs.getParent().resolve("external-restore-cleanup");
         Files.createDirectories(receipts);
@@ -492,7 +492,7 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
             }
             LibvirtAblestackVolumeRestoreHelper.atomic(plan, options.toString());
         }
-        Path script = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("netbackup-volume-backup.py");
+        Path script = Path.of(resource.getThirdPartyVolumeBackupPath()).getParent().resolve("netbackup-volume-backup.py");
         if (!Files.isRegularFile(script)) {
             if (!recovery && !Files.exists(plan.resolveSibling("netbackup-backup-" + key + ".intent.json"))) {
                 return new Answer(command, false, "ABLESTACK_NOT_SUBMITTED=NetBackup volume backup helper is not installed");
@@ -514,7 +514,7 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
 
     private Answer netBackupRestore(AblestackVolumeStagingCommand command, LibvirtComputingResource resource,
             Path planFile, boolean recoveryOnly) {
-        Path script = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("netbackup-volume-restore.py");
+        Path script = Path.of(resource.getThirdPartyVolumeBackupPath()).getParent().resolve("netbackup-volume-restore.py");
         if (!Files.isRegularFile(script)) {
             String stem = planFile.getFileName().toString().replaceFirst("\\.json$", "");
             if (!recoveryOnly && !Files.exists(planFile.resolveSibling(stem + ".intent.json"))

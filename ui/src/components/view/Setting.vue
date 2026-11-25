@@ -58,8 +58,9 @@
               <a-input
                 :disabled="layoutMode === 'dark'"
                 type="color"
-                v-model:value="navBgColorPick"
-                @blur="(e) => updateSetting('@navigation-background-color', e.target.value)" />
+                :value="pickerColor(navBgColorPick)"
+                @update:value="navBgColorPick = $event"
+                @blur="updateSetting('@navigation-background-color', navBgColorPick)" />
             </div>
           </div>
         </a-list-item>
@@ -70,8 +71,9 @@
               <a-input
                 :disabled="layoutMode === 'dark'"
                 type="color"
-                v-model:value="navTextColorPick"
-                @blur="(e) => updateSetting('@navigation-text-color', e.target.value)" />
+                :value="pickerColor(navTextColorPick)"
+                @update:value="navTextColorPick = $event"
+                @blur="updateSetting('@navigation-text-color', navTextColorPick)" />
             </div>
           </div>
         </a-list-item>
@@ -89,8 +91,9 @@
             <div class="color-picker" :style="{ backgroundColor: projectNavBgColorPick }">
               <a-input
                 type="color"
-                v-model:value="projectNavBgColorPick"
-                @blur="(e) => updateSetting('@project-nav-background-color', e.target.value)" />
+                :value="pickerColor(projectNavBgColorPick)"
+                @update:value="projectNavBgColorPick = $event"
+                @blur="updateSetting('@project-nav-background-color', projectNavBgColorPick)" />
             </div>
           </div>
         </a-list-item>
@@ -100,8 +103,9 @@
             <div class="color-picker" :style="{ backgroundColor: projectNavTextColorPick }">
               <a-input
                 type="color"
-                v-model:value="projectNavTextColorPick"
-                @blur="(e) => updateSetting('@project-nav-text-color', e.target.value)" />
+                :value="pickerColor(projectNavTextColorPick)"
+                @update:value="projectNavTextColorPick = $event"
+                @blur="updateSetting('@project-nav-text-color', projectNavTextColorPick)" />
             </div>
           </div>
         </a-list-item>
@@ -230,6 +234,13 @@ export default {
     this.fetchData()
   },
   methods: {
+    pickerColor (value) {
+      const color = typeof value === 'string' ? value.trim() : ''
+      if (/^#[0-9a-f]{6}$/i.test(color)) return color
+      if (/^#[0-9a-f]{3}$/i.test(color)) return '#' + color.slice(1).split('').map(channel => channel + channel).join('')
+      const rgb = /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*[0-9.]+\s*)?\)$/i.exec(color)
+      return rgb ? '#' + rgb.slice(1).map(channel => Math.min(255, Number(channel)).toString(16).padStart(2, '0')).join('') : '#000000'
+    },
     fetchData () {
       this.originalSetting = Object.assign({}, this.$config.theme)
       this.uiSettings = this.$config.theme

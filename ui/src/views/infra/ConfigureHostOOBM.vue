@@ -99,15 +99,16 @@
         </a-form-item>
 
       </div>
-      <div :span="24" class="action-button">
+      <mold-dialog-actions :busy="saving">
         <a-button @click="onCloseAction">{{ $t('label.cancel') }}</a-button>
         <a-button type="primary" @click="handleSubmit" ref="submit">{{ $t('label.ok') }}</a-button>
-      </div>
+      </mold-dialog-actions>
     </a-form>
   </div>
 </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import { ref, reactive, toRaw } from 'vue'
 import { postAPI } from '@/api'
@@ -115,6 +116,7 @@ import { postAPI } from '@/api'
 export default {
   name: 'ConfigureHostOOBM',
   components: {
+    MoldDialogActions,
     TooltipLabel
   },
   props: {
@@ -124,8 +126,7 @@ export default {
     }
   },
   data () {
-    return {
-    }
+    return { saving: false }
   },
   beforeCreate () {
     this.apiParams = this.$getApiParams('configureOutOfBandManagement')
@@ -136,14 +137,16 @@ export default {
   methods: {
     initForm () {
       this.formRef = ref()
+      const remote = this.resource.outofbandmanagement || {}
+      const details = this.resource.details || {}
       this.form = reactive({
-        address: this.resource.outofbandmanagement.address || '',
-        port: this.resource.outofbandmanagement.port || '',
-        username: this.resource.outofbandmanagement.username || '',
+        address: remote.address || '',
+        port: remote.port || '',
+        username: remote.username || '',
         password: '',
-        driver: this.resource.outofbandmanagement.driver || '',
-        manageconsoleprotocol: this.resource.outofbandmanagement.manageconsoleprotocol || 'http',
-        manageconsoleport: this.resource.outofbandmanagement.manageconsoleport || ''
+        driver: remote.driver || '',
+        manageconsoleprotocol: details.manageconsoleprotocol || remote.manageconsoleprotocol || 'http',
+        manageconsoleport: details.manageconsoleport || remote.manageconsoleport || ''
       })
       this.rules = reactive({
         address: [{ required: true, message: this.$t('message.error.required.input') }],
@@ -154,9 +157,12 @@ export default {
         manageconsoleprotocol: [{ required: true, message: this.$t('message.error.required.input') }]
       })
     },
-    handleSubmit (e) {
-      e.preventDefault()
-      this.formRef.value.validate().then(() => {
+    async handleSubmit (event) {
+      if (this.saving) return
+      if (event) event.preventDefault()
+      this.saving = true
+      try {
+        await this.formRef.value.validate()
         const values = toRaw(this.form)
         const params = {
           hostid: this.resource.id,
@@ -172,14 +178,16 @@ export default {
           params.manageconsoleport = values.manageconsoleport
         }
 
-        postAPI('configureOutOfBandManagement', params).then(_ => {
-          this.$message.success(this.$t('message.oobm.configured'))
-          this.$emit('refresh-data')
-          this.onCloseAction()
-        }).catch(error => {
-          this.$notifyError(error)
-        })
-      })
+        await postAPI('configureOutOfBandManagement', params, { preserveOnFailure: true })
+        this.$message.success(this.$t('message.oobm.configured'))
+        this.$emit('refresh-data')
+        this.onCloseAction()
+      } catch (error) {
+        if (error.errorFields?.[0]) this.formRef.value.scrollToField(error.errorFields[0].name)
+        else this.$notifyError(error)
+      } finally {
+        this.saving = false
+      }
     },
     onCloseAction () {
       this.$emit('close-action')

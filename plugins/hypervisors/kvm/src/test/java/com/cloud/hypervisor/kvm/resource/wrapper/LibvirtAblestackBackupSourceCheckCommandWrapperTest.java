@@ -45,7 +45,7 @@ public class LibvirtAblestackBackupSourceCheckCommandWrapperTest {
     @Test
     public void sourceCheckUsesBoundedReadOnlyProbeAndPreservesPathArguments() throws Exception {
         files.newFile("thirdparty_backup_source_support.py");
-        when(resource.getAbleCvtBackupPath()).thenReturn(files.getRoot().toPath().resolve("ablecvt.sh").toString());
+        when(resource.getThirdPartyVolumeBackupPath()).thenReturn(files.getRoot().toPath().resolve("thirdparty_volume_backup.py").toString());
         try (MockedConstruction<Script> scripts = mockConstruction(Script.class)) {
             assertTrue(wrapper.execute(new AblestackBackupSourceCheckCommand(List.of("/primary/disk with,comma"), 15), resource).getResult());
             Script script = scripts.constructed().get(0);
@@ -57,7 +57,7 @@ public class LibvirtAblestackBackupSourceCheckCommandWrapperTest {
 
     @Test
     public void timeoutAndMissingScriptsAreRejected() throws Exception {
-        when(resource.getAbleCvtBackupPath()).thenReturn(files.getRoot().toPath().resolve("ablecvt.sh").toString());
+        when(resource.getThirdPartyVolumeBackupPath()).thenReturn(files.getRoot().toPath().resolve("thirdparty_volume_backup.py").toString());
         AblestackBackupSourceCheckCommand command = new AblestackBackupSourceCheckCommand(List.of("/primary/disk"), 15);
         assertFalse(wrapper.execute(command, resource).getResult());
         files.newFile("thirdparty_backup_source_support.py");
@@ -69,7 +69,7 @@ public class LibvirtAblestackBackupSourceCheckCommandWrapperTest {
 
     @Test
     public void malformedCommandsCannotStartAProbe() {
-        when(resource.getAbleCvtBackupPath()).thenReturn("/scripts/ablecvt.sh");
+        when(resource.getThirdPartyVolumeBackupPath()).thenReturn("/scripts/thirdparty_volume_backup.py");
         for (AblestackBackupSourceCheckCommand command : List.of(
                 new AblestackBackupSourceCheckCommand(List.of("relative"), 15),
                 new AblestackBackupSourceCheckCommand(List.of("/primary/disk"), 0),

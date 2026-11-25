@@ -51,6 +51,7 @@ public class ThirdPartyBackupManifest {
     public static final String JOB_CLEANUP_DETAILS_KEY = "thirdparty.volume.job.cleanup.details";
     public static final String FINALIZATION_STATE_KEY = "thirdparty.volume.finalization.state";
     public static final String FINALIZATION_DETAILS_KEY = "thirdparty.volume.finalization.details";
+    public static final String RETENTION_PROTECTION_KEY = "thirdparty.volume.retention.protection";
 
     /** A failed query keeps the last confirmed inventory; it is never evidence of expiration. */
     public static class Catalog {
@@ -72,6 +73,7 @@ public class ThirdPartyBackupManifest {
     private boolean complete;
     private AblestackSharedRawBackup.Plan offlineGuard;
     private SourceConfiguration sourceConfiguration;
+    private GuestQuiesce guestQuiesce;
     private List<Volume> volumes = new ArrayList<>();
     private Artifact metadata;
 
@@ -79,6 +81,12 @@ public class ThirdPartyBackupManifest {
     public static class SourceConfiguration {
         public String vmUuid;
         public java.util.Map<String, String> details = new java.util.LinkedHashMap<>();
+    }
+
+    /** Actual filesystem quiesce outcome; absent in backups created by older Agents. */
+    public static class GuestQuiesce {
+        public boolean requested;
+        public String status;
     }
 
     public static class Artifact {
@@ -355,6 +363,8 @@ public class ThirdPartyBackupManifest {
     public String getVmName() { return vmName; }
     public SourceConfiguration getSourceConfiguration() { return sourceConfiguration; }
     public void setSourceConfiguration(SourceConfiguration value) { sourceConfiguration = value; }
+    public GuestQuiesce getGuestQuiesce() { return guestQuiesce; }
+    public void setGuestQuiesce(GuestQuiesce value) { guestQuiesce = value; }
     public String getSourceVmUuid() { return sourceConfiguration == null ? offlineGuard == null ? null : offlineGuard.vmUuid : sourceConfiguration.vmUuid; }
     public void setVmName(String value) { vmName = value; }
     public String getTimestamp() { return timestamp; }

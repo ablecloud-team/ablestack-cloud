@@ -27,6 +27,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
 import org.apache.cloudstack.backup.AblestackVolumeStagingCommand;
@@ -83,6 +84,30 @@ public class AblestackNetBackupRestoreTransferTest {
     public void rejectedRestDoesNotFallBackToBprestore() {
         when(client.submitVolumeRestore(request, "ablecube1")).thenThrow(new ThirdPartyBackupSubmissionException("HTTP 403"));
         assertThrows(ThirdPartyBackupSubmissionException.class, () -> transfer.restore(request, intent()));
+        verifyNoInteractions(agent);
+    }
+
+    @Test
+    public void newRestoreChecksRetentionBeforeIssuingThePost() {
+        Runnable protection = mock(Runnable.class);
+        AblestackNetBackupRestoreTransfer guarded = new AblestackNetBackupRestoreTransfer(() -> client, agent, 1L,
+                "ablecube1", protection);
+        guarded.restore(request, intent());
+        org.mockito.InOrder order = inOrder(protection, client);
+        order.verify(protection).run();
+        order.verify(client).submitVolumeRestore(request, "ablecube1");
+    }
+
+    @Test
+    public void unconfirmedRetentionCannotStartARestoreButExistingJobsCanStillBePolled() {
+        Runnable protection = () -> { throw new CloudRuntimeException("retention unconfirmed"); };
+        AblestackNetBackupRestoreTransfer guarded = new AblestackNetBackupRestoreTransfer(() -> client, agent, 1L,
+                "ablecube1", protection);
+        assertThrows(ThirdPartyBackupSubmissionException.class, () -> guarded.restore(request, intent()));
+        verify(client, never()).submitVolumeRestore(any(), any());
+        when(client.pollVolumeRestore("392")).thenReturn(new ThirdPartyBackupRestore.Result("392", true));
+        assertTrue(guarded.recover(request, new ThirdPartyBackupRestore.Result("392", false)).completed);
+        assertThrows(CloudRuntimeException.class, () -> guarded.recover(request, intent()));
         verifyNoInteractions(agent);
     }
 

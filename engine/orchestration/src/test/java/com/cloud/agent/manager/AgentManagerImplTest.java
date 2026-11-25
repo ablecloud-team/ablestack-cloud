@@ -18,6 +18,7 @@ package com.cloud.agent.manager;
 
 import com.cloud.agent.Listener;
 import com.cloud.agent.api.Answer;
+import com.cloud.agent.api.Command;
 import com.cloud.agent.api.ReadyCommand;
 import com.cloud.agent.api.StartupCommand;
 import com.cloud.agent.api.StartupRoutingCommand;
@@ -104,6 +105,39 @@ public class AgentManagerImplTest {
         int result = mgr.getTimeout(commands, timeout);
 
         Assert.assertEquals(50, result);
+    }
+
+    @Test
+    public void detachedCommandUsesCommonWaitWhenSentIndividually() throws Exception {
+        Command command = Mockito.mock(Command.class);
+        Mockito.when(command.getWait()).thenReturn(43200);
+        Mockito.when(command.getResponseWait()).thenReturn(0);
+        Answer answer = new Answer(command, true, "Started");
+        Mockito.doAnswer(invocation -> {
+            Commands commands = invocation.getArgument(1);
+            commands.setAnswers(new Answer[] {answer});
+            return commands.getAnswers();
+        }).when(mgr).send(Mockito.eq(1L), Mockito.any(Commands.class), Mockito.anyInt());
+
+        Assert.assertSame(answer, mgr.send(1L, command));
+        Mockito.verify(mgr).send(Mockito.eq(1L), Mockito.any(Commands.class), Mockito.eq(0));
+    }
+
+    @Test
+    public void commandBatchUsesResponseWaitRatherThanDetachedExecutionTime() throws Exception {
+        Command detached = Mockito.mock(Command.class);
+        Mockito.when(detached.getWait()).thenReturn(43200);
+        Mockito.when(detached.getResponseWait()).thenReturn(0);
+        ReadyCommand synchronous = new ReadyCommand();
+        synchronous.setWait(60);
+        Commands commands = new Commands(Command.OnError.Stop);
+        commands.addCommand(detached);
+        commands.addCommand(synchronous);
+        Mockito.doReturn(new Answer[0]).when(mgr).send(Mockito.eq(1L), Mockito.eq(commands), Mockito.anyInt());
+
+        mgr.send(1L, commands);
+
+        Mockito.verify(mgr).send(1L, commands, 60);
     }
 
     @Test

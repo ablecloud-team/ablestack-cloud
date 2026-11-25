@@ -77,18 +77,23 @@
 }
 
 /* Match the legacy dark-mode search structure before overriding its important color. */
+.oauth-list-page .breadcrumb-card :deep(.ant-input-search > .ant-input-group > .ant-input-group-addon:last-child .ant-input-search-button:not(.ant-btn-primary):not([disabled])),
 .s2s-gateway-list-page .breadcrumb-card :deep(.ant-input-search > .ant-input-group > .ant-input-group-addon:last-child .ant-input-search-button:not(.ant-btn-primary):not([disabled])),
 .volume-list-page .breadcrumb-card :deep(.ant-input-search > .ant-input-group > .ant-input-group-addon:last-child .ant-input-search-button:not(.ant-btn-primary):not([disabled])),
 .kms-list-page .breadcrumb-card :deep(.ant-input-search > .ant-input-group > .ant-input-group-addon:last-child .ant-input-search-button:not(.ant-btn-primary):not([disabled])) {
   color: var(--ui-text-secondary) !important;
 }
 
+.oauth-list-page .breadcrumb-card :deep(.ant-input-clear-icon),
 .s2s-gateway-list-page .breadcrumb-card :deep(.ant-input-clear-icon),
 .volume-list-page .breadcrumb-card :deep(.ant-input-clear-icon),
 .kms-list-page .breadcrumb-card :deep(.ant-input-clear-icon) {
   color: var(--ui-text-muted);
 }
 
+.oauth-list-page .breadcrumb-card :deep(.ant-input-search > .ant-input-group > .ant-input-group-addon:last-child .ant-input-search-button:not(.ant-btn-primary):not([disabled]):hover),
+.oauth-list-page .breadcrumb-card :deep(.ant-input-search > .ant-input-group > .ant-input-group-addon:last-child .ant-input-search-button:not(.ant-btn-primary):not([disabled]):focus),
+.oauth-list-page .breadcrumb-card :deep(.ant-input-clear-icon:hover),
 .s2s-gateway-list-page .breadcrumb-card :deep(.ant-input-search > .ant-input-group > .ant-input-group-addon:last-child .ant-input-search-button:not(.ant-btn-primary):not([disabled]):hover),
 .volume-list-page .breadcrumb-card :deep(.ant-input-search > .ant-input-group > .ant-input-group-addon:last-child .ant-input-search-button:not(.ant-btn-primary):not([disabled]):hover),
 .kms-list-page .breadcrumb-card :deep(.ant-input-search > .ant-input-group > .ant-input-group-addon:last-child .ant-input-search-button:not(.ant-btn-primary):not([disabled]):hover),

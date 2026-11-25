@@ -35,8 +35,8 @@ public class RejectBackupArtifactRestoreCmd extends BaseCmd implements AdminCmd 
     @Parameter(name = "provider", type = CommandType.STRING, required = true, description = "ablestack-netbackup or ablestack-veeam") private String provider;
     @Parameter(name = ApiConstants.EXTERNAL_ID, type = CommandType.STRING, required = true, description = "Exact metadata artifact ID") private String externalId;
     @Parameter(name = ApiConstants.JOB_ID, type = CommandType.STRING, required = true, description = "External restore Job or session ID") private String jobId;
-    @Parameter(name = "reason", type = CommandType.STRING, required = true, description = "The precheck rejection reason") private String reason;
-    @Parameter(name = "proof", type = CommandType.STRING, required = true,
+    @Parameter(name = "reason", type = CommandType.STRING, required = true, length = 4096, description = "The precheck rejection reason") private String reason;
+    @Parameter(name = "proof", type = CommandType.STRING, required = true, length = 65536,
             description = "JSON with the destination hostName and verified external Job startedAt/endedAt in epoch milliseconds") private String proof;
 
     @Override public long getEntityOwnerId() { return 0; }

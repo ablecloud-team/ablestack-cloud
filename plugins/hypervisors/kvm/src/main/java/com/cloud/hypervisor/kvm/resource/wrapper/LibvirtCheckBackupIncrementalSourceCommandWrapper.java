@@ -37,7 +37,7 @@ public class LibvirtCheckBackupIncrementalSourceCommandWrapper
     public Answer execute(CheckBackupIncrementalSourceCommand cmd, LibvirtComputingResource resource) {
         Path file = null;
         try {
-            Path script = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("thirdparty_volume_backup.py");
+            Path script = Path.of(resource.getThirdPartyVolumeBackupPath());
             if (!Files.isRegularFile(script) || cmd.getPools() == null || cmd.getPaths() == null
                     || cmd.getPaths().isEmpty() || cmd.getPools().size() != cmd.getPaths().size()) {
                 return new Answer(cmd, false, "Incremental source inspection is unavailable");

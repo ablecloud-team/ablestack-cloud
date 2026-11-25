@@ -91,7 +91,7 @@ export default {
     },
     {
       name: 'settings',
-      component: shallowRef(defineAsyncComponent(() => import('@/components/view/SettingsTab.vue'))),
+      component: shallowRef(defineAsyncComponent(() => import('@/views/setting/ScopedSettingsTab.vue'))),
       show: () => { return 'listConfigurations' in store.getters.apis }
     },
     {

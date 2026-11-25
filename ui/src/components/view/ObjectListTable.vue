@@ -17,13 +17,14 @@
 
 <template>
   <a-table
+    class="object-list-table"
     style="margin: 10px 0;"
     :columns="columns"
     :data-source="computedDataSource"
     :pagination="false"
     :bordered="true"
-    :showHeader="false"
-    :rowKey="record => record.id">
+    :show-header="showHeader"
+    :row-key="rowKey">
     <template #bodyCell="{ text }">
       {{ text }}
     </template>
@@ -31,6 +32,7 @@
 </template>
 
 <script>
+const objectListRowKey = Symbol('object-list-row-key')
 
 export default {
   name: 'ObjectListTable',
@@ -42,6 +44,10 @@ export default {
     dataArray: {
       type: Array,
       default: null
+    },
+    showHeader: {
+      type: Boolean,
+      default: false
     }
   },
   beforeCreate () {
@@ -72,18 +78,29 @@ export default {
     },
     computedDataSource () {
       if (this.dataArray) {
-        return this.dataArray
+        return this.dataArray.map((record, index) => ({ ...record, [objectListRowKey]: index + 1 }))
       }
-      if (!this.dataMap || this.dataMap.length === 0) {
-        return []
-      }
-      const data = Object.keys(this.dataMap).map((key, i) => ({
-        id: i + 1,
+      return Object.entries(this.dataMap || {}).map(([key, value]) => ({
+        [objectListRowKey]: key,
         key,
-        value: this.dataMap[key]
+        value
       }))
-      return data
+    }
+  },
+  methods: {
+    rowKey (record) {
+      return record[objectListRowKey]
     }
   }
 }
 </script>
+
+<style scoped>
+.object-list-table :deep(.ant-table-container),
+.object-list-table :deep(.ant-table-content),
+.object-list-table :deep(table),
+.object-list-table :deep(.ant-table-thead > tr > th),
+.object-list-table :deep(.ant-table-tbody > tr > td) {
+  border-color: var(--ui-border) !important;
+}
+</style>

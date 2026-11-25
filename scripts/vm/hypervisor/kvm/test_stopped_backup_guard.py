@@ -51,6 +51,9 @@ class StoppedBackupGuardTest(unittest.TestCase):
         worker = volume.Backup.__new__(volume.Backup)
         worker.plan, worker.vm, worker.manifest = self.source, "vm", self.manifest
         worker.root = self.root
+        worker.job = self.root
+        worker.engine = self.root / "volume-engine.json"
+        worker.engine.write_text("{}")
         worker.rbd_command = lambda uri: (["rbd"], uri)
         worker.thaw_guest = Mock()
         return worker
@@ -59,7 +62,7 @@ class StoppedBackupGuardTest(unittest.TestCase):
         worker = self.rbd_worker()
         created = []
 
-        def run(args):
+        def run(args, *unused):
             self.assertFalse(self.proof()["released"])
             if args[1:3] == ["snap", "create"]:
                 created.append(args[-1])
@@ -75,7 +78,7 @@ class StoppedBackupGuardTest(unittest.TestCase):
     def test_second_disk_snapshot_failure_retains_protection(self):
         worker = self.rbd_worker()
 
-        def run(args):
+        def run(args, *unused):
             if args[1:3] == ["snap", "create"] and args[-1].startswith("pool/data@"):
                 raise RuntimeError("snapshot failed")
             return ""

@@ -71,6 +71,18 @@ public class ListBackupScheduleCmd extends BaseListProjectAndAccountResourcesCmd
             since = "4.22.0")
     private Long id;
 
+    @Parameter(name = ApiConstants.QUIESCE_VM,
+            type = CommandType.BOOLEAN,
+            since = "4.23.0",
+            description = "List schedules by whether the Instance is quiesced before backup; false also includes schedules without an explicit setting")
+    private Boolean quiesceVM;
+
+    @Parameter(name = ApiConstants.INTERVAL_TYPE,
+            type = CommandType.STRING,
+            since = "4.23.0",
+            description = "List schedules by interval type: HOURLY, DAILY, WEEKLY or MONTHLY")
+    private String intervalType;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -81,6 +93,14 @@ public class ListBackupScheduleCmd extends BaseListProjectAndAccountResourcesCmd
 
     public Long getId() {
         return id;
+    }
+
+    public Boolean getQuiesceVM() {
+        return quiesceVM;
+    }
+
+    public String getIntervalType() {
+        return intervalType;
     }
 
     /////////////////////////////////////////////////////

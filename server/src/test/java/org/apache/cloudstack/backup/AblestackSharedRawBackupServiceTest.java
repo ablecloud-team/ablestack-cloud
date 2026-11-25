@@ -172,6 +172,40 @@ public class AblestackSharedRawBackupServiceTest {
         assertThrows(CloudRuntimeException.class, () -> service.guardVolume(null, 1L, null, null));
         assertThrows(CloudRuntimeException.class, () -> service.guardVolume(null, null, 10L, "shared.raw"));
     }
+
+    @Test public void unrelatedVmStartsUseDifferentLifecycleLocks() {
+        java.util.Set<String> names = new java.util.HashSet<>();
+        locks.when(() -> GlobalLock.getInternLock(anyString())).thenAnswer(call -> {
+            names.add(call.getArgument(0));
+            GlobalLock value = mock(GlobalLock.class); when(value.lock(anyInt())).thenReturn(true); return value;
+        });
+        VolumeVO other = mock(VolumeVO.class);
+        when(other.getId()).thenReturn(2L); when(other.getPoolId()).thenReturn(10L);
+        when(other.getPath()).thenReturn("other.qcow2"); when(other.getInstanceId()).thenReturn(21L);
+        when(volumes.findByInstance(21L)).thenReturn(List.of(other));
+        try (var first = service.guardStart(20L); var second = service.guardStart(21L)) {
+            assertEquals(6, names.size());
+            assertTrue(names.stream().allMatch(name -> name.startsWith("asr-") && name.length() < 64));
+        }
+    }
+
+    @Test public void aliasesSharePhysicalLockAndNestedGuardsDoNotReleaseOuterLease() {
+        java.util.Set<String> names = new java.util.HashSet<>();
+        java.util.List<GlobalLock> acquired = new java.util.ArrayList<>();
+        locks.when(() -> GlobalLock.getInternLock(anyString())).thenAnswer(call -> {
+            names.add(call.getArgument(0));
+            GlobalLock value = mock(GlobalLock.class); when(value.lock(anyInt())).thenReturn(true); acquired.add(value); return value;
+        });
+        VolumeVO alias = mock(VolumeVO.class);
+        when(alias.getId()).thenReturn(2L); when(alias.getPoolId()).thenReturn(10L);
+        when(alias.getPath()).thenReturn("shared.raw"); when(alias.getInstanceId()).thenReturn(21L);
+        when(volumes.findByInstance(21L)).thenReturn(List.of(alias));
+        try (var first = service.guardStart(20L)) {
+            try (var second = service.guardStart(21L)) { assertEquals(5, names.size()); }
+            verify(acquired.get(0), never()).unlock();
+        }
+        verify(acquired.get(0)).unlock();
+    }
     @Test public void rbdRawKeepsExistingOnlineIncrementalPath() {
         when(pool.getPoolType()).thenReturn(Storage.StoragePoolType.RBD);
         assertFalse(service.requiresOfflineFull(List.of(disk)));

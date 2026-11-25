@@ -32,15 +32,10 @@ public class LibvirtAblestackCommvaultTakeBackupCommandWrapper extends CommandWr
 
     @Override
     public Answer execute(AblestackCommvaultTakeBackupCommand command, LibvirtComputingResource libvirtComputingResource) {
-        LibvirtAblestackCommvaultBackupHelper backupHelper = new LibvirtAblestackCommvaultBackupHelper(libvirtComputingResource);
-        return LibvirtAblestackTakeBackupCommandHelper.execute(command, logger, BACKUP_TRACE, "Commvault",
+        return LibvirtAblestackTakeBackupCommandHelper.executeVolumeBackup(command, logger, BACKUP_TRACE, "Commvault",
                 new LibvirtAblestackTakeBackupCommandHelper.BackupCommandContext(command.getBackupJobId(), command.getVmName(),
                         command.getBackupPath(), command.getBackupType(), command.isWaitForCompletion()),
-                () -> backupHelper.buildDetachedBackupScriptCommand(command),
-                () -> backupHelper.executeBackup(command),
-                LibvirtAblestackCommvaultBackupHelper.EXIT_CLEANUP_FAILED,
-                "Commvault backup helper returned failure without details",
-                false,
-                null);
+                command.getVolumeStagingManifest(), command.getVolumeBackupStartPlan(),
+                () -> LibvirtAblestackVolumeBackupHelper.buildCommand(libvirtComputingResource, command));
     }
 }

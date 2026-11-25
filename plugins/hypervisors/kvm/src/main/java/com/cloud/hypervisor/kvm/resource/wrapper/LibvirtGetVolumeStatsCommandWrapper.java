@@ -24,6 +24,10 @@ import java.util.HashMap;
 import org.libvirt.LibvirtException;
 
 import com.cloud.agent.api.Answer;
+import com.cloud.agent.api.GetVolumeStatsAnswer;
+import com.cloud.agent.api.GetVolumeStatsCommand;
+import com.cloud.agent.api.VolumeStatsEntry;
+import com.cloud.hypervisor.kvm.resource.KvmVolumeStats;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
 import com.cloud.hypervisor.kvm.storage.KVMPhysicalDisk;
 import com.cloud.hypervisor.kvm.storage.KVMStoragePool;
@@ -31,9 +35,6 @@ import com.cloud.resource.CommandWrapper;
 import com.cloud.resource.ResourceWrapper;
 import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.utils.exception.CloudRuntimeException;
-import com.cloud.agent.api.GetVolumeStatsAnswer;
-import com.cloud.agent.api.GetVolumeStatsCommand;
-import com.cloud.agent.api.VolumeStatsEntry;
 
 @ResourceWrapper(handles = GetVolumeStatsCommand.class)
 public final class LibvirtGetVolumeStatsCommandWrapper extends CommandWrapper<GetVolumeStatsCommand, Answer, LibvirtComputingResource> {
@@ -43,6 +44,15 @@ public final class LibvirtGetVolumeStatsCommandWrapper extends CommandWrapper<Ge
         try {
             String storeUuid = cmd.getPoolUuid();
             StoragePoolType poolType = cmd.getPoolType();
+            if (poolType == StoragePoolType.SharedMountPoint) {
+                String poolPath = libvirtComputingResource.getStoragePoolMgr().getRegisteredStoragePoolPath(poolType, storeUuid);
+                if (poolPath == null || poolPath.isBlank()) {
+                    return new GetVolumeStatsAnswer(cmd, "Volume stats deferred: storage pool is not registered", null);
+                }
+                // Keep GFS file observations out of libvirt's pool locks. Missing samples leave the
+                // management server's previous values intact and are retried on the next collection.
+                return new GetVolumeStatsAnswer(cmd, "", KvmVolumeStats.collect(poolPath, cmd.getVolumeUuids()));
+            }
             KVMStoragePool storagePool = libvirtComputingResource.getStoragePoolMgr().getStoragePool(poolType, storeUuid);
             if (storagePool == null) {
                 String msg = "Can't find storage pool: " + storeUuid + " for type: " + poolType;

@@ -29,11 +29,35 @@ import com.cloud.storage.Storage;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.google.gson.Gson;
 import org.apache.cloudstack.backup.AblestackBackupFrameworkUtils;
+import org.apache.cloudstack.backup.AblestackCommvaultTakeBackupCommand;
+import org.apache.cloudstack.backup.AblestackNetBackupTakeBackupCommand;
+import org.apache.cloudstack.backup.AblestackVeeamTakeBackupCommand;
 import org.apache.cloudstack.backup.ThirdPartyBackupManifest;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 
 final class LibvirtAblestackVolumeBackupHelper {
     private LibvirtAblestackVolumeBackupHelper() { }
+
+    static String[] buildCommand(LibvirtComputingResource resource, AblestackCommvaultTakeBackupCommand command) {
+        return buildCommand(resource, command.getVolumeStagingManifest(), command.getBackupPath(),
+                command.getVolumePools(), command.getVolumePaths(), command.getCheckpointName(), command.getParentCheckpointName(),
+                command.getParentCheckpointXmlChain(), command.getQuiesce(), command.getTimeout(), command.getStagingBufferPercent(),
+                command.getBandwidthLimitMbps(), command.getStagingQueueTimeout());
+    }
+
+    static String[] buildCommand(LibvirtComputingResource resource, AblestackNetBackupTakeBackupCommand command) {
+        return buildCommand(resource, command.getVolumeStagingManifest(), command.getBackupPath(),
+                command.getVolumePools(), command.getVolumePaths(), command.getCheckpointName(), command.getParentCheckpointName(),
+                command.getParentCheckpointXmlChain(), command.getQuiesce(), command.getTimeout(), command.getStagingBufferPercent(),
+                null, command.getStagingQueueTimeout());
+    }
+
+    static String[] buildCommand(LibvirtComputingResource resource, AblestackVeeamTakeBackupCommand command) {
+        return buildCommand(resource, command.getVolumeStagingManifest(), command.getBackupPath(),
+                command.getVolumePools(), command.getVolumePaths(), command.getCheckpointName(), command.getParentCheckpointName(),
+                command.getParentCheckpointXmlChain(), command.getQuiesce(), command.getTimeout(), command.getStagingBufferPercent(),
+                command.getBandwidthLimitMbps(), command.getStagingQueueTimeout());
+    }
 
     static String[] buildCommand(LibvirtComputingResource resource, String manifestJson, String backupPath,
             List<PrimaryDataStoreTO> pools, List<String> paths, String checkpoint, String parentCheckpoint,
@@ -59,8 +83,9 @@ final class LibvirtAblestackVolumeBackupHelper {
                     || manifest.getVolumes().size() != paths.size()) {
                 throw new CloudRuntimeException("Invalid source volume staging plan");
             }
-            Path script = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("thirdparty_volume_backup.py");
-            if (!Files.isRegularFile(script)) {
+            Path script = Path.of(resource.getThirdPartyVolumeBackupPath());
+            Path supervisor = script.resolveSibling("ablestack_backup_progress.py");
+            if (!Files.isRegularFile(script) || !Files.isRegularFile(supervisor)) {
                 throw new CloudRuntimeException("Volume backup script is not installed on the host");
             }
             boolean rbd = pools.stream().allMatch(p -> p.getPoolType() == Storage.StoragePoolType.RBD);
@@ -86,9 +111,15 @@ final class LibvirtAblestackVolumeBackupHelper {
             Path file = directory.resolve("volume-plan.json");
             Files.writeString(file, new Gson().toJson(plan));
             Files.setPosixFilePermissions(file, PosixFilePermissions.fromString("rw-------"));
-            return new String[] {"python3", script.toString(), "--plan-file", file.toString()};
+            return supervisedCommand(script, directory);
         } catch (java.io.IOException e) {
             throw new CloudRuntimeException("Unable to prepare volume backup plan", e);
         }
+    }
+
+    static String[] supervisedCommand(Path script, Path directory) {
+        return new String[] {"python3", script.resolveSibling("ablestack_backup_progress.py").toString(),
+                "--job-dir", directory.toString(), "--", "python3", script.toString(),
+                "--plan-file", directory.resolve("volume-plan.json").toString()};
     }
 }

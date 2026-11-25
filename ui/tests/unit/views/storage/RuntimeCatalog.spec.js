@@ -16,13 +16,27 @@
 // under the License.
 
 import { shallowMount, flushPromises } from '@vue/test-utils'
+import { createI18n } from 'vue-i18n'
 import Action from '@/views/tools/RuntimeCatalogAction.vue'
 import Records from '@/views/tools/RuntimeCatalogRecords.vue'
 import Summary from '@/views/tools/RuntimeBundleCatalogSummary.vue'
+import RuntimeCatalogValue from '@/components/view/RuntimeCatalogValue.vue'
 import { getAPI, postAPI } from '@/api'
 import wire from '../../../fixtures/storage-1447-catalog-wire.json'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 const copy = x => JSON.parse(JSON.stringify(x))
+const draftMetadata = {
+  version: 'v2',
+  signingkeyid: 'operator-key',
+  runtimeabiversion: '1',
+  desiredstateschemaversion: '1',
+  serviceimpact: 'NONE',
+  artifacturl: 'http://localhost/b',
+  manifesturl: 'http://localhost/m',
+  signatureurl: 'http://localhost/s',
+  sha256: 'a'.repeat(64),
+  manifestsha256: 'b'.repeat(64)
+}
 describe('runtime catalogue mounted components and real ApiResponseSerializer response', () => {
   let wrapper, poll
   const resource = () => copy(wire.bundles.liststorageserviceruntimebundlesresponse.storageserviceruntimebundle[0])
@@ -69,12 +83,24 @@ describe('runtime catalogue mounted components and real ApiResponseSerializer re
   })
   it('registers only draft metadata; registration does not start verification, publication or VM application', async () => {
     const vm = await mountAction('REGISTER')
-    vm.form = { version: 'v2', signingkeyid: 'operator-key', runtimeabiversion: '1', desiredstateschemaversion: '1', serviceimpact: 'NONE', artifacturl: 'http://localhost/b', manifesturl: 'http://localhost/m', signatureurl: 'http://localhost/s', sha256: 'a'.repeat(64), manifestsha256: 'b'.repeat(64) }
+    vm.form = { ...draftMetadata, artifactsize: '' }
     expect(vm.valid).toBe(true)
     await vm.submit()
-    expect(postAPI.mock.calls).toEqual([['registerStorageServiceRuntimeBundle', vm.form]])
+    expect(postAPI.mock.calls).toEqual([['registerStorageServiceRuntimeBundle', draftMetadata]])
     expect(wrapper.emitted('refresh-data')).toHaveLength(1)
     expect(wrapper.emitted('close-action')).toHaveLength(1)
+  })
+
+  it.each([['1', 1], ['67108864', 67108864], ['0', null], ['67108865', null], ['1.5', null]])('uses a whole byte count for bundle size %s', async (input, expected) => {
+    const vm = await mountAction('REGISTER')
+    vm.form = { ...draftMetadata, artifactsize: input }
+    await vm.submit()
+    if (expected === null) {
+      expect(vm.artifactSizeInvalid).toBe(true)
+      expect(postAPI).not.toHaveBeenCalled()
+    } else {
+      expect(postAPI).toHaveBeenCalledWith('registerStorageServiceRuntimeBundle', { ...draftMetadata, artifactsize: expected })
+    }
   })
   it('uses the named list record and explicit pagination contract for verification history', async () => {
     wrapper = shallowMount(Records, { props: { resource: resource(), tab: 'runtime.validations' }, global: { mocks: { $t: x => x, $notifyError: jest.fn() }, stubs: { RouterLink: true } } })
@@ -87,6 +113,108 @@ describe('runtime catalogue mounted components and real ApiResponseSerializer re
     await flushPromises()
     expect(getAPI).toHaveBeenLastCalledWith('listStorageServiceRuntimeBundleValidations', { bundleid: 'bundle-uuid', page: 2, pagesize: 20 })
     expect(postAPI).not.toHaveBeenCalled()
+  })
+
+  it('reports unknown usage on failure and only reports zero after a successful lookup', async () => {
+    getAPI.mockRejectedValueOnce(new Error('unavailable'))
+    wrapper = shallowMount(Records, {
+      props: { resource: resource(), tab: 'runtime.usages' },
+      global: {
+        mocks: { $t: key => key },
+        stubs: { AAlert: { template: '<div>{{ message }}<slot name="description" /></div>', props: ['message'] }, ASpace: { template: '<div><slot /></div>' } }
+      }
+    })
+    expect(wrapper.text()).not.toContain('message.runtime.catalog.unused')
+    await flushPromises()
+    expect(wrapper.text()).toContain('message.runtime.catalog.records.load.failed')
+    expect(wrapper.text()).not.toContain('message.runtime.catalog.unused')
+    expect(wrapper.vm.hasSuccessfulRead).toBe(false)
+
+    getAPI.mockResolvedValueOnce({ liststorageserviceruntimebundleusagesresponse: {} })
+    await wrapper.vm.load()
+    expect(wrapper.text()).toContain('message.runtime.catalog.unused')
+    expect(wrapper.text()).not.toContain('message.runtime.catalog.records.load.failed')
+  })
+
+  it('retries the failed page and page size while retaining the last successful results', async () => {
+    wrapper = shallowMount(Records, {
+      props: { resource: resource(), tab: 'runtime.validations' },
+      global: {
+        mocks: { $t: key => key },
+        stubs: {
+          AAlert: { template: '<div><slot name="description" /></div>' },
+          ASpace: { template: '<div><slot /></div>' },
+          AButton: { template: '<button><slot /></button>' }
+        }
+      }
+    })
+    await flushPromises()
+    const previousRows = wrapper.vm.rows
+
+    getAPI.mockRejectedValueOnce(new Error('unavailable'))
+    wrapper.vm.changePage(2, 20)
+    await flushPromises()
+    expect(wrapper.vm.rows).toEqual(previousRows)
+    expect(wrapper.vm.page).toBe(1)
+    expect(wrapper.vm.pagesize).toBe(10)
+
+    const retry = wrapper.findAll('button').find(button => button.text() === 'label.retry')
+    await retry.trigger('click')
+    await flushPromises()
+    expect(getAPI).toHaveBeenLastCalledWith('listStorageServiceRuntimeBundleValidations', { bundleid: 'bundle-uuid', page: 2, pagesize: 20 })
+    expect(wrapper.vm.page).toBe(2)
+    expect(wrapper.vm.pagesize).toBe(20)
+    expect(wrapper.vm.error).toBeNull()
+  })
+
+  it('keeps the last successful usage rows after a failure only within the same bundle', async () => {
+    const row = { id: 'current-reference', type: 'CURRENT' }
+    getAPI.mockResolvedValueOnce({ liststorageserviceruntimebundleusagesresponse: { count: 1, storageserviceruntimecatalogrecord: [row] } })
+    wrapper = shallowMount(Records, {
+      props: { resource: resource(), tab: 'runtime.usages' },
+      global: {
+        mocks: { $t: key => key },
+        stubs: { AAlert: { template: '<div>{{ message }}<slot name="description" /></div>', props: ['message'] }, ASpace: { template: '<div><slot /></div>' } }
+      }
+    })
+    await flushPromises()
+    expect(wrapper.text()).toContain('message.runtime.catalog.used')
+
+    getAPI.mockRejectedValueOnce(new Error('unavailable'))
+    await wrapper.vm.load()
+    expect(wrapper.vm.rows).toEqual([row])
+    expect(wrapper.text()).toContain('message.runtime.catalog.records.previous.result')
+    expect(wrapper.text()).not.toContain('message.runtime.catalog.used')
+
+    getAPI.mockRejectedValueOnce(new Error('unavailable'))
+    await wrapper.setProps({ resource: { id: 'different-bundle' } })
+    await flushPromises()
+    expect(wrapper.vm.rows).toEqual([])
+    expect(wrapper.text()).not.toContain('message.runtime.catalog.records.previous.result')
+  })
+
+  it('waits for its own tab and ignores responses received after deactivation or bundle change', async () => {
+    let settle
+    getAPI.mockReturnValueOnce(new Promise(resolve => { settle = resolve }))
+    wrapper = shallowMount(Records, {
+      props: { resource: resource(), tab: 'runtime.validations', active: false },
+      global: { mocks: { $t: key => key } }
+    })
+    expect(getAPI).not.toHaveBeenCalled()
+
+    await wrapper.setProps({ active: true })
+    expect(getAPI).toHaveBeenCalledTimes(1)
+    await wrapper.setProps({ active: false, resource: { id: 'second-bundle' } })
+    settle(copy(wire.validations))
+    await flushPromises()
+    expect(wrapper.vm.rows).toEqual([])
+    expect(getAPI).toHaveBeenCalledTimes(1)
+
+    await wrapper.setProps({ active: true })
+    await flushPromises()
+    expect(getAPI).toHaveBeenCalledTimes(2)
+    expect(getAPI).toHaveBeenLastCalledWith('listStorageServiceRuntimeBundleValidations', { bundleid: 'second-bundle', page: 1, pagesize: 10 })
+    expect(wrapper.vm.rows[0].id).toBe('validation-uuid')
   })
   it('Storage Service template summaries consume the same catalogue without mutation or invented target compatibility', async () => {
     getAPI.mockResolvedValue(copy(wire.bundles))
@@ -104,5 +232,20 @@ describe('runtime catalogue mounted components and real ApiResponseSerializer re
     expect(getAPI).toHaveBeenLastCalledWith('listStorageServiceRuntimeBundles', { purpose: 'catalog', page: 1, pagesize: 10 })
     expect(wrapper.vm.rows[0].state).toBe('SUSPENDED')
     expect(postAPI).not.toHaveBeenCalled()
+  })
+
+  it('localizes known diagnostic codes and preserves their wire value and unknown codes', async () => {
+    const key = 'label.runtime.catalog.errorcode.REGISTERED_METADATA_MISMATCH'
+    const translated = '서명된 메타데이터가 등록 정보와 다릅니다.'
+    const locale = createI18n({ locale: 'ko_KR', messages: { ko_KR: { [key]: translated } } })
+    wrapper = shallowMount(RuntimeCatalogValue, {
+      props: { group: 'errorcode', value: 'REGISTERED_METADATA_MISMATCH', showCode: true },
+      global: { plugins: [locale] }
+    })
+    expect(wrapper.text()).toContain(translated)
+    expect(wrapper.get('code').text()).toBe('REGISTERED_METADATA_MISMATCH')
+    await wrapper.setProps({ value: 'NEW_SERVER_DIAGNOSTIC' })
+    expect(wrapper.text()).toBe('NEW_SERVER_DIAGNOSTIC')
+    expect(wrapper.find('code').exists()).toBe(false)
   })
 })

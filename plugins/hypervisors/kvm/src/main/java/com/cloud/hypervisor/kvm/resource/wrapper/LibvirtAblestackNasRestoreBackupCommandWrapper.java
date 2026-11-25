@@ -97,7 +97,7 @@ public class LibvirtAblestackNasRestoreBackupCommandWrapper extends CommandWrapp
         List<PrimaryDataStoreTO> restoreVolumePools = command.getRestoreVolumePools();
         List<String> restoreVolumePaths = command.getRestoreVolumePaths();
         Integer mountTimeout = command.getMountTimeout() * 1000;
-        int timeout = command.getWait() > 0 ? command.getWait() : command.getMountTimeout();
+        int timeout = command.getTimeout() > 0 ? command.getTimeout() : command.getMountTimeout();
         String cacheMode = command.getCacheMode();
         KVMStoragePoolManager storagePoolMgr = serverResource.getStoragePoolMgr();
         List<String> volumePaths = command.getVolumePaths();

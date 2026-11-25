@@ -17,12 +17,16 @@
 
 <template>
   <div>
+    <a-alert v-if="readFailed" type="error" show-icon :message="$t('error.fetching.data')">
+      <template #action><a-button size="small" :disabled="disabled" @click="fetchStores">{{ $t('label.retry') }}</a-button></template>
+    </a-alert>
     <a-input-search
       class="top-spaced"
       :placeholder="$t('label.search')"
       v-model:value="searchQuery"
       style="margin-bottom: 10px;"
-      @search="fetchImageStores"
+      :disabled="disabled || loading || readFailed"
+      @search="search"
       v-focus="true" />
     <a-table
       size="small"
@@ -45,14 +49,12 @@
         <template v-if="column.key === 'disksizefree'">
           <span v-if="record.disksizetotal && record.disksizeused">{{ $bytesToHumanReadableSize(record.disksizetotal * 1 - record.disksizeused * 1) }}</span>
         </template>
-        <template v-if="column.key === 'select' && record.id !== srcImageStoreId">
-          <a-tooltip placement="top" :title="record.readonly ? $t('message.secondary.storage.invalid.state') : ''">
-            <a-radio
-              :disabled="record.id === srcImageStoreId"
-              @click="updateSelection(record)"
-              :checked="selectedImageStore != null && record.id === selectedImageStore.id">
-            </a-radio>
-          </a-tooltip>
+        <template v-if="column.key === 'select'">
+          <a-radio
+            :disabled="disabled"
+            :aria-label="record.name || record.id"
+            :checked="record.id === selectedId"
+            @click="$emit('select', record.id)" />
         </template>
       </template>
     </a-table>
@@ -65,7 +67,6 @@
       :showTotal="total => `${$t('label.total')} ${total} ${$t('label.items')}`"
       :pageSizeOptions="['10', '20', '40', '80', '100']"
       @change="handleChangePage"
-      @showSizeChange="handleChangePageSize"
       showSizeChanger>
       <template #buildOptionText="props">
         <span>{{ props.value }} / {{ $t('label.page') }}</span>
@@ -75,109 +76,65 @@
 </template>
 
 <script>
-import { getAPI } from '@/api'
+import { listMigrationStores, migrationDestinations } from '@/utils/secondaryStorageMigration'
 
 export default {
   name: 'ImageStoreSelector',
   props: {
-    zoneid: {
-      type: String,
-      required: true
-    },
-    srcImageStoreId: {
-      type: String,
-      required: false
-    }
+    sourceImageStore: { type: Object, required: true },
+    selectedId: { type: String, default: null },
+    disabled: { type: Boolean, default: false }
   },
+  emits: ['select', 'candidates'],
   data () {
-    return {
-      loading: false,
-      imageStores: [],
-      searchQuery: '',
-      totalCount: 0,
-      page: 1,
-      pageSize: 10,
-      selectedImageStore: null,
-      columns: [
-        {
-          key: 'name',
-          title: this.$t('label.storageid')
-        },
-        {
-          key: 'disksizetotal',
-          title: this.$t('label.disksizetotal')
-        },
-        {
-          key: 'disksizeused',
-          title: this.$t('label.disksizeused')
-        },
-        {
-          key: 'disksizefree',
-          title: this.$t('label.disksizefree')
-        },
-        {
-          key: 'select',
-          title: this.$t('label.select')
-        }
+    return { loading: false, readFailed: false, stores: [], searchQuery: '', keyword: '', page: 1, pageSize: 10 }
+  },
+  computed: {
+    candidates () { return migrationDestinations(this.sourceImageStore, this.stores) },
+    filtered () {
+      return this.candidates.filter(row => [row.name, row.id, row.url].some(value => String(value || '').toLowerCase().includes(this.keyword)))
+    },
+    imageStores () {
+      const start = (this.page - 1) * this.pageSize
+      return this.filtered.slice(start, start + this.pageSize)
+    },
+    totalCount () { return this.filtered.length },
+    columns () {
+      return [
+        { key: 'name', title: this.$t('label.storageid') },
+        { key: 'disksizetotal', title: this.$t('label.disksizetotal') },
+        { key: 'disksizeused', title: this.$t('label.disksizeused') },
+        { key: 'disksizefree', title: this.$t('label.disksizefree') },
+        { key: 'select', title: this.$t('label.select') }
       ]
     }
   },
-  created () {
-    this.fetchImageStores()
-  },
   watch: {
-    searchQuery (newValue, oldValue) {
-      if (newValue !== oldValue) {
-        this.page = 1
-      }
-    }
+    candidates (value) { this.$emit('candidates', value.map(row => row.id)) }
   },
+  created () { this.fetchStores() },
   methods: {
-    fetchImageStores () {
+    async fetchStores () {
+      if (this.loading || this.disabled) return
       this.loading = true
-      var params = {
-        zoneid: this.zoneid,
-        keyword: this.searchQuery,
-        page: this.page,
-        pagesize: this.pageSize
+      this.readFailed = false
+      try {
+        this.stores = await listMigrationStores()
+        this.page = 1
+      } catch {
+        this.readFailed = true
+        this.stores = []
+      } finally {
+        this.loading = false
       }
-      getAPI('listImageStores', params).then(response => {
-        this.imageStores = response.listimagestoresresponse.imagestore || []
-        this.totalCount = response.listimagestoresresponse.count
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.handleImageStoresFetchComplete()
-      })
     },
-    handleImageStoresFetchComplete () {
-      this.$emit('imageStoresUpdated', this.imageStores)
-      this.loading = false
+    search (value) {
+      this.keyword = value.trim().toLowerCase()
+      this.page = 1
     },
     handleChangePage (page, pageSize) {
-      this.page = page
+      this.page = pageSize === this.pageSize ? page : 1
       this.pageSize = pageSize
-      this.fetchImageStores()
-    },
-    handleChangePageSize (currentPage, pageSize) {
-      this.page = currentPage
-      this.pageSize = pageSize
-      this.fetchImageStores()
-    },
-    clearView () {
-      this.imageStores = []
-      this.searchQuery = ''
-      this.totalCount = 0
-      this.page = 1
-      this.pageSize = 10
-    },
-    reset () {
-      this.clearView()
-      this.fetchImageStores()
-    },
-    updateSelection (imageStore) {
-      this.selectedImageStore = imageStore
-      this.$emit('select', this.selectedImageStore)
     }
   }
 }

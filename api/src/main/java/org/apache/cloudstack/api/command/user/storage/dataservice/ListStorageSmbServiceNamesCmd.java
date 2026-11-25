@@ -18,8 +18,12 @@
 package org.apache.cloudstack.api.command.user.storage.dataservice;
 import javax.inject.Inject;
 import org.apache.cloudstack.acl.RoleType;
-import org.apache.cloudstack.api.*;
-import org.apache.cloudstack.api.response.*;
+import org.apache.cloudstack.api.APICommand;
+import org.apache.cloudstack.api.BaseListCmd;
+import org.apache.cloudstack.api.Parameter;
+import org.apache.cloudstack.api.response.ListResponse;
+import org.apache.cloudstack.api.response.StorageServiceInstanceResponse;
+import org.apache.cloudstack.api.response.StorageSmbServiceNameResponse;
 import org.apache.cloudstack.api.command.user.UserCmd;
 @APICommand(name="listStorageSmbServiceNames",responseObject=StorageSmbServiceNameResponse.class,
  description="List registered SMB AD names; optional bounded read-only refresh",requestHasSensitiveInfo=false,responseHasSensitiveInfo=false,

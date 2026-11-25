@@ -38,14 +38,12 @@ public class AblestackNetBackupRestoreBackupCommand extends AblestackRestoreBack
     private Boolean vmExists;
     private String restoreVolumeUUID;
     private VirtualMachine.State vmState;
-    private Integer timeout;
     private String cacheMode;
     private String restoreJobId;
     private ThirdPartyBackupRestore.Plan volumeRestorePlan;
 
     public ThirdPartyBackupRestore.Plan getVolumeRestorePlan() { return volumeRestorePlan; }
     public void setVolumeRestorePlan(ThirdPartyBackupRestore.Plan plan) { volumeRestorePlan = plan; }
-    private boolean waitForCompletion = true;
 
     protected AblestackNetBackupRestoreBackupCommand() {
         super();
@@ -155,15 +153,6 @@ public class AblestackNetBackupRestoreBackupCommand extends AblestackRestoreBack
         this.vmState = vmState;
     }
 
-    public Integer getTimeout() {
-        return timeout == null ? 0 : timeout;
-    }
-
-    public void setTimeout(final Integer timeout) {
-        this.timeout = timeout;
-        setWait(timeout == null ? 0 : timeout);
-    }
-
     public String getCacheMode() {
         return cacheMode;
     }
@@ -180,13 +169,6 @@ public class AblestackNetBackupRestoreBackupCommand extends AblestackRestoreBack
         this.restoreJobId = restoreJobId;
     }
 
-    public boolean isWaitForCompletion() {
-        return waitForCompletion;
-    }
-
-    public void setWaitForCompletion(final boolean waitForCompletion) {
-        this.waitForCompletion = waitForCompletion;
-    }
 
     @Override
     public boolean executeInSequence() {

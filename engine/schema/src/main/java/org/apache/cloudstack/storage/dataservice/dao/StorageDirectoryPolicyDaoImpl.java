@@ -17,7 +17,9 @@
 
 package org.apache.cloudstack.storage.dataservice.dao;
 import java.util.List;
-import com.cloud.utils.db.*;
+import com.cloud.utils.db.GenericDaoBase;
+import com.cloud.utils.db.SearchBuilder;
+import com.cloud.utils.db.SearchCriteria;
 import org.apache.cloudstack.storage.dataservice.StorageDirectoryPolicyVO;
 public class StorageDirectoryPolicyDaoImpl extends GenericDaoBase<StorageDirectoryPolicyVO,Long> implements StorageDirectoryPolicyDao {
     private final SearchBuilder<StorageDirectoryPolicyVO> byInstance;

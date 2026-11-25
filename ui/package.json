@@ -30,6 +30,7 @@
     "build": "vue-cli-service build",
     "postbuild": "./postbuild.sh",
     "lint": "vue-cli-service lint",
+    "check:global-settings-i18n": "python3 check-global-settings-i18n.py",
     "i18n:report": "vue-cli-service test:unit --runTestsByPath tests/unit/views/storage/SharedFSLocale.spec.js --runInBand",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e:ui": "playwright test --config tests/e2e/playwright.config.js",

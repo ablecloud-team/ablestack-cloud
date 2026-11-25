@@ -77,7 +77,9 @@ public class CreateBackupCmd extends BaseAsyncCreateCmd {
             required = false,
             description = "Quiesce the instance before checkpointing the disks for backup. Applicable only to NAS and KBOSS backup providers. " +
                     "The filesystem is frozen before the backup starts and thawed immediately after. " +
-                    "Requires the instance to have the QEMU Guest Agent installed and running.",
+                    "Requires the instance to have the QEMU Guest Agent installed and running. " +
+                    "For ablestack-nas and ablestack-commvault, requested freezing must succeed and remain active " +
+                    "until recovery points are established; otherwise backup fails. Filesystem quiescing does not guarantee application consistency.",
             since = "4.21.0")
     private Boolean quiesceVM;
 

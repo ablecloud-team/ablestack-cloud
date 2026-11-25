@@ -160,6 +160,43 @@ class SharedRawTest(unittest.TestCase):
                             cancel=Mock(side_effect=RuntimeError("canceled")))
         process.terminate.assert_called_once(); process.wait.assert_called_once()
 
+    def test_conversion_deadline_still_terminates_worker_before_reporting_failure(self):
+        process = Mock()
+        process.poll.return_value = None
+        progress = Mock()
+        with patch.object(raw.subprocess, "Popen", return_value=process), \
+                patch.object(raw, "time", Mock(monotonic=Mock(side_effect=[0, 31]))):
+            with self.assertRaisesRegex(RuntimeError, "conversion timed out"):
+                raw.convert(str(self.source), self.root / "copy.raw", "raw", 4096, 30, progress=progress)
+        process.terminate.assert_called_once()
+        process.wait.assert_called_once()
+        progress.assert_not_called()
+
+    def test_each_nas_volume_gets_a_fresh_conversion_deadline(self):
+        destination = self.root / "nas"
+        destination.mkdir()
+        second = self.root / "data.raw"
+        second.write_bytes(b"data")
+        plan = dict(self.plan, disks=self.plan["disks"] + [{"path": second.name, "format": "raw", "bytes": 4096}])
+        payload = {"plan": plan, "paths": [str(self.source), str(second)], "files": ["root.raw", "data.raw"],
+                   "destination": str(destination), "timeout": 30}
+
+        def launch(args, **kwargs):
+            Path(args[-1]).write_bytes(b"image")
+            process = Mock(returncode=0)
+            process.poll.side_effect = [None, 0, 0]
+            return process
+
+        with patch.object(raw, "offline_sources"), patch.object(raw, "capture_configuration"), \
+                patch.object(raw.subprocess, "Popen", side_effect=launch) as exports, \
+                patch.object(raw, "command", return_value='{"format":"raw","virtual-size":4096}'), \
+                patch.object(raw.os, "fsync"), \
+                patch.object(raw, "time", Mock(monotonic=Mock(side_effect=[0, 20, 20, 40]))), patch("builtins.print"):
+            raw.export_nas(payload)
+        self.assertEqual(2, exports.call_count)
+        self.assertTrue((destination / "root.raw").exists())
+        self.assertTrue((destination / "data.raw").exists())
+
     def test_nas_exports_under_one_source_lease(self):
         destination = self.root / "nas"; destination.mkdir(); self.prepare()
         payload = {"plan": self.plan, "paths": [str(self.source)], "files": ["root.disk.raw"], "destination": str(destination), "timeout": 30}

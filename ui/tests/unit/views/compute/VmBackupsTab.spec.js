@@ -290,3 +290,35 @@ test('does not open staging management after a fresh lookup confirms recovery is
   expect(w.vm.$notifyError).toHaveBeenCalled()
   w.unmount()
 })
+
+test('keeps NetBackup image information visible after completion and cleanup', async () => {
+  const w = mount(); await flush()
+  w.vm.$store.getters.apis.getBackupImageInfo = {}
+  for (const status of ['BackedUp', 'BackingUp', 'Failed', 'Canceled', 'Expired']) {
+    const backup = { ...row, provider: 'ablestack-netbackup', status, stagingmanagementrequired: false, vmdetails: { 'thirdparty.staging.mode': 'VOLUME' } }
+    expect(w.vm.visible('getBackupImageInfo', backup)).toBe(true)
+    expect(w.vm.rowActions(backup).some(action => action.api === 'getBackupImageInfo')).toBe(true)
+    expect(w.vm.disabled('getBackupImageInfo', backup)).toBe(false)
+  }
+  expect(w.vm.visible('getBackupImageInfo', { ...row, provider: 'ablestack-netbackup' })).toBe(false)
+  for (const provider of ['ablestack-veeam', 'ablestack-commvault', 'kboss']) {
+    expect(w.vm.visible('getBackupImageInfo', { ...row, provider, vmdetails: { 'thirdparty.staging.mode': 'VOLUME' } })).toBe(false)
+  }
+  delete w.vm.$store.getters.apis.getBackupImageInfo
+  expect(w.vm.visible('getBackupImageInfo', { ...row, provider: 'ablestack-netbackup', vmdetails: { 'thirdparty.staging.mode': 'VOLUME' } })).toBe(false)
+  w.unmount()
+})
+
+test('opens completed NetBackup image information even when the fresh row needs no staging management', async () => {
+  const w = mount(); await flush()
+  w.vm.$store.getters.apis.getBackupImageInfo = {}
+  const backup = { ...row, provider: 'ablestack-netbackup', stagingmanagementrequired: false, vmdetails: { 'thirdparty.staging.mode': 'VOLUME' } }
+  getAPI.mockResolvedValue(response([backup]))
+  await w.vm.openAction('getBackupImageInfo', backup)
+  expect(w.vm.selected.id).toBe(backup.id)
+  expect(w.vm.actionApi).toBe('getBackupImageInfo')
+  expect(w.vm.selectedAction.label).toBe('label.backup.image.information')
+  expect(w.vm.modalWidth).toBe(1200)
+  expect(postAPI).not.toHaveBeenCalled()
+  w.unmount()
+})

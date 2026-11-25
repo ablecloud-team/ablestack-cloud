@@ -142,10 +142,17 @@ public class LibvirtAblestackRbdVolumeRestoreTest {
         AtomicLong imageBytes = new AtomicLong(VOLUME_BYTES);
         try (MockedStatic<KVMPhysicalDisk> disks = Mockito.mockStatic(KVMPhysicalDisk.class);
                 MockedStatic<Script> scripts = Mockito.mockStatic(Script.class);
+                MockedStatic<LibvirtAblestackDataProgress> progress = Mockito.mockStatic(LibvirtAblestackDataProgress.class);
                 MockedStatic<LibvirtAblestackAsyncBackupRunner> runner = Mockito.mockStatic(LibvirtAblestackAsyncBackupRunner.class);
                 MockedConstruction<QemuImg> qemu = Mockito.mockConstruction(QemuImg.class, (mock, context) -> {
                     Mockito.when(mock.info(any(QemuImgFile.class))).thenAnswer(call -> Map.of(QemuImg.VIRTUAL_SIZE, String.valueOf(imageBytes.get())));
                 })) {
+            progress.when(() -> LibvirtAblestackDataProgress.execute(anyString(), anyInt(), anyString(), any())).thenAnswer(call -> {
+                String command = call.getArgument(0);
+                commands.add(command);
+                if (command.contains("qemu-img convert")) { Files.writeString(Path.of(prepared), "prepared"); }
+                return new com.cloud.utils.Pair<>(0, "");
+            });
             disks.when(() -> KVMPhysicalDisk.RBDStringBuilder(eq(pool), anyString()))
                     .thenAnswer(call -> "rbd:" + call.getArgument(1));
             scripts.when(() -> Script.runSimpleBashScriptWithFullResult(anyString(), anyInt())).thenAnswer(call -> {

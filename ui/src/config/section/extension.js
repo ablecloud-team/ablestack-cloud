@@ -17,6 +17,7 @@
 
 import { shallowRef, defineAsyncComponent } from 'vue'
 import store from '@/store'
+import { extensionTypeLabels } from '@/utils/extension'
 
 export default {
   name: 'extension',
@@ -45,7 +46,9 @@ export default {
     return fields
   },
   details: ['name', 'description', 'id', 'type', 'details', 'path', 'pathready', 'isuserdefined', 'orchestratorrequirespreparevm', 'reservedresourcedetails', 'created'],
-  filters: ['Orchestrator', 'NetworkOrchestrator'],
+  filters: Object.keys(extensionTypeLabels),
+  filterLabels: extensionTypeLabels,
+  searchFilters: ['name', 'id'],
   tabs: [{
     name: 'details',
     component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailsTab.vue')))
@@ -68,17 +71,21 @@ export default {
     {
       name: 'vm',
       title: 'label.instances',
-      param: 'extensionid'
+      param: 'extensionid',
+      show: record => record.type === 'Orchestrator'
     },
     {
       name: 'template',
       title: 'label.templates',
-      param: 'extensionid'
+      param: 'extensionid',
+      show: record => record.type === 'Orchestrator'
     }
   ],
   actions: [
     {
       api: 'createExtension',
+      standardDialogSize: 'md',
+      standardDialogInitialFocus: '#form_item_name',
       icon: 'plus-outlined',
       label: 'label.create.extension',
       docHelp: 'adminguide/extensions.html',
@@ -88,6 +95,7 @@ export default {
     },
     {
       api: 'updateExtension',
+      standardDialogSize: 'md',
       icon: 'edit-outlined',
       label: 'label.update.extension',
       dataView: true,
@@ -96,9 +104,11 @@ export default {
     },
     {
       api: 'registerExtension',
+      standardDialogSize: 'md',
       icon: 'api-outlined',
       label: 'label.register.extension',
       message: 'message.action.register.extension',
+      show: record => ['Orchestrator', 'NetworkOrchestrator'].includes(record.type),
       dataView: true,
       popup: true,
       component: shallowRef(defineAsyncComponent(() => import('@/views/extension/RegisterExtension.vue')))
@@ -134,13 +144,8 @@ export default {
       message: 'message.action.delete.extension',
       dataView: true,
       popup: true,
-      args: ['id', 'cleanup'],
-      mapping: {
-        id: {
-          value: (record, params) => { return record.id }
-        },
-        cleanup: false
-      },
+      standardDialogSize: 'sm',
+      component: shallowRef(defineAsyncComponent(() => import('@/views/extension/DeleteExtension.vue'))),
       show: (record) => { return record.isuserdefined }
     }
   ]
