@@ -53,6 +53,11 @@
     show-icon
     class="l2-details-notice"
     :message="$t(l2Network.configDrive ? 'message.l2.network.configdrive' : 'message.l2.network.basic')" />
+  <router-link
+    v-if="$route.meta.name === 'webhookdeliveries' && dataResource.webhookid"
+    :to="{ path: '/webhook/' + dataResource.webhookid, query: { tab: 'recent.deliveries' } }">
+    {{ $t('label.webhook.delivery.back') }}
+  </router-link>
   <a-list
     class="resource-details-list"
     :class="{ 'template-details-list': ['template', 'iso'].includes($route.meta.name), 's2s-gateway-details': $route.meta.name === 's2svpn', 'vm-details-list': kmsRoute($route) || ['vm', 'vnfapp', 'publicip', 's2svpn', 'acllist', 'event', 'vpnuser', 'project', 'guestvlans', 'ipv4subnets', 'dnszone', 'dnsserver', 'zone', 'physicalnetwork', 'host', 'cluster', 'ldapsetting', 'oauthsetting', 'storagepool', 'imagestore', 'secondarystorageselector'].includes($route.meta.name) }"
@@ -183,6 +188,14 @@
             <div v-if="dataResource.scopeenabled === false">{{ $t('message.oauth.scope.disabled') }}</div>
             <div v-if="dataResource.pluginavailable === false">{{ $t('message.oauth.plugin.unavailable') }}</div>
           </div>
+          <div v-else-if="$route.meta.name === 'webhook' && ['scope', 'state', 'sslverification'].includes(item)">
+            {{ item === 'sslverification' ? $t(dataResource[item] ? 'label.yes' : 'label.no') : dataResource[item] ? $t('label.' + dataResource[item].toLowerCase()) : '—' }}
+          </div>
+          <div v-else-if="$route.meta.name === 'webhook' && item === 'payloadurl'" class="webhook-long-value">
+            <span>{{ dataResource[item] }}</span>
+            <tooltip-button v-if="dataResource[item]" :tooltip="$t('label.copy')" icon="copy-outlined" size="small" :copyResource="dataResource[item]" @copy-success="$message.success($t('label.copied.clipboard'))" />
+          </div>
+          <div v-else-if="$route.meta.name === 'webhook' && item === 'secretkeyconfigured'">{{ $t((dataResource.secretkeyconfigured ?? !!dataResource.secretkey) ? 'label.yes' : 'label.no') }}</div>
           <div v-else-if="$route.meta.name === 'oauthsetting' && ['secretkeyconfigured', 'configuredenabled'].includes(item)">{{ $t(dataResource[item] ? 'label.yes' : 'label.no') }}</div>
           <div v-else-if="['vm', 'vnfapp'].includes($route.meta.name) && item !== 'deleteprotection' && (vmBooleanFields.has(item) || typeof dataResource[item] === 'boolean')">{{ $t(vmBooleanLabel(dataResource[item])) }}</div>
           <div v-else-if="['vm', 'vnfapp'].includes($route.meta.name) && item === 'deleteprotection'">
@@ -819,6 +832,7 @@ export default {
       return detailsKeys
     },
     getDetailTitle (detail) {
+      if (this.$route.meta.name === 'webhook' && detail === 'secretkeyconfigured') return 'label.webhook.secret.configured'
       if (this.$route.meta.name === 's2svpn' && detail === 'fordisplay') return 'label.public.ip.display'
       if (this.$route.meta.name === 'publicip' && publicIpDetailFields.includes(detail)) return publicIpFieldLabel(detail)
       if (['vm', 'vnfapp'].includes(this.$route.meta.name) && ['osdisplayname', 'ostypename'].includes(detail)) return 'label.ostypename'
@@ -1055,6 +1069,7 @@ export default {
 <style scoped src="@/style/components/view/resource-details-list.css" />
 
 <style scoped>
+.webhook-long-value { display: flex; gap: 8px; min-width: 0; overflow-wrap: anywhere; }
 .network-ip-usage-detail p { color: var(--ui-text-secondary); margin: 4px 0 0; overflow-wrap: anywhere; }
 :deep(.resource-details-list .ant-list-item) {
   padding: 12px 8px;

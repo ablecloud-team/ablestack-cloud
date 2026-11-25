@@ -76,6 +76,10 @@ public class UpdateWebhookCmd extends BaseCmd {
             authorized = {RoleType.Admin, RoleType.DomainAdmin})
     private String scope;
 
+    @Parameter(name = "redactsecretkey", type = CommandType.BOOLEAN,
+            description = "Exclude the webhook secret key value from the response")
+    private Boolean redactSecretKey;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -125,6 +129,9 @@ public class UpdateWebhookCmd extends BaseCmd {
             WebhookResponse response = webhookApiService.updateWebhook(this);
             if (response == null) {
                 throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to update Webhook");
+            }
+            if (Boolean.TRUE.equals(redactSecretKey)) {
+                response.setSecretKey(null);
             }
             response.setResponseName(getCommandName());
             setResponseObject(response);

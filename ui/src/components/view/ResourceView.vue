@@ -339,7 +339,7 @@ export default {
         this.$emit('onTabChange', key)
         return
       }
-      if (networkTabRoute(this.$route) || ['zone', 'physicalnetwork', 'kubernetesiso', 'template', 'iso', 'ssh', 'userdata', 'cniconfiguration', 'affinitygroup', 'volume', 'computeoffering', 'diskoffering', 'vpcoffering', 'privategw', 's2svpn', 's2svpnconn', 'vpncustomergateway', 'guestvlans', 'dnszone', 'extension', 'customaction'].includes(this.$route.meta?.name)) {
+      if (networkTabRoute(this.$route) || ['webhook', 'zone', 'physicalnetwork', 'kubernetesiso', 'template', 'iso', 'ssh', 'userdata', 'cniconfiguration', 'affinitygroup', 'volume', 'computeoffering', 'diskoffering', 'vpcoffering', 'privategw', 's2svpn', 's2svpnconn', 'vpncustomergateway', 'guestvlans', 'dnszone', 'extension', 'customaction'].includes(this.$route.meta?.name)) {
         this.$router.push({ path: this.$route.path, query })
         this.$emit('onTabChange', key)
         return

@@ -165,7 +165,7 @@
                     v-else-if="field.type==='input'"
                     v-model:value="form[field.name]"
                     :id="isOauthSearch ? 'oauth-filter-' + field.name : isInfrastructureSearch ? infrastructureFilterId(field.name) : isZoneSearch ? 'zone-filter-' + field.name : isVpnUserSearch ? 'vpn-user-filter-' + field.name : undefined"
-                    :aria-label="isOauthSearch || isInfrastructureSearch || isZoneSearch || isEventSearch || isVpnUserSearch ? retrieveFieldLabel(field.name) : undefined" />
+                    :aria-label="apiName === 'listWebhooks' || isOauthSearch || isInfrastructureSearch || isZoneSearch || isEventSearch || isVpnUserSearch ? retrieveFieldLabel(field.name) : undefined" />
                   <div v-else-if="field.type==='tag'">
                     <a-input-group
                       type="text"
@@ -363,7 +363,14 @@ export default {
         this.initFormFieldData()
       }
     },
+    searchParams () {
+      if (this.apiName !== 'listWebhookDeliveries') return
+      this.searchQuery = this.searchParams.searchQuery || ''
+      this.updateIsFiltered()
+      if (this.visibleFilter) this.fillFormFieldValues()
+    },
     '$route' (to, from) {
+      if (this.apiName === 'listWebhookDeliveries') return
       this.searchQuery = ''
       if (to && to.query && 'q' in to.query) {
         this.searchQuery = to.query.q
@@ -383,6 +390,11 @@ export default {
     }
   },
   mounted () {
+    if (this.apiName === 'listWebhookDeliveries') {
+      this.searchQuery = this.searchParams.searchQuery || ''
+      this.updateIsFiltered()
+      return
+    }
     this.searchQuery = ''
     if (this.$route && this.$route.query && 'q' in this.$route.query) {
       this.searchQuery = this.$route.query.q
@@ -550,6 +562,8 @@ export default {
       return (this.isPrimaryStorageSearch ? 'primary-storage-filter-' : this.isClusterSearch ? 'cluster-filter-' : 'host-filter-') + key
     },
     retrieveFieldLabel (fieldName) {
+      if (this.apiName === 'listWebhooks' && fieldName === 'id') return 'UUID'
+      if (this.apiName === 'listWebhooks' && fieldName === 'name') return this.$t('label.webhook.search.exact')
       if (this.apiName === 'listExtensions') return this.$t(fieldName === 'id' ? 'label.extension.uuid' : 'label.extension.name.exact')
       if (this.apiName === 'listBackups' && fieldName === 'virtualmachineid') return this.$t('label.virtualmachinename')
       if ((this.isClusterSearch || this.isPrimaryStorageSearch) && fieldName === 'storageaccessgroup') return this.$t('label.storageaccessgroups')
@@ -1563,6 +1577,7 @@ export default {
       if (this.$route.meta.params) {
         Object.assign(this.fieldValues, this.$route.meta.params)
       }
+      if (this.apiName === 'listWebhookDeliveries') this.fieldValues = { ...this.searchParams }
       this.fields.forEach(field => {
         const value = this.fieldValues[field.name]
         this.form[field.name] = field.type === 'boolean'
@@ -2484,7 +2499,7 @@ export default {
           this.$emit('search', { roleFilters: this.paramsFilter })
           return
         }
-        if (this.apiName === 'listExtensions' || this.isInfrastructureSearch || this.isZoneSearch || this.isDnsZoneSearch || this.isDnsServerSearch || this.isAccountSearch || this.isEventSearch || this.isVpnCustomerGatewaySearch || this.isGuestVlanSearch || this.isIpv4SubnetSearch) this.visibleFilter = false
+        if (['listExtensions', 'listWebhooks'].includes(this.apiName) || this.isInfrastructureSearch || this.isZoneSearch || this.isDnsZoneSearch || this.isDnsServerSearch || this.isAccountSearch || this.isEventSearch || this.isVpnCustomerGatewaySearch || this.isGuestVlanSearch || this.isIpv4SubnetSearch) this.visibleFilter = false
         if (this.isVpnCustomerGatewaySearch && this.paramsFilter.id) this.paramsFilter.id = this.paramsFilter.id.trim()
         if (this.isVnfSearch) {
           if (this.searchQuery) this.paramsFilter.keyword = this.paramsFilter.q = this.searchQuery.trim()

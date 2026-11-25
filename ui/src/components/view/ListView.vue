@@ -209,6 +209,7 @@
           <router-link v-else-if="$route.meta?.name === 'account' && !resourcePath && record.id" :title="text" :to="accountDetailLocation($route, record, $store.getters, $store.state?.user?.token)">{{ text }}</router-link>
           <router-link v-else-if="$route.meta?.name === 'role' && !resourcePath && record.id" :title="text" :to="roleDetailLocation($route, record, $store.getters, $store.state?.user?.token)">{{ text }}</router-link>
           <router-link v-else-if="kmsListRoute($route) && !resourcePath && record.id" :to="kmsDetailLocation($route, record, $store.getters, $store.state?.user?.token)">{{ text }}</router-link>
+          <router-link v-else-if="$route.path === '/webhook' && !resourcePath && record.id" :title="text" :to="{ path: '/webhook/' + record.id, query: webhookListDetailQuery($route.query) }">{{ text }}</router-link>
           <router-link v-else-if="$route.path === '/extension' && !resourcePath && record.id" :to="{ path: '/extension/' + record.id, query: extensionListQuery($route.query) }">{{ text }}</router-link>
           <span v-else-if="$route.path === '/imagestore' && !resourcePath && record.id">
             <router-link :to="{ path: '/imagestore/' + record.id, query: secondaryStorageListQuery($route.query) }">{{ text }}</router-link>
@@ -1109,8 +1110,14 @@
         <span v-else>{{ text }}</span>
       </template>
       <template v-if="column.key === 'payload'">
+        <a-button
+          v-if="inlineWebhookDelivery"
+          type="link"
+          :aria-label="$t('label.webhook.delivery.details')"
+          @click="$emit('open-webhook-delivery', record)"
+        >{{ getTrimmedText(text, 48) || $t('label.webhook.delivery.details') }}</a-button>
         <router-link
-          v-if="$router.resolve('/webhookdeliveries/' + record.id).matched[0].redirect !== '/exception/404'"
+          v-else-if="$router.resolve('/webhookdeliveries/' + record.id).matched[0].redirect !== '/exception/404'"
           :to="{ path: '/webhookdeliveries/' + record.id }"
         >{{ getTrimmedText(text, 48) }}</router-link>
         <span v-else> {{ getTrimmedText(text, 48) }} </span>
@@ -1372,6 +1379,7 @@ import { dnsServerListQuery } from '@/utils/dnsServer'
 import { hostStatusColor, hostStatusLabel } from '@/utils/hostPresentation'
 import { zoneFeatureLabel, zoneFeatureState, zoneListQuery, zoneMetricText } from '@/utils/zone'
 import { extensionListQuery } from '@/utils/extension'
+import { webhookListDetailQuery } from '@/utils/webhookDeliveryQuery'
 import { clusterListQuery, clusterStateLabel } from '@/utils/clusterSearch'
 import { primaryStorageListQuery } from '@/utils/primaryStorageSearch'
 import { secondaryStorageListQuery } from '@/utils/secondaryStorageSearch'
@@ -1491,6 +1499,7 @@ export default {
     FileTextOutlined
   },
   emits: [
+    'open-webhook-delivery',
     'disable-gpu-device',
     'edit-tariff-action',
     'enable-gpu-device',
@@ -1535,6 +1544,7 @@ export default {
       type: Array,
       default: () => []
     },
+    inlineWebhookDelivery: { type: Boolean, default: false },
     explicitlyAllowRowSelection: {
       type: Boolean,
       default: false
@@ -1759,6 +1769,7 @@ export default {
     hostListQuery,
     clusterListQuery,
     extensionListQuery,
+    webhookListDetailQuery,
     primaryStorageListQuery,
     secondaryStorageListQuery,
     clusterStateLabel,

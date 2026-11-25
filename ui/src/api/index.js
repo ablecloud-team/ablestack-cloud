@@ -24,6 +24,8 @@ import {
   ACCESS_TOKEN
 } from '@/store/mutation-types'
 
+const webhookSecretResponseApis = new Set(['listWebhooks', 'createWebhook', 'updateWebhook'])
+
 const getAPICommandsRegex = /^(get|list|query|find)\w+$/i
 const additionalGetAPICommandsList = [
   'isaccountallowedtocreateofferingswithtags',
@@ -48,6 +50,7 @@ function hasSessionKey () {
 
 export function getAPI (command, args = {}, { optionalDiscovery = false, timeout, backgroundJob = false, preserveOnFailure = false, signal, readScope } = {}) {
   args.command = command
+  if (webhookSecretResponseApis.has(command)) args.redactsecretkey = true
   args.response = 'json'
 
   const sessionkey = getSessionKey()
@@ -84,6 +87,7 @@ export function postAPI (command, data = {}, { preserveOnFailure = false, timeou
   params.append('command', command)
   params.append('response', 'json')
   appendApiData(params, data)
+  if (webhookSecretResponseApis.has(command)) params.set('redactsecretkey', 'true')
 
   const sessionkey = getSessionKey()
   if (sessionkey && !params.has('sessionkey')) {

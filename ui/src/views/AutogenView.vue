@@ -282,10 +282,10 @@
         @refresh-data="refreshActionData"
         @close-action="closeAction"
       />
-      <keep-alive :max="(isExtensionUi || isLdapUi || isOauthUi || isStorageUi || isPolicyUi || isObjectStorageUi || currentAction.vmDeletionTargets || currentAction.vmEditCurrent || currentAction.vnfReinstallCurrent || vmStandardDialog || roleStandardDialog || accountStandardDialog || publicIpStandardDialog || isDnsZone || isDnsServer || isZoneUi || isHostUi || isClusterUi || isPrimaryStorageUi || isSecondaryStorageUi) ? 1 : undefined" v-else-if="currentAction.component && (!currentAction.invokedAsGroupAction || ['destroyVirtualMachine', 'deleteBackup', 'destroySharedFileSystem'].includes(currentAction.api))">
+      <keep-alive :max="(isWebhookUi || isExtensionUi || isLdapUi || isOauthUi || isStorageUi || isPolicyUi || isObjectStorageUi || currentAction.vmDeletionTargets || currentAction.vmEditCurrent || currentAction.vnfReinstallCurrent || vmStandardDialog || roleStandardDialog || accountStandardDialog || publicIpStandardDialog || isDnsZone || isDnsServer || isZoneUi || isHostUi || isClusterUi || isPrimaryStorageUi || isSecondaryStorageUi) ? 1 : undefined" v-else-if="currentAction.component && (!currentAction.invokedAsGroupAction || ['destroyVirtualMachine', 'deleteBackup', 'destroySharedFileSystem'].includes(currentAction.api))">
         <component
           :is="currentAction.fixedFormFooter ? 'SharedFSFormDialog' : isVpcUi ? 'VpcDialog' : standardActionDialog ? 'MoldDialog' : 'a-modal'"
-          :size="currentAction.standardDialogSize || (isHostUi || vmStandardDialog || roleStandardDialog || accountStandardDialog ? 'md' : isVpcUi || isObjectStorageUi ? 'md' : isStorageUi ? storageDialogSize(currentAction.api) : undefined)"
+          :size="currentAction.standardDialogSize || (isWebhookUi || isHostUi || vmStandardDialog || roleStandardDialog || accountStandardDialog ? 'md' : isVpcUi || isObjectStorageUi ? 'md' : isStorageUi ? storageDialogSize(currentAction.api) : undefined)"
           class="mold-dialog"
           :class="{ 'object-storage-dialog': isObjectStorageUi, 'autoscale-dialog': $route.meta?.name === 'autoscalevmgroup', 'storage-standard-dialog': standardActionDialog, 'vpc-standard-dialog': isVpcUi, 'snapshot-standard-dialog': currentAction.snapshotStandardDialog, 'sharedfs-standard-dialog': $route.meta?.name === 'sharedfs' }"
           centered
@@ -298,7 +298,7 @@
           :footer="standardActionDialog ? undefined : null"
           :form-actions="standardActionDialog"
           :initial-focus="currentAction.standardDialogInitialFocus"
-          :focus-guard="isLdapUi || isOauthUi || isSecondaryStorageUi || isPrimaryStorageUi || isClusterUi || isHostUi || isZoneUi || isPhysicalNetworkUi || isDnsZone || isDnsServer || isIpv4Subnet || isVpcUi || isProjectUi || vmStandardDialog || roleStandardDialog || accountStandardDialog || publicIpStandardDialog || !!currentAction.snapshotStandardDialog || !!currentAction.vnfReinstallCurrent || isExtensionUi"
+          :focus-guard="isLdapUi || isOauthUi || isSecondaryStorageUi || isPrimaryStorageUi || isClusterUi || isHostUi || isZoneUi || isPhysicalNetworkUi || isDnsZone || isDnsServer || isIpv4Subnet || isVpcUi || isProjectUi || vmStandardDialog || roleStandardDialog || accountStandardDialog || publicIpStandardDialog || !!currentAction.snapshotStandardDialog || !!currentAction.vnfReinstallCurrent || isExtensionUi || isWebhookUi"
           :after-close="restoreClosedActionFocus"
           :width="currentAction.dialogWidth || 'auto'"
         >
@@ -318,9 +318,9 @@
           <cluster-action-context v-if="isClusterUi && resource.id && !currentAction.listView" :resource="resource" />
           <host-action-context v-if="isHostUi && resource.id && !currentAction.listView && ['configureOutOfBandManagement', 'updateHostPassword', 'configureHAForHost'].includes(currentAction.api)" :resource="resource" :api="currentAction.api" />
           <VpcActionContext v-if="isVpcUi && resource.id && !currentAction.listView" :resources="[resource]" />
-          <keep-alive :max="(isExtensionUi || isLdapUi || isOauthUi || isStorageUi || isPolicyUi || isObjectStorageUi || currentAction.vmDeletionTargets || currentAction.vmEditCurrent || currentAction.vnfReinstallCurrent || vmStandardDialog || roleStandardDialog || accountStandardDialog || publicIpStandardDialog || isDnsZone || isDnsServer || isZoneUi || isHostUi || isClusterUi || isPrimaryStorageUi || isSecondaryStorageUi) ? 1 : undefined">
+          <keep-alive :max="(isWebhookUi || isExtensionUi || isLdapUi || isOauthUi || isStorageUi || isPolicyUi || isObjectStorageUi || currentAction.vmDeletionTargets || currentAction.vmEditCurrent || currentAction.vnfReinstallCurrent || vmStandardDialog || roleStandardDialog || accountStandardDialog || publicIpStandardDialog || isDnsZone || isDnsServer || isZoneUi || isHostUi || isClusterUi || isPrimaryStorageUi || isSecondaryStorageUi) ? 1 : undefined">
             <component
-              :key="(isExtensionUi || isLdapUi || isOauthUi || isStorageUi || isPolicyUi || isObjectStorageUi || currentAction.vmDeletionTargets || currentAction.vmEditCurrent || currentAction.vnfReinstallCurrent || vmStandardDialog || roleStandardDialog || accountStandardDialog || publicIpStandardDialog || isDnsZone || isDnsServer || isZoneUi || isHostUi || isClusterUi || isPrimaryStorageUi || isSecondaryStorageUi) ? storageActionGeneration : undefined"
+              :key="(isWebhookUi || isExtensionUi || isLdapUi || isOauthUi || isStorageUi || isPolicyUi || isObjectStorageUi || currentAction.vmDeletionTargets || currentAction.vmEditCurrent || currentAction.vnfReinstallCurrent || vmStandardDialog || roleStandardDialog || accountStandardDialog || publicIpStandardDialog || isDnsZone || isDnsServer || isZoneUi || isHostUi || isClusterUi || isPrimaryStorageUi || isSecondaryStorageUi) ? storageActionGeneration : undefined"
               :is="currentAction.component"
               :resource="resource"
               :loading="loading"
@@ -367,18 +367,18 @@
         @refresh="finishEventMutation(false)"
       />
       <component
-        :is="isVpcUi ? 'VpcDialog' : (isStorageUi || isBucketGroupDelete || isGuestNetworkDelete || vmStandardDialog || projectStandardDialog || roleStandardDialog || accountStandardDialog || aclStandardDialog || publicIpReleaseDialog || (infrastructureStandardDialog || isExtensionUi) || oauthStatusDialog) ? 'MoldDialog' : 'a-modal'"
-        :size="oauthStatusDialog ? 'sm' : (isVpcUi || isStorageUi || isBucketGroupDelete || isGuestNetworkDelete || vmStandardDialog || projectStandardDialog || roleStandardDialog || accountStandardDialog || aclStandardDialog || publicIpReleaseDialog || (infrastructureStandardDialog || isExtensionUi)) ? 'md' : undefined"
+        :is="isVpcUi ? 'VpcDialog' : (isStorageUi || isBucketGroupDelete || isGuestNetworkDelete || vmStandardDialog || projectStandardDialog || roleStandardDialog || accountStandardDialog || aclStandardDialog || publicIpReleaseDialog || (infrastructureStandardDialog || isExtensionUi || isWebhookUi) || oauthStatusDialog) ? 'MoldDialog' : 'a-modal'"
+        :size="oauthStatusDialog ? 'sm' : (isVpcUi || isStorageUi || isBucketGroupDelete || isGuestNetworkDelete || vmStandardDialog || projectStandardDialog || roleStandardDialog || accountStandardDialog || aclStandardDialog || publicIpReleaseDialog || (infrastructureStandardDialog || isExtensionUi || isWebhookUi)) ? 'md' : undefined"
         class="mold-dialog"
-        :class="{ 'storage-standard-dialog': oauthStatusDialog || (infrastructureStandardDialog || isExtensionUi) || isStorageUi || isBucketGroupDelete || isGuestNetworkDelete || vmStandardDialog || projectStandardDialog || roleStandardDialog || accountStandardDialog || aclStandardDialog || publicIpReleaseDialog, 'vpc-standard-dialog': isVpcUi, 'acl-standard-dialog': aclStandardDialog, 'object-storage-dialog': isBucketGroupDelete, 'autoscale-dialog': $route.meta?.name === 'autoscalevmgroup' }"
+        :class="{ 'storage-standard-dialog': oauthStatusDialog || (infrastructureStandardDialog || isExtensionUi || isWebhookUi) || isStorageUi || isBucketGroupDelete || isGuestNetworkDelete || vmStandardDialog || projectStandardDialog || roleStandardDialog || accountStandardDialog || aclStandardDialog || publicIpReleaseDialog, 'vpc-standard-dialog': isVpcUi, 'acl-standard-dialog': aclStandardDialog, 'object-storage-dialog': isBucketGroupDelete, 'autoscale-dialog': $route.meta?.name === 'autoscalevmgroup' }"
           v-else
         :visible="showAction"
-        :closable="!(isVpcUi || vmStandardDialog || projectStandardDialog || roleStandardDialog || accountStandardDialog || aclStandardDialog || publicIpReleaseDialog || (infrastructureStandardDialog || isExtensionUi) || oauthStatusDialog) || !(actionLoading || vmActionValidationPending)"
+        :closable="!(isVpcUi || vmStandardDialog || projectStandardDialog || roleStandardDialog || accountStandardDialog || aclStandardDialog || publicIpReleaseDialog || (infrastructureStandardDialog || isExtensionUi || isWebhookUi) || oauthStatusDialog) || !(actionLoading || vmActionValidationPending)"
         :maskClosable="false"
         :width="(isBucketGroupDelete || isGuestNetworkDelete || publicIpReleaseDialog || aclStandardDialog) ? 'min(720px, calc(100vw - 32px))' : (currentAction.invokedAsGroupAction ? modalWidth : 760)"
-        :focus-guard="isVpcUi || vmStandardDialog || projectStandardDialog || roleStandardDialog || accountStandardDialog || aclStandardDialog || publicIpReleaseDialog || (infrastructureStandardDialog || isExtensionUi) || oauthStatusDialog"
+        :focus-guard="isVpcUi || vmStandardDialog || projectStandardDialog || roleStandardDialog || accountStandardDialog || aclStandardDialog || publicIpReleaseDialog || (infrastructureStandardDialog || isExtensionUi || isWebhookUi) || oauthStatusDialog"
         :initial-focus="oauthStatusDialog ? '#oauth-status-cancel' : undefined"
-        :keyboard="!(isVpcUi || vmStandardDialog || projectStandardDialog || roleStandardDialog || accountStandardDialog || aclStandardDialog || publicIpReleaseDialog || (infrastructureStandardDialog || isExtensionUi) || oauthStatusDialog) || !(actionLoading || vmActionValidationPending)"
+        :keyboard="!(isVpcUi || vmStandardDialog || projectStandardDialog || roleStandardDialog || accountStandardDialog || aclStandardDialog || publicIpReleaseDialog || (infrastructureStandardDialog || isExtensionUi || isWebhookUi) || oauthStatusDialog) || !(actionLoading || vmActionValidationPending)"
         :after-close="restoreClosedActionFocus"
         :ok-button-props="getOkProps()"
         ok-text="111"
@@ -491,6 +491,19 @@
               :message="$t(form.cleanup ? 'message.project.delete.cleanup' : 'message.project.delete.keep')"
               class="vm-action-error" />
             <network-operation-policy v-if="isGuestNetworkDelete" context="delete" :network-type="resource.type" />
+            <a-descriptions v-if="currentAction.webhookEdit" :column="1" size="small" class="webhook-edit-owner">
+              <a-descriptions-item :label="$t('label.scope')">
+                {{ resource.scope ? $t('label.' + resource.scope.toLowerCase()) : '—' }}
+              </a-descriptions-item>
+              <a-descriptions-item v-if="resource.account" :label="$t('label.account')">{{ resource.account }}</a-descriptions-item>
+              <a-descriptions-item v-if="resource.domain" :label="$t('label.domain')">{{ resource.domain }}</a-descriptions-item>
+              <a-descriptions-item v-if="resource.project" :label="$t('label.project')">{{ resource.project }}</a-descriptions-item>
+            </a-descriptions>
+            <a-alert
+              v-if="currentAction.webhookEdit && form.scope && form.scope !== resource.scope"
+              type="info"
+              show-icon
+              :message="$t('message.webhook.scope.change', { scope: $t('label.' + form.scope.toLowerCase()) })" />
             <div v-if="requiresNameConfirmation" style="margin-bottom: 5px">
               <a-form-item>
                 <a-input v-model:value="actionConfirmText" :placeholder="resource.name" :aria-label="$t('label.delete.confirmation')" v-focus="projectStandardDialog" />
@@ -540,6 +553,10 @@
                     :placeholder="actionFieldDescription(field)"
                     v-focus="fieldIndex === firstIndex"
                   />
+                  <a-select
+                    v-else-if="currentAction.webhookEdit && field.name === 'scope'"
+                    v-model:value="form.scope"
+                    :options="resource.editablescopes.map(scope => ({ value: scope, label: $t('label.' + scope.toLowerCase()) }))" />
                   <a-select
                     v-else-if="currentAction.mapping && field.name in currentAction.mapping && currentAction.mapping[field.name].options"
                     :loading="field.loading"
@@ -731,6 +748,19 @@
                     v-model:value="form[field.name]"
                     :placeholder="actionFieldDescription(field)"
                   />
+                  <template v-else-if="currentAction.webhookEdit && field.name === 'secretkey'">
+                    <a-radio-group v-model:value="form.webhookSecretAction" @change="form.secretkey = undefined">
+                      <a-radio value="keep">{{ $t('label.webhook.secret.keep') }}</a-radio>
+                      <a-radio value="replace">{{ $t('label.webhook.secret.replace') }}</a-radio>
+                      <a-radio v-if="resource.secretkeyconfigured ?? !!resource.secretkey" value="remove">{{ $t('label.remove') }}</a-radio>
+                    </a-radio-group>
+                    <a-input-password
+                      v-if="form.webhookSecretAction === 'replace'"
+                      v-model:value="form.secretkey"
+                      :aria-label="$t('label.webhook.secret.replace')"
+                      autocomplete="new-password" />
+                    <a-alert v-if="form.webhookSecretAction === 'remove'" type="warning" show-icon :message="$t('message.webhook.secret.remove')" />
+                  </template>
                   <a-input-password
                     v-else-if="field.name==='password' || field.name==='currentpassword' || field.name==='confirmpassword' || field.name==='secretkey'"
                     v-model:value="form[field.name]"
@@ -1009,6 +1039,7 @@ import EventCsvDialog from '@/views/event/EventCsvDialog'
 import EventMutationDialog from '@/views/event/EventMutationDialog'
 import VpnUserDeleteDialog from '@/views/network/VpnUserDeleteDialog'
 import { runtimeCatalogFilters } from '@/utils/runtimeCatalog'
+import { webhookDetailParams, webhookListQuery } from '@/utils/webhookDeliveryQuery'
 import { canDeleteVpnUsers, vpnUserDeleteTargets } from '@/utils/vpnUserDeletion'
 import { vpnCustomerGatewayActionKey } from '@/utils/vpnCustomerGatewayJobs'
 import { vpnUserOwner, vpnUserVisibleColumns } from '@/utils/vpnUserPresentation'
@@ -1772,8 +1803,9 @@ export default {
       if ('listDomains' in this.$store.getters.apis) options.push({ value: 'domain', label: this.$t('label.domain') })
       return options
     },
+    isWebhookUi () { return ['webhook', 'webhookdeliveries'].includes(this.$route.meta?.name) },
     isExtensionUi () { return ['extension', 'customaction'].includes(this.$route.meta?.name) },
-    standardResourceToolbar () { return this.isExtensionUi || this.isLdapUi || this.isOauthUi || this.isSecondaryStorageUi || this.isPrimaryStorageUi || this.isClusterUi || this.isHostUi || this.isZoneUi || this.isPhysicalNetworkUi || this.isZoneRelatedList || this.isRoleUi || this.isVmUi || this.isRuntimeCatalog || this.isAclUi || this.isVpnUser || this.isProjectUi || this.isVpnCustomerGateway || this.isGuestVlan || this.isIpv4Subnet || this.isDnsZone || this.isDnsServer },
+    standardResourceToolbar () { return this.isWebhookUi || this.isExtensionUi || this.isLdapUi || this.isOauthUi || this.isSecondaryStorageUi || this.isPrimaryStorageUi || this.isClusterUi || this.isHostUi || this.isZoneUi || this.isPhysicalNetworkUi || this.isZoneRelatedList || this.isRoleUi || this.isVmUi || this.isRuntimeCatalog || this.isAclUi || this.isVpnUser || this.isProjectUi || this.isVpnCustomerGateway || this.isGuestVlan || this.isIpv4Subnet || this.isDnsZone || this.isDnsServer },
     vpnUserAuth () { return this.isVpnUser ? vpnUserSearchAuth(this.$store.getters, this.$store.state?.user?.token) : null },
     vpnUserScope () { return this.isVpnUser ? vpnUserProject(this.$route.query, this.$store.getters) : null },
     vpnUserDeleteScope () {
@@ -1929,7 +1961,7 @@ export default {
     publicIpReservationDialog () { return this.$route.meta?.name === 'publicip' && this.currentAction?.api === 'reserveIpAddress' },
     publicIpStandardDialog () { return this.$route.meta?.name === 'publicip' && ['reserveIpAddress', 'updateIpAddress'].includes(this.currentAction?.api) },
     oauthStatusDialog () { return this.isOauthUi && this.currentAction.api === 'updateOauthProvider' && typeof this.currentAction.defaultArgs?.enabled === 'boolean' },
-    standardActionDialog () { return this.isSecondaryStorageUi || this.isClusterUi || this.isHostUi || this.roleStandardDialog || this.accountStandardDialog || this.vmStandardDialog || this.isVpcUi || this.isStorageUi || this.isObjectStorageUi || !!this.currentAction.standardDialogSize },
+    standardActionDialog () { return this.isWebhookUi || this.isSecondaryStorageUi || this.isClusterUi || this.isHostUi || this.roleStandardDialog || this.accountStandardDialog || this.vmStandardDialog || this.isVpcUi || this.isStorageUi || this.isObjectStorageUi || !!this.currentAction.standardDialogSize },
     storageActionReady () { return !this.listRequestPending && !this.listRefreshError && this.listLoadedScope === this.listScope() },
     policySelectionAvailable () {
       return this.isPolicyList && !this.policySearchFailure && this.actions.some(action => action.groupAction && action.api in this.$store.getters.apis)
@@ -3098,6 +3130,9 @@ export default {
         this.columns = this.columns.map(column => isoColumn(column, this.$route.query, this.$t))
         this.allColumns = this.allColumns.map(column => isoColumn(column, this.$route.query, this.$t))
       }
+      if (this.apiName === 'listWebhooks' && this.$route.params?.id) {
+        params = webhookDetailParams(params, this.$route.params.id)
+      }
       const customParamHandler = this.$route.meta.customParamHandler
       if (customParamHandler && typeof customParamHandler === 'function') {
         params = customParamHandler(params, this.$route.query)
@@ -3652,7 +3687,7 @@ export default {
       const snapshotDialog = this.currentAction?.storageSnapshotMode || this.currentAction?.snapshotStandardDialog
       const vpnUserDelete = !!this.currentAction?.vpnUserDeleteTargets
       const kmsDialog = kmsRoute(this.$route) && this.currentAction?.selfManagedDialog
-      const guardedDialog = this.isExtensionUi || this.isLdapUi || this.isOauthUi || this.isSecondaryStorageUi || this.isPrimaryStorageUi || this.isClusterUi || this.isHostUi || this.isZoneUi || this.isPhysicalNetworkUi || !!this.currentAction?.vpnCustomerGatewayScope || ['downloadEvents', 'addVpnUser'].includes(this.currentAction?.api) || !!this.currentAction?.eventMutationTargets || vpnUserDelete || kmsDialog || this.isProjectUi || this.isRuntimeCatalog || ['kubernetesiso', 's2svpn', 's2svpnconn'].includes(this.$route.meta?.name) || this.vmStandardDialog || this.roleStandardDialog || this.accountStandardDialog || this.aclStandardDialog || this.publicIpStandardDialog || snapshotDialog || !!this.currentAction?.vnfReinstallCurrent || !!this.currentAction?.vnfUnmanageCurrent
+      const guardedDialog = this.isWebhookUi || this.isExtensionUi || this.isLdapUi || this.isOauthUi || this.isSecondaryStorageUi || this.isPrimaryStorageUi || this.isClusterUi || this.isHostUi || this.isZoneUi || this.isPhysicalNetworkUi || !!this.currentAction?.vpnCustomerGatewayScope || ['downloadEvents', 'addVpnUser'].includes(this.currentAction?.api) || !!this.currentAction?.eventMutationTargets || vpnUserDelete || kmsDialog || this.isProjectUi || this.isRuntimeCatalog || ['kubernetesiso', 's2svpn', 's2svpnconn'].includes(this.$route.meta?.name) || this.vmStandardDialog || this.roleStandardDialog || this.accountStandardDialog || this.aclStandardDialog || this.publicIpStandardDialog || snapshotDialog || !!this.currentAction?.vnfReinstallCurrent || !!this.currentAction?.vnfUnmanageCurrent
       const policyDeleteDialog = this.currentAction?.policyDeleteDialog
       const deletedPolicyDetail = policyDeleteDialog && policyDetailRoute(this.$route) && this.currentAction.policyListScope === this.listScope() && result?.removed?.includes(this.$route.params?.id)
       let policyListLocation
@@ -4613,6 +4648,10 @@ export default {
     },
     fillEditFormFieldValues () {
       this.currentAction.paramFields.map(field => {
+        if (this.currentAction.webhookEdit && field.name === 'secretkey') {
+          this.form.webhookSecretAction = 'keep'
+          return
+        }
         let fieldValue = null
         let fieldName = null
         if (field.type === 'list' || field.name === 'account') {
@@ -4863,6 +4902,23 @@ export default {
         }
         const params = {}
         const action = this.currentAction
+        if (action.webhookEdit) {
+          const { webhookSecretAction, secretkey, ...editableValues } = values
+          values = editableValues
+          if (webhookSecretAction === 'replace') {
+            if (!secretkey?.trim()) {
+              this.$message.warning(this.$t('message.error.required.input'))
+              return
+            }
+            values.secretkey = secretkey
+          } else if (webhookSecretAction === 'remove') {
+            values.secretkey = ''
+          }
+        }
+        if (action.webhookEdit && (!values.scope || values.scope === this.resource.scope || !this.resource.editablescopes?.includes(values.scope))) {
+          const { scope, ...unchangedScopeValues } = values
+          values = unchangedScopeValues
+        }
         if (isVmGroupNameAction(action.api)) {
           values = { ...values, name: normalizeVmGroupName(values.name, action.api === 'updateInstanceGroup' ? this.resource.name : undefined) }
           if (action.api === 'updateInstanceGroup' && values.name === this.resource.name) {
@@ -4995,6 +5051,18 @@ export default {
           if (vmScope && ['startVirtualMachine', 'stopVirtualMachine', 'rebootVirtualMachine', 'restoreVirtualMachine'].includes(action.api) && !Object.values(json || {}).some(value => value?.jobid)) {
             this.vmActionUnknown = true; this.vmActionError = this.$t('message.vm.start.unknown'); return
           }
+          if (action.api === 'executeWebhookDelivery' && this.$route.meta?.name === 'webhookdeliveries') {
+            const delivery = json?.executewebhookdeliveryresponse?.webhookdelivery
+            if (delivery?.success !== true) {
+              this.$notification.error({
+                message: this.$t(delivery?.success === false ? 'message.webhook.delivery.receiver.failed' : 'message.webhook.delivery.request.failed'),
+                description: delivery?.response
+              })
+              this.fetchData()
+              this.closeAction()
+              return
+            }
+          }
           var response = this.handleResponse(json, resourceName, this.getDataIdentifier(params), action)
           if (!response) {
             this.fetchData()
@@ -5036,7 +5104,7 @@ export default {
             }
             return
           }
-          if (!isVmGroupAction(action.api)) console.log(error)
+          if (!isVmGroupAction(action.api) && !action.webhookEdit) console.log(error)
           if (projectScope && this.currentAction === action && projectScope === this.listScope()) {
             this.projectActionError = Object.values(error.response?.data || {}).find(value => value?.errortext)?.errortext || this.$t('message.request.failed')
           }
@@ -5291,6 +5359,27 @@ export default {
       return this.$router.push({ query: oauthListQuery(query) })
     },
     onSearch (opts) {
+      if (this.$route.path === '/webhook') {
+        const input = opts || {}
+        const query = webhookListQuery(this.$route.query)
+        if ('searchQuery' in input) {
+          query.keyword = input.searchQuery
+          query.q = input.searchQuery
+        } else {
+          for (const field of ['id', 'name', 'scope', 'state', 'domainid', 'account']) query[field] = input[field]
+          if (!Object.keys(input).length) {
+            delete query.keyword
+            delete query.q
+          }
+        }
+        if (query.id && !this.$isValidUuid(query.id.trim())) {
+          this.$message.warning(this.$t('message.webhook.search.invalid.uuid'))
+          return
+        }
+        query.page = '1'
+        query.pagesize = String(this.pageSize)
+        return this.$router.push({ query: webhookListQuery(query) })
+      }
       if (this.$route.meta?.name === 'extension' && !this.dataView) {
         const query = extensionListQuery({ ...this.$route.query, page: '1' })
         if (Object.prototype.hasOwnProperty.call(opts || {}, 'searchQuery')) {

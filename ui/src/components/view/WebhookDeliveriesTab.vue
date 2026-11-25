@@ -18,45 +18,63 @@
 <template>
   <div>
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <a-modal
-      v-model:visible="showTimeFilterModal"
+    <mold-dialog
+      v-if="showTimeFilterModal"
+      :visible="true"
       :title="$t('label.select.period')"
-      :maskClosable="false"
-      :footer="null">
+      size="md"
+      form-actions
+      @cancel="closeTimeFilterAction">
+      <a-alert v-if="dateRangeError" type="error" show-icon :message="$t('message.webhook.delivery.period.invalid')" />
       <date-time-filter
         :startDateProp="startDate"
         :endDateProp="endDate"
         :showAllDataOption="false"
+        standard-dialog
         @closeAction="closeTimeFilterAction"
         @onSubmit="handleSubmitDateTimeFilter"/>
-    </a-modal>
+    </mold-dialog>
+    <mold-dialog v-if="selectedDelivery" :visible="true" :title="$t('label.webhook.delivery.details')" size="lg" form-actions @cancel="selectedDelivery = null">
+      <a-descriptions :column="1" size="small">
+        <a-descriptions-item :label="$t('label.event')">{{ selectedDelivery.eventtype || '—' }}</a-descriptions-item>
+        <a-descriptions-item :label="$t('label.payloadurl')">{{ resource.payloadurl || '—' }}</a-descriptions-item>
+        <a-descriptions-item :label="$t('label.startdate')">{{ formatDeliveryDate(selectedDelivery.startdate) || '—' }}</a-descriptions-item>
+        <a-descriptions-item :label="$t('label.enddate')">{{ formatDeliveryDate(selectedDelivery.enddate) || '—' }}</a-descriptions-item>
+        <a-descriptions-item :label="$t('label.status')">{{ $t(selectedDelivery.success ? 'label.success' : 'label.failed') }}</a-descriptions-item>
+      </a-descriptions>
+      <details v-for="field in deliveryDetailFields" :key="field" class="webhook-delivery-section">
+        <summary>{{ $t('label.' + field) }}</summary>
+        <pre>{{ formatDeliveryContent(selectedDelivery[field]) }}</pre>
+      </details>
+      <mold-dialog-actions>
+        <a-button @click="selectedDelivery = null">{{ $t('label.close') }}</a-button>
+      </mold-dialog-actions>
+    </mold-dialog>
     <div class="filter-row">
       <a-row>
         <a-col :xs="24" :md="12">
           <a-space direction="vertical">
             <div>
               <a-radio-group
-                v-model:value="durationSelectorValue"
+                :value="durationSelectorValue"
                 buttonStyle="solid"
                 @change="handleTimeFilterChange">
                 <a-radio-button value="day">
                   {{ $t('label.duration.24hours') }}
                 </a-radio-button>
                 <a-radio-button value="all">
-                  {{ $t('All') }}
+                  {{ $t('label.all') }}
                 </a-radio-button>
                 <a-radio-button value="custom">
-                  {{ $t('label.duration.custom') }}
+                  {{ $t('label.webhook.delivery.custom.period') }}
                 </a-radio-button>
               </a-radio-group>
               <InfoCircleOutlined class="info-icon" :title="$t('message.webhook.deliveries.time.filter')"/>
             </div>
-            <div class="ant-tag" v-if="durationSelectorValue==='custom'">
-              <a-button @click="openTimeFilter()">
-                <FilterOutlined/>
-              </a-button>
-              <span v-html="formatedPeriod"></span>
-            </div>
+            <a-space v-if="durationSelectorValue === 'custom'" wrap>
+              <a-button @click="openTimeFilter">{{ $t('label.select.period') }}</a-button>
+              <span>{{ formattedPeriod }}</span>
+            </a-space>
           </a-space>
         </a-col>
         <a-col :xs="24" :md="12" style="text-align: right; padding-right: 10px;">
@@ -65,31 +83,33 @@
               :searchFilters="searchFilters"
               :searchParams="searchParams"
               :apiName="'listWebhookDeliveries'"
-              @search="searchDelivieries"
+              @search="searchDeliveries"
             />
           </span>
         </a-col>
       </a-row>
     </div>
-    <a-button
-      v-if="('deleteWebhookDelivery' in $store.getters.apis) && ((selectedRowKeys && selectedRowKeys.length > 0) || (durationSelectorValue === 'all' && searchParamsIsEmpty))"
-      type="danger"
-      danger
-      style="width: 100%; margin-bottom: 15px"
-      @click="clearOrDeleteDeliveriesConfirmation()">
-      <template #icon><delete-outlined /></template>
-      {{ (selectedRowKeys && selectedRowKeys.length > 0) ? $t('label.action.delete.webhook.deliveries') : $t('label.action.clear.webhook.deliveries') }}
-    </a-button>
+    <a-space v-if="canDeleteDeliveries" class="delivery-actions" wrap>
+      <a-button v-if="selectedDeliveries.length" danger :disabled="!deliveryActionsReady" @click="confirmDeleteDeliveries(selectedDeliveries)">
+        {{ $t('label.webhook.filter.delete.selected', { count: selectedDeliveries.length }) }}
+      </a-button>
+      <a-button v-if="canClearAllDeliveries" danger :disabled="!deliveryActionsReady" @click="confirmDeleteDeliveries(null)">
+        {{ $t('label.webhook.delivery.clear.all') }}
+      </a-button>
+    </a-space>
+    <a-alert v-if="operationNotice" class="delivery-actions" :type="operationNotice.type" :message="operationNotice.title" :description="operationNotice.detail" show-icon />
     <list-view
-      :tabLoading="tabLoading"
+      :loading="tabLoading"
       :columns="columns"
       :items="deliveries"
       :actions="actions"
       :columnKeys="columnKeys"
-      :explicitlyAllowRowSelection="true"
+      :explicitlyAllowRowSelection="canDeleteDeliveries"
       :selectedColumns="selectedColumnKeys"
       ref="listview"
       @update-selected-columns="updateSelectedColumns"
+      inline-webhook-delivery
+      @open-webhook-delivery="selectedDelivery = $event"
       @refresh="this.fetchData"
       @selection-change="updateSelectedRows"/>
     <a-pagination
@@ -104,7 +124,6 @@
         `${$t('label.showing')} ${Math.min(total, 1+((page-1)*pageSize))}-${Math.min(page*pageSize, total)} ${$t('label.of')} ${total} ${$t('label.items')}`"
       :pageSizeOptions="pageSizeOptions"
       @change="changePage"
-      @showSizeChange="changePage"
       showSizeChanger
       showQuickJumper>
       <template #buildOptionText="props">
@@ -124,6 +143,9 @@ import moment from 'moment'
 import DateTimeFilter from './DateTimeFilter'
 import SearchView from '@/components/view/SearchView'
 import ListView from '@/components/view/ListView'
+import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
+import { webhookDeliveryQuery, webhookDeliverySearch } from '@/utils/webhookDeliveryQuery'
 
 export default {
   mixins: [listRefreshMixin(['fetchDeliveries'])],
@@ -131,7 +153,9 @@ export default {
   components: {
     DateTimeFilter,
     SearchView,
-    ListView
+    ListView,
+    MoldDialog,
+    MoldDialogActions
   },
   props: {
     resource: {
@@ -146,6 +170,8 @@ export default {
   data () {
     return {
       tabLoading: false,
+      operationBusy: false,
+      operationNotice: null,
       columnKeys: ['payload', 'eventtype', 'success', 'response', 'startdate', 'duration'],
       selectedColumnKeys: ['payload', 'eventtype', 'success', 'duration'],
       selectedRowKeys: [],
@@ -165,7 +191,7 @@ export default {
           api: 'deleteWebhookDelivery',
           icon: 'delete-outlined',
           label: 'label.delete.webhook.delivery',
-          message: 'message.redeliver.webhook.delivery',
+          message: 'message.delete.webhook.delivery',
           dataView: true,
           popup: true
         }
@@ -175,9 +201,11 @@ export default {
       totalCount: 0,
       durationSelectorValue: 'day',
       showTimeFilterModal: false,
+      dateRangeError: false,
+      selectedDelivery: null,
+      deliveryDetailFields: ['response', 'headers', 'payload'],
       endDate: null,
       startDate: this.get24hrStartDate(),
-      formatedPeriod: null,
       searchFilters: [
         'eventtype'
       ],
@@ -185,6 +213,21 @@ export default {
     }
   },
   computed: {
+    canDeleteDeliveries () { return 'deleteWebhookDelivery' in this.$store.getters.apis },
+    deliveryActionsReady () {
+      return !!this.resource.id && this.$route.params.id === this.resource.id &&
+        this.$route.query.tab === 'recent.deliveries' && !this.tabLoading && !this.listRefreshFailed && !this.operationBusy
+    },
+    canClearAllDeliveries () { return this.durationSelectorValue === 'all' && this.searchParamsIsEmpty && this.totalCount > 0 },
+    selectedDeliveries () { return this.deliveries.filter(item => this.selectedRowKeys.includes(item.id)) },
+    formattedPeriod () {
+      const startDate = this.formatDeliveryDate(this.startDate)
+      const endDate = this.formatDeliveryDate(this.endDate)
+      if (startDate && endDate) return this.$t('label.datetime.filter.period', { startDate, endDate })
+      if (startDate) return this.$t('label.datetime.filter.starting', { startDate })
+      if (endDate) return this.$t('label.datetime.filter.up.to', { endDate })
+      return this.$t('label.all.available.data')
+    },
     pageSizeOptions () {
       var sizes = [20, 50, 100, 200, this.$store.getters.defaultListViewPageSize]
       if (this.device !== 'desktop') {
@@ -202,30 +245,57 @@ export default {
     }
   },
   created () {
-    const routeQuery = this.$route.query
-    const usefulQueryParams = ['keyword', 'managementserverid', 'eventtype']
-    usefulQueryParams.forEach(queryParam => {
-      if (routeQuery[queryParam]) {
-        this.searchParams[queryParam] = routeQuery[queryParam]
-      }
-    })
     if (isAdmin()) {
       this.columnKeys.splice(2, 0, 'managementservername')
       this.selectedColumnKeys.splice(2, 0, 'managementservername')
       this.searchFilters.push('managementserverid')
     }
     this.updateColumns()
-    this.pageSize = this.pageSizeOptions[0] * 1
-    this.fetchData()
+    this.applyDeliveryQuery()
   },
   watch: {
-    resource: {
-      handler () {
-        this.fetchData()
-      }
-    }
+    'resource.id' () {
+      this.deliveries = []
+      this.totalCount = 0
+      this.selectedRowKeys = []
+      this.selectedDelivery = null
+      this.operationNotice = null
+      this.closeTimeFilterAction()
+      this.applyDeliveryQuery()
+    },
+    '$route.query': 'applyDeliveryQuery'
   },
   methods: {
+    applyDeliveryQuery () {
+      const { params, query } = this.$route
+      if (!this.resource.id || params.id !== this.resource.id || query.tab !== 'recent.deliveries') return
+      this.searchParams = webhookDeliverySearch(query)
+      if (!this.searchFilters.includes('managementserverid')) delete this.searchParams.managementserverid
+      const page = Number(query.deliveryPage)
+      this.page = Number.isSafeInteger(page) && page > 0 ? page : 1
+      this.pageSize = this.pageSizeOptions.includes(query.deliveryPageSize) ? Number(query.deliveryPageSize) : Number(this.pageSizeOptions[0])
+      this.durationSelectorValue = ['all', 'custom'].includes(query.deliveryPeriod) ? query.deliveryPeriod : 'day'
+      const date = value => typeof value === 'string' && Number.isFinite(Date.parse(value)) ? new Date(value) : null
+      if (this.durationSelectorValue === 'custom') {
+        this.startDate = date(query.deliveryStart)
+        this.endDate = date(query.deliveryEnd)
+      } else {
+        this.startDate = this.durationSelectorValue === 'day' ? this.get24hrStartDate() : null
+        this.endDate = null
+      }
+      this.fetchData()
+    },
+    setDeliveryQuery ({
+      search = this.searchParams,
+      period = this.durationSelectorValue,
+      start = this.startDate,
+      end = this.endDate,
+      page = 1,
+      pageSize = this.pageSize
+    } = {}) {
+      const query = webhookDeliveryQuery(this.$route.query, search, period, start, end, page, pageSize)
+      this.$router.push({ path: this.$route.path, query })
+    },
     fetchData () {
       if ('listview' in this.$refs && this.$refs.listview) {
         this.$refs.listview.resetSelection()
@@ -262,11 +332,11 @@ export default {
       this.tabLoading = !listRequest.loaded
       return getAPI('listWebhookDeliveries', params).then(json => {
         if (!this.isListRequestCurrent('fetchDeliveries', listRequest)) return
-        this.deliveries = []
         this.totalCount = json?.listwebhookdeliveriesresponse?.count || 0
+        const lastPage = Math.max(1, Math.ceil(this.totalCount / this.pageSize))
         this.deliveries = json?.listwebhookdeliveriesresponse?.webhookdelivery || []
-        this.formatTimeFilterPeriod()
         this.tabLoading = false
+        if (this.page > lastPage && this.operationNotice) this.setDeliveryQuery({ page: lastPage })
       }).catch(error => {
         if (!this.isListRequestCurrent('fetchDeliveries', listRequest)) return
         listRequest.failed = true
@@ -278,9 +348,7 @@ export default {
       })
     },
     changePage (page, pageSize) {
-      this.page = page
-      this.pageSize = pageSize
-      this.fetchDeliveries()
+      this.setDeliveryQuery({ page: pageSize === this.pageSize ? page : 1, pageSize })
     },
     updateSelectedColumns (key) {
       if (this.selectedColumnKeys.includes(key)) {
@@ -313,211 +381,137 @@ export default {
     updateSelectedRows (keys) {
       this.selectedRowKeys = keys
     },
-    clearOrDeleteDeliveriesConfirmation () {
-      const self = this
-      const title = (this.selectedRowKeys && this.selectedRowKeys.length > 0) ? this.$t('label.action.delete.webhook.deliveries') : this.$t('label.action.clear.webhook.deliveries')
+    confirmDeleteDeliveries (items) {
+      const all = items === null
+      if (!this.canDeleteDeliveries || !this.deliveryActionsReady || (all ? !this.canClearAllDeliveries : !items.length)) return
+      const webhookid = this.resource.id
+      const count = all ? this.totalCount : items.length
       this.$confirm({
-        title: title,
-        okText: this.$t('label.ok'),
+        title: this.$t(all ? 'label.webhook.delivery.clear.all' : 'label.action.delete.webhook.deliveries'),
+        content: this.$t(all ? 'message.webhook.delivery.delete.all' : 'message.webhook.delivery.delete.selected', {
+          name: this.resource.name,
+          count
+        }),
+        okText: this.$t('label.remove'),
         okType: 'danger',
         cancelText: this.$t('label.cancel'),
-        onOk () {
-          if (self.selectedRowKeys && self.selectedRowKeys.length > 0) {
-            self.deletedSelectedDeliveries()
-            return
-          }
-          self.clearDeliveries()
-        }
+        onOk: () => this.deliveryActionsReady && this.resource.id === webhookid &&
+          (!all || (this.canClearAllDeliveries && this.totalCount === count)) && this.deleteDeliveries(webhookid, items)
       })
     },
-    deletedSelectedDeliveries () {
-      const promises = []
-      this.selectedRowKeys.forEach(id => {
-        const params = {
-          id: id
-        }
-        promises.push(new Promise((resolve, reject) => {
-          postAPI('deleteWebhookDelivery', params).then(json => {
-            return resolve(id)
-          }).catch(error => {
-            return reject(error)
-          })
-        }))
-      })
-      const msg = this.$t('label.action.delete.webhook.deliveries')
-      this.$message.info({
-        content: msg,
-        duration: 3
-      })
-      this.tabLoading = true
-      Promise.all(promises).finally(() => {
-        this.tabLoading = false
-        this.fetchData()
-      })
-    },
-    clearDeliveries () {
-      const params = {
-        webhookid: this.resource.id
+    async deleteDeliveries (webhookid, items) {
+      if (this.operationBusy || !this.canDeleteDeliveries) return
+      this.operationBusy = true
+      this.operationNotice = null
+      try {
+        const targets = items === null ? [{ webhookid }] : items.map(({ id }) => ({ id, webhookid }))
+        const results = await Promise.allSettled(targets.map(params => postAPI('deleteWebhookDelivery', params)))
+        if (this.resource.id !== webhookid) return
+        const failed = results.filter(row => row.status === 'rejected' || row.value?.deletewebhookdeliveryresponse?.success !== true).length
+        const title = failed
+          ? this.$t(items === null ? 'message.webhook.delivery.delete.failed' : 'message.webhook.delivery.delete.partial', { count: targets.length - failed, failed })
+          : this.$t(items === null ? 'message.success.clear.webhook.deliveries' : 'message.success.delete')
+        this.operationNotice = { type: failed ? 'error' : 'success', title }
+      } finally {
+        this.operationBusy = false
+        if (this.resource.id === webhookid) this.fetchData()
       }
-      this.tabLoading = true
-      postAPI('deleteWebhookDelivery', params).then(json => {
-        this.$message.success(this.$t('message.success.clear.webhook.deliveries'))
-        this.fetchData()
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.tabLoading = false
-      })
     },
     redeliverDeliveryConfirmation (item) {
-      const self = this
+      if (!this.deliveryActionsReady || !('executeWebhookDelivery' in this.$store.getters.apis)) return
+      const webhookid = this.resource.id
       this.$confirm({
         title: this.$t('label.redeliver') + ' ' + item.eventtype,
-        okText: this.$t('label.ok'),
-        okType: 'primary',
+        content: this.resource.payloadurl,
+        okText: this.$t('label.redeliver'),
         cancelText: this.$t('label.cancel'),
-        onOk () {
-          self.redeliverDelivery(item)
+        onOk: () => this.deliveryActionsReady && this.resource.id === webhookid && this.redeliverDelivery(webhookid, item.id)
+      })
+    },
+    async redeliverDelivery (webhookid, id) {
+      if (this.operationBusy) return
+      this.operationBusy = true
+      this.operationNotice = null
+      try {
+        const response = await postAPI('executeWebhookDelivery', { id })
+        if (this.resource.id !== webhookid) return
+        const delivery = response?.executewebhookdeliveryresponse?.webhookdelivery
+        if (typeof delivery?.success !== 'boolean') throw new Error('Missing delivery result')
+        this.operationNotice = {
+          type: delivery.success ? 'success' : 'warning',
+          title: this.$t(delivery.success ? 'message.success.redeliver.webhook.delivery' : 'message.webhook.delivery.receiver.failed'),
+          detail: delivery.response
         }
-      })
-    },
-    redeliverDelivery (item) {
-      const params = {
-        id: item.id
+      } catch {
+        if (this.resource.id === webhookid) this.operationNotice = { type: 'error', title: this.$t('message.webhook.delivery.request.failed') }
+      } finally {
+        this.operationBusy = false
+        if (this.resource.id === webhookid) this.fetchData()
       }
-      this.tabLoading = true
-      postAPI('executeWebhookDelivery', params).then(json => {
-        this.$message.success(this.$t('message.success.redeliver.webhook.delivery'))
-        this.fetchData()
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.tabLoading = false
-      })
-    },
-    deleteDeliveryConfirmation (item) {
-      const self = this
-      this.$confirm({
-        title: this.$t('label.delete') + ' ' + item.eventtype,
-        okText: this.$t('label.ok'),
-        okType: 'primary',
-        cancelText: this.$t('label.cancel'),
-        onOk () {
-          self.deleteDelivery(item)
-        }
-      })
-    },
-    deleteDelivery (item) {
-      const params = {
-        id: item.id
-      }
-      this.tabLoading = true
-      postAPI('deleteWebhookDelivery', params).then(json => {
-        const message = `${this.$t('message.success.delete')} ${this.$t('label.webhook.delivery')}`
-        this.$message.success(message)
-        this.fetchData()
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.tabLoading = false
-      })
     },
     execAction (action) {
-      if (action.api === 'executeWebhookDelivery') {
-        this.redeliverDeliveryConfirmation(action.resource)
-      } else if (action.api === 'deleteWebhookDelivery') {
-        this.deleteDeliveryConfirmation(action.resource)
-      }
+      if (action.api === 'executeWebhookDelivery') this.redeliverDeliveryConfirmation(action.resource)
+      if (action.api === 'deleteWebhookDelivery') this.confirmDeleteDeliveries([action.resource])
     },
     get24hrStartDate () {
       const start = new Date()
       start.setDate(start.getDate() - 1)
       return start
     },
-    handleTimeFilterChange () {
-      var start = this.startDate
-      var end = this.endDate
-      switch (this.durationSelectorValue) {
-        case 'day':
-          start = this.get24hrStartDate()
-          end = null
-          break
-        case 'all':
-          start = null
-          end = null
-          break
-      }
-      if (start !== this.startDate || end !== this.endDate) {
-        this.startDate = start
-        this.endDate = end
-        this.fetchData()
-      }
+    handleTimeFilterChange (event) {
+      const period = event.target.value
+      if (period === 'custom') this.openTimeFilter()
+      else this.setDeliveryQuery({ period })
     },
     openTimeFilter () {
+      this.dateRangeError = false
       this.showTimeFilterModal = true
     },
-    formatTimeFilterPeriod () {
-      var formatedStartDate = null
-      var formatedEndDate = null
-      if (this.startDate) {
-        formatedStartDate = moment(this.startDate).format('MMM DD, YYYY') + ' at ' + moment(this.startDate).format('HH:mm:ss')
-      }
-      if (this.endDate) {
-        formatedEndDate = moment(this.endDate).format('MMM DD, YYYY') + ' at ' + moment(this.endDate).format('HH:mm:ss')
-      }
-      if (formatedStartDate && formatedEndDate) {
-        this.formatedPeriod = ' ' + this.$t('label.datetime.filter.period', { startDate: formatedStartDate, endDate: formatedEndDate })
-      } else if (formatedStartDate && !formatedEndDate) {
-        this.formatedPeriod = ' ' + this.$t('label.datetime.filter.starting', { startDate: formatedStartDate })
-      } else if (!formatedStartDate && formatedEndDate) {
-        this.formatedPeriod = ' ' + this.$t('label.datetime.filter.up.to', { endDate: formatedEndDate })
-      } else {
-        this.formatedPeriod = ' <b>' + this.$t('label.all.available.data') + '</b>'
+    formatDeliveryDate (value) {
+      if (!value || !Number.isFinite(Date.parse(value))) return ''
+      const locale = this.$i18n.locale.replace('_', '-')
+      return new Intl.DateTimeFormat(locale, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        timeZoneName: 'short'
+      }).format(new Date(value))
+    },
+    formatDeliveryContent (value) {
+      if (value === null || value === undefined || value === '') return '—'
+      if (typeof value !== 'string') return JSON.stringify(value, null, 2)
+      try {
+        return JSON.stringify(JSON.parse(value), null, 2)
+      } catch {
+        return value
       }
     },
-    handleSubmitDateTimeFilter (values) {
-      if (values.startDate) {
-        this.startDate = new Date(values.startDate)
-      } else {
-        this.startDate = null
+    handleSubmitDateTimeFilter ({ startDate, endDate }) {
+      if ((!startDate && !endDate) || (startDate && !Number.isFinite(startDate.getTime())) || (endDate && !Number.isFinite(endDate.getTime())) || (startDate && endDate && startDate > endDate)) {
+        this.dateRangeError = true
+        return
       }
-      if (values.endDate) {
-        this.endDate = new Date(values.endDate)
-      } else {
-        this.endDate = null
-      }
-      this.showTimeFilterModal = false
-      this.fetchData()
+      this.closeTimeFilterAction()
+      this.setDeliveryQuery({ period: 'custom', start: startDate, end: endDate })
     },
     closeTimeFilterAction () {
       this.showTimeFilterModal = false
+      this.dateRangeError = false
     },
-    searchDelivieries (params) {
-      const query = Object.assign({}, this.$route.query)
-      for (const key in this.searchParams) {
-        delete query[key]
-      }
-      delete query.keyword
-      delete query.q
-      this.searchParams = params
-      if ('searchQuery' in this.searchParams) {
-        query.keyword = this.searchParams.searchQuery
+    searchDeliveries (params) {
+      const search = {}
+      if ('searchQuery' in params) {
+        Object.assign(search, this.searchParams, { searchQuery: params.searchQuery?.trim() })
       } else {
-        Object.assign(query, this.searchParams)
+        for (const field of this.searchFilters) {
+          if (params[field]) search[field] = params[field]
+        }
+        if (Object.keys(search).length && this.searchParams.searchQuery) search.searchQuery = this.searchParams.searchQuery
       }
-      this.fetchData()
-      if (JSON.stringify(query) === JSON.stringify(this.$route.query)) {
-        return
-      }
-      history.pushState(
-        {},
-        null,
-        '#' + this.$route.path + '?' + Object.keys(query).map(key => {
-          return (
-            encodeURIComponent(key) + '=' + encodeURIComponent(query[key])
-          )
-        }).join('&')
-      )
+      this.setDeliveryQuery({ search })
     }
   }
 }
@@ -533,10 +527,17 @@ export default {
 .info-icon {
   margin: 0 10px 0 5px;
 }
+.delivery-actions { margin-bottom: 12px; }
 .filter-row {
   margin-bottom: 2.5%;
 }
-.filter-row-inner {
-  margin-top: 3%;
+.webhook-delivery-section {
+  margin-top: 12px;
+}
+.webhook-delivery-section pre {
+  max-height: 20rem;
+  overflow: auto;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 </style>

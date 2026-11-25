@@ -92,7 +92,7 @@ export default {
       name: 'webhook',
       title: 'label.webhooks',
       icon: 'node-index-outlined',
-      docHelp: 'adminguide/webhooks.html',
+      docHelp: 'https://docs.cloudstack.apache.org/en/4.23.0.0/adminguide/events.html#webhooks',
       permission: ['listWebhooks'],
       columns: () => {
         const cols = ['name', 'payloadurl', 'state', 'created']
@@ -104,9 +104,9 @@ export default {
         }
         return cols
       },
-      details: ['name', 'id', 'description', 'scope', 'payloadurl', 'sslverification', 'secretkey', 'state', 'account', 'domainid'],
+      details: ['name', 'id', 'description', 'scope', 'payloadurl', 'sslverification', 'secretkeyconfigured', 'state', 'account', 'domainid'],
       searchFilters: () => {
-        var filters = ['state']
+        const filters = ['name', 'id', 'state']
         if (['Admin', 'DomainAdmin'].includes(store.getters.userInfo.roletype)) {
           filters.push('scope', 'domainid', 'account')
         }
@@ -131,7 +131,7 @@ export default {
           api: 'createWebhook',
           icon: 'plus-outlined',
           label: 'label.create.webhook',
-          docHelp: 'adminguide/events.html#creating-webhooks',
+          docHelp: 'https://docs.cloudstack.apache.org/en/4.23.0.0/adminguide/events.html#creating-a-webhook',
           listView: true,
           popup: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/tools/CreateWebhook.vue')))
@@ -142,7 +142,11 @@ export default {
           label: 'label.update.webhook',
           dataView: true,
           popup: true,
-          args: ['name', 'description', 'payloadurl', 'sslverification', 'secretkey', 'state'],
+          webhookEdit: true,
+          args: (record) => [
+            'name', 'description', 'payloadurl', 'sslverification', 'secretkey', 'state',
+            ...(record?.editablescopes?.length > 1 ? ['scope'] : [])
+          ],
           mapping: {
             state: {
               options: ['Enabled', 'Disabled']
