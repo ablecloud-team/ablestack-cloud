@@ -259,6 +259,8 @@
         @refresh="this.fetchData"
       />
       <a-pagination
+        class="usage-list-pagination"
+        size="small"
         :current="page"
         :pageSize="pageSize"
         :total="totalUsageRecords"
@@ -270,6 +272,9 @@
         :showSizeChanger="true"
         :showQuickJumper="true"
       >
+        <template #buildOptionText="{ value }">
+          <span>{{ value }} / {{ $t('label.page') }}</span>
+        </template>
       </a-pagination>
     </a-col>
   </a-row>
@@ -868,6 +873,9 @@ export default {
   margin-right: -24px;
   margin-top: -16px;
   margin-bottom: 12px;
+}
+.usage-list-pagination {
+  margin: 10px 0;
 }
 </style>
 
