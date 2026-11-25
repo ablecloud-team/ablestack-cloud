@@ -28,10 +28,10 @@
         @search="setKeyword"
         @change="clearEmptyKeyword" />
       <a-button @click="fetchData">{{ $t('label.refresh') }}</a-button>
-      <a-button v-if="canDelete && selectedRowKeys.length" danger :disabled="deleting || tabLoading" @click="confirmDelete(selectedFilters)">
+      <a-button v-if="canDelete && selectedRowKeys.length" danger :disabled="!filterActionsReady" @click="confirmDelete(selectedFilters)">
         {{ $t('label.webhook.filter.delete.selected', { count: selectedRowKeys.length }) }}
       </a-button>
-      <a-button v-if="canDelete && totalCount && !keyword" danger :disabled="deleting || tabLoading" @click="confirmDelete(null)">
+      <a-button v-if="canDelete && totalCount && !keyword" danger :disabled="!filterActionsReady" @click="confirmDelete(null)">
         {{ $t('label.webhook.filter.delete.all') }}
       </a-button>
     </a-space>
@@ -194,6 +194,10 @@ export default {
   computed: {
     canAdd () { return 'addWebhookFilter' in this.$store.getters.apis },
     canDelete () { return 'deleteWebhookFilter' in this.$store.getters.apis },
+    filterActionsReady () {
+      return !!this.resource.id && this.$route.params.id === this.resource.id &&
+        this.$route.query.tab === 'filters' && !this.tabLoading && !this.listRefreshFailed && !this.deleting
+    },
     selectedFilters () { return this.filters.filter(item => this.selectedRowKeys.includes(item.id)) },
     pageSizeOptions () {
       var sizes = [20, 50, 100, 200, this.$store.getters.defaultListViewPageSize]
@@ -215,6 +219,9 @@ export default {
   },
   watch: {
     'resource.id' () {
+      this.filters = []
+      this.totalCount = 0
+      this.selectedRowKeys = []
       this.page = 1
       this.keyword = ''
       this.keywordInput = ''
@@ -341,7 +348,7 @@ export default {
     },
     confirmDelete (items) {
       const all = items === null
-      if (!this.canDelete || this.deleting || this.tabLoading || (all ? !this.totalCount || this.keyword : !items.length)) return
+      if (!this.canDelete || !this.filterActionsReady || (all ? !this.totalCount || this.keyword : !items.length)) return
       const webhookid = this.resource.id
       const count = all ? this.totalCount : items.length
       this.$confirm({
@@ -350,7 +357,8 @@ export default {
         okText: this.$t('label.remove'),
         okType: 'danger',
         cancelText: this.$t('label.cancel'),
-        onOk: () => this.resource.id === webhookid && this.deleteFilters(webhookid, items)
+        onOk: () => this.filterActionsReady && this.resource.id === webhookid &&
+          (!all || (!this.keyword && this.totalCount === count)) && this.deleteFilters(webhookid, items)
       })
     },
     async deleteFilters (webhookid, items) {

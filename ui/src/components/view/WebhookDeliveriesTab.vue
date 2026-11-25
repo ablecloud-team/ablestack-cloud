@@ -90,10 +90,10 @@
       </a-row>
     </div>
     <a-space v-if="canDeleteDeliveries" class="delivery-actions" wrap>
-      <a-button v-if="selectedDeliveries.length" danger :disabled="operationBusy || tabLoading" @click="confirmDeleteDeliveries(selectedDeliveries)">
+      <a-button v-if="selectedDeliveries.length" danger :disabled="!deliveryActionsReady" @click="confirmDeleteDeliveries(selectedDeliveries)">
         {{ $t('label.webhook.filter.delete.selected', { count: selectedDeliveries.length }) }}
       </a-button>
-      <a-button v-if="canClearAllDeliveries" danger :disabled="operationBusy || tabLoading" @click="confirmDeleteDeliveries(null)">
+      <a-button v-if="canClearAllDeliveries" danger :disabled="!deliveryActionsReady" @click="confirmDeleteDeliveries(null)">
         {{ $t('label.webhook.delivery.clear.all') }}
       </a-button>
     </a-space>
@@ -214,6 +214,10 @@ export default {
   },
   computed: {
     canDeleteDeliveries () { return 'deleteWebhookDelivery' in this.$store.getters.apis },
+    deliveryActionsReady () {
+      return !!this.resource.id && this.$route.params.id === this.resource.id &&
+        this.$route.query.tab === 'recent.deliveries' && !this.tabLoading && !this.listRefreshFailed && !this.operationBusy
+    },
     canClearAllDeliveries () { return this.durationSelectorValue === 'all' && this.searchParamsIsEmpty && this.totalCount > 0 },
     selectedDeliveries () { return this.deliveries.filter(item => this.selectedRowKeys.includes(item.id)) },
     formattedPeriod () {
@@ -251,6 +255,9 @@ export default {
   },
   watch: {
     'resource.id' () {
+      this.deliveries = []
+      this.totalCount = 0
+      this.selectedRowKeys = []
       this.selectedDelivery = null
       this.operationNotice = null
       this.closeTimeFilterAction()
@@ -376,18 +383,20 @@ export default {
     },
     confirmDeleteDeliveries (items) {
       const all = items === null
-      if (!this.canDeleteDeliveries || this.operationBusy || this.tabLoading || (all ? !this.canClearAllDeliveries : !items.length)) return
+      if (!this.canDeleteDeliveries || !this.deliveryActionsReady || (all ? !this.canClearAllDeliveries : !items.length)) return
       const webhookid = this.resource.id
+      const count = all ? this.totalCount : items.length
       this.$confirm({
         title: this.$t(all ? 'label.webhook.delivery.clear.all' : 'label.action.delete.webhook.deliveries'),
         content: this.$t(all ? 'message.webhook.delivery.delete.all' : 'message.webhook.delivery.delete.selected', {
           name: this.resource.name,
-          count: all ? this.totalCount : items.length
+          count
         }),
         okText: this.$t('label.remove'),
         okType: 'danger',
         cancelText: this.$t('label.cancel'),
-        onOk: () => this.resource.id === webhookid && (!all || this.canClearAllDeliveries) && this.deleteDeliveries(webhookid, items)
+        onOk: () => this.deliveryActionsReady && this.resource.id === webhookid &&
+          (!all || (this.canClearAllDeliveries && this.totalCount === count)) && this.deleteDeliveries(webhookid, items)
       })
     },
     async deleteDeliveries (webhookid, items) {
@@ -409,14 +418,14 @@ export default {
       }
     },
     redeliverDeliveryConfirmation (item) {
-      if (this.operationBusy || !('executeWebhookDelivery' in this.$store.getters.apis)) return
+      if (!this.deliveryActionsReady || !('executeWebhookDelivery' in this.$store.getters.apis)) return
       const webhookid = this.resource.id
       this.$confirm({
         title: this.$t('label.redeliver') + ' ' + item.eventtype,
         content: this.resource.payloadurl,
         okText: this.$t('label.redeliver'),
         cancelText: this.$t('label.cancel'),
-        onOk: () => this.resource.id === webhookid && this.redeliverDelivery(webhookid, item.id)
+        onOk: () => this.deliveryActionsReady && this.resource.id === webhookid && this.redeliverDelivery(webhookid, item.id)
       })
     },
     async redeliverDelivery (webhookid, id) {
