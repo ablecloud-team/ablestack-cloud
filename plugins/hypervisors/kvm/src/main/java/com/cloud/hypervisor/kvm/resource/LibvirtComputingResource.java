@@ -352,7 +352,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     private static final String HYPERVCLOCK = "hypervclock";
     private static final String WINDOWS = "Windows";
     private static final String Q35 = "q35";
-    private static final List<String> Q35_BIOS_CDROM_TARGETS = List.of("sdzza", "sdzzb");
+    private static final List<String> Q35_CDROM_TARGETS = List.of("sdzza", "sdzzb");
     private static final int SATA_PORTS_PER_CONTROLLER = 6;
     private static final int DOMAIN_AFFECT_LIVE = 1;
     private static final Pattern KVM_MACHINE_TYPE_PATTERN = Pattern.compile("[A-Za-z0-9_.:+-]+");
@@ -4452,9 +4452,9 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             isWindowsTemplate =true;
         }
         final GuestDef guest = vm.getGuestDefinition();
-        final boolean q35Bios = vmSpec.getType() == VirtualMachine.Type.User && guest != null
+        final boolean q35 = vmSpec.getType() == VirtualMachine.Type.User && guest != null
                 && guest.getGuestType() == GuestDef.GuestType.KVM && "x86_64".equals(guest.getGuestArch())
-                && guest.getBootType() == GuestDef.BootType.BIOS && PciTopologyInspector.isQ35Machine(guest.getMachineType());
+                && PciTopologyInspector.isQ35Machine(guest.getMachineType());
         final Set<Integer> definedCdromSlots = new HashSet<>();
         for (final DiskTO volume : disks) {
             KVMPhysicalDisk physicalDisk = null;
@@ -4541,7 +4541,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                     throw new CloudRuntimeException("Multiple ISO images use CD-ROM slot " + devId);
                 }
                 final DiskDef.DiskType diskType = getDiskType(physicalDisk);
-                defineCdrom(disk, volPath, devId, isUefiEnabled, q35Bios, diskType);
+                defineCdrom(disk, volPath, devId, isUefiEnabled, q35, diskType);
                 definedCdromSlots.add(devId);
             } else {
                 if (pool == null) {
@@ -4712,12 +4712,12 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                     slot < TemplateManager.CDROM_PRIMARY_DEVICE_SEQ + LibvirtVMDef.MAX_CDROMS_PER_VM; slot++) {
                 if (!definedCdromSlots.contains(slot)) {
                     final DiskDef emptyCdrom = new DiskDef();
-                    defineCdrom(emptyCdrom, null, slot, isUefiEnabled, q35Bios, DiskDef.DiskType.FILE);
+                    defineCdrom(emptyCdrom, null, slot, isUefiEnabled, q35, DiskDef.DiskType.FILE);
                     vm.getDevices().addDevice(emptyCdrom);
                 }
             }
-            if (q35Bios) {
-                assignQ35BiosCdromAddresses(vm.getDevices().getDisks());
+            if (q35) {
+                assignQ35CdromAddresses(vm.getDevices().getDisks());
             }
         }
 
@@ -4760,8 +4760,8 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         }
     }
 
-    private void defineCdrom(DiskDef disk, String path, int slot, boolean isUefi, boolean q35Bios, DiskDef.DiskType type) {
-        String target = q35Bios ? q35BiosCdromTarget(slot) : null;
+    private void defineCdrom(DiskDef disk, String path, int slot, boolean isUefi, boolean q35, DiskDef.DiskType type) {
+        String target = q35 ? q35CdromTarget(slot) : null;
         if (target != null) {
             disk.defCdrom(path, target, DiskDef.DiskBus.SATA, type);
         } else {
@@ -4772,19 +4772,19 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         }
     }
 
-    private static String q35BiosCdromTarget(int slot) {
+    private static String q35CdromTarget(int slot) {
         int index = slot - TemplateManager.CDROM_PRIMARY_DEVICE_SEQ;
-        return index >= 0 && index < Q35_BIOS_CDROM_TARGETS.size() ? Q35_BIOS_CDROM_TARGETS.get(index) : null;
+        return index >= 0 && index < Q35_CDROM_TARGETS.size() ? Q35_CDROM_TARGETS.get(index) : null;
     }
 
-    private static boolean isQ35BiosCdrom(DiskDef disk) {
-        return disk.getDeviceType() == DiskDef.DeviceType.CDROM && Q35_BIOS_CDROM_TARGETS.contains(disk.getDiskLabel());
+    private static boolean isQ35Cdrom(DiskDef disk) {
+        return disk.getDeviceType() == DiskDef.DeviceType.CDROM && Q35_CDROM_TARGETS.contains(disk.getDiskLabel());
     }
 
-    private static void assignQ35BiosCdromAddresses(List<DiskDef> disks) {
+    private static void assignQ35CdromAddresses(List<DiskDef> disks) {
         BitSet occupied = new BitSet();
         for (DiskDef disk : disks) {
-            if (disk.getBusType() == DiskDef.DiskBus.SATA && !isQ35BiosCdrom(disk)) {
+            if (disk.getBusType() == DiskDef.DiskBus.SATA && !isQ35Cdrom(disk)) {
                 // Libvirt assigns SATA disks sequentially from the target suffix, six ports per controller.
                 String target = disk.getDiskLabel();
                 int index = 0;
@@ -4794,7 +4794,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                 occupied.set(index - 1);
             }
         }
-        List<DiskDef> cdroms = disks.stream().filter(LibvirtComputingResource::isQ35BiosCdrom)
+        List<DiskDef> cdroms = disks.stream().filter(LibvirtComputingResource::isQ35Cdrom)
                 .sorted(Comparator.comparing(DiskDef::getDiskLabel)).collect(Collectors.toList());
         for (DiskDef disk : cdroms) {
             // Keep the existing data targets and use the chipset controller whenever it has space.
@@ -5127,7 +5127,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     }
 
     private static DiskDef findCdromSlot(List<DiskDef> disks, int slot, String vmName) throws InternalErrorException {
-        String q35Target = q35BiosCdromTarget(slot);
+        String q35Target = q35CdromTarget(slot);
         DiskDef existing = null;
         for (DiskDef disk : disks) {
             String label = disk.getDiskLabel();
