@@ -89,22 +89,22 @@
         </a-col>
       </a-row>
     </div>
-    <a-button
-      v-if="('deleteWebhookDelivery' in $store.getters.apis) && ((selectedRowKeys && selectedRowKeys.length > 0) || (durationSelectorValue === 'all' && searchParamsIsEmpty))"
-      type="danger"
-      danger
-      style="width: 100%; margin-bottom: 15px"
-      @click="clearOrDeleteDeliveriesConfirmation()">
-      <template #icon><delete-outlined /></template>
-      {{ (selectedRowKeys && selectedRowKeys.length > 0) ? $t('label.action.delete.webhook.deliveries') : $t('label.action.clear.webhook.deliveries') }}
-    </a-button>
+    <a-space v-if="canDeleteDeliveries" class="delivery-actions" wrap>
+      <a-button v-if="selectedDeliveries.length" danger :disabled="operationBusy || tabLoading" @click="confirmDeleteDeliveries(selectedDeliveries)">
+        {{ $t('label.webhook.filter.delete.selected', { count: selectedDeliveries.length }) }}
+      </a-button>
+      <a-button v-if="canClearAllDeliveries" danger :disabled="operationBusy || tabLoading" @click="confirmDeleteDeliveries(null)">
+        {{ $t('label.webhook.delivery.clear.all') }}
+      </a-button>
+    </a-space>
+    <a-alert v-if="operationNotice" class="delivery-actions" :type="operationNotice.type" :message="operationNotice.title" :description="operationNotice.detail" show-icon />
     <list-view
-      :tabLoading="tabLoading"
+      :loading="tabLoading"
       :columns="columns"
       :items="deliveries"
       :actions="actions"
       :columnKeys="columnKeys"
-      :explicitlyAllowRowSelection="true"
+      :explicitlyAllowRowSelection="canDeleteDeliveries"
       :selectedColumns="selectedColumnKeys"
       ref="listview"
       @update-selected-columns="updateSelectedColumns"
@@ -170,6 +170,8 @@ export default {
   data () {
     return {
       tabLoading: false,
+      operationBusy: false,
+      operationNotice: null,
       columnKeys: ['payload', 'eventtype', 'success', 'response', 'startdate', 'duration'],
       selectedColumnKeys: ['payload', 'eventtype', 'success', 'duration'],
       selectedRowKeys: [],
@@ -189,7 +191,7 @@ export default {
           api: 'deleteWebhookDelivery',
           icon: 'delete-outlined',
           label: 'label.delete.webhook.delivery',
-          message: 'message.redeliver.webhook.delivery',
+          message: 'message.delete.webhook.delivery',
           dataView: true,
           popup: true
         }
@@ -211,6 +213,9 @@ export default {
     }
   },
   computed: {
+    canDeleteDeliveries () { return 'deleteWebhookDelivery' in this.$store.getters.apis },
+    canClearAllDeliveries () { return this.durationSelectorValue === 'all' && this.searchParamsIsEmpty && this.totalCount > 0 },
+    selectedDeliveries () { return this.deliveries.filter(item => this.selectedRowKeys.includes(item.id)) },
     formattedPeriod () {
       const startDate = this.formatDeliveryDate(this.startDate)
       const endDate = this.formatDeliveryDate(this.endDate)
@@ -247,6 +252,7 @@ export default {
   watch: {
     'resource.id' () {
       this.selectedDelivery = null
+      this.operationNotice = null
       this.closeTimeFilterAction()
       this.applyDeliveryQuery()
     },
@@ -319,10 +325,11 @@ export default {
       this.tabLoading = !listRequest.loaded
       return getAPI('listWebhookDeliveries', params).then(json => {
         if (!this.isListRequestCurrent('fetchDeliveries', listRequest)) return
-        this.deliveries = []
         this.totalCount = json?.listwebhookdeliveriesresponse?.count || 0
+        const lastPage = Math.max(1, Math.ceil(this.totalCount / this.pageSize))
         this.deliveries = json?.listwebhookdeliveriesresponse?.webhookdelivery || []
         this.tabLoading = false
+        if (this.page > lastPage && this.operationNotice) this.setDeliveryQuery({ page: lastPage })
       }).catch(error => {
         if (!this.isListRequestCurrent('fetchDeliveries', listRequest)) return
         listRequest.failed = true
@@ -367,121 +374,75 @@ export default {
     updateSelectedRows (keys) {
       this.selectedRowKeys = keys
     },
-    clearOrDeleteDeliveriesConfirmation () {
-      const self = this
-      const title = (this.selectedRowKeys && this.selectedRowKeys.length > 0) ? this.$t('label.action.delete.webhook.deliveries') : this.$t('label.action.clear.webhook.deliveries')
+    confirmDeleteDeliveries (items) {
+      const all = items === null
+      if (!this.canDeleteDeliveries || this.operationBusy || this.tabLoading || (all ? !this.canClearAllDeliveries : !items.length)) return
+      const webhookid = this.resource.id
       this.$confirm({
-        title: title,
-        okText: this.$t('label.ok'),
+        title: this.$t(all ? 'label.webhook.delivery.clear.all' : 'label.action.delete.webhook.deliveries'),
+        content: this.$t(all ? 'message.webhook.delivery.delete.all' : 'message.webhook.delivery.delete.selected', {
+          name: this.resource.name,
+          count: all ? this.totalCount : items.length
+        }),
+        okText: this.$t('label.remove'),
         okType: 'danger',
         cancelText: this.$t('label.cancel'),
-        onOk () {
-          if (self.selectedRowKeys && self.selectedRowKeys.length > 0) {
-            self.deletedSelectedDeliveries()
-            return
-          }
-          self.clearDeliveries()
-        }
+        onOk: () => this.resource.id === webhookid && (!all || this.canClearAllDeliveries) && this.deleteDeliveries(webhookid, items)
       })
     },
-    deletedSelectedDeliveries () {
-      const promises = []
-      this.selectedRowKeys.forEach(id => {
-        const params = {
-          id: id
-        }
-        promises.push(new Promise((resolve, reject) => {
-          postAPI('deleteWebhookDelivery', params).then(json => {
-            return resolve(id)
-          }).catch(error => {
-            return reject(error)
-          })
-        }))
-      })
-      const msg = this.$t('label.action.delete.webhook.deliveries')
-      this.$message.info({
-        content: msg,
-        duration: 3
-      })
-      this.tabLoading = true
-      Promise.all(promises).finally(() => {
-        this.tabLoading = false
-        this.fetchData()
-      })
-    },
-    clearDeliveries () {
-      const params = {
-        webhookid: this.resource.id
+    async deleteDeliveries (webhookid, items) {
+      if (this.operationBusy || !this.canDeleteDeliveries) return
+      this.operationBusy = true
+      this.operationNotice = null
+      try {
+        const targets = items === null ? [{ webhookid }] : items.map(({ id }) => ({ id, webhookid }))
+        const results = await Promise.allSettled(targets.map(params => postAPI('deleteWebhookDelivery', params)))
+        if (this.resource.id !== webhookid) return
+        const failed = results.filter(row => row.status === 'rejected' || row.value?.deletewebhookdeliveryresponse?.success !== true).length
+        const title = failed
+          ? this.$t(items === null ? 'message.webhook.delivery.delete.failed' : 'message.webhook.delivery.delete.partial', { count: targets.length - failed, failed })
+          : this.$t(items === null ? 'message.success.clear.webhook.deliveries' : 'message.success.delete')
+        this.operationNotice = { type: failed ? 'error' : 'success', title }
+      } finally {
+        this.operationBusy = false
+        if (this.resource.id === webhookid) this.fetchData()
       }
-      this.tabLoading = true
-      postAPI('deleteWebhookDelivery', params).then(json => {
-        this.$message.success(this.$t('message.success.clear.webhook.deliveries'))
-        this.fetchData()
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.tabLoading = false
-      })
     },
     redeliverDeliveryConfirmation (item) {
-      const self = this
+      if (this.operationBusy || !('executeWebhookDelivery' in this.$store.getters.apis)) return
+      const webhookid = this.resource.id
       this.$confirm({
         title: this.$t('label.redeliver') + ' ' + item.eventtype,
-        okText: this.$t('label.ok'),
-        okType: 'primary',
+        content: this.resource.payloadurl,
+        okText: this.$t('label.redeliver'),
         cancelText: this.$t('label.cancel'),
-        onOk () {
-          self.redeliverDelivery(item)
+        onOk: () => this.resource.id === webhookid && this.redeliverDelivery(webhookid, item.id)
+      })
+    },
+    async redeliverDelivery (webhookid, id) {
+      if (this.operationBusy) return
+      this.operationBusy = true
+      this.operationNotice = null
+      try {
+        const response = await postAPI('executeWebhookDelivery', { id })
+        if (this.resource.id !== webhookid) return
+        const delivery = response?.executewebhookdeliveryresponse?.webhookdelivery
+        if (typeof delivery?.success !== 'boolean') throw new Error('Missing delivery result')
+        this.operationNotice = {
+          type: delivery.success ? 'success' : 'warning',
+          title: this.$t(delivery.success ? 'message.success.redeliver.webhook.delivery' : 'message.webhook.delivery.receiver.failed'),
+          detail: delivery.response
         }
-      })
-    },
-    redeliverDelivery (item) {
-      const params = {
-        id: item.id
+      } catch {
+        if (this.resource.id === webhookid) this.operationNotice = { type: 'error', title: this.$t('message.webhook.delivery.request.failed') }
+      } finally {
+        this.operationBusy = false
+        if (this.resource.id === webhookid) this.fetchData()
       }
-      this.tabLoading = true
-      postAPI('executeWebhookDelivery', params).then(json => {
-        this.$message.success(this.$t('message.success.redeliver.webhook.delivery'))
-        this.fetchData()
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.tabLoading = false
-      })
-    },
-    deleteDeliveryConfirmation (item) {
-      const self = this
-      this.$confirm({
-        title: this.$t('label.delete') + ' ' + item.eventtype,
-        okText: this.$t('label.ok'),
-        okType: 'primary',
-        cancelText: this.$t('label.cancel'),
-        onOk () {
-          self.deleteDelivery(item)
-        }
-      })
-    },
-    deleteDelivery (item) {
-      const params = {
-        id: item.id
-      }
-      this.tabLoading = true
-      postAPI('deleteWebhookDelivery', params).then(json => {
-        const message = `${this.$t('message.success.delete')} ${this.$t('label.webhook.delivery')}`
-        this.$message.success(message)
-        this.fetchData()
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.tabLoading = false
-      })
     },
     execAction (action) {
-      if (action.api === 'executeWebhookDelivery') {
-        this.redeliverDeliveryConfirmation(action.resource)
-      } else if (action.api === 'deleteWebhookDelivery') {
-        this.deleteDeliveryConfirmation(action.resource)
-      }
+      if (action.api === 'executeWebhookDelivery') this.redeliverDeliveryConfirmation(action.resource)
+      if (action.api === 'deleteWebhookDelivery') this.confirmDeleteDeliveries([action.resource])
     },
     get24hrStartDate () {
       const start = new Date()
@@ -557,6 +518,7 @@ export default {
 .info-icon {
   margin: 0 10px 0 5px;
 }
+.delivery-actions { margin-bottom: 12px; }
 .filter-row {
   margin-bottom: 2.5%;
 }

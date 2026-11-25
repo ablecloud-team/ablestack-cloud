@@ -5050,6 +5050,18 @@ export default {
           if (vmScope && ['startVirtualMachine', 'stopVirtualMachine', 'rebootVirtualMachine', 'restoreVirtualMachine'].includes(action.api) && !Object.values(json || {}).some(value => value?.jobid)) {
             this.vmActionUnknown = true; this.vmActionError = this.$t('message.vm.start.unknown'); return
           }
+          if (action.api === 'executeWebhookDelivery' && this.$route.meta?.name === 'webhookdeliveries') {
+            const delivery = json?.executewebhookdeliveryresponse?.webhookdelivery
+            if (delivery?.success !== true) {
+              this.$notification.error({
+                message: this.$t(delivery?.success === false ? 'message.webhook.delivery.receiver.failed' : 'message.webhook.delivery.request.failed'),
+                description: delivery?.response
+              })
+              this.fetchData()
+              this.closeAction()
+              return
+            }
+          }
           var response = this.handleResponse(json, resourceName, this.getDataIdentifier(params), action)
           if (!response) {
             this.fetchData()
