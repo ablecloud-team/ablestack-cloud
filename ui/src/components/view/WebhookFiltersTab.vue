@@ -18,7 +18,31 @@
 <template>
   <div>
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <div class="add-row">
+    <a-space class="webhook-filter-toolbar" wrap>
+      <a-button v-if="canAdd" type="primary" @click="openAddFilter">{{ $t('label.add.webhook.filter') }}</a-button>
+      <a-input-search
+        v-model:value="keywordInput"
+        :placeholder="$t('label.webhook.filter.search')"
+        :aria-label="$t('label.webhook.filter.search')"
+        allow-clear
+        @search="setKeyword"
+        @change="clearEmptyKeyword" />
+      <a-button @click="fetchData">{{ $t('label.refresh') }}</a-button>
+      <a-button v-if="canDelete && selectedRowKeys.length" danger :disabled="deleting || tabLoading" @click="confirmDelete(selectedFilters)">
+        {{ $t('label.webhook.filter.delete.selected', { count: selectedRowKeys.length }) }}
+      </a-button>
+      <a-button v-if="canDelete && totalCount && !keyword" danger :disabled="deleting || tabLoading" @click="confirmDelete(null)">
+        {{ $t('label.webhook.filter.delete.all') }}
+      </a-button>
+    </a-space>
+    <a-alert v-if="deleteFailures.length" type="warning" show-icon :message="$t('message.webhook.filter.delete.partial', { succeeded: deletedCount, failed: deleteFailures.length })">
+      <template #description>
+        <ul>
+          <li v-for="item in deleteFailures" :key="item.id">{{ item.value }} · {{ item.reason }}</li>
+        </ul>
+      </template>
+    </a-alert>
+    <mold-dialog v-if="showAddFilter" :visible="true" :title="$t('label.add.webhook.filter')" size="md" form-actions @cancel="closeAddFilter">
       <p>{{ $t('message.webhook.filter.add') }}</p>
       <a-form
         :ref="addFormRef"
@@ -48,7 +72,7 @@
               <a-select
                 style="margin-left: 0"
                 v-model:value="addFilterForm.matchtype"
-                placeholder="Select match type"
+                :placeholder="$t('label.matchtype')"
                 allow-clear>
                 <a-select-option value="exact">{{ $t('label.exact') }}</a-select-option>
                 <a-select-option value="prefix">{{ $t('label.prefix') }}</a-select-option>
@@ -65,39 +89,24 @@
               <template #label>
                 <tooltip-label :title="$t('label.value')" :tooltip="addFilterApiParams.value.description"/>
               </template>
-              <a-input v-model:value="addFilterForm.value" placeholder="Enter filter value" />
+              <a-input v-model:value="addFilterForm.value" :placeholder="$t('label.webhook.filter.value')" />
             </a-form-item>
           </a-col>
         </a-row>
 
-        <a-row style="margin-top: 16px;">
-          <a-col :span="24" style="text-align: right;">
-            <a-space>
-              <a-button @click="resetAddFilterForm">{{ $t('label.reset') }}</a-button>
-              <a-button type="primary" ref="submit" @click="addFilter">{{ $t('label.add') }}</a-button>
-            </a-space>
-          </a-col>
-        </a-row>
       </a-form>
-    </div>
-
-    <a-divider />
-    <a-button
-      v-if="('deleteWebhookFilter' in $store.getters.apis) && (selectedRowKeys && selectedRowKeys.length > 0)"
-      type="danger"
-      danger
-      style="width: 100%; margin-bottom: 15px"
-      @click="clearOrDeleteFiltersConfirmation()">
-      <template #icon><delete-outlined /></template>
-      {{ (selectedRowKeys && selectedRowKeys.length > 0) ? $t('label.action.delete.webhook.filters') : $t('label.action.clear.webhook.filters') }}
-    </a-button>
+      <mold-dialog-actions :busy="adding">
+        <a-button @click="closeAddFilter">{{ $t('label.cancel') }}</a-button>
+        <a-button type="primary" :loading="adding" @click="addFilter">{{ $t('label.add') }}</a-button>
+      </mold-dialog-actions>
+    </mold-dialog>
     <list-view
       :loading="tabLoading"
       :columns="columns"
       :items="filters"
       :actions="actions"
       :columnKeys="columnKeys"
-      :explicitlyAllowRowSelection="true"
+      :explicitlyAllowRowSelection="canDelete"
       :selectedColumns="selectedColumnKeys"
       ref="listview"
       @update-selected-columns="updateSelectedColumns"
@@ -125,19 +134,22 @@
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
-import { ref, reactive, toRaw } from 'vue'
+import { ref, reactive } from 'vue'
 import { getAPI, postAPI } from '@/api'
-import { mixinForm } from '@/utils/mixin'
 import { genericCompare } from '@/utils/sort.js'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import ListView from '@/components/view/ListView'
+import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 
 export default {
   name: 'WebhookFiltersTab',
-  mixins: [listRefreshMixin(['fetchFilters']), mixinForm],
+  mixins: [listRefreshMixin(['fetchFilters'])],
   components: {
     TooltipLabel,
-    ListView
+    ListView,
+    MoldDialog,
+    MoldDialogActions
   },
   props: {
     resource: {
@@ -152,11 +164,17 @@ export default {
   data () {
     return {
       tabLoading: false,
+      adding: false,
+      deleting: false,
+      showAddFilter: false,
+      keywordInput: '',
+      keyword: '',
+      deletedCount: 0,
+      deleteFailures: [],
       columnKeys: ['value', 'type', 'mode', 'matchtype'],
       selectedColumnKeys: ['value', 'mode', 'matchtype'],
       selectedRowKeys: [],
       columns: [],
-      cols: [],
       filters: [],
       actions: [
         {
@@ -174,6 +192,9 @@ export default {
     }
   },
   computed: {
+    canAdd () { return 'addWebhookFilter' in this.$store.getters.apis },
+    canDelete () { return 'deleteWebhookFilter' in this.$store.getters.apis },
+    selectedFilters () { return this.filters.filter(item => this.selectedRowKeys.includes(item.id)) },
     pageSizeOptions () {
       var sizes = [20, 50, 100, 200, this.$store.getters.defaultListViewPageSize]
       if (this.device !== 'desktop') {
@@ -190,16 +211,29 @@ export default {
   created () {
     this.updateColumns()
     this.pageSize = this.pageSizeOptions[0] * 1
-    this.initAddFilterForm()
     this.fetchData()
   },
   watch: {
     'resource.id' () {
       this.page = 1
+      this.keyword = ''
+      this.keywordInput = ''
+      this.deleteFailures = []
+      this.showAddFilter = false
       this.fetchData()
     }
   },
   methods: {
+    setKeyword (value) {
+      const keyword = value?.trim() || ''
+      if (keyword === this.keyword) return
+      this.keyword = keyword
+      this.page = 1
+      this.fetchData()
+    },
+    clearEmptyKeyword (event) {
+      if (!event.target.value) this.setKeyword('')
+    },
     fetchData () {
       if ('listview' in this.$refs && this.$refs.listview) {
         this.$refs.listview.resetSelection()
@@ -216,7 +250,8 @@ export default {
         page: this.page,
         pagesize: this.pageSize,
         webhookid: this.resource.id,
-        listall: true
+        listall: true,
+        ...(this.keyword ? { keyword: this.keyword } : {})
       }
       this.tabLoading = !listRequest.loaded
       return getAPI('listWebhookFilters', params).then(json => {
@@ -265,6 +300,7 @@ export default {
           key: key,
           title: title,
           dataIndex: key,
+          ...(['mode', 'matchtype'].includes(key) ? { customRender: ({ text }) => text ? this.$t('label.' + text.toLowerCase()) : '—' } : {}),
           sorter: (a, b) => { return genericCompare(a[key] || '', b[key] || '') }
         })
       }
@@ -272,164 +308,84 @@ export default {
         this.columns[this.columns.length - 1].customFilterDropdown = true
       }
     },
-    initAddFilterForm () {
+    openAddFilter () {
       this.addFormRef = ref()
-      this.addFilterForm = reactive({
-        mode: 'include',
-        matchtype: 'exact',
-        value: null
-      })
-      this.addFormRules = reactive({
-        value: [{ required: true, message: this.$t('message.error.required.input') }]
-      })
+      this.addFilterForm = reactive({ mode: 'include', matchtype: 'exact', value: '' })
+      this.addFormRules = { value: [{ required: true, whitespace: true, message: this.$t('message.error.required.input') }] }
+      this.showAddFilter = true
     },
-    resetAddFilterForm () {
-      if (this.addFormRef.value) {
-        this.addFormRef.value.resetFields()
+    closeAddFilter () {
+      if (!this.adding) this.showAddFilter = false
+    },
+    async addFilter (event) {
+      if (event && typeof event.preventDefault === 'function') event.preventDefault()
+      if (this.adding || !this.canAdd || !this.resource.id) return
+      const webhookid = this.resource.id
+      this.adding = true
+      try {
+        await this.addFormRef.value.validate()
+        const { mode, matchtype, value } = this.addFilterForm
+        await postAPI('addWebhookFilter', { webhookid, mode, matchtype, value: value.trim() })
+        if (this.resource.id !== webhookid) return
+        this.showAddFilter = false
+        this.$message.success(this.$t('message.success.add.webhook.filter'))
+        this.fetchData()
+      } catch (error) {
+        if (this.resource.id === webhookid && !error.errorFields) this.$notifyError(error)
+      } finally {
+        this.adding = false
       }
-    },
-    addFilter (e) {
-      e.preventDefault()
-      if (this.tabLoading) return
-      console.log('Adding webhook filter with form:', this.addFilterForm)
-      this.addFormRef.value.validate().then(() => {
-        const formRaw = toRaw(this.addFilterForm)
-        const values = this.handleRemoveFields(formRaw)
-        const params = {
-          webhookid: this.resource.id,
-          mode: values.mode,
-          matchtype: values.matchtype,
-          value: values.value
-        }
-        console.log('Adding webhook filter with params:', params)
-        this.tabLoading = true
-        postAPI('addWebhookFilter', params).then(json => {
-          this.$notification.success({
-            message: this.$t('label.add.webhook.filter'),
-            description: this.$t('message.success.add.webhook.filter')
-          })
-          setTimeout(() => {
-            this.resetAddFilterForm()
-          }, 250)
-        }).catch(error => {
-          this.$notifyError(error)
-        }).finally(() => {
-          this.tabLoading = false
-          this.fetchFilters()
-        })
-      })
     },
     updateSelectedRows (keys) {
       this.selectedRowKeys = keys
     },
-    clearOrDeleteFiltersConfirmation () {
-      const self = this
-      const title = (this.selectedRowKeys && this.selectedRowKeys.length > 0)
-        ? this.$t('label.action.delete.webhook.filters')
-        : this.$t('label.action.clear.webhook.filters')
+    confirmDelete (items) {
+      const all = items === null
+      if (!this.canDelete || this.deleting || this.tabLoading || (all ? !this.totalCount || this.keyword : !items.length)) return
+      const webhookid = this.resource.id
+      const count = all ? this.totalCount : items.length
       this.$confirm({
-        title: title,
-        okText: this.$t('label.ok'),
+        title: this.$t(all ? 'label.webhook.filter.delete.all' : 'label.action.delete.webhook.filters'),
+        content: this.$t(all ? 'message.webhook.filter.delete.confirm.all' : 'message.webhook.filter.delete.confirm.selected', { count, name: this.resource.name }),
+        okText: this.$t('label.remove'),
         okType: 'danger',
         cancelText: this.$t('label.cancel'),
-        onOk () {
-          if (self.selectedRowKeys && self.selectedRowKeys.length > 0) {
-            self.deletedSelectedFilters()
-            return
-          }
-          self.clearFilters()
-        }
+        onOk: () => this.resource.id === webhookid && this.deleteFilters(webhookid, items)
       })
     },
-    deletedSelectedFilters () {
-      const promises = []
-      this.selectedRowKeys.forEach(id => {
-        const params = {
-          id: id
+    async deleteFilters (webhookid, items) {
+      if (this.deleting || !this.canDelete) return
+      this.deleting = true
+      this.deleteFailures = []
+      try {
+        if (items === null) {
+          await postAPI('deleteWebhookFilter', { webhookid })
+          this.$message.success(this.$t('message.success.clear.webhook.filters'))
+        } else {
+          const results = await Promise.allSettled(items.map(({ id }) => postAPI('deleteWebhookFilter', { id, webhookid })))
+          if (this.resource.id !== webhookid) return
+          this.deleteFailures = results.flatMap(({ status, reason }, index) => status === 'rejected'
+            ? [{ ...items[index], reason: Object.values(reason?.response?.data || {}).find(value => value?.errortext)?.errortext || this.$t('message.request.failed') }]
+            : [])
+          this.deletedCount = results.length - this.deleteFailures.length
+          if (!this.deleteFailures.length) this.$message.success(this.$t('message.success.delete'))
         }
-        promises.push(new Promise((resolve, reject) => {
-          postAPI('deleteWebhookFilter', params).then(json => {
-            return resolve(id)
-          }).catch(error => {
-            return reject(error)
-          })
-        }))
-      })
-      const msg = this.$t('label.action.delete.webhook.filters')
-      this.$message.info({
-        content: msg,
-        duration: 3
-      })
-      this.tabLoading = true
-      Promise.all(promises).finally(() => {
-        this.tabLoading = false
-        this.fetchData()
-      })
-    },
-    clearFilters () {
-      const params = {
-        webhookid: this.resource.id
+      } catch (error) {
+        if (this.resource.id === webhookid) this.$notifyError(error)
+      } finally {
+        this.deleting = false
+        if (this.resource.id === webhookid) this.fetchData()
       }
-      this.tabLoading = true
-      postAPI('deleteWebhookFilter', params).then(json => {
-        this.$message.success(this.$t('message.success.clear.webhook.filters'))
-        this.fetchData()
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.tabLoading = false
-      })
-    },
-    deleteFilterConfirmation (item) {
-      const self = this
-      this.$confirm({
-        title: this.$t('label.delete.webhook.filter'),
-        okText: this.$t('label.ok'),
-        okType: 'primary',
-        cancelText: this.$t('label.cancel'),
-        onOk () {
-          self.deleteFilter(item)
-        }
-      })
-    },
-    deleteFilter (item) {
-      const params = {
-        id: item.id
-      }
-      this.tabLoading = true
-      postAPI('deleteWebhookFilter', params).then(json => {
-        const message = `${this.$t('message.success.delete')} ${this.$t('label.webhook.filter')}`
-        this.$message.success(message)
-        this.fetchData()
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.tabLoading = false
-      })
     },
     execAction (action) {
-      if (action.api === 'deleteWebhookFilter') {
-        this.deleteFilterConfirmation(action.resource)
-      }
+      if (action.api === 'deleteWebhookFilter') this.confirmDelete([action.resource])
     }
   }
 }
 </script>
 
-<style lang="scss" scoped>
-.ant-tag {
-  padding: 0 7px 0 0;
-}
-.ant-select {
-  margin-left: 10px;
-}
-.info-icon {
-  margin: 0 10px 0 5px;
-}
-.filter-row {
-  margin-bottom: 2.5%;
-}
-.filter-row-inner {
-  margin-top: 3%;
+<style scoped>
+.webhook-filter-toolbar {
+  margin-bottom: 12px;
 }
 </style>
