@@ -26,7 +26,7 @@
       @execute="executeDataViewEntry" />
     <template v-else>
     <a-tooltip
-      v-for="(action, actionIndex) in actions"
+      v-for="(action, actionIndex) in toolbarActions"
       :key="actionIndex"
       arrowPointAtCenter
       placement="bottomRight">
@@ -37,7 +37,7 @@
         {{ $t(action.hoverLabel) }}
       </template>
       <template v-else-if="!dataView" #title>
-        {{ $t(action.label) }}
+        {{ $t(action.toolbarLabel || action.label) }}
       </template>
       <a-badge
         class="button-action-badge"
@@ -52,10 +52,10 @@
         <a-button
           :disabled="isActionDisabled(action)"
           :aria-label="$t(action.label)"
-          :type="dataView ? 'text' : (primaryIconList.includes(action.icon) ? 'primary' : 'default')"
-          :shape="dataView ? null : (['PlusOutlined', 'plus-outlined'].includes(action.icon) ? 'round' : 'circle')"
+          :type="actionButtonType(action)"
+          :shape="actionButtonShape(action, true)"
           :danger="dangerIconList.includes(action.icon)"
-          :style="dataView ? {} : { marginLeft: '5px' }"
+          :style="dataView || breadcrumbToolbar ? {} : { marginLeft: '5px' }"
           :class="['action-button-item', { 'action-button-item--dataview': dataView }]"
           :size="size"
           @click="execAction(action)">
@@ -64,8 +64,8 @@
           <span v-if="dataView" class="action-button-item__label">
             {{ $t(action.label) }}
           </span>
-          <span v-else-if="['PlusOutlined', 'plus-outlined'].includes(action.icon)">
-            {{ $t(action.label) }}
+          <span v-else-if="breadcrumbToolbar ? action === mainToolbarAction : ['PlusOutlined', 'plus-outlined'].includes(action.icon)">
+            {{ $t(breadcrumbToolbar ? action.toolbarLabel || action.label : action.label) }}
           </span>
         </a-button>
       </a-badge>
@@ -77,10 +77,10 @@
           )"
         :disabled="isActionDisabled(action)"
         :aria-label="$t(action.toolbarLabel || action.label)"
-        :type="dataView ? 'text' : (primaryIconList.includes(action.icon) ? 'primary' : 'default')"
+        :type="actionButtonType(action)"
         :danger="dangerIconList.includes(action.icon)"
-        :shape="dataView || action.showLabel ? null : (action.toolbarLabel || ['PlusOutlined', 'plus-outlined', 'UserAddOutlined', 'user-add-outlined'].includes(action.icon) ? 'round' : 'circle')"
-        :style="dataView ? {} : { marginLeft: '5px' }"
+        :shape="actionButtonShape(action)"
+        :style="dataView || breadcrumbToolbar ? {} : { marginLeft: '5px' }"
         :class="['action-button-item', { 'action-button-item--dataview': dataView }]"
         :size="size"
         @click="execAction(action)">
@@ -89,8 +89,9 @@
         <span v-if="dataView" class="action-button-item__label">
           {{ $t(action.label) }}
         </span>
-        <span v-else-if="action.showLabel" class="action-button-item__visible-label">{{ $t(action.label) }}</span>
-        <span v-else-if="action.toolbarLabel || ['PlusOutlined', 'plus-outlined', 'UserAddOutlined', 'user-add-outlined'].includes(action.icon)">
+        <span v-else-if="breadcrumbToolbar && action === mainToolbarAction">{{ $t(action.toolbarLabel || action.label) }}</span>
+        <span v-else-if="!breadcrumbToolbar && action.showLabel" class="action-button-item__visible-label">{{ $t(action.label) }}</span>
+        <span v-else-if="!breadcrumbToolbar && (action.toolbarLabel || ['PlusOutlined', 'plus-outlined', 'UserAddOutlined', 'user-add-outlined'].includes(action.icon))">
           {{ $t(action.toolbarLabel || action.label) }}
         </span>
       </a-button>
@@ -140,6 +141,14 @@ export default {
       default () {
         return {}
       }
+    },
+    breadcrumbToolbar: {
+      type: Boolean,
+      default: false
+    },
+    hasToolbarPrimary: {
+      type: Boolean,
+      default: false
     },
     dataView: {
       type: Boolean,
@@ -192,6 +201,19 @@ export default {
     wallScope () { this.updateWallLinkUrl() }
   },
   computed: {
+    mainToolbarAction () {
+      if (!this.breadcrumbToolbar || this.hasToolbarPrimary) return null
+      const available = this.actions.filter(action =>
+        action.listView && !action.groupAction && !isDangerAction(action) &&
+        action.api in this.$store.getters.apis && (!action.show || action.show(this.resource, this.$store.getters)))
+      return available.find(action =>
+        ['PlusOutlined', 'plus-outlined', 'UserAddOutlined', 'user-add-outlined'].includes(action.icon)
+      ) || available[0]
+    },
+    toolbarActions () {
+      const main = this.mainToolbarAction
+      return main ? [main, ...this.actions.filter(action => action !== main)] : this.actions
+    },
     routeName () {
       return this.$route?.meta?.name || this.$route?.name || ''
     },
@@ -347,6 +369,16 @@ export default {
     }
   },
   methods: {
+    actionButtonType (action) {
+      if (this.breadcrumbToolbar) return action === this.mainToolbarAction ? 'primary' : 'default'
+      return this.dataView ? 'text' : (this.primaryIconList.includes(action.icon) ? 'primary' : 'default')
+    },
+    actionButtonShape (action, badge = false) {
+      if (this.breadcrumbToolbar) return action === this.mainToolbarAction ? 'round' : 'circle'
+      if (this.dataView || (!badge && action.showLabel)) return null
+      const icons = badge ? ['PlusOutlined', 'plus-outlined'] : ['PlusOutlined', 'plus-outlined', 'UserAddOutlined', 'user-add-outlined']
+      return icons.includes(action.icon) || (!badge && action.toolbarLabel) ? 'round' : 'circle'
+    },
     createBuiltInMenuEntry (key, label, icon, options = {}) {
       return {
         key: `built-in-${key}`,

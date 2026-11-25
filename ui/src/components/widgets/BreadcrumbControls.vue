@@ -16,9 +16,9 @@
 // under the License.
 
 <template>
-  <span class="breadcrumb-controls" :style="standard ? undefined : { marginLeft: '8px' }">
+  <span class="breadcrumb-controls">
     <a-tooltip v-if="docUrl" placement="bottom" :title="$t('label.open.documentation')">
-      <a :href="docUrl" :aria-label="$t('label.open.documentation')" target="_blank" rel="noopener noreferrer" :style="standard ? undefined : { marginRight: '12px' }">
+      <a :href="docUrl" :aria-label="$t('label.open.documentation')" target="_blank" rel="noopener noreferrer">
         <QuestionCircleOutlined />
       </a>
     </a-tooltip>
@@ -34,8 +34,7 @@ export default {
   name: 'BreadcrumbControls',
   props: {
     docUrl: { type: String, default: '' },
-    parentLocation: { type: Object, default: null },
-    standard: { type: Boolean, default: false }
+    parentLocation: { type: Object, default: null }
   }
 }
 </script>

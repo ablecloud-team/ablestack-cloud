@@ -20,16 +20,13 @@
   <div class="cross-dr-page cross-dr-standard-page">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <div class="content-breadcrumb">
-      <a-card class="breadcrumb-card" style="z-index: 10">
-        <a-row>
-          <a-col
-            :span="device === 'mobile' ? 24 : 12"
-            style="padding-left: 12px; margin-top: 10px">
+      <a-card class="breadcrumb-card breadcrumb-toolbar" style="z-index: 10">
+        <a-row class="breadcrumb-toolbar-row">
+          <a-col class="breadcrumb-toolbar-path">
             <breadcrumb :resource="breadcrumbResource">
               <template #end>
                 <a-button
                   :loading="loading"
-                  style="margin-bottom: 5px"
                   shape="round"
                   size="small"
                   @click="fetchData">
@@ -44,7 +41,7 @@
                     v-if="!detailId"
                     :placeholder="$t('label.filterby')"
                     :value="filterValue"
-                    style="min-width: 100px; margin-left: 10px; margin-bottom: 5px"
+                    class="breadcrumb-display-filter"
                     size="small"
                     showSearch
                     optionFilterProp="label"
@@ -67,9 +64,7 @@
               </template>
             </breadcrumb>
           </a-col>
-          <a-col
-            :span="device === 'mobile' ? 24 : 12"
-            :style="device === 'mobile' ? { float: 'right', 'margin-top': '12px', 'margin-bottom': '-6px', display: 'table' } : { float: 'right', display: 'table', 'margin-top': '6px' }">
+          <a-col class="breadcrumb-toolbar-actions">
             <dr-resource-action-menu
               v-if="detailId && detailSite.id"
               :actions="siteActions"
@@ -77,8 +72,8 @@
               :triggerStyle="{ float: device === 'mobile' ? 'left' : 'right' }"
               @exec-action="execSiteAction" />
             <action-button
+              breadcrumb-toolbar
               v-else-if="'createDrSite' in $store.getters.apis"
-              :style="{ 'margin-right': '10px', display: 'inline-flex' }"
               :loading="loading"
               :actions="createSiteActions"
               :selectedRowKeys="selectedRowKeys"
@@ -87,6 +82,7 @@
               :resource="{}"
               @exec-action="openCreateModal" />
             <search-view
+              class="breadcrumb-toolbar-search"
               v-if="!detailId"
               :searchFilters="searchFilters"
               :searchParams="searchParams"

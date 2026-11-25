@@ -4,113 +4,22 @@
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 
-.vm-acl-standard :deep(.ant-breadcrumb .ant-breadcrumb-link > a),
-.vm-acl-standard :deep(.ant-breadcrumb .ant-breadcrumb-link > a > span),
 .vm-acl-standard :deep(.ant-tabs-tab-active > .ant-tabs-tab-btn) {
   color: var(--ui-link) !important;
 }
-.vm-acl-standard :deep(.ant-breadcrumb a:focus-visible),
+
 .vm-acl-standard :deep(.ant-tabs-tab-btn:focus-visible),
 .acl-page :deep(.acl-resource a:focus-visible) {
   outline: 2px solid var(--ui-focus);
   outline-offset: 2px;
 }
-.vm-acl-standard .breadcrumb-card :deep(.ant-card-body > .ant-row:first-child) {
-  align-items: center;
-  gap: 8px 12px;
-  padding-inline: 12px;
-}
-/* Reserve the standard action-row height for read-only ACLs. */
-.acl-page .breadcrumb-card :deep(.ant-card-body > .ant-row:first-child) {
+
+.acl-page .breadcrumb-card :deep(.breadcrumb-toolbar-row) {
   min-block-size: 32px;
 }
-.vm-acl-standard .breadcrumb-card :deep(.ant-card-body > .ant-row:first-child > .ant-col:first-child) {
-  flex: 1 1 22rem;
-  max-width: 100%;
-  min-width: 0;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-.vm-acl-standard :deep(.vm-acl-breadcrumb-layout) {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 12px;
-  min-width: 0;
-}
-.vm-acl-standard :deep(.vm-acl-breadcrumb-layout .breadcrumb) {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  max-width: 100%;
-  white-space: nowrap;
-}
-.vm-acl-standard :deep(.vm-acl-breadcrumb-layout .breadcrumb > span:last-child) {
-  display: flex;
-  min-width: 0;
-}
-.vm-acl-standard :deep(.vm-acl-breadcrumb-layout .breadcrumb > span:last-child > .ant-breadcrumb-link) {
-  min-width: 0;
-}
-.vm-acl-standard :deep(.vm-acl-breadcrumb-current) {
-  display: block;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.vm-acl-standard :deep(.vm-acl-breadcrumb-layout > .breadcrumb-controls) {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px 8px;
-  max-width: 100%;
-  min-width: 0;
-}
-.vm-acl-standard .autogen-toolbar-actions {
-  display: flex !important;
-  align-items: center;
-  justify-content: flex-end;
-  flex: 0 1 auto;
-  flex-wrap: wrap;
-  gap: 8px;
-  max-width: 100%;
-  min-width: 0;
-  margin: 0 !important;
-}
-.vm-acl-standard .autogen-toolbar-actions :deep(.row-action-button),
-.vm-acl-standard :deep(.vm-acl-breadcrumb-layout > .breadcrumb-controls > *) {
-  margin: 0 !important;
-}
-.vm-acl-standard .autogen-toolbar-actions :deep(.vm-acl-toolbar-search) {
-  display: block !important;
-  flex: 0 1 240px;
-  width: 240px !important;
-  max-width: 100%;
-  min-width: 0;
-}
-.vm-acl-standard .autogen-toolbar-actions :deep(.input-search) {
-  width: 100%;
-  margin: 0;
-}
-.vpn-user-page :deep(.vm-acl-breadcrumb-layout .breadcrumb) {
-  align-items: flex-start;
-}
-.vpn-user-page :deep(.vm-acl-breadcrumb-current) {
-  overflow: visible;
-  overflow-wrap: anywhere;
-  white-space: normal;
-}
-.vpn-user-page .autogen-toolbar-actions :deep(.row-action-button) {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  min-width: 0;
-}
-.vpn-user-page .autogen-toolbar-actions :deep(.row-action-button .action-button-item) {
-  margin: 0 !important;
-}
+
 .vpn-user-selection-count { white-space: nowrap; }
+
 .acl-page :deep(.acl-resource .ant-col),
 .acl-page :deep(.acl-resource .ant-tabs-content-holder),
 .acl-page :deep(.acl-resource .ant-tabs-tabpane),
@@ -135,7 +44,3 @@
   background: var(--ui-bg-elevated);
 }
 .acl-action-context dd { margin: 0; overflow-wrap: anywhere; }
-@media (max-width: 767px) {
-  .vm-acl-standard .autogen-toolbar-actions { justify-content: flex-start; flex-basis: 100%; }
-  .vm-acl-standard :deep(.vm-acl-breadcrumb-layout) { align-items: flex-start; flex-direction: column; flex-wrap: nowrap; }
-}

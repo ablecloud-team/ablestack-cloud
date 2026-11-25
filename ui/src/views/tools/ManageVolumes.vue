@@ -18,19 +18,23 @@
 <template>
   <a-row :gutter="12" v-if="isPageAllowed">
     <a-col :span="24" class="content-breadcrumb">
-      <a-card class="breadcrumb-card">
-        <a-col :md="24" style="display: flex">
-          <breadcrumb style="padding-top: 6px; padding-left: 8px" />
-          <a-button
-            style="margin-left: 12px; margin-top: 4px"
-            :loading="viewLoading"
-            size="small"
-            shape="round"
-            @click="fetchData()" >
-            <template #icon><reload-outlined /></template>
-            {{ $t('label.refresh') }}
-          </a-button>
-        </a-col>
+      <a-card class="breadcrumb-card breadcrumb-toolbar">
+        <div class="breadcrumb-toolbar-row">
+          <div class="breadcrumb-toolbar-path">
+            <breadcrumb>
+              <template #end>
+                <a-button
+                  :loading="viewLoading"
+                  size="small"
+                  shape="round"
+                  @click="fetchData()" >
+                  <template #icon><reload-outlined /></template>
+                  {{ $t('label.refresh') }}
+                </a-button>
+              </template>
+            </breadcrumb>
+          </div>
+        </div>
       </a-card>
     </a-col>
     <a-col

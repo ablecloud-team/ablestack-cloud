@@ -6,11 +6,6 @@
 
 .project-standard-page :deep(.project-state-filter) { min-width: 104px; }
 
-.project-standard-page .autogen-toolbar-actions :deep(.project-toolbar-search) {
-  min-width: min(228px, 100%);
-  margin: 0;
-}
-
 .project-standard-page :deep(.project-list-column-state) { white-space: nowrap; }
 .project-standard-page :deep(.project-list-column-displaytext),
 .project-standard-page :deep(.project-list-column-account),

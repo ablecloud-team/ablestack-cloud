@@ -18,63 +18,9 @@
 .kubernetes-iso-page {
   min-width:0;
   max-width:100%;
-  // Match the VM breadcrumb type scale and align complete path/control items.
-  // A clipped inline-block uses its bottom edge as a baseline, lowering text.
-  .breadcrumb-card .breadcrumb {
-    display:flex;
-    flex-wrap:wrap;
-    align-items:center;
-    row-gap:8px;
-    min-width:0;
-    font-size:14px;
-    font-weight:400;
-    line-height:22px;
-  }
-  .breadcrumb > span,
-  .breadcrumb .ant-breadcrumb-link,
-  .breadcrumb .ant-breadcrumb-link > span:not(:last-child) {
-    display:inline-flex;
-    flex-wrap:wrap;
-    align-items:center;
-    min-width:0;
-    max-width:100%;
-  }
-  // The final span also supports operating bundles predating breadcrumb-controls.
-  .breadcrumb .ant-breadcrumb-link > span:last-child {
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-  }
-  .breadcrumb .ant-breadcrumb-link > a,
-  .breadcrumb .ant-breadcrumb-link > span:last-child > a {
-    display:inline-flex;
-    align-items:center;
-    position:static;
-    font-size:inherit;
-    line-height:inherit;
-  }
-  .breadcrumb .ant-breadcrumb-link > span:last-child > .ant-btn,
-  .breadcrumb .ant-breadcrumb-link > span:last-child > .ant-select,
-  .breadcrumb .ant-breadcrumb-link > span:last-child > .ant-switch,
-  .breadcrumb .ant-breadcrumb-link > span:last-child > a { margin:0 !important; }
-  .kubernetes-iso-breadcrumb-name {
-    display:block;
-    min-width:0;
-    max-width:~"min(240px, 28vw)";
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-    font-size:inherit;
-    line-height:inherit;
-  }
-  .kubernetes-iso-breadcrumb-name:focus-visible { outline:2px solid var(--ui-focus); outline-offset:2px; }
 }
 .kubernetes-iso-list-page {
   .template-name-link { color:var(--ui-link); }
-  .autogen-toolbar-actions { display:flex !important; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; min-width:0; }
-  .autogen-toolbar-actions .row-action-button { display:inline-flex !important; flex-wrap:wrap; gap:8px; margin:0 !important; }
-  .autogen-toolbar-actions .row-action-button .ant-btn { margin:0; }
-  .autogen-toolbar-actions > .ant-input-search { flex:1 1 260px; min-width:180px; width:auto !important; max-width:100%; }
   .ant-pagination { display:flex; flex-wrap:wrap; align-items:center; gap:4px; }
 }
 .kubernetes-iso-resource {
@@ -90,8 +36,6 @@
   .ant-alert-message, p, li { overflow-wrap:anywhere; }
 }
 @media (max-width:767px) {
-  .kubernetes-iso-page .breadcrumb-card { margin-left:-12px; margin-right:-12px; }
-  .kubernetes-iso-page .autogen-toolbar-actions { margin-bottom:0 !important; }
 }
 @media (max-width:575px) {
   .kubernetes-iso-resource .template-tab-toolbar .ant-input-search { flex:1 1 100%; width:100%; }

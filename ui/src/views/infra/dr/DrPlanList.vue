@@ -20,16 +20,13 @@
   <div class="cross-dr-page cross-dr-standard-page">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <div class="content-breadcrumb">
-      <a-card class="breadcrumb-card" style="z-index: 10">
-        <a-row>
-          <a-col
-            :span="device === 'mobile' ? 24 : 12"
-            style="padding-left: 12px; margin-top: 10px">
+      <a-card class="breadcrumb-card breadcrumb-toolbar" style="z-index: 10">
+        <a-row class="breadcrumb-toolbar-row">
+          <a-col class="breadcrumb-toolbar-path">
             <breadcrumb :resource="breadcrumbResource">
               <template #end>
                 <a-button
                   :loading="loading || protectionRefreshing"
-                  style="margin-bottom: 5px"
                   shape="round"
                   size="small"
                   @click="detailId ? requestProtectionRefresh() : fetchData()">
@@ -44,7 +41,7 @@
                     v-if="!detailId"
                     :placeholder="$t('label.filterby')"
                     :value="filterValue"
-                    style="min-width: 100px; margin-left: 10px; margin-bottom: 5px"
+                    class="breadcrumb-display-filter"
                     size="small"
                     showSearch
                     optionFilterProp="label"
@@ -67,9 +64,7 @@
               </template>
             </breadcrumb>
           </a-col>
-          <a-col
-            :span="device === 'mobile' ? 24 : 12"
-            :style="!detailId ? { display: 'flex', alignItems: 'center', flexWrap: 'wrap', rowGap: '8px', marginTop: device === 'mobile' ? '12px' : '6px' } : (device === 'mobile' ? { float: 'right', 'margin-top': '12px', 'margin-bottom': '-6px', display: 'table' } : { float: 'right', display: 'table', 'margin-top': '6px' })">
+          <a-col class="breadcrumb-toolbar-actions">
             <dr-resource-action-menu
               v-if="detailId && detailPlan.id"
               :actions="planActions"
@@ -78,21 +73,19 @@
               @exec-action="runPlanAction" />
             <span
               v-if="!detailId && selectedRowKeys.length > 0 && 'startDrProtectionGroupAction' in $store.getters.apis"
-              class="row-action-button"
-              :style="{ 'margin-right': '10px', display: 'inline-flex' }">
+              class="row-action-button">
               <a-button
                 type="primary"
                 shape="round"
                 class="action-button-item"
-                :style="{ 'margin-left': '5px' }"
                 @click="openGroupModal">
                 <ApartmentOutlined class="action-button-item__icon" />
                 <span>{{ $t('label.dr.protection.group.action') }}</span>
               </a-button>
             </span>
             <action-button
+              breadcrumb-toolbar
               v-else-if="!detailId && 'createDrPlan' in $store.getters.apis"
-              :style="{ 'margin-right': '10px', display: 'inline-flex' }"
               :loading="loading"
               :actions="createPlanActions"
               :selectedRowKeys="selectedRowKeys"
@@ -102,11 +95,10 @@
               @exec-action="openCreateModal" />
             <dr-checkpoint-manager
               v-if="!detailId"
-              toolbar
-              style="display: inline-flex; flex-shrink: 0; margin-right: 10px" />
+              toolbar />
             <search-view
               v-if="!detailId"
-              style="flex: 1 1 180px; width: auto; min-width: 0"
+              class="breadcrumb-toolbar-search"
               :searchFilters="searchFilters"
               :searchParams="searchParams"
               apiName="listDrPlans"

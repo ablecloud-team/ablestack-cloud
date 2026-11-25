@@ -18,38 +18,47 @@
 <template>
   <a-row :gutter="12">
     <a-col :span="24" class="content-breadcrumb">
-      <a-card class="breadcrumb-card">
-        <div class="configuration-header">
-          <div class="configuration-header-start">
-            <breadcrumb :standard-layout="true" />
-            <a-button
-              :loading="loading || configLoading || listRefreshing > 0"
-              size="small"
-              shape="round"
-              @click="fetchConfigurationData()" >
-              <template #icon><ReloadOutlined /></template>
-              {{ $t('label.refresh') }}
-            </a-button>
-          </div>
-          <div class="configuration-search-tools">
-            <a-popover v-model:visible="filtersOpen" trigger="click" placement="bottomRight">
-              <template #content>
-                <form class="configuration-filters" @submit.prevent="applyFilters">
-                  <label for="configuration-name-filter">{{ $t('label.global.setting.key') }}</label>
-                  <a-input id="configuration-name-filter" v-model:value="nameDraft" allow-clear />
-                  <label for="configuration-category-filter">{{ $t('label.category') }}</label>
-                  <a-input id="configuration-category-filter" v-model:value="categoryDraft" allow-clear />
-                  <a-button type="primary" html-type="submit">{{ $t('label.apply') }}</a-button>
-                </form>
+      <a-card class="breadcrumb-card breadcrumb-toolbar">
+        <div class="breadcrumb-toolbar-row">
+          <div class="breadcrumb-toolbar-path">
+            <breadcrumb>
+              <template #end>
+                <a-button
+                  :loading="loading || configLoading || listRefreshing > 0"
+                  size="small"
+                  shape="round"
+                  @click="fetchConfigurationData()" >
+                  <template #icon><ReloadOutlined /></template>
+                  {{ $t('label.refresh') }}
+                </a-button>
               </template>
-              <a-button size="small" :aria-label="$t('label.filterby')"><FilterOutlined /></a-button>
-            </a-popover>
+            </breadcrumb>
+          </div>
+          <div class="breadcrumb-toolbar-actions">
             <a-input-search
+              class="breadcrumb-toolbar-search"
               :placeholder="$t('label.search')"
               :aria-label="$t('label.search')"
               v-model:value="filterDraft"
               allow-clear
-              @search="setConfigurationQuery({ filter: $event, page: 1 })" />
+              @search="setConfigurationQuery({ filter: $event, page: 1 })">
+              <template #addonBefore>
+                <a-popover v-model:visible="filtersOpen" trigger="click" placement="bottomRight">
+                  <template #content>
+                    <form class="configuration-filters" @submit.prevent="applyFilters">
+                      <label for="configuration-name-filter">{{ $t('label.global.setting.key') }}</label>
+                      <a-input id="configuration-name-filter" v-model:value="nameDraft" allow-clear />
+                      <label for="configuration-category-filter">{{ $t('label.category') }}</label>
+                      <a-input id="configuration-category-filter" v-model:value="categoryDraft" allow-clear />
+                      <a-button type="primary" html-type="submit">{{ $t('label.apply') }}</a-button>
+                    </form>
+                  </template>
+                  <a-button class="filter-button" size="small" :aria-label="$t('label.advanced.search')" :aria-expanded="filtersOpen">
+                    <FilterOutlined />
+                  </a-button>
+                </a-popover>
+              </template>
+            </a-input-search>
           </div>
         </div>
       </a-card>
@@ -458,19 +467,6 @@ export default {
     margin: -16px -24px 12px;
   }
 
-  .configuration-header,
-  .configuration-header-start,
-  .configuration-search-tools {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-  }
-
-  .configuration-header { justify-content: space-between; }
-  .configuration-search-tools { flex: 0 0 auto; flex-wrap: nowrap; }
-  .configuration-search-tools .ant-input-search { width: 244px; }
   .configuration-filters { width: min(260px, 75vw); display: grid; gap: 8px; }
   .configuration-active-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
   .configuration-content,
@@ -483,8 +479,4 @@ export default {
   }
   .configuration-detail-entry strong { color: var(--ui-text-primary); }
 
-  @media (max-width: 768px) {
-    .configuration-search-tools { flex: 1 1 100%; }
-    .configuration-search-tools .ant-input-search { flex: 1; min-width: 0; }
-  }
 </style>

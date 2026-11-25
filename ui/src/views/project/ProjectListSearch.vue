@@ -94,7 +94,7 @@
             </a-space>
           </a-form>
         </template>
-        <a-button type="text" :aria-label="$t('label.advanced.search')" :aria-expanded="open" size="small">
+        <a-button class="filter-button" size="small" :aria-label="$t('label.advanced.search')" :aria-expanded="open">
           <filter-outlined />
         </a-button>
       </a-popover>

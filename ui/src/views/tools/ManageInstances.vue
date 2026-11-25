@@ -18,18 +18,14 @@
 <template>
   <a-row :gutter="12" v-if="isPageAllowed">
     <a-col :span="24" class="content-breadcrumb">
-      <a-card class="breadcrumb-card">
-      <a-row>
-        <a-col
-          :span="device === 'mobile' ? 24 : 12"
-          style="padding-left: 12px; margin-top: 10px"
-        >
+      <a-card class="breadcrumb-card breadcrumb-toolbar">
+      <a-row class="breadcrumb-toolbar-row">
+        <a-col class="breadcrumb-toolbar-path">
           <breadcrumb :resource="resource">
             <template #end>
               <a-tooltip placement="bottom">
                 <template #title>{{ $t('label.refresh') }}</template>
                 <a-button
-                  style="margin-top: 4px"
                   :loading="viewLoading"
                   shape="round"
                   size="small"

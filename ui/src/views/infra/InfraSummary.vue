@@ -18,27 +18,33 @@
 <template>
   <a-row :gutter="12" class="infra-summary-root" :class="{ 'is-dark': isDarkMode }">
     <a-col :span="24" class="content-breadcrumb">
-      <a-card class="breadcrumb-card">
-        <a-col :md="24" style="display: flex">
-          <breadcrumb style="padding-top: 6px; padding-left: 8px" />
-          <a-button
-            style="margin-left: 12px; margin-top: 4px"
-            :loading="loading"
-            size="small"
-            shape="round"
-            @click="fetchData()" >
-            <template #icon><ReloadOutlined /></template>
-            {{ $t('label.refresh') }}
-          </a-button>
-          <a-button
-            style="margin-left: 12px; margin-top: 4px"
-            size="small"
-            shape="round"
-            @click="sslFormVisible = true">
-            <template #icon><SafetyCertificateOutlined /></template>
-            {{ $t('label.sslcertificates') }}
-          </a-button>
-          <a-modal
+      <a-card class="breadcrumb-card breadcrumb-toolbar">
+        <div class="breadcrumb-toolbar-row">
+          <div class="breadcrumb-toolbar-path">
+            <breadcrumb>
+              <template #end>
+                <a-button
+                  :loading="loading"
+                  size="small"
+                  shape="round"
+                  @click="fetchData()" >
+                  <template #icon><ReloadOutlined /></template>
+                  {{ $t('label.refresh') }}
+                </a-button>
+              </template>
+            </breadcrumb>
+          </div>
+          <div class="breadcrumb-toolbar-actions">
+            <a-button
+              type="primary"
+              shape="round"
+              @click="sslFormVisible = true">
+              <template #icon><SafetyCertificateOutlined /></template>
+              {{ $t('label.sslcertificates') }}
+            </a-button>
+          </div>
+        </div>
+        <a-modal
             v-if="sslFormVisible"
             :title="$t('label.sslcertificates')"
             :visible="sslFormVisible"
@@ -143,8 +149,7 @@
                 </a-button>
               </div>
             </a-form>
-          </a-modal>
-        </a-col>
+        </a-modal>
       </a-card>
     </a-col>
     <a-col :xs="24">
