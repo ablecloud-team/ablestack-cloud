@@ -220,7 +220,7 @@ export default {
       return key in obj && obj[key] != null
     },
     handleSubmit (e) {
-      e?.preventDefault?.()
+      if (e && e.preventDefault) e.preventDefault()
       if (this.loading || this.testDeliveryLoading) return
       this.formRef.value.validate().then(() => {
         if (this.loading || this.testDeliveryLoading) return
