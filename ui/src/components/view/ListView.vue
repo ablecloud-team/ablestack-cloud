@@ -28,7 +28,7 @@
       :pagination="false"
       :rowSelection="explicitlyAllowRowSelection || enableGroupAction() || $route.name === 'event' ? {selectedRowKeys: selectedRowKeys, onChange: onSelectChange, getCheckboxProps: record => ({ disabled: selectionDisabled(record) }), columnWidth: 30} : null"
       :rowClassName="getRowClassName"
-      :customRow="snapshotRowEvents"
+      :customRow="rowEvents"
       @change="handleTableChange"
       @resizeColumn="handleResizeColumn"
       :style="{ 'overflow-y': this.$route.name === 'usage' ? 'hidden' : 'auto' }"
@@ -1523,16 +1523,18 @@ const vmTextColumns = new Set([
   'memorytotal', 'memoryreserved', 'networkread', 'networkwrite', 'diskread', 'diskwrite', 'diskiopstotal'
 ])
 
+const vmRowControls = 'a, button, input, select, textarea, label, [contenteditable], [role="button"], [role="link"], [role="checkbox"], [role="menuitem"], [role="switch"]'
+
 const vmColumnWidths = {
-  displayname: 208,
+  displayname: 252,
   instancename: 112,
-  state: 132,
+  state: 116,
   resources: 176,
-  qemuagentversion: 112,
+  qemuagentversion: 92,
   ipaddress: 182,
-  templatetype: 104,
+  templatetype: 90,
   backupofferingname: 112,
-  arch: 100,
+  arch: 84,
   hostname: 116,
   account: 104,
   project: 110,
@@ -1645,6 +1647,7 @@ export default {
       systemOfferingOrderBusy: false,
       systemOfferingTableSorted: false,
       selectedRowKeys: [],
+      vmSelectionAnchor: null,
       editableValueKey: null,
       editableValue: '',
       resourceIcon: '',
@@ -1710,7 +1713,7 @@ export default {
         if (newData === oldData) return
         const selected = new Set(this.selectedRowKeys)
         const rows = this.items.filter(record => selected.has(listRowKey(record)))
-        if (selected.size) this.onSelectChange(rows.map(listRowKey), rows)
+        if (selected.size) this.setSelection(rows.map(listRowKey))
         this.items.forEach(record => {
           this.resourceIdToValidLinksMap[record.id] = validateLinks(this.$router, false, record)
         })
@@ -2071,10 +2074,16 @@ export default {
       if (this.systemOfferingOrder) this.systemOfferingTableSorted = !!sorter?.order
       this.$emit('table-change', pagination, filters, sorter)
     },
-    snapshotRowEvents (record) {
+    rowEvents (record) {
       if (!this.isVmMainList && !this.keyboardContextMenu && !['vmsnapshot', 'kubernetes', 'kubernetesiso'].includes(this.$route.name)) return {}
       return {
         tabindex: 0,
+        ...(this.isVmMainList ? {
+          onClick: event => this.selectVmRow(event, record),
+          onMousedown: event => {
+            if (event.shiftKey && this.canSelectVmRow(event, record)) event.preventDefault()
+          }
+        } : {}),
         onKeydown: event => {
           if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
             const rect = event.currentTarget.getBoundingClientRect()
@@ -2082,6 +2091,41 @@ export default {
           }
         }
       }
+    },
+    canSelectVmRow (event, record) {
+      const target = event.target
+      return event.button === 0 && !event.defaultPrevented && target?.closest?.('tr') === event.currentTarget &&
+        !target.closest(vmRowControls) && !this.selectionDisabled(record)
+    },
+    selectVmRow (event, record) {
+      if (!this.canSelectVmRow(event, record)) return
+      const key = this.listRowKey(record)
+      const extend = event.ctrlKey || event.metaKey
+      if (event.shiftKey) {
+        const range = this.vmSelectionRange(event.currentTarget, key)
+        if (!range.length) this.vmSelectionAnchor = key
+        const keys = range.length ? range : [key]
+        this.setSelection(extend ? [...new Set([...this.selectedRowKeys, ...keys])] : keys)
+        return
+      }
+
+      this.vmSelectionAnchor = key
+      if (!extend) this.setSelection([key])
+      else if (this.selectedRowKeys.includes(key)) this.setSelection(this.selectedRowKeys.filter(selected => selected !== key))
+      else this.setSelection([...this.selectedRowKeys, key])
+    },
+    vmSelectionRange (row, key) {
+      // Ant Table sorts the rendered rows locally. Use their order for range selection.
+      const available = new Map(this.items.map(item => [String(this.listRowKey(item)), item]))
+      const ordered = Array.from(row.parentElement.rows)
+        .map(element => available.get(element.dataset.rowKey))
+        .filter(Boolean)
+      const start = ordered.findIndex(item => this.listRowKey(item) === this.vmSelectionAnchor)
+      const end = ordered.findIndex(item => this.listRowKey(item) === key)
+      if (start < 0 || end < 0) return []
+      return ordered.slice(Math.min(start, end), Math.max(start, end) + 1)
+        .filter(item => !this.selectionDisabled(item))
+        .map(item => this.listRowKey(item))
     },
     listRowKey (record) { return snapshotCopyList(this.$route) ? (record.copy?.id || listRowKey(record)) : listRowKey(record) },
     translateEventType (type) {
@@ -2156,6 +2200,7 @@ export default {
       event.stopPropagation()
 
       const key = this.listRowKey(record)
+      this.vmSelectionAnchor = key
       if (!this.selectedRowKeys.includes(key)) this.setSelection([key])
       const selection = this.selectedRowKeys
       const path = this.$route.fullPath
@@ -2251,10 +2296,18 @@ export default {
       this.$emit('selection-change', this.selectedRowKeys)
     },
     resetSelection () {
+      this.vmSelectionAnchor = null
       this.setSelection([])
     },
-    onSelectChange (selectedRowKeys, selectedRows) {
-      this.setSelection(selectedRowKeys)
+    onSelectChange (selection) {
+      if (this.isVmMainList) {
+        const changed = [
+          ...selection.filter(key => !this.selectedRowKeys.includes(key)),
+          ...this.selectedRowKeys.filter(key => !selection.includes(key))
+        ]
+        if (changed.length) this.vmSelectionAnchor = changed.length === 1 ? changed[0] : null
+      }
+      this.setSelection(selection)
     },
     changeProject (project) {
       this.$store.dispatch('SetProject', project)
