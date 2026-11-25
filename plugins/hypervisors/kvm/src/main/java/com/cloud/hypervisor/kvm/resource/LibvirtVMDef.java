@@ -367,6 +367,10 @@ public class LibvirtVMDef {
             _arch = arch;
         }
 
+        public String getGuestArch() {
+            return _arch;
+        }
+
         public void setMachineType(String machine) {
             _machine = machine;
         }
@@ -831,8 +835,7 @@ public class LibvirtVMDef {
 
             appendDeviceDefinitions(devicesBuilder);
 
-            boolean q35 = _guestType == GuestDef.GuestType.KVM && _machineType != null
-                    && ("q35".equals(_machineType) || _machineType.startsWith("pc-q35-"));
+            boolean q35 = _guestType == GuestDef.GuestType.KVM && PciTopologyInspector.isQ35Machine(_machineType);
             boolean existingPcieArchitecture = _emulator != null && (_emulator.endsWith("aarch64") || _emulator.endsWith("s390x"));
             // libvirt otherwise creates only enough root ports for boot devices, leaving none for NIC hotplug.
             int portCount = q35 && pciTopologyPlan != null ? pciTopologyPlan.rootPorts() : PCIE_ROOT_PORT_COUNT;
@@ -1016,6 +1019,26 @@ public class LibvirtVMDef {
             }
         }
 
+        static final class DriveAddress {
+            private final int controller;
+            private final int bus;
+            private final int target;
+            private final int unit;
+
+            DriveAddress(int controller, int bus, int target, int unit) {
+                this.controller = controller;
+                this.bus = bus;
+                this.target = target;
+                this.unit = unit;
+            }
+
+            String toXml() {
+                return String.format("<address type='drive' controller='%d' bus='%d' target='%d' unit='%d'/>\n",
+                        controller, bus, target, unit);
+            }
+        }
+
+        private DriveAddress cdromAddress;
         private DeviceType _deviceType; /* floppy, disk, cdrom */
         private DiskType _diskType;
         private DiskProtocol _diskProtocol;
@@ -1096,7 +1119,7 @@ public class LibvirtVMDef {
         }
 
         /* skip iso labels */
-        private String getDevLabel(int devId, DiskBus bus, boolean forIso) {
+        private static String getDevLabel(int devId, DiskBus bus, boolean forIso) {
             if (devId < 0) {
                 return "";
             }
@@ -1117,7 +1140,7 @@ public class LibvirtVMDef {
 
         }
 
-        private String getDevLabelSuffix(int deviceIndex) {
+        private static String getDevLabelSuffix(int deviceIndex) {
             if (deviceIndex < 0) {
                 return "";
             }
@@ -1216,19 +1239,38 @@ public class LibvirtVMDef {
             _bus = DiskBus.IDE;
         }
 
-        public void defISODisk(String volPath, Integer devId, boolean isSecure, DiskType diskType) {
-            if (!isSecure) {
-                defISODisk(volPath, devId, diskType);
+        public void defISODisk(String volPath, Integer devId, boolean isUefi, DiskType diskType) {
+            final DiskBus bus = isUefi ? DiskBus.SATA : DiskBus.IDE;
+            if (devId == null) {
+                defISODisk(volPath, isUefi, diskType);
             } else {
-                _diskType = diskType;
-                _deviceType = DeviceType.CDROM;
-                _sourcePath = volPath;
-                _diskLabel = getDevLabel(devId, DiskBus.SATA, true);
-                _bus = DiskBus.SATA;
-                _diskFmtType = DiskFmtType.RAW;
-                _diskCacheMode = DiskCacheMode.NONE;
-
+                defCdrom(volPath, getDevLabel(devId, bus, true), bus, diskType);
             }
+        }
+
+        static boolean isLegacyCdromLabel(String label, int slot) {
+            return getDevLabel(slot, DiskBus.IDE, true).equals(label) || getDevLabel(slot, DiskBus.SATA, true).equals(label);
+        }
+
+        void defCdrom(String path, String label, DiskBus bus, DiskType type) {
+            _diskType = type;
+            _deviceType = DeviceType.CDROM;
+            _sourcePath = path;
+            _diskLabel = label;
+            _bus = bus;
+            _diskFmtType = DiskFmtType.RAW;
+            _diskCacheMode = DiskCacheMode.NONE;
+        }
+
+        void setCdromAddress(DriveAddress address) {
+            cdromAddress = address;
+        }
+
+        DiskDef withCdromMedia(String path, DiskType type) {
+            DiskDef replacement = new DiskDef();
+            replacement.defCdrom(path, _diskLabel, _bus, type);
+            replacement.setCdromAddress(cdromAddress);
+            return replacement;
         }
 
         public void defBlockBasedDisk(String diskName, int devId) {
@@ -1615,6 +1657,9 @@ public class LibvirtVMDef {
             }
             if (bootOrder != null) {
                 diskBuilder.append("<boot order='").append(bootOrder).append("'/>\n");
+            }
+            if (cdromAddress != null) {
+                diskBuilder.append(cdromAddress.toXml());
             }
             diskBuilder.append("</disk>\n");
             return diskBuilder.toString();

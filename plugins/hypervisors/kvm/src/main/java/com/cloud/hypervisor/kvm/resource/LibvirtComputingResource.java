@@ -42,6 +42,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -351,6 +352,9 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     private static final String HYPERVCLOCK = "hypervclock";
     private static final String WINDOWS = "Windows";
     private static final String Q35 = "q35";
+    private static final List<String> Q35_BIOS_CDROM_TARGETS = List.of("sdzza", "sdzzb");
+    private static final int SATA_PORTS_PER_CONTROLLER = 6;
+    private static final int DOMAIN_AFFECT_LIVE = 1;
     private static final Pattern KVM_MACHINE_TYPE_PATTERN = Pattern.compile("[A-Za-z0-9_.:+-]+");
     private static final String PTY = "pty";
     private static final String VNC = "vnc";
@@ -4447,6 +4451,10 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         if (vmSpec.getOs().toLowerCase().contains("window")) {
             isWindowsTemplate =true;
         }
+        final GuestDef guest = vm.getGuestDefinition();
+        final boolean q35Bios = vmSpec.getType() == VirtualMachine.Type.User && guest != null
+                && guest.getGuestType() == GuestDef.GuestType.KVM && "x86_64".equals(guest.getGuestArch())
+                && guest.getBootType() == GuestDef.BootType.BIOS && PciTopologyInspector.isQ35Machine(guest.getMachineType());
         final Set<Integer> definedCdromSlots = new HashSet<>();
         for (final DiskTO volume : disks) {
             KVMPhysicalDisk physicalDisk = null;
@@ -4533,12 +4541,8 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                     throw new CloudRuntimeException("Multiple ISO images use CD-ROM slot " + devId);
                 }
                 final DiskDef.DiskType diskType = getDiskType(physicalDisk);
-                disk.defISODisk(volPath, devId, isUefiEnabled, diskType);
+                defineCdrom(disk, volPath, devId, isUefiEnabled, q35Bios, diskType);
                 definedCdromSlots.add(devId);
-
-                if (guestCpuArch != null && (guestCpuArch.equals("aarch64") || guestCpuArch.equals("s390x"))) {
-                    disk.setBusType(DiskDef.DiskBus.SCSI);
-                }
             } else {
                 if (pool == null) {
                     throw new CloudRuntimeException(String.format("Found null pool for volume %s", volume));
@@ -4708,12 +4712,12 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                     slot < TemplateManager.CDROM_PRIMARY_DEVICE_SEQ + LibvirtVMDef.MAX_CDROMS_PER_VM; slot++) {
                 if (!definedCdromSlots.contains(slot)) {
                     final DiskDef emptyCdrom = new DiskDef();
-                    emptyCdrom.defISODisk(null, slot, isUefiEnabled, DiskDef.DiskType.FILE);
-                    if ("aarch64".equals(guestCpuArch) || "s390x".equals(guestCpuArch)) {
-                        emptyCdrom.setBusType(DiskDef.DiskBus.SCSI);
-                    }
+                    defineCdrom(emptyCdrom, null, slot, isUefiEnabled, q35Bios, DiskDef.DiskType.FILE);
                     vm.getDevices().addDevice(emptyCdrom);
                 }
+            }
+            if (q35Bios) {
+                assignQ35BiosCdromAddresses(vm.getDevices().getDisks());
             }
         }
 
@@ -4753,6 +4757,54 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                     }
                 }
             }
+        }
+    }
+
+    private void defineCdrom(DiskDef disk, String path, int slot, boolean isUefi, boolean q35Bios, DiskDef.DiskType type) {
+        String target = q35Bios ? q35BiosCdromTarget(slot) : null;
+        if (target != null) {
+            disk.defCdrom(path, target, DiskDef.DiskBus.SATA, type);
+        } else {
+            disk.defISODisk(path, slot, isUefi, type);
+            if (isGuestAarch64() || isGuestS390x()) {
+                disk.setBusType(DiskDef.DiskBus.SCSI);
+            }
+        }
+    }
+
+    private static String q35BiosCdromTarget(int slot) {
+        int index = slot - TemplateManager.CDROM_PRIMARY_DEVICE_SEQ;
+        return index >= 0 && index < Q35_BIOS_CDROM_TARGETS.size() ? Q35_BIOS_CDROM_TARGETS.get(index) : null;
+    }
+
+    private static boolean isQ35BiosCdrom(DiskDef disk) {
+        return disk.getDeviceType() == DiskDef.DeviceType.CDROM && Q35_BIOS_CDROM_TARGETS.contains(disk.getDiskLabel());
+    }
+
+    private static void assignQ35BiosCdromAddresses(List<DiskDef> disks) {
+        BitSet occupied = new BitSet();
+        for (DiskDef disk : disks) {
+            if (disk.getBusType() == DiskDef.DiskBus.SATA && !isQ35BiosCdrom(disk)) {
+                // Libvirt assigns SATA disks sequentially from the target suffix, six ports per controller.
+                String target = disk.getDiskLabel();
+                int index = 0;
+                for (int i = 2; i < target.length(); i++) {
+                    index = index * 26 + (target.charAt(i) - 'a' + 1);
+                }
+                occupied.set(index - 1);
+            }
+        }
+        List<DiskDef> cdroms = disks.stream().filter(LibvirtComputingResource::isQ35BiosCdrom)
+                .sorted(Comparator.comparing(DiskDef::getDiskLabel)).collect(Collectors.toList());
+        for (DiskDef disk : cdroms) {
+            // Keep the existing data targets and use the chipset controller whenever it has space.
+            int port = occupied.previousClearBit(SATA_PORTS_PER_CONTROLLER - 1);
+            if (port < 0) {
+                port = occupied.nextClearBit(SATA_PORTS_PER_CONTROLLER);
+            }
+            occupied.set(port);
+            disk.setCdromAddress(new DiskDef.DriveAddress(port / SATA_PORTS_PER_CONTROLLER, 0, 0,
+                    port % SATA_PORTS_PER_CONTROLLER));
         }
     }
 
@@ -5028,6 +5080,11 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             iso.defISODisk(null, diskSeq, DiskDef.DiskType.FILE);
         }
 
+        int slot = diskSeq == null ? TemplateManager.CDROM_PRIMARY_DEVICE_SEQ : diskSeq;
+        if (iso.getDiskType() != null && updateExistingIsoMedia(conn, vmName, slot, iso.getDiskPath(), iso.getDiskType())) {
+            return null;
+        }
+
         final String result = attachOrDetachDevice(conn, true, vmName, iso.toString());
         if (result == null && !isAttach) {
             final List<DiskDef> disks = getDisks(conn, vmName);
@@ -5039,6 +5096,50 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             }
         }
         return result;
+    }
+
+    public synchronized boolean updateExistingIsoMedia(Connect conn, String vmName, int slot, String path, DiskDef.DiskType type)
+            throws LibvirtException, InternalErrorException {
+        Domain domain = getDomain(conn, vmName);
+        DiskDef existing;
+        try {
+            LibvirtDomainXMLParser parser = new LibvirtDomainXMLParser();
+            if (!parser.parseDomainXML(domain.getXMLDesc(0))) {
+                throw new InternalErrorException("Could not read the live CD-ROM configuration for " + vmName);
+            }
+            existing = findCdromSlot(parser.getDisks(), slot, vmName);
+            if (existing == null) {
+                return false;
+            }
+            DiskDef replacement = existing.withCdromMedia(path, path == null ? existing.getDiskType() : type);
+            domain.updateDeviceFlags(replacement.toString(), DOMAIN_AFFECT_LIVE);
+        } finally {
+            try {
+                domain.free();
+            } catch (LibvirtException e) {
+                LOGGER.trace("Could not free libvirt domain handle for {}", vmName, e);
+            }
+        }
+        if (path == null) {
+            cleanupDisk(existing);
+        }
+        return true;
+    }
+
+    private static DiskDef findCdromSlot(List<DiskDef> disks, int slot, String vmName) throws InternalErrorException {
+        String q35Target = q35BiosCdromTarget(slot);
+        DiskDef existing = null;
+        for (DiskDef disk : disks) {
+            String label = disk.getDiskLabel();
+            if (disk.getDeviceType() == DiskDef.DeviceType.CDROM
+                    && ((q35Target != null && q35Target.equals(label)) || DiskDef.isLegacyCdromLabel(label, slot))) {
+                if (existing != null) {
+                    throw new InternalErrorException("Multiple CD-ROM devices match slot " + slot + " on " + vmName);
+                }
+                existing = disk;
+            }
+        }
+        return existing;
     }
 
     public synchronized String attachOrDetachDisk(final Connect conn,

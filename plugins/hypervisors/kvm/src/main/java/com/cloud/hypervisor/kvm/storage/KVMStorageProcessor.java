@@ -233,7 +233,6 @@ public class KVMStorageProcessor implements StorageProcessor {
     private static final String DOMJOBINFO_COMPLETED_COMMAND = "virsh domjobinfo --domain %s --completed";
 
     private static final String DOMJOBABORT_COMMAND = "virsh domjobabort --domain %s";
-    private static final int DOMAIN_AFFECT_LIVE = 1;
 
     private static final String DUMMY_VM_XML = "<domain type='qemu'>\n" +
             "  <name>%s</name>\n" +
@@ -1428,11 +1427,11 @@ public class KVMStorageProcessor implements StorageProcessor {
         }
     }
 
-    protected synchronized void attachOrDetachISO(final Connect conn, final String vmName, String isoPath, final boolean isAttach, Map<String, String> params, DataStoreTO store, Integer deviceSeq) throws
+    protected synchronized void attachOrDetachISO(final Connect conn, final String vmName, String isoPath, final boolean isAttach, DataStoreTO store, Integer deviceSeq) throws
             LibvirtException, InternalErrorException {
-        DiskDef iso = new DiskDef();
-        boolean isUefiEnabled = MapUtils.isNotEmpty(params) && params.containsKey("UEFI");
-        Integer devId = (deviceSeq != null) ? deviceSeq : TemplateManager.CDROM_PRIMARY_DEVICE_SEQ;
+        int slot = deviceSeq == null ? TemplateManager.CDROM_PRIMARY_DEVICE_SEQ : deviceSeq;
+        DiskDef.DiskType type = DiskDef.DiskType.FILE;
+        String media = null;
         if (isoPath != null && isAttach) {
             final int index = isoPath.lastIndexOf("/");
             final String path = isoPath.substring(0, index);
@@ -1445,53 +1444,12 @@ public class KVMStorageProcessor implements StorageProcessor {
                 storagePool = storagePoolMgr.getStoragePoolByURI(path);
             }
             final KVMPhysicalDisk isoVol = storagePool.getPhysicalDisk(name);
-            final DiskDef.DiskType isoDiskType = LibvirtComputingResource.getDiskType(isoVol);
-            isoPath = isoVol.getPath();
-
-            iso.defISODisk(isoPath, devId, isUefiEnabled, isoDiskType);
-        } else {
-            iso.defISODisk(null, devId, isUefiEnabled, DiskDef.DiskType.FILE);
+            type = LibvirtComputingResource.getDiskType(isoVol);
+            media = isoVol.getPath();
         }
 
-        final List<DiskDef> disks = resource.getDisks(conn, vmName);
-        updateOrAttachIsoDevice(conn, vmName, iso);
-        if (!isAttach) {
-            for (final DiskDef disk : disks) {
-                if (disk.getDeviceType() == DiskDef.DeviceType.CDROM && iso.getDiskLabel().equals(disk.getDiskLabel())) {
-                    resource.cleanupDisk(disk);
-                }
-            }
-
-        }
-    }
-
-    protected synchronized void updateOrAttachIsoDevice(final Connect conn, final String vmName, final DiskDef iso) throws LibvirtException, InternalErrorException {
-        try {
-            updateDevice(conn, vmName, iso);
-        } catch (final LibvirtException e) {
-            logger.debug(String.format("Failed to update existing CD-ROM device on VM [%s], will try attachDevice fallback.", vmName), e);
-            attachOrDetachDevice(conn, true, vmName, iso);
-        }
-    }
-
-    protected synchronized void updateDevice(final Connect conn, final String vmName, final DiskDef diskDef) throws LibvirtException {
-        Domain dm = null;
-        final String diskXml = diskDef.toString();
-        try {
-            dm = conn.domainLookupByName(vmName);
-            logger.debug("Updating device: " + diskXml);
-            dm.updateDeviceFlags(diskXml, DOMAIN_AFFECT_LIVE);
-        } catch (final LibvirtException e) {
-            logger.warn("Failed to update device on " + vmName + ": " + e.getMessage());
-            throw e;
-        } finally {
-            if (dm != null) {
-                try {
-                    dm.free();
-                } catch (final LibvirtException l) {
-                    logger.trace("Ignoring libvirt error.", l);
-                }
-            }
+        if (!resource.updateExistingIsoMedia(conn, vmName, slot, media, type)) {
+            throw new InternalErrorException("CD-ROM slot " + slot + " is missing on " + vmName + "; stop and start the VM to recreate it");
         }
     }
 
@@ -1505,7 +1463,7 @@ public class KVMStorageProcessor implements StorageProcessor {
         try {
             String dataStoreUrl = getDataStoreUrlFromStore(store);
             final Connect conn = LibvirtConnection.getConnectionByVmName(cmd.getVmName());
-            attachOrDetachISO(conn, cmd.getVmName(), dataStoreUrl + File.separator + isoTO.getPath(), true, cmd.getControllerInfo(), store, deviceSeq);
+            attachOrDetachISO(conn, cmd.getVmName(), dataStoreUrl + File.separator + isoTO.getPath(), true, store, deviceSeq);
         } catch (final LibvirtException e) {
             return new Answer(cmd, false, e.toString());
         } catch (final InternalErrorException e) {
@@ -1527,7 +1485,7 @@ public class KVMStorageProcessor implements StorageProcessor {
         try {
             String dataStoreUrl = getDataStoreUrlFromStore(store);
             final Connect conn = LibvirtConnection.getConnectionByVmName(cmd.getVmName());
-            attachOrDetachISO(conn, cmd.getVmName(), dataStoreUrl + File.separator + isoTO.getPath(), false, cmd.getParams(), store, deviceSeq);
+            attachOrDetachISO(conn, cmd.getVmName(), dataStoreUrl + File.separator + isoTO.getPath(), false, store, deviceSeq);
         } catch (final LibvirtException e) {
             return new Answer(cmd, false, e.toString());
         } catch (final InternalErrorException e) {
