@@ -142,7 +142,11 @@ export default {
           label: 'label.update.webhook',
           dataView: true,
           popup: true,
-          args: ['name', 'description', 'payloadurl', 'sslverification', 'secretkey', 'state'],
+          webhookEdit: true,
+          args: (record) => [
+            'name', 'description', 'payloadurl', 'sslverification', 'secretkey', 'state',
+            ...(record?.editablescopes?.length > 1 ? ['scope'] : [])
+          ],
           mapping: {
             state: {
               options: ['Enabled', 'Disabled']

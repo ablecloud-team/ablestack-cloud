@@ -491,6 +491,19 @@
               :message="$t(form.cleanup ? 'message.project.delete.cleanup' : 'message.project.delete.keep')"
               class="vm-action-error" />
             <network-operation-policy v-if="isGuestNetworkDelete" context="delete" :network-type="resource.type" />
+            <a-descriptions v-if="currentAction.webhookEdit" :column="1" size="small" class="webhook-edit-owner">
+              <a-descriptions-item :label="$t('label.scope')">
+                {{ resource.scope ? $t('label.' + resource.scope.toLowerCase()) : '—' }}
+              </a-descriptions-item>
+              <a-descriptions-item v-if="resource.account" :label="$t('label.account')">{{ resource.account }}</a-descriptions-item>
+              <a-descriptions-item v-if="resource.domain" :label="$t('label.domain')">{{ resource.domain }}</a-descriptions-item>
+              <a-descriptions-item v-if="resource.project" :label="$t('label.project')">{{ resource.project }}</a-descriptions-item>
+            </a-descriptions>
+            <a-alert
+              v-if="currentAction.webhookEdit && form.scope && form.scope !== resource.scope"
+              type="info"
+              show-icon
+              :message="$t('message.webhook.scope.change', { scope: $t('label.' + form.scope.toLowerCase()) })" />
             <div v-if="requiresNameConfirmation" style="margin-bottom: 5px">
               <a-form-item>
                 <a-input v-model:value="actionConfirmText" :placeholder="resource.name" :aria-label="$t('label.delete.confirmation')" v-focus="projectStandardDialog" />
@@ -540,6 +553,10 @@
                     :placeholder="actionFieldDescription(field)"
                     v-focus="fieldIndex === firstIndex"
                   />
+                  <a-select
+                    v-else-if="currentAction.webhookEdit && field.name === 'scope'"
+                    v-model:value="form.scope"
+                    :options="resource.editablescopes.map(scope => ({ value: scope, label: $t('label.' + scope.toLowerCase()) }))" />
                   <a-select
                     v-else-if="currentAction.mapping && field.name in currentAction.mapping && currentAction.mapping[field.name].options"
                     :loading="field.loading"
@@ -4867,6 +4884,10 @@ export default {
         }
         const params = {}
         const action = this.currentAction
+        if (action.webhookEdit && (!values.scope || values.scope === this.resource.scope || !this.resource.editablescopes?.includes(values.scope))) {
+          const { scope, ...unchangedScopeValues } = values
+          values = unchangedScopeValues
+        }
         if (isVmGroupNameAction(action.api)) {
           values = { ...values, name: normalizeVmGroupName(values.name, action.api === 'updateInstanceGroup' ? this.resource.name : undefined) }
           if (action.api === 'updateInstanceGroup' && values.name === this.resource.name) {

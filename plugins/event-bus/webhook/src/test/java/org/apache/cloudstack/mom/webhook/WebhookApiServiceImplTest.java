@@ -153,6 +153,19 @@ public class WebhookApiServiceImplTest {
     }
 
     @Test
+    public void editableWebhookScopesCombinesCallerAndOwnerAccess() {
+        Mockito.when(accountManager.isRootAdmin(1L)).thenReturn(true);
+        Mockito.when(accountManager.isAdmin(1L)).thenReturn(true);
+        Mockito.when(accountManager.isAdmin(2L)).thenReturn(true);
+
+        Assert.assertEquals(List.of("Local", "Domain", "Global"), webhookApiServiceImpl.editableWebhookScopes(1L, true, true));
+        Assert.assertEquals(List.of("Local", "Domain"), webhookApiServiceImpl.editableWebhookScopes(1L, true, false));
+        Assert.assertEquals(List.of("Local", "Domain"), webhookApiServiceImpl.editableWebhookScopes(2L, true, true));
+        Assert.assertEquals(List.of("Local"), webhookApiServiceImpl.editableWebhookScopes(3L, true, true));
+        Assert.assertEquals(List.of("Local"), webhookApiServiceImpl.editableWebhookScopes(2L, false, false));
+    }
+
+    @Test
     public void testCreateWebhookResponse() {
         WebhookJoinVO webhookJoinVO = prepareTestWebhookJoinVO();
         try (MockedStatic<ApiResponseHelper> mockedApiResponseHelper = Mockito.mockStatic(ApiResponseHelper.class)) {

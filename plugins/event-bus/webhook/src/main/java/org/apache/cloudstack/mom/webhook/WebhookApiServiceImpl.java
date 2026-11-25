@@ -332,13 +332,26 @@ public class WebhookApiServiceImpl extends ManagerBase implements WebhookApiServ
             sc.setParameters("name", name);
         }
         Pair<List<WebhookJoinVO>, Integer> webhooksAndCount = webhookJoinDao.searchAndCount(sc, searchFilter);
+        Map<Long, List<String>> editableScopesByOwner = new HashMap<>();
         for (WebhookJoinVO webhook : webhooksAndCount.first()) {
             WebhookResponse response = createWebhookResponse(webhook);
+            response.setEditableScopes(editableScopesByOwner.computeIfAbsent(webhook.getAccountId(),
+                    ownerId -> editableWebhookScopes(ownerId, isCallerAdmin, isCallerRootAdmin)));
             responsesList.add(response);
         }
         ListResponse<WebhookResponse> response = new ListResponse<>();
         response.setResponses(responsesList, webhooksAndCount.second());
         return response;
+    }
+
+    List<String> editableWebhookScopes(long ownerId, boolean callerAdmin, boolean callerRootAdmin) {
+        if (callerRootAdmin && accountManager.isRootAdmin(ownerId)) {
+            return List.of(Webhook.Scope.Local.name(), Webhook.Scope.Domain.name(), Webhook.Scope.Global.name());
+        }
+        if (callerAdmin && accountManager.isAdmin(ownerId)) {
+            return List.of(Webhook.Scope.Local.name(), Webhook.Scope.Domain.name());
+        }
+        return List.of(Webhook.Scope.Local.name());
     }
 
     @Override

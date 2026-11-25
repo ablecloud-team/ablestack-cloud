@@ -3314,6 +3314,7 @@
   "label.test": "시험",
   "label.test.webhook.delivery": "Webhook Delivery 시험",
   "label.webhook.test.send": "시험 전송",
+  "message.webhook.scope.change": "이 웹훅은 {scope} 범위의 이벤트를 수신합니다. 소유자는 그대로 유지됩니다.",
   "message.webhook.test.sending": "시험 전송 중…",
   "message.webhook.test.empty.response": "빈 응답",
   "label.tftpdir": "TFTP root 디렉터리",

@@ -3347,6 +3347,7 @@
   "label.test": "Test",
   "label.test.webhook.delivery": "Test Webhook Delivery",
   "label.webhook.test.send": "Send test delivery",
+  "message.webhook.scope.change": "The webhook will receive events in the {scope} scope. Its owner will remain the same.",
   "message.webhook.test.sending": "Sending test delivery…",
   "message.webhook.test.empty.response": "Empty response",
   "label.tftpdir": "TFTP root directory",

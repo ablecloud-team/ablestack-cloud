@@ -18,6 +18,7 @@
 package org.apache.cloudstack.mom.webhook.api.response;
 
 import java.util.Date;
+import java.util.List;
 
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.BaseResponse;
@@ -86,6 +87,10 @@ public class WebhookResponse extends BaseResponse implements ControlledViewEntit
     @Param(description = "The scope of the Webhook")
     private String scope;
 
+    @SerializedName("editablescopes")
+    @Param(description = "Webhook scopes available to the caller for this owner")
+    private List<String> editableScopes;
+
     @SerializedName(ApiConstants.CREATED)
     @Param(description = "The date when this Webhook was created")
     private Date created;
@@ -150,6 +155,10 @@ public class WebhookResponse extends BaseResponse implements ControlledViewEntit
 
     public void setScope(String scope) {
         this.scope = scope;
+    }
+
+    public void setEditableScopes(List<String> editableScopes) {
+        this.editableScopes = editableScopes;
     }
 
     public void setCreated(Date created) {
