@@ -1,0 +1,6 @@
+{
+  "file": "32-watch1-failure.jpg",
+  "url": "http://10.10.32.10:8080/client/#/guestnetwork/c1ad9108-087f-48ce-beae-946557a3ed23",
+  "time": "2026-11-13T04:17:33.995Z",
+  "dialog": "네트워크 삭제\n\n일반 삭제만 실행합니다. 연결 VM/NIC와 진행 중 작업을 다시 확인하고, 여러 네트워크는 한 건씩 완료를 확인합니다. 이 대화상자를 닫아도 접수된 작업은 서버에서 계속됩니다.\n\n전체 1 · 삭제 확인 완료 0\n업데이트\nqa-i1586-32-impl-20261113-watch1\n실패\n\n격리형 (Isolated) · 구현 완료 · qa-gn1569-32-shared-reg\n\nc1ad9108-087f-48ce-beae-946557a3ed23\n\n연결 자원과 삭제 조건\n\n현재 계정·프로젝트에서 조회할 수 있는 자원입니다. 표시가 비어 있어도 서버의 최종 삭제 검증은 유지됩니다. VM/NIC를 먼저 분리하거나 가상머신을 완전히 삭제한 뒤 다시 확인하세요. 라우터와 네트워크 IP는 일반 삭제 과정에서 정리됩니다.\n\n조회 범위 내 연결 VM/NIC 없음\n\n가상 라우터: r-530-VM (Running)\n\nPublic IP 주소: 10.10.32.165\n\nNetwork c1ad9108-087f-48ce-beae-946557a3ed23 was not deleted. Check router shutdown, IP/range release and router volume cleanup, refresh its dependencies, then retry only this network. No automatic forced deletion was performed.\n\n오류 코드: 530\n\n작업: 6183bfaa-c9f6-4e95-8434-1371f993898d\n\n성공은 작업 완료와 네트워크 조회 결과를 대조해 표시합니다. 라우터 볼륨·스토리지의 물리 정리는 서버에서 별도로 진행될 수 있습니다. 잔여 자원은 관리자가 확인해야 하며 강제 삭제로 자동 전환하지 않습니다.\n\n연결 자원과 삭제 영향을 확인했으며 일반 삭제를 실행합니다.\n닫기\n실패·미실행 항목만 다시 확인·실행 (1)"
+}

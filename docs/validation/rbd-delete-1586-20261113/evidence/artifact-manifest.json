@@ -1,0 +1,397 @@
+[
+  {
+    "path": "evidence/31-10.10.31.1-deployment.json",
+    "bytes": 1315,
+    "sha256": "214b49bab7e999bd2a62c6355b4d308262532146377aed4fbba3b41f8a2373d5"
+  },
+  {
+    "path": "evidence/31-10.10.31.2-deployment.json",
+    "bytes": 1314,
+    "sha256": "02d585dfb14285a40b62ac53c4d2a516c493ac29cbe6dc69dcdfd610395d8b55"
+  },
+  {
+    "path": "evidence/31-10.10.31.3-deployment.json",
+    "bytes": 1314,
+    "sha256": "528650fe7cb812b6f582574570a0438b0f3374dd63d55122f43d8a106b661fca"
+  },
+  {
+    "path": "evidence/31-final-verification.json",
+    "bytes": 1902,
+    "sha256": "4b481a8a918f6dcd7c1c2079abd9164ca7cbf5caed666fcc8861ad36c9f84ab5"
+  },
+  {
+    "path": "evidence/31-fixtures.json",
+    "bytes": 718,
+    "sha256": "0d4e1e37973cd60dc60186ed7cf2f031ee834894d6ca5dfd763f50999de4b027"
+  },
+  {
+    "path": "evidence/31-normal-after.json",
+    "bytes": 2660,
+    "sha256": "21d4ea9b102c0273c0e7f3a78e32b48d489c3277805154185fe01c2573279e33"
+  },
+  {
+    "path": "evidence/31-normal-before.json",
+    "bytes": 4613,
+    "sha256": "a056355d1d2b65e4901f4538758f103e41483d0812c05fee6bae2ff66f852e7b"
+  },
+  {
+    "path": "evidence/31-normal-success-agent-log.json",
+    "bytes": 3,
+    "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+  },
+  {
+    "path": "evidence/31-normal-success-job.json",
+    "bytes": 645,
+    "sha256": "e2b825a0f0a563782c466f8aed4acbf763b9821a4b61f57472f1891713ac80ba"
+  },
+  {
+    "path": "evidence/31-normal-success-management-log.json",
+    "bytes": 3,
+    "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+  },
+  {
+    "path": "evidence/31-normal-success-ui.json",
+    "bytes": 1569,
+    "sha256": "d1b92a9493118e410f4902d3a4d0feca2fad1d5e3847e549711aac12b75f195c"
+  },
+  {
+    "path": "evidence/31-public-ip-restored.json",
+    "bytes": 284,
+    "sha256": "841fedf5f420dedb1a7858b0bd3b6836bdacb250fe4b78a4c544c1bd5d4c9976"
+  },
+  {
+    "path": "evidence/32-10.10.32.1-deployment.json",
+    "bytes": 1315,
+    "sha256": "56b51d0101a1ea97fb0d0a770415e5eac6ff82d23bfad8ff192dbcf1f15202ed"
+  },
+  {
+    "path": "evidence/32-10.10.32.2-deployment.json",
+    "bytes": 1314,
+    "sha256": "7c4cb4777d5fefa48f1e09f667440ba35ab1b4aeecddf4e5d7c3131c4ff1da9e"
+  },
+  {
+    "path": "evidence/32-10.10.32.3-deployment.json",
+    "bytes": 1314,
+    "sha256": "d2485e4d3e2458248d13b3933036ac49676063ede4882f1fd47037bc52107f38"
+  },
+  {
+    "path": "evidence/32-final-verification.json",
+    "bytes": 2752,
+    "sha256": "ffe7c8892b29d967acfe87f71e88a6e6b21a40409ac1846221984ad7daf9a18b"
+  },
+  {
+    "path": "evidence/32-fixtures.json",
+    "bytes": 2189,
+    "sha256": "a887f4090e6eabaed1a525c99defdbfb7433cc542aa644c77af941fcebbc44b8"
+  },
+  {
+    "path": "evidence/32-normal-after.json",
+    "bytes": 3523,
+    "sha256": "cbbea135119a83d65f70186b5c1225f74da0d38ba53e7e928c50c175dcd069ef"
+  },
+  {
+    "path": "evidence/32-normal-before.json",
+    "bytes": 4909,
+    "sha256": "0e4481c690572e2b159691311a0b3507818d9842b3ce078cfa7ee1add652346c"
+  },
+  {
+    "path": "evidence/32-normal-success-agent-log.json",
+    "bytes": 391,
+    "sha256": "0f55598b67635ecc0540ca846a19fa1b615128424d915ba0d339cddfb168e60c"
+  },
+  {
+    "path": "evidence/32-normal-success-job.json",
+    "bytes": 645,
+    "sha256": "c14cbc9341ec381b85b07c6b522365de453435d37d3bc6e94006bebd3ff31ec3"
+  },
+  {
+    "path": "evidence/32-normal-success-management-log.json",
+    "bytes": 3,
+    "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+  },
+  {
+    "path": "evidence/32-normal-success-ui.json",
+    "bytes": 1568,
+    "sha256": "0a001b117c8aa3b7421ab5dfffdf04e2a18c0bb151747443fbb6bc051c77650b"
+  },
+  {
+    "path": "evidence/32-public-ip-restored.json",
+    "bytes": 284,
+    "sha256": "a54acc8348ed3f2cbd51826457adc60c46a5f1f2994c2f32c9c468730e16ae6f"
+  },
+  {
+    "path": "evidence/32-retained-network-ui.json",
+    "bytes": 10805,
+    "sha256": "b69e44e3afa6d446fbe0a9e856375a555a3c12edddc17daf49361201e105ff24"
+  },
+  {
+    "path": "evidence/32-watch1-after.json",
+    "bytes": 3523,
+    "sha256": "edcc5b5bed5569b5c0eae37a6b2b5ddc96d4864ba0827347db9836e24dc50d2d"
+  },
+  {
+    "path": "evidence/32-watch1-before.json",
+    "bytes": 4915,
+    "sha256": "1c5bd4ceac39657f6adeed20710b6379a9b57be148faed5c8b5e47fe19fec3fa"
+  },
+  {
+    "path": "evidence/32-watch1-failed.json",
+    "bytes": 3964,
+    "sha256": "fadd2ebb4a9bd3a9f9f8ee58fffe373f123fea0664aefbe307ca1f72c11e671e"
+  },
+  {
+    "path": "evidence/32-watch1-failure-agent-log.json",
+    "bytes": 2230,
+    "sha256": "e3f35539c6e57ece0fc054f49356023a96555dce913c9afee411c7f33b5c8d93"
+  },
+  {
+    "path": "evidence/32-watch1-failure-job.json",
+    "bytes": 897,
+    "sha256": "a452fa54afae1a728af6d0d9913b0d56fcc4a9c76da696e4a77c32266c87488b"
+  },
+  {
+    "path": "evidence/32-watch1-failure-management-log.json",
+    "bytes": 897,
+    "sha256": "0d00f827efa6af5e65b971068a0207c9a9ffeae991f2aef6df92cdb63d7ab932"
+  },
+  {
+    "path": "evidence/32-watch1-failure-ui.json",
+    "bytes": 1863,
+    "sha256": "b560461d6419bff52aab2a9feba953ec629291a32adf514c10959273abc1ef1f"
+  },
+  {
+    "path": "evidence/32-watch1-retry-agent-log.json",
+    "bytes": 2618,
+    "sha256": "55212448ddc8f820f6406dffa3de992a5d6ee95b0c913db45565eb5ee23578e0"
+  },
+  {
+    "path": "evidence/32-watch1-retry-job.json",
+    "bytes": 645,
+    "sha256": "b74e2256fbc586ec0206bb627fcca236c8dfa22697837d079c76169947972bbf"
+  },
+  {
+    "path": "evidence/32-watch1-retry-management-log.json",
+    "bytes": 897,
+    "sha256": "0d00f827efa6af5e65b971068a0207c9a9ffeae991f2aef6df92cdb63d7ab932"
+  },
+  {
+    "path": "evidence/32-watch1-retry-success-ui.json",
+    "bytes": 1542,
+    "sha256": "c06ada6976c37c2e0781ff787080d4cf0813903ef1bbc0d8d4e69e637e8eceb1"
+  },
+  {
+    "path": "evidence/32-watch1-watcher-start.json",
+    "bytes": 589,
+    "sha256": "3f07a4ea1ff1b6701b65af78ee4abba2c351289850b2e046f734da3f8b1df9c3"
+  },
+  {
+    "path": "evidence/32-watch1-watcher-stop.json",
+    "bytes": 258,
+    "sha256": "80ebda9659a06b1ef8ebfff4673c0f9923799f37cd96c11f71b3a62c145bcc8f"
+  },
+  {
+    "path": "evidence/32-watch2-after.json",
+    "bytes": 3523,
+    "sha256": "073544f59050063da64ab95268a3668adeb2a1d464df2f73322b865b0c098b52"
+  },
+  {
+    "path": "evidence/32-watch2-before.json",
+    "bytes": 4915,
+    "sha256": "e38c501d6179c47020f5dcb557e7d36100d5e093dca8be124dd33b96748c36cf"
+  },
+  {
+    "path": "evidence/32-watch2-failed.json",
+    "bytes": 3964,
+    "sha256": "d101ee6dedfc7d2d2bc7f365b12ab5d91f962bb1a3a56b609eb087bca8a9efe0"
+  },
+  {
+    "path": "evidence/32-watch2-failure-agent-log.json",
+    "bytes": 2230,
+    "sha256": "4c1c6a44f04b583cbb62ef3e5f58f4d23f2a5163367930462490d349aff7706c"
+  },
+  {
+    "path": "evidence/32-watch2-failure-job.json",
+    "bytes": 897,
+    "sha256": "af1c54bc68b45d1b0b166fa32a668371119df208b514a5fb3d6f2a74c95f5bbb"
+  },
+  {
+    "path": "evidence/32-watch2-failure-management-log.json",
+    "bytes": 896,
+    "sha256": "c73be472fc0ca3bf940a94ea46e8f276cf4af588d8272395b5ed26963f18881b"
+  },
+  {
+    "path": "evidence/32-watch2-failure-ui.json",
+    "bytes": 1863,
+    "sha256": "61a10d8194994988a855b4ba5d80419195e6d65687fffee8f81a2d4c4f5ba8f7"
+  },
+  {
+    "path": "evidence/32-watch2-retry-agent-log.json",
+    "bytes": 2618,
+    "sha256": "a24d0110bedc08b9c77c48a0069d99fae8ad4f3414b2382488cfc9d1c6b57e45"
+  },
+  {
+    "path": "evidence/32-watch2-retry-job.json",
+    "bytes": 645,
+    "sha256": "ab0061c11228be0941b35c1ee880301eaac9bf0fb1c326bc4c1ab4231db64e30"
+  },
+  {
+    "path": "evidence/32-watch2-retry-management-log.json",
+    "bytes": 896,
+    "sha256": "c73be472fc0ca3bf940a94ea46e8f276cf4af588d8272395b5ed26963f18881b"
+  },
+  {
+    "path": "evidence/32-watch2-retry-success-ui.json",
+    "bytes": 1542,
+    "sha256": "4c623be7f850565f237920947d549fbd15303bbd239f0f1b0e0ee0f9dc4e47ca"
+  },
+  {
+    "path": "evidence/32-watch2-watcher-start.json",
+    "bytes": 589,
+    "sha256": "4e3db33b77247ac2ae8c0bd339e1dd266584d1e7713dbff45fa803caafead71b"
+  },
+  {
+    "path": "evidence/32-watch2-watcher-stop.json",
+    "bytes": 258,
+    "sha256": "8f1c8ee8d02e4faf36393ee04774aa35e5fe9111f37a4ca1a0ff555918a2f7c8"
+  },
+  {
+    "path": "evidence/32-watch3-after.json",
+    "bytes": 3523,
+    "sha256": "e22269ed6bed6c59c7a549a28ae841459687f5f2281e0d8dd821ea9b671d0fd7"
+  },
+  {
+    "path": "evidence/32-watch3-before.json",
+    "bytes": 4915,
+    "sha256": "729f9a46bb842aa9b72b2feda7aa0eb5179870bf65caedbc5b55ae919d360d31"
+  },
+  {
+    "path": "evidence/32-watch3-failed.json",
+    "bytes": 3964,
+    "sha256": "94b4700d93487b015ccb989426c7af6e649e5ad4b414c2aeb0e59307652224d1"
+  },
+  {
+    "path": "evidence/32-watch3-failure-agent-log.json",
+    "bytes": 2230,
+    "sha256": "f09f2388273315618cca194708a84635658b3ad3f5cd47cef4a97a3bafa3c3cc"
+  },
+  {
+    "path": "evidence/32-watch3-failure-job.json",
+    "bytes": 897,
+    "sha256": "4ead24c19795e0d1ce387ae6ff0850b028b212a2213f9ec09fb8b44870322bfb"
+  },
+  {
+    "path": "evidence/32-watch3-failure-management-log.json",
+    "bytes": 896,
+    "sha256": "b98136156bdc95b73d044099672723e6804794decff001840e2188b7e348869e"
+  },
+  {
+    "path": "evidence/32-watch3-failure-ui.json",
+    "bytes": 1863,
+    "sha256": "b6c76d7db535805ddf9d1ad0584ace321b0c7fc9f04ec157b3af569e633f5c38"
+  },
+  {
+    "path": "evidence/32-watch3-retry-agent-log.json",
+    "bytes": 2618,
+    "sha256": "26a9c6f80997f0711a4fd6880ff3ca10da92e4adef86f68c315d2f4099250db6"
+  },
+  {
+    "path": "evidence/32-watch3-retry-job.json",
+    "bytes": 645,
+    "sha256": "24ba4a081bfc81a227a9ece9d568194634edaae0dfd66353c355898da06299a1"
+  },
+  {
+    "path": "evidence/32-watch3-retry-management-log.json",
+    "bytes": 896,
+    "sha256": "b98136156bdc95b73d044099672723e6804794decff001840e2188b7e348869e"
+  },
+  {
+    "path": "evidence/32-watch3-retry-success-ui.json",
+    "bytes": 1542,
+    "sha256": "46c5c4f591f7c0261015c30cd00360bd01baed3707e45cbe9e93628c5def68ac"
+  },
+  {
+    "path": "evidence/32-watch3-watcher-start.json",
+    "bytes": 589,
+    "sha256": "b408fc236d1b5b89b7748cdc2ac5628e52e5659be3e1b275c12cf41b393ffcad"
+  },
+  {
+    "path": "evidence/32-watch3-watcher-stop.json",
+    "bytes": 258,
+    "sha256": "81a466c3ec2c7cdc21f6401b456bfe6da4aaeb058d5f54bc503d986287502e62"
+  },
+  {
+    "path": "evidence/build-style-baseline.json",
+    "bytes": 2589,
+    "sha256": "9d4e2c7ae4ee9c4e7bc7a0c97a562145740303f95183f91a0aee7711c61b3b07"
+  },
+  {
+    "path": "evidence/local-build.json",
+    "bytes": 2121,
+    "sha256": "21c6a789b77cbbab0ccd4f026b4204010114d82a9d6c35f18209d2b330d8696b"
+  },
+  {
+    "path": "evidence/native-followup.json",
+    "bytes": 2650,
+    "sha256": "dcf2dd00417ee681170d2cf5268badabb58a8c87fe1049fee4961f47c661b540"
+  },
+  {
+    "path": "evidence/protected-worktree-verification.json",
+    "bytes": 188,
+    "sha256": "0897ce8b730ea79e9b861ab14c0058be1b82b7271ba8b13c0e0c3a5e2b1eb50d"
+  },
+  {
+    "path": "evidence/source-baseline.json",
+    "bytes": 192,
+    "sha256": "986efd68557fda57d148574fa79402cde0ecec55bb2e43aaddf21451ac8a3446"
+  },
+  {
+    "path": "README.ko.md",
+    "bytes": 12210,
+    "sha256": "a5266dfe1134d8ebaa5cd55f22060ed55e3cb8da6e4497159798c6909ad7b824"
+  },
+  {
+    "path": "screenshots/31-normal-success.jpg",
+    "bytes": 125452,
+    "sha256": "522a455567067b04f6c2d0f75b698e08134100076db450cfdf9f834a0e4b8624"
+  },
+  {
+    "path": "screenshots/32-normal-success.jpg",
+    "bytes": 134530,
+    "sha256": "3467aab5598a7ebe0530543d3591d540b484b9e7841db4d6056231f794e08721"
+  },
+  {
+    "path": "screenshots/32-retained-network.jpg",
+    "bytes": 120448,
+    "sha256": "54f3fdf2b90756f532cf28ca1b54f1ce75565e8f0d4b3e0b17df2769e62091cf"
+  },
+  {
+    "path": "screenshots/32-watch1-failure.jpg",
+    "bytes": 144694,
+    "sha256": "3242eb80ca077f029503b8b386b9369d81d254818135d0e75e534a6edaa6ab6a"
+  },
+  {
+    "path": "screenshots/32-watch1-retry-success.jpg",
+    "bytes": 132154,
+    "sha256": "b247b97a778f6c48d010961af4a9fd05b212a73b39fd713a07475fc9865b8cc8"
+  },
+  {
+    "path": "screenshots/32-watch2-failure.jpg",
+    "bytes": 144883,
+    "sha256": "4c1544730168da6991da0e1a6e0c41371d0d4a00fb59c2996d886ee144bdb46c"
+  },
+  {
+    "path": "screenshots/32-watch2-retry-success.jpg",
+    "bytes": 132181,
+    "sha256": "4cbc2a639e7a3eabb883c2dbd1fd0ad01f52a2e8777bb548248034ac546d1c8f"
+  },
+  {
+    "path": "screenshots/32-watch3-failure.jpg",
+    "bytes": 144959,
+    "sha256": "c308c0f512a9ca155e1e28cf22f3349d187979a8823a357ae49a96765aec128b"
+  },
+  {
+    "path": "screenshots/32-watch3-retry-success.jpg",
+    "bytes": 132247,
+    "sha256": "b3b6a7ccbf4e1b243c23a7a8a4f596a7a1c0e70722c83c3c052a0390136fc05e"
+  }
+]
