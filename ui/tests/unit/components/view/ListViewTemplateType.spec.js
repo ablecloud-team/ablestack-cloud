@@ -30,7 +30,7 @@ function cell (path, type, key = 'templatetype', name = 'Image', params = {}, ex
       provide: { parentFetchData: jest.fn(), parentToggleLoading: jest.fn() },
       mocks: { $route: { name: path.slice(1), path, params, meta: { name: path.slice(1) } }, $router: { push, resolve: () => ({ matched: [{}] }) }, $store: { getters: { apis: {}, userInfo: { roletype: 'Admin' } } }, $t: k => k, $showIcon: () => false },
       stubs: {
-        'a-table': { render () { return h('div', this.$slots.bodyCell({ column: { key }, text: record[key], record })) } },
+        'a-table': { render () { return h('div', { class: 'test-template-cell' }, this.$slots.bodyCell({ column: { key }, text: record[key], record })) } },
         KeyboardTooltip: { props: ['title'], render () { return h('span', { 'data-tooltip': this.title }, this.$slots.default()) } },
         'a-tooltip': { props: ['title'], render () { return h('span', { 'data-tooltip': this.title }, this.$slots.default()) } },
         'a-tag': { render () { return h('span', this.$slots.default()) } },
@@ -43,7 +43,7 @@ function cell (path, type, key = 'templatetype', name = 'Image', params = {}, ex
 test.each(['/template', '/vm', '/vnfapp'].flatMap(path => ['USER', 'SYSTEM', 'VNF', 'SHAREDFS', 'BUILTIN'].map(type => [path, type])))('%s %s is visible but cannot navigate or query an enum as a resource', async (path, type) => {
   const { wrapper, push } = cell(path, type)
   expect(wrapper.text()).toBe(type)
-  expect(wrapper.find('a,button,[tabindex]').exists()).toBe(false)
+  expect(wrapper.find('.test-template-cell').find('a,button,[tabindex]').exists()).toBe(false)
   await wrapper.find('span').trigger('click')
   expect(push).not.toHaveBeenCalled()
   expect(getAPI).not.toHaveBeenCalled()

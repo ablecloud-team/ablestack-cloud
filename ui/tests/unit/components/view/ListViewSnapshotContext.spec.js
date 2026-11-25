@@ -27,6 +27,7 @@ test.each([[], ['a']])('checked IDs %j do not change a single right clicked B ta
   const element = document.createElement('tr')
   element.classList.add('ant-table-row'); element.setAttribute('data-row-key', 'b')
   const vm = { $route: { name: 'vmsnapshot' }, items: rows, actions: [{}], selectedRowKeys: checked.flat(), quickViewEnabled: () => true, generateRowKeyValue: row => row.id, contextMenuActions: [{}], closeContextQuickView: jest.fn() }
+  vm.openContextQuickView = ListView.methods.openContextQuickView.bind(vm)
   ListView.methods.handleGlobalContextMenu.call(vm, { target: element, clientX: 20, clientY: 40, preventDefault: jest.fn(), stopPropagation: jest.fn() })
   expect(vm.contextQuickViewRecord.id).toBe('b')
   expect(Object.isFrozen(vm.contextQuickViewRecord)).toBe(true)
@@ -56,12 +57,13 @@ describe('Shared selection context menu', () => {
     context.selectedItems = context.selectionList
     context.getFirstSelectedItem = () => ListView.methods.getFirstSelectedItem.call(context)
     context.closeContextQuickView = () => ListView.methods.closeContextQuickView.call(context)
+    context.openContextQuickView = ListView.methods.openContextQuickView.bind(context)
     Object.defineProperty(context, 'contextMenuActions', { get: () => ListView.computed.contextMenuActions.call(context) })
     return context
   }
 
-  test.each(['vm', 'vmsnapshot'])('%s uses the selected group even when an unselected row is right clicked', name => {
-    const context = menu(name, ['a', 'c'])
+  test('vmsnapshot uses the selected group even when an unselected row is right clicked', () => {
+    const context = menu('vmsnapshot', ['a', 'c'])
     const row = document.createElement('tr')
     row.classList.add('ant-table-row'); row.setAttribute('data-row-key', 'b')
     ListView.methods.handleGlobalContextMenu.call(context, { target: row, clientX: 20, clientY: 40, preventDefault: jest.fn(), stopPropagation: jest.fn() })
@@ -69,7 +71,7 @@ describe('Shared selection context menu', () => {
     expect(ListView.computed.contextMenuTitle.call(context)).toBe('A')
     expect(context.contextMenuActions.map(action => action.api)).toEqual(['deleteVMSnapshot'])
 
-    const parent = { selectedItems: context.selectedItems }
+    const parent = { selectedItems: context.selectedItems, $route: { name: 'vmsnapshot', path: '/vmsnapshot', meta: { name: 'vmsnapshot' } }, $store: context.$store }
     parent.execAction = (action, group) => AutogenView.methods.execAction.call(parent, action, group)
     ListView.methods.handleContextAction.call({ ...context, $parent: parent }, { ...deletion, resource: context.contextQuickViewRecord })
     expect(parent.currentAction.invokedAsGroupAction).toBe(true)
@@ -116,8 +118,9 @@ describe('Shared selection context menu', () => {
     wrapper.vm.onSelectChange(['a', 'c'], [rows[0], rows[2]])
     await wrapper.vm.$nextTick()
     const element = document.createElement('tr')
-    element.classList.add('ant-table-row'); element.setAttribute('data-row-key', 'b')
+    element.classList.add('ant-table-row'); element.setAttribute('data-row-key', name === 'vm' ? 'c' : 'b')
     wrapper.vm.handleGlobalContextMenu({ target: element, clientX: 20, clientY: 40, preventDefault: jest.fn(), stopPropagation: jest.fn() })
+    await wrapper.vm.$nextTick()
     await wrapper.vm.$nextTick()
     const menu = wrapper.findComponent({ name: 'ResourceContextMenu' })
     expect(menu.exists()).toBe(true)
@@ -127,6 +130,62 @@ describe('Shared selection context menu', () => {
     expect(menu.props('actions').map(action => action.api)).toEqual(['deleteVMSnapshot'])
     wrapper.unmount()
   })
+})
+
+test.each([{ checked: [] }, { checked: ['a'] }, { checked: ['a', 'c'] }])('VM right-click selects the clicked row with prior selection $checked', async ({ checked }) => {
+  const rows = ['a', 'b', 'c'].map(id => ({ id, displayname: id.toUpperCase() }))
+  const wrapper = shallowMount(ListView, {
+    props: { columns: [], items: rows, actions: [{ api: 'startVirtualMachine', dataView: true, groupAction: true }] },
+    global: {
+      provide: { parentFetchData: jest.fn(), parentToggleLoading: jest.fn() },
+      mocks: {
+        $route: { name: 'vm', path: '/vm', fullPath: '/vm', meta: {} },
+        $store: { getters: { apis: { startVirtualMachine: {} }, userInfo: { roletype: 'Admin' } } },
+        $t: key => key
+      }
+    }
+  })
+  wrapper.vm.setSelection(checked)
+  await wrapper.vm.$nextTick()
+  const row = document.createElement('tr')
+  row.classList.add('ant-table-row')
+  row.setAttribute('data-row-key', 'b')
+  wrapper.vm.handleGlobalContextMenu({ target: row, clientX: 20, clientY: 40, preventDefault: jest.fn(), stopPropagation: jest.fn() })
+  await wrapper.vm.$nextTick()
+  await wrapper.vm.$nextTick()
+  const menu = wrapper.findComponent({ name: 'ResourceContextMenu' })
+  expect(menu.props('resource')).toEqual(rows[1])
+  expect(menu.props('selectedRowKeys')).toEqual(['b'])
+  wrapper.vm.closeContextQuickView()
+  expect(wrapper.vm.selectedRowKeys).toEqual(['b'])
+  wrapper.unmount()
+})
+
+test('VM toolbar bulk actions require the selected rows, permission and a common eligible state', () => {
+  const actions = compute.children.find(section => section.name === 'vm').actions
+  const start = actions.find(action => action.api === 'startVirtualMachine')
+  const stop = actions.find(action => action.api === 'stopVirtualMachine')
+  const stopped = { id: 'a', state: 'Stopped' }
+  const context = {
+    selectedRowKeys: ['a', 'b'],
+    selectedItems: [stopped, { id: 'b', state: 'Stopped' }],
+    $store: { getters: { apis: { startVirtualMachine: {}, stopVirtualMachine: {} } } }
+  }
+  const canUse = action => AutogenView.methods.canUseVmBulkToolbarAction.call(context, action)
+  expect(canUse(start)).toBe(true)
+  expect(canUse(stop)).toBe(false)
+
+  context.selectedItems[1].state = 'Running'
+  expect(canUse(start)).toBe(false)
+  expect(canUse(stop)).toBe(false)
+
+  context.selectedItems[0].state = 'Running'
+  expect(canUse(stop)).toBe(true)
+  delete context.$store.getters.apis.stopVirtualMachine
+  expect(canUse(stop)).toBe(false)
+  context.selectedRowKeys = ['a']
+  context.selectedItems = [stopped]
+  expect(canUse(start)).toBe(false)
 })
 
 function currentCell (current, name = 'vmsnapshot') {

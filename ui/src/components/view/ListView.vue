@@ -16,14 +16,14 @@
 // under the License.
 
 <template>
-  <div class="list-view-table-wrapper" :class="{ 'kms-table': kmsTable, 'autoscale-list': $route.name === 'autoscalevmgroup', 'snapshot-list-table': $route.name === 'snapshot', 'snapshot-policy-list-table': $route.name === 'snapshotpolicy', 'kubernetes-iso-list-table': isKubernetesIsoMainList, 'usage-records-list-table': isUsageList }" :tabindex="scrollRegionLabel ? 0 : undefined" :role="scrollRegionLabel ? 'region' : undefined" :aria-label="scrollRegionLabel" @keydown="scrollWideTable" @contextmenu="handleGlobalContextMenu">
+  <div class="list-view-table-wrapper" :class="{ 'kms-table': kmsTable, 'autoscale-list': $route.name === 'autoscalevmgroup', 'snapshot-list-table': $route.name === 'snapshot', 'snapshot-policy-list-table': $route.name === 'snapshotpolicy', 'kubernetes-iso-list-table': isKubernetesIsoMainList, 'usage-records-list-table': isUsageList, 'vm-list-table': isVmMainList }" :tabindex="scrollRegionLabel ? 0 : undefined" :role="scrollRegionLabel ? 'region' : undefined" :aria-label="scrollRegionLabel" @keydown="scrollWideTable" @contextmenu="handleGlobalContextMenu">
     <a-table
       size="middle"
       :loading="loading"
       :columns="displayColumns"
       :dataSource="items"
       :tableLayout="isIsoMainList || $route.meta?.name === 'ldapsetting' || scrollRegionLabel ? 'fixed' : undefined"
-      :scroll="kmsTableScroll || tableScroll || systemOfferingTableScroll || kubernetesIsoTableScroll || isoTableScroll || templateTableScroll || (isRuntimeCatalogList ? { x: 850 } : $route.name === 'snapshot' ? { x: 1400 } : ['autoscalevmgroup', 'affinitygroup'].includes($route.name) ? { x: 980 } : undefined)"
+      :scroll="vmTableScroll || kmsTableScroll || tableScroll || systemOfferingTableScroll || kubernetesIsoTableScroll || isoTableScroll || templateTableScroll || (isRuntimeCatalogList ? { x: 850 } : $route.name === 'snapshot' ? { x: 1400 } : ['autoscalevmgroup', 'affinitygroup'].includes($route.name) ? { x: 980 } : undefined)"
       :rowKey="listRowKey"
       :pagination="false"
       :rowSelection="explicitlyAllowRowSelection || enableGroupAction() || $route.name === 'event' ? {selectedRowKeys: selectedRowKeys, onChange: onSelectChange, getCheckboxProps: record => ({ disabled: selectionDisabled(record) }), columnWidth: 30} : null"
@@ -56,7 +56,7 @@
         </a-menu>
       </div>
     </template>
-    <template v-if="isIsoMainList || isKubernetesIsoMainList || kmsTable || isUsageList" #headerCell="{ column }">
+    <template v-if="isVmMainList || isIsoMainList || isKubernetesIsoMainList || kmsTable || isUsageList" #headerCell="{ column }">
       <a-popover v-if="isKubernetesIsoMainList && column.key === 'filtercolumn'" :visible="columnPickerVisible" @update:visible="columnPickerVisibility" trigger="click" placement="bottomRight">
         <template #content>
           <div ref="columnPickerContent" @vue:mounted="columnPickerContentMounted" class="kubernetes-iso-column-picker" role="group" :aria-label="$t('label.select.columns')" @keydown.esc.stop.prevent="closeColumnPicker">
@@ -67,11 +67,25 @@
       </a-popover>
       <keyboard-tooltip v-else-if="isKubernetesIsoMainList && typeof column.title === 'string' && column.title" :title="column.title"><span tabindex="0" class="kubernetes-iso-header-text">{{ column.title }}</span></keyboard-tooltip>
       <TableOverflowText v-else-if="isUsageList || (kmsTable && column.key !== 'filtercolumn')" :text="column.title" />
+      <TableOverflowText v-else-if="isVmMainList && typeof column.title === 'string' && column.title" :text="column.title" />
       <a-tooltip v-else-if="column.sorter" :title="$t('message.iso.search.sort.page')" :trigger="['hover', 'focus']"><span tabindex="0">{{ column.title }}</span></a-tooltip>
       <span v-else>{{ column.title }}</span>
     </template>
     <template #bodyCell="{ column, text, record }">
-      <TableOverflowText v-if="isUsageList && column.key === 'usageid'" :text="text ?? ''">
+      <span v-if="isVmMainList && column.key === 'displayname'" class="vm-list-name">
+        <span class="vm-list-name-icon">
+          <resource-icon v-if="record.icon && record.icon.base64image" :image="record.icon.base64image" size="2x" />
+          <os-logo v-else :osId="record.ostypeid" :osName="record.ostypename || record.osdisplayname" size="xl" />
+        </span>
+        <a-tooltip :title="vmDisplayName(record)" :trigger="['hover', 'focus']">
+          <router-link class="vm-display-name" :to="{ path: '/vm/' + record.id }">{{ vmDisplayName(record) }}</router-link>
+        </a-tooltip>
+      </span>
+      <TableOverflowText
+        v-else-if="isVmMainList && vmTextColumns.has(column.key)"
+        :text="text ?? ''"
+        :location="vmTextLocation(column.key, record)" />
+      <TableOverflowText v-else-if="isUsageList && column.key === 'usageid'" :text="text ?? ''">
         <CopyLabel v-if="text != null && text !== ''" :label="String(text)" hide-tooltip />
       </TableOverflowText>
       <TableOverflowText
@@ -786,14 +800,14 @@
               <template #title>{{ $t('label.cpu') }}</template>
               <font-awesome-icon :icon="['fa-solid', 'fa-microchip']" class="resource-icon" />
             </a-tooltip>
-            {{ record.cpunumber }} CPU
+            <span class="resource-value">{{ record.cpunumber }} CPU</span>
           </span>
           <span v-if="hasValue(record.memory)" class="resource-item resource-item--memory">
             <a-tooltip>
               <template #title>{{ $t('label.memory') }}</template>
               <font-awesome-icon :icon="['fa-solid', 'fa-memory']" class="resource-icon" />
             </a-tooltip>
-            {{ record.memory }} MB
+            <span class="resource-value">{{ record.memory }} MB</span>
           </span>
         </div>
       </template>
@@ -861,7 +875,11 @@
       </template>
       <template v-if="column.key === 'hostname'">
         <TableOverflowText
-          v-if="$route.meta?.name === 'ldapsetting' && record.id"
+          v-if="isVmMainList"
+          :text="text ?? ''"
+          :location="record.hostid ? { path: '/host/' + record.hostid } : record.hostname ? { path: '/vm/' + record.id } : null" />
+        <TableOverflowText
+          v-else-if="$route.meta?.name === 'ldapsetting' && record.id"
           :text="text"
           :location="{ path: '/ldapsetting/' + record.id, query: ldapListQuery($route.query) }"
         />
@@ -884,7 +902,12 @@
       </template>
       <template v-for="(value, name) in thresholdMapping" :key="name">
         <template v-if="column.key === name">
-          <span>
+          <TableOverflowText v-if="isVmMainList" :text="text ?? ''">
+            <span
+              :class="record[value.disable] ? 'alert-disable-threshold' : record[value.notification] ? 'alert-notification-threshold' : undefined"
+              :style="record[value.disable] || record[value.notification] ? { padding: '10%' } : undefined">{{ text }}</span>
+          </TableOverflowText>
+          <span v-else>
             <span
               v-if="record[value.disable]"
               class="alert-disable-threshold"
@@ -928,7 +951,12 @@
       <template v-if="column.key === 'podname'">
         <router-link :to="{ path: '/pod/' + record.podid }">{{ text }}</router-link>
       </template>
-      <template v-if="column.key === 'account' && $route.name !== 'autoscalevmgroup'">
+      <template v-if="isVmMainList && column.key === 'account' && !record.owner && text">
+        <TableOverflowText
+          :text="text.startsWith('PrjAcct-') ? (record.projectname || record.account) + ' (' + $t('label.project') + ')' : text"
+          :location="vmAccountLocation(text, record)" />
+      </template>
+      <template v-else-if="column.key === 'account' && $route.name !== 'autoscalevmgroup'">
         <template v-if="record.owner">
           <template
             v-for="(item, idx) in record.owner"
@@ -1012,8 +1040,9 @@
         <span v-else>{{ text }}</span>
       </template>
       <template v-if="column.key === 'zonename' && $route.name !== 'autoscalevmgroup'">
+        <TableOverflowText v-if="isVmMainList" :text="text ?? ''" :location="vmZoneLocation(record.zoneid)" />
         <router-link
-          v-if="$router.resolve('/zone/' + record.zoneid).matched[0].redirect !== '/exception/404'"
+          v-else-if="$router.resolve('/zone/' + record.zoneid).matched[0].redirect !== '/exception/404'"
           :to="{ path: '/zone/' + record.zoneid }"
         >{{ text }}</router-link>
         <router-link
@@ -1489,6 +1518,29 @@ import { publicIpDetailLocation } from '@/utils/publicIpSearch'
 import { s2sGatewayDetailLocation, vpnConnectionDetailLocation, vpnConnectionListRoute } from '@/utils/s2sGatewaySearch'
 import { vnfDetailLocation } from '@/utils/vnfSearch'
 
+const vmTextColumns = new Set([
+  'instancename', 'arch', 'project', 'backupofferingname', 'serviceofferingname', 'cputotal',
+  'memorytotal', 'memoryreserved', 'networkread', 'networkwrite', 'diskread', 'diskwrite', 'diskiopstotal'
+])
+
+const vmColumnWidths = {
+  displayname: 208,
+  instancename: 112,
+  state: 132,
+  resources: 176,
+  qemuagentversion: 112,
+  ipaddress: 182,
+  templatetype: 104,
+  backupofferingname: 112,
+  arch: 100,
+  hostname: 116,
+  account: 104,
+  project: 110,
+  zonename: 100,
+  serviceofferingname: 134,
+  filtercolumn: 44
+}
+
 export default {
   name: 'ListView',
   components: {
@@ -1682,6 +1734,11 @@ export default {
     this.getUsageTypes()
   },
   computed: {
+    isVmMainList () { return this.$route.path === '/vm' && !this.resourcePath },
+    vmTextColumns () { return vmTextColumns },
+    vmTableScroll () {
+      return this.isVmMainList ? { x: this.displayColumns.reduce((total, column) => total + column.width, 30) } : null
+    },
     isUsageList () { return this.$route.path === '/usage' && !this.resourcePath },
     isRuntimeCatalogList () { return this.$route.path === '/runtimebundle' && !this.resourcePath },
     emptyTableImage () { return Empty.PRESENTED_IMAGE_SIMPLE },
@@ -1690,6 +1747,7 @@ export default {
     systemOfferingOrderDisabled () { return this.systemOfferingOrder && (!this.systemOfferingOrderAvailable || this.systemOfferingOrderBusy) },
     isProjectMainList () { return this.$route.meta?.name === 'project' && !this.$route.params?.id && !this.resourcePath },
     scrollRegionLabel () {
+      if (this.isVmMainList) return this.$t('label.instances')
       if (this.isUsageList) return this.$t('label.usage')
       if (this.isRuntimeCatalogList) return this.$t('label.runtime.catalog')
       if (this.$route.meta?.name === 'oauthsetting') return this.$t('label.oauth.configuration')
@@ -1706,6 +1764,7 @@ export default {
     isKubernetesIsoMainList () { return this.$route.meta?.name === 'kubernetesiso' && !this.$route.params?.id && !this.resourcePath },
     displayColumns () {
       const columns = this.isOrderUpdatable() ? this.columns : this.columns.filter(column => column.dataIndex !== 'order')
+      if (this.isVmMainList) return columns.map(column => ({ ...column, width: vmColumnWidths[column.key] || 112 }))
       if (this.kmsTable) return kmsTableColumns(columns)
       if (this.systemOfferingOrder) {
         const widths = {
@@ -1981,6 +2040,28 @@ export default {
     cniDetailLink,
     networkDetailLocation,
     sshKeyPairLink,
+    vmTextLocation (key, record) {
+      if (key === 'project' && this.canLinkProject(record)) return { path: '/project/' + record.projectid }
+      if (key === 'backupofferingname') return { path: '/backupoffering/' + record.backupofferingid }
+      if (key === 'serviceofferingname') return { path: '/computeoffering/' + record.serviceofferingid }
+      return null
+    },
+    vmZoneLocation (id) {
+      if (!id) return null
+      const path = ['/zone/', '/zones/'].map(prefix => prefix + id).find(path => {
+        const record = this.$router.resolve(path).matched[0]
+        return record && record.redirect !== '/exception/404'
+      })
+      return path ? { path } : null
+    },
+    vmAccountLocation (text, record) {
+      if (text.startsWith('PrjAcct-')) return null
+      if (record.accountid) return { path: '/account/' + record.accountid }
+      if (this.$store.getters.userInfo.roletype !== 'User') {
+        return { path: '/account', query: { name: record.account, domainid: record.domainid, dataView: true } }
+      }
+      return null
+    },
     canLinkProject (record) {
       if (!record.projectid) return false
       const matched = this.$router.resolve('/project/' + record.projectid).matched
@@ -1991,7 +2072,7 @@ export default {
       this.$emit('table-change', pagination, filters, sorter)
     },
     snapshotRowEvents (record) {
-      if (!this.keyboardContextMenu && !['vmsnapshot', 'kubernetes', 'kubernetesiso'].includes(this.$route.name)) return {}
+      if (!this.isVmMainList && !this.keyboardContextMenu && !['vmsnapshot', 'kubernetes', 'kubernetesiso'].includes(this.$route.name)) return {}
       return {
         tabindex: 0,
         onKeydown: event => {
@@ -2032,6 +2113,10 @@ export default {
         return
       }
       const rowElement = event.target.closest('tr.ant-table-row')
+      if (this.isVmMainList) {
+        this.handleVmContextMenu(event, rowElement)
+        return
+      }
       // Allow context menu even when multiple items selected; fall back to first selected item
       const selectionCount = this.selectedRowKeys.length
       const hasSelection = this.$route.name === 'vmsnapshot' ? selectionCount > 1 : selectionCount > 0
@@ -2058,11 +2143,34 @@ export default {
       }
       event.preventDefault()
       event.stopPropagation()
-      this.contextQuickViewRecord = ['vmsnapshot', 'snapshot'].includes(this.$route.name) ? Object.freeze({ ...record }) : record
-      this.contextQuickViewPosition = {
-        x: event.clientX,
-        y: event.clientY
+      this.openContextQuickView(record, { x: event.clientX, y: event.clientY })
+    },
+    handleVmContextMenu (event, rowElement) {
+      const rowKey = rowElement?.getAttribute('data-row-key')
+      const record = rowKey && this.items.find(item => String(this.listRowKey(item)) === rowKey)
+      if (!record || this.selectionDisabled(record) || !this.quickViewEnabled()) {
+        this.closeContextQuickView()
+        return
       }
+      event.preventDefault()
+      event.stopPropagation()
+
+      const key = this.listRowKey(record)
+      if (!this.selectedRowKeys.includes(key)) this.setSelection([key])
+      const selection = this.selectedRowKeys
+      const path = this.$route.fullPath
+      const position = { x: event.clientX, y: event.clientY }
+
+      // The selection watcher closes the previous menu before the new one is opened.
+      this.$nextTick(() => {
+        if (this.$route.fullPath !== path || this.selectedRowKeys !== selection || !this.items.includes(record)) return
+        const target = selection.length > 1 ? this.getFirstSelectedItem() || record : record
+        this.openContextQuickView(target, position)
+      })
+    },
+    openContextQuickView (record, position) {
+      this.contextQuickViewRecord = ['vmsnapshot', 'snapshot'].includes(this.$route.name) ? Object.freeze({ ...record }) : record
+      this.contextQuickViewPosition = position
       if (this.contextMenuActions.length === 0) {
         this.closeContextQuickView()
         return
@@ -2086,6 +2194,7 @@ export default {
     },
     createPathBasedOnVmType: createPathBasedOnVmType,
     quickViewEnabled (actions = this.actions, columns = null, key = null) {
+      if (this.isVmMainList && columns && key) return false
       const hasActions = Array.isArray(actions) && actions.length > 0
       const matchesFirstColumn = !columns || !key || (columns[0] && key === columns[0].dataIndex)
       return hasActions &&
@@ -2609,6 +2718,97 @@ export default {
     display: flex;
     flex: none;
     margin-inline-start: auto;
+  }
+}
+
+.vm-list-table {
+  min-width: 0;
+  max-width: 100%;
+
+  :deep(th.ant-table-cell:not(.ant-table-selection-column)),
+  :deep(td.ant-table-cell:not(.ant-table-selection-column)) {
+    overflow: hidden;
+    white-space: nowrap;
+    overflow-wrap: normal;
+    text-overflow: ellipsis;
+  }
+
+  :deep(.ant-table-column-title) {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  :deep(.ant-table-column-sorter),
+  :deep(.ant-table-filter-trigger),
+  :deep(.summary-more),
+  :deep(.ant-badge-status-dot) {
+    flex-shrink: 0;
+  }
+
+  :deep(.ant-badge-status) {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+  }
+
+  :deep(.ant-badge-status-text),
+  :deep(.ant-tag) {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  :deep(.list-state-with-flatten) {
+    max-width: 100%;
+
+    > :first-child {
+      min-width: 0;
+    }
+  }
+
+  :deep(.resource-summary) {
+    max-width: 100%;
+  }
+
+  :deep(.resource-item),
+  :deep(.resource-value) {
+    min-width: 0;
+  }
+
+  :deep(.resource-icon) {
+    flex: none;
+  }
+
+  :deep(.resource-value) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  :deep(.guest-network-summary .primary-address) {
+    flex: 0 1 auto;
+  }
+
+  :deep(tr:focus-visible) {
+    outline: 2px solid var(--ui-focus);
+    outline-offset: -2px;
+  }
+}
+
+.vm-list-name {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+
+  .vm-list-name-icon {
+    flex: none;
+  }
+
+  :deep(.vm-display-name) {
+    min-width: 0;
+    max-width: 100%;
   }
 }
 

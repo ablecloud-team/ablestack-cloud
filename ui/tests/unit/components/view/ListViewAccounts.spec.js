@@ -28,6 +28,8 @@ function accountCell (record, path = '/vm', roletype = 'Admin') {
       provide: { parentFetchData: jest.fn(), parentToggleLoading: jest.fn() },
       mocks: { $route: { path, meta: {} }, $store: { getters: { apis: {}, userInfo: { roletype } } }, $t: key => key },
       stubs: {
+        TableOverflowText: false,
+        KeyboardTooltip: { render () { return h('span', this.$slots.default()) } },
         'a-table': { render () { return h('div', this.$slots.bodyCell({ column: { key: 'account' }, text: record.account, record })) } },
         'router-link': { props: ['to'], template: '<a :data-target="JSON.stringify(to)"><slot /></a>' }
       }
