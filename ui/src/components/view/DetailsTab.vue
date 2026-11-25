@@ -53,6 +53,11 @@
     show-icon
     class="l2-details-notice"
     :message="$t(l2Network.configDrive ? 'message.l2.network.configdrive' : 'message.l2.network.basic')" />
+  <router-link
+    v-if="$route.meta.name === 'webhookdeliveries' && dataResource.webhookid"
+    :to="{ path: '/webhook/' + dataResource.webhookid, query: { tab: 'recent.deliveries' } }">
+    {{ $t('label.webhook.delivery.back') }}
+  </router-link>
   <a-list
     class="resource-details-list"
     :class="{ 'template-details-list': ['template', 'iso'].includes($route.meta.name), 's2s-gateway-details': $route.meta.name === 's2svpn', 'vm-details-list': kmsRoute($route) || ['vm', 'vnfapp', 'publicip', 's2svpn', 'acllist', 'event', 'vpnuser', 'project', 'guestvlans', 'ipv4subnets', 'dnszone', 'dnsserver', 'zone', 'physicalnetwork', 'host', 'cluster', 'ldapsetting', 'oauthsetting', 'storagepool', 'imagestore', 'secondarystorageselector'].includes($route.meta.name) }"

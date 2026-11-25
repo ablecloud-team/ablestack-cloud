@@ -1109,8 +1109,14 @@
         <span v-else>{{ text }}</span>
       </template>
       <template v-if="column.key === 'payload'">
+        <a-button
+          v-if="inlineWebhookDelivery"
+          type="link"
+          :aria-label="$t('label.webhook.delivery.details')"
+          @click="$emit('open-webhook-delivery', record)"
+        >{{ getTrimmedText(text, 48) || $t('label.webhook.delivery.details') }}</a-button>
         <router-link
-          v-if="$router.resolve('/webhookdeliveries/' + record.id).matched[0].redirect !== '/exception/404'"
+          v-else-if="$router.resolve('/webhookdeliveries/' + record.id).matched[0].redirect !== '/exception/404'"
           :to="{ path: '/webhookdeliveries/' + record.id }"
         >{{ getTrimmedText(text, 48) }}</router-link>
         <span v-else> {{ getTrimmedText(text, 48) }} </span>
@@ -1491,6 +1497,7 @@ export default {
     FileTextOutlined
   },
   emits: [
+    'open-webhook-delivery',
     'disable-gpu-device',
     'edit-tariff-action',
     'enable-gpu-device',
@@ -1535,6 +1542,7 @@ export default {
       type: Array,
       default: () => []
     },
+    inlineWebhookDelivery: { type: Boolean, default: false },
     explicitlyAllowRowSelection: {
       type: Boolean,
       default: false

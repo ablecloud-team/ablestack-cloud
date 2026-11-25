@@ -18,45 +18,63 @@
 <template>
   <div>
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <a-modal
-      v-model:visible="showTimeFilterModal"
+    <mold-dialog
+      v-if="showTimeFilterModal"
+      :visible="true"
       :title="$t('label.select.period')"
-      :maskClosable="false"
-      :footer="null">
+      size="md"
+      form-actions
+      @cancel="closeTimeFilterAction">
+      <a-alert v-if="dateRangeError" type="error" show-icon :message="$t('message.webhook.delivery.period.invalid')" />
       <date-time-filter
         :startDateProp="startDate"
         :endDateProp="endDate"
         :showAllDataOption="false"
+        standard-dialog
         @closeAction="closeTimeFilterAction"
         @onSubmit="handleSubmitDateTimeFilter"/>
-    </a-modal>
+    </mold-dialog>
+    <mold-dialog v-if="selectedDelivery" :visible="true" :title="$t('label.webhook.delivery.details')" size="lg" form-actions @cancel="selectedDelivery = null">
+      <a-descriptions :column="1" size="small">
+        <a-descriptions-item :label="$t('label.event')">{{ selectedDelivery.eventtype || '—' }}</a-descriptions-item>
+        <a-descriptions-item :label="$t('label.payloadurl')">{{ resource.payloadurl || '—' }}</a-descriptions-item>
+        <a-descriptions-item :label="$t('label.startdate')">{{ formatDeliveryDate(selectedDelivery.startdate) || '—' }}</a-descriptions-item>
+        <a-descriptions-item :label="$t('label.enddate')">{{ formatDeliveryDate(selectedDelivery.enddate) || '—' }}</a-descriptions-item>
+        <a-descriptions-item :label="$t('label.status')">{{ $t(selectedDelivery.success ? 'label.success' : 'label.failed') }}</a-descriptions-item>
+      </a-descriptions>
+      <details v-for="field in deliveryDetailFields" :key="field" class="webhook-delivery-section">
+        <summary>{{ $t('label.' + field) }}</summary>
+        <pre>{{ formatDeliveryContent(selectedDelivery[field]) }}</pre>
+      </details>
+      <mold-dialog-actions>
+        <a-button @click="selectedDelivery = null">{{ $t('label.close') }}</a-button>
+      </mold-dialog-actions>
+    </mold-dialog>
     <div class="filter-row">
       <a-row>
         <a-col :xs="24" :md="12">
           <a-space direction="vertical">
             <div>
               <a-radio-group
-                v-model:value="durationSelectorValue"
+                :value="durationSelectorValue"
                 buttonStyle="solid"
                 @change="handleTimeFilterChange">
                 <a-radio-button value="day">
                   {{ $t('label.duration.24hours') }}
                 </a-radio-button>
                 <a-radio-button value="all">
-                  {{ $t('All') }}
+                  {{ $t('label.all') }}
                 </a-radio-button>
                 <a-radio-button value="custom">
-                  {{ $t('label.duration.custom') }}
+                  {{ $t('label.webhook.delivery.custom.period') }}
                 </a-radio-button>
               </a-radio-group>
               <InfoCircleOutlined class="info-icon" :title="$t('message.webhook.deliveries.time.filter')"/>
             </div>
-            <div class="ant-tag" v-if="durationSelectorValue==='custom'">
-              <a-button @click="openTimeFilter()">
-                <FilterOutlined/>
-              </a-button>
-              <span v-html="formatedPeriod"></span>
-            </div>
+            <a-space v-if="durationSelectorValue === 'custom'" wrap>
+              <a-button @click="openTimeFilter">{{ $t('label.select.period') }}</a-button>
+              <span>{{ formattedPeriod }}</span>
+            </a-space>
           </a-space>
         </a-col>
         <a-col :xs="24" :md="12" style="text-align: right; padding-right: 10px;">
@@ -90,6 +108,8 @@
       :selectedColumns="selectedColumnKeys"
       ref="listview"
       @update-selected-columns="updateSelectedColumns"
+      inline-webhook-delivery
+      @open-webhook-delivery="selectedDelivery = $event"
       @refresh="this.fetchData"
       @selection-change="updateSelectedRows"/>
     <a-pagination
@@ -123,6 +143,8 @@ import moment from 'moment'
 import DateTimeFilter from './DateTimeFilter'
 import SearchView from '@/components/view/SearchView'
 import ListView from '@/components/view/ListView'
+import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { webhookDeliveryQuery, webhookDeliverySearch } from '@/utils/webhookDeliveryQuery'
 
 export default {
@@ -131,7 +153,9 @@ export default {
   components: {
     DateTimeFilter,
     SearchView,
-    ListView
+    ListView,
+    MoldDialog,
+    MoldDialogActions
   },
   props: {
     resource: {
@@ -175,9 +199,11 @@ export default {
       totalCount: 0,
       durationSelectorValue: 'day',
       showTimeFilterModal: false,
+      dateRangeError: false,
+      selectedDelivery: null,
+      deliveryDetailFields: ['response', 'headers', 'payload'],
       endDate: null,
       startDate: this.get24hrStartDate(),
-      formatedPeriod: null,
       searchFilters: [
         'eventtype'
       ],
@@ -185,6 +211,14 @@ export default {
     }
   },
   computed: {
+    formattedPeriod () {
+      const startDate = this.formatDeliveryDate(this.startDate)
+      const endDate = this.formatDeliveryDate(this.endDate)
+      if (startDate && endDate) return this.$t('label.datetime.filter.period', { startDate, endDate })
+      if (startDate) return this.$t('label.datetime.filter.starting', { startDate })
+      if (endDate) return this.$t('label.datetime.filter.up.to', { endDate })
+      return this.$t('label.all.available.data')
+    },
     pageSizeOptions () {
       var sizes = [20, 50, 100, 200, this.$store.getters.defaultListViewPageSize]
       if (this.device !== 'desktop') {
@@ -211,7 +245,11 @@ export default {
     this.applyDeliveryQuery()
   },
   watch: {
-    'resource.id': 'applyDeliveryQuery',
+    'resource.id' () {
+      this.selectedDelivery = null
+      this.closeTimeFilterAction()
+      this.applyDeliveryQuery()
+    },
     '$route.query': 'applyDeliveryQuery'
   },
   methods: {
@@ -284,7 +322,6 @@ export default {
         this.deliveries = []
         this.totalCount = json?.listwebhookdeliveriesresponse?.count || 0
         this.deliveries = json?.listwebhookdeliveriesresponse?.webhookdelivery || []
-        this.formatTimeFilterPeriod()
         this.tabLoading = false
       }).catch(error => {
         if (!this.isListRequestCurrent('fetchDeliveries', listRequest)) return
@@ -451,37 +488,48 @@ export default {
       start.setDate(start.getDate() - 1)
       return start
     },
-    handleTimeFilterChange () {
-      if (this.durationSelectorValue !== 'custom') this.setDeliveryQuery()
+    handleTimeFilterChange (event) {
+      const period = event.target.value
+      if (period === 'custom') this.openTimeFilter()
+      else this.setDeliveryQuery({ period })
     },
     openTimeFilter () {
+      this.dateRangeError = false
       this.showTimeFilterModal = true
     },
-    formatTimeFilterPeriod () {
-      var formatedStartDate = null
-      var formatedEndDate = null
-      if (this.startDate) {
-        formatedStartDate = moment(this.startDate).format('MMM DD, YYYY') + ' at ' + moment(this.startDate).format('HH:mm:ss')
-      }
-      if (this.endDate) {
-        formatedEndDate = moment(this.endDate).format('MMM DD, YYYY') + ' at ' + moment(this.endDate).format('HH:mm:ss')
-      }
-      if (formatedStartDate && formatedEndDate) {
-        this.formatedPeriod = ' ' + this.$t('label.datetime.filter.period', { startDate: formatedStartDate, endDate: formatedEndDate })
-      } else if (formatedStartDate && !formatedEndDate) {
-        this.formatedPeriod = ' ' + this.$t('label.datetime.filter.starting', { startDate: formatedStartDate })
-      } else if (!formatedStartDate && formatedEndDate) {
-        this.formatedPeriod = ' ' + this.$t('label.datetime.filter.up.to', { endDate: formatedEndDate })
-      } else {
-        this.formatedPeriod = ' <b>' + this.$t('label.all.available.data') + '</b>'
+    formatDeliveryDate (value) {
+      if (!value || !Number.isFinite(Date.parse(value))) return ''
+      const locale = this.$i18n.locale.replace('_', '-')
+      return new Intl.DateTimeFormat(locale, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        timeZoneName: 'short'
+      }).format(new Date(value))
+    },
+    formatDeliveryContent (value) {
+      if (value === null || value === undefined || value === '') return '—'
+      if (typeof value !== 'string') return JSON.stringify(value, null, 2)
+      try {
+        return JSON.stringify(JSON.parse(value), null, 2)
+      } catch {
+        return value
       }
     },
-    handleSubmitDateTimeFilter (values) {
-      this.showTimeFilterModal = false
-      this.setDeliveryQuery({ period: 'custom', start: values.startDate, end: values.endDate })
+    handleSubmitDateTimeFilter ({ startDate, endDate }) {
+      if ((!startDate && !endDate) || (startDate && !Number.isFinite(startDate.getTime())) || (endDate && !Number.isFinite(endDate.getTime())) || (startDate && endDate && startDate > endDate)) {
+        this.dateRangeError = true
+        return
+      }
+      this.closeTimeFilterAction()
+      this.setDeliveryQuery({ period: 'custom', start: startDate, end: endDate })
     },
     closeTimeFilterAction () {
       this.showTimeFilterModal = false
+      this.dateRangeError = false
     },
     searchDeliveries (params) {
       const search = {}
@@ -512,7 +560,13 @@ export default {
 .filter-row {
   margin-bottom: 2.5%;
 }
-.filter-row-inner {
-  margin-top: 3%;
+.webhook-delivery-section {
+  margin-top: 12px;
+}
+.webhook-delivery-section pre {
+  max-height: 20rem;
+  overflow: auto;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 </style>
