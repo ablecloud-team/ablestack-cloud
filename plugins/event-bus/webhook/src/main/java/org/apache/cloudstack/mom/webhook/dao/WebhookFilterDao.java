@@ -25,7 +25,7 @@ import com.cloud.utils.Pair;
 import com.cloud.utils.db.GenericDao;
 
 public interface WebhookFilterDao extends GenericDao<WebhookFilterVO, Long> {
-    Pair<List<WebhookFilterVO>, Integer> searchBy(Long id, Long webhookId, Long startIndex, Long pageSize);
+    Pair<List<WebhookFilterVO>, Integer> searchBy(Long id, Long webhookId, String keyword, Long startIndex, Long pageSize);
     List<WebhookFilterVO> listByWebhook(Long webhookId);
     int delete(Long id, Long webhookId);
 }

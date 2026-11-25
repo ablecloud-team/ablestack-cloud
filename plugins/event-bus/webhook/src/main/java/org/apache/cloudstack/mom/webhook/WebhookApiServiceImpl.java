@@ -20,7 +20,9 @@ package org.apache.cloudstack.mom.webhook;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -626,18 +628,15 @@ public class WebhookApiServiceImpl extends ManagerBase implements WebhookApiServ
     @Override
     public ListResponse<WebhookFilterResponse> listWebhookFilters(ListWebhookFiltersCmd cmd) throws CloudRuntimeException {
         Pair<List<WebhookFilterVO>, Integer> filtersAndCount = webhookFilterDao.searchBy(cmd.getId(), cmd.getWebhookId(),
-                        cmd.getStartIndex(), cmd.getPageSizeVal());
+                cmd.getKeyword(), cmd.getStartIndex(), cmd.getPageSizeVal());
         List<WebhookFilterResponse> responsesList = new ArrayList<>();
-        WebhookVO webhookVO = null;
-        if (filtersAndCount.second() > 0) {
-            webhookVO = webhookDao.findById(filtersAndCount.first().get(0).getWebhookId());
-        }
+        Map<Long, WebhookVO> webhooksById = new HashMap<>();
         for (WebhookFilterVO filter : filtersAndCount.first()) {
-            WebhookFilterResponse response = createWebhookFilterResponse(filter, webhookVO);
-            responsesList.add(response);
+            WebhookVO webhook = webhooksById.computeIfAbsent(filter.getWebhookId(), webhookDao::findById);
+            responsesList.add(createWebhookFilterResponse(filter, webhook));
         }
         ListResponse<WebhookFilterResponse> response = new ListResponse<>();
-        response.setResponses(responsesList, responsesList.size());
+        response.setResponses(responsesList, filtersAndCount.second());
         return response;
     }
 
@@ -690,7 +689,7 @@ public class WebhookApiServiceImpl extends ManagerBase implements WebhookApiServ
     public int deleteWebhookFilter(DeleteWebhookFilterCmd cmd) throws CloudRuntimeException {
         final Account caller = CallContext.current().getCallingAccount();
         final Pair<List<WebhookFilterVO>, Integer> filtersAndCount =
-                webhookFilterDao.searchBy(cmd.getId(), cmd.getWebhookId(), 0L, 1L);
+                webhookFilterDao.searchBy(cmd.getId(), cmd.getWebhookId(), null, 0L, 1L);
         if (filtersAndCount.second() == 0) {
             return 0;
         }

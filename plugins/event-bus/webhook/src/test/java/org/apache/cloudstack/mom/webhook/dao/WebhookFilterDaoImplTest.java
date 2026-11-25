@@ -60,7 +60,7 @@ public class WebhookFilterDaoImplTest {
         Mockito.doReturn(new Pair(List.of(Mockito.mock(WebhookFilterVO.class)), 1))
                 .when(webhookFilterDaoImpl).searchAndCount(Mockito.any(), Mockito.any());
 
-        Pair<List<WebhookFilterVO>, Integer> result = webhookFilterDaoImpl.searchBy(id, webhookId, startIndex, pageSize);
+        Pair<List<WebhookFilterVO>, Integer> result = webhookFilterDaoImpl.searchBy(id, webhookId, null, startIndex, pageSize);
 
         assertNotNull(result);
         assertTrue(result.first().size() >= 0);
@@ -76,10 +76,24 @@ public class WebhookFilterDaoImplTest {
         Mockito.doReturn(new Pair(List.of(), 0))
                 .when(webhookFilterDaoImpl).searchAndCount(Mockito.any(), Mockito.any());
 
-        Pair<List<WebhookFilterVO>, Integer> result = webhookFilterDaoImpl.searchBy(id, webhookId, startIndex, pageSize);
+        Pair<List<WebhookFilterVO>, Integer> result = webhookFilterDaoImpl.searchBy(id, webhookId, null, startIndex, pageSize);
 
         assertNotNull(result);
         assertEquals(0, result.first().size());
+    }
+
+    @Test
+    public void searchByMatchesFilterValueAndPreservesCount() {
+        SearchCriteria<WebhookFilterVO> criteria = webhookFilterDaoImpl.IdWebhookIdSearch.create();
+        Mockito.doReturn(new Pair<>(List.of(), 21))
+                .when(webhookFilterDaoImpl).searchAndCount(Mockito.eq(criteria), Mockito.any());
+
+        Pair<List<WebhookFilterVO>, Integer> result = webhookFilterDaoImpl.searchBy(null, 2L, " VM ", 40L, 20L);
+
+        Mockito.verify(criteria).setParameters("webhookId", 2L);
+        Mockito.verify(criteria).setParameters("keyword", "%VM%");
+        assertEquals(Integer.valueOf(21), result.second());
+        assertTrue(result.first().isEmpty());
     }
 
     @Test

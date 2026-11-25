@@ -1291,7 +1291,7 @@ public class WebhookApiServiceImplTest {
         Mockito.when(cmd.getWebhookId()).thenReturn(null);
         Mockito.when(cmd.getStartIndex()).thenReturn(0L);
         Mockito.when(cmd.getPageSizeVal()).thenReturn(10L);
-        Mockito.when(webhookFilterDao.searchBy(Mockito.any(), Mockito.any(), Mockito.anyLong(), Mockito.anyLong()))
+        Mockito.when(webhookFilterDao.searchBy(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(new Pair<>(List.of(), 0));
 
         ListResponse<WebhookFilterResponse> response = webhookApiServiceImpl.listWebhookFilters(cmd);
@@ -1310,10 +1310,11 @@ public class WebhookApiServiceImplTest {
 
         Mockito.when(cmd.getId()).thenReturn(null);
         Mockito.when(cmd.getWebhookId()).thenReturn(1L);
-        Mockito.when(cmd.getStartIndex()).thenReturn(0L);
-        Mockito.when(cmd.getPageSizeVal()).thenReturn(10L);
-        Mockito.when(webhookFilterDao.searchBy(Mockito.any(), Mockito.any(), Mockito.anyLong(), Mockito.anyLong()))
-                .thenReturn(new Pair<>(List.of(filter), 1));
+        Mockito.when(cmd.getStartIndex()).thenReturn(20L);
+        Mockito.when(cmd.getPageSizeVal()).thenReturn(20L);
+        Mockito.when(cmd.getKeyword()).thenReturn("VM");
+        Mockito.when(webhookFilterDao.searchBy(null, 1L, "VM", 20L, 20L))
+                .thenReturn(new Pair<>(List.of(filter), 21));
         Mockito.when(webhookDao.findById(1L)).thenReturn(webhook);
         Mockito.doReturn(filterResponse).when(webhookApiServiceImpl).createWebhookFilterResponse(filter, webhook);
 
@@ -1322,6 +1323,23 @@ public class WebhookApiServiceImplTest {
         Assert.assertNotNull(response);
         Assert.assertEquals(1, response.getResponses().size());
         Assert.assertEquals(filterResponse, response.getResponses().get(0));
+        Assert.assertEquals(Integer.valueOf(21), response.getCount());
+    }
+
+    @Test
+    public void listWebhookFiltersReturnsTotalForWindowBeyondLastPage() {
+        ListWebhookFiltersCmd cmd = Mockito.mock(ListWebhookFiltersCmd.class);
+        Mockito.when(cmd.getId()).thenReturn(null);
+        Mockito.when(cmd.getWebhookId()).thenReturn(1L);
+        Mockito.when(cmd.getStartIndex()).thenReturn(40L);
+        Mockito.when(cmd.getPageSizeVal()).thenReturn(20L);
+        Mockito.when(webhookFilterDao.searchBy(null, 1L, null, 40L, 20L)).thenReturn(new Pair<>(List.of(), 21));
+
+        ListResponse<WebhookFilterResponse> response = webhookApiServiceImpl.listWebhookFilters(cmd);
+
+        Assert.assertTrue(response.getResponses().isEmpty());
+        Assert.assertEquals(Integer.valueOf(21), response.getCount());
+        Mockito.verifyNoInteractions(webhookDao);
     }
 
     @Test(expected = InvalidParameterValueException.class)
@@ -1447,7 +1465,7 @@ public class WebhookApiServiceImplTest {
         WebhookVO webhook = Mockito.mock(WebhookVO.class);
 
         Mockito.when(cmd.getId()).thenReturn(1L);
-        Mockito.when(webhookFilterDao.searchBy(Mockito.any(), Mockito.any(), Mockito.anyLong(), Mockito.anyLong()))
+        Mockito.when(webhookFilterDao.searchBy(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(new Pair<>(List.of(filter), 1));
         Mockito.when(webhookDao.findById(Mockito.anyLong())).thenReturn(webhook);
         Mockito.when(webhookFilterDao.delete(Mockito.anyLong(), Mockito.anyLong())).thenReturn(1);
@@ -1462,7 +1480,7 @@ public class WebhookApiServiceImplTest {
         DeleteWebhookFilterCmd cmd = Mockito.mock(DeleteWebhookFilterCmd.class);
 
         Mockito.when(cmd.getId()).thenReturn(1L);
-        Mockito.when(webhookFilterDao.searchBy(Mockito.any(), Mockito.any(), Mockito.anyLong(), Mockito.anyLong()))
+        Mockito.when(webhookFilterDao.searchBy(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(new Pair<>(List.of(), 0));
 
         int result = webhookApiServiceImpl.deleteWebhookFilter(cmd);

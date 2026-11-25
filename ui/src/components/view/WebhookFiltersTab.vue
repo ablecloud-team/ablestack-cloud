@@ -113,7 +113,6 @@
       :showTotal="total => `${$t('label.showing')} ${Math.min(total, 1+((page-1)*pageSize))}-${Math.min(page*pageSize, total)} ${$t('label.of')} ${total} ${$t('label.items')}`"
       :pageSizeOptions="pageSizeOptions"
       @change="changePage"
-      @showSizeChange="changePage"
       showSizeChanger
       showQuickJumper>
       <template #buildOptionText="props">
@@ -195,10 +194,9 @@ export default {
     this.fetchData()
   },
   watch: {
-    resource: {
-      handler () {
-        this.fetchData()
-      }
+    'resource.id' () {
+      this.page = 1
+      this.fetchData()
     }
   },
   methods: {
@@ -223,9 +221,14 @@ export default {
       this.tabLoading = !listRequest.loaded
       return getAPI('listWebhookFilters', params).then(json => {
         if (!this.isListRequestCurrent('fetchFilters', listRequest)) return
-        this.filters = []
-        this.totalCount = json?.listwebhookfiltersresponse?.count || 0
-        this.filters = json?.listwebhookfiltersresponse?.webhookfilter || []
+        const response = json?.listwebhookfiltersresponse
+        this.totalCount = response?.count || 0
+        const lastPage = Math.max(1, Math.ceil(this.totalCount / this.pageSize))
+        if (this.page > lastPage) {
+          this.page = lastPage
+          return this.fetchFilters()
+        }
+        this.filters = response?.webhookfilter || []
         this.tabLoading = false
       }).catch(error => {
         if (!this.isListRequestCurrent('fetchFilters', listRequest)) return
@@ -238,9 +241,11 @@ export default {
       })
     },
     changePage (page, pageSize) {
-      this.page = page
+      const nextPage = this.pageSize === pageSize ? page : 1
+      if (nextPage === this.page && pageSize === this.pageSize) return
+      this.page = nextPage
       this.pageSize = pageSize
-      this.fetchFilters()
+      this.fetchData()
     },
     updateSelectedColumns (key) {
       if (this.selectedColumnKeys.includes(key)) {

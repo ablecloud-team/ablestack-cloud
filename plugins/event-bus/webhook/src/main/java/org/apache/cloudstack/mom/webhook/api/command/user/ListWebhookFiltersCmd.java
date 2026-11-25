@@ -34,7 +34,7 @@ import org.apache.cloudstack.mom.webhook.api.response.WebhookFilterResponse;
 import org.apache.cloudstack.mom.webhook.api.response.WebhookResponse;
 
 @APICommand(name = "listWebhookFilters",
-        description = "Lists Webhook filters",
+        description = "Lists Webhook filters. The keyword searches filter values.",
         responseObject = WebhookFilterResponse.class,
         entityType = {WebhookFilter.class},
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User},
