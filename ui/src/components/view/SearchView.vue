@@ -2499,7 +2499,7 @@ export default {
           this.$emit('search', { roleFilters: this.paramsFilter })
           return
         }
-        if (this.apiName === 'listExtensions' || this.isInfrastructureSearch || this.isZoneSearch || this.isDnsZoneSearch || this.isDnsServerSearch || this.isAccountSearch || this.isEventSearch || this.isVpnCustomerGatewaySearch || this.isGuestVlanSearch || this.isIpv4SubnetSearch) this.visibleFilter = false
+        if (['listExtensions', 'listWebhooks'].includes(this.apiName) || this.isInfrastructureSearch || this.isZoneSearch || this.isDnsZoneSearch || this.isDnsServerSearch || this.isAccountSearch || this.isEventSearch || this.isVpnCustomerGatewaySearch || this.isGuestVlanSearch || this.isIpv4SubnetSearch) this.visibleFilter = false
         if (this.isVpnCustomerGatewaySearch && this.paramsFilter.id) this.paramsFilter.id = this.paramsFilter.id.trim()
         if (this.isVnfSearch) {
           if (this.searchQuery) this.paramsFilter.keyword = this.paramsFilter.q = this.searchQuery.trim()
