@@ -33,8 +33,6 @@
             v-if="error"
             type="error"
             show-icon
-            checkable
-            check-strictly
             :message="error">
             <template #description><a-button size="small" @click="$emit('refresh')">{{ $t('label.retry') }}</a-button></template>
           </a-alert>
@@ -42,6 +40,8 @@
             v-else-if="treeData.length"
             show-line
             show-icon
+            checkable
+            check-strictly
             class="list-tree-view mold-domain-tree"
             :tree-data="treeData"
             :load-data="loadChildren"
