@@ -23,7 +23,7 @@
       :columns="displayColumns"
       :dataSource="items"
       :tableLayout="isIsoMainList || $route.meta?.name === 'ldapsetting' || scrollRegionLabel ? 'fixed' : undefined"
-      :scroll="kmsTableScroll || tableScroll || kubernetesIsoTableScroll || isoTableScroll || templateTableScroll || (isRuntimeCatalogList ? { x: 850 } : $route.name === 'snapshot' ? { x: 1400 } : ['autoscalevmgroup', 'affinitygroup'].includes($route.name) ? { x: 980 } : undefined)"
+      :scroll="kmsTableScroll || tableScroll || systemOfferingTableScroll || kubernetesIsoTableScroll || isoTableScroll || templateTableScroll || (isRuntimeCatalogList ? { x: 850 } : $route.name === 'snapshot' ? { x: 1400 } : ['autoscalevmgroup', 'affinitygroup'].includes($route.name) ? { x: 980 } : undefined)"
       :rowKey="listRowKey"
       :pagination="false"
       :rowSelection="explicitlyAllowRowSelection || enableGroupAction() || $route.name === 'event' ? {selectedRowKeys: selectedRowKeys, onChange: onSelectChange, getCheckboxProps: record => ({ disabled: selectionDisabled(record) }), columnWidth: 30} : null"
@@ -93,6 +93,27 @@
       <IsoListCell v-else-if="isIsoMainList && ['name', 'state', 'ostypename', 'arch', 'account', 'project', 'size'].includes(column.key)" :record="record" :field="column.key" />
       <S2sGatewayValue v-else-if="$route.meta?.name === 's2svpn' && ['publicip','vpcname','account','domain','project'].includes(column.key)" :resource="record" :field="column.key" list />
       <KubernetesIsoListCell v-else-if="isKubernetesIsoMainList && ['state', 'isostate', 'zonename', 'semanticversion', 'mincpunumber', 'minmemory', 'arch'].includes(column.key)" :resource="record" :field="column.key" />
+      <TableOverflowText
+        v-else-if="systemOfferingOrder && column.key === 'state'"
+        :text="systemOfferingValue('state', record, $t)">
+        <status :text="text || ''" :display-label="systemOfferingValue('state', record, $t)" :show-tooltip="false" display-text />
+      </TableOverflowText>
+      <TableOverflowText
+        v-else-if="systemOfferingOrder && ['systemvmtype', 'storagetype', 'offerha', 'cpunumber', 'cpuspeed', 'memory'].includes(column.key)"
+        :text="systemOfferingValue(column.key, record, $t)" />
+      <div v-else-if="systemOfferingOrder && column.key === 'name' && !resourcePath && record.id" class="system-offering-name-cell">
+        <TableOverflowText
+          :text="text || '—'"
+          :location="{ path: '/systemoffering/' + record.id, query: systemOfferingListQuery($route.query) }" />
+        <a-tag v-if="record.defaultuse" class="system-offering-default-tag">{{ $t('label.default') }}</a-tag>
+        <div class="system-offering-name-actions">
+          <QuickView
+            :actions="actions"
+            :resource="record"
+            :enabled="quickViewEnabled(actions, columns, column.key)"
+            @exec-action="$parent.execAction" />
+        </div>
+      </div>
       <AclScopeValue v-else-if="column.key === 'vpcname' && isAclListRoute($route)" :resource="record" />
       <a-tag v-else-if="column.key === 'fordisplay' && isAclListRoute($route) && typeof text === 'boolean'">
         {{ $t(aclDisplayLabel(text)) }}
@@ -1182,7 +1203,7 @@
         <span v-else> {{ text }} </span>
       </template>
       <template v-if="column.key === 'order'">
-        <div class="shift-btns">
+        <div class="shift-btns" :class="{ 'system-offering-order-actions': systemOfferingOrder }">
           <a-tooltip
             :name="text"
             placement="top"
@@ -1190,6 +1211,8 @@
             <template #title>{{ $t('label.move.to.top') }}</template>
             <a-button
               shape="round"
+              :aria-label="$t('label.move.to.top')"
+              :disabled="systemOfferingOrderDisabled"
               @click="moveItemTop(record)"
               class="shift-btn"
             >
@@ -1200,6 +1223,8 @@
             <template #title>{{ $t('label.move.to.bottom') }}</template>
             <a-button
               shape="round"
+              :aria-label="$t('label.move.to.bottom')"
+              :disabled="systemOfferingOrderDisabled"
               @click="moveItemBottom(record)"
               class="shift-btn"
             >
@@ -1210,6 +1235,8 @@
             <template #title>{{ $t('label.move.up.row') }}</template>
             <a-button
               shape="round"
+              :aria-label="$t('label.move.up.row')"
+              :disabled="systemOfferingOrderDisabled"
               @click="moveItemUp(record)"
               class="shift-btn"
             >
@@ -1220,6 +1247,8 @@
             <template #title>{{ $t('label.move.down.row') }}</template>
             <a-button
               shape="round"
+              :aria-label="$t('label.move.down.row')"
+              :disabled="systemOfferingOrderDisabled"
               @click="moveItemDown(record)"
               class="shift-btn"
             >
@@ -1377,6 +1406,8 @@ import RuntimeCatalogValue from '@/components/view/RuntimeCatalogValue'
 import Ipv4SubnetResourceLink from '@/components/widgets/Ipv4SubnetResourceLink'
 import { dnsServerListQuery } from '@/utils/dnsServer'
 import { hostStatusColor, hostStatusLabel } from '@/utils/hostPresentation'
+import { systemOfferingListQuery, systemOfferingValue } from '@/utils/systemOfferingTypes'
+import { canReorderSystemOffering, readSystemOfferingOrder, systemOfferingOrderChanges } from '@/utils/systemOfferingOrder'
 import { zoneFeatureLabel, zoneFeatureState, zoneListQuery, zoneMetricText } from '@/utils/zone'
 import { extensionListQuery } from '@/utils/extension'
 import { webhookListDetailQuery } from '@/utils/webhookDeliveryQuery'
@@ -1559,6 +1590,8 @@ export default {
   inject: ['parentFetchData', 'parentToggleLoading'],
   data () {
     return {
+      systemOfferingOrderBusy: false,
+      systemOfferingTableSorted: false,
       selectedRowKeys: [],
       editableValueKey: null,
       editableValue: '',
@@ -1652,11 +1685,15 @@ export default {
     isUsageList () { return this.$route.path === '/usage' && !this.resourcePath },
     isRuntimeCatalogList () { return this.$route.path === '/runtimebundle' && !this.resourcePath },
     emptyTableImage () { return Empty.PRESENTED_IMAGE_SIMPLE },
+    systemOfferingOrder () { return this.$route.path === '/systemoffering' },
+    systemOfferingOrderAvailable () { return !!this.$store.getters.apis.listConfigurations && canReorderSystemOffering(this.$route.query, this.systemOfferingTableSorted) },
+    systemOfferingOrderDisabled () { return this.systemOfferingOrder && (!this.systemOfferingOrderAvailable || this.systemOfferingOrderBusy) },
     isProjectMainList () { return this.$route.meta?.name === 'project' && !this.$route.params?.id && !this.resourcePath },
     scrollRegionLabel () {
       if (this.isUsageList) return this.$t('label.usage')
       if (this.isRuntimeCatalogList) return this.$t('label.runtime.catalog')
       if (this.$route.meta?.name === 'oauthsetting') return this.$t('label.oauth.configuration')
+      if (this.systemOfferingOrder) return this.$t('label.system.offerings')
       if (this.isProjectMainList) return this.$t('label.projects')
       if (this.$route.path === '/imagestore' && !this.resourcePath) return this.$t('label.secondary.storage')
       if (this.$route.meta?.name === 'secondarystorageselector' && !this.$route.params?.id) return this.$t('label.secondary.storage.selector')
@@ -1670,6 +1707,26 @@ export default {
     displayColumns () {
       const columns = this.isOrderUpdatable() ? this.columns : this.columns.filter(column => column.dataIndex !== 'order')
       if (this.kmsTable) return kmsTableColumns(columns)
+      if (this.systemOfferingOrder) {
+        const widths = {
+          name: this.$store.getters.device === 'mobile' ? 188 : 330,
+          state: 84,
+          systemvmtype: 154,
+          cpunumber: 76,
+          cpuspeed: 96,
+          memory: 88,
+          storagetype: 114,
+          offerha: 80,
+          order: 132,
+          filtercolumn: 42
+        }
+        return columns.map(column => ({
+          ...column,
+          width: widths[column.key] || column.width || 120,
+          ...(['order', 'filtercolumn'].includes(column.key) ? { fixed: 'right' } : {}),
+          ...(column.key === 'order' ? { sorter: false } : {})
+        }))
+      }
       if (!this.isKubernetesIsoMainList) return columns
       const widths = { name: this.$store.getters.device === 'mobile' ? 280 : 420, state: 112, semanticversion: 144, isostate: 128, mincpunumber: 128, minmemory: 168, arch: 128, zonename: 180, filtercolumn: 36 }
       return columns.map(column => ({
@@ -1682,6 +1739,11 @@ export default {
     },
     kmsTableScroll () {
       return this.kmsTable ? { ...this.tableScroll, x: this.displayColumns.reduce((total, column) => total + column.width, 0) } : null
+    },
+    systemOfferingTableScroll () {
+      if (!this.systemOfferingOrder) return null
+      const selectionWidth = this.enableGroupAction() ? 30 : 0
+      return { x: this.displayColumns.reduce((total, column) => total + column.width, selectionWidth) }
     },
     kubernetesIsoTableScroll () {
       return this.isKubernetesIsoMainList ? { x: this.displayColumns.reduce((total, column) => total + column.width, 0) } : null
@@ -1765,6 +1827,8 @@ export default {
   methods: {
     runtimeCatalogListQuery,
     dnsServerListQuery,
+    systemOfferingListQuery,
+    systemOfferingValue,
     zoneListQuery,
     hostListQuery,
     clusterListQuery,
@@ -1922,7 +1986,10 @@ export default {
       const matched = this.$router.resolve('/project/' + record.projectid).matched
       return matched.length > 0 && matched[0].redirect !== '/exception/404'
     },
-    handleTableChange (pagination, filters, sorter) { this.$emit('table-change', pagination, filters, sorter) },
+    handleTableChange (pagination, filters, sorter) {
+      if (this.systemOfferingOrder) this.systemOfferingTableSorted = !!sorter?.order
+      this.$emit('table-change', pagination, filters, sorter)
+    },
     snapshotRowEvents (record) {
       if (!this.keyboardContextMenu && !['vmsnapshot', 'kubernetes', 'kubernetesiso'].includes(this.$route.name)) return {}
       return {
@@ -1937,6 +2004,9 @@ export default {
     },
     listRowKey (record) { return snapshotCopyList(this.$route) ? (record.copy?.id || listRowKey(record)) : listRowKey(record) },
     translateEventType (type) {
+      if (this.$route.meta?.name === 'systemoffering' && ['CREATE', 'CLONE', 'EDIT', 'DELETE'].some(action => type === 'SERVICE.OFFERING.' + action)) {
+        return this.$t('label.system.offering.event.' + type.split('.').at(-1).toLowerCase())
+      }
       return eventTypeLabel(type, this.$t)
     },
     convertKB (val) {
@@ -2153,6 +2223,31 @@ export default {
     isOrderUpdatable () {
       return this.getUpdateApi() in this.$store.getters.apis
     },
+    async moveSystemOffering (record, direction) {
+      if (!this.systemOfferingOrderAvailable || this.systemOfferingOrderBusy || !this.isOrderUpdatable()) return
+      const context = this.$route.fullPath
+      const isCurrent = () => context === this.$route.fullPath && this.systemOfferingOrderAvailable
+      this.systemOfferingOrderBusy = true
+      let saved = 0
+      let planned = 0
+      try {
+        const { rows, ascending } = await readSystemOfferingOrder(getAPI)
+        if (!isCurrent()) return
+        const changes = systemOfferingOrderChanges(rows, record.id, direction, ascending)
+        planned = changes.length
+        for (const change of changes) {
+          if (!isCurrent()) return
+          const result = await postAPI('updateServiceOffering', change, { preserveOnFailure: true })
+          if (result.updateserviceofferingresponse?.serviceoffering?.sortkey !== change.sortkey) throw new Error('order result unknown')
+          saved++
+        }
+      } catch {
+        this.$message.error(this.$t('message.system.offering.order.failure', [saved, planned]))
+      } finally {
+        this.systemOfferingOrderBusy = false
+        if (context === this.$route.fullPath) await this.parentFetchData({ irefresh: true })
+      }
+    },
     handleUpdateOrder (id, index) {
       this.parentToggleLoading()
       const apiCommand = this.getUpdateApi()
@@ -2182,6 +2277,7 @@ export default {
       })
     },
     moveItemUp (record) {
+      if (this.systemOfferingOrder) return this.moveSystemOffering(record, 'up')
       const data = this.items
       const index = data.findIndex(item => item.id === record.id)
       if (index === 0) return
@@ -2189,6 +2285,7 @@ export default {
       this.updateOrder(data)
     },
     moveItemDown (record) {
+      if (this.systemOfferingOrder) return this.moveSystemOffering(record, 'down')
       const data = this.items
       const index = data.findIndex(item => item.id === record.id)
       if (index === data.length - 1) return
@@ -2196,6 +2293,7 @@ export default {
       this.updateOrder(data)
     },
     moveItemTop (record) {
+      if (this.systemOfferingOrder) return this.moveSystemOffering(record, 'top')
       const data = this.items
       const index = data.findIndex(item => item.id === record.id)
       if (index === 0) return
@@ -2203,6 +2301,7 @@ export default {
       this.updateOrder(data)
     },
     moveItemBottom (record) {
+      if (this.systemOfferingOrder) return this.moveSystemOffering(record, 'bottom')
       const data = this.items
       const index = data.findIndex(item => item.id === record.id)
       if (index === data.length - 1) return
@@ -2499,6 +2598,20 @@ export default {
 </style>
 
 <style scoped lang="scss">
+.system-offering-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .table-overflow-text { flex: 0 1 auto; }
+  .system-offering-default-tag { flex: none; margin: 0; }
+  .system-offering-name-actions {
+    display: flex;
+    flex: none;
+    margin-inline-start: auto;
+  }
+}
+
 .list-state-with-flatten {
   display: inline-flex;
   align-items: center;
@@ -2529,6 +2642,20 @@ export default {
       transform: rotate(90deg);
     }
 
+  }
+
+  .system-offering-order-actions {
+    gap: 4px;
+
+    > :deep(.ant-tooltip-disabled-compatible-wrapper),
+    :deep(button.shift-btn) {
+      flex: 0 0 24px;
+      inline-size: 24px;
+      block-size: 24px;
+      min-inline-size: 0;
+      margin: 0;
+      padding: 0;
+    }
   }
 
   .alert-notification-threshold {

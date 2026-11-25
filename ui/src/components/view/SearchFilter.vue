@@ -56,6 +56,7 @@
 </template>
 
 <script>
+import { systemOfferingFilterTypes, systemOfferingStorageLabels } from '@/utils/systemOfferingTypes'
 
 import { getAPI } from '@/api'
 import { kmsApis, kmsBooleans, kmsProtocolOptions } from '@/utils/kmsSearch'
@@ -313,6 +314,11 @@ export default {
       if (this.apiName === 'listOauthProviderConfigurations' && key === 'scope') return this.$t(value === 'global' ? 'label.oauth.scope.global' : 'label.domain')
       if (this.apiName === 'listBackupSchedule' && key === 'quiescevm') return this.$t(String(value) === 'true' ? 'label.yes' : 'label.no')
       if (this.apiName === 'listBackupSchedule' && key === 'intervaltype' && ['HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY'].includes(String(value).toUpperCase())) return this.$t('label.' + String(value).toLowerCase())
+      if (this.$route.meta?.name === 'systemoffering') {
+        const labels = { systemvmtype: systemOfferingFilterTypes, storagetype: systemOfferingStorageLabels }
+        const label = labels[key]?.get(value)
+        if (label) return this.$t(label)
+      }
       if (this.apiName === 'listIsos' && ['bootable', 'isready', 'ispublic'].includes(key)) return this.$t(String(value) === 'true' ? 'label.yes' : 'label.no')
       if (this.apiName === 'listIsos' && key === 'isofilter') return this.$t(this.$route?.meta?.filterLabels?.[value] || ('label.' + value))
       if (this.apiName === 'listNetworks' && key === 'forvpc') return this.$t(String(value) === 'true' ? 'label.yes' : 'label.no')

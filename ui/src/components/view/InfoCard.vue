@@ -165,6 +165,7 @@
               </template>
             </status>
             <status v-else-if="$route.meta.name === 's2svpnconn'" class="status" :text="resource.state || ''" :display-label="$t(vpnConnectionState(resource))" display-text />
+            <status v-else-if="$route.meta.name === 'systemoffering'" class="status" :text="resource.state" :display-label="$t(systemOfferingStateLabel(resource.state))" display-text />
             <status v-else-if="['role', 'account'].includes($route.meta.name)" class="status" :text="resource.state" :display-label="$t('label.' + resource.state)" display-text />
             <RuntimeCatalogValue v-else-if="$route.meta.name === 'runtimebundle'" group="state" :value="resource.state" status />
             <status v-else class="status" :text="resource.state || resource.status" displayText/>
@@ -1222,6 +1223,7 @@
 
 <script>
 import { hostStatusColor, hostStatusLabel } from '@/utils/hostPresentation'
+import { systemOfferingStateLabel } from '@/utils/systemOfferingTypes'
 import { physicalNetworkZoneLocation, zoneFeatureLabel, zoneFeatureState, zoneMetricText } from '@/utils/zone'
 import AclScopeValue from '@/components/view/AclScopeValue'
 import { aclDisplayLabel, aclDisplaySupported } from '@/utils/vpcAclAccess'
@@ -1509,6 +1511,7 @@ export default {
     }
   },
   methods: {
+    systemOfferingStateLabel,
     physicalNetworkZoneLocation,
     zoneFeatureState,
     hostStatusColor,

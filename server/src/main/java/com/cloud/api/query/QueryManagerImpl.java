@@ -4350,17 +4350,6 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         return new Ternary<>(idsArray, uniquePairs.second(), requiredTagsArray);
     }
 
-    private void useStorageType(SearchCriteria<?> sc, String storageType) {
-        if (storageType != null) {
-            if (storageType.equalsIgnoreCase(ServiceOffering.StorageType.local.toString())) {
-                sc.addAnd("useLocalStorage", Op.EQ, true);
-
-            } else if (storageType.equalsIgnoreCase(ServiceOffering.StorageType.shared.toString())) {
-                sc.addAnd("useLocalStorage", Op.EQ, false);
-            }
-        }
-    }
-
     private List<Long> findRelatedDomainIds(Domain domain, boolean isRecursive) {
         List<Long> domainIds = new ArrayList<>(_domainDao.getDomainParentIds(domain.getId()));
         if (isRecursive) {
@@ -4443,6 +4432,8 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         Integer cpuSpeed = cmd.getCpuSpeed();
         Boolean encryptRoot = cmd.getEncryptRoot();
         String storageType = cmd.getStorageType();
+        boolean filterStorageType = ServiceOffering.StorageType.local.name().equalsIgnoreCase(storageType)
+                || ServiceOffering.StorageType.shared.name().equalsIgnoreCase(storageType);
         ServiceOffering.State state = cmd.getState();
         final Long templateId = cmd.getTemplateId();
         Boolean kvdoEnable = cmd.getKvdoEnable();
@@ -4478,7 +4469,9 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         }
 
         Filter searchFilter = new Filter(ServiceOfferingVO.class, "sortKey", SortKeyAscending.value(), cmd.getStartIndex(), cmd.getPageSizeVal());
-        // searchFilter.addOrderBy(ServiceOfferingVO.class, "id", true);
+        if (Boolean.TRUE.equals(isSystem)) {
+            searchFilter.addOrderBy(ServiceOfferingVO.class, "id", true);
+        }
 
         SearchBuilder<ServiceOfferingVO> serviceOfferingSearch = _srvOfferingDao.createSearchBuilder();
         serviceOfferingSearch.select(null, Func.DISTINCT, serviceOfferingSearch.entity().getId()); // select distinct
@@ -4632,6 +4625,13 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
                     serviceOfferingSearch.entity().getId(), srvOffrZoneDetailSearch.entity().getResourceId(),
                     srvOffrZoneDetailSearch.entity().getName(), serviceOfferingSearch.entity().setString(ApiConstants.ZONE_ID));
             zone = _dcJoinDao.findById(zoneId);
+        }
+
+        if (filterStorageType) {
+            SearchBuilder<DiskOfferingVO> storageTypeSearch = _diskOfferingDao.createSearchBuilder();
+            storageTypeSearch.and("useLocalStorage", storageTypeSearch.entity().isUseLocalStorage(), SearchCriteria.Op.EQ);
+            serviceOfferingSearch.join("storageTypeSearch", storageTypeSearch, serviceOfferingSearch.entity().getDiskOfferingId(),
+                    storageTypeSearch.entity().getId(), JoinBuilder.JoinType.INNER);
         }
 
         if (encryptRoot != null || vmId != null || (zone != null && DataCenter.Type.Edge.equals(zone.getType())) || kvdoEnable != null) {
@@ -4873,7 +4873,9 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             sc.setParameters("svmType", vmTypeStr);
         }
 
-        useStorageType(sc, storageType);
+        if (filterStorageType) {
+            sc.setJoinParameters("storageTypeSearch", "useLocalStorage", ServiceOffering.StorageType.local.name().equalsIgnoreCase(storageType));
+        }
 
         if (zoneId != null) {
             sc.setJoinParameters("ZoneDetailSearch", "zoneId", zoneId);

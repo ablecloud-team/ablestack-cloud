@@ -3704,6 +3704,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             throw new InvalidParameterValueException("Unable to find active user by id " + userId);
         }
         final Account account = _accountDao.findById(user.getAccountId());
+        validateSystemOfferingAccount(isSystem, account);
         if (account.getType() == Account.Type.DOMAIN_ADMIN) {
             if (filteredDomainIds.isEmpty()) {
                 throw new InvalidParameterValueException(String.format("Unable to create public service offering by admin: %s because it is domain-admin", user));
@@ -4039,6 +4040,11 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
     public ServiceOffering cloneServiceOffering(final CloneServiceOfferingCmd cmd) {
         final long userId = CallContext.current().getCallingUserId();
         final ServiceOfferingVO sourceOffering = getAndValidateSourceOffering(cmd.getSourceOfferingId());
+        final boolean systemUse = sourceOffering.isSystemUse();
+        final VirtualMachine.Type vmType = resolveVmType(sourceOffering);
+        if (systemUse && StringUtils.isNotBlank(cmd.getSystemVmType()) && !vmType.name().equalsIgnoreCase(cmd.getSystemVmType())) {
+            throw new InvalidParameterValueException("A system service offering clone must use the source system VM type.");
+        }
         final DiskOfferingVO sourceDiskOffering = getSourceDiskOffering(sourceOffering);
         final Map<String, String> requestParams = cmd.getFullUrlParams();
 
@@ -4063,7 +4069,8 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         final List<Long> domainIds = resolveDomainIds(cmd, sourceOffering);
         final List<Long> zoneIds = resolveZoneIds(cmd, sourceOffering);
         final String hostTag = getOrDefault(cmd.getHostTag(), sourceOffering.getHostTag());
-        final Integer networkRate = getOrDefault(cmd.getNetworkRate(), sourceOffering.getRateMbps());
+        final Integer networkRate = !systemUse || vmType == VirtualMachine.Type.DomainRouter
+                ? getOrDefault(cmd.getNetworkRate(), sourceOffering.getRateMbps()) : null;
         final String deploymentPlanner = getOrDefault(cmd.getDeploymentPlanner(), sourceOffering.getDeploymentPlanner());
 
         final ClonedDiskOfferingParams diskParams = resolveDiskOfferingParams(cmd, sourceDiskOffering);
@@ -4101,9 +4108,6 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         }
 
         final boolean localStorageRequired = ServiceOffering.StorageType.local.toString().equalsIgnoreCase(storageType);
-
-        final boolean systemUse = sourceOffering.isSystemUse();
-        final VirtualMachine.Type vmType = resolveVmType(sourceOffering);
 
         return createServiceOffering(userId, systemUse, vmType,
                 name, cpuNumber, memory, cpuSpeed, displayText, OfferingAllocationClone.provisioning(provisioningType, sourceDiskOffering == null ? "thin" : sourceDiskOffering.getProvisioningType().toString(), mergedDetails, requestParams), localStorageRequired,
@@ -4288,15 +4292,15 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
     }
 
     private VirtualMachine.Type resolveVmType(ServiceOfferingVO sourceOffering) {
-        if (sourceOffering.getVmType() == null) {
-            return null;
+        if (!sourceOffering.isSystemUse()) {
+            return EnumUtils.getEnum(VirtualMachine.Type.class, sourceOffering.getVmType());
         }
-        try {
-            return VirtualMachine.Type.valueOf(sourceOffering.getVmType());
-        } catch (IllegalArgumentException e) {
-            logger.warn("Invalid VM type in source offering: {}", sourceOffering.getVmType());
-            return null;
+        final VirtualMachine.Type type = EnumUtils.getEnumIgnoreCase(VirtualMachine.Type.class, sourceOffering.getVmType());
+        if (type == VirtualMachine.Type.DomainRouter || type == VirtualMachine.Type.ConsoleProxy
+                || type == VirtualMachine.Type.SecondaryStorageVm || type == VirtualMachine.Type.InternalLoadBalancerVm) {
+            return type;
         }
+        throw new InvalidParameterValueException("The source offering has a missing or unsupported system VM type. Create an offering with a supported type.");
     }
 
     private static class ClonedDiskOfferingParams {
@@ -4568,6 +4572,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             throw new InvalidParameterValueException("Unable to find active user by id " + userId);
         }
         final Account account = _accountDao.findById(user.getAccountId());
+        validateSystemOfferingAccount(offeringHandle.isSystemUse(), account);
 
         // Filter child domains when both parent and child domains are present
         List<Long> filteredDomainIds = domainHelper.filterChildSubDomains(domainIds);
@@ -4617,6 +4622,10 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             filteredDomainIds.addAll(nonChildDomains); // Final list must include domains which were not child domain for domain-admin but specified for this offering prior to update
         } else if (account.getType() != Account.Type.ADMIN) {
             throw new InvalidParameterValueException(String.format("Unable to update service offering: %s by id user: %s because it is not root-admin or domain-admin", offeringHandle, user));
+        }
+
+        if (offeringHandle.isSystemUse() && state == ServiceOffering.State.Inactive && offeringHandle.getState() != state) {
+            validateSystemOfferingCanBeDisabled(offeringHandle);
         }
 
         final boolean updateNeeded = name != null || displayText != null || sortKey != null || storageTags != null || hostTags != null || state != null;
@@ -5465,6 +5474,22 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         return diskOfferingDetailsDao.findZoneIds(diskOfferingId);
     }
 
+    private void validateSystemOfferingAccount(boolean systemOffering, Account account) {
+        if (systemOffering && account.getType() != Account.Type.ADMIN) {
+            throw new PermissionDeniedException("Only root administrators can manage system service offerings.");
+        }
+    }
+
+    private void validateSystemOfferingCanBeDisabled(ServiceOffering offering) {
+        if (offering.getDefaultUse()) {
+            throw new InvalidParameterValueException("A default system service offering cannot be deactivated.");
+        }
+        int vmCount = _vmInstanceDao.getVmCountByOfferingId(offering.getId());
+        if (vmCount > 0) {
+            throw new InvalidParameterValueException(String.format("This system service offering is used by %d existing system VM(s) or router(s).", vmCount));
+        }
+    }
+
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_SERVICE_OFFERING_DELETE, eventDescription = "deleting service offering")
     public boolean deleteServiceOffering(final DeleteServiceOfferingCmd cmd) {
@@ -5497,6 +5522,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             throw new InvalidParameterValueException("Unable to find active user by id " + userId);
         }
         final Account account = _accountDao.findById(user.getAccountId());
+        validateSystemOfferingAccount(offering.isSystemUse(), account);
         if (account.getType() == Account.Type.DOMAIN_ADMIN) {
             List<Long> existingDomainIds = _serviceOfferingDetailsDao.findDomainIds(offeringId);
             if (existingDomainIds.isEmpty()) {
@@ -5511,6 +5537,9 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             throw new InvalidParameterValueException(String.format("Unable to delete service offering: %s by user: %s because it is not root-admin or domain-admin", offering, user));
         }
 
+        if (offering.isSystemUse()) {
+            validateSystemOfferingCanBeDisabled(offering);
+        }
         annotationDao.removeByEntityType(AnnotationService.EntityType.SERVICE_OFFERING.name(), offering.getUuid());
         if (diskOffering.isComputeOnly()) {
             diskOffering.setState(DiskOffering.State.Inactive);

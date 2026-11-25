@@ -60,7 +60,7 @@
   </router-link>
   <a-list
     class="resource-details-list"
-    :class="{ 'template-details-list': ['template', 'iso'].includes($route.meta.name), 's2s-gateway-details': $route.meta.name === 's2svpn', 'vm-details-list': kmsRoute($route) || ['vm', 'vnfapp', 'publicip', 's2svpn', 'acllist', 'event', 'vpnuser', 'project', 'guestvlans', 'ipv4subnets', 'dnszone', 'dnsserver', 'zone', 'physicalnetwork', 'host', 'cluster', 'ldapsetting', 'oauthsetting', 'storagepool', 'imagestore', 'secondarystorageselector'].includes($route.meta.name) }"
+    :class="{ 'template-details-list': ['template', 'iso'].includes($route.meta.name), 's2s-gateway-details': $route.meta.name === 's2svpn', 'vm-details-list': kmsRoute($route) || ['vm', 'vnfapp', 'systemoffering', 'publicip', 's2svpn', 'acllist', 'event', 'vpnuser', 'project', 'guestvlans', 'ipv4subnets', 'dnszone', 'dnsserver', 'zone', 'physicalnetwork', 'host', 'cluster', 'ldapsetting', 'oauthsetting', 'storagepool', 'imagestore', 'secondarystorageselector'].includes($route.meta.name) }"
     size="small"
     :dataSource="(fetchDetails() || []).concat(Object.keys(allocationDetails))">
     <template #renderItem="{item}">
@@ -158,6 +158,17 @@
       </a-list-item>
       <a-list-item v-else-if="$route.meta.name === 'acllist' && item === 'scope' && dataResource.id">
         <div><strong>{{ $t('label.scope') }}</strong><br/><AclScopeValue :resource="dataResource" /></div>
+      </a-list-item>
+      <a-list-item v-else-if="$route.meta.name === 'systemoffering' && dataResource.id && systemOfferingDetailLabels.has(item)">
+        <div class="system-offering-detail-value">
+          <strong>{{ $t(systemOfferingDetailLabels.get(item)) }}</strong><br />
+          <status v-if="item === 'state'" :text="dataResource.state" :display-label="systemOfferingValue(item, dataResource, $t)" display-text />
+          <template v-else>{{ systemOfferingValue(item, dataResource, $t) }}</template>
+          <div v-if="item === 'systemofferingvmcount' && dataResource.systemofferingvmcount > 0" class="system-offering-consumer-links">
+            <router-link v-if="dataResource.systemvmtype === 'domainrouter' && $store.getters.apis.listRouters" to="/router">{{ $t('label.virtual.routers') }}</router-link>
+            <router-link v-else-if="['consoleproxy', 'secondarystoragevm'].includes(dataResource.systemvmtype) && $store.getters.apis.listSystemVms" to="/systemvm">{{ $t('label.system.vms') }}</router-link>
+          </div>
+        </div>
       </a-list-item>
       <a-list-item v-else-if="($route.meta.name !== 's2svpn' || item !== 'fordisplay' || $store.getters.userInfo?.roletype === 'Admin') && (($route.meta.name === 's2svpn' && (item !== 'fordisplay' || $store.getters.userInfo?.roletype === 'Admin')) || ($route.meta.name === 'publicip' && (item === 'virtualmachinename' || publicIpDetailFields.includes(item))) || (['vm', 'vnfapp'].includes($route.meta.name) && (['deleteprotection', 'ostypename', 'osdisplayname', 'state'].includes(item) || vmBooleanFields.has(item))) || allocationDetails[item] || ($route.meta.name === 'ipv4subnets' && ((item === 'networkname' && dataResource.networkid) || (item === 'vpcname' && dataResource.vpcid))) || (item in dataResource && !customDisplayItems.includes(item) && !($route.meta.name === 'dnszone' && item === 'associatednetworks')) || ($route.meta.name === 'ilb' && item === 'loadbalancerrule') || ($route.meta.name === 'guestnetwork' && (item === 'displaytext' || item === 'sharedscope' || (item === 'hideipaddressusage' && dataResource.type === 'Shared'))) || ($route.meta.name === 'computeoffering' && item === 'diskofferingcomputeonly' && dataResource.diskofferingid) || (offeringDetails.includes(item) && dataResource.serviceofferingdetails)|| ($route.path.includes('/alertRules') && ['summary', 'description'].includes(item)))">
         <div style="width: 100%">
@@ -558,6 +569,7 @@ display-text />
 import RuntimeCatalogValue from '@/components/view/RuntimeCatalogValue'
 import { hostStatusColor, hostStatusLabel } from '@/utils/hostPresentation'
 import { clusterStateLabel } from '@/utils/clusterSearch'
+import { systemOfferingDetailLabels, systemOfferingValue } from '@/utils/systemOfferingTypes'
 import { zoneDnsSearchOrder, zoneFeatureLabel, zoneFeatureState } from '@/utils/zone'
 import Ipv4SubnetResourceLink from '@/components/widgets/Ipv4SubnetResourceLink'
 import AclScopeValue from '@/components/view/AclScopeValue'
@@ -671,6 +683,7 @@ export default {
     this.dedicatedSectionActive = this.dedicatedRoutes.includes(this.$route.meta.name)
   },
   computed: {
+    systemOfferingDetailLabels () { return systemOfferingDetailLabels },
     guestPvlan () {
       if (this.$route.meta.name !== 'guestnetwork' || !['L2', 'Shared'].includes(this.dataResource.type)) return null
       return l2PvlanDetails(this.dataResource.broadcasturi)
@@ -765,6 +778,7 @@ export default {
     }
   },
   methods: {
+    systemOfferingValue,
     zoneDnsSearchOrder,
     clusterStateLabel,
     zoneFeatureState,
@@ -1084,6 +1098,7 @@ export default {
 
 /* Same row rhythm as the VM InstanceTab details. */
 .s2s-gateway-details :deep(.ant-list-item) { padding-top: 12px; padding-bottom: 12px; }
+.system-offering-detail-value { width: 100%; }
 .preline {
   white-space: pre-line;
   word-break: break-word;

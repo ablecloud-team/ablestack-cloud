@@ -410,7 +410,7 @@ export default {
           }
         }
 
-        if (values.networkrate != null && String(values.networkrate).length > 0) {
+        if ((!this.isSystem || values.systemvmtype === 'domainrouter') && values.networkrate != null && String(values.networkrate).length > 0) {
           params.networkrate = values.networkrate
         }
         if (values.rootdisksize != null && String(values.rootdisksize).length > 0) {
@@ -453,7 +453,10 @@ export default {
           params.leaseexpiryaction = values.leaseexpiryaction
         }
 
-        if (values.ispublic !== true) {
+        if (this.isSystem) {
+          if (values.ispublic !== true && values.domainid?.length) params.domainid = values.domainid.join(',')
+          if (values.zoneid?.length) params.zoneid = values.zoneid.join(',')
+        } else if (values.ispublic !== true) {
           const domainIndexes = values.domainid
           let domainId = null
           if (domainIndexes && domainIndexes.length > 0) {
@@ -469,7 +472,7 @@ export default {
         }
         const zoneIndexes = values.zoneid
         let zoneId = null
-        if (zoneIndexes && zoneIndexes.length > 0) {
+        if (!this.isSystem && zoneIndexes && zoneIndexes.length > 0) {
           const zoneIds = []
           for (let j = 0; j < zoneIndexes.length; j++) {
             zoneIds.push(this.zones[zoneIndexes[j]].id)

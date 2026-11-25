@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <resource-layout :wide="wideLayout" :class="{ 'event-resource': isEventDetailRoute($route), 'dns-zone-resource': $route.meta?.name === 'dnszone', 'kms-resource': kmsDetailRoute($route), 's2s-gateway-resource': $route.meta?.name === 's2svpn', 'autoscale-resource': $route.meta?.name === 'autoscalevmgroup', 'affinity-resource': $route.meta?.name === 'affinitygroup', 'kubernetes-iso-resource': $route.meta?.name === 'kubernetesiso', 'template-resource': ['template', 'iso', 'kubernetesiso'].includes($route.meta?.name), 'acl-resource': $route.meta?.name === 'acllist', 'project-resource': isProjectDetailRoute($route) }">
+  <resource-layout :wide="wideLayout" :class="{ 'event-resource': isEventDetailRoute($route), 'dns-zone-resource': $route.meta?.name === 'dnszone', 'kms-resource': kmsDetailRoute($route), 's2s-gateway-resource': $route.meta?.name === 's2svpn', 'autoscale-resource': $route.meta?.name === 'autoscalevmgroup', 'affinity-resource': $route.meta?.name === 'affinitygroup', 'kubernetes-iso-resource': $route.meta?.name === 'kubernetesiso', 'template-resource': ['template', 'iso', 'kubernetesiso'].includes($route.meta?.name), 'acl-resource': $route.meta?.name === 'acllist', 'project-resource': isProjectDetailRoute($route), 'system-offering-resource': isSystemOffering }">
     <template #left>
       <slot name="info-card">
         <info-card
@@ -66,8 +66,8 @@
         </keep-alive>
         <a-tabs
           v-else
-          :class="{'s2s-gateway-tabs': $route.meta?.name === 's2svpn', 'template-main-tabs':['template','iso','kubernetesiso'].includes($route.meta?.name), 'project-tabs': isProjectDetailRoute($route), 'infrastructure-tabs': ['cluster', 'storagepool', 'imagestore'].includes($route.meta?.name)}"
-          :style="{ width: '100%', marginTop: resourceTabPosition === 'top' ? '-12px' : '0' }"
+          :class="{'s2s-gateway-tabs': $route.meta?.name === 's2svpn', 'template-main-tabs':['template','iso','kubernetesiso'].includes($route.meta?.name), 'project-tabs': isProjectDetailRoute($route), 'infrastructure-tabs': ['cluster', 'storagepool', 'imagestore'].includes($route.meta?.name), 'system-offering-tabs': isSystemOffering}"
+          :style="{ width: '100%', marginTop: isSystemOffering ? undefined : resourceTabPosition === 'top' ? '-12px' : '0' }"
           :tabPosition="resourceTabPosition"
           :animated="false"
           :activeKey="activeTab"
@@ -177,6 +177,7 @@ export default {
     }
   },
   computed: {
+    isSystemOffering () { return this.$route.meta?.name === 'systemoffering' },
     kubernetesIsoContext () { return this.$route.meta?.name === 'kubernetesiso' ? kubernetesIsoDetailContext(this.$route, this.resource, this.$store.getters, this.$store.state?.user?.token) : '' },
     templateTabsReady () { return this.$route.meta?.name === 'template' && !!this.resource.id && (!this.$route.params?.id || this.$route.params.id === this.resource.id) },
     templateTabScope () { return this.$route.meta?.name === 'template' ? JSON.stringify([this.templateContext, this.resource.templatetype, Object.keys(this.$store.getters.apis || {}).sort()]) : '' },
@@ -420,6 +421,15 @@ export default {
 .s2s-gateway-resource :deep(.s2s-gateway-tabs) { margin-top: 22px !important; }
 .s2s-gateway-resource :deep(.s2s-gateway-tabs.ant-tabs-left > .ant-tabs-nav) { min-width: 100px; }
 .gateway-summary-peer { margin-top: 12px; overflow-wrap: anywhere; }
+
+/* Match the initial spacing and navigation rail in VM InstanceTab. */
+.system-offering-tabs { margin-top: 22px; }
+.system-offering-tabs.ant-tabs-left > :deep(.ant-tabs-nav) { min-inline-size: 100px; }
+.system-offering-tabs > :deep(.ant-tabs-content-holder),
+.system-offering-tabs :deep(.ant-tabs-tabpane) { min-width: 0; }
+.system-offering-resource :deep(.ant-list-item) { padding-block: 12px; }
+.system-offering-resource :deep(.resource-details__name > :last-child) { min-width: 0; }
+.system-offering-resource :deep(.resource-details__name .name) { word-break: normal; overflow-wrap: anywhere; }
 .guest-feature-notice {
   margin-bottom: 16px;
 }

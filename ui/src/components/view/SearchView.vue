@@ -53,7 +53,7 @@
             <template #content v-if="visibleFilter">
               <a-form
                 style="min-width: 170px"
-                :class="{ 'acl-list-search-form': isAclSearch || isVpnUserSearch, 'infra-search-form': isInfrastructureSearch, 'storage-standard-search-form': ['listTemplates', 'listIsos', 'listVolumes', 'listServiceOfferings', 'listDiskOfferings'].includes(apiName) || isGuestNetworkSearch || isVnfSearch || isEventSearch, 'guest-network-search-form': isGuestNetworkSearch || isVnfSearch || isEventSearch }"
+                :class="{ 'acl-list-search-form': isAclSearch || isVpnUserSearch, 'infra-search-form': isInfrastructureSearch, 'storage-standard-search-form': (['listTemplates', 'listIsos', 'listVolumes', 'listServiceOfferings', 'listDiskOfferings'].includes(apiName) && $route.meta?.name !== 'systemoffering') || isGuestNetworkSearch || isVnfSearch || isEventSearch, 'guest-network-search-form': isGuestNetworkSearch || isVnfSearch || isEventSearch }"
                 :ref="formRef"
                 :model="form"
                 :rules="rules"
@@ -247,6 +247,7 @@
 <script>
 import { clusterFilterOptions } from '@/utils/clusterSearch'
 import { hostSearchLabels } from '@/utils/hostSearch'
+import { systemOfferingFilterTypes, systemOfferingStorageLabels } from '@/utils/systemOfferingTypes'
 import { roleStates, roleTypes } from '@/utils/roleSearch'
 import KubernetesIsoSearch from '@/components/view/KubernetesIsoSearch'
 import { ref, reactive, toRaw } from 'vue'
@@ -662,7 +663,7 @@ export default {
           return true
         }
         if (['zoneid', 'domainid', 'imagestoreid', 'storageid', 'state', 'account', 'hypervisor', 'level',
-          'clusterid', 'podid', 'groupid', 'entitytype', 'accounttype', 'systemvmtype', 'scope', 'provider',
+          'clusterid', 'podid', 'groupid', 'entitytype', 'accounttype', 'systemvmtype', 'storagetype', 'scope', 'provider',
           'type', 'scope', 'managementserverid', 'serviceofferingid',
           'diskofferingid', 'networkid', 'usagetype', 'restartrequired', 'gpuenabled',
           'displaynetwork', 'forvpc', 'guestiptype', 'usersource', 'arch', 'oscategoryid', 'templatetype', 'gpucardid', 'vgpuprofileid',
@@ -715,6 +716,8 @@ export default {
         this.fields.filter(field => field.name === 'quiescevm').forEach(field => { field.opts = [{ id: 'true', name: 'label.yes' }, { id: 'false', name: 'label.no' }] })
         this.fields.filter(field => field.name === 'intervaltype').forEach(field => { field.opts = ['HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY'].map(id => ({ id, name: 'label.' + id.toLowerCase() })) })
       }
+      const storageType = this.fields.find(field => field.name === 'storagetype')
+      if (storageType) storageType.opts = Array.from(systemOfferingStorageLabels, ([id, name]) => ({ id, name }))
       if (this.isZoneSearch) {
         const field = this.fields.find(field => field.name === 'networktype')
         if (field) field.opts = ['Basic', 'Advanced'].map(id => ({ id, name: id }))
@@ -1921,6 +1924,9 @@ export default {
       return types
     },
     fetchSystemVmTypes () {
+      if (this.$route.meta?.name === 'systemoffering') {
+        return Array.from(systemOfferingFilterTypes, ([id, name]) => ({ id, name }))
+      }
       const types = []
       if (this.apiName.indexOf('listSystemVms') > -1) {
         types.push({

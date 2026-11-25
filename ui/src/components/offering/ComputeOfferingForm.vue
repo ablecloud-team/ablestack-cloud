@@ -45,16 +45,17 @@
           <template #label>
             <tooltip-label :title="$t('label.systemvmtype')" :tooltip="apiParams.systemvmtype.description"/>
           </template>
+          <span v-if="lockSystemVmType">{{ systemVmTypeLabel }}</span>
           <a-select
+            v-else
             :getPopupContainer="(trigger) => trigger.parentNode"
             v-model:value="form.systemvmtype"
+            @change="handleSystemVmTypeChange"
             showSearch
             optionFilterProp="label"
             :filterOption="(input, option) => { return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 }"
             :placeholder="apiParams.systemvmtype.description">
-            <a-select-option key="domainrouter" :label="$t('label.domain.router')">{{ $t('label.domain.router') }}</a-select-option>
-            <a-select-option key="consoleproxy" :label="$t('label.console.proxy')">{{ $t('label.console.proxy') }}</a-select-option>
-            <a-select-option key="secondarystoragevm" :label="$t('label.secondary.storage.vm')">{{ $t('label.secondary.storage.vm') }}</a-select-option>
+            <a-select-option v-for="[type, label] in systemVmTypes" :key="type" :value="type" :label="$t(label)">{{ $t(label) }}</a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item name="offeringtype" ref="offeringtype" :label="$t('label.offeringtype')" v-show="!isSystem">
@@ -230,7 +231,7 @@
               </a-form-item>
             </a-col>
             <a-col :md="12" :lg="12">
-              <a-form-item name="networkrate" ref="networkrate">
+              <a-form-item v-if="!isSystem || form.systemvmtype === 'domainrouter'" name="networkrate" ref="networkrate">
                 <template #label>
                   <tooltip-label :title="$t('label.networkrate')" :tooltip="apiParams.networkrate.description"/>
                 </template>
@@ -240,7 +241,7 @@
           </a-row>
           <a-row :gutter="12">
             <a-col :md="12" :lg="12">
-              <a-form-item name="offerha" ref="offerha">
+              <a-form-item name="offerha" ref="offerha" :validate-status="systemLocalHa ? 'error' : undefined" :help="systemLocalHa ? $t('message.system.offering.local.ha') : undefined">
                 <template #label>
                   <tooltip-label :title="$t('label.offerha')" :tooltip="apiParams.offerha.description"/>
                 </template>
@@ -415,10 +416,14 @@
           </div>
         </OfferingAdvancedGroup>
         <OfferingAdvancedGroup :enabled="organized" title="label.offering.group.scope" hint="label.offering.group.scope.hint">
-          <a-form-item name="ispublic" ref="ispublic" :label="$t('label.ispublic')" v-show="isAdmin()">
+          <template v-if="lockSystemVmType && systemSource">
+            <a-form-item :label="$t('label.domainid')">{{ systemSource.domain || $t('label.ispublic') }}</a-form-item>
+            <a-form-item :label="$t('label.zoneid')">{{ systemSource.zone || $t('label.all.zone') }}</a-form-item>
+          </template>
+          <a-form-item v-if="!lockSystemVmType" name="ispublic" ref="ispublic" :label="$t('label.ispublic')" v-show="isAdmin()">
             <a-switch v-model:checked="form.ispublic" />
           </a-form-item>
-          <a-form-item name="domainid" ref="domainid" v-if="!form.ispublic">
+          <a-form-item name="domainid" ref="domainid" v-if="!lockSystemVmType && !form.ispublic">
             <template #label>
               <tooltip-label :title="$t('label.domainid')" :tooltip="apiParams.domainid.description"/>
             </template>
@@ -431,7 +436,7 @@
               :filterOption="(input, option) => { return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 }"
               :loading="domainLoading"
               :placeholder="apiParams.domainid.description">
-              <a-select-option v-for="(opt, optIndex) in domains" :key="optIndex" :label="opt.path || opt.name || opt.description">
+              <a-select-option v-for="(opt, optIndex) in domains" :key="isSystem ? opt.id : optIndex" :value="isSystem ? opt.id : optIndex" :label="opt.path || opt.name || opt.description">
                 <span>
                   <resource-icon v-if="opt && opt.icon" :image="opt.icon.base64image" size="1x" style="margin-right: 5px"/>
                   <block-outlined v-else style="margin-right: 5px" />
@@ -440,7 +445,7 @@
               </a-select-option>
             </a-select>
           </a-form-item>
-          <a-form-item name="zoneid" ref="zoneid" v-if="!isSystem">
+          <a-form-item name="zoneid" ref="zoneid" v-if="!lockSystemVmType && apiParams.zoneid">
             <template #label>
               <tooltip-label :title="$t('label.zoneid')" :tooltip="apiParams.zoneid.description"/>
             </template>
@@ -452,10 +457,10 @@
               showSearch
               optionFilterProp="label"
               :filterOption="(input, option) => { return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 }"
-              @select="val => fetchvSphereStoragePolicies(val)"
+              @select="val => !isSystem && fetchvSphereStoragePolicies(val)"
               :loading="zoneLoading"
-              :placeholder="organized ? $t('label.all.zone') : apiParams.zoneid.description">
-              <a-select-option v-for="(opt, optIndex) in zones" :key="optIndex" :label="opt.name || opt.description">
+              :placeholder="organized || isSystem ? $t('label.all.zone') : apiParams.zoneid.description">
+              <a-select-option v-for="(opt, optIndex) in zoneOptions" :key="isSystem ? opt.id : optIndex" :value="isSystem ? opt.id : optIndex" :label="opt.name || opt.description">
                 <span>
                   <resource-icon v-if="opt.icon" :image="opt.icon.base64image" size="1x" style="margin-right: 5px"/>
                   <global-outlined v-else style="margin-right: 5px"/>
@@ -549,6 +554,7 @@ import AllocationSummary from '@/components/view/AllocationSummary'
 import OfferingDiskDefinition from '@/components/offering/OfferingDiskDefinition'
 import MoldDialog from '@/components/view/MoldDialog'
 import { readAllocationList } from '@/utils/volumeAllocation'
+import { systemOfferingTypes } from '@/utils/systemOfferingTypes'
 
 export default {
   name: 'ComputeOfferingForm',
@@ -568,6 +574,8 @@ export default {
   },
   props: {
     organized: Boolean,
+    lockSystemVmType: Boolean,
+    systemSource: { type: Object, default: null },
     rules: { type: Object, default: () => ({}) },
     initialValues: {
       type: Object,
@@ -660,6 +668,17 @@ export default {
       externalDetailsEnabled: false
     }
   },
+  computed: {
+    systemLocalHa () {
+      return this.isSystem && !this.lockSystemVmType && this.form.storagetype === 'local' && this.form.offerha === true
+    },
+    systemVmTypes () { return Array.from(systemOfferingTypes) },
+    zoneOptions () { return this.isSystem ? this.zones.filter(zone => zone.id) : this.zones },
+    systemVmTypeLabel () {
+      const label = systemOfferingTypes.get(this.form.systemvmtype)
+      return label ? this.$t(label) : this.$t('label.na')
+    }
+  },
   watch: {
     initialValues: {
       deep: true,
@@ -677,6 +696,9 @@ export default {
     this.form.ispublic = this.isPublic
   },
   methods: {
+    handleSystemVmTypeChange (type) {
+      this.form.networkrate = type === 'domainrouter' ? this.initialValues.networkrate : undefined
+    },
     initForm () {
       this.formRef = this.$refs.internalFormRef
       this.internalRules = reactive({
@@ -823,6 +845,12 @@ export default {
     onToggleLeaseData () { if (this.showLeaseOptions === false) { this.leaseduration = undefined; this.leaseexpiryaction = undefined } else { this.leaseduration = this.leaseduration !== undefined ? this.leaseduration : this.defaultLeaseDuration; this.leaseexpiryaction = this.leaseexpiryaction !== undefined ? this.leaseexpiryaction : this.defaultLeaseExpiryAction } this.form.leaseduration = this.leaseduration; this.form.leaseexpiryaction = this.leaseexpiryaction },
 
     async validate () {
+      if (this.systemLocalHa) {
+        if (this.$refs.internalFormRef) this.$refs.internalFormRef.scrollToField('offerha')
+        const error = new Error(this.$t('message.system.offering.local.ha'))
+        error.errorFields = [{ name: ['offerha'], errors: [error.message] }]
+        throw error
+      }
       try { await this.$refs.allocationEditor?.validate() } catch (error) {
         await this.$refs.sections?.reveal('volume')
         throw error

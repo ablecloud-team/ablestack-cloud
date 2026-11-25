@@ -76,6 +76,7 @@ import { runtimeCatalogListQuery } from '@/utils/runtimeCatalog'
 import { oauthListLocation } from '@/utils/oauthConfiguration'
 import { ldapConfigRoute, ldapEndpointLabel, ldapListQuery } from '@/utils/ldapConfiguration'
 import { dnsServerListQuery } from '@/utils/dnsServer'
+import { systemOfferingListQuery } from '@/utils/systemOfferingTypes'
 import { physicalNetworkZoneLocation, zoneListQuery } from '@/utils/zone'
 import { extensionListQuery, extensionActionListQuery } from '@/utils/extension'
 import { webhookBackQuery } from '@/utils/webhookDeliveryQuery'
@@ -214,6 +215,7 @@ export default {
       if (item.path === '/s2svpn' && this.$route.meta?.name === 's2svpn' && this.$route.params?.id) return s2sGatewayListLocation(this.$route, this.$store.getters)
       if (item.path === '/kubernetesiso' && this.$route.meta?.name === 'kubernetesiso' && this.$route.params?.id) return kubernetesIsoListLocation(this.$route, this.$store.getters, this.$store.state?.user?.token)
       if (item.path === '/vpnuser' && vpnUserRoute(this.$route) && this.$route.params?.id) return vpnUserListLocation(this.$route, this.$store.getters)
+      if (item.path === '/systemoffering' && this.$route.params?.id) return { path: item.path, query: systemOfferingListQuery(this.$route.query) }
       if (item.path === '/physicalnetwork' && this.$route.params?.id && this.resource?.zoneid) return physicalNetworkZoneLocation(this.$route, this.resource.zoneid)
       if (item.path === '/imagestore' && this.$route.meta?.name === 'imagestore' && this.$route.params?.id) return { path: item.path, query: secondaryStorageListQuery(this.$route.query) }
       if (item.path === '/storagepool' && this.$route.meta?.name === 'storagepool' && this.$route.params?.id) return { path: item.path, query: primaryStorageListQuery(this.$route.query) }

@@ -165,11 +165,15 @@ export default {
       icon: 'setting-outlined',
       docHelp: 'adminguide/service_offerings.html#system-service-offerings',
       permission: ['listServiceOfferings', 'listInfrastructure'],
-      searchFilters: ['name', 'zoneid', 'domainid', 'cpunumber', 'cpuspeed', 'memory'],
+      searchFilters: ['name', 'systemvmtype', 'storagetype', 'zoneid', 'domainid', 'cpunumber', 'cpuspeed', 'memory'],
       params: { issystem: 'true', isrecursive: 'true' },
+      defaultFilter: 'all',
+      customParamHandler: (params, query) => params.id
+        ? { id: params.id, issystem: true, isrecursive: true, listall: true, state: 'all' }
+        : { ...params, state: params.state || (['active', 'inactive'].includes(query.filter) ? query.filter : 'all') },
       columns: ['name', 'state', 'systemvmtype', 'cpunumber', 'cpuspeed', 'memory', 'storagetype', 'offerha', 'order'],
       filters: ['active', 'inactive'],
-      details: ['name', 'id', 'displaytext', 'systemvmtype', 'provisioningtype', 'cachemode', 'storagetype', 'iscustomized', 'limitcpuuse', 'cpunumber', 'cpuspeed', 'memory', 'storagetags', 'hosttags', 'tags', 'domain', 'zone', 'created', 'dynamicscalingenabled', 'diskofferingstrictness'],
+      details: ['name', 'id', 'displaytext', 'state', 'systemvmtype', 'defaultuse', 'systemofferingvmcount', 'offerha', 'networkrate', 'diskofferingname', 'rootdisksize', 'provisioningtype', 'cachemode', 'storagetype', 'iscustomized', 'limitcpuuse', 'cpunumber', 'cpuspeed', 'memory', 'storagetags', 'hosttags', 'tags', 'domain', 'zone', 'created', 'dynamicscalingenabled', 'diskofferingstrictness'],
       resourceType: 'ServiceOffering',
       tabs: [
         {
@@ -184,6 +188,7 @@ export default {
         },
         {
           name: 'comments',
+          permission: ['listAnnotations'],
           component: shallowRef(defineAsyncComponent(() => import('@/components/view/AnnotationsTab.vue'))),
           show: (record, route, user) => { return ['Admin', 'DomainAdmin'].includes(user.roletype) }
         }
@@ -193,6 +198,7 @@ export default {
         icon: 'plus-outlined',
         label: 'label.add.system.service.offering',
         docHelp: 'adminguide/service_offerings.html#creating-a-new-system-service-offering',
+        standardDialogSize: 'md',
         listView: true,
         params: { issystem: 'true' },
         popup: true,
@@ -202,43 +208,40 @@ export default {
         icon: 'edit-outlined',
         label: 'label.edit',
         dataView: true,
-        params: { issystem: 'true' },
+        popup: true,
+        standardDialogSize: 'md',
         docHelp: 'adminguide/service_offerings.html#modifying-or-deleting-a-service-offering',
-        args: ['name', 'displaytext', 'storagetags', 'hosttags']
+        component: shallowRef(defineAsyncComponent(() => import('@/views/offering/UpdateComputeOffering.vue')))
+      }, {
+        api: 'updateServiceOffering',
+        icon: 'lock-outlined',
+        label: 'label.action.update.offering.access',
+        dataView: true,
+        popup: true,
+        show: () => store.getters.userInfo.roletype === 'Admin',
+        standardDialogSize: 'md',
+        component: shallowRef(defineAsyncComponent(() => import('@/views/offering/UpdateStorageOfferingAccess.vue')))
       }, {
         api: 'updateServiceOffering',
         icon: 'play-circle-outlined',
         label: 'label.action.enable.system.service.offering',
-        message: 'message.action.enable.system.service.offering',
         dataView: true,
-        params: { issystem: 'true' },
-        args: ['state'],
-        mapping: {
-          state: {
-            value: (record) => { return 'Active' }
-          }
-        },
         groupAction: true,
         popup: true,
-        show: (record) => { return record.state !== 'Active' },
-        groupMap: (selection) => { return selection.map(x => { return { id: x, state: 'Active' } }) }
+        systemOfferingState: 'Active',
+        show: record => record.state === 'Inactive',
+        groupShow: records => records.some(record => record.state === 'Inactive')
       }, {
         api: 'updateServiceOffering',
         icon: 'pause-circle-outlined',
         label: 'label.action.disable.system.service.offering',
-        message: 'message.action.disable.system.service.offering',
         docHelp: 'adminguide/service_offerings.html#modifying-or-deleting-a-service-offering',
         dataView: true,
-        params: { issystem: 'true' },
         groupAction: true,
         popup: true,
-        mapping: {
-          state: {
-            value: (record) => { return 'Inactive' }
-          }
-        },
-        show: (record) => { return record.state === 'Active' },
-        groupMap: (selection) => { return selection.map(x => { return { id: x, state: 'Inactive' } }) }
+        systemOfferingState: 'Inactive',
+        show: record => record.state === 'Active',
+        groupShow: records => records.some(record => record.state === 'Active')
       }, {
         api: 'cloneServiceOffering',
         icon: 'copy-outlined',
@@ -247,6 +250,7 @@ export default {
         dataView: true,
         params: { issystem: 'true' },
         popup: true,
+        standardDialogSize: 'lg',
         component: shallowRef(defineAsyncComponent(() => import('@/views/offering/CloneComputeOffering.vue')))
       }]
     },
