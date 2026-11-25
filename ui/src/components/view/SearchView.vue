@@ -363,7 +363,14 @@ export default {
         this.initFormFieldData()
       }
     },
+    searchParams () {
+      if (this.apiName !== 'listWebhookDeliveries') return
+      this.searchQuery = this.searchParams.searchQuery || ''
+      this.updateIsFiltered()
+      if (this.visibleFilter) this.fillFormFieldValues()
+    },
     '$route' (to, from) {
+      if (this.apiName === 'listWebhookDeliveries') return
       this.searchQuery = ''
       if (to && to.query && 'q' in to.query) {
         this.searchQuery = to.query.q
@@ -383,6 +390,11 @@ export default {
     }
   },
   mounted () {
+    if (this.apiName === 'listWebhookDeliveries') {
+      this.searchQuery = this.searchParams.searchQuery || ''
+      this.updateIsFiltered()
+      return
+    }
     this.searchQuery = ''
     if (this.$route && this.$route.query && 'q' in this.$route.query) {
       this.searchQuery = this.$route.query.q
@@ -1563,6 +1575,7 @@ export default {
       if (this.$route.meta.params) {
         Object.assign(this.fieldValues, this.$route.meta.params)
       }
+      if (this.apiName === 'listWebhookDeliveries') this.fieldValues = { ...this.searchParams }
       this.fields.forEach(field => {
         const value = this.fieldValues[field.name]
         this.form[field.name] = field.type === 'boolean'

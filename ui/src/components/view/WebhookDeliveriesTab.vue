@@ -65,7 +65,7 @@
               :searchFilters="searchFilters"
               :searchParams="searchParams"
               :apiName="'listWebhookDeliveries'"
-              @search="searchDelivieries"
+              @search="searchDeliveries"
             />
           </span>
         </a-col>
@@ -104,7 +104,6 @@
         `${$t('label.showing')} ${Math.min(total, 1+((page-1)*pageSize))}-${Math.min(page*pageSize, total)} ${$t('label.of')} ${total} ${$t('label.items')}`"
       :pageSizeOptions="pageSizeOptions"
       @change="changePage"
-      @showSizeChange="changePage"
       showSizeChanger
       showQuickJumper>
       <template #buildOptionText="props">
@@ -124,6 +123,7 @@ import moment from 'moment'
 import DateTimeFilter from './DateTimeFilter'
 import SearchView from '@/components/view/SearchView'
 import ListView from '@/components/view/ListView'
+import { webhookDeliveryQuery, webhookDeliverySearch } from '@/utils/webhookDeliveryQuery'
 
 export default {
   mixins: [listRefreshMixin(['fetchDeliveries'])],
@@ -202,30 +202,49 @@ export default {
     }
   },
   created () {
-    const routeQuery = this.$route.query
-    const usefulQueryParams = ['keyword', 'managementserverid', 'eventtype']
-    usefulQueryParams.forEach(queryParam => {
-      if (routeQuery[queryParam]) {
-        this.searchParams[queryParam] = routeQuery[queryParam]
-      }
-    })
     if (isAdmin()) {
       this.columnKeys.splice(2, 0, 'managementservername')
       this.selectedColumnKeys.splice(2, 0, 'managementservername')
       this.searchFilters.push('managementserverid')
     }
     this.updateColumns()
-    this.pageSize = this.pageSizeOptions[0] * 1
-    this.fetchData()
+    this.applyDeliveryQuery()
   },
   watch: {
-    resource: {
-      handler () {
-        this.fetchData()
-      }
-    }
+    'resource.id': 'applyDeliveryQuery',
+    '$route.query': 'applyDeliveryQuery'
   },
   methods: {
+    applyDeliveryQuery () {
+      const { params, query } = this.$route
+      if (!this.resource.id || params.id !== this.resource.id || query.tab !== 'recent.deliveries') return
+      this.searchParams = webhookDeliverySearch(query)
+      if (!this.searchFilters.includes('managementserverid')) delete this.searchParams.managementserverid
+      const page = Number(query.deliveryPage)
+      this.page = Number.isSafeInteger(page) && page > 0 ? page : 1
+      this.pageSize = this.pageSizeOptions.includes(query.deliveryPageSize) ? Number(query.deliveryPageSize) : Number(this.pageSizeOptions[0])
+      this.durationSelectorValue = ['all', 'custom'].includes(query.deliveryPeriod) ? query.deliveryPeriod : 'day'
+      const date = value => typeof value === 'string' && Number.isFinite(Date.parse(value)) ? new Date(value) : null
+      if (this.durationSelectorValue === 'custom') {
+        this.startDate = date(query.deliveryStart)
+        this.endDate = date(query.deliveryEnd)
+      } else {
+        this.startDate = this.durationSelectorValue === 'day' ? this.get24hrStartDate() : null
+        this.endDate = null
+      }
+      this.fetchData()
+    },
+    setDeliveryQuery ({
+      search = this.searchParams,
+      period = this.durationSelectorValue,
+      start = this.startDate,
+      end = this.endDate,
+      page = 1,
+      pageSize = this.pageSize
+    } = {}) {
+      const query = webhookDeliveryQuery(this.$route.query, search, period, start, end, page, pageSize)
+      this.$router.push({ path: this.$route.path, query })
+    },
     fetchData () {
       if ('listview' in this.$refs && this.$refs.listview) {
         this.$refs.listview.resetSelection()
@@ -278,9 +297,7 @@ export default {
       })
     },
     changePage (page, pageSize) {
-      this.page = page
-      this.pageSize = pageSize
-      this.fetchDeliveries()
+      this.setDeliveryQuery({ page: pageSize === this.pageSize ? page : 1, pageSize })
     },
     updateSelectedColumns (key) {
       if (this.selectedColumnKeys.includes(key)) {
@@ -435,23 +452,7 @@ export default {
       return start
     },
     handleTimeFilterChange () {
-      var start = this.startDate
-      var end = this.endDate
-      switch (this.durationSelectorValue) {
-        case 'day':
-          start = this.get24hrStartDate()
-          end = null
-          break
-        case 'all':
-          start = null
-          end = null
-          break
-      }
-      if (start !== this.startDate || end !== this.endDate) {
-        this.startDate = start
-        this.endDate = end
-        this.fetchData()
-      }
+      if (this.durationSelectorValue !== 'custom') this.setDeliveryQuery()
     },
     openTimeFilter () {
       this.showTimeFilterModal = true
@@ -476,48 +477,23 @@ export default {
       }
     },
     handleSubmitDateTimeFilter (values) {
-      if (values.startDate) {
-        this.startDate = new Date(values.startDate)
-      } else {
-        this.startDate = null
-      }
-      if (values.endDate) {
-        this.endDate = new Date(values.endDate)
-      } else {
-        this.endDate = null
-      }
       this.showTimeFilterModal = false
-      this.fetchData()
+      this.setDeliveryQuery({ period: 'custom', start: values.startDate, end: values.endDate })
     },
     closeTimeFilterAction () {
       this.showTimeFilterModal = false
     },
-    searchDelivieries (params) {
-      const query = Object.assign({}, this.$route.query)
-      for (const key in this.searchParams) {
-        delete query[key]
-      }
-      delete query.keyword
-      delete query.q
-      this.searchParams = params
-      if ('searchQuery' in this.searchParams) {
-        query.keyword = this.searchParams.searchQuery
+    searchDeliveries (params) {
+      const search = {}
+      if ('searchQuery' in params) {
+        Object.assign(search, this.searchParams, { searchQuery: params.searchQuery?.trim() })
       } else {
-        Object.assign(query, this.searchParams)
+        for (const field of this.searchFilters) {
+          if (params[field]) search[field] = params[field]
+        }
+        if (Object.keys(search).length && this.searchParams.searchQuery) search.searchQuery = this.searchParams.searchQuery
       }
-      this.fetchData()
-      if (JSON.stringify(query) === JSON.stringify(this.$route.query)) {
-        return
-      }
-      history.pushState(
-        {},
-        null,
-        '#' + this.$route.path + '?' + Object.keys(query).map(key => {
-          return (
-            encodeURIComponent(key) + '=' + encodeURIComponent(query[key])
-          )
-        }).join('&')
-      )
+      this.setDeliveryQuery({ search })
     }
   }
 }

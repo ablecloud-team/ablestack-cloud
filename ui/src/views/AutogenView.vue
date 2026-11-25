@@ -1009,6 +1009,7 @@ import EventCsvDialog from '@/views/event/EventCsvDialog'
 import EventMutationDialog from '@/views/event/EventMutationDialog'
 import VpnUserDeleteDialog from '@/views/network/VpnUserDeleteDialog'
 import { runtimeCatalogFilters } from '@/utils/runtimeCatalog'
+import { webhookDetailParams } from '@/utils/webhookDeliveryQuery'
 import { canDeleteVpnUsers, vpnUserDeleteTargets } from '@/utils/vpnUserDeletion'
 import { vpnCustomerGatewayActionKey } from '@/utils/vpnCustomerGatewayJobs'
 import { vpnUserOwner, vpnUserVisibleColumns } from '@/utils/vpnUserPresentation'
@@ -3097,6 +3098,9 @@ export default {
       if (isoQuery) {
         this.columns = this.columns.map(column => isoColumn(column, this.$route.query, this.$t))
         this.allColumns = this.allColumns.map(column => isoColumn(column, this.$route.query, this.$t))
+      }
+      if (this.apiName === 'listWebhooks' && this.$route.params?.id) {
+        params = webhookDetailParams(params, this.$route.params.id)
       }
       const customParamHandler = this.$route.meta.customParamHandler
       if (customParamHandler && typeof customParamHandler === 'function') {
