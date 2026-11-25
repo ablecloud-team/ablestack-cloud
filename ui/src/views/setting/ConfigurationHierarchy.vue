@@ -17,7 +17,7 @@
 
 <template>
   <section class="configuration-table">
-    <a-table
+    <mold-list-table
       size="small"
       :columns="columns"
       :data-source="config"
@@ -26,22 +26,22 @@
       :pagination="false"
       :loading="loading"
       :scroll="{ x: 760 }"
+      :scope="grouped ? String(grouped) : page"
+      :context-actions="configurationActions"
       @update:expanded-row-keys="$emit('update:expandedRowKeys', $event)">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'name'">
           <div class="configuration-table-name">
             <button type="button" class="configuration-record-link" @click="$emit('show-setting', record)">
-              {{ localizedText(record, 'displaytext') }}
+              <TableOverflowText :text="localizedText(record, 'displaytext') || record.name" />
             </button>
-            <div class="configuration-record-key">{{ record.name }}</div>
-            <div v-if="localizedText(record, 'description')" class="configuration-record-description">{{ localizedText(record, 'description') }}</div>
             <button v-if="grouped && record.parent && !record.attachedToParent" type="button" class="configuration-parent-link" @click="$emit('open-parent', record)">
               {{ $t('label.global.setting.parent') }} {{ record.parent }}
             </button>
           </div>
         </template>
         <template v-else-if="column.key === 'value' || column.key === 'defaultvalue'">
-          <span class="configuration-record-value">{{ formatConfigurationValue(record, column.key) }}</span>
+          <TableOverflowText :text="formatConfigurationValue(record, column.key)" />
         </template>
         <template v-else-if="column.key === 'apply'">
           {{ configurationApplyLabel(record) ? $t(configurationApplyLabel(record)) : '—' }}
@@ -64,7 +64,7 @@
           </slot>
         </template>
       </template>
-    </a-table>
+    </mold-list-table>
     <a-pagination
       v-if="!grouped && count > 0"
       class="configuration-pagination"
@@ -81,19 +81,22 @@
 </template>
 
 <script>
+import MoldListTable from '@/components/view/MoldListTable'
+import TableOverflowText from '@/components/view/TableOverflowText'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import { configurationText } from './configurationLocale'
 import { formatConfigurationValue, configurationApplyLabel } from './configurationPresentation'
 
 export default {
   name: 'ConfigurationHierarchy',
-  components: { TooltipButton },
+  components: { MoldListTable, TableOverflowText, TooltipButton },
   emits: ['change-page', 'update:expandedRowKeys', 'open-parent', 'show-setting', 'edit-setting', 'reset-setting'],
   props: {
     koreanCatalog: { type: Object, default: null },
     config: { type: Array, default: () => [] },
     expandedRowKeys: { type: Array, default: () => [] },
     grouped: { type: Boolean, default: false },
+    rowActions: { type: Function, default: null },
     loading: { type: Boolean, default: false },
     count: { type: Number, default: 0 },
     page: { type: Number, default: 1 },
@@ -108,7 +111,7 @@ export default {
     },
     columns () {
       return [
-        { key: 'name', title: this.$t('label.global.setting.key') },
+        { key: 'name', title: this.$t('label.global.setting.key'), width: 312 },
         { key: 'value', title: this.$t('label.global.setting.current'), width: 150 },
         { key: 'defaultvalue', title: this.$t('label.global.setting.default'), width: 140 },
         { key: 'apply', title: this.$t('label.global.setting.apply'), width: 144 },
@@ -121,6 +124,15 @@ export default {
     }
   },
   methods: {
+    configurationActions (record) {
+      const details = { key: 'details', label: 'label.details', icon: 'search-outlined', handler: () => this.$emit('show-setting', record) }
+      if (this.rowActions) return [details, ...this.rowActions(record)]
+      return [
+        details,
+        ...(this.canUpdate ? [{ key: 'edit', label: 'label.edit', icon: 'edit-outlined', handler: () => this.$emit('edit-setting', record) }] : []),
+        ...(this.canReset ? [{ key: 'reset', label: 'label.reset.config.value', icon: 'reload-outlined', disabled: record.value === record.defaultvalue, handler: () => this.$emit('reset-setting', record) }] : [])
+      ]
+    },
     localizedText (record, field) {
       return configurationText(record, field, this.$i18n.locale, this.koreanCatalog)
     },
@@ -138,7 +150,9 @@ export default {
 
 <style scoped>
 .configuration-table { min-width: 0; }
-.configuration-table-name { min-width: 0; overflow-wrap: anywhere; }
+.configuration-table-name { display: flex; min-width: 0; align-items: center; gap: 6px; overflow: hidden; }
+.configuration-table-name .configuration-record-link { min-width: 0; width: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.configuration-table-name .configuration-parent-link { flex-shrink: 0; }
 .configuration-record-link,
 .configuration-parent-link {
   padding: 0;

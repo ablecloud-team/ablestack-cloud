@@ -167,7 +167,7 @@
           <os-logo v-else :osId="record.ostypeid" :osName="record.osdisplayname" size="xl" />
         </span>
         <span
-          :class="{ 'template-name-cell': (isTemplateMainList || isKubernetesIsoMainList) && record.id, 'project-list-name-cell': isProjectMainList }"
+          :class="{ 'mold-list-name-cell': standardTable, 'template-name-cell': (isTemplateMainList || isKubernetesIsoMainList) && record.id, 'project-list-name-cell': isProjectMainList }"
           :style="{ minWidth: (isTemplateMainList || isKubernetesIsoMainList) && record.id ? 0 : '120px' }">
           <QuickView
             v-if="$route.path !== '/extension' || resourcePath"
@@ -522,7 +522,7 @@
           :cloudAddress="ipAddress(text, record)"
           :cloudNics="record.nic || []"
           :summary="record.guestnetwork" />
-        <template v-else>
+        <div v-else class="mold-list-ip-value">
           <router-link
             v-if="['/publicip', '/privategw'].includes($route.path)"
             :to="$route.path === '/publicip' ? publicIpDetailLocation($route, record) : { path: $route.path + '/' + record.id }"
@@ -542,7 +542,7 @@
             &nbsp;
             <a-tag>system</a-tag>
           </span>
-        </template>
+        </div>
       </template>
       <template
         v-if="column.key === 'ip6address'"
@@ -1420,6 +1420,7 @@
   <ResourceContextMenu
     v-if="showContextQuickView"
     :actions="contextMenuActions"
+    :entries="contextQuickViewEntries"
     :resource="contextQuickViewRecord"
     :position="contextQuickViewPosition"
     :selectedRowKeys="$route.name === 'vmsnapshot' && selectedRowKeys.length < 2 ? [] : selectedRowKeys"
@@ -1427,12 +1428,13 @@
     :titleOverride="contextMenuTitle"
     :titleSuffix="selectedRowKeys.length > 1 ? $t('label.items.more', [selectedRowKeys.length - 1]) : ''"
     @close="closeContextQuickView"
-    @exec-action="handleContextAction" />
+    @exec-action="handleContextAction"
+    @execute-entry="handleContextEntry" />
 </template>
 
 <script>
 import { runtimeCatalogListQuery } from '@/utils/runtimeCatalog'
-import { changedSelectionAnchor, isListRowClick, listGroupActionAvailable, listSelectionForClick, MOLD_SELECTION_WIDTH, visibleListRowKeys } from '@/utils/moldListSelection'
+import { changedSelectionAnchor, defaultListContextEntries, isListRowClick, listGroupActionAvailable, listSelectionForClick, MOLD_SELECTION_WIDTH, moldListRecords, visibleListRowKeys } from '@/utils/moldListSelection'
 import { moldListColumns, moldListScroll } from '@/utils/moldListColumns'
 import '@/style/components/view/mold-list-table.css'
 import RuntimeCatalogValue from '@/components/view/RuntimeCatalogValue'
@@ -1702,6 +1704,7 @@ export default {
       columnPickerVisible: false,
       contextQuickViewVisible: false,
       contextQuickViewRecord: null,
+      contextQuickViewEntries: [],
       contextQuickViewPosition: {
         x: 0,
         y: 0
@@ -1715,9 +1718,10 @@ export default {
       handler (newData, oldData) {
         if (newData === oldData) return
         const selected = new Set(this.selectedRowKeys)
-        const rows = this.items.filter(record => selected.has(this.listRowKey(record)) && !this.selectionDisabled(record))
+        const current = this.standardTable ? this.standardRecords : this.items
+        const rows = current.filter(record => selected.has(this.listRowKey(record)) && !this.selectionDisabled(record))
         if (selected.size) this.setSelection(rows.map(this.listRowKey))
-        if (this.selectionAnchor !== null && !newData.some(record => this.listRowKey(record) === this.selectionAnchor && !this.selectionDisabled(record))) {
+        if (this.selectionAnchor !== null && !current.some(record => this.listRowKey(record) === this.selectionAnchor && !this.selectionDisabled(record))) {
           this.selectionAnchor = null
         }
         this.items.forEach(record => {
@@ -1747,11 +1751,12 @@ export default {
     standardTable () {
       return this.standardList ?? Boolean(this.$route.name && this.$route.path !== '/dashboard' && !this.$route.params?.id && !this.resourcePath)
     },
+    standardRecords () { return moldListRecords(this.items) },
     multipleSelection () {
       if (!this.standardTable) return this.explicitlyAllowRowSelection || this.enableGroupAction() || this.$route.name === 'event'
       if (snapshotCopyList(this.$route)) return false
       const apis = this.$store.getters.apis || {}
-      return this.$route.name === 'asnumbers' || this.actions.some(action => action.groupAction && action.api in apis)
+      return this.actions.some(action => action.groupAction && action.api in apis)
     },
     tableSelection () {
       if (!this.standardTable && !this.multipleSelection) return null
@@ -1861,11 +1866,12 @@ export default {
       return this.selectedRowKeys.length > 0
     },
     showContextQuickView () {
-      return this.contextQuickViewVisible && this.contextMenuActions.length > 0
+      return this.contextQuickViewVisible && (this.contextMenuActions.length > 0 || this.contextQuickViewEntries?.length > 0)
     },
     selectionList () {
       const selected = new Set(this.selectedRowKeys.map(String))
-      return this.items.filter(record => selected.has(String(this.listRowKey(record))))
+      const rows = this.standardTable ? this.standardRecords : this.items
+      return rows.filter(record => selected.has(String(this.listRowKey(record))))
     },
     contextMenuActions () {
       if (!this.actions || this.actions.length === 0) {
@@ -1909,6 +1915,7 @@ export default {
       }).filter(Boolean)
     },
     contextMenuTitle () {
+      if (this.contextQuickViewEntries?.length) return this.contextQuickViewRecord?.name || this.contextQuickViewRecord?.displayname || ''
       if (this.selectedRowKeys.length > 1) {
         const first = this.getFirstSelectedItem()
         if (isVmIdentityRoute(this.$route)) return vmDisplayName(first)
@@ -2131,7 +2138,7 @@ export default {
         current: this.selectedRowKeys,
         key: this.listRowKey(record),
         anchor: this.selectionAnchor,
-        orderedKeys: event.shiftKey ? visibleListRowKeys(event.currentTarget, this.items, this.listRowKey, this.selectionDisabled) : [],
+        orderedKeys: event.shiftKey ? visibleListRowKeys(event.currentTarget, this.standardRecords, this.listRowKey, this.selectionDisabled) : [],
         event,
         multiple: this.multipleSelection
       })
@@ -2168,7 +2175,7 @@ export default {
         return
       }
       const rowElement = event.target.closest('tr.ant-table-row')
-      if (this.standardTable) {
+      if (this.standardTable && rowElement) {
         this.handleListContextMenu(event, rowElement)
         return
       }
@@ -2202,7 +2209,7 @@ export default {
     },
     handleListContextMenu (event, rowElement) {
       const rowKey = rowElement?.getAttribute('data-row-key')
-      const record = rowKey == null ? null : this.items.find(item => String(this.listRowKey(item)) === rowKey)
+      const record = rowKey == null ? null : this.standardRecords.find(item => String(this.listRowKey(item)) === rowKey)
       if (!record || this.selectionDisabled(record)) {
         this.closeContextQuickView()
         return
@@ -2210,7 +2217,6 @@ export default {
       const key = this.listRowKey(record)
       this.selectionAnchor = key
       if (!this.selectedRowKeys.includes(key)) this.setSelection([key])
-      if (!this.actions.length) return
       event.preventDefault()
       event.stopPropagation()
       const selection = this.selectedRowKeys
@@ -2219,15 +2225,18 @@ export default {
 
       // The selection watcher closes the previous menu before the new one is opened.
       this.$nextTick(() => {
-        if (this.$route.fullPath !== path || this.selectedRowKeys !== selection || !this.items.includes(record)) return
+        if (this.$route.fullPath !== path || this.selectedRowKeys !== selection || !this.standardRecords.includes(record)) return
         const target = selection.length > 1 ? this.getFirstSelectedItem() || record : record
-        this.openContextQuickView(target, position)
+        this.openContextQuickView(target, position, rowElement)
       })
     },
-    openContextQuickView (record, position) {
+    openContextQuickView (record, position, row = null) {
       this.contextQuickViewRecord = ['vmsnapshot', 'snapshot'].includes(this.$route.name) ? Object.freeze({ ...record }) : record
       this.contextQuickViewPosition = position
-      if (this.contextMenuActions.length === 0) {
+      this.contextQuickViewEntries = row && this.selectedRowKeys.length === 1 && !this.contextMenuActions.length
+        ? defaultListContextEntries(row, String(record.displayname || record.name || record.title || record.id || ''), this.$router, this.$copyText)
+        : []
+      if (!this.contextMenuActions.length && !this.contextQuickViewEntries?.length) {
         this.closeContextQuickView()
         return
       }
@@ -2236,6 +2245,11 @@ export default {
     closeContextQuickView () {
       this.contextQuickViewVisible = false
       this.contextQuickViewRecord = null
+      this.contextQuickViewEntries = []
+    },
+    handleContextEntry (entry) {
+      this.closeContextQuickView()
+      if (entry.handler) entry.handler()
     },
     handleContextAction (action) {
       this.closeContextQuickView()

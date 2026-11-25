@@ -86,3 +86,28 @@
 .mold-list-table .mold-list-cell-line > :where(div, p) + :where(div, p)::before {
   content: ' · ';
 }
+
+.mold-list-table .ant-table-cell :is(.mold-list-name-cell, .mold-list-ip-value, .vpn-user-owner, .acl-scope-value) {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  min-width: 0 !important;
+  max-width: 100%;
+  gap: 4px;
+  vertical-align: middle;
+}
+
+.mold-list-table .ant-table-cell :is(.mold-list-name-cell, .mold-list-ip-value, .vpn-user-owner, .acl-scope-value) > :is(span, div, a) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mold-list-table .ant-table-cell .vpn-user-owner > div {
+  display: inline;
+}
+
+.mold-list-table .ant-table-cell .mold-list-ip-value > span:has(.ant-tag) {
+  flex-shrink: 0;
+}

@@ -18,18 +18,34 @@
 import { MOLD_SELECTION_WIDTH } from './moldListSelection'
 
 const compactWidth = {
-  filtercolumn: 44, state: 112, status: 112, type: 112, arch: 106, ostype: 132, created: 156,
-  qemuagentversion: 106, templatetype: 110, format: 92, order: 124, actions: 108,
-  allocated: 156, cores: 90, cpunumber: 100, size: 108, memory: 108, vlan: 90
+  filtercolumn: 44,
+  ipaddress: 190,
+  state: 112,
+  status: 112,
+  type: 112,
+  arch: 106,
+  ostype: 132,
+  created: 156,
+  qemuagentversion: 106,
+  templatetype: 110,
+  format: 92,
+  order: 124,
+  actions: 108,
+  allocated: 156,
+  cores: 90,
+  cpunumber: 100,
+  size: 108,
+  memory: 108,
+  vlan: 90
 }
 
-export function moldListColumns (columns, fixedWidths = false) {
+export function moldListColumns (columns) {
   return columns.map((column, index) => {
     const key = String(column.key || column.dataIndex || '')
     const titleWidth = typeof column.title === 'string' ? Math.min(192, 40 + column.title.length * 9) : 0
     const fallback = index === 0 ? 240 : Math.max(compactWidth[key] || 126, titleWidth)
     const declared = Number(column.width)
-    const width = fixedWidths || declared > 48 || key === 'filtercolumn' ? (declared || fallback) : fallback
+    const width = key === 'filtercolumn' ? Math.max(44, declared || 0) : (declared > 48 ? (declared || fallback) : fallback)
     return {
       ...column,
       width,

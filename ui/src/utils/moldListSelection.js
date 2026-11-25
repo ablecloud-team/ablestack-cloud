@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-export const MOLD_ROW_HEIGHT = 47
 export const MOLD_SELECTION_WIDTH = 30
 const rowControls = 'a, button, input, select, textarea, label, summary, [contenteditable], [role=button], [role=link], [role=checkbox], [role=radio], [role=menuitem], [role=switch], [role=combobox], .ant-select, .ant-table-row-expand-icon'
 
@@ -51,7 +50,7 @@ export function listSelectionForClick ({ current, key, anchor, orderedKeys, even
 export function listGroupActionAvailable (action, records, getters) {
   return !!action.groupAction && action.api in (getters.apis || {}) &&
     (!action.groupShow || action.groupShow(records, getters)) &&
-    records.every(row => (!action.show || action.show(row, getters)) &&
+    records.every(row => (action.groupShowAllowsSubset || !action.show || action.show(row, getters)) &&
       (!action.disabled || !action.disabled(row, getters, records)))
 }
 
@@ -63,4 +62,15 @@ export function visibleListRowKeys (row, records, rowKey, disabled) {
   return Array.from(row.parentElement.rows)
     .map(element => keysByText.get(element.dataset.rowKey))
     .filter(key => key !== undefined)
+}
+
+export function moldListRecords (records) {
+  return records.flatMap(record => Array.isArray(record.children) ? [record, ...moldListRecords(record.children)] : [record])
+}
+
+export function defaultListContextEntries (row, title, router, copyText) {
+  const link = row.querySelector('a[href^="#/"]')?.getAttribute('href')
+  if (link && router) return [{ key: 'details', label: 'label.details', icon: 'search-outlined', handler: () => router.push(link.slice(1)) }]
+  if (title && copyText) return [{ key: 'copy', label: 'label.copy', icon: 'copy-outlined', handler: () => copyText(title) }]
+  return []
 }

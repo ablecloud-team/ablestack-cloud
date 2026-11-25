@@ -16,68 +16,35 @@
 // under the License.
 
 <template>
-  <a-list
-    size="small"
+  <mold-list-table
+    :columns="limitColumns"
+    :data-source="limitRows"
     :loading="loading"
-    :dataSource="usageList" >
-    <template #renderItem="{ item }">
-      <a-list-item class="list-item" v-if="!($route.meta.name === 'project' && item === 'project')">
-        <div class="list-item__container">
-          <strong>
-            {{ $t('label.' + item + 'limit') }}
-          </strong>
-          ({{ displayLimit(resource[item + 'available']) }} {{ $t('label.available') }})
-          <div class="list-item__vals">
-            <div class="list-item__data">
-              {{ $t('label.used') }} / {{ $t('label.limit') }} : {{ resource[item + 'total'] }} / {{ displayLimit(resource[item + 'limit']) }}
-            </div>
-            <a-progress
-              status="normal"
-              :percent="parseFloat(getPercentUsed(resource[item + 'total'], resource[item + 'limit']))"
-              :format="p => resource[item + 'limit'] !== '-1' && resource[item + 'limit'] !== 'Unlimited' ? p.toFixed(2) + '%' : ''" />
-          </div>
-          <a-collapse
-              v-if="taggedUsage[item]"
-              class="list-item__collapse"
-              @change="handleCollapseChange(item)">
-            <a-collapse-panel key="1" :header="collpaseActive[item] ? $t('label.tagged.limits') : $t('label.tagged.limits') + ' - ' + this.tagData[item].tagsasstring">
-              <a-list
-                size="small"
-                :loading="loading"
-                :dataSource="taggedUsage[item]" >
-                <template #renderItem="{ item }">
-                  <a-list-item class="sub-list-item">
-                    <div class="sub-list-item__container">
-                      <strong>
-                        {{ '#' + item.tag }}
-                      </strong>
-                      ({{ displayLimit(item.available) }} {{ $t('label.available') }})
-                      <div class="sub-list-item__vals">
-                        <div class="sub-list-item__data">
-                          {{ $t('label.used') }} / {{ $t('label.limit') }} : {{ item.total }} / {{ displayLimit(item.limit) }}
-                        </div>
-                        <a-progress
-                          status="normal"
-                          :percent="parseFloat(getPercentUsed(item.total, item.limit))"
-                          :format="p => item.limit !== '-1' && item.limit !== 'Unlimited' ? p.toFixed(2) + '%' : ''" />
-                      </div>
-                    </div>
-                  </a-list-item>
-                </template>
-              </a-list>
-            </a-collapse-panel>
-          </a-collapse>
-        </div>
-      </a-list-item>
+    :scope="resource.id || ''"
+    row-key="key"
+    :pagination="false"
+    size="middle">
+    <template #bodyCell="{ column, record, text }">
+      <TableOverflowText v-if="column.key === 'name'" :text="record.name" />
+      <span v-else-if="column.key === 'available'">{{ displayLimit(record.available) }}</span>
+      <span v-else-if="column.key === 'usage'">{{ record.total }} / {{ displayLimit(record.limit) }}</span>
+      <a-progress
+        v-else-if="column.key === 'progress'"
+        status="normal"
+        :percent="Number(getPercentUsed(record.total, record.limit))"
+        :format="p => record.limit !== '-1' && record.limit !== 'Unlimited' ? p.toFixed(2) + '%' : ''" />
+      <span v-else>{{ text }}</span>
     </template>
-  </a-list>
+  </mold-list-table>
 </template>
 
 <script>
-import _ from 'lodash'
+import MoldListTable from '@/components/view/MoldListTable'
+import TableOverflowText from '@/components/view/TableOverflowText'
 
 export default {
   name: 'ResourceCountUsageTab',
+  components: { MoldListTable, TableOverflowText },
   props: {
     resource: {
       type: Object,
@@ -94,19 +61,7 @@ export default {
         'vm', 'cpu', 'memory', 'gpu', 'primarystorage', 'volume', 'ip', 'network',
         'vpc', 'secondarystorage', 'snapshot', 'template', 'project', 'backup', 'backupstorage', 'bucket', 'objectstorage'
       ],
-      taggedUsage: {},
-      tagData: {},
-      collpaseActive: {}
-    }
-  },
-  created () {
-    this.updateTaggedUsage()
-  },
-  watch: {
-    resource: {
-      handler () {
-        this.updateTaggedUsage()
-      }
+      taggedUsage: {}
     }
   },
   computed: {
@@ -119,6 +74,37 @@ export default {
         2: 'volume',
         10: 'primarystorage'
       }
+    },
+    limitColumns () {
+      return [
+        { key: 'name', title: this.$t('label.name'), width: 240 },
+        { key: 'available', title: this.$t('label.available'), width: 140 },
+        { key: 'usage', title: this.$t('label.used') + ' / ' + this.$t('label.limit'), width: 160 },
+        { key: 'progress', title: this.$t('label.usage'), width: 160 }
+      ]
+    },
+    limitRows () {
+      return this.usageList.filter(name => !(this.$route.meta.name === 'project' && name === 'project')).map(name => {
+        const tagged = this.taggedUsage[name]
+        return {
+          key: name,
+          name: this.$t('label.' + name + 'limit'),
+          available: this.resource[name + 'available'],
+          total: this.resource[name + 'total'],
+          limit: this.resource[name + 'limit'],
+          ...(tagged?.length ? { children: tagged.map(item => ({ ...item, key: name + ':' + item.tag, name: '#' + item.tag })) } : {})
+        }
+      })
+    }
+  },
+  created () {
+    this.updateTaggedUsage()
+  },
+  watch: {
+    resource: {
+      handler () {
+        this.updateTaggedUsage()
+      }
     }
   },
   methods: {
@@ -129,7 +115,8 @@ export default {
     getPercentUsed (total, limit) {
       return Number(limit) > 0 ? (total / limit) * 100 : 0
     },
-    addTaggedUsageToList (taggedResource) {
+    addTaggedUsageToList (resource) {
+      const taggedResource = { ...resource }
       var type = this.resourceTypeToNameMap['' + taggedResource.resourcetype]
       if (!type) {
         return
@@ -162,84 +149,7 @@ export default {
       for (var taggedResource of this.resource.taggedresources) {
         this.addTaggedUsageToList(taggedResource)
       }
-      for (var i in this.taggedUsage) {
-        var tags = _.map(this.taggedUsage[i], 'tag')
-        var tagsAsString = '#' + tags.join(', #')
-        this.tagData[i] = {
-          tags: tags,
-          tagsasstring: tagsAsString
-        }
-      }
-    },
-    handleCollapseChange (type) {
-      if (this.collpaseActive[type]) {
-        this.collpaseActive[type] = null
-        return
-      }
-      this.collpaseActive[type] = true
     }
   }
 }
 </script>
-
-<style scoped lang="scss">
-  .list-item {
-
-    &__container {
-      max-width: 90%;
-      width: 100%;
-
-      @media (min-width: 760px) {
-        max-width: 95%;
-      }
-    }
-
-    &__collapse {
-      margin-top: 10px;
-      margin-bottom: 10px;
-    }
-
-    &__title {
-      font-weight: bold;
-    }
-
-    &__data {
-      margin-right: 20px;
-      white-space: nowrap;
-    }
-
-    &__vals {
-      margin-top: 10px;
-      @media (min-width: 760px) {
-        display: flex;
-      }
-    }
-  }
-  .sub-list-item {
-
-    &__container {
-      max-width: 90%;
-      width: 100%;
-
-      @media (min-width: 760px) {
-        max-width: 95%;
-      }
-    }
-
-    &__title {
-      font-weight: bold;
-    }
-
-    &__data {
-      margin-right: 20px;
-      white-space: nowrap;
-    }
-
-    &__vals {
-      margin-top: 10px;
-      @media (min-width: 760px) {
-        display: flex;
-      }
-    }
-  }
-</style>

@@ -41,6 +41,7 @@
       <template #description><p>{{ readError.startsWith('message.') ? $t(readError) : readError }}</p><a-button size="small" :disabled="tabLoading || listRefreshing > 0" @click="fetchData">{{ $t('label.retry') }}</a-button></template>
     </a-alert>
     <list-view
+      :standard-list="['accountuser', 'account', 'domain'].includes($route.meta?.name)"
 v-if="events.length || (!tabLoading && !readError)"
 :loading="tabLoading"
 :columns="columns"

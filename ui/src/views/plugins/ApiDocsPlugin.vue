@@ -37,15 +37,23 @@
           </a-auto-complete>
           <a-list style="margin-top: 12px; height:580px; overflow-y: scroll;" size="small" :data-source="Object.keys($store.getters.apis).sort()">
             <template #renderItem="{ item }">
-              <a>
               <a-list-item
                 v-if="item.toLowerCase().includes(query.toLowerCase())"
+                class="mold-api-command"
+                :class="selectedApi === item ? 'selected-item' : ''"
+                tabindex="0"
+                :aria-selected="selectedApi === item"
                 @click="showApi(item)"
-                style="padding-left: 12px"
-                :class="selectedApi === item ? 'selected-item' : ''">
-                {{ item }} <a-tag v-if="$store.getters.apis[item].isasync" color="blue">async</a-tag>
+                @contextmenu="openCommandMenu($event, item)"
+                @keydown="handleCommandKey($event, item)">
+                <a-checkbox
+                  :checked="selectedApi === item"
+                  :aria-label="item"
+                  @click.stop
+                  @change="showApi(item)" />
+                <TableOverflowText :text="item" />
+                <a-tag v-if="$store.getters.apis[item].isasync" color="blue">async</a-tag>
               </a-list-item>
-              </a>
             </template>
           </a-list>
           <a-divider style="margin-bottom: 12px" />
@@ -72,9 +80,10 @@
             </h2>
             <p>{{ $store.getters.apis[selectedApi].description }}</p>
             <h3>{{ $t('label.request') }} {{ $t('label.params') }}:</h3>
-            <a-table
+            <mold-list-table
               :columns="[{title: $t('label.name'), dataIndex: 'name'}, {title: $t('label.required'), dataIndex: 'required'}, {title: $t('label.type'), dataIndex: 'type'}, {title: $t('label.description'), dataIndex: 'description'}]"
               :data-source="selectedParams"
+              :scope="selectedApi"
               :pagination="false"
               size="small">
               <template #bodyCell="{text, column, record}">
@@ -82,7 +91,7 @@
                 <span v-if="record.required === true"><strong>{{ text }}</strong></span>
                 <span v-else>{{ text }}</span>
               </template>
-            </a-table>
+            </mold-list-table>
             <br/>
             <h3>{{ $t('label.response') }} {{ $t('label.params') }}:</h3>
             <a-alert v-if="responseError" type="error" :message="responseError" show-icon>
@@ -90,9 +99,10 @@
                 <a-button size="small" @click="showApi(selectedApi)">{{ $t('label.retry') }}</a-button>
               </template>
             </a-alert>
-            <a-table
+            <mold-list-table
               :columns="[{title: $t('label.name'), dataIndex: 'name'}, {title: $t('label.type'), dataIndex: 'type'}, {title: $t('label.description'), dataIndex: 'description'}]"
               :data-source="selectedResponse"
+              :scope="selectedApi"
               :loading="loadingResponse"
               row-key="name"
               :pagination="false"
@@ -158,9 +168,19 @@
       </template>
     </resource-layout>
   </div>
+  <ResourceContextMenu
+    v-if="commandContext"
+    :entries="commandEntries"
+    :title-override="commandContext.item"
+    :position="commandContext.position"
+    @close="commandContext = null"
+    @execute-entry="executeCommandEntry" />
 </template>
 
 <script>
+import MoldListTable from '@/components/view/MoldListTable'
+import ResourceContextMenu from '@/components/view/ResourceContextMenu'
+import TableOverflowText from '@/components/view/TableOverflowText'
 import { getAPI } from '@/api'
 
 import ResourceLayout from '@/layouts/ResourceLayout'
@@ -171,11 +191,15 @@ const documentedFields = fields => Array.isArray(fields) ? fields.filter(field =
 export default {
   name: 'ApiDocsPlugin',
   components: {
+    MoldListTable,
+    ResourceContextMenu,
+    TableOverflowText,
     ResourceLayout,
     TooltipButton
   },
   data () {
     return {
+      commandContext: null,
       query: '',
       selectedApi: '',
       selectedParams: [],
@@ -211,6 +235,11 @@ export default {
     }
   },
   computed: {
+    commandEntries () {
+      const item = this.commandContext?.item
+      if (!item) return []
+      return [{ key: 'copy', label: 'label.copy', icon: 'copy-outlined', handler: () => this.$copyText(item) }]
+    },
     documentationContext () {
       return JSON.stringify([this.$store.state?.user?.token, this.$store.state?.user?.discoveryGeneration,
         this.$store.getters.userInfo?.id, this.$store.getters.project?.id])
@@ -219,6 +248,7 @@ export default {
   watch: {
     documentationContext () {
       this.responseRequestId += 1
+      this.commandContext = null
       this.selectedApi = ''
       this.selectedParams = []
       this.selectedResponse = []
@@ -242,6 +272,24 @@ export default {
     })
   },
   methods: {
+    openCommandMenu (event, item) {
+      event.preventDefault()
+      if (this.selectedApi !== item) this.showApi(item)
+      const rect = event.currentTarget.getBoundingClientRect()
+      this.commandContext = { item, position: event.type === 'keydown' ? { x: rect.left + 24, y: rect.top + 24 } : { x: event.clientX, y: event.clientY } }
+    },
+    handleCommandKey (event, item) {
+      if (event.target !== event.currentTarget) return
+      if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) this.openCommandMenu(event, item)
+      else if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        this.showApi(item)
+      }
+    },
+    executeCommandEntry (entry) {
+      this.commandContext = null
+      entry.handler()
+    },
     isCurrentResponse (api, requestId, context) {
       return requestId === this.responseRequestId && context === this.documentationContext &&
         this.selectedApi === api && Object.prototype.hasOwnProperty.call(this.$store.getters.apis, api)

@@ -46,7 +46,7 @@
             <template #title>
               {{ $t('label.desc.db.stats') }}
             </template>
-            <a-table
+            <mold-list-table
               class="metric-card"
               :columns="columns"
               :loading="loading"
@@ -62,7 +62,7 @@
             <template #title>
               {{ $t('label.desc.usage.stats') }}
             </template>
-            <a-table
+            <mold-list-table
               class="metric-card"
               :columns="columns"
               :data-source="usageMetrics"
@@ -81,6 +81,7 @@
 </template>
 
 <script>
+import MoldListTable from '@/components/view/MoldListTable'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import { getAPI } from '@/api'
 import { genericCompare } from '@/utils/sort.js'
@@ -90,6 +91,7 @@ export default {
   mixins: [listRefreshMixin(['fetchDetails'], { interval: 60000 })],
   name: 'Metrics',
   components: {
+    MoldListTable,
     Breadcrumb
   },
   props: {

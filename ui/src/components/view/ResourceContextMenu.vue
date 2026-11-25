@@ -25,7 +25,15 @@
       role="menu"
       @click.stop
       @contextmenu.stop.prevent>
+      <ResourceActionMenu
+        v-if="entries.length"
+        :entries="menuEntries"
+        :title="titleOverride"
+        :title-suffix="titleSuffix"
+        show-resource-title
+        @execute="$emit('execute-entry', $event)" />
       <ActionButton
+        v-else
         :actions="actions"
         :resource="resource"
         :dataView="true"
@@ -42,13 +50,16 @@
 
 <script>
 import ActionButton from '@/components/view/ActionButton'
+import ResourceActionMenu from '@/components/view/ResourceActionMenu'
+import { isDangerAction, resolveActionMenuGroup } from '@/utils/actionMenu'
 
 const VIEWPORT_PADDING = 8
 
 export default {
   name: 'ResourceContextMenu',
-  components: { ActionButton },
+  components: { ActionButton, ResourceActionMenu },
   props: {
+    entries: { type: Array, default: () => [] },
     actions: { type: Array, default: () => [] },
     resource: { type: Object, default: () => ({}) },
     position: { type: Object, default: () => ({ x: 0, y: 0 }) },
@@ -57,11 +68,14 @@ export default {
     titleOverride: { type: String, default: '' },
     titleSuffix: { type: String, default: '' }
   },
-  emits: ['close', 'exec-action'],
+  emits: ['close', 'exec-action', 'execute-entry'],
   data () {
     return { resolvedPosition: { ...this.position }, previousFocus: null }
   },
   computed: {
+    menuEntries () {
+      return this.entries.map(entry => ({ ...entry, group: resolveActionMenuGroup(entry), danger: isDangerAction(entry) }))
+    },
     menuStyle () {
       return {
         top: `${this.resolvedPosition.y}px`,

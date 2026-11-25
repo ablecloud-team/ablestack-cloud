@@ -165,11 +165,11 @@ test('right-click anchors the next Shift range in the same selection state', asy
   wrapper.unmount()
 })
 
-test('another list has its existing row behavior', async () => {
+test('a list without group operations selects only the last row', async () => {
   const { wrapper, click } = mountTable({ path: '/vmsnapshot' })
   await click('a')
   await click('b', { ctrlKey: true })
-  expect(wrapper.vm.selectedRowKeys).toEqual([])
+  expect(wrapper.vm.selectedRowKeys).toEqual(['b'])
   wrapper.unmount()
 })
 

@@ -40,6 +40,13 @@
             </template>
           </breadcrumb>
         </a-col>
+          <a-col class="breadcrumb-toolbar-actions">
+            <a-tooltip v-if="String(activeTabKey) === '1' && managedInstancesSelectedRowKeys.length > 1 && 'unmanageVirtualMachine' in $store.getters.apis" :title="$t('label.action.unmanage.instances')">
+              <a-button shape="circle" :aria-label="$t('label.action.unmanage.instances')" @click="onUnmanageInstanceAction">
+                <template #icon><disconnect-outlined /></template>
+              </a-button>
+            </a-tooltip>
+          </a-col>
       </a-row>
     </a-card>
     </a-col>
@@ -427,11 +434,12 @@
                         />
                       </span>
                     </template>
-                    <a-table
+                    <mold-list-table
                       v-if="!isExternal"
                       class="instances-card-table"
                       :loading="unmanagedInstancesLoading"
                       :rowSelection="unmanagedInstanceSelection"
+                      :context-actions="unmanagedListActions"
                       :rowKey="(record, index) => index"
                       :columns="unmanagedInstancesColumns"
                       :data-source="unmanagedInstances"
@@ -447,12 +455,13 @@
                           {{ getUnmanagedInstanceCellText(record, column.key, text) }}
                         </template>
                       </template>
-                    </a-table>
-                    <a-table
+                    </mold-list-table>
+                    <mold-list-table
                       v-if="isExternal"
                       class="instances-card-table"
                       :loading="unmanagedInstancesLoading"
                       :rowSelection="unmanagedInstanceSelection"
+                      :context-actions="unmanagedListActions"
                       :rowKey="(record, index) => index"
                       :columns="externalInstancesColumns"
                       :data-source="unmanagedInstances"
@@ -465,7 +474,7 @@
                               <status :text="text ? text : ''" displayText />
                           </template>
                       </template>
-                    </a-table>
+                    </mold-list-table>
                     <div class="instances-card-footer">
                       <a-pagination
                         class="row-element"
@@ -517,10 +526,12 @@
                         />
                       </span>
                     </template>
-                    <a-table
+                    <mold-list-table
                       class="instances-card-table"
                       :loading="managedInstancesLoading"
                       :rowSelection="managedInstanceSelection"
+                      :context-actions="managedListActions"
+                      :multiple="'unmanageVirtualMachine' in $store.getters.apis"
                       :rowKey="(record, index) => index"
                       :columns="managedInstancesColumns"
                       :data-source="managedInstances"
@@ -536,7 +547,7 @@
                           <status :text="text ? text : ''" displayText />
                         </template>
                       </template>
-                    </a-table>
+                    </mold-list-table>
                     <div class="instances-card-footer">
                       <a-pagination
                         class="row-element"
@@ -553,6 +564,7 @@
                       </a-pagination>
                       <div :span="24" class="action-button-right">
                         <a-button
+v-if="managedInstancesSelectedRowKeys.length < 2"
 
                           :disabled="!(('unmanageVirtualMachine' in $store.getters.apis) && managedInstancesSelectedRowKeys.length > 0)"
                           type="primary"
@@ -628,6 +640,7 @@
 </template>
 
 <script>
+import MoldListTable from '@/components/view/MoldListTable'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { ref, reactive, toRaw } from 'vue'
@@ -645,6 +658,7 @@ import ImportVmTasks from '@/views/tools/ImportVmTasks.vue'
 export default {
   mixins: [listRefreshMixin(['fetchImportVmTasks'], { active: vm => String(vm.activeTabKey) === '2' && !!vm.zoneId && vm.isAblestackCloudMigration })],
   components: {
+    MoldListTable,
     TooltipLabel,
     Breadcrumb,
     Status,
@@ -1112,6 +1126,16 @@ export default {
     }
   },
   methods: {
+    unmanagedListActions () {
+      if (!('importUnmanagedInstance' in this.$store.getters.apis)) return []
+      return [{ key: 'import', label: 'label.import.instance', icon: 'import-outlined', handler: this.onManageInstanceAction }]
+    },
+    managedListActions (record, selection) {
+      if (!('unmanageVirtualMachine' in this.$store.getters.apis)) return []
+      return [
+        { key: 'unmanage', label: selection.length > 1 ? 'label.action.unmanage.instances' : 'label.action.unmanage.instance', icon: 'disconnect-outlined', danger: true, handler: this.onUnmanageInstanceAction }
+      ]
+    },
     initForm () {
       this.formRef = ref()
       this.form = reactive({
@@ -1709,9 +1733,11 @@ export default {
     },
     onUnmanagedInstanceSelectRow (value) {
       this.unmanagedInstancesSelectedRowKeys = value
+      if (value.length) this.managedInstancesSelectedRowKeys = []
     },
     onManagedInstanceSelectRow (value) {
       this.managedInstancesSelectedRowKeys = value
+      if (value.length) this.unmanagedInstancesSelectedRowKeys = []
     },
     isValidValueForKey (obj, key) {
       return key in obj && obj[key] != null
