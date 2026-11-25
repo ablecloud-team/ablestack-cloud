@@ -2778,6 +2778,14 @@ export default {
   min-width: 0;
   max-width: 100%;
 
+  :deep(.ant-table-tbody > tr.ant-table-row > td) {
+    // Match the existing medium table header without increasing its height.
+    box-sizing: border-box;
+    height: 47px;
+    padding-block: 0;
+    vertical-align: middle;
+  }
+
   :deep(th.ant-table-cell:not(.ant-table-selection-column)),
   :deep(td.ant-table-cell:not(.ant-table-selection-column)) {
     overflow: hidden;
