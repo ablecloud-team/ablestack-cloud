@@ -101,8 +101,7 @@
           </template>
           <a-input
             v-model:value="form.payloadurl"
-            :placeholder="apiParams.payloadurl.description"
-            @change="handleParamUpdate"/>
+            :placeholder="apiParams.payloadurl.description" />
         </a-form-item>
         <a-form-item name="sslverification" ref="sslverification" v-if="isPayloadUrlHttps">
           <template #label>
@@ -113,9 +112,7 @@
             class="ssl-alert"
             type="warning"
             :message="$t('message.disable.webhook.ssl.verification')" />
-          <a-switch
-            v-model:checked="form.sslverification"
-            @change="handleParamUpdate" />
+          <a-switch v-model:checked="form.sslverification" />
         </a-form-item>
         <a-form-item name="secretkey" ref="secretkey">
           <template #label>
@@ -123,15 +120,16 @@
           </template>
           <a-input
             v-model:value="form.secretkey"
-            :placeholder="apiParams.secretkey.description"
-            @change="handleParamUpdate"/>
+            :placeholder="apiParams.secretkey.description" />
         </a-form-item>
         <test-webhook-delivery-view
-          ref="dispatchview"
+          v-if="'executeWebhookDelivery' in $store.getters.apis"
           :payloadUrl="form.payloadurl"
-          :sslVerification="isPayloadUrlHttps && form.sslverification"
+          :sslVerification="isPayloadUrlHttps ? form.sslverification : undefined"
           :secretKey="form.secretkey"
-          :showActions="!(!form.payloadurl)" />
+          :disabled="loading"
+          showActions
+          @change-loading="testDeliveryLoading = $event" />
         <a-form-item name="state" ref="state">
           <template #label>
             <tooltip-label :title="$t('label.enabled')" :tooltip="apiParams.state.description"/>
@@ -140,7 +138,7 @@
         </a-form-item>
         <div :span="24" class="action-button">
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-          <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+          <a-button :loading="loading" :disabled="testDeliveryLoading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
         </div>
       </a-form>
     </a-spin>
@@ -167,7 +165,6 @@ export default {
   data () {
     return {
       loading: false,
-      testDeliveryAllowed: false,
       testDeliveryLoading: false
     }
   },
@@ -222,19 +219,11 @@ export default {
     isValidValueForKey (obj, key) {
       return key in obj && obj[key] != null
     },
-    arrayHasItems (array) {
-      return array !== null && array !== undefined && Array.isArray(array) && array.length > 0
-    },
-    isObjectEmpty (obj) {
-      return !(obj !== null && obj !== undefined && Object.keys(obj).length > 0 && obj.constructor === Object)
-    },
-    updateTestDeliveryLoading (value) {
-      this.testDeliveryLoading = value
-    },
     handleSubmit (e) {
-      e.preventDefault()
-      if (this.loading) return
+      e?.preventDefault?.()
+      if (this.loading || this.testDeliveryLoading) return
       this.formRef.value.validate().then(() => {
+        if (this.loading || this.testDeliveryLoading) return
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
         const params = {
@@ -285,11 +274,6 @@ export default {
     },
     closeAction () {
       this.$emit('close-action')
-    },
-    handleParamUpdate () {
-      setTimeout(() => {
-        this.$refs.dispatchview.timedTestWebhookDelivery()
-      }, 1)
     },
     handleScopeChange (e) {
       this.form.domainid = null

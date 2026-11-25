@@ -16,263 +16,139 @@
 // under the License.
 
 <template>
-  <div class="form-layout">
-    <div v-if="(resource || payloadUrl)">
-      <a-divider />
-      <a-collapse
-        v-model:activeKey="collapseKey">
-        <a-collapse-panel
-          :showArrow="isResponseNotEmpty"
-          key="1"
-          :collapsible="(resource || payloadUrl) ? 'enabled' : 'disabled'">
-          <template #header>
-            <a-row style="width: 100%;">
-              <a-col :span="22">
-                <tooltip-label :title="$t('label.status')" v-if="isNotShowStatus"/>
-                <status class="status" :text="response.success ? 'success' : 'error'" displayText v-else/>
-              </a-col>
-              <a-col :span="2">
-                <div v-if="showActions">
-                  <a-spin :spinning="loading" size="small" v-if="loading" />
-                  <div v-else>
-                    <a-button
-                      type="primary"
-                      size="small"
-                      @click.stop="testWebhookDelivery">
-                      <render-icon icon="reload-outlined" />
-                      <div class="ant-btn__progress-overlay" :style="computedOverlayStyle"></div>
-                    </a-button>
-                  </div>
-                </div>
-              </a-col>
-            </a-row>
-          </template>
-          <div v-if="isResponseNotEmpty">
-            <a-row>
-              <a-col :span="8">
-                <div class="response-detail-item" v-if="('success' in response)">
-                  <div class="response-detail-item__label"><strong>{{ $t('label.success') }}</strong></div>
-                  <div class="response-detail-item__details">
-                    <status class="status" :text="response.success ? 'success' : 'error'"/>
-                  </div>
-                </div>
-              </a-col>
-              <a-col :span="8">
-                <div class="response-detail-item" v-if="response.startdate && response.enddate">
-                  <div class="response-detail-item__label"><strong>{{ $t('label.duration') }}</strong></div>
-                  <div class="response-detail-item__details">
-                    {{ responseDuration }}
-                  </div>
-                </div>
-              </a-col>
-              <a-col :span="8">
-                <div class="response-detail-item" v-if="response.managementserverid">
-                  <div class="response-detail-item__label"><strong>{{ $t('label.managementserverid') }}</strong></div>
-                  <div class="response-detail-item__details">
-                    {{ response.managementservername }}
-                  </div>
-                </div>
-              </a-col>
-            </a-row>
-            <a-alert
-              :type="response.success ? 'success' : 'error'"
-              :showIcon="true"
-              :message="$t('label.response')"
-              :description="response.response ? response.response : 'Empty response'" />
-            </div>
-        </a-collapse-panel>
-      </a-collapse>
-      <a-divider />
+  <section v-if="resource || showActions" class="webhook-test-delivery">
+    <a-space v-if="showActions" direction="vertical">
+      <a-button
+        html-type="button"
+        :loading="loading"
+        :disabled="disabled || !testTarget"
+        @click.stop="testWebhookDelivery">
+        {{ $t('label.webhook.test.send') }}
+      </a-button>
+      <div v-if="testTarget" class="test-target">
+        <strong>{{ $t('label.payloadurl') }}</strong>
+        {{ testTarget }}
+      </div>
+    </a-space>
+    <div class="test-result" role="status" aria-live="polite">
+      <div v-if="loading">{{ $t('message.webhook.test.sending') }}</div>
+      <a-alert
+        v-else-if="requestFailed"
+        type="error"
+        show-icon
+        :message="$t('message.request.failed')" />
+      <template v-else-if="delivery">
+        <status :text="delivery.success ? 'success' : 'error'" displayText />
+        <div v-if="responseDuration !== null">{{ $t('label.duration') }} {{ responseDuration }}</div>
+        <div v-if="delivery.managementservername">{{ $t('label.managementservername') }} {{ delivery.managementservername }}</div>
+        <a-alert
+          :type="delivery.success ? 'success' : 'error'"
+          :message="$t('label.response')"
+          :description="delivery.response || $t('message.webhook.test.empty.response')"
+          show-icon />
+      </template>
     </div>
-  </div>
+  </section>
 </template>
 
 <script>
 import { postAPI } from '@/api'
-import TooltipLabel from '@/components/widgets/TooltipLabel'
 import Status from '@/components/widgets/Status'
 
 export default {
   name: 'TestWebhookDeliveryView',
-  components: {
-    TooltipLabel,
-    Status
-  },
+  components: { Status },
   props: {
-    resource: {
-      type: Object
-    },
-    payload: {
-      type: String
-    },
-    payloadUrl: {
-      type: String
-    },
+    resource: Object,
+    payload: String,
+    payloadUrl: String,
     sslVerification: {
       type: Boolean,
-      default: false
+      default: undefined
     },
-    secretKey: {
-      type: String
-    },
-    showActions: {
-      type: Boolean,
-      default: false
-    }
+    secretKey: String,
+    showActions: Boolean,
+    disabled: Boolean
   },
+  emits: ['change-loading'],
   data () {
     return {
-      response: {},
-      collapseKey: undefined,
+      delivery: null,
       loading: false,
-      testDeliveryInterval: null,
-      testDeliveryIntervalCouter: 0
+      requestFailed: false,
+      inputRevision: 0
     }
-  },
-  beforeCreate () {
-    this.timedDeliveryWait = 4000
-  },
-  beforeUnmount () {
-    this.resetTestDeliveryInterval()
   },
   computed: {
-    isResponseNotEmpty () {
-      return this.response && Object.keys(this.response).length > 0
-    },
-    isNotShowStatus () {
-      return !this.isResponseNotEmpty ||
-        this.collapseKey === '1' ||
-        (Array.isArray(this.collapseKey) &&
-        this.collapseKey.length > 0 &&
-        this.collapseKey[0] === '1')
+    testTarget () {
+      return this.resource?.payloadurl || this.payloadUrl?.trim()
     },
     responseDuration () {
-      if (!this.response.startdate || !this.response.enddate) {
-        return ''
-      }
-      var duration = Date.parse(this.response.enddate) - Date.parse(this.response.startdate)
-      return (duration > 0 ? duration / 1000.0 : 0) + ''
-    },
-    computedOverlayStyle () {
-      var opacity = this.testDeliveryIntervalCouter <= 10.0 ? 0 : 0.3
-      var width = this.testDeliveryIntervalCouter
-      return 'opacity: ' + opacity + '; width: ' + width + '%;'
+      const { startdate, enddate } = this.delivery || {}
+      if (!startdate || !enddate) return null
+      const duration = Date.parse(enddate) - Date.parse(startdate)
+      return Number.isFinite(duration) ? Math.max(duration, 0) / 1000 : null
     }
   },
+  watch: {
+    'resource.id': 'resetResult',
+    testTarget: 'resetResult',
+    payload: 'resetResult',
+    sslVerification: 'resetResult',
+    secretKey: 'resetResult'
+  },
+  beforeUnmount () {
+    this.inputRevision++
+  },
   methods: {
-    validateUrl (url) {
-      const urlPattern = /^(http|https):\/\/[^ "]+$/
-      urlPattern.test(url)
+    resetResult () {
+      this.inputRevision++
+      this.delivery = null
+      this.requestFailed = false
     },
-    resetTestDeliveryInterval () {
-      if (this.testDeliveryInterval) {
-        clearInterval(this.testDeliveryInterval)
-      }
-      this.testDeliveryIntervalCouter = 0
-    },
-    testWebhookDelivery () {
-      this.resetTestDeliveryInterval()
-      this.response = {}
+    async testWebhookDelivery () {
+      if (this.disabled || this.loading || (!this.resource?.id && !this.testTarget)) return
+      const revision = this.inputRevision
+      this.delivery = null
+      this.requestFailed = false
       this.loading = true
-      this.$emit('change-loading', this.loading)
-      var params = {}
-      if (this.resource) {
+      this.$emit('change-loading', true)
+      const params = {}
+      if (this.resource?.id) {
         params.webhookid = this.resource.id
+        if (this.payload) params.payload = this.payload
+      } else {
+        params.payloadurl = this.testTarget
+        if (this.sslVerification !== undefined) params.sslverification = this.sslVerification
+        if (this.secretKey) params.secretkey = this.secretKey
       }
-      if (this.payload) {
-        params.payload = this.payload
-      }
-      if (this.payloadUrl) {
-        params.payloadUrl = this.payloadUrl
-      }
-      if (this.sslVerification) {
-        params.sslVerification = this.sslVerification
-      }
-      if (this.secretKey) {
-        params.secretKey = this.secretKey
-      }
-      postAPI('executeWebhookDelivery', params).then(response => {
-        this.response = response.executewebhookdeliveryresponse.webhookdelivery
-        this.$emit('update-success', response.success)
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
+      try {
+        const response = await postAPI('executeWebhookDelivery', params)
+        if (revision === this.inputRevision) {
+          this.delivery = response?.executewebhookdeliveryresponse?.webhookdelivery || null
+          this.requestFailed = !this.delivery
+        }
+      } catch (error) {
+        if (revision === this.inputRevision) {
+          this.requestFailed = true
+          this.$notifyError(error)
+        }
+      } finally {
         this.loading = false
-        this.$emit('change-loading', this.loading)
-      })
-    },
-    getNormalizedPayloadUrl () {
-      if (!this.payloadUrl || this.payloadUrl === '' || this.validateUrl(this.payloadUrl)) {
-        return this.payloadUrl
+        this.$emit('change-loading', false)
       }
-      return 'http://' + this.payloadUrl
-    },
-    executeTestWebhookDeliveryOrReset () {
-      const url = this.getNormalizedPayloadUrl()
-      if (url) {
-        this.testWebhookDelivery()
-        return
-      }
-      this.resetTestDeliveryInterval()
-    },
-    timedTestWebhookDelivery () {
-      const url = this.getNormalizedPayloadUrl()
-      this.resetTestDeliveryInterval()
-      this.testDeliveryInterval = setInterval(() => {
-        if (!url) {
-          this.resetTestDeliveryInterval()
-          return
-        }
-        this.testDeliveryIntervalCouter = this.testDeliveryIntervalCouter + 1
-        if (this.testDeliveryIntervalCouter >= 100) {
-          this.executeTestWebhookDeliveryOrReset()
-        }
-      }, this.timedDeliveryWait / 100)
     }
   }
 }
 </script>
 
-<style scoped lang="scss">
-  .response-detail-item {
-    margin-bottom: 20px;
-    word-break: break-all;
+<style scoped>
+.test-target,
+.test-result {
+  overflow-wrap: anywhere;
+}
 
-    &__details {
-      display: flex;
-      align-items: center;
-
-      &--start {
-        align-items: flex-start;
-
-        i {
-          margin-top: 4px;
-        }
-
-      }
-
-    }
-
-    .anticon {
-      margin-right: 10px;
-    }
-
-    &__label {
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-  }
-
-  .ant-btn .ant-btn__progress-overlay {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    z-index: 5;
-    opacity: 0.3;
-    transition: all 0s ease;
-    position: absolute;
-    left: 0;
-    top: 0;
-    background-color: #666;
-  }
+.test-result:not(:empty) {
+  margin-top: 8px;
+}
 </style>
