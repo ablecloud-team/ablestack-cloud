@@ -22,6 +22,7 @@ import componentsUse from '@/core/lazy_lib/components_use'
 import iconsUse from '@/core/lazy_lib/icons_use'
 import extensions from '@/core/ext'
 import directives from '@/utils/directives'
+import { DetailTabTable, DetailTabPagination } from '@/components/view/detailTabList'
 
 registerRequireContextHook()
 
@@ -29,6 +30,8 @@ config.global.plugins.push(componentsUse)
 config.global.plugins.push(iconsUse)
 config.global.plugins.push(extensions)
 config.global.plugins.push(directives)
+config.global.components.DetailTabTable = DetailTabTable
+config.global.components.DetailTabPagination = DetailTabPagination
 
 window.matchMedia = window.matchMedia || function () {
   return {

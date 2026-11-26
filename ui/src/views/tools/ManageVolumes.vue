@@ -37,8 +37,7 @@
         </div>
       </a-card>
     </a-col>
-    <a-col
-      :md="24">
+    <a-col :md="24">
       <div>
         <a-card>
           <a-alert
@@ -203,7 +202,8 @@
                   </span>
                 </template>
                 <a-table
-                  class="volumes-card-table"
+                  class="workspace-table workspace-import-table volumes-card-table"
+                  v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.storagepool'), scope: JSON.stringify([page, pageSize]) }"
                   :loading="unmanagedVolumesLoading"
                   :custom-row="unmanagedRow"
                   :rowKey="(record, index) => index"
@@ -273,7 +273,8 @@
                   </span>
                 </template>
                 <a-table
-                  class="volumes-card-table"
+                  class="workspace-table workspace-import-table volumes-card-table"
+                  v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.storagepool'), scope: JSON.stringify([page, pageSize]) }"
                   :loading="managedVolumesLoading"
                   :custom-row="managedRow"
                   :rowKey="(record, index) => index"
@@ -459,6 +460,7 @@
 </template>
 
 <script>
+import scrollActivity, { tableScrollSelector } from '@/utils/scrollActivity'
 import { selectableImportRow } from '@/utils/moldListSelection'
 import { restoreImportOptions } from '@/utils/importOptionNavigation'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
@@ -483,6 +485,7 @@ export default {
     InfiniteScrollSelect
   },
   name: 'ManageVolumes',
+  directives: { scrollActivity },
   data () {
     const unmanagedVolumesColumns = [
       {
@@ -603,6 +606,7 @@ export default {
     this.fetchData()
   },
   computed: {
+    tableScrollSelector () { return tableScrollSelector },
     isPageAllowed () {
       if (this.$route.meta.permission) {
         for (var apiName of this.$route.meta.permission) {

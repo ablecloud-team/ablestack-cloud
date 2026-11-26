@@ -34,6 +34,7 @@
       <template #icon><plus-outlined /></template> {{ $t('label.schedule.add') }}
     </a-button>
     <list-view
+detail-tab
       :loading="tabLoading"
       :columns="columns"
       :items="schedules"
@@ -74,7 +75,7 @@
         </template>
       </template>
     </list-view>
-    <a-pagination
+    <detail-tab-pagination
       class="row-element"
       style="margin-top: 10px"
       size="small"
@@ -93,7 +94,7 @@
       <template #buildOptionText="props">
         <span>{{ props.value }} / {{ $t('label.page') }}</span>
       </template>
-    </a-pagination>
+    </detail-tab-pagination>
   </div>
 
   <a-modal

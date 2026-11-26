@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div class="resource-table-toolbar">
+  <div class="detail-tab-toolbar resource-table-toolbar">
     <slot />
     <div v-if="refreshable || $slots.actions" class="resource-table-toolbar__actions">
       <a-button v-if="refreshable" :loading="loading" @click="$emit('refresh')">
@@ -54,13 +54,6 @@ export default {
 </script>
 
 <style scoped>
-.resource-table-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 20px;
-}
 .resource-table-toolbar__actions {
   display: flex;
   flex-wrap: wrap;

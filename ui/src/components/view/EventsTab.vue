@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div class="events-tab" data-testid="events-tab">
+  <div class="events-tab" :class="{ 'workspace-list': resourceViewportEnabled() }" data-testid="events-tab">
     <div class="detail-tab-toolbar">
       <a-button :loading="tabLoading || listRefreshing > 0" @click="fetchData"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
       <a-dropdown :trigger="['click']">
@@ -41,6 +41,8 @@
       <template #description><p>{{ readError.startsWith('message.') ? $t(readError) : readError }}</p><a-button size="small" :disabled="tabLoading || listRefreshing > 0" @click="fetchData">{{ $t('label.retry') }}</a-button></template>
     </a-alert>
     <list-view
+      :viewport-scroll="resourceViewportEnabled()"
+      :viewport-scope="JSON.stringify([loadedContext, page, pageSize])"
       :standard-list="['accountuser', 'account', 'domain'].includes($route.meta?.name)"
 v-if="events.length || (!tabLoading && !readError)"
 :loading="tabLoading"
@@ -66,7 +68,7 @@ size="small"
 @change="changePage"
 @showSizeChange="changePageSize"
 showSizeChanger
-showQuickJumper>
+:showQuickJumper="totalCount > 0">
       <template #buildOptionText="props"><span>{{ props.value }} / {{ $t('label.page') }}</span></template>
     </a-pagination>
   </div>
@@ -85,6 +87,7 @@ export default {
   components: { ListView },
   props: { resource: { type: Object, required: true }, resourceType: { type: String, required: true }, loading: { type: Boolean, required: true } },
   data () { return { tabLoading: false, columnKeys: ['level', 'type', 'state', 'description', 'username', 'account', 'domain', 'created'], selectedColumnKeys: [], columns: [], events: [], actions: [], page: 1, pageSize: 20, totalCount: 0, eventSearch: '', keyword: '', archiveScope: 'all', loadedContext: '', readError: '', readDenied: false } },
+  inject: { resourceViewportEnabled: { default: () => () => false } },
   computed: {
     eventContext () { return detailTabContext(this, ['listEvents']) },
     isOperationTimeline () { return this.resourceType === 'EventTimeline' },

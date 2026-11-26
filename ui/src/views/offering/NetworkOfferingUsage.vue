@@ -25,7 +25,7 @@
     <a-alert type="info" show-icon :message="$t('message.offering.usage.lifecycle')" />
     <a-alert v-if="error" type="error" show-icon :message="$t(loaded ? 'message.network.offering.usage.stale' : 'error.fetching.data')"><template #description><a-button size="small" @click="load">{{ $t('label.retry') }}</a-button></template></a-alert>
     <p v-if="loaded && !error" class="usage-count">{{ $t('message.network.offering.usage.count', [total]) }}</p>
-    <a-table
+    <detail-tab-table
       size="small"
       row-key="id"
       :columns="columns"
@@ -40,7 +40,7 @@
         <template v-else-if="column.key === 'state'"><status :text="record.state" display-text /></template>
         <template v-else-if="column.key === 'owner'">{{ record.project || record.account }}</template>
       </template>
-    </a-table>
+    </detail-tab-table>
   </div>
 </template>
 <script>

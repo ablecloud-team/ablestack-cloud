@@ -35,6 +35,7 @@
       :message="$t('message.domain.settings.scope', { path: resource.path || resource.name })"
       :description="$t('message.domain.settings.inheritance')" />
     <configuration-hierarchy
+detail-tab
       :config="pageRows"
       :korean-catalog="koreanCatalog"
       :loading="loading && !items.length"

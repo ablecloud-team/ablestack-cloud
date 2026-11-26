@@ -16,10 +16,10 @@
 // under the License.
 
 <template>
-  <div class="api-docs">
-    <resource-layout>
+  <div class="api-docs mold-workspace">
+    <resource-layout viewport-scroll>
       <template #left>
-        <a-card :bordered="false">
+        <a-card :bordered="false" class="workspace-fill">
           <a-auto-complete
             v-model:value="query"
             :options="options.filter(value => value.value.toLowerCase().includes(query.toLowerCase()))"
@@ -35,7 +35,12 @@
                 <template #prefix><search-outlined /></template>
             </a-input-search>
           </a-auto-complete>
-          <a-list style="margin-top: 12px; height:580px; overflow-y: scroll;" size="small" :data-source="Object.keys($store.getters.apis).sort()">
+          <a-list
+            class="workspace-panel"
+            style="margin-top: 12px"
+            v-scroll-activity="{ label: $t('label.api.docs'), scope: query }"
+            size="small"
+            :data-source="Object.keys($store.getters.apis).sort()">
             <template #renderItem="{ item }">
               <a-list-item
                 v-if="item.toLowerCase().includes(query.toLowerCase())"
@@ -56,10 +61,10 @@
       </template>
       <template #right>
         <a-card
-          class="spin-content"
+          class="spin-content workspace-fill"
           :bordered="true"
           style="width: 100%; overflow-x: auto">
-          <span v-if="selectedApi && selectedApi in $store.getters.apis">
+          <div class="workspace-fill" v-if="selectedApi && selectedApi in $store.getters.apis">
             <h2>{{ selectedApi }}
               <a-tag v-if="$store.getters.apis[selectedApi].isasync" class="api-docs-tag">Asynchronous API</a-tag>
               <a-tag v-if="$store.getters.apis[selectedApi].since" class="api-docs-tag">Since {{ $store.getters.apis[selectedApi].since }}</a-tag>
@@ -72,6 +77,7 @@
                 @onClick="$message.success($t('label.copied.clipboard'))"
                 :copyResource="selectedApi" />
             </h2>
+            <div class="workspace-panel" v-scroll-activity="{ label: $t('label.details'), scope: selectedApi }">
             <p>{{ $store.getters.apis[selectedApi].description }}</p>
             <h3>{{ $t('label.request') }} {{ $t('label.params') }}:</h3>
             <a-table
@@ -101,7 +107,8 @@
               row-key="name"
               :pagination="false"
               size="small" />
-          </span>
+            </div>
+          </div>
           <span v-else>
             <a-alert
               :message="$t('label.api.docs')"
@@ -165,6 +172,7 @@
 </template>
 
 <script>
+import scrollActivity from '@/utils/scrollActivity'
 import { getAPI } from '@/api'
 
 import ResourceLayout from '@/layouts/ResourceLayout'
@@ -174,6 +182,7 @@ const documentedFields = fields => Array.isArray(fields) ? fields.filter(field =
 
 export default {
   name: 'ApiDocsPlugin',
+  directives: { scrollActivity },
   components: {
     ResourceLayout,
     TooltipButton

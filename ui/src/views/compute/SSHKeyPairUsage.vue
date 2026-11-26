@@ -28,10 +28,18 @@
     </a-alert>
     <p v-if="rows.length" class="usage-summary">{{ $t('message.ssh.keypair.usage.page.states') }} <span v-for="[state, total] in pageStates" :key="state"><Status :text="state" /> {{ $t('label.' + state.toLowerCase()) }} {{ total }}</span></p>
     <div class="usage-table">
-      <ListView resource-path="/vm" :columns="columns" :items="rows" :loading="tableLoading" :actions="[]" :emptyText="$t('message.ssh.keypair.usage.' + (status === 'ready' ? 'empty' : status))" @table-change="sort" />
+      <ListView
+detail-tab
+resource-path="/vm"
+:columns="columns"
+:items="rows"
+:loading="tableLoading"
+:actions="[]"
+:emptyText="$t('message.ssh.keypair.usage.' + (status === 'ready' ? 'empty' : status))"
+@table-change="sort" />
     </div>
     <div v-if="status === 'ready' || rows.length" class="usage-pagination">
-      <a-pagination :current="page" :pageSize="pagesize" :total="count" :showTotal="total => $t('message.ssh.keypair.usage.total', [total])" show-size-changer :pageSizeOptions="['10', '20', '50', '100']" @change="changePage" />
+      <detail-tab-pagination :current="page" :pageSize="pagesize" :total="count" :showTotal="total => $t('message.ssh.keypair.usage.total', [total])" show-size-changer :pageSizeOptions="['10', '20', '50', '100']" @change="changePage" />
     </div>
   </section>
 </template>

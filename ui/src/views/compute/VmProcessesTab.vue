@@ -51,7 +51,7 @@ under the License.
       </template>
     </a-alert>
 
-    <a-table
+    <detail-tab-table
 :columns="columns"
 :data-source="rows"
 :row-key="rowKey"
@@ -83,8 +83,8 @@ size="small"
         </template>
       </template>
       <template #emptyText>{{ $t(initializing ? 'message.vmprocess.loading' : disabled ? 'message.vmprocess.disabled' : diagnostic ? 'message.vmprocess.no.snapshot' : 'message.vmprocess.empty') }}</template>
-    </a-table>
-    <a-pagination :current="page" :page-size="pageSize" :total="total" :show-size-changer="true" :page-size-options="['10', '20', '50', '100']" class="process-pagination" @change="pageChanged" />
+    </detail-tab-table>
+    <detail-tab-pagination :current="page" :page-size="pageSize" :total="total" :show-size-changer="true" :page-size-options="['10', '20', '50', '100']" class="process-pagination" @change="pageChanged" />
     <p class="process-footnote">{{ $t('message.vmprocess.limit') }}</p>
 
     <a-modal

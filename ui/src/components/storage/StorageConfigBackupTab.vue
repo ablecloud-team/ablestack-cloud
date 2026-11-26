@@ -13,7 +13,15 @@ Version 2.0: http://www.apache.org/licenses/LICENSE-2.0 -->
       <a-button v-if="canApply" :disabled="busy || protectedOperation" @click="openUpload">{{ $t('label.sharedfs.config.upload') }}</a-button>
     </div>
     <a-alert v-if="error" type="error" show-icon :message="error" :description="failureHint(error)" />
-    <a-table :columns="columns" :data-source="rows" row-key="id" :loading="busy && !listReadComplete"  size="small" :scroll="{ x: 1060 }">
+    <detail-tab-table
+:table="$options.components.ATable"
+:pagination="false"
+:columns="columns"
+:data-source="rows"
+row-key="id"
+:loading="busy && !listReadComplete"
+size="small"
+:scroll="{ x: 1060 }">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'kind'">{{ $t('label.sharedfs.config.kind.' + record.kind.toLowerCase()) }}</template>
         <template v-else-if="column.key === 'created'">{{ createdLabel(record.created) }}</template>
@@ -27,8 +35,8 @@ Version 2.0: http://www.apache.org/licenses/LICENSE-2.0 -->
           </a-space>
         </template>
       </template>
-    </a-table>
-    <div class="detail-tab-toolbar">
+    </detail-tab-table>
+    <div class="detail-tab-toolbar detail-table-footer">
       <a-button :disabled="busy || page === 1" @click="changePage(-1)">{{ $t('label.previous') }}</a-button>
       <a-button :disabled="busy || rows.length < 25" @click="changePage(1)">{{ $t('label.next') }}</a-button>
     </div>

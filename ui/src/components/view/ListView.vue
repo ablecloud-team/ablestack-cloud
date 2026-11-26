@@ -19,11 +19,11 @@
   <div
     ref="tableViewport"
     class="list-view-table-wrapper"
-    v-scroll-activity="viewportScroll && { selector: '.ant-table-content', label: scrollRegionLabel }"
-    :class="{ 'kms-table': kmsTable, 'autoscale-list': $route.name === 'autoscalevmgroup', 'snapshot-list-table': $route.name === 'snapshot', 'snapshot-policy-list-table': $route.name === 'snapshotpolicy', 'kubernetes-iso-list-table': isKubernetesIsoMainList, 'usage-records-list-table': isUsageList, 'vm-list-table': isVmMainList, 'mold-list-table': standardTable }"
-    :tabindex="scrollRegionLabel && !viewportScroll ? 0 : undefined"
-    :role="scrollRegionLabel && !viewportScroll ? 'region' : undefined"
-    :aria-label="viewportScroll ? undefined : scrollRegionLabel"
+    v-scroll-activity="scrollInViewport && { selector: tableScrollSelector, label: scrollRegionLabel || $t($route.meta?.title || 'label.items'), scope: viewportScope ?? detailTabScope }"
+    :class="{ 'kms-table': kmsTable, 'autoscale-list': $route.name === 'autoscalevmgroup', 'snapshot-list-table': $route.name === 'snapshot', 'snapshot-policy-list-table': $route.name === 'snapshotpolicy', 'kubernetes-iso-list-table': isKubernetesIsoMainList, 'usage-records-list-table': isUsageList, 'vm-list-table': isVmMainList, 'mold-list-table': standardTable, 'workspace-table': scrollInViewport, 'detail-tab-table': detailTab && scrollInViewport }"
+    :tabindex="scrollRegionLabel && !scrollInViewport ? 0 : undefined"
+    :role="scrollRegionLabel && !scrollInViewport ? 'region' : undefined"
+    :aria-label="scrollInViewport ? undefined : scrollRegionLabel"
     @keydown="scrollWideTable"
     @contextmenu="handleGlobalContextMenu">
     <a-table
@@ -85,7 +85,7 @@
       <span v-if="isVmMainList && column.key === 'displayname'" class="vm-list-name">
         <span class="vm-list-name-icon">
           <resource-icon v-if="record.icon && record.icon.base64image" :image="record.icon.base64image" size="2x" />
-          <os-logo v-else :osId="record.ostypeid" :osName="record.ostypename || record.osdisplayname" :use-cache="viewportScroll" size="xl" />
+          <os-logo v-else :osId="record.ostypeid" :osName="record.ostypename || record.osdisplayname" :use-cache="isVmMainList" size="xl" />
         </span>
         <a-tooltip :title="vmDisplayName(record)" :trigger="['hover', 'focus']">
           <router-link class="vm-display-name" :to="{ path: '/vm/' + record.id }">{{ vmDisplayName(record) }}</router-link>
@@ -1412,8 +1412,8 @@
       </template>
       </template>
     </template>
-    <template #footer>
-      <span v-if="hasSelected || viewportScroll" :aria-live="viewportScroll ? 'polite' : undefined">
+    <template v-if="hasSelected || (viewportScroll && tableSelection)" #footer>
+      <span :aria-live="viewportScroll ? 'polite' : undefined">
         {{ $t('label.items.selected.count', [selectedRowKeys.length]) }}
       </span>
     </template>
@@ -1517,7 +1517,7 @@ import moment from 'moment-timezone'
 import { timeZoneName } from '@/utils/timezone'
 import { FileTextOutlined } from '@ant-design/icons-vue'
 import { Empty } from 'ant-design-vue'
-import scrollActivity from '@/utils/scrollActivity'
+import scrollActivity, { tableScrollSelector } from '@/utils/scrollActivity'
 import SharedFSCapacitySummary from '@/views/storage/SharedFSCapacitySummary.vue'
 import SharedFSBootRecoverySummary from '@/views/storage/SharedFSBootRecoverySummary.vue'
 
@@ -1605,7 +1605,9 @@ export default {
   ],
   props: {
     tableScroll: { type: Object, default: null },
+    detailTab: Boolean,
     viewportScroll: { type: Boolean, default: false },
+    viewportScope: { type: [String, Number], default: undefined },
     standardList: { type: Boolean, default: undefined },
     kmsTable: { type: Boolean, default: false },
     resourcePath: { type: String, default: '' },
@@ -1653,7 +1655,11 @@ export default {
       type: Number
     }
   },
-  inject: ['parentFetchData', 'parentToggleLoading'],
+  inject: {
+    parentFetchData: { default: undefined },
+    parentToggleLoading: { default: undefined },
+    resourceViewportEnabled: { default: () => () => false }
+  },
   data () {
     return {
       systemOfferingOrderBusy: false,
@@ -1743,8 +1749,8 @@ export default {
       this.closeContextQuickView()
     },
     '$route.fullPath' () {
-      if (this.viewportScroll) {
-        const viewport = this.$refs.tableViewport?.querySelector('.ant-table-content')
+      if (this.scrollInViewport) {
+        const viewport = this.$refs.tableViewport?.querySelector(tableScrollSelector)
         if (viewport) viewport.scrollTop = 0
       }
       this.columnPickerVisible = false
@@ -1754,6 +1760,12 @@ export default {
     }
   },
   computed: {
+    scrollInViewport () { return this.viewportScroll || (this.detailTab && this.resourceViewportEnabled()) },
+    detailTabScope () {
+      if (!this.detailTab) return undefined
+      return JSON.stringify([this.$route.path, this.items[0]?.id, this.items.at(-1)?.id])
+    },
+    tableScrollSelector () { return tableScrollSelector },
     isVmMainList () { return this.$route.path === '/vm' && !this.resourcePath },
     standardTable () {
       return this.standardList ?? Boolean(this.$route.name && this.$route.path !== '/dashboard' && !this.$route.params?.id && !this.resourcePath)
@@ -1788,7 +1800,7 @@ export default {
     isUsageList () { return this.$route.path === '/usage' && !this.resourcePath },
     isRuntimeCatalogList () { return this.$route.path === '/runtimebundle' && !this.resourcePath },
     emptyTableImage () { return Empty.PRESENTED_IMAGE_SIMPLE },
-    fixedOrderControls () { return !this.resourcePath && ['/systemoffering', '/computeoffering', '/diskoffering', '/networkoffering', '/vpcoffering', '/template', '/iso'].includes(this.$route.path) },
+    fixedOrderControls () { return !this.resourcePath && ['/systemoffering', '/computeoffering', '/diskoffering', '/networkoffering', '/vpcoffering', '/template', '/iso', '/guestoscategory'].includes(this.$route.path) },
     systemOfferingOrder () { return this.$route.path === '/systemoffering' },
     systemOfferingOrderAvailable () { return !!this.$store.getters.apis.listConfigurations && canReorderSystemOffering(this.$route.query, this.systemOfferingTableSorted) },
     systemOfferingOrderDisabled () { return this.systemOfferingOrder && (!this.systemOfferingOrderAvailable || this.systemOfferingOrderBusy) },

@@ -27,7 +27,7 @@
       <template #icon><delete-outlined /></template>
       {{ $t('label.action.delete.result') }}
     </a-button>
-    <a-table
+    <detail-tab-table
       size="small"
       style="overflow-y: auto"
       :columns="columns"
@@ -72,7 +72,7 @@
             icon="delete-outlined"
             @onClick="onShowDeleteModal(record)"/>
       </template>
-    </a-table>
+    </detail-tab-table>
     <a-modal
         :title="selectedItems.length > 0 && showTable ? $t(message.title) : $t('label.action.delete.integrity.verification.result')"
         :visible="showDeleteResult"

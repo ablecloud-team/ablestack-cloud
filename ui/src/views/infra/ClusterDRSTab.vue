@@ -45,7 +45,7 @@
     </p>
     <a-alert v-if="generationError" type="error" show-icon :message="$t(generationError)" />
     <a-alert v-if="listRefreshFailed" type="error" show-icon :message="$t('message.drs.history.load.failed')" />
-    <a-table
+    <detail-tab-table
       class="cluster-drs-history"
       size="small"
       :columns="historyColumns"
@@ -80,7 +80,7 @@
           </a-button>
         </template>
       </template>
-    </a-table>
+    </detail-tab-table>
 
     <mold-dialog
       :visible="showModal"

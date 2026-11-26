@@ -22,7 +22,7 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. -->
     <a-alert v-if="!canRead || (!keyword && memberCount > total)" type="info" show-icon :message="$t('message.affinity.members.restricted')" />
     <div v-if="selection.length" class="affinity-selection-context"><span>{{ $t('label.selected') }}: {{ selection.length }}</span><a-button size="small" @click="selection = []; selected = {}">{{ $t('label.clear') }}</a-button></div>
     <div class="affinity-table-region" role="region" tabindex="0" :aria-label="$t('label.affinity.members')">
-      <a-table
+      <detail-tab-table
 size="small"
 :columns="columns"
 :data-source="rows"
@@ -37,11 +37,11 @@ size="small"
           <template v-else-if="column.key === 'reason'"><span class="affinity-secondary">{{ eligible(record) ? '—' : $t('message.affinity.vm.stopped') }}</span></template>
           <template v-else><span :title="value ? '' : $t('message.affinity.value.unavailable')">{{ value || '—' }}</span></template>
         </template>
-      </a-table>
+      </detail-tab-table>
     </div>
     <div class="affinity-members-footer">
       <p class="affinity-secondary" role="status" aria-live="polite">{{ $t('label.affinitymembercount') }}: {{ memberCount }} · {{ $t('label.affinity.members.visible') }}: {{ total }}</p>
-      <a-pagination
+      <detail-tab-pagination
 class="affinity-members-pagination"
 :current="page"
 :page-size="pagesize"

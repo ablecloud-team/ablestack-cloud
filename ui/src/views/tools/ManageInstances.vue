@@ -43,8 +43,7 @@
       </a-row>
     </a-card>
     </a-col>
-    <a-col
-      :md="24">
+    <a-col :md="24">
       <div>
         <a-card>
           <a-alert
@@ -430,8 +429,9 @@
                       </span>
                     </template>
                     <a-table
+                      class="workspace-table workspace-import-table instances-card-table"
+                      v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.instances'), scope: JSON.stringify([page, pageSize]) }"
                       v-if="!isExternal"
-                      class="instances-card-table"
                       :loading="unmanagedInstancesLoading"
                       :custom-row="unmanagedRow"
                       :rowKey="(record, index) => index"
@@ -451,8 +451,9 @@
                       </template>
                     </a-table>
                     <a-table
+                      class="workspace-table workspace-import-table instances-card-table"
+                      v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.instances'), scope: JSON.stringify([page, pageSize]) }"
                       v-if="isExternal"
-                      class="instances-card-table"
                       :loading="unmanagedInstancesLoading"
                       :custom-row="unmanagedRow"
                       :rowKey="(record, index) => index"
@@ -520,7 +521,8 @@
                       </span>
                     </template>
                     <a-table
-                      class="instances-card-table"
+                      class="workspace-table workspace-import-table instances-card-table"
+                      v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.instances'), scope: JSON.stringify([page, pageSize]) }"
                       :loading="managedInstancesLoading"
                       :custom-row="managedRow"
                       :rowKey="(record, index) => index"
@@ -630,6 +632,7 @@
 </template>
 
 <script>
+import scrollActivity, { tableScrollSelector } from '@/utils/scrollActivity'
 import { selectableImportRow } from '@/utils/moldListSelection'
 import { restoreImportOptions } from '@/utils/importOptionNavigation'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
@@ -659,6 +662,7 @@ export default {
     ImportVmTasks
   },
   name: 'ManageVms',
+  directives: { scrollActivity },
   data () {
     const AllSourceActions = [
       {
@@ -884,6 +888,7 @@ export default {
     this.stopImportVmTasksAutoRefresh()
   },
   computed: {
+    tableScrollSelector () { return tableScrollSelector },
     isPageAllowed () {
       if (this.$route.meta.permission) {
         for (var apiName of this.$route.meta.permission) {

@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div class="secondary-storage-selectors">
+  <div class="secondary-storage-selectors mold-workspace">
     <div class="content-breadcrumb">
       <a-card class="breadcrumb-card breadcrumb-toolbar" style="z-index: 10">
         <a-row class="breadcrumb-toolbar-row">
@@ -124,6 +124,7 @@
 
     <template v-if="isDetail">
       <resource-view
+        viewport-scroll
         v-if="activeRule"
         :resource="detailResource"
         :tabs="detailTabs"
@@ -137,6 +138,8 @@
     </template>
     <template v-else>
       <list-view
+        viewport-scroll
+        :viewport-scope="$route.fullPath"
         v-if="zoneId && (!readFailed || rows.length)"
         :columns="columns"
         :items="pageRows"
@@ -146,7 +149,8 @@
         :resource-path="selectorPath"
         :resource-link="detailLocation" />
       <a-pagination
-        v-if="zoneId && filteredRows.length"
+        :show-quick-jumper="filteredRows.length > 0"
+        v-if="zoneId && (!readFailed || rows.length)"
         class="row-element"
         size="small"
         :current="page"
@@ -154,7 +158,6 @@
         :page-size-options="pageSizeOptions"
         :total="filteredRows.length"
         show-size-changer
-        show-quick-jumper
         @change="changePage" />
       <Empty v-else-if="!zoneId && !zonesFailed && !loadingZones" :description="$t('message.secondary.selector.choose.zone')" />
     </template>

@@ -17,7 +17,7 @@
 
 <template>
   <div class="kubernetes-load-balancers">
-    <load-balancing v-if="selectedIp && inventoryReady" :key="selectedIp.id" :resource="selectedIp" :rule-owners="ruleOwners" :context-loading="busy || failed" @refresh-inventory="fetchRules">
+    <load-balancing :detail-viewport="false" v-if="selectedIp && inventoryReady" :key="selectedIp.id" :resource="selectedIp" :rule-owners="ruleOwners" :context-loading="busy || failed" @refresh-inventory="fetchRules">
       <template #toolbar-context><label class="detail-tab-toolbar-context"><span>{{ $t('label.publicip') }}</span><a-select v-model:value="selectedIpId" :placeholder="$t('label.publicip')" :options="publicIps.map(ip => ({ value: ip.id, label: ip.ipaddress }))" /></label></template>
       <template #guidance><a-alert class="network-rules-guidance" type="info" show-icon :message="$t('message.kubernetes.lb.readonly')" /></template>
     </load-balancing>

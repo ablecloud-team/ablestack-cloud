@@ -35,6 +35,7 @@
         </a-tooltip>
       </div>
       <mold-list-table
+detail-tab
         size="small"
         style="overflow-y: auto"
         :columns="columns"
@@ -93,7 +94,7 @@
 
       </mold-list-table>
       <a-divider/>
-      <a-pagination
+      <detail-tab-pagination
         class="row-element pagination"
         size="small"
         :current="page"
@@ -107,7 +108,7 @@
         <template #buildOptionText="props">
           <span>{{ props.value }} / {{ $t('label.page') }}</span>
         </template>
-      </a-pagination>
+      </detail-tab-pagination>
     </a-spin>
     <bulk-action-view
       v-if="(showConfirmationAction || showGroupActionModal)"

@@ -16,15 +16,15 @@
 // under the License.
 
 <template>
-  <div class="page-header-index-wide">
+  <div class="page-header-index-wide dashboard-page">
     <a-alert v-if="dashboardReadError" type="error" show-icon :message="$t('message.request.failed')"><template #description><a-button @click="fetchData">{{ $t('label.refresh') }}</a-button></template></a-alert>
     <div v-if="showOnboarding">
       <onboarding-dashboard />
     </div>
-    <div v-else-if="$store.getters.userInfo.roletype === 'Admin' && !project">
+    <div v-else-if="$store.getters.userInfo.roletype === 'Admin' && !project" class="dashboard-view">
       <capacity-dashboard/>
     </div>
-    <div v-else>
+    <div v-else class="dashboard-view">
       <usage-dashboard :resource="$store.getters.project" :showProject="project" />
     </div>
   </div>
@@ -96,3 +96,54 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100%;
+}
+
+.dashboard-view {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  gap: 12px;
+  min-inline-size: 0;
+}
+
+.dashboard-view :deep(.dashboard-card-grid) {
+  flex: 1 0 auto;
+  align-content: stretch;
+}
+
+.dashboard-view :deep(.dashboard-card-grid > .ant-col) {
+  display: flex;
+  flex-direction: column;
+  min-block-size: var(--dashboard-card-min-height, 370px);
+}
+
+.dashboard-view :deep(.dashboard-card-grid > .ant-col > a) {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+}
+
+.dashboard-view :deep(.dashboard-card-grid > .ant-col > .ant-card),
+.dashboard-view :deep(.dashboard-card-grid > .ant-col > a > .ant-card) {
+  flex: 1 0 auto;
+}
+
+/* Reserve room for card content while letting the rows follow the activity panel. */
+.dashboard-content--activity-open .dashboard-view :deep(.dashboard-card-grid > .ant-col) {
+  min-block-size: 120px;
+}
+
+.dashboard-view :deep(.dashboard-card-scroll),
+.dashboard-content--activity-open .dashboard-view :deep(.dashboard-card-grid > .ant-col > .ant-card),
+.dashboard-content--activity-open .dashboard-view :deep(.dashboard-card-grid > .ant-col > a > .ant-card) {
+  contain: size;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+</style>

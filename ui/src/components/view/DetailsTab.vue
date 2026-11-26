@@ -665,6 +665,7 @@ export default {
   },
   data () {
     return {
+      alertRuleReadKey: '',
       dedicatedRoutes: ['zone', 'pod', 'cluster', 'host'],
       dedicatedSectionActive: false,
       projectname: '',
@@ -767,10 +768,11 @@ export default {
         if ('account' in this.dataResource && this.dataResource.account.startsWith('PrjAcct-')) {
           this.projectname = this.dataResource.account.substring(this.dataResource.account.indexOf('-') + 1, this.dataResource.account.lastIndexOf('-'))
           this.dataResource.projectname = this.projectname
-          this.ensureAlertRuleLoaded()
         }
+        this.ensureAlertRuleLoaded()
       }
     },
+    loading (pending) { if (!pending) this.ensureAlertRuleLoaded() },
     $route () {
       this.dedicatedSectionActive = this.dedicatedRoutes.includes(this.$route.meta.name)
       this.fetchProjectAdmins()
@@ -989,10 +991,10 @@ export default {
     // ▼ 추가: uid로 들어온 경우 스스로 단건을 로드해 dataResource를 보정
     async ensureAlertRuleLoaded () {
       // /alertRules 상세 화면에서만 동작
-      if (!this.$route.path.startsWith('/alertRules')) return
+      if (this.loading || !this.$route.path.startsWith('/alertRules')) return
 
       const routeKey = String(this.$route.params.id || '')
-      if (!routeKey) return
+      if (!routeKey || routeKey === this.alertRuleReadKey) return
 
       // 이미 prop으로 받은 resource가 일치하면 그대로 사용
       const r = this.resource || {}
@@ -1009,6 +1011,7 @@ export default {
         return Array.isArray(list) && list.length ? list[0] : null
       }
 
+      this.alertRuleReadKey = routeKey
       try {
         let found = null
 
@@ -1044,6 +1047,7 @@ export default {
           )
         }
 
+        if (String(this.$route.params.id || '') !== routeKey) return
         if (found) {
           this.dataResource = found
         } else {
@@ -1057,6 +1061,8 @@ export default {
         /* eslint-disable no-console */
         console.warn('[DetailsTab] ensureAlertRuleLoaded failed:', e)
         /* eslint-enable no-console */
+      } finally {
+        if (this.alertRuleReadKey === routeKey) this.alertRuleReadKey = ''
       }
     },
     getSummaryOrDescriptionPlain (key) {

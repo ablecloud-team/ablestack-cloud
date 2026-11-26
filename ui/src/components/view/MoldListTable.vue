@@ -18,8 +18,12 @@
 -->
 
 <template>
-  <div class="mold-list-table">
-    <a-table
+  <div
+    class="mold-list-table"
+    :class="{ 'workspace-table': viewportScroll }"
+    v-scroll-activity="viewportScroll && { selector: tableScrollSelector, label: $t($route.meta?.title || 'label.items'), scope }">
+    <component
+      :is="detailTab ? 'DetailTabTable' : 'a-table'"
       v-bind="$attrs"
       table-layout="fixed"
       :columns="tableColumns"
@@ -40,10 +44,13 @@
           </slot>
         </div>
       </template>
+      <template v-if="viewportScroll && selection && !otherSlots.includes('footer')" #footer>
+        <span aria-live="polite">{{ $t('label.items.selected.count', [selection.selectedRowKeys.length]) }}</span>
+      </template>
       <template v-for="name in otherSlots" :key="name" #[name]="scope">
         <slot :name="name" v-bind="scope || {}"></slot>
       </template>
-    </a-table>
+    </component>
     <ResourceContextMenu
       v-if="context?.entries.length"
       :entries="context.entries"
@@ -60,9 +67,11 @@ import { moldListColumns, moldListColumnsWithFixedSelection, moldListScroll } fr
 import ResourceContextMenu from '@/components/view/ResourceContextMenu'
 import TableOverflowText from '@/components/view/TableOverflowText'
 import '@/style/components/view/mold-list-table.css'
+import scrollActivity, { tableScrollSelector } from '@/utils/scrollActivity'
 
 export default {
   name: 'MoldListTable',
+  directives: { scrollActivity },
   inheritAttrs: false,
   components: { ResourceContextMenu, TableOverflowText },
   props: {
@@ -72,6 +81,8 @@ export default {
     rowSelection: { type: Object, default: null },
     customRow: { type: Function, default: null },
     scroll: { type: Object, default: null },
+    viewportScroll: Boolean,
+    detailTab: Boolean,
     multiple: { type: Boolean, default: true },
     showSelection: { type: Boolean, default: true },
     scope: { type: [String, Number], default: '' },
@@ -83,6 +94,7 @@ export default {
     return { localKeys: [], selectionAnchor: null, context: null }
   },
   computed: {
+    tableScrollSelector () { return tableScrollSelector },
     records () { return moldListRecords(this.dataSource) },
     recordKeys () {
       return new Map(this.records.map((row, index) => {

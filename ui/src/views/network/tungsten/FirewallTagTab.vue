@@ -27,7 +27,7 @@
         <template #icon><plus-outlined /></template>
         {{ $t('label.apply.tungsten.tag') }}
       </a-button>
-      <a-table
+      <detail-tab-table
         size="small"
         style="overflow-y: auto"
         :loading="fetchLoading"
@@ -52,9 +52,9 @@
             </a-popconfirm>
           </template>
         </template>
-      </a-table>
+      </detail-tab-table>
       <a-divider/>
-      <a-pagination
+      <detail-tab-pagination
         class="row-element pagination"
         size="small"
         :current="page"
@@ -68,7 +68,7 @@
         <template #buildOptionText="props">
           <span>{{ props.value }} / {{ $t('label.page') }}</span>
         </template>
-      </a-pagination>
+      </detail-tab-pagination>
     </a-spin>
 
     <a-modal

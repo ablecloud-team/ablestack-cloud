@@ -41,7 +41,7 @@
           @search="searchRecords" />
       </div>
 
-      <a-table
+      <detail-tab-table
         size="small"
         :scroll="{ x: 620 }"
         :columns="visibleColumns"
@@ -69,10 +69,10 @@
               @onClick="deleteTarget = record" />
           </template>
         </template>
-      </a-table>
+      </detail-tab-table>
     </a-spin>
-    <a-pagination
-      v-if="total > 0"
+    <detail-tab-pagination
+      v-if="!loadError || total > 0"
       class="dns-records-pagination"
       :current="page"
       :page-size="pageSize"

@@ -230,7 +230,7 @@
           <a-button :disabled="objectListScopeChanged" @click="retryObjectListing">{{ $t('label.retry') }}</a-button>
         </template>
       </a-alert>
-      <a-table
+      <detail-tab-table
         :columns="columns"
         :row-key="objectStoreRowKey"
         :data-source="records"
@@ -262,7 +262,7 @@
             {{ $toLocaleDate(record.lastModified) }}
           </template>
         </template>
-      </a-table>
+      </detail-tab-table>
     </div>
   </div>
 

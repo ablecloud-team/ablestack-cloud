@@ -27,7 +27,7 @@
     <a-alert v-if="operation" class="iso-spacing" :type="operation.items.every(i => i.status === 'success') ? 'success' : 'info'" show-icon>
       <template #message><a @click="form = 'progress'">{{ $t('label.vmiso.progress') }}: {{ summary }}</a></template>
     </a-alert>
-    <a-table
+    <detail-tab-table
 :columns="columns"
 :data-source="filteredRows"
 :row-selection="selection"
@@ -49,7 +49,7 @@ size="small"
           </div>
         </template>
       </template>
-    </a-table>
+    </detail-tab-table>
     </template>
     <a-modal :visible="!!form" :title="dialogTitle" :width="760" centered wrap-class-name="vm-iso-modal" :mask-closable="false" @cancel="closeDialog">
       <a-alert v-if="listRefreshFailed" class="iso-spacing" type="error" show-icon :message="$t('message.list.refresh.stale')" />

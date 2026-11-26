@@ -63,7 +63,8 @@
         <div class="import-vm-tasks-table-wrap">
           <a-table
             :data-source="tasks"
-            class="instances-card-table import-vm-tasks-table"
+            class="instances-card-table import-vm-tasks-table workspace-table workspace-import-table"
+            v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.import.vm.tasks'), scope: JSON.stringify([filter, page, pageSize]) }"
             size="small"
             :pagination="false"
             :columns="taskColumns"
@@ -261,11 +262,13 @@
 </template>
 
 <script>
+import scrollActivity, { tableScrollSelector } from '@/utils/scrollActivity'
 import { getAPI, postAPI } from '@/api'
 import Status from '@/components/widgets/Status'
 
 export default {
   name: 'ImportVmTasks',
+  directives: { scrollActivity },
   components: {
     Status
   },
@@ -416,6 +419,7 @@ export default {
     }
   },
   computed: {
+    tableScrollSelector () { return tableScrollSelector },
     taskTableScrollX () {
       return this.taskColumns.reduce((total, column) => total + (column.width || 120), 0)
     },

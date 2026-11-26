@@ -18,8 +18,8 @@
 <template>
   <a-spin :spinning="componentLoading" class="vpc-static-routes">
     <a-alert v-if="listRefreshFailed" type="warning" show-icon :message="$t('message.list.refresh.stale')" class="route-notice"><template #description><a-button size="small" :disabled="componentLoading" @click="fetchData">{{ $t('label.retry') }}</a-button></template></a-alert>
-    <div class="route-toolbar"><a-button type="primary" :disabled="componentLoading || !('createStaticRoute' in $store.getters.apis)" @click="openCreate"><template #icon><plus-outlined /></template>{{ $t('label.add.route') }}</a-button></div>
-    <a-table size="small" :scroll="{ x: 760 }" :loading="loading" :columns="columns" :dataSource="routes" :pagination="false" :rowKey="record => record.id">
+    <div class="detail-tab-toolbar"><a-button type="primary" :disabled="componentLoading || !('createStaticRoute' in $store.getters.apis)" @click="openCreate"><template #icon><plus-outlined /></template>{{ $t('label.add.route') }}</a-button></div>
+    <a-table size="middle" :scroll="{ x: 760 }" :columns="columns" :dataSource="routes" :pagination="false" :rowKey="record => record.id">
       <template #bodyCell="{ column, text, record }">
         <template v-if="column.key === 'vpcgatewayip'">
           <router-link v-if="hasGatewayLink(record)" :to="{ path: '/privategw/' + record.vpcgatewayid }">{{ text }}</router-link>
@@ -63,6 +63,7 @@ import MoldDialog from '@/components/network/VpcDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import VpcActionContext from '@/components/network/VpcActionContext'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import { detailTabContext } from '@/utils/detailTabData'
 
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
@@ -70,7 +71,7 @@ import TooltipButton from '@/components/widgets/TooltipButton'
 import TooltipLabel from '@/components/widgets/TooltipLabel.vue'
 
 export default {
-  mixins: [listRefreshMixin(['fetchData'])],
+  mixins: [listRefreshMixin(['fetchData'], { routeKey: vm => vm.listContext })],
   name: 'StaticRoutesTab',
   components: {
     MoldDialog,
@@ -133,13 +134,16 @@ export default {
     this.initForm()
     this.fetchData()
   },
-  computed: { routeContext () { const getters = this.$store.getters; return JSON.stringify([this.$route.fullPath, this.resource.id, this.resource.domainid, this.$store.state?.user?.token, getters.project?.id, getters.userInfo?.id, getters.userInfo?.domainid, getters.userInfo?.roleid, getters.userInfo?.roletype]) } },
+  computed: {
+    listContext () { return detailTabContext(this, ['listStaticRoutes']) },
+    routeContext () { return JSON.stringify([this.listContext, this.resource.domainid]) }
+  },
   watch: {
     routeContext () { this.createVisible = false; this.tagsModalVisible = false; this.routeSubmitting = false; this.tagsLoading = false; this.tagRequest++; this.tags = []; this.newRoute = null; this.nexthop = null },
-    loading (newData, oldData) {
-      if (!newData && this.resource.id) {
-        this.fetchData()
-      }
+    listContext () {
+      this.routes = []
+      this.listRefreshFailed = false
+      this.fetchData()
     }
   },
   methods: {
@@ -157,6 +161,7 @@ export default {
       })
     },
     fetchData () {
+      if (!this.resource.id || !('listStaticRoutes' in this.$store.getters.apis)) return
       const listRequest = this.listRequestToken('fetchData')
       this.componentLoading = !listRequest.loaded
       var params = {
@@ -179,12 +184,7 @@ export default {
 
         this.$notifyError(error)
       }).finally(() => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
-
-        this.componentLoading = false
-      }).finally(() => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
-        this.componentLoading = false
+        if (this.isListRequestCurrent('fetchData', listRequest)) this.componentLoading = false
       })
     },
     errorText (error) { return Object.values(error.response?.data || {}).find(value => value?.errortext)?.errortext || error.message || this.$t('error.fetching.data') },
@@ -332,7 +332,7 @@ export default {
 
 <style scoped>
 .vpc-static-routes { min-width: 0; }
-.route-toolbar, .route-notice { margin-bottom: 16px; }
+.route-notice { margin-bottom: 16px; }
 .route-identity { overflow-wrap: anywhere; }
 .route-tags-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
 .route-tags-form :deep(.ant-form-item) { flex: 1; min-width: 140px; margin-bottom: 0; }

@@ -23,7 +23,7 @@
       <a-input-search v-model:value="search" :placeholder="$t('label.vmsettings.search')" @change="page = 1" />
     </div>
     <a-alert v-if="readError || optionsFailed" type="warning" show-icon :message="$t(readError || 'message.template.settings.options.failed')" />
-    <a-table
+    <detail-tab-table
 table-layout="fixed"
 size="small"
 :columns="columns"
@@ -44,8 +44,8 @@ row-key="name"
           </a-menu></template></a-dropdown>
         </div>
       </template>
-    </a-table>
-    <div class="template-tab-pagination"><a-pagination v-model:current="page" v-model:page-size="pageSize" :total="rows.length" show-size-changer :page-size-options="['10','20','50']" /></div>
+    </detail-tab-table>
+    <div class="template-tab-pagination"><detail-tab-pagination v-model:current="page" v-model:page-size="pageSize" :total="rows.length" show-size-changer :page-size-options="['10','20','50']" /></div>
     <MoldDialog
 v-if="dialog"
 class="template-settings-dialog"

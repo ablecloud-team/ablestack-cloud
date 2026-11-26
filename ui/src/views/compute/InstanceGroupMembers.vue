@@ -28,6 +28,7 @@
     <p v-if="actionReason && actionReason !== 'message.vm.group.members.refresh' && !['error', 'forbidden'].includes(status)" role="status">{{ $t(actionReason) }}</p>
     <p v-if="['error', 'forbidden'].includes(status)" role="status">{{ $t('message.vm.group.members.' + status) }} <a-button type="link" @click="fetchData">{{ $t('label.retry') }}</a-button></p>
     <ListView
+detail-tab
 ref="membersTable"
 resource-path="/vm"
 :keyboardContextMenu="true"
@@ -41,7 +42,7 @@ resource-path="/vm"
 @selection-change="selection = $event"
 @table-change="sortMembers" />
     <div v-if="status === 'ready' || rows.length" class="member-pagination">
-    <a-pagination
+    <detail-tab-pagination
 :current="page"
 :pageSize="pagesize"
 :total="count"

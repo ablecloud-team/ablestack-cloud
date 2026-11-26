@@ -25,7 +25,7 @@
     </div>
     <a-alert v-if="error" type="warning" show-icon :message="error" />
     <a-alert v-if="blockReason && canManage && snapshots !== null" type="info" show-icon :message="blockReason" />
-    <a-table :columns="columns" :data-source="visibleRows" :row-key="rowKey" :loading="loading && loadedScope !== scopeKey" :pagination="false" :scroll="{ x: 760 }" size="small">
+    <detail-tab-table :columns="columns" :data-source="visibleRows" :row-key="rowKey" :loading="loading && loadedScope !== scopeKey" :pagination="false" :scroll="{ x: 760 }" size="small">
       <template #emptyText>{{ d('empty') }}</template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'type'"><a-tag>{{ typeLabel(record.devicetype) }}</a-tag></template>
@@ -38,8 +38,8 @@
           </div>
         </template>
       </template>
-    </a-table>
-    <div class="device-pagination"><a-pagination v-model:current="page" v-model:page-size="pageSize" :total="filteredRows.length" show-size-changer :page-size-options="['10', '20', '50']" /></div>
+    </detail-tab-table>
+    <div class="device-pagination"><detail-tab-pagination v-model:current="page" v-model:page-size="pageSize" :total="filteredRows.length" show-size-changer :page-size-options="['10', '20', '50']" /></div>
     <p class="device-help">{{ d('recordHelp') }}</p>
     <a-modal
 :visible="!!dialog"

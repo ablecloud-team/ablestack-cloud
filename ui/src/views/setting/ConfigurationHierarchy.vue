@@ -16,8 +16,9 @@
 // under the License.
 
 <template>
-  <section class="configuration-table">
+  <section class="configuration-table" :class="{ 'workspace-list': viewportScroll }">
     <mold-list-table
+      :detail-tab="detailTab"
       size="small"
       :columns="columns"
       :data-source="config"
@@ -26,7 +27,8 @@
       :pagination="false"
       :loading="loading"
       :scroll="{ x: 760 }"
-      :scope="grouped ? String(grouped) : page"
+      :scope="viewportScope ?? (grouped ? String(grouped) : page)"
+      :viewport-scroll="viewportScroll"
       :show-selection="showSelection"
       :context-actions="configurationActions"
       @update:expanded-row-keys="$emit('update:expandedRowKeys', $event)">
@@ -66,8 +68,9 @@
         </template>
       </template>
     </mold-list-table>
-    <a-pagination
-      v-if="!grouped && count > 0"
+    <detail-tab-pagination
+      :enabled="detailTab"
+      v-if="!grouped && (detailTab || viewportScroll || count > 0)"
       class="configuration-pagination"
       size="small"
       :current="page"
@@ -76,7 +79,7 @@
       :page-size-options="pageSizeOptions"
       :show-total="showTotal"
       show-size-changer
-      show-quick-jumper
+      :show-quick-jumper="count > 0"
       @change="(page, size) => $emit('change-page', page, size)" />
   </section>
 </template>
@@ -93,6 +96,9 @@ export default {
   components: { MoldListTable, TableOverflowText, TooltipButton },
   emits: ['change-page', 'update:expandedRowKeys', 'open-parent', 'show-setting', 'edit-setting', 'reset-setting'],
   props: {
+    viewportScroll: Boolean,
+    detailTab: Boolean,
+    viewportScope: { type: String, default: undefined },
     koreanCatalog: { type: Object, default: null },
     config: { type: Array, default: () => [] },
     expandedRowKeys: { type: Array, default: () => [] },

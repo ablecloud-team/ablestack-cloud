@@ -23,7 +23,7 @@
       <a-input-search v-model:value="search" :placeholder="s('search')" @change="page = 1" />
     </div>
     <a-alert v-if="error || policyError || blockReason" show-icon :type="error || policyError ? 'warning' : 'info'" :message="error || policyError || blockReason" />
-    <a-table :columns="columns" :data-source="visibleRows" row-key="name" :loading="loading && !loaded" :pagination="false" :scroll="{ x: 700 }" size="small">
+    <detail-tab-table :columns="columns" :data-source="visibleRows" row-key="name" :loading="loading && !loaded" :pagination="false" :scroll="{ x: 700 }" size="small">
       <template #emptyText>{{ s(error ? 'loadFailed' : search ? 'noResults' : 'empty') }}</template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'name' || column.key === 'value'"><a-tooltip :title="record[column.key]"><span class="setting-value">{{ record[column.key] }}</span></a-tooltip></template>
@@ -37,8 +37,8 @@
           </a-menu></template></a-dropdown>
         </div></template>
       </template>
-    </a-table>
-    <div class="settings-pagination"><a-pagination v-model:current="page" v-model:page-size="pageSize" :total="rows.length" show-size-changer :page-size-options="['10', '20', '50']" /></div>
+    </detail-tab-table>
+    <div class="settings-pagination"><detail-tab-pagination v-model:current="page" v-model:page-size="pageSize" :total="rows.length" show-size-changer :page-size-options="['10', '20', '50']" /></div>
     <p class="settings-help">{{ s('help') }}</p>
     <a-modal
       :visible="!!dialog"

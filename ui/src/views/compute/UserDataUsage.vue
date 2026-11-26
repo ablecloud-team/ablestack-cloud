@@ -25,10 +25,18 @@
       <template #description><span v-if="rows.length">{{ $t('message.userdata.usage.stale') }}</span><a-button v-if="canRead" type="link" :loading="pending" @click="fetchData">{{ $t('label.retry') }}</a-button></template>
     </a-alert>
     <div class="usage-table">
-      <ListView :resource-path="config.path" :columns="columns" :items="rows" :loading="tableLoading" :actions="[]" :emptyText="$t('message.userdata.usage.' + (status === 'ready' ? 'empty' : status))" @table-change="sort" />
+      <ListView
+detail-tab
+:resource-path="config.path"
+:columns="columns"
+:items="rows"
+:loading="tableLoading"
+:actions="[]"
+:emptyText="$t('message.userdata.usage.' + (status === 'ready' ? 'empty' : status))"
+@table-change="sort" />
     </div>
     <div v-if="status === 'ready' || rows.length" class="usage-pagination detail-tab-pagination">
-      <a-pagination :current="page" :pageSize="pagesize" :total="count" :showTotal="total => $t('message.userdata.usage.total', [total])" show-size-changer :pageSizeOptions="['10', '20', '50', '100']" @change="changePage" />
+      <detail-tab-pagination :current="page" :pageSize="pagesize" :total="count" :showTotal="total => $t('message.userdata.usage.total', [total])" show-size-changer :pageSizeOptions="['10', '20', '50', '100']" @change="changePage" />
     </div>
   </section>
 </template>

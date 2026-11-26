@@ -19,11 +19,12 @@
 <template>
   <a-card
     class="spin-content vm-info-card dr-standard-info-card"
+    :class="{ 'workspace-fill': viewportScroll }"
     :loading="loading"
     :bordered="true"
     @contextmenu.stop.prevent="$emit('contextmenu', $event, resource)">
-    <div class="card-body">
-      <div class="card-content">
+    <div class="card-body" :class="{ 'workspace-fill': viewportScroll }">
+      <div class="resource-summary-header">
         <div class="resource-details">
           <div class="resource-details__name">
             <div class="avatar dr-resource-avatar">
@@ -46,9 +47,12 @@
             </a-tag>
           </div>
         </div>
-
         <a-divider />
-
+      </div>
+      <div
+        class="card-content"
+        :class="{ 'workspace-panel': viewportScroll }"
+        v-scroll-activity="viewportScroll && { label: $t('label.summary'), scope: resource.id }">
         <div
           v-for="field in visibleSummaryFields"
           :key="field.key"
@@ -115,12 +119,14 @@
 </template>
 
 <script>
+import scrollActivity from '@/utils/scrollActivity'
 import CopyLabel from '@/components/widgets/CopyLabel'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import { BranchesOutlined, GlobalOutlined } from '@ant-design/icons-vue'
 
 export default {
   name: 'DrResourceInfoCard',
+  directives: { scrollActivity },
   components: {
     BranchesOutlined,
     CopyLabel,
@@ -128,6 +134,7 @@ export default {
     TooltipButton
   },
   props: {
+    viewportScroll: Boolean,
     resource: {
       type: Object,
       default: () => ({})

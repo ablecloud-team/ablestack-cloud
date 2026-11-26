@@ -35,14 +35,14 @@
 
     <a-layout
       class="layout global-workbench"
-      :class="[device]"
+      :class="[device, projectViewClass]"
       :style="{ height: 'calc(100dvh - ' + combinedBannerHeight + 'px)' }">
       <div class="global-workbench__main">
         <div class="sticky-sidebar">
         <template v-if="isSideMenu()">
           <a-drawer
             v-if="isMobile()"
-            :wrapClassName="'drawer-sider ' + navTheme"
+            :wrapClassName="drawerClass"
             :closable="false"
             :visible="collapsed"
             placement="left"
@@ -51,6 +51,7 @@
             <side-menu
               :menus="menus"
               :theme="navTheme"
+              :project-view-class="projectViewClass"
               :collapsed="false"
               :collapsible="true"
               mode="inline"
@@ -63,6 +64,7 @@
             mode="inline"
             :menus="menus"
             :theme="navTheme"
+            :project-view-class="projectViewClass"
             :collapsed="collapsed"
             :collapsible="true"
           />
@@ -71,7 +73,7 @@
         <template v-else>
           <a-drawer
             v-if="isMobile()"
-            :wrapClassName="'drawer-sider ' + navTheme"
+            :wrapClassName="drawerClass"
             placement="left"
             @close="() => (collapsed = false)"
             :closable="false"
@@ -80,6 +82,7 @@
             <side-menu
               :menus="menus"
               :theme="navTheme"
+              :project-view-class="projectViewClass"
               :collapsed="false"
               :collapsible="true"
               mode="inline"
@@ -112,6 +115,7 @@
                 :mode="layoutMode"
                 :menus="menus"
                 :theme="navTheme"
+                :project-view-class="projectViewClass"
                 :collapsed="collapsed"
                 :device="device"
                 @toggle="toggle"
@@ -133,7 +137,11 @@
             <a-layout-content
               v-list-overflow-title
               class="layout-content"
-              :class="{ 'is-header-fixed': fixedHeader, 'dashboard-content': $route.name === 'dashboard' }">
+              :class="{
+                'is-header-fixed': fixedHeader,
+                'dashboard-content': $route.name === 'dashboard',
+                'dashboard-content--activity-open': $route.name === 'dashboard' && isSidebarVisible
+              }">
               <slot />
             </a-layout-content>
 
@@ -153,6 +161,7 @@
 </template>
 
 <script>
+import '@/style/components/view/mold-workspace.css'
 import Cookies from 'js-cookie'
 import SideMenu from '@/components/menu/SideMenu'
 import GlobalHeader from '@/components/page/GlobalHeader'
@@ -208,6 +217,12 @@ export default {
     ...mapState({
       mainMenu: state => state.permission.addRouters
     }),
+    projectViewClass () {
+      return this.$store.getters.project?.id ? 'mold-project-view' : ''
+    },
+    drawerClass () {
+      return ['drawer-sider', this.navTheme, this.projectViewClass].filter(Boolean).join(' ')
+    },
     isAdmin () { return isAdmin() },
     isDevelopmentMode () { return process.env.NODE_ENV === 'development' },
     allowSettingTheme () { return this.$config.allowSettingTheme },

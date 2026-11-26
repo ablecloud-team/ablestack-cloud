@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div>
+  <div :class="{ 'workspace-list': resourceViewportEnabled() }">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <a-input-search
       v-if="showSearch"
@@ -26,7 +26,10 @@
       @search="handleSearch"
       v-focus="true" />
 
-    <a-table
+    <component
+      :is="detailTab ? 'DetailTabTable' : 'a-table'"
+      :class="{ 'workspace-table': !detailTab && resourceViewportEnabled() }"
+      v-scroll-activity="!detailTab && resourceViewportEnabled() && { selector: tableScrollSelector, label: $t('label.items'), scope: JSON.stringify([resource.id, options.page, options.pageSize, filter]) }"
       size="small"
       :columns="fetchColumns()"
       :dataSource="dataSource"
@@ -69,10 +72,11 @@
           </template>
         </div>
       </template>
-    </a-table>
+    </component>
 
     <div v-if="!defaultPagination" style="display: block; text-align: right; margin-top: 10px;">
-      <a-pagination
+      <component
+        :is="detailTab ? 'DetailTabPagination' : 'a-pagination'"
         size="small"
         :current="options.page"
         :pageSize="options.pageSize"
@@ -85,13 +89,14 @@
         <template #buildOptionText="props">
           <span>{{ props.value }} / {{ $t('label.page') }}</span>
         </template>
-      </a-pagination>
+      </component>
     </div>
   </div>
 
 </template>
 
 <script>
+import scrollActivity, { tableScrollSelector } from '@/utils/scrollActivity'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { getAPI } from '@/api'
@@ -101,12 +106,16 @@ import Status from '@/components/widgets/Status'
 
 export default {
   name: 'ListResourceTable',
+  inject: { resourceViewportEnabled: { default: () => () => false } },
+  directives: { scrollActivity },
+  computed: { tableScrollSelector () { return tableScrollSelector } },
   components: {
     BackupProgress,
     Status
   },
   mixins: [listRefreshMixin(['fetchData']), mixinDevice],
   props: {
+    detailTab: Boolean,
     resource: {
       type: Object,
       default: () => {}

@@ -47,7 +47,7 @@
       </span>
     </div>
 
-    <a-table
+    <detail-tab-table
       size="middle"
       :loading="loading"
       :columns="columns"
@@ -88,7 +88,7 @@
           </a-popconfirm>
         </template>
       </template>
-    </a-table>
+    </detail-tab-table>
   </div>
 </template>
 
