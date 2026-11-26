@@ -1,0 +1,55 @@
+/*
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+*/
+
+/* The compact template availability badge is the status format for resource tables. */
+.layout-content .ant-table-tbody > tr.ant-table-row > td :is(.ant-badge-status, .cross-dr-status-pill) {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-width: 0;
+  vertical-align: middle;
+}
+
+.layout-content .ant-table-tbody > tr.ant-table-row > td :is(.ant-badge-status-dot, .cross-dr-status-pill__dot) {
+  width: 6px;
+  height: 6px;
+  margin-top: 0;
+  top: auto;
+  flex-shrink: 0;
+}
+
+.layout-content .ant-table-tbody > tr.ant-table-row > td :is(.ant-badge-status-text, .cross-dr-status-pill__label) {
+  color: var(--ui-text-primary);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.layout-content .ant-table-tbody > tr.ant-table-row > td .cross-dr-status-pill {
+  gap: 8px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}

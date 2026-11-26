@@ -705,9 +705,7 @@
         />
       </template>
       <template v-if="column.key === 'clonefaststatus'">
-        <a-tag v-if="isFastCloneFlattenActive(record)" :color="getFastClonePhaseColor(record)">
-          {{ getCloneFastStatusLabel(record) }}
-        </a-tag>
+        <a-badge v-if="isFastCloneFlattenActive(record)" :status="getFastClonePhaseColor(record)" :text="getCloneFastStatusLabel(record)" />
         <span v-else>-</span>
       </template>
       <template v-if="column.key === 'compressionstatus'">
@@ -743,7 +741,7 @@
         />
       </template>
       <template v-if="column.key === 'resourcestate'">
-        <a-tag v-if="$route.meta.name === 'host'" :color="hostStatusColor(text)">{{ $t(hostStatusLabel(text)) }}</a-tag>
+        <a-badge v-if="$route.meta.name === 'host'" :status="hostStatusColor(text)" :text="$t(hostStatusLabel(text))" />
         <status
           v-else
           :text="text ? text : ''"
@@ -751,7 +749,7 @@
         />
       </template>
       <template v-if="column.key === 'powerstate'">
-        <a-tag v-if="$route.meta.name === 'host'" :color="hostStatusColor(text)">{{ $t(hostStatusLabel(text)) }}</a-tag>
+        <a-badge v-if="$route.meta.name === 'host'" :status="hostStatusColor(text)" :text="$t(hostStatusLabel(text))" />
         <status
           v-else
           :text="text ? text : ''"
@@ -790,8 +788,8 @@
         />
       </template>
       <template v-if="column.key === 'qemuagentversion'">
-        <a-tag v-if="text === 'Not Installed'" color="error">{{ this.$t('label.state.qemuagentversion.notinstalled') }}</a-tag>
-        <a-tag v-else-if="text" color="success">{{ text }}</a-tag>
+        <a-badge v-if="text === 'Not Installed'" status="error" :text="$t('label.state.qemuagentversion.notinstalled')" />
+        <a-badge v-else-if="text" status="success" :text="text" />
       </template>
       <template v-if="column.key === 'resources'">
         <span v-if="$route.meta.name === 'kubernetes' && record.clustertype === 'ExternalManaged'">N/A</span>
@@ -1096,8 +1094,7 @@
         />
       </template>
       <template v-if="column.key === 'requiresupgrade'">
-        <status :text="record.requiresupgrade ? 'warning' : ''" />
-        {{ record.requiresupgrade ? 'Yes' : 'No' }}
+        <a-badge :status="record.requiresupgrade ? 'warning' : 'default'" :text="$t(record.requiresupgrade ? 'label.yes' : 'label.no')" />
       </template>
       <template v-if="column.key === 'loadbalancerrule'">
         <InternalLbRules v-if="$route.meta.name === 'ilb'" :record="record" :loading="loading" />
@@ -1105,18 +1102,14 @@
       </template>
       <template v-if="$route.meta.name === 'kubernetes' && column.key === 'clustertype'">{{ $t(record.clustertype === 'ExternalManaged' ? 'label.external.managed' : 'label.cloud.managed') }}</template>
       <template v-if="column.key === 'autoscalingenabled'">
-        <a-tag :color="record.autoscalingenabled ? 'blue' : undefined">{{ $t(record.autoscalingenabled ? 'label.cks.cluster.autoscaling.enabled' : 'label.cks.cluster.autoscaling.disabled') }}</a-tag>
+        <a-badge :status="record.autoscalingenabled ? 'processing' : 'default'" :text="$t(record.autoscalingenabled ? 'label.cks.cluster.autoscaling.enabled' : 'label.cks.cluster.autoscaling.disabled')" />
       </template>
       <template v-if="column.key === 'current'">
         <span v-if="$route.name === 'vmsnapshot'">{{ $t(record.current ? 'label.vmsnapshot.current.yes' : 'label.vmsnapshot.current.no') }}</span>
         <status v-else :text="record.current ? record.current.toString() : 'false'" />
       </template>
       <template v-if="column.key === 'enabled'">
-        <status v-if="$route.meta?.name === 'oauthsetting'" :text="String(record.enabled)" :display-label="$t(record.enabled ? 'label.enabled' : 'label.disabled')" display-text />
-        <template v-else>
-          <status :text="record.enabled ? record.enabled.toString() : 'false'" />
-          {{ record.enabled ? 'Enabled' : 'Disabled' }}
-        </template>
+        <a-badge :status="record.enabled ? 'success' : 'default'" :text="$t(record.enabled ? 'label.enabled' : 'label.disabled')" />
       </template>
       <template v-if="$route.meta?.name === 'publicip' && ['allocated', 'issystem', 'issourcenat', 'isstaticnat', 'fordisplay'].includes(column.key)"><public-ip-detail-value :resource="record" :field="column.key" compact /></template>
       <template
@@ -1213,10 +1206,10 @@
         <status :text="zoneFeatureState(record.resourcedetails?.resourceHAEnabled ?? false)" :display-label="$t(zoneFeatureLabel(record.resourcedetails?.resourceHAEnabled ?? false))" display-text />
       </template>
       <template v-if="$route.meta.name === 'host' && column.key === 'hastate'">
-        <a-tag :color="hostStatusColor(record.hostha?.hastate)">{{ $t(hostStatusLabel(record.hostha?.hastate)) }}</a-tag>
+        <a-badge :status="hostStatusColor(record.hostha?.hastate)" :text="$t(hostStatusLabel(record.hostha?.hastate))" />
       </template>
       <template v-if="$route.meta.name === 'host' && column.key === 'haenable'">
-        <a-tag :color="hostStatusColor(record.hostha?.haenable)">{{ $t(hostStatusLabel(record.hostha?.haenable)) }}</a-tag>
+        <a-badge :status="hostStatusColor(record.hostha?.haenable)" :text="$t(hostStatusLabel(record.hostha?.haenable))" />
       </template>
       <template v-if="['startdate', 'enddate'].includes(column.key) && $route.path.split('/')[1] === 'quotasummary'">
         {{ $toLocaleDate(text.replace('\'T\'', ' ')) }}
@@ -1233,7 +1226,7 @@
         <span v-else> {{ text }} </span>
       </template>
       <template v-if="column.key === 'order'">
-        <div class="shift-btns" :class="{ 'offering-order-actions': offeringOrderControls }">
+        <div class="shift-btns" :class="{ 'fixed-order-actions': fixedOrderControls }">
           <a-tooltip
             :name="text"
             placement="top"
@@ -1781,7 +1774,7 @@ export default {
     isUsageList () { return this.$route.path === '/usage' && !this.resourcePath },
     isRuntimeCatalogList () { return this.$route.path === '/runtimebundle' && !this.resourcePath },
     emptyTableImage () { return Empty.PRESENTED_IMAGE_SIMPLE },
-    offeringOrderControls () { return !this.resourcePath && ['/systemoffering', '/computeoffering', '/diskoffering', '/networkoffering', '/vpcoffering'].includes(this.$route.path) },
+    fixedOrderControls () { return !this.resourcePath && ['/systemoffering', '/computeoffering', '/diskoffering', '/networkoffering', '/vpcoffering', '/template', '/iso'].includes(this.$route.path) },
     systemOfferingOrder () { return this.$route.path === '/systemoffering' },
     systemOfferingOrderAvailable () { return !!this.$store.getters.apis.listConfigurations && canReorderSystemOffering(this.$route.query, this.systemOfferingTableSorted) },
     systemOfferingOrderDisabled () { return this.systemOfferingOrder && (!this.systemOfferingOrderAvailable || this.systemOfferingOrderBusy) },
@@ -1806,7 +1799,7 @@ export default {
       const columns = this.isOrderUpdatable() ? this.columns : this.columns.filter(column => column.dataIndex !== 'order')
       if (this.isVmMainList) return columns.map(column => ({ ...column, width: vmColumnWidths[column.key] || 112 }))
       if (this.kmsTable) return kmsTableColumns(columns)
-      if (this.offeringOrderControls) {
+      if (this.fixedOrderControls) {
         const widths = this.systemOfferingOrder ? {
           name: this.$store.getters.device === 'mobile' ? 188 : 330,
           state: 84,
@@ -2925,7 +2918,7 @@ export default {
 
   }
 
-  .offering-order-actions {
+  .fixed-order-actions {
     gap: 4px;
 
     > :deep(.ant-tooltip-disabled-compatible-wrapper),

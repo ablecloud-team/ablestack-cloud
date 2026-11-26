@@ -52,14 +52,11 @@
           </a-alert>
           <br />
           <a-row :gutter="12">
-            <!-- ------------ -->
-            <!-- TOP -->
-            <!-- ------------ -->
-            <a-card class="source-dest-card">
-              <template #title>
-                {{ $t('label.storagepool') }}
-              </template>
-              <a-col :md="24" :lg="48">
+            <a-col :span="24" :lg="12">
+              <a-card class="volume-storage-pool">
+                <template #title>
+                  {{ $t('label.storagepool') }}
+                </template>
                 <a-form
                   style="min-width: 170px"
                   :ref="formRef"
@@ -176,13 +173,13 @@
                       ></a-select>
                   </a-form-item>
                 </a-form>
-              </a-col>
-            </a-card>
+              </a-card>
+            </a-col>
           </a-row>
 
-          <a-row :gutter="12">
-            <a-col :md="24" :lg="12">
-              <a-card class="volumes-card">
+          <a-row :gutter="12" class="volume-list-panels">
+            <a-col :span="24" :lg="12">
+              <a-card class="volumes-card unmanaged-volumes-card">
                 <template #title>
                   {{ $t('label.unmanaged.volumes') }}
                   <a-tooltip :title="$t('message.volumes.unmanaged')">
@@ -251,7 +248,7 @@
                 </div>
               </a-card>
             </a-col>
-            <a-col :md="24" :lg="12">
+            <a-col :span="24" :lg="12">
               <a-card class="volumes-card">
                 <template #title>
                   {{ $t('label.managed.volumes') }}
@@ -1334,9 +1331,9 @@ export default {
 .volumes-card {
   height: 100%;
 }
-.source-dest-card {
-  width: 50%;
-  height: 100%;
+.volume-list-panels {
+  margin-block-start: 16px;
+  row-gap: 16px;
 }
 .volumes-card-table {
   overflow-y: auto;

@@ -27,7 +27,7 @@
       <template #emptyText>{{ $t(search ? 'message.schedule.search.empty' : 'message.schedule.empty') }}</template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'action'">{{ actionName(record.action) }}</template>
-        <template v-else-if="column.key === 'enabled'"><a-tag :color="record.enabled ? 'green' : undefined">{{ $t(record.enabled ? 'label.enabled' : 'label.disabled') }}</a-tag></template>
+        <template v-else-if="column.key === 'enabled'"><a-badge :status="record.enabled ? 'success' : 'default'" :text="$t(record.enabled ? 'label.enabled' : 'label.disabled')" /></template>
         <template v-else-if="column.key === 'description'"><span class="schedule-wrap">{{ record.description || '—' }}</span></template>
         <template v-else-if="column.key === 'schedule'"><span class="schedule-wrap">{{ human(record.schedule) }}</span><span class="schedule-note">{{ record.timezone }}</span></template>
         <template v-else-if="column.key === 'period'"><span class="schedule-note">{{ formatDate(record.startdate, record.timezone) || '—' }}</span><span class="schedule-note">{{ record.enddate ? formatDate(record.enddate, record.timezone) : $t('label.schedule.no.end') }}</span></template>

@@ -89,9 +89,7 @@
                 <span>{{ record.displaystep || record.step || '-' }}</span>
               </template>
               <template v-else-if="column.key === 'credentialstate'">
-                <a-tag :color="getCredentialStateColor(record.credentialstate)">
-                  {{ $t('label.credential.state.' + (record.credentialstate || 'unknown')) }}
-                </a-tag>
+                <a-badge :status="getCredentialBadgeStatus(record.credentialstate)" :text="$t('label.credential.state.' + (record.credentialstate || 'unknown'))" />
               </template>
               <template v-else-if="column.key === 'state'">
                 <status :text="record.state || ''" displayText />
@@ -668,10 +666,10 @@ export default {
       if (provider === 'vmware') return this.$t('label.vmware')
       return provider || '-'
     },
-    getCredentialStateColor (state) {
-      if (state === 'stored' || state === 'managed') return 'green'
-      if (state === 'missing') return 'red'
-      if (state === 'legacy') return 'orange'
+    getCredentialBadgeStatus (state) {
+      if (state === 'stored' || state === 'managed') return 'success'
+      if (state === 'missing') return 'error'
+      if (state === 'legacy') return 'warning'
       return 'default'
     },
     getSyncProgressTitle (record) {
