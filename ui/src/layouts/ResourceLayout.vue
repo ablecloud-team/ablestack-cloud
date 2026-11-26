@@ -18,9 +18,9 @@
 <template>
   <div
     class="page-header-index-wide page-header-wrapper-grid-content-main"
-    :class="{ 'page-header-wrapper-grid-content-main--wide': wide }">
+    :class="{ 'page-header-wrapper-grid-content-main--wide': wide, 'resource-layout-viewport': viewportScroll }">
     <a-row :gutter="12">
-      <a-col v-if="!wide" :xs="24" :md="24" :lg="device === 'desktop' ? 7 : 8" style="margin-bottom: 12px">
+      <a-col v-if="!wide" :xs="24" :md="24" :lg="device === 'desktop' ? 7 : 8" :style="viewportScroll ? undefined : { marginBottom: '12px' }">
         <slot name="left">
         </slot>
       </a-col>
@@ -39,6 +39,7 @@ export default {
   name: 'ResourceLayout',
   mixins: [mixinDevice],
   props: {
+    viewportScroll: { type: Boolean, default: false },
     wide: {
       type: Boolean,
       default: false

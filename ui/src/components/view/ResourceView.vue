@@ -16,11 +16,12 @@
 // under the License.
 
 <template>
-  <resource-layout :wide="wideLayout" :class="{ 'event-resource': isEventDetailRoute($route), 'dns-zone-resource': $route.meta?.name === 'dnszone', 'kms-resource': kmsDetailRoute($route), 's2s-gateway-resource': $route.meta?.name === 's2svpn', 'autoscale-resource': $route.meta?.name === 'autoscalevmgroup', 'affinity-resource': $route.meta?.name === 'affinitygroup', 'kubernetes-iso-resource': $route.meta?.name === 'kubernetesiso', 'template-resource': ['template', 'iso', 'kubernetesiso'].includes($route.meta?.name), 'acl-resource': $route.meta?.name === 'acllist', 'project-resource': isProjectDetailRoute($route), 'system-offering-resource': isSystemOffering }">
+  <resource-layout :wide="wideLayout" :viewport-scroll="viewportScroll" :class="{ 'event-resource': isEventDetailRoute($route), 'dns-zone-resource': $route.meta?.name === 'dnszone', 'kms-resource': kmsDetailRoute($route), 's2s-gateway-resource': $route.meta?.name === 's2svpn', 'autoscale-resource': $route.meta?.name === 'autoscalevmgroup', 'affinity-resource': $route.meta?.name === 'affinitygroup', 'kubernetes-iso-resource': $route.meta?.name === 'kubernetesiso', 'template-resource': ['template', 'iso', 'kubernetesiso'].includes($route.meta?.name), 'acl-resource': $route.meta?.name === 'acllist', 'project-resource': isProjectDetailRoute($route), 'system-offering-resource': isSystemOffering }">
     <template #left>
       <slot name="info-card">
         <info-card
           :resource="resource"
+          :viewport-scroll="viewportScroll"
           :template-observation="templateZoneObservation"
           @show-template-zones="onTabChange('zones')"
           :loading="loading && !(quietRefresh && resource.id && resource.id === $route.params?.id)"
@@ -61,7 +62,7 @@
             :resource="resource"
             :loading="loading"
             :tab="tabs[0].name"
-            v-bind="$route.meta?.name === 'kubernetesiso' && ['details','zones'].includes(tabs[0].name) ? { observation: kubernetesIsoObservation } : {}"
+            v-bind="viewportScroll ? { viewportScroll } : $route.meta?.name === 'kubernetesiso' && ['details','zones'].includes(tabs[0].name) ? { observation: kubernetesIsoObservation } : {}"
             v-on="tabListeners(tabs[0])" />
         </keep-alive>
         <a-tabs
@@ -132,6 +133,7 @@ export default {
   mixins: [mixinDevice],
   props: {
     quietRefresh: { type: Boolean, default: false },
+    viewportScroll: { type: Boolean, default: false },
     readyForActions: { type: Boolean, default: true },
     readPending: { type: Boolean, default: false },
     readFailed: { type: Boolean, default: false },

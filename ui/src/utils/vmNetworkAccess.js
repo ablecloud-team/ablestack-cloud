@@ -35,7 +35,7 @@ export function vmNetworkAccessScope (vm) {
 }
 
 function acquire (key) {
-  if (!entries.has(key)) entries.set(key, { key, state: reactive({ networks: {}, status: 'idle' }), refs: 0, generation: 0, pending: null })
+  if (!entries.has(key)) entries.set(key, { key, state: reactive({ networks: {}, status: 'idle', reading: false }), refs: 0, generation: 0, pending: null })
   const entry = entries.get(key)
   entry.refs++
   return {
@@ -49,10 +49,14 @@ function acquire (key) {
 async function read (entry, resource, allowed) {
   if (entry.pending) return entry.pending
   const generation = ++entry.generation
-  // Never keep previously allowed links while a refresh is unconfirmed.
-  entry.state.networks = {}
-  entry.state.status = allowed ? 'loading' : 'unavailable'
-  if (!allowed) return
+  if (!allowed) {
+    entry.state.networks = {}
+    entry.state.status = 'unavailable'
+    return
+  }
+  // Retain the settled presentation while rechecking access in the same scope.
+  entry.state.reading = true
+  if (['idle', 'unavailable'].includes(entry.state.status)) entry.state.status = 'loading'
   const current = () => entry.refs > 0 && entry.generation === generation
   entry.pending = (async () => {
     try {
@@ -64,8 +68,14 @@ async function read (entry, resource, allowed) {
       })
       if (current()) { entry.state.networks = Object.fromEntries(rows.map(n => [n.id, n])); entry.state.status = 'ready' }
     } catch (error) {
-      if (current()) entry.state.status = 'error'
-    } finally { entry.pending = null }
+      if (current()) {
+        entry.state.networks = {}
+        entry.state.status = 'error'
+      }
+    } finally {
+      entry.state.reading = false
+      entry.pending = null
+    }
   })()
   return entry.pending
 }
@@ -76,8 +86,10 @@ export function vmNetworkAccessMixin ({ autoLoad = true } = {}) {
     computed: {
       vmNetworkAccessManaged () { return ['vm', 'vnfapp'].includes(this.$route?.meta?.name) || /^\/(vm|vnfapp)(\/|$)/.test(this.$route?.path || '') },
       vmNetworkAccessScope () { return vmNetworkAccessScope(this) },
-      vmNetworkAccessStatus () { return this.vmNetworkAccessScope && this.vmNetworkAccessEntry?.key === this.vmNetworkAccessScope ? this.vmNetworkAccessEntry.state.status : undefined },
-      vmNetworks () { return this.vmNetworkAccessStatus === 'ready' ? this.vmNetworkAccessEntry.state.networks : {} },
+      vmNetworkAccessState () { return this.vmNetworkAccessScope && this.vmNetworkAccessEntry?.key === this.vmNetworkAccessScope ? this.vmNetworkAccessEntry.state : null },
+      vmNetworkAccessStatus () { return this.vmNetworkAccessState?.reading ? 'loading' : this.vmNetworkAccessState?.status },
+      // Navigation and NIC actions require the current access check to succeed.
+      vmNetworks () { return this.vmNetworkAccessStatus === 'ready' ? this.vmNetworkAccessState.networks : {} },
       vmNetworkAccessFailed () { return this.vmNetworkAccessStatus === 'error' }
     },
     watch: {
