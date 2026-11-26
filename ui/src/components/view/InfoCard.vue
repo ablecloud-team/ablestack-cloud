@@ -1287,6 +1287,8 @@ import { vpnConnectionName, vpnConnectionRoute } from '@/utils/s2sGatewaySearch'
 import { vmDisplayName, isVmIdentityRoute } from '@/utils/vmIdentity'
 import { ldapEndpointLabel } from '@/utils/ldapConfiguration'
 
+const iconReads = new Map()
+
 export default {
   name: 'InfoCard',
   directives: { scrollActivity },
@@ -1365,6 +1367,7 @@ export default {
       showUpload: false,
       iconActive: true,
       renderedIconInputs: null,
+      iconOwnerPath: null,
       images: {
         zone: '',
         template: '',
@@ -1405,6 +1408,7 @@ export default {
     }
   },
   created () {
+    this.iconOwnerPath = this.$route.path
     this.setData()
     eventBus.on('handle-close', (showModal) => {
       this.showUploadModal(showModal)
@@ -1553,7 +1557,7 @@ export default {
     sshKeyPairNameLink,
     createPathBasedOnVmType: createPathBasedOnVmType,
     updateResourceAdditionalData () {
-      if (!this.resource) return
+      if (!this.resource || this.iconOwnerPath !== this.$route.path) return
       this.resourceType = this.$route.meta.resourceType
       if (this.renderedIconInputs === this.iconInputs) return
       this.renderedIconInputs = this.iconInputs
@@ -1687,7 +1691,16 @@ export default {
       if (!(command in this.$store.getters.apis)) return
       const scope = this.iconScope()
       try {
-        const result = await getAPI(command, params, { preserveOnFailure: true })
+        const getters = this.$store.getters
+        const access = [getters.userInfo?.id, getters.userInfo?.roleid, getters.project?.id, this.$store.state?.user?.token]
+        const key = JSON.stringify([access, command, Object.entries(params).sort()])
+        if (!iconReads.has(key)) {
+          const request = getAPI(command, params, { preserveOnFailure: true })
+          iconReads.set(key, request)
+          const release = () => { if (iconReads.get(key) === request) iconReads.delete(key) }
+          request.then(release, release)
+        }
+        const result = await iconReads.get(key)
         if (this.iconActive && scope === this.iconScope()) return result
       } catch { /* Optional decoration may be canceled by navigation. */ }
     },

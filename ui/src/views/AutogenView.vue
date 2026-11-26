@@ -3387,9 +3387,12 @@ export default {
         }
         this.itemCount = apiItemCount
 
-        if (this.dataView && this.$route.path.includes('/zone/') && 'listVmwareDcs' in this.$store.getters.apis) {
-          getAPI('listVmwareDcs', { zoneid: this.items[0].id }).then(response => {
-            this.items[0].vmwaredc = response.listvmwaredcsresponse.VMwareDC
+        if (this.dataView && this.$route.meta?.name === 'zone' && this.items[0] && 'listVmwareDcs' in this.$store.getters.apis) {
+          const zone = this.items[0]
+          getAPI('listVmwareDcs', { zoneid: zone.id }, { preserveOnFailure: true }).then(response => {
+            if (readCurrentScope()) zone.vmwaredc = response.listvmwaredcsresponse?.VMwareDC
+          }).catch(error => {
+            if (readCurrentScope()) this.$notifyError(error)
           })
         }
 

@@ -35,57 +35,15 @@
 </template>
 
 <script>
-import { listRefreshMixin } from '@/utils/listRefreshMixin'
-
-import { getAPI } from '@/api'
-
 export default {
-  mixins: [listRefreshMixin(['fetchData'])],
   props: {
     resource: {
       type: Object,
       required: true
     }
   },
-  data () {
-    return {
-      vmwaredc: null
-    }
-  },
-  watch: {
-    resource: {
-      deep: true,
-      handler (newItem, oldItem) {
-        if (this.resource && this.resource.id && newItem && newItem.id !== oldItem.id) {
-          this.fetchData()
-        }
-      }
-    }
-  },
-  created () {
-    this.fetchData()
-  },
-  methods: {
-    fetchData () {
-      const listRequest = this.listRequestToken('fetchData')
-      if (!this.resource.id) return
-      getAPI('listVmwareDcs', {
-        zoneid: this.resource.id
-      }).then(response => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
-
-        if (response.listvmwaredcsresponse.VMwareDC && response.listvmwaredcsresponse.VMwareDC.length > 0) {
-          this.vmwaredc = response.listvmwaredcsresponse.VMwareDC[0]
-        }
-      }).catch(error => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
-        listRequest.failed = true
-        this.listRefreshFailed = true
-        if (listRequest.loaded) return
-
-        this.$notifyError(error)
-      })
-    }
+  computed: {
+    vmwaredc () { return this.resource.vmwaredc?.[0] || null }
   }
 }
 </script>

@@ -179,8 +179,9 @@ export default {
     }
   },
   computed: {
+    currentRecord () { return this.getCurrentRecord() },
     ruleUid () {
-      const r = this.getCurrentRecord()
+      const r = this.currentRecord
       const x = (r && r.rule) ? r.rule : r
       return String((x && (x.uid || x.id)) || '')
     },
@@ -205,13 +206,11 @@ export default {
     }
   },
   watch: {
-    resource: { immediate: true, deep: false, handler () { this.initAndRefresh() } },
-    record: { immediate: true, deep: false, handler () { this.initAndRefresh() } }
+    currentRecord: { immediate: true, handler () { this.initAndRefresh() } }
   },
   methods: {
     initAndRefresh () {
-      const cur = this.getCurrentRecord()
-      this.initFromAny(cur)
+      this.initFromAny(this.currentRecord)
 
       if (!this.editing) {
         this.refreshFromServer()
