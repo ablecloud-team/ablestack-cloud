@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="loading">
+  <a-spin :spinning="loading" :class="{ 'vm-tabs-viewport': viewportScroll }">
     <KubernetesNodeNotice :resource="resource" />
     <a-alert v-if="vm.qemuagentversion === 'Not Installed'" :message="$t('message.alert.qemuagentversion')" type="error" show-icon />
     <br/>
@@ -33,6 +33,8 @@
       class="protection-tab-notice"
       :message="$t('message.vm.protection.lookup.pending')" />
     <a-tabs
+      ref="vmTabs"
+      v-scroll-activity="viewportScroll && { selector: '.ant-tabs-content-holder', label: $t('label.details') }"
       :tabPosition="resourceTabPosition"
       :activeKey="visibleCurrentTab"
       :animated="false"
@@ -148,6 +150,7 @@
 </template>
 
 <script>
+import scrollActivity from '@/utils/scrollActivity'
 import KubernetesNodeNotice from '@/views/compute/KubernetesNodeNotice'
 
 import { getAPI, postAPI } from '@/api'
@@ -177,6 +180,7 @@ import vmProtectionTabs from '@/utils/vmProtectionTabs'
 
 export default {
   name: 'InstanceTab',
+  directives: { scrollActivity },
   components: {
     KubernetesNodeNotice,
     VmDevicesTab,
@@ -203,6 +207,7 @@ export default {
   },
   mixins: [mixinDevice, vmProtectionTabs],
   props: {
+    viewportScroll: { type: Boolean, default: false },
     resource: {
       type: Object,
       required: true
@@ -238,6 +243,15 @@ export default {
     window.addEventListener('popstate', this.setCurrentTab)
   },
   watch: {
+    visibleCurrentTab: {
+      flush: 'post',
+      handler () {
+        if (this.viewportScroll) {
+          const viewport = this.$refs.vmTabs?.$el?.querySelector('.ant-tabs-content-holder')
+          if (viewport) viewport.scrollTop = 0
+        }
+      }
+    },
     resource: {
       deep: true,
       handler (newData, oldData) {

@@ -1,0 +1,196 @@
+/*
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+*/
+
+.vm-workspace {
+  display: flex;
+  flex-direction: column;
+  block-size: 100%;
+  min-inline-size: 0;
+}
+
+.vm-workspace > .content-breadcrumb {
+  flex: none;
+}
+
+.vm-workspace-content,
+.vm-workspace-list,
+.vm-workspace-detail,
+.vm-workspace-list .vm-list-table,
+.vm-workspace-list .vm-list-table > .ant-table-wrapper,
+.vm-workspace-list .vm-list-table > .ant-table-wrapper > .ant-spin-nested-loading,
+.vm-workspace-list .vm-list-table > .ant-table-wrapper > .ant-spin-nested-loading > .ant-spin-container,
+.vm-workspace-list .vm-list-table .ant-spin-container > .ant-table,
+.vm-workspace-list .vm-list-table .ant-table > .ant-table-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+.vm-workspace .vm-workspace-list.row-element,
+.vm-workspace .vm-workspace-list > .ant-pagination.row-element {
+  margin-block-end: 0;
+}
+
+.vm-workspace-list > .ant-pagination,
+.vm-workspace-list .vm-list-table .ant-table > .ant-table-footer {
+  flex: none;
+}
+
+.vm-workspace-list .vm-list-table .ant-table > .ant-table-footer {
+  display: flex;
+  align-items: center;
+  min-block-size: 46px;
+}
+
+.vm-workspace-list .vm-list-table .ant-table > .ant-table-container > .ant-table-content {
+  flex: 1 1 0;
+  min-block-size: var(--mold-list-row-height);
+  overflow-y: auto !important;
+  background: var(--ui-bg-surface);
+}
+
+.vm-workspace-list .vm-list-table .ant-table-content > table > .ant-table-thead {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 5;
+}
+
+.vm-workspace-list .vm-list-table .ant-table-content:has(.ant-table-placeholder) {
+  container-type: size;
+}
+
+.vm-workspace-list .vm-list-table .ant-table-placeholder > .ant-table-cell {
+  block-size: max(0px, calc(100cqh - var(--mold-list-row-height)));
+  padding: 0 !important;
+  border-block-end: 0;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.vm-workspace-list .vm-list-table .ant-table-placeholder .ant-table-expanded-row-fixed {
+  inline-size: 100cqw !important;
+}
+
+.vm-workspace-list .vm-list-table .ant-table-placeholder :is(.ant-empty, .ant-empty-description) {
+  margin: 0;
+}
+
+.vm-workspace-list .vm-list-table .ant-spin-spinning + .ant-spin-container .ant-table-placeholder .ant-empty {
+  visibility: hidden;
+}
+
+.vm-workspace .resource-layout-viewport,
+.vm-workspace .resource-layout-viewport > .ant-row,
+.vm-workspace .resource-layout-viewport > .ant-row > .ant-col {
+  block-size: 100%;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+.vm-workspace .resource-layout-viewport > .ant-row {
+  align-content: flex-start;
+}
+
+.vm-workspace .resource-layout-viewport > .ant-row > .ant-col,
+.vm-workspace .resource-info-viewport,
+.vm-workspace .resource-info-viewport > .ant-spin-container,
+.vm-workspace .resource-info-viewport > .ant-spin-container > .ant-card,
+.vm-workspace .resource-info-viewport > .ant-spin-container > .ant-card > .ant-card-body,
+.vm-workspace .resource-info-viewport > .ant-spin-container > .ant-card > .ant-card-body > .card-body,
+.vm-workspace .resource-layout-viewport .resource-content-card,
+.vm-workspace .resource-layout-viewport .resource-content-card > .ant-card-body,
+.vm-workspace .vm-tabs-viewport,
+.vm-workspace .vm-tabs-viewport > .ant-spin-container {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+.vm-workspace .resource-info-viewport,
+.vm-workspace .resource-info-viewport > .ant-spin-container,
+.vm-workspace .resource-info-viewport > .ant-spin-container > .ant-card,
+.vm-workspace .resource-info-viewport > .ant-spin-container > .ant-card > .ant-card-body,
+.vm-workspace .resource-info-viewport > .ant-spin-container > .ant-card > .ant-card-body > .card-body,
+.vm-workspace .resource-layout-viewport .resource-content-card,
+.vm-workspace .resource-layout-viewport .resource-content-card > .ant-card-body,
+.vm-workspace .vm-tabs-viewport,
+.vm-workspace .vm-tabs-viewport > .ant-spin-container,
+.vm-workspace .vm-tabs-viewport > .ant-spin-container > .ant-tabs,
+.vm-workspace .resource-info-viewport .card-content {
+  flex: 1 1 0;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+.vm-workspace .vm-tabs-viewport > .ant-spin-container > .ant-tabs > .ant-tabs-content-holder {
+  min-block-size: 0;
+  min-inline-size: 0;
+  overflow: auto;
+}
+
+.vm-workspace .workspace-scroll-region {
+  --workspace-scroll-thumb: transparent;
+  scrollbar-width: thin;
+  scrollbar-color: var(--workspace-scroll-thumb) transparent;
+  overscroll-behavior: contain;
+}
+
+.vm-workspace .workspace-scroll-region.is-scrolling {
+  --workspace-scroll-thumb: var(--ui-scroll-thumb);
+}
+
+.vm-workspace .workspace-scroll-region::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.vm-workspace .workspace-scroll-region::-webkit-scrollbar-track,
+.vm-workspace .workspace-scroll-region::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.vm-workspace .workspace-scroll-region::-webkit-scrollbar-thumb,
+.vm-workspace .workspace-scroll-region::-webkit-scrollbar-thumb:hover {
+  background: var(--workspace-scroll-thumb);
+  background-clip: padding-box;
+}
+
+.vm-workspace .workspace-scroll-region:focus-visible {
+  outline: 2px solid var(--ui-link);
+  outline-offset: -2px;
+}
+
+@media (max-width: 991px) {
+  .vm-workspace .resource-layout-viewport > .ant-row {
+    row-gap: 12px;
+  }
+
+  .vm-workspace-detail .workspace-scroll-region {
+    overscroll-behavior: auto;
+  }
+}
+
+@media (max-width: 575px) {
+  .vm-workspace-list > .ant-pagination {
+    min-block-size: 48px;
+  }
+}

@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div :class="{ 'autoscale-screen': $route.meta?.name === 'autoscalevmgroup', 'userdata-library': $route.meta?.name === 'userdata', 'affinity-library': $route.meta?.name === 'affinitygroup', 'snapshot-list-page': isSnapshotList, 'object-storage-ui': isObjectStorageUi, 'bucket-list-page': isBucketList, 'vm-list-page': isVmList, 'event-list-page': isEventList, 'vm-acl-standard': standardResourceTabs, 'vpn-user-page': isVpnUser, 'vpn-customer-gateway-page': isVpnCustomerGateway, 'project-standard-page': isProjectUi, 'role-standard-page': isRoleUi, 'account-standard-page': isAccountUi, 'account-standard-list': isAccountList, 'acl-page': isAclUi, 'kms-management-page': kmsRoute($route), 'kms-list-page': kmsListRoute($route),  'public-ip-page': isPublicIpUi, 'volume-list-page': isVolumeList, 'template-list-page': isTemplateList, 'iso-list-page': isIsoList, 'kubernetes-iso-page': $route.meta?.name === 'kubernetesiso', 'kubernetes-iso-list-page': isKubernetesIsoList, 's2s-gateway-list-page': s2sGatewayListRoute($route), 's2s-connection-page': vpnConnectionRoute($route), 'asn-list-page': !!asnSearchAuth, 'host-standard-page': isHostUi, 'oauth-list-page': isOauthUi && !dataView, 'guest-network-page': isGuestNetworkUi, 'runtime-catalog-screen': $route.meta?.name === 'runtimebundle' }">
+  <div :class="{ 'autoscale-screen': $route.meta?.name === 'autoscalevmgroup', 'userdata-library': $route.meta?.name === 'userdata', 'affinity-library': $route.meta?.name === 'affinitygroup', 'snapshot-list-page': isSnapshotList, 'object-storage-ui': isObjectStorageUi, 'bucket-list-page': isBucketList, 'vm-list-page': isVmList, 'vm-workspace': isVmUi, 'event-list-page': isEventList, 'vm-acl-standard': standardResourceTabs, 'vpn-user-page': isVpnUser, 'vpn-customer-gateway-page': isVpnCustomerGateway, 'project-standard-page': isProjectUi, 'role-standard-page': isRoleUi, 'account-standard-page': isAccountUi, 'account-standard-list': isAccountList, 'acl-page': isAclUi, 'kms-management-page': kmsRoute($route), 'kms-list-page': kmsListRoute($route),  'public-ip-page': isPublicIpUi, 'volume-list-page': isVolumeList, 'template-list-page': isTemplateList, 'iso-list-page': isIsoList, 'kubernetes-iso-page': $route.meta?.name === 'kubernetesiso', 'kubernetes-iso-list-page': isKubernetesIsoList, 's2s-gateway-list-page': s2sGatewayListRoute($route), 's2s-connection-page': vpnConnectionRoute($route), 'asn-list-page': !!asnSearchAuth, 'host-standard-page': isHostUi, 'oauth-list-page': isOauthUi && !dataView, 'guest-network-page': isGuestNetworkUi, 'runtime-catalog-screen': $route.meta?.name === 'runtimebundle' }">
     <div class="content-breadcrumb">
       <a-card class="breadcrumb-card breadcrumb-toolbar" style="z-index: 10">
         <a-row class="breadcrumb-toolbar-row">
@@ -808,6 +808,7 @@
     </div>
 
     <div
+      :class="{ 'vm-workspace-content': isVmUi }"
       :style="this.$store.getters.maintenanceInitiated || this.$store.getters.shutdownTriggered ? 'margin-top: 24px; margin-bottom: 12px' : null"
     >
       <a-alert v-if="s2sGatewayRoute($route) && dataView && listRefreshError" type="error" show-icon :message="$t(s2sGatewaySearchFailure === 'permission' || s2sGatewaySearchFailure === 'scope' ? 'message.s2s.gateway.search.' + s2sGatewaySearchFailure : resource.id ? 'message.list.refresh.stale' : 'error.fetching.data')"><template #description><a-button @click="fetchData({ irefresh: true })">{{ $t('label.retry') }}</a-button></template></a-alert>
@@ -848,7 +849,7 @@
       <a-alert v-if="isVpnUser && listRefreshError" class="vpn-user-read-error" type="error" show-icon :message="$t('message.vpn.user.search.failed')">
         <template #description><a-button size="small" :disabled="listRequestPending || vpnUserProjectSwitching" @click="fetchData({ irefresh: true })">{{ $t('label.retry') }}</a-button></template>
       </a-alert>
-      <div v-if="dataView">
+      <div v-if="dataView" :class="{ 'vm-workspace-detail': isVmUi }">
         <a-alert v-if="isKmsDetail && kmsDetailError" type="error" show-icon :message="$t('message.kms.detail.' + kmsDetailError)">
           <template #description>
             <a-space>
@@ -888,6 +889,7 @@
         <resource-view
           v-else-if="(!isOauthUi || (!listRefreshError && !oauthDetailMissing)) && (!isLdapUi || (!listRefreshError && !ldapDetailMissing)) && (!isKmsDetail || (resource.id || loading) && !kmsDetailError) && (!(s2sGatewayRoute($route) || isVpnConnectionDetail) || resource.id || loading) && (!isVpnUser || !listRefreshError && (resource.id || loading)) && !templateDetailError && !($route.meta?.name === 'kubernetesiso' && kubernetesIsoReadError) && (!(isSnapshotDetail || isPolicyDetail) || resource.id || loading) && (!isSshKeyPairDetail || sshKeyPairDetailVisible) && ($route.meta?.name !== 'vmgroup' || resource.id || loading)"
           :key="isKmsDetail || isSshKeyPairDetail || isSnapshotDetail || isPolicyDetail ? listScope() : $route.path"
+          :viewport-scroll="isVmUi"
           :readPending="listRequestPending"
           :readFailed="(isVpcUi || isAclUi || ['ilb', 'vm', 'vnfapp', 's2svpn', 's2svpnconn'].includes($route.meta?.name)) && listRefreshError"
           :readyForActions="isKmsDetail ? kmsDetailReady : $route.meta?.name === 'kubernetesiso' ? !listRequestPending && !kubernetesIsoReadError && listLoadedScope === listScope() : ['vm', 'vnfapp', 's2svpn', 's2svpnconn', 'vpncustomergateway'].includes($route.meta?.name) ? storageActionReady : (isSecondaryStorageUi || isStorageUi || isObjectStorageUi || isSnapshotDetail || isPolicyDetail) ? storageActionReady : isSshKeyPairDetail ? sshKeyPairDetailActionReady : ($route.meta?.name === 'cniconfiguration' ? cniDetailActionReady : ($route.meta?.name !== 'vmgroup' || vmGroupQueryReady))"
@@ -905,19 +907,21 @@
       </div>
       <div
         class="row-element"
+        :class="{ 'vm-workspace-list': isVmList }"
         v-else
       >
         <advisories-view
           v-if="$route.meta.advisories && !loading"
         />
-        <p v-if="isVmList && listRefreshError" role="status">{{ $t('message.list.refresh.stale') }}</p>
+        <p v-if="isVmList && listRefreshError && items.length" role="status">{{ $t('message.list.refresh.stale') }}</p>
         <list-view
           v-if="(!(isVpnUser || isLdapUi || isOauthUi) || !listRefreshError) && (!(isPrimaryStorageList || isSecondaryStorageList) || !listRefreshError || items.length)"
           :loading="sharedFSContentLoading || isVpnUser && vpnUserProjectSwitching || (isLdapUi || isOauthUi) && listRequestPending"
           :columns="presentedColumns"
           :kms-table="kmsListRoute($route)"
           :items="items"
-          :empty-text="isLdapUi ? $t('message.ldap.list.empty') : isOauthUi ? $t('message.oauth.list.empty') : undefined"
+          :viewport-scroll="isVmList"
+          :empty-text="isLdapUi ? $t('message.ldap.list.empty') : isOauthUi ? $t('message.oauth.list.empty') : isVmList && listRefreshError ? $t('message.list.refresh.stale') : undefined"
           :actions="(asnSearchAuth && asnSearchFailure) || isSnapshotCopyList || snapshotSearchFailure || policySearchFailure || ((isSnapshotList || isPolicyList || isObjectStorageUi || $route.meta?.name === 'vnfapp') && !storageActionReady) || ($route.meta?.name === 'vmgroup' && !vmGroupQueryReady) ? [] : actions"
           :selectionDisabled="record => ((isProjectList || isVpnUser || isVpnCustomerGateway) && !storageActionReady) || (asnSearchAuth && !asnListReady) || (isSnapshotList || isPolicyList || isObjectStorageUi || $route.meta?.name === 'vnfapp') && !storageActionReady"
           :explicitlyAllowRowSelection="policySelectionAvailable || !!asnSearchAuth"
@@ -938,7 +942,7 @@
           class="row-element"
           style="margin-top: 10px"
           size="small"
-          :current="page"
+          :current="isVmList && itemCount === 0 && !loading ? 1 : page"
           :pageSize="pageSize"
           :total="itemCount"
           :showTotal="total => this.$localStorage.get('LOCALE') == 'ko_KR' ?
@@ -948,7 +952,7 @@
           @change="changePage"
           @showSizeChange="onListPageSizeChange"
           showSizeChanger
-          showQuickJumper
+          :showQuickJumper="!isVmList || itemCount > 0"
         >
           <template #buildOptionText="props">
             <span>{{ props.value }} / {{ $t('label.page') }}</span>
@@ -968,6 +972,7 @@
 
 <script>
 import '@/style/components/view/kubernetes-iso.less'
+import '@/style/components/view/vm-workspace.css'
 import { isVmDeletion } from '@/utils/vmDeletion'
 import { templateObservationContext } from '@/utils/templateAvailability'
 import { isoZoneContext } from '@/utils/isoZoneOperations'

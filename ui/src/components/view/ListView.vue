@@ -16,7 +16,16 @@
 // under the License.
 
 <template>
-  <div class="list-view-table-wrapper" :class="{ 'kms-table': kmsTable, 'autoscale-list': $route.name === 'autoscalevmgroup', 'snapshot-list-table': $route.name === 'snapshot', 'snapshot-policy-list-table': $route.name === 'snapshotpolicy', 'kubernetes-iso-list-table': isKubernetesIsoMainList, 'usage-records-list-table': isUsageList, 'vm-list-table': isVmMainList, 'mold-list-table': standardTable }" :tabindex="scrollRegionLabel ? 0 : undefined" :role="scrollRegionLabel ? 'region' : undefined" :aria-label="scrollRegionLabel" @keydown="scrollWideTable" @contextmenu="handleGlobalContextMenu">
+  <div
+    ref="tableViewport"
+    class="list-view-table-wrapper"
+    v-scroll-activity="viewportScroll && { selector: '.ant-table-content', label: scrollRegionLabel }"
+    :class="{ 'kms-table': kmsTable, 'autoscale-list': $route.name === 'autoscalevmgroup', 'snapshot-list-table': $route.name === 'snapshot', 'snapshot-policy-list-table': $route.name === 'snapshotpolicy', 'kubernetes-iso-list-table': isKubernetesIsoMainList, 'usage-records-list-table': isUsageList, 'vm-list-table': isVmMainList, 'mold-list-table': standardTable }"
+    :tabindex="scrollRegionLabel && !viewportScroll ? 0 : undefined"
+    :role="scrollRegionLabel && !viewportScroll ? 'region' : undefined"
+    :aria-label="viewportScroll ? undefined : scrollRegionLabel"
+    @keydown="scrollWideTable"
+    @contextmenu="handleGlobalContextMenu">
     <a-table
       size="middle"
       :loading="loading"
@@ -1508,6 +1517,7 @@ import moment from 'moment-timezone'
 import { timeZoneName } from '@/utils/timezone'
 import { FileTextOutlined } from '@ant-design/icons-vue'
 import { Empty } from 'ant-design-vue'
+import scrollActivity from '@/utils/scrollActivity'
 import SharedFSCapacitySummary from '@/views/storage/SharedFSCapacitySummary.vue'
 import SharedFSBootRecoverySummary from '@/views/storage/SharedFSBootRecoverySummary.vue'
 
@@ -1543,6 +1553,7 @@ const vmColumnWidths = {
 
 export default {
   name: 'ListView',
+  directives: { scrollActivity },
   components: {
     RuntimeCatalogValue,
     Empty,
@@ -1594,6 +1605,7 @@ export default {
   ],
   props: {
     tableScroll: { type: Object, default: null },
+    viewportScroll: { type: Boolean, default: false },
     standardList: { type: Boolean, default: undefined },
     kmsTable: { type: Boolean, default: false },
     resourcePath: { type: String, default: '' },
@@ -1731,6 +1743,10 @@ export default {
       this.closeContextQuickView()
     },
     '$route.fullPath' () {
+      if (this.viewportScroll) {
+        const viewport = this.$refs.tableViewport?.querySelector('.ant-table-content')
+        if (viewport) viewport.scrollTop = 0
+      }
       this.columnPickerVisible = false
       // Clear selection when navigating between routes or revisiting list screens
       this.resetSelection()

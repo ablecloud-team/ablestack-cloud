@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 <template>
-  <a-spin :spinning="loading">
+  <a-spin :spinning="loading" :class="{ 'resource-info-viewport': viewportScroll }">
     <a-card
       class="spin-content"
       :class="{ 'template-info-card': $route.meta.name === 'template' || kmsDetailRoute($route), 'kms-info-card': kmsDetailRoute($route), 'event-info-card': $route.meta.name === 'event' }"
@@ -23,7 +23,7 @@
       :title="title"
       @contextmenu="handleContextMenu">
       <div class="card-body">
-        <div class="card-content" :tabindex="scrollable ? 0 : undefined" :role="scrollable ? 'region' : undefined" :aria-label="scrollable ? title : undefined">
+        <div v-scroll-activity="viewportScroll && { label: $t('label.summary') }" class="card-content" :tabindex="scrollable ? 0 : undefined" :role="scrollable ? 'region' : undefined" :aria-label="scrollable ? title : undefined">
           <div>
             <div class="resource-details">
               <div class="resource-details__name">
@@ -1222,6 +1222,7 @@
 </template>
 
 <script>
+import scrollActivity from '@/utils/scrollActivity'
 import { hostStatusColor, hostStatusLabel } from '@/utils/hostPresentation'
 import { systemOfferingStateLabel } from '@/utils/systemOfferingTypes'
 import { physicalNetworkZoneLocation, zoneFeatureLabel, zoneFeatureState, zoneMetricText } from '@/utils/zone'
@@ -1280,6 +1281,7 @@ import { ldapEndpointLabel } from '@/utils/ldapConfiguration'
 
 export default {
   name: 'InfoCard',
+  directives: { scrollActivity },
   mixins: [vmNetworkAccessMixin()],
   components: {
     RuntimeCatalogValue,
@@ -1335,6 +1337,7 @@ export default {
       type: Boolean,
       default: false
     },
+    viewportScroll: { type: Boolean, default: false },
     scrollable: {
       type: Boolean,
       default: false
