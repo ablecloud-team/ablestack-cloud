@@ -134,8 +134,14 @@ export default {
   flex: 1 0 auto;
 }
 
-.dashboard-view :deep(.dashboard-card-scroll) {
-  /* Use the height of the row and scroll busy cards within it. */
+/* Reserve room for card content while letting the rows follow the activity panel. */
+.dashboard-content--activity-open .dashboard-view :deep(.dashboard-card-grid > .ant-col) {
+  min-block-size: 120px;
+}
+
+.dashboard-view :deep(.dashboard-card-scroll),
+.dashboard-content--activity-open .dashboard-view :deep(.dashboard-card-grid > .ant-col > .ant-card),
+.dashboard-content--activity-open .dashboard-view :deep(.dashboard-card-grid > .ant-col > a > .ant-card) {
   contain: size;
   overflow-x: hidden;
   overflow-y: auto;

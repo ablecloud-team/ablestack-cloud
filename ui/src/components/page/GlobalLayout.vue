@@ -133,7 +133,11 @@
             <a-layout-content
               v-list-overflow-title
               class="layout-content"
-              :class="{ 'is-header-fixed': fixedHeader, 'dashboard-content': $route.name === 'dashboard' }">
+              :class="{
+                'is-header-fixed': fixedHeader,
+                'dashboard-content': $route.name === 'dashboard',
+                'dashboard-content--activity-open': $route.name === 'dashboard' && isSidebarVisible
+              }">
               <slot />
             </a-layout-content>
 
