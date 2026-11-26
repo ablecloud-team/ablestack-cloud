@@ -25,6 +25,7 @@ public final class ThirdPartyBackupRestore {
     public static final String HISTORY_PREFIX = "thirdparty.volume.restore.history.";
     public static final int HISTORY_VERSION = 1;
     public static final int START_PROTOCOL_VERSION = 1;
+    public static final String ACK_ABORT_ACTION = "RESTORE_ACK_ABORT";
     public static final String TRANSFER_KEY = "thirdparty.volume.restore.transfer";
     public static final String CLEANUP_STATE_KEY = "thirdparty.volume.restore.cleanup.state";
     public static final String CLEANUP_DETAILS_KEY = "thirdparty.volume.restore.cleanup.details";
@@ -213,6 +214,13 @@ public final class ThirdPartyBackupRestore {
         public long completedAt;
         public long terminalAt;
         public long acknowledgedAt;
+        public int acknowledgmentFailures;
+        public int acknowledgmentRejections;
+        public long acknowledgmentFirstFailureAt;
+        public long acknowledgmentRetryAt;
+        public String acknowledgmentError;
+        public long acknowledgmentAbortRequestedAt;
+        public long acknowledgmentAbortConfirmedAt;
         public String queryError;
         public boolean legacy;
     }

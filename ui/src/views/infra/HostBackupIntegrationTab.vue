@@ -16,11 +16,11 @@
 // under the License.
 
 <template>
-  <a-tabs :key="resource.id" v-model:activeKey="provider">
-    <a-tab-pane key="netbackup" tab="NetBackup">
+  <a-tabs v-if="availableProviders.length" :key="resource.id" v-model:activeKey="provider">
+    <a-tab-pane v-if="availableProviders.includes('netbackup')" key="netbackup" tab="NetBackup">
       <NetBackupHostConfiguration :resource="resource" />
     </a-tab-pane>
-    <a-tab-pane key="veeam" tab="Veeam">
+    <a-tab-pane v-if="availableProviders.includes('veeam')" key="veeam" tab="Veeam">
       <VeeamHostConfiguration :resource="resource" />
     </a-tab-pane>
   </a-tabs>
@@ -29,6 +29,7 @@
 <script>
 import NetBackupHostConfiguration from './backup/NetBackupHostConfiguration.vue'
 import VeeamHostConfiguration from './backup/VeeamHostConfiguration.vue'
+import { hostBackupIntegrationProviders } from '@/utils/hostBackupIntegration'
 
 export default {
   name: 'HostBackupIntegrationTab',
@@ -36,6 +37,19 @@ export default {
   props: { resource: { type: Object, required: true } },
   data () {
     return { provider: 'netbackup' }
+  },
+  computed: {
+    availableProviders () {
+      return hostBackupIntegrationProviders(this.resource, this.$store?.getters?.apis).map(name => name.replace('ablestack-', ''))
+    }
+  },
+  watch: {
+    availableProviders: {
+      immediate: true,
+      handler (providers) {
+        if (!providers.includes(this.provider)) this.provider = providers[0] || ''
+      }
+    }
   }
 }
 </script>

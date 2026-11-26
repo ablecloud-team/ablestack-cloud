@@ -61,6 +61,7 @@
           <a-select
             allowClear
             v-model:value="form.zoneid"
+            :disabled="loading"
             :loading="zones.loading"
             @change="onChangeZone"
             showSearch
@@ -85,6 +86,8 @@
             allowClear
             v-model:value="form.externalid"
             :loading="externals.loading"
+            :disabled="loading || externals.loading || externalLoadFailed"
+            :notFoundContent="externalEmptyMessage"
             showSearch
             optionFilterProp="label"
             :filterOption="(input, option) => {
@@ -95,7 +98,7 @@
             </a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item name="allowuserdrivenbackups" ref="allowuserdrivenbackups">
+        <a-form-item name="allowuserdrivenbackups" ref="allowuserdrivenbackups" v-if="!isFixedIdProvider">
           <template #label>
             <tooltip-label :title="$t('label.allowuserdrivenbackups')" :tooltip="apiParams.allowuserdrivenbackups ? apiParams.allowuserdrivenbackups.description : ''"/>
           </template>
@@ -131,7 +134,7 @@
         </a-form-item>
         <div :span="24" class="action-button">
           <a-button :loading="loading" @click="closeAction">{{ $t('label.cancel') }}</a-button>
-          <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+          <a-button :loading="loading" :disabled="providers.loading || externals.loading || !externalOptionsLoaded || !externals.opts.length" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
         </div>
       </a-form>
     </a-spin>
@@ -145,6 +148,7 @@ import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import { GlobalOutlined } from '@ant-design/icons-vue'
 import { isAdmin } from '@/role'
+import { fixedBackupOfferingExternalId, loadBackupOfferingOptions } from '@/utils/backupOfferingOptions'
 
 export default {
   name: 'CloneBackupOffering',
@@ -178,7 +182,12 @@ export default {
         loading: false,
         opts: []
       },
-      selectedZoneId: null
+      selectedZoneId: null,
+      providerRequest: 0,
+      externalRequest: 0,
+      externalOptionsLoaded: false,
+      externalLoadFailed: false,
+      hasProviderOfferings: false
     }
   },
   beforeCreate () {
@@ -187,6 +196,15 @@ export default {
   created () {
     this.initForm()
     this.fetchData()
+  },
+  computed: {
+    isFixedIdProvider () {
+      return !!fixedBackupOfferingExternalId(this.resource.provider)
+    },
+    externalEmptyMessage () {
+      if (this.externalLoadFailed) return this.$t('error.fetching.data')
+      return this.$t(this.hasProviderOfferings ? 'message.backup.offering.externalid.all.registered' : 'message.backup.offering.externalid.none')
+    }
   },
   methods: {
     initForm () {
@@ -235,14 +253,17 @@ export default {
       })
     },
     fetchProvider (zoneId) {
+      const request = ++this.providerRequest
       if (!zoneId) {
         this.providers.opts = []
         this.externals.opts = []
         this.form.externalid = null
         return
       }
+      const isCurrent = () => request === this.providerRequest && this.selectedZoneId === zoneId
       this.providers.loading = true
-      getAPI('listBackupProvidersForZone', { zoneid: zoneId }).then(json => {
+      return getAPI('listBackupProvidersForZone', { zoneid: zoneId }).then(json => {
+        if (!isCurrent()) return
         this.providers.opts = json.listbackupprovidersforzoneresponse.providers || []
         const sourceProvider = this.resource?.provider
         const provider = this.providers.opts.find(provider => {
@@ -253,38 +274,51 @@ export default {
           this.form.externalid = null
           return
         }
-        this.fetchExternal(zoneId, provider.name)
+        return this.fetchExternal(zoneId, provider.name)
       }).catch(error => {
-        this.$notifyError(error)
+        if (isCurrent()) this.$notifyError(error)
       }).finally(() => {
-        this.providers.loading = false
+        if (isCurrent()) this.providers.loading = false
       })
     },
-    fetchExternal (zoneId, providerName) {
+    async fetchExternal (zoneId, providerName) {
+      const request = ++this.externalRequest
+      this.externalOptionsLoaded = false
+      this.externalLoadFailed = false
+      this.hasProviderOfferings = false
+      this.externals.opts = []
       if (!zoneId || !providerName) {
-        this.externals.opts = []
+        this.externals.loading = false
         this.form.externalid = null
-        return
+        return null
       }
 
+      const isCurrent = () => request === this.externalRequest && this.selectedZoneId === zoneId
       this.externals.loading = true
-      getAPI('listBackupProviderOfferings', { zoneid: zoneId, provider: providerName }).then(json => {
-        const externalOfferings = json.listbackupproviderofferingsresponse.backupoffering || []
-        const sourceExternalId = this.resource?.externalid
-        this.externals.opts = externalOfferings.filter(opt => {
-          return String(opt.externalid) !== String(sourceExternalId)
-        })
+      try {
+        const result = await loadBackupOfferingOptions(getAPI, zoneId, providerName)
+        if (!isCurrent()) return null
+        this.externals.opts = result.options
+        this.externalOptionsLoaded = true
+        this.hasProviderOfferings = result.hasProviderOfferings
         const hasSelectedExternal = this.externals.opts.some(opt => {
           return String(opt.externalid) === String(this.form.externalid)
         })
         if (!hasSelectedExternal) {
           this.form.externalid = null
         }
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.externals.loading = false
-      })
+        return result
+      } catch (error) {
+        if (isCurrent()) {
+          this.externalLoadFailed = true
+          this.externals.opts = []
+          this.form.externalid = null
+          this.$notifyError(error)
+        }
+        return null
+      } finally {
+        if (isCurrent()) this.externals.loading = false
+      }
     },
     populateFormFromResource () {
       if (!this.resource) return
@@ -328,14 +362,30 @@ export default {
         }
       }
     },
-    handleSubmit (e) {
-      if (e) {
-        e.preventDefault()
+    async handleSubmit (e) {
+      if (e?.preventDefault) e.preventDefault()
+      if (this.loading || this.providers.loading || this.externals.loading || !this.externalOptionsLoaded) return
+      const zoneId = this.selectedZoneId
+      const request = this.externalRequest
+      try {
+        await this.formRef.value.validate()
+      } catch (error) {
+        if (error.errorFields?.length) this.formRef.value.scrollToField(error.errorFields[0].name)
+        return
       }
-      if (this.loading) return
-
-      this.formRef.value.validate().then(() => {
-        const values = toRaw(this.form)
+      if (this.loading || this.providers.loading || this.externals.loading || zoneId !== this.selectedZoneId || request !== this.externalRequest) return
+      const values = { ...toRaw(this.form) }
+      this.loading = true
+      try {
+        const result = await this.fetchExternal(zoneId, this.resource.provider)
+        if (!result) return
+        if (!result.options.some(option => option.externalid === values.externalid)) {
+          this.$notification.error({
+            message: this.$t('message.request.failed'),
+            description: this.$t('message.backup.offering.externalid.unavailable')
+          })
+          return
+        }
         const params = {
           sourceofferingid: this.resource.id
         }
@@ -360,7 +410,7 @@ export default {
         }
 
         if (values.allowuserdrivenbackups !== undefined) {
-          params.allowuserdrivenbackups = values.allowuserdrivenbackups
+          params.allowuserdrivenbackups = this.isFixedIdProvider ? false : values.allowuserdrivenbackups
         }
 
         // Include selected domain IDs when offering is not public
@@ -380,41 +430,44 @@ export default {
           }
         }
 
-        this.loading = true
         const title = this.$t('label.clone.backup.offering')
-        postAPI('cloneBackupOffering', params).then(json => {
-          const jobId = json.clonebackupofferingresponse?.jobid
-          if (jobId) {
-            this.$pollJob({
-              jobId,
-              title,
-              description: values.name,
-              successMethod: result => {
-                this.$message.success(`${title}: ${values.name}`)
-                this.$emit('refresh-data')
-                this.closeAction()
-              },
-              loadingMessage: `${title} ${this.$t('label.in.progress')} ${this.$t('label.for')} ${params.name}`,
-              catchMessage: this.$t('error.fetching.async.job.result'),
-              catchMethod: () => {
-                this.closeAction()
-              }
-            })
-          } else {
-            this.$message.success(`${title}: ${values.name}`)
-            this.$emit('refresh-data')
-            this.closeAction()
-          }
-        }).catch(error => {
-          this.$notifyError(error)
-        }).finally(() => {
-          this.loading = false
-        })
-      }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
-      })
+        const json = await postAPI('cloneBackupOffering', params)
+        const jobId = json.clonebackupofferingresponse?.jobid
+        if (jobId) {
+          this.$pollJob({
+            jobId,
+            title,
+            description: values.name,
+            successMethod: result => {
+              this.$message.success(`${title}: ${values.name}`)
+              this.$emit('refresh-data')
+              this.closeAction()
+            },
+            loadingMessage: `${title} ${this.$t('label.in.progress')} ${this.$t('label.for')} ${params.name}`,
+            catchMessage: this.$t('error.fetching.async.job.result'),
+            catchMethod: () => {
+              this.closeAction()
+            }
+          })
+        } else {
+          this.$message.success(`${title}: ${values.name}`)
+          this.$emit('refresh-data')
+          this.closeAction()
+        }
+      } catch (error) {
+        this.$notifyError(error)
+      } finally {
+        this.loading = false
+      }
     },
     onChangeZone (value) {
+      this.externalRequest++
+      this.providerRequest++
+      this.externalOptionsLoaded = false
+      this.externalLoadFailed = false
+      this.hasProviderOfferings = false
+      this.providers.loading = false
+      this.externals.loading = false
       if (!value) {
         this.selectedZoneId = null
         this.providers.opts = []

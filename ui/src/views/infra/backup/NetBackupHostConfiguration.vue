@@ -90,8 +90,13 @@
       <a-alert v-if="integrationReady" type="success" show-icon :message="$t('label.backup.integration.ready')" :description="nextStep" class="integration-block" />
       <a-card :title="$t('label.backup.integration.targets')" size="small" class="integration-block">
         <p>{{ $t('message.backup.integration.targets') }}</p>
-        <a-alert v-if="info.vmschedulebackup === false" type="info" show-icon :message="$t('label.backup.integration.policy.limits')" :description="$t('message.backup.integration.policy.limits')" class="integration-block" />
-        <p v-if="integrationReady">{{ nextStep }}</p>
+        <a-alert v-if="info.vmschedulebackup === false" type="info" show-icon :message="$t('label.backup.integration.policy.limits')" class="integration-block">
+          <template #description>
+            <ul class="integration-policy-limits">
+              <li v-for="item in policyLimitItems" :key="item">{{ item }}</li>
+            </ul>
+          </template>
+        </a-alert>
         <a-space wrap class="integration-block">
           <router-link :to="{ name: 'backupoffering' }">{{ $t('label.backup.offerings') }}</router-link>
           <router-link :to="{ name: 'vm' }">{{ $t('label.instances') }}</router-link>
@@ -128,6 +133,7 @@ export default {
     },
     canApply () { return this.canRun && this.info.state === 'CHECKED' && this.checkedInput === this.fingerprint },
     nextStep () { return this.$t(this.info.vmschedulebackup === false ? 'message.backup.integration.next.policy' : 'message.backup.integration.next.schedule') },
+    policyLimitItems () { return this.$t('message.backup.integration.policy.limits').split('\n') },
     stateLabel () { return this.$t('label.backup.integration.state.' + (this.busy ? 'RUNNING' : (this.info.state || 'UNKNOWN')).toLowerCase()) },
     statusMessage () { return this.localizeMessage(this.info.message) },
     integrationReady () { return !this.busy && !this.inspectionFailed && this.info.linkready },
@@ -256,6 +262,8 @@ export default {
 .host-backup-integration { overflow-wrap: anywhere; }
 .integration-steps { margin: 24px 0; }
 .integration-block { margin: 16px 0; }
+.integration-policy-limits { margin: 0; padding-inline-start: 20px; }
+.integration-policy-limits li + li { margin-top: 6px; }
 .integration-form { max-width: 720px; margin: 24px 0; }
 .setting-help { opacity: 0.75; margin-top: 4px; }
 </style>

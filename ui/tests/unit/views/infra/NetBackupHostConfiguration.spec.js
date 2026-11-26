@@ -68,7 +68,7 @@ async function mount (info = {}, options = {}) {
           template: '<div><div v-for="record in dataSource" :key="record.key || record.id" :data-setting="record.key"><div v-for="column in columns" :key="column.key"><slot v-if="[\'setting\', \'source\'].includes(column.key)" name="bodyCell" :column="column" :record="record" /><span v-else>{{ record[column.dataIndex] }}</span></div></div></div>'
         },
         ASpace: { template: '<div><slot /></div>' },
-        AAlert: { props: ['message', 'description', 'type'], template: '<div :data-type="type">{{ message }} {{ description }}</div>' },
+        AAlert: { props: ['message', 'description', 'type'], template: '<div :data-type="type">{{ message }} <slot name="description">{{ description }}</slot></div>' },
         RouterLink: { props: ['to'], template: '<a :data-route="JSON.stringify(to)"><slot /></a>' }
       },
       mocks: {
@@ -165,7 +165,7 @@ test('an applied configuration translates offering guidance, check names and res
 test('policy schedule guidance does not ask for Mold VM schedules after applying configuration', async () => {
   const w = await mount({ state: 'COMPLETED', action: 'APPLY', vmschedulebackup: false, message: 'Assign the NetBackup offering to the VMs to protect; no Mold VM schedule is required' })
   expect(w.vm.statusMessage).toBe(ko['message.backup.integration.applied.policy'])
-  expect(w.text()).toContain(ko['message.backup.integration.policy.limits'])
+  expect(w.findAll('.integration-policy-limits li').map(item => item.text())).toEqual(ko['message.backup.integration.policy.limits'].split('\n'))
   expect(w.text()).toContain('BPSTART_TIMEOUT')
   w.unmount()
 })

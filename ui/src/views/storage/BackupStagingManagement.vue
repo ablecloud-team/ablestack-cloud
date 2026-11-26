@@ -191,6 +191,10 @@
                 </template>
                 <template v-else-if="column.key === 'state'">
                   {{ record.restorestate || (record.completed ? 'COMPLETED' : record.terminal ? 'TERMINAL' : record.submissionpending ? 'UNCONFIRMED' : record.externaljobid ? 'UNKNOWN' : 'NOT_STARTED') }}
+                  <small v-if="record.acknowledgmentstate && record.acknowledgmentstate !== 'ACKNOWLEDGED'">
+                    {{ $t('label.backup.restore.receipt') }}: {{ $t('label.backup.restore.receipt.' + record.acknowledgmentstate.toLowerCase()) }}
+                  </small>
+                  <small v-if="record.acknowledgmenterror" class="staging-error">{{ record.acknowledgmenterror }}</small>
                   <small v-if="record.failure">{{ record.failure }}</small><small v-if="record.queryerror">{{ record.queryerror }}</small>
                 </template>
                 <template v-else-if="column.key === 'availability'">

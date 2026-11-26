@@ -49,12 +49,14 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -70,6 +72,7 @@ public class ThirdPartyBackupRestoreProtocolTest {
     private final ThirdPartyBackupVolumeService.RestoreTransfer transfer = mock(ThirdPartyBackupVolumeService.RestoreTransfer.class);
     private MockedStatic<GlobalLock> locks;
     private MockedStatic<Transaction> transactions;
+    private ThirdPartyBackupRestore.Request hostRequest;
 
     @Before
     public void setup() throws Exception {
@@ -123,6 +126,8 @@ public class ThirdPartyBackupRestoreProtocolTest {
                 .map(entry -> new BackupDetailVO(1L, entry.getKey(), entry.getValue(), false)).collect(Collectors.toList()));
         doAnswer(call -> { details.put(call.getArgument(1), call.getArgument(2)); return null; })
                 .when(detailDao).addDetail(eq(1L), anyString(), anyString(), eq(false));
+        doAnswer(call -> { details.remove(call.getArgument(1)); return null; })
+                .when(detailDao).removeDetail(eq(1L), anyString());
         VMInstanceVO target = mock(VMInstanceVO.class);
         when(target.getState()).thenReturn(VirtualMachine.State.Stopped);
         VMInstanceDao vms = mock(VMInstanceDao.class);
@@ -132,7 +137,7 @@ public class ThirdPartyBackupRestoreProtocolTest {
         ReflectionTestUtils.setField(service, "vmDao", vms);
         ReflectionTestUtils.setField(service, "agentManager", agents);
         doReturn(host).when(service).getWorkerHost(backup, "RESTORE");
-        ThirdPartyBackupRestore.Request request = ReflectionTestUtils.invokeMethod(service, "restoreRequest", plan, 0, -1, -1, true, metadata);
+        hostRequest = ReflectionTestUtils.invokeMethod(service, "restoreRequest", plan, 0, -1, -1, true, metadata);
         when(agents.send(eq(1L), any(Command.class))).thenAnswer(call -> {
             Command command = call.getArgument(1);
             if (command instanceof AblestackRestoreJobStatusCommand) {
@@ -141,7 +146,7 @@ public class ThirdPartyBackupRestoreProtocolTest {
                 return status;
             }
             if ("RESTORE_STATUS".equals(((AblestackVolumeStagingCommand) command).getAction())) {
-                return new Answer(command, true, gson.toJson(request));
+                return new Answer(command, true, gson.toJson(hostRequest));
             }
             return new Answer(command, true, "");
         });
@@ -156,6 +161,23 @@ public class ThirdPartyBackupRestoreProtocolTest {
     }
 
     private void reconcile() { ReflectionTestUtils.invokeMethod(service, "reconcileRestore", 1L, host, plan, transfer); }
+
+    private static org.mockito.ArgumentMatcher<Command> action(String action) {
+        return command -> command instanceof AblestackVolumeStagingCommand
+                && action.equals(((AblestackVolumeStagingCommand) command).getAction());
+    }
+
+    private void retryAcknowledgment() {
+        ThirdPartyBackupRestore.Record saved = record();
+        saved.acknowledgmentRetryAt = 0;
+        details.put(ThirdPartyBackupRestore.recordKey(plan.jobId, 0), gson.toJson(saved));
+    }
+
+    private void rejectAcknowledgment() throws Exception {
+        when(agents.send(eq(1L), argThat(action("RESTORE_ACK"))))
+                .thenAnswer(call -> new Answer(call.getArgument(1), false, "Invalid restore transfer acknowledgment"));
+        when(transfer.restore(any(), any())).thenReturn(new ThirdPartyBackupRestore.Result("392", true));
+    }
 
     @Test
     public void protocolAndIntentAreCommittedBeforePostingAndSurvivePolling() {
@@ -209,9 +231,195 @@ public class ThirdPartyBackupRestoreProtocolTest {
     @Test
     public void legacyAndOtherProvidersKeepTheirNullProtocol() {
         when(transfer.submissionProtocol()).thenReturn(null);
-        when(transfer.restore(any(), any())).thenReturn(new ThirdPartyBackupRestore.Result("391", false));
+        when(transfer.restore(any(), any())).thenReturn(new ThirdPartyBackupRestore.Result("391", true));
         reconcile();
         assertEquals("391", record().result.jobId);
         assertNull(record().result.submissionProtocol);
+        assertTrue(record().acknowledgedAt > 0);
+    }
+
+    @Test public void rejectedAcknowledgmentsAreVisibleAndRetryWithoutResubmittingExternalRestore() throws Exception {
+        rejectAcknowledgment();
+        reconcile();
+        assertTrue(record().result.completed);
+        assertTrue(record().acknowledgmentError.contains("Invalid restore transfer acknowledgment"));
+        assertTrue(record().acknowledgmentError.startsWith("RESTORE_ACK_REJECTED:"));
+        assertEquals(1, record().acknowledgmentFailures);
+        reconcile();
+        verify(agents).send(eq(1L), argThat(action("RESTORE_ACK")));
+        when(agents.send(eq(1L), argThat(action("RESTORE_ACK"))))
+                .thenAnswer(call -> new Answer(call.getArgument(1), true, "Receipt accepted"));
+        retryAcknowledgment();
+        reconcile();
+        assertTrue(record().acknowledgedAt > 0);
+        assertNull(record().acknowledgmentError);
+        assertEquals(0, record().acknowledgmentAbortRequestedAt);
+        assertNull(details.get(ThirdPartyBackupRestore.CLEANUP_DETAILS_KEY));
+        verify(transfer).restore(any(), any());
+        verify(transfer, never()).recover(any(), any());
+    }
+
+    @Test public void repeatedRejectionsStopOnlyThePendingSequenceAndRetainAdmissionUntilHostCleanup() throws Exception {
+        rejectAcknowledgment();
+        when(agents.send(eq(1L), argThat(action(ThirdPartyBackupRestore.ACK_ABORT_ACTION)))).thenAnswer(call -> {
+            AblestackVolumeStagingCommand command = call.getArgument(1);
+            assertEquals(0, command.getIndex());
+            assertTrue(command.getManifest().contains("restore-protocol-1"));
+            return new Answer(command, true, "{\"state\":\"STOPPING\"}");
+        });
+        reconcile();
+        retryAcknowledgment();reconcile();
+        retryAcknowledgment();reconcile();
+        assertTrue(record().acknowledgmentAbortRequestedAt > 0);
+        assertTrue(record().acknowledgmentAbortConfirmedAt > 0);
+        assertTrue(record().result.completed);
+        assertEquals("392", record().result.jobId);
+        assertEquals("WAITING", details.get(ThirdPartyBackupRestore.CLEANUP_STATE_KEY));
+        assertEquals("ADMITTED", gson.fromJson(details.get(ThirdPartyBackupAdmission.RESTORE_KEY), ThirdPartyBackupAdmission.Entry.class).state);
+        var info = new org.apache.cloudstack.api.response.BackupStagingInfoResponse.ArtifactInfo();
+        ReflectionTestUtils.invokeMethod(service, "applyRestoreHistory", info, record().request, record(),
+                gson.fromJson(details.get(ThirdPartyBackupRestore.operationKey(plan.jobId)), ThirdPartyBackupRestore.Operation.class), null);
+        assertEquals("STOPPING", info.acknowledgmentstate);
+        BackupAnswer failed = new BackupAnswer(new AblestackRestoreJobStatusCommand(plan.jobId, null, 0), true, "Stopped");
+        failed.setState("FAILED");
+        ReflectionTestUtils.invokeMethod(service, "recordRestoreHost", backup, plan, failed, null);
+        ReflectionTestUtils.invokeMethod(service, "applyRestoreHistory", info, record().request, record(),
+                gson.fromJson(details.get(ThirdPartyBackupRestore.operationKey(plan.jobId)), ThirdPartyBackupRestore.Operation.class), null);
+        assertEquals("FAILED", info.acknowledgmentstate);
+        assertTrue(info.completed);
+        verify(agents).send(eq(1L), argThat(action(ThirdPartyBackupRestore.ACK_ABORT_ACTION)));
+        verify(agents, never()).send(eq(1L), argThat(action("RESTORE_FAIL")));
+        verify(transfer).restore(any(), any());
+    }
+
+    @Test public void missingResponsesHaveADurableDeadlineAcrossManagementRestart() throws Exception {
+        when(agents.send(eq(1L), argThat(action("RESTORE_ACK"))))
+                .thenThrow(new com.cloud.exception.AgentUnavailableException("Connection lost", 1L));
+        when(transfer.restore(any(), any())).thenReturn(new ThirdPartyBackupRestore.Result("392", true));
+        reconcile();
+        ThirdPartyBackupRestore.Record saved = record();
+        assertEquals(0, saved.acknowledgmentRejections);
+        assertTrue(saved.acknowledgmentError.startsWith("RESTORE_ACK_UNCONFIRMED:"));
+        saved.acknowledgmentFirstFailureAt = System.currentTimeMillis() - java.util.concurrent.TimeUnit.MINUTES.toMillis(6);
+        saved.acknowledgmentRetryAt = 0;
+        details.put(ThirdPartyBackupRestore.recordKey(plan.jobId, 0), gson.toJson(saved));
+        ThirdPartyBackupVolumeServiceImpl restarted = spy(new ThirdPartyBackupVolumeServiceImpl());
+        for (String name : List.of("backupDao", "backupDetailsDao", "vmDao", "agentManager")) {
+            ReflectionTestUtils.setField(restarted, name, ReflectionTestUtils.getField(service, name));
+        }
+        doReturn(host).when(restarted).getWorkerHost(backup, "RESTORE");
+        when(agents.send(eq(1L), argThat(action(ThirdPartyBackupRestore.ACK_ABORT_ACTION))))
+                .thenAnswer(call -> new Answer(call.getArgument(1), true, "{\"state\":\"STOPPING\"}"));
+        ReflectionTestUtils.invokeMethod(restarted, "reconcileRestore", 1L, host, plan, transfer);
+        assertEquals(2, record().acknowledgmentFailures);
+        assertEquals(0, record().acknowledgmentRejections);
+        assertTrue(record().acknowledgmentAbortConfirmedAt > 0);
+        verify(transfer).restore(any(), any());
+        verify(transfer, never()).recover(any(), any());
+    }
+
+    @Test public void aLateAcknowledgmentReceiptPreventsStoppingAnAlreadyAdvancedWorker() throws Exception {
+        rejectAcknowledgment();
+        when(agents.send(eq(1L), argThat(action(ThirdPartyBackupRestore.ACK_ABORT_ACTION))))
+                .thenAnswer(call -> new Answer(call.getArgument(1), true, "{\"state\":\"ACKNOWLEDGED\"}"));
+        reconcile();retryAcknowledgment();reconcile();retryAcknowledgment();reconcile();
+        assertTrue(record().acknowledgedAt > 0);
+        assertNull(record().acknowledgmentError);
+        assertEquals(0, record().acknowledgmentAbortRequestedAt);
+        assertTrue(record().result.completed);
+        verify(transfer).restore(any(), any());
+    }
+
+    @Test public void oldHostsNeverReceiveAnUnfencedFailureOrReleaseUnconfirmedCapacity() throws Exception {
+        rejectAcknowledgment();
+        when(agents.send(eq(1L), argThat(action(ThirdPartyBackupRestore.ACK_ABORT_ACTION))))
+                .thenAnswer(call -> new Answer(call.getArgument(1), false, "Invalid restore transfer acknowledgment"));
+        reconcile();retryAcknowledgment();reconcile();retryAcknowledgment();reconcile();retryAcknowledgment();reconcile();
+        assertTrue(record().acknowledgmentAbortRequestedAt > 0);
+        assertEquals(0, record().acknowledgmentAbortConfirmedAt);
+        assertEquals("ADMITTED", gson.fromJson(details.get(ThirdPartyBackupAdmission.RESTORE_KEY), ThirdPartyBackupAdmission.Entry.class).state);
+        verify(agents, times(3)).send(eq(1L), argThat(action("RESTORE_ACK")));
+        verify(agents, times(2)).send(eq(1L), argThat(action(ThirdPartyBackupRestore.ACK_ABORT_ACTION)));
+        verify(agents, never()).send(eq(1L), argThat(action("RESTORE_FAIL")));
+        verify(transfer).restore(any(), any());
+    }
+
+    @Test public void nextRecordedSequenceConfirmsAnAcknowledgmentWhoseResponseWasLost() throws Exception {
+        when(transfer.restore(any(), any())).thenReturn(new ThirdPartyBackupRestore.Result("392", true),
+                new ThirdPartyBackupRestore.Result("393", false));
+        when(agents.send(eq(1L), argThat(action("RESTORE_ACK")))).thenReturn(null);
+        reconcile();
+        hostRequest = ReflectionTestUtils.invokeMethod(service, "restoreRequest", plan, 1, 0, 0, false,
+                plan.manifest.getVolumes().get(0).chain.get(0));
+        reconcile();
+        assertTrue(record().acknowledgedAt > 0);
+        assertNull(record().acknowledgmentError);
+        verify(agents, never()).send(eq(1L), argThat(action(ThirdPartyBackupRestore.ACK_ABORT_ACTION)));
+        verify(transfer, times(2)).restore(any(), any());
+    }
+
+    @Test public void inspectionSeparatesExternalSuccessFromHostAcknowledgmentFailure() throws Exception {
+        rejectAcknowledgment();reconcile();
+        var info = new org.apache.cloudstack.api.response.BackupStagingInfoResponse.ArtifactInfo();
+        ReflectionTestUtils.invokeMethod(service, "applyRestoreHistory", info, record().request, record(),
+                gson.fromJson(details.get(ThirdPartyBackupRestore.operationKey(plan.jobId)), ThirdPartyBackupRestore.Operation.class), null);
+        assertTrue(info.completed);
+        assertEquals("COMPLETED", info.restorestate);
+        assertEquals("RETRYING", info.acknowledgmentstate);
+        assertTrue(info.acknowledgmenterror.contains("Invalid restore transfer acknowledgment"));
+        assertEquals(Integer.valueOf(1), info.acknowledgmentattempts);
+    }
+
+    @Test public void finalWorkerCompletionRecoversTheLastLostResponseAndItsOldWarning() throws Exception {
+        rejectAcknowledgment();reconcile();
+        BackupAnswer completed = new BackupAnswer(new AblestackRestoreJobStatusCommand(plan.jobId, null, 0), true, "Completed");
+        completed.setState("COMPLETED");
+        ReflectionTestUtils.invokeMethod(service, "recordRestoreHost", backup, plan, completed, null);
+        assertTrue(record().acknowledgedAt > 0);
+        assertNull(record().acknowledgmentError);
+        assertNull(details.get(ThirdPartyBackupRestore.CLEANUP_DETAILS_KEY));
+        assertTrue(record().result.completed);
+        verify(transfer).restore(any(), any());
+    }
+
+    @Test public void currentProtocolNeedsACommittedVmReceiptBeforeAssumingFinalAcknowledgment() throws Exception {
+        rejectAcknowledgment();reconcile();
+        plan.vmResultVersion = 1;
+        ThirdPartyBackupRestore.Operation operation = gson.fromJson(details.get(ThirdPartyBackupRestore.operationKey(plan.jobId)),
+                ThirdPartyBackupRestore.Operation.class);
+        operation.plan = plan;
+        details.put(ThirdPartyBackupRestore.PLAN_KEY, gson.toJson(plan));
+        details.put(ThirdPartyBackupRestore.operationKey(plan.jobId), gson.toJson(operation));
+        BackupAnswer completed = new BackupAnswer(new AblestackRestoreJobStatusCommand(plan.jobId, null, 0), true, "Completed");
+        completed.setState("COMPLETED");
+        ReflectionTestUtils.invokeMethod(service, "recordRestoreHost", backup, plan, completed, null);
+        assertEquals(0, record().acknowledgedAt);
+        assertTrue(record().acknowledgmentError.contains("REJECTED"));
+    }
+
+    @Test public void validatedVmCommitAlsoConfirmsTheLastAcknowledgmentInTheCurrentProtocol() throws Exception {
+        rejectAcknowledgment();reconcile();
+        plan.vmResultVersion = 1;
+        ThirdPartyBackupRestore.Operation operation = gson.fromJson(details.get(ThirdPartyBackupRestore.operationKey(plan.jobId)),
+                ThirdPartyBackupRestore.Operation.class);
+        operation.plan = plan;
+        details.put(ThirdPartyBackupRestore.PLAN_KEY, gson.toJson(plan));
+        details.put(ThirdPartyBackupRestore.operationKey(plan.jobId), gson.toJson(operation));
+        var result = new ThirdPartyBackupRestore.VmResult();
+        result.jobId = plan.jobId;result.sourceBackupUuid = backup.getUuid();result.provider = plan.manifest.getProvider();
+        result.targetVmName = plan.targetVmName;result.transactionId = "transaction-1";result.revision = 1;
+        result.updatedAt = System.currentTimeMillis();result.phase = "COMMITTED";result.outcome = "COMMITTED";
+        result.primaryCleanupState = "NOT_STARTED";result.committedAt = result.updatedAt;
+        var volume = new ThirdPartyBackupRestore.VmVolumeResult();
+        volume.index = 0;volume.volumeUuid = "volume-1";volume.poolUuid = "pool-1";volume.destination = "/primary/volume-1";
+        volume.hadOriginal = true;volume.prepareState = "PREPARED";volume.switchState = "SWITCHED";
+        result.volumes = List.of(volume);
+        BackupAnswer completed = new BackupAnswer(new AblestackRestoreJobStatusCommand(plan.jobId, null, 0), true, "Completed");
+        completed.setState("COMPLETED");completed.setVmRestoreResult(gson.toJson(result));
+        ReflectionTestUtils.invokeMethod(service, "recordRestoreHost", backup, plan, completed, null);
+        assertTrue(record().acknowledgedAt > 0);
+        assertNull(record().acknowledgmentError);
+        assertNull(details.get(ThirdPartyBackupRestore.CLEANUP_DETAILS_KEY));
+        assertTrue(record().result.completed);
     }
 }

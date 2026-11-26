@@ -19,6 +19,7 @@ import { shallowRef, defineAsyncComponent } from 'vue'
 import store from '@/store'
 import { isAdmin } from '@/role'
 import { hostSearchFields } from '@/utils/hostSearch'
+import { hostBackupIntegrationProviders } from '@/utils/hostBackupIntegration'
 
 export default {
   name: 'host',
@@ -54,7 +55,7 @@ export default {
   }, {
     name: 'backup.integration',
     component: shallowRef(defineAsyncComponent(() => import('@/views/infra/HostBackupIntegrationTab.vue'))),
-    show: (record) => isAdmin() && record.hypervisor === 'KVM' && 'getNetBackupHostConfiguration' in store.getters.apis
+    show: (record) => isAdmin() && hostBackupIntegrationProviders(record, store.getters.apis).length > 0
   }, {
     name: 'metrics',
     component: shallowRef(defineAsyncComponent(() => import('@/views/plugins/IFrameWall.vue')))

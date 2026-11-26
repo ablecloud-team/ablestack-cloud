@@ -30,12 +30,12 @@ const NetBackupStub = {
 }
 const flush = async () => { for (let i = 0; i < 8; i++) await Promise.resolve() }
 let wrapper
-async function open () {
+async function open (resource = {}, apis = { getNetBackupHostConfiguration: {} }) {
   wrapper = mount(HostBackupIntegrationTab, {
-    props: { resource: { id: 'host-1', zoneid: 'zone-1', clusterid: 'cluster-1' } },
+    props: { resource: { id: 'host-1', zoneid: 'zone-1', clusterid: 'cluster-1', hypervisor: 'KVM', type: 'Routing', backupintegrationproviders: ['ablestack-netbackup', 'ablestack-veeam'], ...resource } },
     global: {
       stubs: { NetBackupHostConfiguration: NetBackupStub },
-      mocks: { $t: key => ko[key] || key }
+      mocks: { $t: key => ko[key] || key, $store: { getters: { apis } } }
     }
   })
   await flush()
@@ -79,10 +79,36 @@ test('returning from Veeam preserves unsaved NetBackup input for the same Host',
 test('changing Hosts discards the previous Host form and binds actions to the new Host', async () => {
   const w = await open()
   await w.find('input').setValue('host-one-policy')
-  await w.setProps({ resource: { id: 'host-2', zoneid: 'zone-2', clusterid: 'cluster-2' } })
+  await w.setProps({ resource: { ...w.props('resource'), id: 'host-2', zoneid: 'zone-2', clusterid: 'cluster-2' } })
   await flush()
   expect(w.find('input').element.value).toBe('')
   expect(opened).toHaveBeenLastCalledWith('host-2')
   await w.find('[data-provider="netbackup"] button').trigger('click')
   expect(configure).toHaveBeenCalledWith('host-2', '')
+})
+
+test('a Veeam-only Zone opens Veeam directly without loading NetBackup', async () => {
+  const w = await open({ backupintegrationproviders: ['ablestack-veeam'] }, {})
+  expect(w.findAll('[role="tab"]').map(tab => tab.text())).toEqual(['Veeam'])
+  expect(w.vm.provider).toBe('veeam')
+  expect(opened).not.toHaveBeenCalled()
+})
+
+test('a NetBackup-only Zone offers no Veeam pane', async () => {
+  const w = await open({ backupintegrationproviders: ['ablestack-netbackup'] })
+  expect(w.findAll('[role="tab"]').map(tab => tab.text())).toEqual(['NetBackup'])
+})
+
+test.each([[], undefined, ['veeam'], ['other-ablestack-netbackup']])('disabled, unknown or unrelated provider observations %p never mount integration forms', async providers => {
+  const w = await open({ backupintegrationproviders: providers })
+  expect(w.findAll('[role="tab"]')).toHaveLength(0)
+  expect(opened).not.toHaveBeenCalled()
+})
+
+test('removing the active provider selects the remaining provider', async () => {
+  const w = await open()
+  await w.setProps({ resource: { ...w.props('resource'), backupintegrationproviders: ['ablestack-veeam'] } })
+  await flush()
+  expect(w.vm.provider).toBe('veeam')
+  expect(w.findAll('[role="tab"]').map(tab => tab.text())).toEqual(['Veeam'])
 })

@@ -55,6 +55,29 @@ async function mount (info, operation = 'BACKUP', resource = {}, translations = 
 
 beforeEach(() => jest.clearAllMocks())
 
+test.each(['WAITING', 'RETRYING', 'STOPPING', 'FAILED'])('external completion retains a separate Host receipt state: %s', async state => {
+  const w = await mount({
+    hoststate: 'RUNNING',
+    artifact: [{ path: '/stage/restore/payload/root.raw', completed: true, restorestate: 'COMPLETED', acknowledgmentstate: state, acknowledgmenterror: 'RESTORE_ACK_REJECTED: Request fields differ' }]
+  }, 'RESTORE', { provider: 'ablestack-netbackup' }, ko)
+  expect(w.text()).toContain('COMPLETED')
+  expect(w.text()).toContain(ko['label.backup.restore.receipt'])
+  expect(w.text()).toContain(ko['label.backup.restore.receipt.' + state.toLowerCase()])
+  expect(w.text()).toContain('RESTORE_ACK_REJECTED: Request fields differ')
+  expect(postAPI).not.toHaveBeenCalled()
+  w.unmount()
+})
+
+test('confirmed restore receipts retain the normal completed-file presentation', async () => {
+  const w = await mount({
+    hoststate: 'COMPLETED',
+    artifact: [{ path: '/stage/restore/payload/root.raw', completed: true, restorestate: 'COMPLETED', acknowledgmentstate: 'ACKNOWLEDGED' }]
+  }, 'RESTORE', { provider: 'ablestack-netbackup' }, ko)
+  expect(w.text()).toContain('COMPLETED')
+  expect(w.text()).not.toContain(ko['label.backup.restore.receipt'])
+  w.unmount()
+})
+
 test('NetBackup image inspection retains exact owned and inherited references after Host cleanup', async () => {
   const artifact = [
     { path: '/stage/root', volumeid: 'root-volume', backupid: 'backup-1', owned: true, externalid: 'host_123', externaljobid: '901', completed: true },

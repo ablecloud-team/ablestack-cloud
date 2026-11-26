@@ -31,6 +31,7 @@ import com.google.gson.Gson;
 import org.apache.cloudstack.backup.AblestackBackupFrameworkUtils;
 import org.apache.cloudstack.backup.AblestackVolumeStagingCommand;
 import org.apache.cloudstack.backup.ThirdPartyBackupManifest;
+import org.apache.cloudstack.backup.ThirdPartyBackupRestore;
 
 @ResourceWrapper(handles = AblestackVolumeStagingCommand.class)
 public class LibvirtAblestackVolumeStagingCommandWrapper
@@ -259,6 +260,9 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
                 return netBackupBackup(command, resource, directory);
             }
             if (command.getAction().startsWith("RESTORE_")) {
+                if ("RESTORE_ACK".equals(command.getAction()) || ThirdPartyBackupRestore.ACK_ABORT_ACTION.equals(command.getAction())) {
+                    return restoreAcknowledgment(command, directory);
+                }
                 if ("RESTORE_CANCEL".equals(command.getAction())) {
                     org.apache.cloudstack.backup.ThirdPartyBackupRestore.Plan expected = new Gson().fromJson(command.getManifest(),
                             org.apache.cloudstack.backup.ThirdPartyBackupRestore.Plan.class);
@@ -343,12 +347,6 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
                     if (!Files.exists(planFile)) { LibvirtAblestackVolumeRestoreHelper.atomic(planFile, planJson); }
                     return netBackupRestore(command, resource, planFile, false);
                 }
-                if ("RESTORE_ACK".equals(command.getAction()) && saved.sequence == command.getIndex()
-                        && new Gson().toJson(saved).equals(command.getManifest())) {
-                    LibvirtAblestackVolumeRestoreHelper.atomic(directory.resolve("volume-restore-ack-" + saved.sequence + ".json"),
-                            command.getManifest());
-                    return new Answer(command, true, "Restore artifact acknowledged");
-                }
                 return new Answer(command, false, "Invalid restore transfer acknowledgment");
             }
             Path request = directory.resolve("volume-request.json");
@@ -416,6 +414,62 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
             logger.warn("Volume staging control failed for job [{}]", command.getJobId(), e);
             return new Answer(command, false, e.getMessage());
         }
+    }
+
+    /** Serialize receipt/stop markers so a delayed ACK cannot reopen a stopped pending transfer. */
+    static synchronized Answer restoreAcknowledgment(AblestackVolumeStagingCommand command, Path directory) throws java.io.IOException {
+        boolean abort = ThirdPartyBackupRestore.ACK_ABORT_ACTION.equals(command.getAction());
+        Gson gson = new Gson();
+        com.google.gson.JsonObject payload;
+        ThirdPartyBackupRestore.Request requested;
+        try {
+            payload = com.google.gson.JsonParser.parseString(command.getManifest()).getAsJsonObject();
+            requested = gson.fromJson(abort ? payload.get("request") : payload, ThirdPartyBackupRestore.Request.class);
+        } catch (RuntimeException e) {
+            return new Answer(command, false, "RESTORE_ACK_REJECTED: Invalid receipt confirmation payload");
+        }
+        if (requested == null || !command.getJobId().equals(requested.jobId) || requested.sequence != command.getIndex()
+                || requested.sequence < 0 || requested.artifact == null) {
+            return new Answer(command, false, "RESTORE_ACK_REJECTED: Confirmation belongs to another restore job or sequence");
+        }
+        Path acknowledgment = directory.resolve("volume-restore-ack-" + requested.sequence + ".json");
+        if (Files.isRegularFile(acknowledgment)) {
+            var acknowledged = com.google.gson.JsonParser.parseString(Files.readString(acknowledgment));
+            if (acknowledged.equals(abort ? payload.get("request") : payload)) {
+                // The original ACK may have been consumed even though its RPC response was lost.
+                return new Answer(command, true, gson.toJson(Map.of("state", "ACKNOWLEDGED")));
+            }
+            return new Answer(command, false, "RESTORE_ACK_REJECTED: Saved receipt differs from this confirmation");
+        }
+        Path pending = directory.resolve("volume-restore-request.json");
+        if (!Files.isRegularFile(pending)) {
+            return new Answer(command, false, "RESTORE_ACK_STALE: Restore request is no longer pending");
+        }
+        String original = Files.readString(pending);
+        var saved = gson.fromJson(original, ThirdPartyBackupRestore.Request.class);
+        if (saved == null || !command.getJobId().equals(saved.jobId) || saved.sequence != requested.sequence) {
+            return new Answer(command, false, "RESTORE_ACK_STALE: Worker has advanced to another request");
+        }
+        // ACKs retain every original JSON field. A stop may normalize additive fields, but
+        // only to fence the exact existing job, sequence, destination and artifact identity.
+        boolean matches = abort ? gson.toJson(saved).equals(gson.toJson(requested))
+                : com.google.gson.JsonParser.parseString(original).equals(payload);
+        if (!matches) {
+            return new Answer(command, false, "RESTORE_ACK_REJECTED: Restore request fields differ; verify Management/Host versions and request identity");
+        }
+        if (abort) {
+            String reason = payload.has("message") && !payload.get("message").isJsonNull()
+                    ? payload.get("message").getAsString() : "Restore receipt confirmation failed";
+            LibvirtAblestackVolumeRestoreHelper.atomic(directory.resolve("volume-restore-failure"),
+                    gson.toJson(Map.of("message", reason, "terminal", true)));
+            return new Answer(command, true, gson.toJson(Map.of("state", "STOPPING")));
+        }
+        if (Files.exists(directory.resolve("volume-restore-failure")) || Files.exists(directory.resolve("volume-restore-cancel"))) {
+            return new Answer(command, false, "RESTORE_ACK_REJECTED: Restore worker is already stopping");
+        }
+        // Preserve the worker's exact serialization; object field order on the wire is irrelevant.
+        LibvirtAblestackVolumeRestoreHelper.atomic(acknowledgment, original);
+        return new Answer(command, true, gson.toJson(Map.of("state", "ACKNOWLEDGED")));
     }
 
     private Answer cleanupRejectedRestore(AblestackVolumeStagingCommand command, LibvirtComputingResource resource) throws java.io.IOException {

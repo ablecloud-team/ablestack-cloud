@@ -107,7 +107,7 @@ export default {
   computed: {
     showUserDrivenBackupsField () {
       const provider = (this.resource.provider || '').toLowerCase()
-      return provider !== 'ablestack-commvault' && provider !== 'ablestack-netbackup'
+      return !['ablestack-commvault', 'ablestack-netbackup', 'ablestack-veeam'].includes(provider)
     },
     retentionPeriodInDays () {
       const value = parseInt(this.form.retentionPeriodValue)

@@ -432,7 +432,7 @@ export default {
         docHelp: 'adminguide/virtual_machines.html#importing-backup-offerings',
         dataView: true,
         popup: true,
-        show: (record) => { return !['ablestack-commvault', 'ablestack-netbackup'].includes(record.provider) },
+        show: (record) => { return (record.provider || '').toLowerCase() !== 'ablestack-commvault' },
         component: shallowRef(defineAsyncComponent(() => import('@/views/offering/CloneBackupOffering.vue')))
       }, {
         api: 'deleteBackupOffering',

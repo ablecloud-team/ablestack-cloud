@@ -119,7 +119,7 @@ test('out of range related page returns to the last page without publishing an e
 
 test('refresh retains action entries and bulk selection while disabling mutations until data is current', () => {
   const action = { api: 'resizeVolume', dataView: true }
-  const vm = { isStorageUi: true, storageActionReady: false, resource: { id: 'volume' }, actions: [action], dataView: true, $route: { meta: { name: 'volume' } }, $store: { getters: { apis: { resizeVolume: {} } } } }
+  const vm = { isStorageUi: true, storageActionReady: false, resource: { id: 'volume' }, actions: [action], dataView: true, vmDeleteTooltip: ActionButton.methods.vmDeleteTooltip, $route: { meta: { name: 'volume' } }, $store: { getters: { apis: { resizeVolume: {} } } } }
   expect(AutogenView.computed.visibleDataViewActions.call(vm)).toEqual([action])
   expect(ActionButton.methods.isActionDisabled.call({ ...vm, resourceActionReady: () => false }, action)).toBe(true)
   expect(ActionButton.methods.isActionDisabled.call({ ...vm, dataView: false, resourceActionReady: () => false }, { api: 'deleteVolume', groupAction: true })).toBe(true)

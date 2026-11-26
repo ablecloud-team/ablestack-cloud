@@ -45,6 +45,9 @@ import org.apache.commons.lang3.math.NumberUtils;
 public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements ThirdPartyBackupVolumeService {
     // This is the start acknowledgment budget, independent of the engine's backup IO timeout.
     private static final int BACKUP_START_RESPONSE_WAIT_SECONDS = 15;
+    private static final int RESTORE_ACK_REJECTION_LIMIT = 3;
+    private static final long RESTORE_ACK_RETRY_MS = TimeUnit.SECONDS.toMillis(10);
+    private static final long RESTORE_ACK_RESPONSE_TIMEOUT_MS = TimeUnit.MINUTES.toMillis(5);
     @Inject private AgentManager agentManager;
     @Inject private BackupDao backupDao;
     @Inject private BackupDetailsDao backupDetailsDao;
@@ -867,6 +870,18 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             info.completedat = historyDate(record.completedAt);
             info.terminalat = historyDate(record.terminalAt);
             info.acknowledgedat = historyDate(record.acknowledgedAt);
+            if (result != null && result.completed) {
+                boolean stopped = operation != null && java.util.Set.of("FAILED", "INTERRUPTED", "CANCELED")
+                        .contains(StringUtils.defaultString(operation.hostState));
+                stopped = stopped || (operation != null && operation.vmResult != null
+                        && java.util.Set.of("FAILED", "ROLLED_BACK").contains(StringUtils.defaultString(operation.vmResult.outcome)));
+                info.acknowledgmentstate = record.acknowledgmentAbortRequestedAt > 0 ? stopped ? "FAILED" : "STOPPING"
+                        : StringUtils.isNotBlank(record.acknowledgmentError) ? "RETRYING"
+                        : record.acknowledgedAt > 0 ? "ACKNOWLEDGED" : "WAITING";
+                info.acknowledgmenterror = record.acknowledgmentError;
+                info.acknowledgmentattempts = record.acknowledgmentFailures;
+                info.acknowledgmentretryat = historyDate(record.acknowledgmentRetryAt);
+            }
             info.checkedat = historyDate(record.checkedAt);
             info.queryerror = record.queryError;
         }
@@ -1098,6 +1113,9 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                 java.util.List<String> errors = new java.util.ArrayList<>();
                 for (ThirdPartyBackupRestore.Record record : restoreRecords(backup, plan)) {
                     if (StringUtils.isNotBlank(record.queryError)) { errors.add("Sequence " + record.request.sequence + ": " + record.queryError); }
+                    if (StringUtils.isNotBlank(record.acknowledgmentError)) {
+                        errors.add("Sequence " + record.request.sequence + ": " + record.acknowledgmentError);
+                    }
                 }
                 if (!errors.isEmpty()) { throw new CloudRuntimeException(String.join("; ", errors)); }
             }
@@ -2975,6 +2993,10 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             if (previous.request.sequence < request.sequence && (previous.result == null || !previous.result.completed)) {
                 throw new CloudRuntimeException("Host advanced the restore request before the previous artifact completed");
             }
+            if (previous.request.sequence < request.sequence && previous.acknowledgedAt == 0) {
+                // Advancing the exact worker's request also proves an ACK whose RPC response was lost.
+                confirmRestoreAcknowledgment(backup, plan, previous);
+            }
         }
         record = new ThirdPartyBackupRestore.Record();
         record.request = new Gson().fromJson(new Gson().toJson(request), ThirdPartyBackupRestore.Request.class);
@@ -3047,6 +3069,96 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         }
     }
 
+    private void confirmRestoreAcknowledgment(BackupVO backup, ThirdPartyBackupRestore.Plan plan, ThirdPartyBackupRestore.Record record) {
+        String previousError = record.acknowledgmentError;
+        if (record.acknowledgedAt == 0) { record.acknowledgedAt = System.currentTimeMillis(); }
+        record.acknowledgmentError = null;
+        record.acknowledgmentRetryAt = 0;
+        record.acknowledgmentRejections = 0;
+        record.acknowledgmentFirstFailureAt = 0;
+        record.acknowledgmentAbortRequestedAt = 0;
+        record.acknowledgmentAbortConfirmedAt = 0;
+        persistRestoreRecord(backup, plan, record);
+        BackupDetailVO cleanup = backupDetailsDao.findDetail(backup.getId(), ThirdPartyBackupRestore.CLEANUP_STATE_KEY);
+        BackupDetailVO reason = backupDetailsDao.findDetail(backup.getId(), ThirdPartyBackupRestore.CLEANUP_DETAILS_KEY);
+        if (StringUtils.isNotBlank(previousError) && cleanup != null && "WAITING".equals(cleanup.getValue())
+                && reason != null && StringUtils.contains(reason.getValue(), previousError)) {
+            saveRestoreCleanup(backup.getId(), plan.jobId, "WAITING", null);
+        }
+    }
+
+    private void acknowledgeRestore(BackupVO backup, Host host, ThirdPartyBackupRestore.Plan plan, ThirdPartyBackupRestore.Record record) {
+        long now = System.currentTimeMillis();
+        if (now < record.acknowledgmentRetryAt) { return; }
+        if (record.acknowledgmentAbortRequestedAt > 0) {
+            abortRestoreAcknowledgment(backup, host, plan, record);
+            return;
+        }
+        Answer acknowledgment = null;
+        String error;
+        try {
+            acknowledgment = agentManager.send(host.getId(), new AblestackVolumeStagingCommand(plan.jobId, "RESTORE_ACK",
+                    record.request.sequence, new Gson().toJson(record.request)));
+            if (acknowledgment != null && acknowledgment.getResult()) {
+                confirmRestoreAcknowledgment(backup, plan, record);
+                return;
+            }
+            error = acknowledgment == null ? "Host response is unconfirmed"
+                    : StringUtils.defaultIfBlank(acknowledgment.getDetails(), "Host rejected receipt confirmation");
+        } catch (com.cloud.exception.AgentUnavailableException | com.cloud.exception.OperationTimedoutException e) {
+            error = "Host response is unconfirmed: " + StringUtils.defaultString(e.getMessage());
+        }
+        record.acknowledgmentFailures++;
+        long failedAt = System.currentTimeMillis();
+        boolean rejected = acknowledgment != null && !StringUtils.startsWith(error, "RESTORE_ACK_STALE:");
+        record.acknowledgmentRejections = rejected ? record.acknowledgmentRejections + 1 : 0;
+        if (record.acknowledgmentFirstFailureAt == 0) { record.acknowledgmentFirstFailureAt = now; }
+        record.acknowledgmentRetryAt = failedAt + RESTORE_ACK_RETRY_MS;
+        record.acknowledgmentError = (rejected ? "RESTORE_ACK_REJECTED: " : "RESTORE_ACK_UNCONFIRMED: ")
+                + host.getName() + "; sequence " + record.request.sequence + "; " + error;
+        if (record.acknowledgmentRejections >= RESTORE_ACK_REJECTION_LIMIT
+                || failedAt - record.acknowledgmentFirstFailureAt >= RESTORE_ACK_RESPONSE_TIMEOUT_MS) {
+            // Commit the stop decision before its RPC; restart/reconnect must never resume ACKs behind it.
+            record.acknowledgmentAbortRequestedAt = failedAt;
+        }
+        persistRestoreRecord(backup, plan, record);
+        saveRestoreCleanup(backup.getId(), plan.jobId, "WAITING", record.acknowledgmentError);
+        if (record.acknowledgmentAbortRequestedAt > 0) { abortRestoreAcknowledgment(backup, host, plan, record); }
+    }
+
+    private void abortRestoreAcknowledgment(BackupVO backup, Host host, ThirdPartyBackupRestore.Plan plan, ThirdPartyBackupRestore.Record record) {
+        if (record.acknowledgmentAbortConfirmedAt > 0) { return; }
+        // A completed external file request is retained as successful. Only the still-pending Host
+        // confirmation may be stopped, after every issued external writer is confirmed terminal.
+        requireRestoreWritersTerminated(backup, plan);
+        record.acknowledgmentRetryAt = System.currentTimeMillis() + RESTORE_ACK_RETRY_MS;
+        persistRestoreRecord(backup, plan, record);
+        String reason = StringUtils.defaultIfBlank(record.acknowledgmentError, "Restore receipt confirmation failed")
+                + "; receipt confirmation could not complete; check Management/Host versions and request identity";
+        try {
+            Answer answer = agentManager.send(host.getId(), new AblestackVolumeStagingCommand(plan.jobId,
+                    ThirdPartyBackupRestore.ACK_ABORT_ACTION, record.request.sequence,
+                    new Gson().toJson(java.util.Map.of("request", record.request, "message", reason))));
+            if (answer != null && answer.getResult()) {
+                var result = com.google.gson.JsonParser.parseString(answer.getDetails()).getAsJsonObject();
+                if (result.has("state") && "ACKNOWLEDGED".equals(result.get("state").getAsString())) {
+                    confirmRestoreAcknowledgment(backup, plan, record);
+                    return;
+                }
+                if (result.has("state") && "STOPPING".equals(result.get("state").getAsString())) {
+                    record.acknowledgmentAbortConfirmedAt = System.currentTimeMillis();
+                }
+            }
+            // Missing/old Host support is not permission to send an unfenced failure or release capacity.
+            String details = answer == null ? "Host termination response is unconfirmed" : StringUtils.defaultString(answer.getDetails());
+            saveRestoreCleanup(backup.getId(), plan.jobId, "WAITING", reason + "; confirming Host termination and cleanup; " + details);
+        } catch (com.cloud.exception.AgentUnavailableException | com.cloud.exception.OperationTimedoutException | RuntimeException e) {
+            saveRestoreCleanup(backup.getId(), plan.jobId, "WAITING", reason + "; Host termination is unconfirmed: " + e.getMessage());
+        }
+        record.acknowledgmentRetryAt = System.currentTimeMillis() + RESTORE_ACK_RETRY_MS;
+        persistRestoreRecord(backup, plan, record);
+    }
+
     private void recordRestoreHost(BackupVO backup, ThirdPartyBackupRestore.Plan plan, BackupAnswer status, String error) {
         ThirdPartyBackupRestore.Operation operation = ensureRestoreOperation(backup, plan);
         if (status != null) {
@@ -3068,6 +3180,18 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             operation.vmResultCheckedAt = System.currentTimeMillis();
         }
         writeRestoreOperation(backup.getId(), operation);
+        if (status != null && "COMPLETED".equals(status.getState()) && (plan.vmResultVersion != 1
+                || (operation.vmResult != null && "COMMITTED".equals(operation.vmResult.outcome)
+                        && StringUtils.isBlank(operation.vmResultError)))) {
+            // Completing the exact worker proves its final ACK as well; there is no later
+            // request from which to recover a lost response after the last artifact.
+            for (ThirdPartyBackupRestore.Record record : restoreRecords(backup, plan)) {
+                if (record.result != null && record.result.completed && (record.acknowledgedAt == 0
+                        || StringUtils.isNotBlank(record.acknowledgmentError) || record.acknowledgmentAbortRequestedAt > 0)) {
+                    confirmRestoreAcknowledgment(backup, plan, record);
+                }
+            }
+        }
     }
 
     private void mergeVmRestoreResult(ThirdPartyBackupRestore.Operation operation, ThirdPartyBackupRestore.VmResult result) {
@@ -3270,12 +3394,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                 return;
             }
             if (saved.completed) {
-                Answer acknowledgment = agentManager.send(host.getId(), new AblestackVolumeStagingCommand(plan.jobId, "RESTORE_ACK", request.sequence,
-                        new Gson().toJson(record.request)));
-                if (acknowledgment != null && acknowledgment.getResult() && record.acknowledgedAt == 0) {
-                    record.acknowledgedAt = System.currentTimeMillis();
-                    persistRestoreRecord(tracked, savedPlan, record);
-                }
+                acknowledgeRestore(tracked, host, savedPlan, record);
             }
         } catch (com.cloud.exception.AgentUnavailableException | com.cloud.exception.OperationTimedoutException e) {
             BackupVO tracked = backupDao.findById(backupId);

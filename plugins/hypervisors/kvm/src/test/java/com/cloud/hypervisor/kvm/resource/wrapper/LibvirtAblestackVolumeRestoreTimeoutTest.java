@@ -25,6 +25,7 @@ import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import org.apache.cloudstack.utils.qemu.QemuImg;
 import org.apache.cloudstack.backup.ThirdPartyBackupManifest;
 import org.apache.cloudstack.backup.ThirdPartyBackupRestore;
+import org.apache.cloudstack.backup.AblestackVolumeStagingCommand;
 import org.apache.logging.log4j.Logger;
 import org.junit.Rule;
 import org.junit.Test;
@@ -132,5 +133,29 @@ public class LibvirtAblestackVolumeRestoreTimeoutTest {
         var helper = helper("ablestack-netbackup", job, folder.newFolder().toPath());
         Files.writeString(job.resolve("volume-restore-cancel"), "Cancellation requested");
         assertTrue(assertThrows(CloudRuntimeException.class, () -> fetch(helper)).getMessage().contains("Cancellation requested"));
+    }
+
+    @Test public void acknowledgedWriterTerminationAllowsARejectedReceiptToStopSafely() throws Exception {
+        Path job = folder.newFolder().toPath();
+        var helper = helper("ablestack-netbackup", job, folder.newFolder().toPath());
+        var abort = CompletableFuture.runAsync(() -> {
+            try {
+                Path requestFile = job.resolve("volume-restore-request.json");
+                long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+                while (!Files.exists(requestFile) && System.nanoTime() < deadline) { Thread.sleep(5); }
+                ThirdPartyBackupRestore.Request request = new Gson().fromJson(Files.readString(requestFile), ThirdPartyBackupRestore.Request.class);
+                var answer = LibvirtAblestackVolumeStagingCommandWrapper.restoreAcknowledgment(
+                        new AblestackVolumeStagingCommand(request.jobId, ThirdPartyBackupRestore.ACK_ABORT_ACTION, request.sequence,
+                                new Gson().toJson(java.util.Map.of("request", request, "message", "Host receipt confirmation rejected"))), job);
+                assertTrue(answer.getResult());
+            } catch (Exception e) { throw new RuntimeException(e); }
+        });
+        try (var runner = Mockito.mockStatic(LibvirtAblestackAsyncBackupRunner.class)) {
+            assertTrue(assertThrows(CloudRuntimeException.class, () -> fetch(helper)).getMessage().contains("receipt confirmation rejected"));
+            assertEquals(Boolean.FALSE, ReflectionTestUtils.getField(helper, "transferUncertain"));
+            assertTrue(Files.exists(job.resolve("volume-restore-request.json")));
+            assertTrue(Files.exists(job.resolve("volume-restore-failure")));
+        }
+        abort.get(5, TimeUnit.SECONDS);
     }
 }

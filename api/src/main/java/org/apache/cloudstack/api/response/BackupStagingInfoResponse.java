@@ -194,6 +194,10 @@ public class BackupStagingInfoResponse extends BaseResponse {
         @SerializedName("completedat") @Param(description = "Time successful external completion was confirmed") public Date completedat;
         @SerializedName("terminalat") @Param(description = "Time external termination was confirmed") public Date terminalat;
         @SerializedName("acknowledgedat") @Param(description = "Time Host acknowledged the transfer result") public Date acknowledgedat;
+        @SerializedName("acknowledgmentstate") @Param(description = "Host receipt confirmation: WAITING, RETRYING, STOPPING, FAILED or ACKNOWLEDGED") public String acknowledgmentstate;
+        @SerializedName("acknowledgmenterror") @Param(description = "Host receipt confirmation error; external completion is retained") public String acknowledgmenterror;
+        @SerializedName("acknowledgmentattempts") @Param(description = "Persisted failed Host receipt confirmation attempts") public Integer acknowledgmentattempts;
+        @SerializedName("acknowledgmentretryat") @Param(description = "Earliest next Host receipt confirmation attempt") public Date acknowledgmentretryat;
         @SerializedName("checkedat") @Param(description = "Time of the latest external reconciliation attempt") public Date checkedat;
         @SerializedName("queryerror") @Param(description = "External reconciliation error; not proof of external failure") public String queryerror;
         @SerializedName("availability") @Param(description = "AVAILABLE, MISSING or UNKNOWN at the last manual requery") public String availability;
