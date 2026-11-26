@@ -1413,7 +1413,7 @@
       </template>
     </template>
     <template #footer>
-      <span v-if="hasSelected">
+      <span v-if="hasSelected || viewportScroll" :aria-live="viewportScroll ? 'polite' : undefined">
         {{ $t('label.items.selected.count', [selectedRowKeys.length]) }}
       </span>
     </template>
