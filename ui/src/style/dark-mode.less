@@ -93,7 +93,7 @@
   }
 
   .user-layout, .ant-layout {
-    background: @dark-bgColor;
+    background: var(--ui-bg-page, @dark-bgColor);
   }
 
   td.ant-table-column-sort {
@@ -312,7 +312,7 @@
   }
 
   .ant-card {
-    background: @dark-secondary-bgColor;
+    background: var(--ui-bg-surface, @dark-secondary-bgColor);
     color: @dark-text-color-3;
 
     &-head, &-bottom, &-body {
@@ -454,7 +454,7 @@
 
 
       & > tr > td.ant-table-cell {
-        background: @dark-secondary-bgColor;
+        background: var(--ui-bg-surface, @dark-secondary-bgColor);
       }
 
       & > tr > td.ant-table-cell:hover {
