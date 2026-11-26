@@ -3626,6 +3626,16 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         Boolean isDynamicallyScalable = cmd.isDynamicallyScalable();
         String hostName = cmd.getHostName();
         Map<String,String> details = cmd.getDetails();
+        if (details != null
+                && details.keySet().stream()
+                        .anyMatch(key -> key.startsWith("migration.disk.controller.")))
+            throw new InvalidParameterValueException(
+                    "Migration controller policy is immutable; create a new migration");
+        if (cmd.isCleanupDetails()
+                && vmInstanceDetailsDao.listDetailsKeyPairs(cmd.getId()).keySet().stream()
+                        .anyMatch(key -> key.startsWith("migration.disk.controller.")))
+            throw new InvalidParameterValueException(
+                    "Migration controller evidence cannot be removed");
         List<Long> securityGroupIdList = getSecurityGroupIdList(cmd);
         boolean cleanupDetails = cmd.isCleanupDetails();
         String extraConfig = cmd.getExtraConfig();
@@ -3750,7 +3760,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
                 // ensure details marked as non-displayable are maintained, regardless of admin or not
                 for (final VMInstanceDetailVO existingDetail : existingDetails) {
-                    if (!existingDetail.isDisplay() || isExtraConfig(existingDetail.getName())) {
+                    if (!existingDetail.isDisplay()
+                            || isExtraConfig(existingDetail.getName())
+                            || existingDetail.getName().startsWith("migration.disk.controller.")) {
                         details.put(existingDetail.getName(), existingDetail.getValue());
                     }
                 }
@@ -5756,6 +5768,23 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         vm.setUserVmType(vmType);
         _vmDao.persist(vm);
         for (String key : customParameters.keySet()) {
+            if (key.startsWith("migration.disk.controller.")) {
+                if (!key.equals(com.cloud.storage.MigrationDiskControllerPolicy.PLAN)
+                        || hypervisorType != HypervisorType.KVM
+                        || customParameters.get("volumeId") == null
+                        || CallContext.current().getCallingAccount().getType()
+                                != Account.Type.ADMIN)
+                    throw new InvalidParameterValueException("DISK_CONTROLLER_RESERVED_DETAILS");
+                var plan =
+                        com.cloud.storage.MigrationDiskControllerPolicy.parse(
+                                customParameters.get(key));
+                com.cloud.storage.MigrationDiskControllerPolicy.chunks(
+                                key,
+                                com.cloud.storage.MigrationDiskControllerPolicy.canonical(plan))
+                        .forEach(vm::setDetail);
+                continue;
+            }
+
             // BIOS was explicitly passed as the boot type, so honour it
             if (key.equalsIgnoreCase(ApiConstants.BootType.BIOS.toString())) {
                 vm.details.remove(ApiConstants.BootType.UEFI.toString());
@@ -5809,6 +5838,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         if (customParameters.containsKey(VmDetailConstants.NAME_ON_HYPERVISOR)) {
             hiddenDetails.add(VmDetailConstants.NAME_ON_HYPERVISOR);
         }
+        for (String protectedKey : vm.details.keySet())
+            if (protectedKey.startsWith("migration.disk.controller."))
+                hiddenDetails.add(protectedKey);
         _vmDao.saveDetails(vm, hiddenDetails);
         if (!isImport) {
             logger.debug("Allocating in the DB for vm");
@@ -6688,6 +6720,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         return startVirtualMachine(vmId, podId, clusterId, hostId, additionalParams, deploymentPlannerToUse, isExplicitHost, false);
     }
 
+    @Inject private com.cloud.storage.MigrationDiskControllerService migrationDiskControllerService;
+
     private boolean isAllocationImportRoot(Map<String, String> details) {
         if (details == null || details.get("volumeId") == null || volumeDetailsDao == null) return false;
         long volumeId;
@@ -6736,6 +6770,12 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             Long clusterId, Long hostId, @NotNull Map<VirtualMachineProfile.Param, Object> additionalParams, String deploymentPlannerToUse,
             boolean isExplicitHost, boolean isRootAdmin, boolean quickRestore) throws ResourceUnavailableException, InsufficientCapacityException {
 
+        if (vmInstanceDetailsDao.listDetailsKeyPairs(vm.getId()).keySet().stream()
+                .anyMatch(key -> key.startsWith("migration.disk.controller."))) {
+            if (migrationDiskControllerService == null)
+                throw new CloudRuntimeException("DISK_CONTROLLER_SERVICE_UNAVAILABLE");
+            migrationDiskControllerService.beforeStart(vm.getId());
+        }
         verifyImportedAllocationBeforeStart(vm.getId());
 
         // check if vm is disaster recovery cluster vm enabled

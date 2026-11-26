@@ -124,6 +124,39 @@ public final class LibvirtStartCommandWrapper extends CommandWrapper<StartComman
             } catch (IllegalArgumentException error) {
                 throw new InternalErrorException(error.getMessage());
             }
+            String migrationPlan =
+                    com.cloud.storage.MigrationDiskControllerPolicy.read(
+                            vmSpec.getDetails(),
+                            com.cloud.storage.MigrationDiskControllerPolicy.PLAN);
+            if (migrationPlan == null
+                    && com.cloud.storage.MigrationDiskControllerPolicy.read(
+                                    vmSpec.getDetails(),
+                                    com.cloud.storage.MigrationDiskControllerPolicy.BINDINGS)
+                            != null)
+                throw new InternalErrorException("DISK_CONTROLLER_POLICY_MISSING");
+            if (migrationPlan != null) {
+                String binding =
+                        com.cloud.storage.MigrationDiskControllerPolicy.read(
+                                vmSpec.getDetails(),
+                                com.cloud.storage.MigrationDiskControllerPolicy.BINDINGS);
+                if (binding == null)
+                    throw new InternalErrorException("DISK_CONTROLLER_BINDINGS_REQUIRED");
+                var driverGuard =
+                        new com.cloud.hypervisor.kvm.storage.MigrationDiskControllerGuard();
+                driverGuard.qualify(
+                        com.cloud.storage.MigrationDiskControllerPolicy.parse(migrationPlan));
+                vmFinalSpecification = driverGuard.normalizeDeviceSections(vmFinalSpecification);
+                driverGuard.validate(migrationPlan, binding, vmFinalSpecification, false);
+                // Normalize implicit controllers while still stopped, then verify before any guest
+                // instruction runs.
+                var prepared = conn.domainDefineXML(vmFinalSpecification);
+                try {
+                    vmFinalSpecification = prepared.getXMLDesc(0);
+                    driverGuard.validate(migrationPlan, binding, vmFinalSpecification, true);
+                } finally {
+                    prepared.free();
+                }
+            }
             libvirtComputingResource.startVM(conn, vmName, vmFinalSpecification);
             if (pciPlan != null) {
                 org.libvirt.Domain observed = libvirtComputingResource.getDomain(conn, vmName);

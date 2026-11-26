@@ -1613,6 +1613,59 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
 
                     final List<VolumeVO> vols = _volsDao.findByInstance(vm.getId());
 
+                    String controllerPlan =
+                            com.cloud.storage.MigrationDiskControllerPolicy.read(
+                                    vmTO.getDetails(),
+                                    com.cloud.storage.MigrationDiskControllerPolicy.PLAN);
+                    if (controllerPlan == null
+                            && com.cloud.storage.MigrationDiskControllerPolicy.read(
+                                            vmTO.getDetails(),
+                                            com.cloud.storage.MigrationDiskControllerPolicy
+                                                    .BINDINGS)
+                                    != null)
+                        throw new CloudRuntimeException("DISK_CONTROLLER_POLICY_MISSING");
+                    if (controllerPlan != null) {
+                        var controllerIntent =
+                                com.cloud.storage.MigrationDiskControllerPolicy.parse(
+                                        controllerPlan);
+                        Answer qualification =
+                                _agentMgr.easySend(
+                                        dest.getHost().getId(),
+                                        new com.cloud.agent.api.MigrationDiskControllerCommand(
+                                                "CAPABILITIES",
+                                                controllerIntent.get("machine").getAsString(),
+                                                controllerIntent.get("firmware").getAsString(),
+                                                vmTO.getName(),
+                                                controllerPlan,
+                                                com.cloud.storage.MigrationDiskControllerPolicy
+                                                        .read(
+                                                                vmTO.getDetails(),
+                                                                com.cloud.storage
+                                                                        .MigrationDiskControllerPolicy
+                                                                        .BINDINGS)));
+                        if (!(qualification
+                                        instanceof
+                                        com.cloud.agent.api.MigrationDiskControllerAnswer)
+                                || !qualification.getResult()
+                                || ((com.cloud.agent.api.MigrationDiskControllerAnswer)
+                                                        qualification)
+                                                .getContractVersion()
+                                        != 1
+                                || ((com.cloud.agent.api.MigrationDiskControllerAnswer)
+                                                        qualification)
+                                                .getObservation()
+                                        == null
+                                || !controllerIntent
+                                        .get("hash")
+                                        .getAsString()
+                                        .equals(
+                                                ((com.cloud.agent.api.MigrationDiskControllerAnswer)
+                                                                qualification)
+                                                        .getObservation()
+                                                        .get("planhash")))
+                            throw new CloudRuntimeException(
+                                    "DISK_CONTROLLER_SELECTED_AGENT_UNQUALIFIED");
+                    }
                     StartCommand command = new StartCommand(vmTO, dest.getHost(), getExecuteInSequence(vm.getHypervisorType()));
                     updateStartCommandWithExternalDetails(dest.getHost(), vmTO, command);
                     cmds.addCommand(command);
