@@ -133,10 +133,14 @@ public class LibvirtDomainXMLParser {
                             def.defFileBasedDisk(diskFile, diskLabel, DiskDef.DiskBus.valueOf(bus.toUpperCase()), fmt);
                             parseBackingFiles(disk, def);
                         } else if (device.equalsIgnoreCase("cdrom")) {
-                            def.defISODisk(diskFile, i+1, diskLabel, DiskDef.DiskType.FILE);
+                            parseCdrom(def, disk, diskFile, diskLabel, bus, DiskDef.DiskType.FILE);
                         }
                     } else if (type.equalsIgnoreCase("block")) {
-                        parseDiskBlock(def, device, diskDev, diskLabel, bus, diskFile, i);
+                        if (device.equalsIgnoreCase("disk")) {
+                            def.defBlockBasedDisk(diskDev, diskLabel, DiskDef.DiskBus.valueOf(bus.toUpperCase()));
+                        } else if (device.equalsIgnoreCase("cdrom")) {
+                            parseCdrom(def, disk, diskDev, diskLabel, bus, DiskDef.DiskType.BLOCK);
+                        }
                     }
                     if (StringUtils.isNotBlank(diskCacheMode)) {
                         def.setCacheMode(DiskDef.DiskCacheMode.valueOf(diskCacheMode.toUpperCase()));
@@ -479,23 +483,17 @@ public class LibvirtDomainXMLParser {
         return node.getAttribute(attr);
     }
 
-    /**
-     * Parse the disk block part of the libvirt XML.
-     * @param def
-     * @param device
-     * @param diskDev
-     * @param diskLabel
-     * @param bus
-     * @param diskFile
-     * @param curDiskIndex
-     */
-    private void parseDiskBlock(DiskDef def, String device, String diskDev, String diskLabel, String bus,
-                                String diskFile, int curDiskIndex) {
-        if (device.equalsIgnoreCase("disk")) {
-            def.defBlockBasedDisk(diskDev, diskLabel, DiskDef.DiskBus.valueOf(bus.toUpperCase()));
-        } else if (device.equalsIgnoreCase("cdrom")) {
-            def.defISODisk(diskFile, curDiskIndex+1, diskLabel, DiskDef.DiskType.BLOCK);
+    private static void parseCdrom(DiskDef def, Element disk, String path, String label, String bus, DiskDef.DiskType type) {
+        def.defCdrom(StringUtils.isEmpty(path) ? null : path, label, DiskDef.DiskBus.fromValue(bus), type);
+        if ("drive".equals(getAttrValue("address", "type", disk))) {
+            def.setCdromAddress(new DiskDef.DriveAddress(
+                    parseDriveAddressComponent(disk, "controller"), parseDriveAddressComponent(disk, "bus"),
+                    parseDriveAddressComponent(disk, "target"), parseDriveAddressComponent(disk, "unit")));
         }
+    }
+
+    private static int parseDriveAddressComponent(Element disk, String component) {
+        return Integer.decode(StringUtils.defaultIfBlank(getAttrValue("address", component, disk), "0"));
     }
 
     public Integer getVncPort() {

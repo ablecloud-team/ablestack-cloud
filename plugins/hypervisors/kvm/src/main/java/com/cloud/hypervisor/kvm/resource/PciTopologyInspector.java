@@ -49,10 +49,13 @@ public final class PciTopologyInspector {
         for (int i = 0; i < types.getLength(); i++) {
             Element type = (Element) types.item(i);
             if (!"os".equals(type.getParentNode().getNodeName())) continue;
-            String machine = type.getAttribute("machine");
-            return "q35".equals(machine) || machine.startsWith("pc-q35-");
+            return isQ35Machine(type.getAttribute("machine"));
         }
         return false;
+    }
+
+    static boolean isQ35Machine(String machine) {
+        return machine != null && ("q35".equals(machine) || machine.startsWith("pc-q35-"));
     }
 
     public static int rootPorts(Document document) {
