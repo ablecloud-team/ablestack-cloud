@@ -1378,7 +1378,6 @@ export default {
   vertical-align: text-bottom;
 }
 
-
 :deep(.ant-table-tbody > .import-row-selected > td) {
   background-color: var(--ui-bg-selected);
 }
