@@ -34,6 +34,7 @@
       :message="$t('message.vm.protection.lookup.pending')" />
     <a-tabs
       ref="vmTabs"
+      :class="{ 'workspace-tabset': viewportScroll }"
       v-scroll-activity="viewportScroll && { selector: '.ant-tabs-content-holder', label: $t('label.details') }"
       :tabPosition="resourceTabPosition"
       :activeKey="visibleCurrentTab"

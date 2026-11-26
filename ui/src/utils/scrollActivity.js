@@ -15,6 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+export const tableScrollSelector = '.ant-table-container > .ant-table-body, .ant-table-container > .ant-table-content'
+export const tabScrollSelector = ':scope > .ant-tabs-content-holder'
+
 const bindings = new WeakMap()
 const idleDelay = 650
 
@@ -53,7 +56,16 @@ function update (root, { value }) {
     scroller.addEventListener('scroll', binding.listener, { passive: true })
   }
 
-  if (value?.label && scroller) scroller.setAttribute('aria-label', value.label)
+  if (!scroller) return
+  const binding = bindings.get(root)
+  if (value.scope !== binding.scope) {
+    if ('scope' in binding) {
+      scroller.scrollTop = 0
+      scroller.scrollLeft = 0
+    }
+    binding.scope = value.scope
+  }
+  if (value.label) scroller.setAttribute('aria-label', value.label)
 }
 
 export default { mounted: update, updated: update, beforeUnmount: detach }

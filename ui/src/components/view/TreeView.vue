@@ -16,9 +16,9 @@
 // under the License.
 
 <template>
-  <resource-layout>
+  <resource-layout :viewport-scroll="viewportScroll">
     <template #left>
-      <a-card :bordered="false" :aria-busy="loading">
+      <a-card :class="{ 'workspace-fill': viewportScroll }" :bordered="false" :aria-busy="loading">
         <div class="domain-tree-toolbar">
           <a-input-search
             v-model:value="searchQuery"
@@ -28,7 +28,10 @@
             @search="$emit('search', $event)" />
           <slot name="filters" />
         </div>
-        <a-spin :spinning="loading">
+        <div
+          :class="{ 'workspace-panel': viewportScroll }"
+          v-scroll-activity="viewportScroll && { label: $t('label.domains'), scope: keyword }">
+          <a-spin :spinning="loading">
           <a-alert
             v-if="error"
             type="error"
@@ -63,14 +66,17 @@
             </template>
           </a-tree>
           <a-empty v-else-if="!loading" :description="$t('label.no.data')" />
-        </a-spin>
+          </a-spin>
+        </div>
         <slot name="pagination" />
       </a-card>
     </template>
     <template #right>
-      <a-spin :spinning="loading || selecting">
+      <a-spin :wrapper-class-name="viewportScroll ? 'workspace-fill' : undefined" :spinning="loading || selecting">
         <a-card v-if="resource.id && !loading" class="spin-content resource-content-card">
           <a-tabs
+            :class="{ 'workspace-tabset': viewportScroll }"
+            v-scroll-activity="viewportScroll && { selector: tabScrollSelector, label: $t('label.details'), scope: activeTab }"
             :key="resource.id"
             :tab-position="resourceTabPosition"
             :animated="false"
@@ -104,6 +110,7 @@
 </template>
 
 <script>
+import scrollActivity, { tabScrollSelector } from '@/utils/scrollActivity'
 import { Empty } from 'ant-design-vue'
 import { mixinDevice } from '@/utils/mixin.js'
 import ResourceLayout from '@/layouts/ResourceLayout'
@@ -111,9 +118,12 @@ import ResourceContextMenu from '@/components/view/ResourceContextMenu'
 
 export default {
   name: 'TreeView',
+  directives: { scrollActivity },
   components: { AEmpty: Empty, ResourceLayout, ResourceContextMenu },
   mixins: [mixinDevice],
+  provide () { return { resourceViewportEnabled: () => this.viewportScroll } },
   props: {
+    viewportScroll: Boolean,
     treeData: { type: Array, required: true },
     resource: { type: Object, required: true },
     tabs: { type: Array, required: true },
@@ -131,6 +141,7 @@ export default {
     return { searchQuery: this.keyword, contextRecord: null, contextPosition: null }
   },
   computed: {
+    tabScrollSelector () { return tabScrollSelector },
     contextMenuActions () {
       const record = this.contextRecord
       if (!record) return []

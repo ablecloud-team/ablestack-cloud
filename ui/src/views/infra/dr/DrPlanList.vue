@@ -17,7 +17,7 @@
   under the License.
 -->
 <template>
-  <div class="cross-dr-page cross-dr-standard-page">
+  <div class="cross-dr-page cross-dr-standard-page mold-workspace">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <div class="content-breadcrumb">
       <a-card class="breadcrumb-card breadcrumb-toolbar" style="z-index: 10">
@@ -123,9 +123,10 @@
       :description="listLoadWarning" />
 
     <template v-else-if="detailId">
-      <resource-layout>
+      <resource-layout viewport-scroll>
         <template #left>
           <dr-resource-info-card
+            viewport-scroll
             resourceType="plan"
             :resource="detailPlan"
             :title="detailPlan.name || detailPlan.id || '-'"
@@ -137,7 +138,7 @@
 
         <template #right>
           <a-card
-            class="spin-content"
+            class="spin-content resource-content-card"
             :loading="loading"
             :bordered="true"
             style="width: 100%"
@@ -150,6 +151,8 @@
               :message="$t('message.dr.plan.detail.fallback')"
               :description="detailLoadWarning" />
             <a-tabs
+              class="workspace-tabset"
+              v-scroll-activity="{ selector: tabScrollSelector, label: $t('label.details'), scope: activeTab }"
               :tabPosition="resourceTabPosition"
               :style="{ width: '100%', marginTop: resourceTabPosition === 'top' ? '-12px' : '0' }"
               :activeKey="activeTab"
@@ -195,7 +198,7 @@
     </template>
 
     <template v-else>
-      <div class="row-element">
+      <div class="row-element workspace-list">
         <section v-if="trackedGroupRun.id" class="cross-dr-group-run-panel">
           <div class="cross-dr-group-run-panel__header">
             <div>
@@ -259,6 +262,8 @@
           </a-table>
         </section>
         <mold-list-table
+          viewport-scroll
+          :scope="normalizedPage + ':' + pageSize + ':' + $route.fullPath"
           class="cross-dr-standard-table"
           size="middle"
           :columns="tableColumns"
@@ -324,7 +329,7 @@
           @change="changePage"
           @showSizeChange="changePageSize"
           showSizeChanger
-          showQuickJumper>
+          :showQuickJumper="listTotal > 0">
           <template #buildOptionText="props">
             <span>{{ props.value }} / {{ $t('label.page') }}</span>
           </template>
@@ -1174,6 +1179,7 @@
 </template>
 
 <script>
+import scrollActivity, { tabScrollSelector } from '@/utils/scrollActivity'
 import MoldListTable from '@/components/view/MoldListTable'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import DrCheckpointManager from '@/components/dr/DrCheckpointManager.vue'
@@ -1206,6 +1212,7 @@ import { ApartmentOutlined, BranchesOutlined, ClockCircleOutlined, DesktopOutlin
 
 export default {
   name: 'DrPlanList',
+  directives: { scrollActivity },
   components: {
     MoldListTable,
     DrCheckpointManager,
@@ -1341,6 +1348,7 @@ export default {
     }
   },
   computed: {
+    tabScrollSelector () { return tabScrollSelector },
     targetSizingFields () {
       if (!this.directionUsesKvmTarget || !this.createForm.targetcomputeref) return []
       const compute = this.findOptionByValue(this.targetComputeOptions, this.createForm.targetcomputeref)

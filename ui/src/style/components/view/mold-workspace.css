@@ -1,0 +1,344 @@
+/*
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+*/
+
+.mold-workspace,
+.workspace-host {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  block-size: 100%;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+.mold-workspace > .content-breadcrumb {
+  flex: none;
+}
+
+/* Only the explicitly designated content in each work area claims the remaining height. */
+.workspace-main,
+.workspace-list,
+.workspace-detail,
+.workspace-fill,
+.workspace-fill > .ant-spin-container,
+.workspace-fill > .ant-card-body,
+.workspace-tabset-with-list > .ant-tabs-content-holder > .ant-tabs-content > .ant-tabs-tabpane-active > .workspace-tabset-with-list,
+.workspace-table,
+.workspace-table > .ant-table-wrapper,
+.workspace-table > .ant-spin-nested-loading,
+.workspace-table .ant-table-wrapper > .ant-spin-nested-loading,
+.workspace-table .ant-spin-nested-loading > .ant-spin-container,
+.workspace-table .ant-spin-nested-loading > .ant-spin-container > .ant-table,
+.workspace-table .ant-table > .ant-table-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+.workspace-list > .ant-pagination,
+.workspace-table > .ant-pagination,
+.workspace-table .ant-table > .ant-table-footer {
+  flex: none;
+}
+
+.mold-workspace .workspace-list.row-element,
+.mold-workspace .workspace-list > .ant-pagination.row-element {
+  margin-block-end: 0;
+}
+
+.workspace-table .ant-table > .ant-table-footer {
+  display: flex;
+  align-items: center;
+  min-block-size: 46px;
+}
+
+.workspace-table .ant-table > .ant-table-container {
+  overflow: visible;
+}
+
+.workspace-table .ant-table-container > :is(.ant-table-content, .ant-table-body) {
+  flex: 1 1 0;
+  min-block-size: 0;
+  overflow-y: auto !important;
+  background: var(--ui-bg-surface);
+}
+
+.workspace-table .ant-table-container > .ant-table-header {
+  flex: none;
+}
+
+.workspace-table .ant-table-content > table > .ant-table-thead {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 5;
+}
+
+.workspace-table .ant-table-content:has(.ant-table-placeholder) {
+  container-type: size;
+}
+
+.workspace-table .ant-table-placeholder > .ant-table-cell {
+  block-size: calc(100cqh - var(--mold-list-row-height, 47px));
+  padding: 0 !important;
+  border-block-end: 0;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.workspace-table .ant-table-placeholder .ant-table-expanded-row-fixed {
+  inline-size: 100cqw !important;
+}
+
+.workspace-table .ant-table-placeholder :is(.ant-empty, .ant-empty-description) {
+  margin: 0;
+}
+
+.workspace-table .ant-spin-blur .ant-table-placeholder .ant-empty {
+  visibility: hidden;
+}
+
+.workspace-panel,
+.workspace-tabset > .ant-tabs-content-holder {
+  flex: 1 1 0;
+  min-block-size: 0;
+  min-inline-size: 0;
+  overflow: auto;
+}
+
+.workspace-tabset {
+  flex: 1 1 0;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+.workspace-tabset > .ant-tabs-nav {
+  flex: none;
+}
+
+.workspace-tabset.workspace-tabset-with-list > .ant-tabs-content-holder,
+.workspace-tabset > .ant-tabs-content-holder:has(> .ant-tabs-content > .ant-tabs-tabpane-active > .workspace-list) {
+  overflow: hidden;
+}
+
+.workspace-tabset-with-list > .ant-tabs-content-holder > .ant-tabs-content,
+.workspace-tabset > .ant-tabs-content-holder > .ant-tabs-content:has(> .ant-tabs-tabpane-active > .workspace-list) {
+  block-size: 100%;
+  min-block-size: 0;
+}
+
+.workspace-tabset-with-list > .ant-tabs-content-holder > .ant-tabs-content > .ant-tabs-tabpane-active,
+.workspace-tabset > .ant-tabs-content-holder > .ant-tabs-content > .ant-tabs-tabpane-active:has(> .workspace-list) {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+.workspace-detail {
+  position: relative;
+}
+
+.mold-workspace .resource-layout-viewport,
+.mold-workspace .resource-layout-viewport > .ant-row,
+.mold-workspace .resource-layout-viewport > .ant-row > .ant-col {
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+.mold-workspace .resource-layout-viewport {
+  flex: 1 1 0;
+  block-size: auto;
+}
+
+.mold-workspace .resource-layout-viewport > .ant-row,
+.mold-workspace .resource-layout-viewport > .ant-row > .ant-col {
+  block-size: 100%;
+}
+
+.mold-workspace .resource-layout-viewport > .ant-row {
+  align-content: flex-start;
+}
+
+.mold-workspace .resource-layout-viewport > .ant-row > .ant-col,
+.mold-workspace .resource-info-viewport,
+.mold-workspace .resource-info-viewport > .ant-spin-container,
+.mold-workspace .resource-info-viewport > .ant-spin-container > .ant-card,
+.mold-workspace .resource-info-viewport > .ant-spin-container > .ant-card > .ant-card-body,
+.mold-workspace .resource-info-viewport > .ant-spin-container > .ant-card > .ant-card-body > .card-body,
+.mold-workspace .resource-layout-viewport .resource-content-card,
+.mold-workspace .resource-layout-viewport .resource-content-card > .ant-card-body,
+.mold-workspace .vm-tabs-viewport,
+.mold-workspace .vm-tabs-viewport > .ant-spin-container {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+.mold-workspace .resource-info-viewport,
+.mold-workspace .resource-info-viewport > .ant-spin-container,
+.mold-workspace .resource-info-viewport > .ant-spin-container > .ant-card,
+.mold-workspace .resource-info-viewport > .ant-spin-container > .ant-card > .ant-card-body,
+.mold-workspace .resource-info-viewport > .ant-spin-container > .ant-card > .ant-card-body > .card-body,
+.mold-workspace .resource-layout-viewport .resource-content-card,
+.mold-workspace .resource-layout-viewport .resource-content-card > .ant-card-body,
+.mold-workspace .vm-tabs-viewport,
+.mold-workspace .vm-tabs-viewport > .ant-spin-container,
+.mold-workspace .vm-tabs-viewport > .ant-spin-container > .ant-tabs,
+.mold-workspace .resource-info-viewport .card-content {
+  flex: 1 1 0;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+.mold-workspace .vm-tabs-viewport > .ant-spin-container > .ant-tabs > .ant-tabs-content-holder {
+  min-block-size: 0;
+  min-inline-size: 0;
+  overflow: auto;
+}
+
+.workspace-scroll-region {
+  --workspace-scroll-thumb: transparent;
+  scrollbar-width: thin;
+  scrollbar-color: var(--workspace-scroll-thumb) transparent;
+  overscroll-behavior: contain;
+}
+
+.workspace-scroll-region.is-scrolling {
+  --workspace-scroll-thumb: var(--ui-scroll-thumb);
+}
+
+.workspace-scroll-region::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.workspace-scroll-region::-webkit-scrollbar-track,
+.workspace-scroll-region::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.workspace-scroll-region::-webkit-scrollbar-thumb,
+.workspace-scroll-region::-webkit-scrollbar-thumb:hover {
+  background: var(--workspace-scroll-thumb);
+  background-clip: padding-box;
+}
+
+.workspace-scroll-region:focus-visible {
+  outline: 2px solid var(--ui-link);
+  outline-offset: -2px;
+}
+
+@media (max-width: 991px) {
+  .mold-workspace .resource-layout-viewport > .ant-row > .ant-col:first-child:not(:only-child) {
+    margin-block-end: 12px;
+  }
+
+  .workspace-side-by-side {
+    overflow-y: auto;
+  }
+
+  .workspace-side-by-side > .ant-col {
+    min-block-size: 18rem;
+  }
+
+  .workspace-detail .workspace-scroll-region,
+  .resource-layout-viewport .workspace-scroll-region {
+    overscroll-behavior: auto;
+  }
+}
+
+.workspace-list > .ant-alert,
+.workspace-detail > .ant-alert {
+  flex: none;
+}
+
+.workspace-side-by-side {
+  flex-direction: row;
+  min-block-size: 0;
+}
+
+.workspace-tool-filters {
+  flex: none;
+  max-block-size: min(37%, 285px);
+  min-block-size: 0;
+  overflow: auto;
+}
+
+.configuration-detail-card.workspace-layout-body {
+  flex: none;
+  max-block-size: 36%;
+}
+
+.workspace-side-by-side > .ant-col,
+.workspace-side-by-side > .ant-col > .ant-card {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+.workspace-side-by-side > .ant-col > .ant-card {
+  flex: 1 1 0;
+}
+
+.workspace-side-by-side .workspace-table .ant-table-container > .ant-table-content {
+  min-block-size: 7.5rem;
+}
+
+@media (max-width: 991px) {
+  .workspace-side-by-side {
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+
+  .workspace-side-by-side > .ant-col {
+    flex: 0 0 19rem;
+    min-block-size: 19rem;
+    max-inline-size: 100%;
+  }
+
+  .workspace-side-by-side .workspace-scroll-region {
+    overscroll-behavior: auto;
+  }
+}
+
+.workspace-header {
+  flex: none;
+}
+
+.workspace-layout-body {
+  overflow: auto;
+}
+
+@media (max-width: 575px) {
+  .workspace-list > .ant-pagination {
+    min-block-size: 48px;
+  }
+}
+
+@media (max-height: 680px) {
+  .mold-workspace .workspace-list,
+  .mold-workspace .workspace-detail,
+  .mold-workspace .workspace-tabset-with-list {
+    min-block-size: 11rem;
+  }
+}

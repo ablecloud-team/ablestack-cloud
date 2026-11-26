@@ -17,7 +17,7 @@
   under the License.
 -->
 <template>
-  <div class="cross-dr-page cross-dr-standard-page">
+  <div class="cross-dr-page cross-dr-standard-page mold-workspace">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <div class="content-breadcrumb">
       <a-card class="breadcrumb-card breadcrumb-toolbar" style="z-index: 10">
@@ -108,9 +108,10 @@
       :message="$t('message.dr.api.unavailable')" />
 
     <template v-else-if="detailId">
-      <resource-layout>
+      <resource-layout viewport-scroll>
         <template #left>
           <dr-resource-info-card
+            viewport-scroll
             resourceType="site"
             :resource="detailSite"
             :title="detailSite.name || detailSite.id || '-'"
@@ -122,12 +123,14 @@
 
         <template #right>
           <a-card
-            class="spin-content"
+            class="spin-content resource-content-card"
             :loading="loading"
             :bordered="true"
             style="width: 100%"
             @contextmenu.stop.prevent="openSiteContextMenu($event, detailSite)">
             <a-tabs
+              class="workspace-tabset"
+              v-scroll-activity="{ selector: tabScrollSelector, label: $t('label.details'), scope: activeTab }"
               :tabPosition="resourceTabPosition"
               :style="{ width: '100%', marginTop: resourceTabPosition === 'top' ? '-12px' : '0' }"
               :activeKey="activeTab"
@@ -182,8 +185,10 @@
     </template>
 
     <template v-else>
-      <div class="row-element">
+      <div class="row-element workspace-list">
         <mold-list-table
+          viewport-scroll
+          :scope="normalizedPage + ':' + pageSize + ':' + $route.fullPath"
           class="cross-dr-standard-table"
           size="middle"
           :columns="tableColumns"
@@ -235,7 +240,7 @@
           @change="changePage"
           @showSizeChange="changePageSize"
           showSizeChanger
-          showQuickJumper>
+          :showQuickJumper="filteredSites.length > 0">
           <template #buildOptionText="props">
             <span>{{ props.value }} / {{ $t('label.page') }}</span>
           </template>
@@ -426,6 +431,7 @@
 </template>
 
 <script>
+import scrollActivity, { tabScrollSelector } from '@/utils/scrollActivity'
 import MoldListTable from '@/components/view/MoldListTable'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import { notification } from 'ant-design-vue'
@@ -448,6 +454,7 @@ import { ClockCircleOutlined, GlobalOutlined, SafetyCertificateOutlined } from '
 
 export default {
   name: 'DrSiteList',
+  directives: { scrollActivity },
   components: {
     MoldListTable,
     ActionButton,
@@ -529,6 +536,7 @@ export default {
     }
   },
   computed: {
+    tabScrollSelector () { return tabScrollSelector },
     hasListApi () {
       return 'listDrSites' in this.$store.getters.apis
     },

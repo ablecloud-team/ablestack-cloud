@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <a-row :gutter="12" class="infra-summary-root" :class="{ 'is-dark': isDarkMode }">
+  <a-row :gutter="12" class="infra-summary-root mold-workspace" :class="{ 'is-dark': isDarkMode }">
     <a-col :span="24" class="content-breadcrumb">
       <a-card class="breadcrumb-card breadcrumb-toolbar">
         <div class="breadcrumb-toolbar-row">
@@ -152,7 +152,7 @@
         </a-modal>
       </a-card>
     </a-col>
-    <a-col :xs="24">
+    <a-col :xs="24" class="workspace-panel" v-scroll-activity="{ label: $t('label.summary') }">
       <div class="infra-summary-layout" :class="{ 'is-rack-expanded': rackVisualizationExpanded }">
         <div class="summary-cards-pane" :aria-hidden="rackVisualizationExpanded">
           <div
@@ -198,6 +198,7 @@
 </template>
 
 <script>
+import scrollActivity from '@/utils/scrollActivity'
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import router from '@/router'
@@ -209,6 +210,7 @@ import RackDiagramTab from '@/views/infra/zone/RackDiagramTab.vue'
 
 export default {
   name: 'InfraSummary',
+  directives: { scrollActivity },
   components: {
     Breadcrumb,
     ChartCard,

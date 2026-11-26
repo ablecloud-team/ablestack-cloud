@@ -153,6 +153,7 @@
 </template>
 
 <script>
+import '@/style/components/view/mold-workspace.css'
 import Cookies from 'js-cookie'
 import SideMenu from '@/components/menu/SideMenu'
 import GlobalHeader from '@/components/page/GlobalHeader'

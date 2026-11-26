@@ -16,9 +16,9 @@
 // under the License.
 
 <template>
-  <a-row :gutter="12">
-    <a-col :md="24" :lg="24">
-      <a-card class="instances-card">
+  <a-row :gutter="12" class="workspace-fill">
+    <a-col :md="24" :lg="24" class="workspace-fill">
+      <a-card class="instances-card workspace-fill">
         <template #title>
           <div class="import-vm-tasks-header">
             <div class="import-vm-tasks-title">
@@ -60,10 +60,11 @@
             </div>
           </div>
         </template>
-        <div class="import-vm-tasks-table-wrap">
+        <div class="import-vm-tasks-table-wrap workspace-fill">
           <a-table
             :data-source="tasks"
-            class="instances-card-table import-vm-tasks-table"
+            class="instances-card-table import-vm-tasks-table workspace-table"
+            v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.import.vm.tasks'), scope: JSON.stringify([filter, page, pageSize]) }"
             size="small"
             :pagination="false"
             :columns="taskColumns"
@@ -261,11 +262,13 @@
 </template>
 
 <script>
+import scrollActivity, { tableScrollSelector } from '@/utils/scrollActivity'
 import { getAPI, postAPI } from '@/api'
 import Status from '@/components/widgets/Status'
 
 export default {
   name: 'ImportVmTasks',
+  directives: { scrollActivity },
   components: {
     Status
   },
@@ -416,6 +419,7 @@ export default {
     }
   },
   computed: {
+    tableScrollSelector () { return tableScrollSelector },
     taskTableScrollX () {
       return this.taskColumns.reduce((total, column) => total + (column.width || 120), 0)
     },

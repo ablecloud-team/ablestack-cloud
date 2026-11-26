@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div>
+  <div class="mold-workspace">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <a-card class="breadcrumb-card breadcrumb-toolbar content-breadcrumb">
       <a-row class="breadcrumb-toolbar-row">
@@ -41,8 +41,9 @@
       </a-row>
     </a-card>
 
-    <div class="row-element">
+    <div class="row-element workspace-list">
       <list-view
+        viewport-scroll
         :columns="columns"
         :items="items"
         :loading="loading"

@@ -16,9 +16,11 @@
 // under the License.
 
 <template>
-  <a-spin class="vpc-tab" :spinning="fetchLoading">
+  <a-spin :wrapper-class-name="viewportScroll ? 'workspace-fill' : undefined" class="vpc-tab" :spinning="fetchLoading">
     <a-alert v-if="listRefreshFailed" type="warning" show-icon :message="$t('message.list.refresh.stale')" class="vpc-query-notice"><template #description><a-button size="small" :disabled="fetchLoading" @click="handleFetchData">{{ $t('label.retry') }}</a-button></template></a-alert>
     <a-tabs
+      :class="{ 'workspace-tabset': viewportScroll }"
+      v-scroll-activity="viewportScroll && { selector: tabScrollSelector, label: $t('label.details'), scope: currentTab }"
       :tabPosition="resourceTabPosition"
       :activeKey="currentTab"
       :animated="false"
@@ -254,6 +256,7 @@ focus-guard
 </template>
 
 <script>
+import scrollActivity, { tabScrollSelector } from '@/utils/scrollActivity'
 import MoldDialog from '@/components/network/VpcDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import VpcActionContext from '@/components/network/VpcActionContext'
@@ -281,6 +284,7 @@ import { vpcVpnContext, vpcVpnOwner } from '@/utils/vpcVpn'
 export default {
   mixins: [mixinDevice, listRefreshMixin(['fetchComments', 'fetchPrivateGateways', 'fetchVpnGateways', 'fetchVpnConnections', 'fetchAclList'], { select: vm => ({ vpngw: ['fetchVpnGateways'], pgw: ['fetchPrivateGateways'], vpnc: ['fetchVpnConnections'], acl: ['fetchAclList'], comments: ['fetchComments'] }[vm.currentTab] || []) })],
   name: 'VpcTab',
+  directives: { scrollActivity },
   components: {
     MoldDialog,
     MoldDialogActions,
@@ -302,6 +306,7 @@ export default {
     ResourceIcon
   },
   props: {
+    viewportScroll: Boolean,
     resource: {
       type: Object,
       required: true
@@ -394,6 +399,7 @@ export default {
     }
   },
   computed: {
+    tabScrollSelector () { return tabScrollSelector },
     aclContext () {
       const getters = this.$store.getters
       const user = getters.userInfo || {}

@@ -55,19 +55,25 @@
           closable
           :message="$t('message.guest.feature.' + conditionalTabNotice)"
           @close="conditionalTabNotice = ''" />
-        <keep-alive v-if="tabs.length === 1 && !isNetworkTabs && !['snapshotpolicy', 's2svpn'].includes($route.meta?.name)">
-          <component
-            :is="tabs[0].component"
-            :key="tabs[0].name"
-            :resource="resource"
-            :loading="loading"
-            :tab="tabs[0].name"
-            v-bind="viewportScroll ? { viewportScroll } : $route.meta?.name === 'kubernetesiso' && ['details','zones'].includes(tabs[0].name) ? { observation: kubernetesIsoObservation } : {}"
-            v-on="tabListeners(tabs[0])" />
-        </keep-alive>
+        <div
+          v-if="tabs.length === 1 && !isNetworkTabs && !['snapshotpolicy', 's2svpn'].includes($route.meta?.name)"
+          :class="{ 'workspace-panel': viewportScroll && !hasOwnTabs, 'workspace-fill': viewportScroll && hasOwnTabs }"
+          v-scroll-activity="viewportScroll && !hasOwnTabs && { label: $t('label.details'), scope: resource.id }">
+          <keep-alive>
+            <component
+              :is="tabs[0].component"
+              :key="tabs[0].name"
+              :resource="resource"
+              :loading="loading"
+              :tab="tabs[0].name"
+              v-bind="hasOwnTabs ? { viewportScroll } : $route.meta?.name === 'kubernetesiso' && ['details','zones'].includes(tabs[0].name) ? { observation: kubernetesIsoObservation } : {}"
+              v-on="tabListeners(tabs[0])" />
+          </keep-alive>
+        </div>
         <a-tabs
           v-else
-          :class="{'s2s-gateway-tabs': $route.meta?.name === 's2svpn', 'template-main-tabs':['template','iso','kubernetesiso'].includes($route.meta?.name), 'project-tabs': isProjectDetailRoute($route), 'infrastructure-tabs': ['cluster', 'storagepool', 'imagestore'].includes($route.meta?.name), 'system-offering-tabs': isSystemOffering}"
+          v-scroll-activity="viewportScroll && { selector: tabScrollSelector, label: $t('label.details'), scope: activeTab }"
+          :class="{'workspace-tabset': viewportScroll, 's2s-gateway-tabs': $route.meta?.name === 's2svpn', 'template-main-tabs':['template','iso','kubernetesiso'].includes($route.meta?.name), 'project-tabs': isProjectDetailRoute($route), 'infrastructure-tabs': ['cluster', 'storagepool', 'imagestore'].includes($route.meta?.name), 'system-offering-tabs': isSystemOffering}"
           :style="{ width: '100%', marginTop: isSystemOffering ? undefined : resourceTabPosition === 'top' ? '-12px' : '0' }"
           :tabPosition="resourceTabPosition"
           :animated="false"
@@ -98,6 +104,7 @@
 
 <script>
 import '@/style/components/view/template-tabs.less'
+import scrollActivity, { tabScrollSelector } from '@/utils/scrollActivity'
 import { isProjectDetailRoute, projectRouteHistory } from '@/utils/projectSearch'
 import { isAccountDetailRoute, accountRouteHistory } from '@/utils/accountSearch'
 import { isRoleDetailRoute, roleRouteHistory } from '@/utils/roleSearch'
@@ -121,6 +128,7 @@ import { mixinDevice } from '@/utils/mixin.js'
 
 export default {
   name: 'ResourceView',
+  directives: { scrollActivity },
   components: {
     InfoCard,
     KubernetesIsoSummary,
@@ -166,7 +174,7 @@ export default {
       default: ''
     }
   },
-  provide () { return { resourceActionReady: () => this.readyForActions, resourceReadPending: () => this.readPending || this.loading, resourceReadFailed: () => this.readFailed, resourceActiveTab: () => this.activeTab } },
+  provide () { return { resourceActionReady: () => this.readyForActions, resourceReadPending: () => this.readPending || this.loading, resourceReadFailed: () => this.readFailed, resourceActiveTab: () => this.activeTab, resourceViewportEnabled: () => this.viewportScroll } },
   data () {
     return {
       activeTab: '',
@@ -179,13 +187,15 @@ export default {
     }
   },
   computed: {
+    tabScrollSelector () { return tabScrollSelector },
+    hasOwnTabs () { return ['vm', 'vnfapp', 'kubernetes', 'vpc', 'sharedfs', 'vmgroup'].includes(this.$route.meta?.name) },
     isSystemOffering () { return this.$route.meta?.name === 'systemoffering' },
     kubernetesIsoContext () { return this.$route.meta?.name === 'kubernetesiso' ? kubernetesIsoDetailContext(this.$route, this.resource, this.$store.getters, this.$store.state?.user?.token) : '' },
     templateTabsReady () { return this.$route.meta?.name === 'template' && !!this.resource.id && (!this.$route.params?.id || this.$route.params.id === this.resource.id) },
     templateTabScope () { return this.$route.meta?.name === 'template' ? JSON.stringify([this.templateContext, this.resource.templatetype, Object.keys(this.$store.getters.apis || {}).sort()]) : '' },
     templateContext () { return templateObservationContext(this.$route, this.resource, this.$store.getters, this.$store.state?.user?.token) },
     isNetworkTabs () { return networkTabRoute(this.$route) },
-    networkTabsReady () { return !!this.resource.id && (!this.$route.params?.id || this.$route.params.id === this.resource.id) && !this.loading && (this.managedNetworkContext || !this.resource.associatednetworkid || this.networkService !== null) },
+    networkTabsReady () { return !!this.resource.id && (!this.$route.params?.id || this.$route.params.id === this.resource.id) && (!this.loading || this.viewportScroll) && (this.managedNetworkContext || !this.resource.associatednetworkid || this.networkService !== null) },
     s2sTabScope () { return this.$route.meta?.name === 's2svpn' ? gatewayContext(this) : '' },
     dnsZoneTabScope () {
       if (this.$route.meta?.name !== 'dnszone') return ''

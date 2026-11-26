@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <a-row :gutter="12">
+  <a-row :gutter="12" class="mold-workspace">
     <a-col :span="24" class="content-breadcrumb">
       <a-card class="breadcrumb-card breadcrumb-toolbar">
         <div class="breadcrumb-toolbar-row">
@@ -63,8 +63,8 @@
         </div>
       </a-card>
     </a-col>
-    <a-col :span="24">
-      <a-card class="configuration-content">
+    <a-col :span="24" class="workspace-fill">
+      <a-card class="configuration-content workspace-fill">
         <div v-if="activeFilters.length" class="configuration-active-filters">
           <a-tag
             v-for="condition in activeFilters"
@@ -74,7 +74,7 @@
             {{ $t(condition.label) }} {{ condition.value }}
           </a-tag>
         </div>
-        <a-card v-if="selectedSetting" class="configuration-detail-card" :title="$t('label.global.setting.details')" size="small">
+        <a-card v-if="selectedSetting" class="configuration-detail-card workspace-layout-body" :title="$t('label.global.setting.details')" size="small">
           <template #extra>
             <a-space>
               <a-button v-if="canEditSettings" size="small" @click="openSettingDialog(selectedSetting, 'edit')">{{ $t('label.edit') }}</a-button>
@@ -93,9 +93,10 @@
             </template>
           </a-list>
         </a-card>
-        <a-spin :spinning="configLoading">
+        <a-spin :spinning="configLoading" wrapper-class-name="workspace-fill">
           <a-alert v-if="listRefreshFailed" type="error" show-icon :message="$t('message.error.loading.setting')" />
           <a-tabs
+            class="workspace-tabset workspace-tabset-with-list"
             v-if="!listRefreshFailed || config.length > 0"
             :tab-position="isMobile() ? 'top' : 'left'"
             :animated="false"
@@ -106,6 +107,8 @@
               :tab="localizedSection('All Settings')" >
               <ConfigurationHierarchy
                 v-if="!group"
+                viewport-scroll
+                :viewport-scope="$route.fullPath"
                 :show-selection="false"
                 :config="config"
                 :korean-catalog="koreanCatalog"
@@ -122,6 +125,7 @@
               :key="group.name"
               :tab="localizedSection(group.name)" >
               <a-tabs
+                class="workspace-tabset workspace-tabset-with-list"
                 :activeKey="this.subgroup || ''"
                 :animated="false"
                 @change="changeSubgroupTab" >
@@ -132,6 +136,8 @@
                   <ConfigurationHierarchy
                     v-if="group.name === this.group && subgroup.name === this.subgroup"
                     grouped
+                    viewport-scroll
+                    :viewport-scope="$route.fullPath"
                     :show-selection="false"
                     :config="hierarchy"
                     :korean-catalog="koreanCatalog"

@@ -1364,6 +1364,7 @@ export default {
       showKeys: false,
       showUpload: false,
       iconActive: true,
+      renderedIconInputs: null,
       images: {
         zone: '',
         template: '',
@@ -1386,12 +1387,7 @@ export default {
     }
   },
   watch: {
-    '$route.fullPath': function (path) {
-      if (path === '/user/login') {
-        return
-      }
-      this.getIcons()
-    },
+    iconInputs () { this.updateResourceAdditionalData() },
     resource: {
       deep: true,
       async handler (newData, oldData) {
@@ -1417,6 +1413,17 @@ export default {
   },
   beforeUnmount () { this.iconActive = false },
   computed: {
+    iconInputs () {
+      const resource = this.resource || {}
+      const targets = [
+        'account', 'domainid', 'networkid', 'zoneid', 'templateid', 'isoid',
+        'projectid', 'vpcid', 'volumeId', 'oscategoryid', 'guestosid', 'ostypeid'
+      ].map(key => resource[key])
+      return targets.some(Boolean) ? JSON.stringify([
+        resource.id, this.$store.getters.userInfo?.id, this.$store.getters.project?.id,
+        this.$store.state?.user?.token, ...targets
+      ]) : ''
+    },
     vmNetworkSummaryStatus () { return vmNetworkRouteFamily(this.$route) === 'vm' ? this.vmNetworkAccessState?.status : this.vmNetworkAccessStatus },
     vmNetworkSummaryLinks () { return this.vmNetworkSummaryStatus === 'ready' ? this.vmNetworkAccessState.networks : {} },
     templateRuntimeToolVisible () { return canReadTemplateRuntimeCatalog(this.$store.getters) && !isStorageServiceTemplate(this.resource) },
@@ -1548,6 +1555,12 @@ export default {
     updateResourceAdditionalData () {
       if (!this.resource) return
       this.resourceType = this.$route.meta.resourceType
+      if (this.renderedIconInputs === this.iconInputs) return
+      this.renderedIconInputs = this.iconInputs
+      if (!this.iconInputs) {
+        this.images = {}
+        return
+      }
       this.fetchOsCategoryAndIcon()
       this.getIcons()
     },
@@ -1666,7 +1679,8 @@ export default {
       })
     },
     iconScope () {
-      return JSON.stringify([this.$route.fullPath, this.resource.id, this.$store.getters.userInfo?.id,
+      const path = this.$route.path || this.$route.fullPath?.split('?')[0]
+      return JSON.stringify([path, this.resource?.id, this.iconInputs, this.$store.getters.userInfo?.id,
         this.$store.getters.project?.id, this.$store.state?.user?.token])
     },
     async readIcon (command, params) {

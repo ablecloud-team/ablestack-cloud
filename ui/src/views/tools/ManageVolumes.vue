@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <a-row :gutter="12" v-if="isPageAllowed">
+  <a-row :gutter="12" v-if="isPageAllowed" class="mold-workspace">
     <a-col :span="24" class="content-breadcrumb">
       <a-card class="breadcrumb-card breadcrumb-toolbar">
         <div class="breadcrumb-toolbar-row">
@@ -37,10 +37,10 @@
         </div>
       </a-card>
     </a-col>
-    <a-col
-      :md="24">
-      <div>
-        <a-card>
+    <a-col :md="24" class="workspace-fill">
+      <div class="workspace-fill">
+        <a-card class="workspace-fill">
+          <div class="workspace-tool-filters" v-scroll-activity="{ label: $t('label.filterby') }">
           <a-alert
             type="info"
             :showIcon="true"
@@ -177,9 +177,10 @@
             </a-col>
           </a-row>
 
-          <a-row :gutter="[12, 16]" class="volume-list-panels">
+          </div>
+          <a-row :gutter="[12, 16]" class="volume-list-panels workspace-fill workspace-side-by-side">
             <a-col :span="24" :lg="12">
-              <a-card class="volumes-card unmanaged-volumes-card">
+              <a-card class="workspace-fill volumes-card unmanaged-volumes-card">
                 <template #title>
                   {{ $t('label.unmanaged.volumes') }}
                   <a-tooltip :title="$t('message.volumes.unmanaged')">
@@ -203,7 +204,8 @@
                   </span>
                 </template>
                 <a-table
-                  class="volumes-card-table"
+                  class="workspace-table workspace-fill volumes-card-table"
+                  v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.storagepool'), scope: JSON.stringify([page, pageSize]) }"
                   :loading="unmanagedVolumesLoading"
                   :custom-row="unmanagedRow"
                   :rowKey="(record, index) => index"
@@ -219,7 +221,7 @@
                     </template>
                   </template>
                 </a-table>
-                <div class="volumes-card-footer">
+                <div class="workspace-fill volumes-card-footer">
                   <a-pagination
                     class="row-element"
                     size="small"
@@ -249,7 +251,7 @@
               </a-card>
             </a-col>
             <a-col :span="24" :lg="12">
-              <a-card class="volumes-card">
+              <a-card class="workspace-fill volumes-card">
                 <template #title>
                   {{ $t('label.managed.volumes') }}
                   <a-tooltip :title="$t('message.volumes.managed')">
@@ -273,7 +275,8 @@
                   </span>
                 </template>
                 <a-table
-                  class="volumes-card-table"
+                  class="workspace-table workspace-fill volumes-card-table"
+                  v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.storagepool'), scope: JSON.stringify([page, pageSize]) }"
                   :loading="managedVolumesLoading"
                   :custom-row="managedRow"
                   :rowKey="(record, index) => index"
@@ -292,7 +295,7 @@
                     </template>
                   </template>
                 </a-table>
-                <div class="volumes-card-footer">
+                <div class="workspace-fill volumes-card-footer">
                   <a-pagination
                     class="row-element"
                     size="small"
@@ -459,6 +462,7 @@
 </template>
 
 <script>
+import scrollActivity, { tableScrollSelector } from '@/utils/scrollActivity'
 import { selectableImportRow } from '@/utils/moldListSelection'
 import { restoreImportOptions } from '@/utils/importOptionNavigation'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
@@ -483,6 +487,7 @@ export default {
     InfiniteScrollSelect
   },
   name: 'ManageVolumes',
+  directives: { scrollActivity },
   data () {
     const unmanagedVolumesColumns = [
       {
@@ -603,6 +608,7 @@ export default {
     this.fetchData()
   },
   computed: {
+    tableScrollSelector () { return tableScrollSelector },
     isPageAllowed () {
       if (this.$route.meta.permission) {
         for (var apiName of this.$route.meta.permission) {

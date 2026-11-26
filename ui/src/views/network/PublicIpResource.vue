@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div>
+  <div class="workspace-host">
     <autogen-view @change-resource="changeResource" @public-ip-read-state="state => { readPending = state.pending; readFailed = state.failed }">
       <template #resource>
         <a-alert v-if="contextFailed" type="warning" show-icon :message="$t('message.guest.feature.load.failed')">
@@ -24,6 +24,7 @@
         </a-alert>
         <resource-view
           v-if="isPublicIpAddress && 'id' in resource"
+          viewport-scroll
           :key="resource.id"
           :loading="loading"
           :managed-network-context="true"

@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <a-row :gutter="12" v-if="isPageAllowed">
+  <a-row :gutter="12" v-if="isPageAllowed" class="mold-workspace">
     <a-col :span="24" class="content-breadcrumb">
       <a-card class="breadcrumb-card breadcrumb-toolbar">
       <a-row class="breadcrumb-toolbar-row">
@@ -43,10 +43,10 @@
       </a-row>
     </a-card>
     </a-col>
-    <a-col
-      :md="24">
-      <div>
-        <a-card>
+    <a-col :md="24" class="workspace-fill">
+      <div class="workspace-fill">
+        <a-card class="workspace-fill">
+          <div class="workspace-tool-filters" v-scroll-activity="{ label: $t('label.filterby') }">
           <a-alert
             class="manage-instances-alert"
             type="info"
@@ -402,11 +402,12 @@
           </a-row>
           <a-divider />
 
-          <a-tabs v-model:activeKey="activeTabKey" @change="onTabChange">
+          </div>
+          <a-tabs class="workspace-tabset workspace-tabset-with-list" v-model:activeKey="activeTabKey" @change="onTabChange">
             <a-tab-pane :key=1 :tab="$t('label.instances.listing')">
-              <a-row :gutter="12">
+              <a-row :gutter="12" class="workspace-fill workspace-side-by-side">
                 <a-col v-if="!isDiskImport" :md="24" :lg="(!isMigrateFromVmware && showManagedInstances) ? 12 : 24">
-                  <a-card class="instances-card">
+                  <a-card class="instances-card workspace-fill">
                     <template #title>
                       {{ (isMigrateFromVmware && vmwareVcenterType === 'existing') ? $t('label.instances') : $t('label.unmanaged.instances') }}
                       <a-tooltip :title="(isMigrateFromVmware && vmwareVcenterType === 'existing') ? $t('message.instances.migrate.vmware') : $t('message.instances.unmanaged')">
@@ -430,8 +431,9 @@
                       </span>
                     </template>
                     <a-table
+                      class="workspace-table instances-card-table"
+                      v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.instances'), scope: JSON.stringify([page, pageSize]) }"
                       v-if="!isExternal"
-                      class="instances-card-table"
                       :loading="unmanagedInstancesLoading"
                       :custom-row="unmanagedRow"
                       :rowKey="(record, index) => index"
@@ -451,8 +453,9 @@
                       </template>
                     </a-table>
                     <a-table
+                      class="workspace-table instances-card-table"
+                      v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.instances'), scope: JSON.stringify([page, pageSize]) }"
                       v-if="isExternal"
-                      class="instances-card-table"
                       :loading="unmanagedInstancesLoading"
                       :custom-row="unmanagedRow"
                       :rowKey="(record, index) => index"
@@ -496,7 +499,7 @@
                   </a-card>
                 </a-col>
                 <a-col :md="24" :lg="12" v-if="!isMigrateFromVmware && showManagedInstances">
-                  <a-card class="instances-card">
+                  <a-card class="instances-card workspace-fill">
                     <template #title>
                       {{ $t('label.managed.instances') }}
                       <a-tooltip :title="$t('message.instances.managed')">
@@ -520,7 +523,8 @@
                       </span>
                     </template>
                     <a-table
-                      class="instances-card-table"
+                      class="workspace-table instances-card-table"
+                      v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.instances'), scope: JSON.stringify([page, pageSize]) }"
                       :loading="managedInstancesLoading"
                       :custom-row="managedRow"
                       :rowKey="(record, index) => index"
@@ -630,6 +634,7 @@
 </template>
 
 <script>
+import scrollActivity, { tableScrollSelector } from '@/utils/scrollActivity'
 import { selectableImportRow } from '@/utils/moldListSelection'
 import { restoreImportOptions } from '@/utils/importOptionNavigation'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
@@ -659,6 +664,7 @@ export default {
     ImportVmTasks
   },
   name: 'ManageVms',
+  directives: { scrollActivity },
   data () {
     const AllSourceActions = [
       {
@@ -884,6 +890,7 @@ export default {
     this.stopImportVmTasksAutoRefresh()
   },
   computed: {
+    tableScrollSelector () { return tableScrollSelector },
     isPageAllowed () {
       if (this.$route.meta.permission) {
         for (var apiName of this.$route.meta.permission) {

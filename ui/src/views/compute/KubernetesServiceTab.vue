@@ -16,8 +16,10 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="networkLoading">
+  <a-spin :wrapper-class-name="viewportScroll ? 'workspace-fill' : undefined" :spinning="networkLoading">
     <a-tabs
+      :class="{ 'workspace-tabset': viewportScroll }"
+      v-scroll-activity="viewportScroll && { selector: tabScrollSelector, label: $t('label.details'), scope: currentTab }"
       :tabPosition="resourceTabPosition"
       :activeKey="currentTab"
       :animated="false"
@@ -219,6 +221,7 @@ v-else-if="publicIpAddress && network.type !== 'Shared'"
 </template>
 
 <script>
+import scrollActivity, { tabScrollSelector } from '@/utils/scrollActivity'
 import { kubernetesNodeActions } from '@/utils/kubernetesClusterActions'
 import { getAPI, postAPI } from '@/api'
 import { isAdmin } from '@/role'
@@ -237,6 +240,7 @@ import EventsTab from '@/components/view/EventsTab'
 
 export default {
   name: 'KubernetesServiceTab',
+  directives: { scrollActivity },
   components: {
     DetailsTab,
     AclRulesTab,
@@ -251,6 +255,7 @@ export default {
   mixins: [mixinDevice],
   inject: { parentFetchData: { default: () => {} }, parentExecuteAction: { default: null } },
   props: {
+    viewportScroll: Boolean,
     resource: {
       type: Object,
       required: true
@@ -347,6 +352,7 @@ export default {
     }
   },
   computed: {
+    tabScrollSelector () { return tabScrollSelector },
     nodeActions () { return kubernetesNodeActions(this.resource, this.$store.getters.apis) },
     pagedVirtualmachines () { return this.virtualmachines.slice((this.vmPage - 1) * this.vmPageSize, this.vmPage * this.vmPageSize) },
     dashboardCleanupCommands () {

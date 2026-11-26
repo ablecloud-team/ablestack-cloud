@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div>
+  <div :class="{ 'workspace-list': resourceViewportEnabled() }">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <a-input-search
       v-if="showSearch"
@@ -27,6 +27,8 @@
       v-focus="true" />
 
     <a-table
+      :class="{ 'workspace-table': resourceViewportEnabled() }"
+      v-scroll-activity="resourceViewportEnabled() && { selector: tableScrollSelector, label: $t('label.items'), scope: JSON.stringify([resource.id, options.page, options.pageSize, filter]) }"
       size="small"
       :columns="fetchColumns()"
       :dataSource="dataSource"
@@ -92,6 +94,7 @@
 </template>
 
 <script>
+import scrollActivity, { tableScrollSelector } from '@/utils/scrollActivity'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { getAPI } from '@/api'
@@ -101,6 +104,9 @@ import Status from '@/components/widgets/Status'
 
 export default {
   name: 'ListResourceTable',
+  inject: { resourceViewportEnabled: { default: () => () => false } },
+  directives: { scrollActivity },
+  computed: { tableScrollSelector () { return tableScrollSelector } },
   components: {
     BackupProgress,
     Status
