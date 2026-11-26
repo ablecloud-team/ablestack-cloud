@@ -157,6 +157,11 @@ public final class LibvirtStartCommandWrapper extends CommandWrapper<StartComman
                     prepared.free();
                 }
             }
+            String guestConfiguration=com.cloud.storage.MigrationDiskControllerPolicy.read(vmSpec.getDetails(),com.cloud.storage.MigrationGuestConfigurationPolicy.PLAN);
+            if(guestConfiguration!=null) {
+                com.cloud.storage.MigrationGuestConfigurationPolicy.parse(guestConfiguration);
+                com.cloud.hypervisor.kvm.storage.MigrationGuestConfigurationExchange.requireChannel(vmFinalSpecification);
+            }
             libvirtComputingResource.startVM(conn, vmName, vmFinalSpecification);
             if (pciPlan != null) {
                 org.libvirt.Domain observed = libvirtComputingResource.getDomain(conn, vmName);

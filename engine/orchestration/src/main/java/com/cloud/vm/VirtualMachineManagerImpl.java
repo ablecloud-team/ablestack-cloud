@@ -1666,6 +1666,12 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
                             throw new CloudRuntimeException(
                                     "DISK_CONTROLLER_SELECTED_AGENT_UNQUALIFIED");
                     }
+                    String guestConfiguration=com.cloud.storage.MigrationDiskControllerPolicy.read(vmTO.getDetails(),com.cloud.storage.MigrationGuestConfigurationPolicy.PLAN);
+                    if(guestConfiguration!=null) {
+                        var guestIntent=com.cloud.storage.MigrationGuestConfigurationPolicy.parse(guestConfiguration);
+                        Answer guestCapability=_agentMgr.easySend(dest.getHost().getId(),new com.cloud.agent.api.MigrationGuestConfigurationCommand("CAPABILITIES",vmTO.getName(),vmTO.getUuid(),guestConfiguration,null,null));
+                        if(!(guestCapability instanceof com.cloud.agent.api.MigrationGuestConfigurationAnswer)||!guestCapability.getResult()||((com.cloud.agent.api.MigrationGuestConfigurationAnswer)guestCapability).getContractVersion()!=1||((com.cloud.agent.api.MigrationGuestConfigurationAnswer)guestCapability).getObservation()==null||!Boolean.TRUE.equals(((com.cloud.agent.api.MigrationGuestConfigurationAnswer)guestCapability).getObservation().get("fresh_observation"))||!guestIntent.get("hash").getAsString().equals(((com.cloud.agent.api.MigrationGuestConfigurationAnswer)guestCapability).getObservation().get("plan_hash")))throw new CloudRuntimeException("GUEST_CONFIG_SELECTED_AGENT_UNQUALIFIED");
+                    }
                     StartCommand command = new StartCommand(vmTO, dest.getHost(), getExecuteInSequence(vm.getHypervisorType()));
                     updateStartCommandWithExternalDetails(dest.getHost(), vmTO, command);
                     cmds.addCommand(command);

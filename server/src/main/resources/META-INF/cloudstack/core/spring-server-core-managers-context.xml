@@ -319,6 +319,7 @@
     <bean id="lBHealthCheckManagerImpl" class="com.cloud.network.lb.LBHealthCheckManagerImpl" />
 
     <bean id="volumeAllocationManager" class="com.cloud.storage.VolumeAllocationManagerImpl" />
+    <bean id="migrationGuestConfigurationManager" class="com.cloud.storage.MigrationGuestConfigurationManagerImpl" />
     <bean id="migrationDiskControllerManager" class="com.cloud.storage.MigrationDiskControllerManagerImpl" />
 
     <bean id="volumeApiServiceImpl" class="com.cloud.storage.VolumeApiServiceImpl">

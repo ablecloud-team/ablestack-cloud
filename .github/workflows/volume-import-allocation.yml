@@ -49,5 +49,5 @@ jobs:
       - name: Import, lifecycle, legacy and real image contracts
         run: >-
           mvn -B -pl api,core,engine/orchestration,server,plugins/hypervisors/kvm -am
-          -Dtest=MigrationDiskControllerPolicyTest,MigrationDiskControllerManagerImplTest,MigrationDiskControllerGuardTest,VolumeAllocationImportTest,VolumeAllocationPolicyTest,VolumeAllocationLifecycleTest,VolumeAllocationCloneTest,Gfs2VolumeImportAllocationTest,Gfs2VolumeAllocationTest,VolumeImportUnmanageManagerImplTest,VolumeAllocationManagerImplTest
+          -Dtest=MigrationGuestConfigurationPolicyTest,MigrationGuestConfigurationManagerImplTest,MigrationGuestConfigurationExchangeTest,MigrationDiskControllerPolicyTest,MigrationDiskControllerManagerImplTest,MigrationDiskControllerGuardTest,VolumeAllocationImportTest,VolumeAllocationPolicyTest,VolumeAllocationLifecycleTest,VolumeAllocationCloneTest,Gfs2VolumeImportAllocationTest,Gfs2VolumeAllocationTest,VolumeImportUnmanageManagerImplTest,VolumeAllocationManagerImplTest
           -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip -Drat.skip=true package
