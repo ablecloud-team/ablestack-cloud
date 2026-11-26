@@ -81,9 +81,9 @@ describe('ResourceView resource navigation', () => {
     const vm = { currentAction: {}, resetSelection: jest.fn(), clearAutoRefresh: jest.fn(), fetchData: jest.fn(), scheduleAutoRefresh: jest.fn() }
     const from = { path: '/affinitygroup/group', fullPath: '/affinitygroup/group', params: { id: 'group' }, meta: { name: 'affinitygroup' }, query: {} }
     const to = { ...from, fullPath: from.path + '?tab=instances', query: { tab: 'instances' } }
-    AutogenView.watch.$route.call(vm, to, from)
+    AutogenView.watch.$route.handler.call(vm, to, from)
     expect(vm.fetchData).not.toHaveBeenCalled(); expect(vm.resetSelection).not.toHaveBeenCalled()
-    AutogenView.watch.$route.call(vm, { ...to, fullPath: to.fullPath + '&domainid=other', query: { ...to.query, domainid: 'other' } }, to)
+    AutogenView.watch.$route.handler.call(vm, { ...to, fullPath: to.fullPath + '&domainid=other', query: { ...to.query, domainid: 'other' } }, to)
     expect(vm.fetchData).toHaveBeenCalledTimes(1)
   })
   it.each([
@@ -100,7 +100,7 @@ describe('ResourceView resource navigation', () => {
       fetchData: jest.fn(),
       scheduleAutoRefresh: jest.fn()
     }
-    AutogenView.watch.$route.call(vm,
+    AutogenView.watch.$route.handler.call(vm,
       { path: routePath, fullPath: routePath + '?' + new URLSearchParams(query), query },
       { fullPath: '/extension/1?tab=customactions' })
     expect(vm.fetchData).toHaveBeenCalledTimes(refresh ? 1 : 0)

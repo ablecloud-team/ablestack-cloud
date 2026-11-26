@@ -68,7 +68,7 @@ test.each(['volume', 'computeoffering', 'diskoffering'])('%s tab history and inv
   ResourceView.methods.onTabChange.call(vm, 'events'); await flushPromises()
   expect(router.currentRoute.value.query).toEqual({ keyword: 'kept', tab: 'events' })
   const watchVm = { resetSelection: jest.fn(), fetchData: jest.fn() }
-  AutogenView.watch.$route.call(watchVm, router.currentRoute.value, vm.$route)
+  AutogenView.watch.$route.handler.call(watchVm, router.currentRoute.value, vm.$route)
   expect(watchVm.resetSelection).not.toHaveBeenCalled(); expect(watchVm.fetchData).not.toHaveBeenCalled()
   await router.push('/vm/other'); router.back(); await flushPromises()
   expect(router.currentRoute.value.query.tab).toBe('events')

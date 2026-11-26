@@ -254,6 +254,8 @@
                     <SelectVmwareVcenter
                       :zoneid="zoneId"
                       :clusterid="clusterId"
+                      :zones="options.zones"
+                      :zonesLoading="optionLoading.zones"
                       :useAblestackV2KInventory="true"
                       @onVcenterTypeChanged="updateVmwareVcenterType"
                       @loadingVmwareUnmanagedInstances="() => this.unmanagedInstancesLoading = true"

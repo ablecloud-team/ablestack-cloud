@@ -1212,7 +1212,6 @@ export default {
       listRequestScope: null,
       listRequestPromise: null,
       listRefreshQueued: false,
-      listViewActive: true,
       listLoadedScope: null,
       listSchemaScope: null,
       listSecurityScope: null,
@@ -1240,7 +1239,6 @@ export default {
     }
   },
   beforeUnmount () {
-    this.listViewActive = false
     for (const [name, handler] of this.listEventHandlers || []) eventBus.off(name, handler)
     this.clearAutoRefresh()
     this.listRequestVersion += 1
@@ -1428,7 +1426,7 @@ export default {
     kmsSearchAuth: {
       flush: 'sync',
       handler (value, previous) {
-        if (!kmsRoute(this.$route)) return
+        if (previous === '' || !kmsRoute(this.$route)) return
         if (this.showAction && previous && value !== previous) this.closeAction()
         this.invalidateKmsResults()
         if (this.isKmsDetail && previous && value !== previous) {
@@ -1453,7 +1451,7 @@ export default {
     s2sGatewaySearchAuth: {
       flush: 'sync',
       handler (value, old) {
-        if (!s2sGatewayRoute(this.$route) && !vpnConnectionRoute(this.$route)) return
+        if (old === '' || (!s2sGatewayRoute(this.$route) && !vpnConnectionRoute(this.$route))) return
         this.rejectS2sGatewaySearch('')
         if (this.isS2sSearchList) {
           let switched = false
@@ -1463,11 +1461,19 @@ export default {
         this.fetchData()
       }
     },
-    asnSearchAuth: { flush: 'sync', handler () { if (asnRoute(this.$route)) { this.rejectAsnSearch(''); this.fetchData() } } },
+    asnSearchAuth: {
+      flush: 'sync',
+      handler (value, previous) {
+        if (previous !== '' && asnRoute(this.$route)) {
+          this.rejectAsnSearch('')
+          this.fetchData()
+        }
+      }
+    },
     publicIpAuth: {
       flush: 'sync',
-      handler () {
-        if (!publicIpRoute(this.$route)) return
+      handler (value, previous) {
+        if (previous === '' || !publicIpRoute(this.$route)) return
         this.resetSelection(); if (this.$refs.listview) { this.$refs.listview.resetSelection(); if (typeof this.$refs.listview.closeContextQuickView === 'function') this.$refs.listview.closeContextQuickView() }
         if (!this.publicIpDetail) { this.searchParams = {}; this.publicIpSearchFailure = ''; this.listSchemaScope = null; if (!this.publicIpProjectApplying) this.$router.replace({ path: '/publicip', query: publicIpQuery({}, this.pageSize, this.$store.getters) }) }
         this.listRequestVersion++; this.listRequestPending = false; this.listRefreshQueued = false; this.loading = false
@@ -1507,7 +1513,7 @@ export default {
     vpnUserAuth: {
       flush: 'sync',
       handler (value, previous) {
-        if (!this.isVpnUser) return
+        if (previous === null || !this.isVpnUser) return
         this.invalidateVpnUserRead()
         if (this.vpnUserProjectSwitching) return
         if (value && previous && this.$store.state?.user?.token) {
@@ -1600,50 +1606,44 @@ export default {
       if (['createVMSnapshot', 'revertToVMSnapshot', 'deleteVMSnapshot', 'createSnapshotFromVMSnapshot'].includes(this.currentAction.api)) this.closeAction()
       if (this.showAction && (this.$route.meta?.name || this.$route.name) === 'snapshot') this.closeAction()
     },
-    '$route' (to, from) {
-      if (to.fullPath !== from.fullPath && !to.path.startsWith('/action/') && (to?.query?.tab !== 'browser' || (to.meta?.name === 'buckets' && to.path !== from.path))) {
-        if (isEventDetailRoute(to) && isEventDetailRoute(from) && eventDetailKey(to) === eventDetailKey(from)) return
-        if (vpnConnectionRoute(to) && to.params?.id && storageDetailRouteKey(to) === storageDetailRouteKey(from)) return
-        if (kmsDetailRoute(to) && kmsDetailRoute(from) && this.listLoadedScope &&
-          kmsDetailKey(to, this.$store.getters) === kmsDetailKey(from, this.$store.getters)) return
-        if (['physicalnetwork', 'host'].includes(to.meta?.name) && to.params?.id && to.path === from.path) return
-        if (networkTabRoute(to) && networkTabRoute(from) && to.params?.id && networkTabRouteKey(to) === networkTabRouteKey(from)) return
-        if (storageUiRoute(to) && to.params?.id && to.path === from.path &&
-          storageDetailRouteKey(to) === storageDetailRouteKey(from)) return
-        if (to.meta?.name === 'affinitygroup' && from.meta?.name === 'affinitygroup' && to.params?.id && to.path === from.path &&
-          JSON.stringify({ ...to.query, tab: undefined }) === JSON.stringify({ ...from.query, tab: undefined })) return
-        if (to.meta?.name === 'cniconfiguration' && from.meta?.name === 'cniconfiguration' && to.params?.id &&
-          cniHistoryRouteKey(to) === cniHistoryRouteKey(from)) return
-        if (to.meta?.name === 'vmgroup' && from.meta?.name === 'vmgroup' &&
-          vmGroupQueryScope(to, this.$store.getters, this.$store.state?.user?.token) === vmGroupQueryScope(from, this.$store.getters, this.$store.state?.user?.token)) {
-          this.fetchData({ irefresh: true })
-          return
-        }
-        if ((ldapConfigRoute(from) || oauthRoute(from) || ipv4SubnetRoute(from) || storageUiRoute(from) || (from.meta?.name || from.name) === 'snapshot' || this.currentAction.projectBulkTargets) && this.showAction) this.closeAction()
-        this.resetSelection()
-        const page = Number(to.query.page)
-        this.page = Number.isInteger(page) && page > 0 ? page : 1
-        if ('pagesize' in to.query || ipv4SubnetRoute(to) || ldapConfigRoute(to) || oauthRoute(to)) this.pageSize = this.getValidPageSize(to.query.pagesize)
-        this.itemCount = 0
-        this.clearAutoRefresh()
-        const load = () => {
-          if (this.listViewActive === false || this.$route.fullPath !== to.fullPath) return
+    $route: {
+      // Reused views reload after RouterView has discarded the outgoing view.
+      flush: 'post',
+      handler (to, from) {
+        if (to.fullPath !== from.fullPath && !to.path.startsWith('/action/') && (to?.query?.tab !== 'browser' || (to.meta?.name === 'buckets' && to.path !== from.path))) {
+          if (isEventDetailRoute(to) && isEventDetailRoute(from) && eventDetailKey(to) === eventDetailKey(from)) return
+          if (vpnConnectionRoute(to) && to.params?.id && storageDetailRouteKey(to) === storageDetailRouteKey(from)) return
+          if (kmsDetailRoute(to) && kmsDetailRoute(from) && this.listLoadedScope &&
+            kmsDetailKey(to, this.$store.getters) === kmsDetailKey(from, this.$store.getters)) return
+          if (['physicalnetwork', 'host'].includes(to.meta?.name) && to.params?.id && to.path === from.path) return
+          if (networkTabRoute(to) && networkTabRoute(from) && to.params?.id && networkTabRouteKey(to) === networkTabRouteKey(from)) return
+          if (storageUiRoute(to) && to.params?.id && to.path === from.path &&
+            storageDetailRouteKey(to) === storageDetailRouteKey(from)) return
+          if (to.meta?.name === 'affinitygroup' && from.meta?.name === 'affinitygroup' && to.params?.id && to.path === from.path &&
+            JSON.stringify({ ...to.query, tab: undefined }) === JSON.stringify({ ...from.query, tab: undefined })) return
+          if (to.meta?.name === 'cniconfiguration' && from.meta?.name === 'cniconfiguration' && to.params?.id &&
+            cniHistoryRouteKey(to) === cniHistoryRouteKey(from)) return
+          if (to.meta?.name === 'vmgroup' && from.meta?.name === 'vmgroup' &&
+            vmGroupQueryScope(to, this.$store.getters, this.$store.state?.user?.token) === vmGroupQueryScope(from, this.$store.getters, this.$store.state?.user?.token)) {
+            this.fetchData({ irefresh: true })
+            return
+          }
+          if ((ldapConfigRoute(from) || oauthRoute(from) || ipv4SubnetRoute(from) || storageUiRoute(from) || (from.meta?.name || from.name) === 'snapshot' || this.currentAction.projectBulkTargets) && this.showAction) this.closeAction()
+          this.resetSelection()
+          const page = Number(to.query.page)
+          this.page = Number.isInteger(page) && page > 0 ? page : 1
+          if ('pagesize' in to.query || ipv4SubnetRoute(to) || ldapConfigRoute(to) || oauthRoute(to)) this.pageSize = this.getValidPageSize(to.query.pagesize)
+          this.itemCount = 0
+          this.clearAutoRefresh()
+          if (to.path !== from.path && to.meta?.name !== from.meta?.name) {
+            this.items = []
+            this.listLoadedScope = null
+          }
           this.fetchData()
           this.scheduleAutoRefresh()
           if (!s2sGatewayRoute(to) && !vpnConnectionListRoute(to) && !kmsRoute(to) && 'projectid' in to.query && !this.isKmsRelatedVolume(to) && to.meta?.name !== 'affinitygroup' && !isSshKeyPairDetailRoute(to)) {
             this.switchProject(to.query.projectid)
           }
-        }
-        // The outgoing view can observe the route before RouterView replaces it.
-        // A reused view loads after that update; a new view loads in created().
-        if (to.path !== from.path) {
-          if (to.meta?.name !== from.meta?.name) {
-            this.items = []
-            this.listLoadedScope = null
-          }
-          this.$nextTick(load)
-        } else {
-          load()
         }
       }
     },

@@ -33,7 +33,7 @@ test('project URL changes delegate to the snapshot-specific synchronizer', () =>
   const from = { name: 'snapshot', path: '/snapshot', fullPath: '/snapshot', query: {}, meta: { name: 'snapshot' }, params: {} }
   const to = { ...from, fullPath: '/snapshot?projectid=p', query: { projectid: 'p' } }
   const context = { $route: to, $store: { getters: {} }, resetSelection: jest.fn(), clearAutoRefresh: jest.fn(), fetchData: jest.fn(), scheduleAutoRefresh: jest.fn(), switchProject: jest.fn() }
-  AutogenView.watch.$route.call(context, to, from)
+  AutogenView.watch.$route.handler.call(context, to, from)
   expect(context.fetchData).toHaveBeenCalled(); expect(context.switchProject).toHaveBeenCalledWith('p')
   const syncSnapshotProject = jest.fn()
   AutogenView.methods.switchProject.call({ ...context, syncSnapshotProject }, 'p')
