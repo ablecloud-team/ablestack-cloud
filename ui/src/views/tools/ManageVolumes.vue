@@ -177,7 +177,7 @@
             </a-col>
           </a-row>
 
-          <a-row :gutter="12" class="volume-list-panels">
+          <a-row :gutter="[12, 16]" class="volume-list-panels">
             <a-col :span="24" :lg="12">
               <a-card class="volumes-card unmanaged-volumes-card">
                 <template #title>
@@ -1333,7 +1333,6 @@ export default {
 }
 .volume-list-panels {
   margin-block-start: 16px;
-  row-gap: 16px;
 }
 .volumes-card-table {
   overflow-y: auto;

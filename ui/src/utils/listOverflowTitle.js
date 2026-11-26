@@ -43,6 +43,7 @@ export default {
       if (active?.contains(event.target)) return
       clear()
 
+      if (layout.classList.contains('dashboard-content')) return
       const cell = event.target.closest(entries)
       if (!cell || !layout.contains(cell)) return
 

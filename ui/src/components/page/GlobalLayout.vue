@@ -133,7 +133,7 @@
             <a-layout-content
               v-list-overflow-title
               class="layout-content"
-              :class="{ 'is-header-fixed': fixedHeader }">
+              :class="{ 'is-header-fixed': fixedHeader, 'dashboard-content': $route.name === 'dashboard' }">
               <slot />
             </a-layout-content>
 

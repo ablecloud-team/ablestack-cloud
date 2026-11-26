@@ -18,7 +18,7 @@
 */
 
 /* The compact template availability badge is the status format for resource tables. */
-.layout-content .ant-table-tbody > tr.ant-table-row > td :is(.ant-badge-status, .cross-dr-status-pill) {
+.layout-content:where(:not(.dashboard-content)) .ant-table-tbody > tr.ant-table-row > td :is(.ant-badge-status, .cross-dr-status-pill) {
   display: inline-flex;
   align-items: center;
   max-width: 100%;
@@ -26,7 +26,7 @@
   vertical-align: middle;
 }
 
-.layout-content .ant-table-tbody > tr.ant-table-row > td :is(.ant-badge-status-dot, .cross-dr-status-pill__dot) {
+.layout-content:where(:not(.dashboard-content)) .ant-table-tbody > tr.ant-table-row > td :is(.ant-badge-status-dot, .cross-dr-status-pill__dot) {
   width: 6px;
   height: 6px;
   margin-top: 0;
@@ -34,7 +34,7 @@
   flex-shrink: 0;
 }
 
-.layout-content .ant-table-tbody > tr.ant-table-row > td :is(.ant-badge-status-text, .cross-dr-status-pill__label) {
+.layout-content:where(:not(.dashboard-content)) .ant-table-tbody > tr.ant-table-row > td :is(.ant-badge-status-text, .cross-dr-status-pill__label) {
   color: var(--ui-text-primary);
   font-size: 14px;
   font-weight: 400;
@@ -45,7 +45,7 @@
   text-overflow: ellipsis;
 }
 
-.layout-content .ant-table-tbody > tr.ant-table-row > td .cross-dr-status-pill {
+.layout-content:where(:not(.dashboard-content)) .ant-table-tbody > tr.ant-table-row > td .cross-dr-status-pill {
   gap: 8px;
   min-height: 0;
   padding: 0;
