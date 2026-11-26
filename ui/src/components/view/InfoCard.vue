@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 <template>
-  <a-spin :spinning="loading" :class="{ 'resource-info-viewport': viewportScroll }">
+  <a-spin :spinning="loading" :wrapper-class-name="viewportScroll ? 'resource-info-viewport' : undefined">
     <a-card
       class="spin-content"
       :class="{ 'template-info-card': $route.meta.name === 'template' || kmsDetailRoute($route), 'kms-info-card': kmsDetailRoute($route), 'event-info-card': $route.meta.name === 'event' }"

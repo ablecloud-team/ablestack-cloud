@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="loading" :class="{ 'vm-tabs-viewport': viewportScroll }">
+  <a-spin :spinning="loading" :wrapper-class-name="viewportScroll ? 'vm-tabs-viewport' : undefined">
     <KubernetesNodeNotice :resource="resource" />
     <a-alert v-if="vm.qemuagentversion === 'Not Installed'" :message="$t('message.alert.qemuagentversion')" type="error" show-icon />
     <br/>
