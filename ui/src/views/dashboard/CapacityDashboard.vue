@@ -17,38 +17,36 @@
 
 <template>
   <a-alert v-if="dashboardReadError" type="error" show-icon :message="$t('message.request.failed')"><template #description><a-button @click="fetchData">{{ $t('label.refresh') }}</a-button></template></a-alert>
-  <a-row class="capacity-dashboard" :gutter="[12,12]">
-    <a-col :span="24">
-      <div class="capacity-dashboard-wrapper">
-        <div class="capacity-dashboard-select">
-          <a-select
-            :placeholder="$t('label.select.a.zone')"
-            v-model:value="zoneSelectedKey"
-            @change="changeZone"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return  option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
-            <a-select-option v-for="(zone, index) in zones" :key="index" :label="zone.name">
-              <span>
-                <resource-icon v-if="zone.icon && zone.icon.base64image" :image="zone.icon.base64image" size="2x" style="margin-right: 5px"/>
-                <global-outlined v-else style="margin-right: 5px" />
-                {{ zone.name }}
-              </span>
-            </a-select-option>
-          </a-select>
-        </div>
-        <div class="capacity-dashboard-button">
-          <a-button
-            shape="round"
-            @click="() => { updateData(zoneSelected, true); listAlerts(); listEvents(); }">
-            <reload-outlined/>
-            {{ $t('label.fetch.latest') }}
-          </a-button>
-        </div>
-      </div>
-    </a-col>
+  <div class="capacity-dashboard-wrapper">
+    <div class="capacity-dashboard-select">
+      <a-select
+        :placeholder="$t('label.select.a.zone')"
+        v-model:value="zoneSelectedKey"
+        @change="changeZone"
+        showSearch
+        optionFilterProp="label"
+        :filterOption="(input, option) => {
+          return  option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+        }" >
+        <a-select-option v-for="(zone, index) in zones" :key="index" :label="zone.name">
+          <span>
+            <resource-icon v-if="zone.icon && zone.icon.base64image" :image="zone.icon.base64image" size="2x" style="margin-right: 5px"/>
+            <global-outlined v-else style="margin-right: 5px" />
+            {{ zone.name }}
+          </span>
+        </a-select-option>
+      </a-select>
+    </div>
+    <div class="capacity-dashboard-button">
+      <a-button
+        shape="round"
+        @click="() => { updateData(zoneSelected, true); listAlerts(); listEvents(); }">
+        <reload-outlined/>
+        {{ $t('label.fetch.latest') }}
+      </a-button>
+    </div>
+  </div>
+  <a-row class="capacity-dashboard dashboard-card-grid" :gutter="[12,12]">
     <a-col :xs="{ span: 24 }" :lg="{ span: 12 }" :xl="{ span: 8 }" :xxl="{ span: 8 }">
       <chart-card :loading="loading" class="dashboard-card">
         <template #title>
@@ -211,7 +209,7 @@
       </chart-card>
     </a-col>
     <a-col :xs="{ span: 24 }" :lg="{ span: 12 }" :xl="{ span: 8 }" :xxl="{ span: 8 }">
-      <chart-card :loading="capacityLoading" class="dashboard-storage">
+      <chart-card :loading="capacityLoading" class="dashboard-storage dashboard-card-scroll">
         <template #title>
           <div class="center">
             <h3><hdd-outlined /> {{ $t('label.storage') }}</h3>
@@ -272,7 +270,7 @@
     </a-col>
     <a-col :xs="{ span: 24 }" :lg="{ span: 12 }" :xl="{ span: 8 }" :xxl="{ span: 8 }">
       <router-link :to="{ path: '/alert' }">
-      <a-card :loading="loading" :bordered="false" class="dashboard-card dashboard-event">
+      <a-card :loading="loading" :bordered="false" class="dashboard-card dashboard-event dashboard-card-scroll">
         <div class="center" style="margin-top: -8px">
           <h3>
             <flag-outlined />
@@ -300,7 +298,7 @@
     </a-col>
     <a-col :xs="{ span: 24 }" :lg="{ span: 12 }" :xl="{ span: 8 }" :xxl="{ span: 8 }">
       <router-link :to="{ path: '/event' }">
-      <a-card :loading="loading" :bordered="false" class="dashboard-card dashboard-event">
+      <a-card :loading="loading" :bordered="false" class="dashboard-card dashboard-event dashboard-card-scroll">
         <div class="center" style="margin-top: -8px">
           <h3>
             <schedule-outlined />
@@ -677,26 +675,6 @@ export default {
     padding-left: 3px;
     white-space: normal;
   }
-}
-
-.dashboard-card {
-  width: 100%;
-  min-height: 370px;
-}
-
-.dashboard-storage {
-  width: 100%;
-  min-height: 370px;
-  overflow-x:hidden;
-  overflow-y: scroll;
-  max-height: 370px;
-}
-
-.dashboard-event {
-  width: 100%;
-  overflow-x:hidden;
-  overflow-y: auto;
-  max-height: 370px;
 }
 
 .center {
