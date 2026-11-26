@@ -34,13 +34,6 @@
               </template>
             </breadcrumb>
           </div>
-          <div class="breadcrumb-toolbar-actions">
-            <a-tooltip v-if="managedVolumesSelectedRowKeys.length > 1 && 'unmanageVolume' in $store.getters.apis" :title="$t('label.action.unmanage.volumes')">
-              <a-button shape="circle" :aria-label="$t('label.action.unmanage.volumes')" @click="onUnmanageVolumeAction">
-                <template #icon><disconnect-outlined /></template>
-              </a-button>
-            </a-tooltip>
-          </div>
         </div>
       </a-card>
     </a-col>
@@ -212,11 +205,10 @@
                     />
                   </span>
                 </template>
-                <mold-list-table
+                <a-table
                   class="volumes-card-table"
                   :loading="unmanagedVolumesLoading"
-                  :rowSelection="unmanagedVolumeSelection"
-                      :context-actions="unmanagedListActions"
+                  :custom-row="unmanagedRow"
                   :rowKey="(record, index) => index"
                   :columns="unmanagedVolumesColumns"
                   :data-source="unmanagedVolumes"
@@ -229,7 +221,7 @@
                       <status :text="text ? text : ''" displayText />
                     </template>
                   </template>
-                </mold-list-table>
+                </a-table>
                 <div class="volumes-card-footer">
                   <a-pagination
                     class="row-element"
@@ -283,12 +275,10 @@
                     />
                   </span>
                 </template>
-                <mold-list-table
+                <a-table
                   class="volumes-card-table"
                   :loading="managedVolumesLoading"
-                  :rowSelection="managedVolumeSelection"
-                      :context-actions="managedListActions"
-                      :multiple="'unmanageVolume' in $store.getters.apis"
+                  :custom-row="managedRow"
                   :rowKey="(record, index) => index"
                   :columns="managedVolumesColumns"
                   :data-source="managedVolumes"
@@ -304,7 +294,7 @@
                       <status :text="text ? text : ''" displayText />
                     </template>
                   </template>
-                </mold-list-table>
+                </a-table>
                 <div class="volumes-card-footer">
                   <a-pagination
                     class="row-element"
@@ -323,7 +313,6 @@
                   </a-pagination>
                   <div :span="24" class="action-button-right">
                     <a-button
-v-if="managedVolumesSelectedRowKeys.length < 2"
                       :disabled="!(('unmanageVolume' in $store.getters.apis) && managedVolumesSelectedRowKeys.length > 0)"
                       type="primary"
                       @click="onUnmanageVolumeAction">
@@ -473,7 +462,7 @@ v-if="managedVolumesSelectedRowKeys.length < 2"
 </template>
 
 <script>
-import MoldListTable from '@/components/view/MoldListTable'
+import { selectableImportRow } from '@/utils/moldListSelection'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
@@ -488,7 +477,6 @@ import InfiniteScrollSelect from '@/components/widgets/InfiniteScrollSelect.vue'
 export default {
   mixins: [listRefreshMixin(['fetchUnmanagedVolumes', 'fetchManagedVolumes'], { active: vm => !!vm.poolId })],
   components: {
-    MoldListTable,
     TooltipLabel,
     Breadcrumb,
     Status,
@@ -817,15 +805,11 @@ export default {
     }
   },
   methods: {
-    unmanagedListActions () {
-      if (!('importVolume' in this.$store.getters.apis)) return []
-      return [{ key: 'import', label: 'label.import.volume', icon: 'import-outlined', handler: this.onImportVolumeAction }]
+    unmanagedRow (record, index) {
+      return selectableImportRow(this.unmanagedVolumeSelection, this.unmanagedVolumes, index)
     },
-    managedListActions (record, selection) {
-      if (!('unmanageVolume' in this.$store.getters.apis)) return []
-      return [
-        { key: 'unmanage', label: selection.length > 1 ? 'label.action.unmanage.volumes' : 'label.action.unmanage.volume', icon: 'disconnect-outlined', danger: true, handler: this.onUnmanageVolumeAction }
-      ]
+    managedRow (record, index) {
+      return selectableImportRow(this.managedVolumeSelection, this.managedVolumes, index)
     },
     initForm () {
       this.formRef = ref()
@@ -1172,11 +1156,9 @@ export default {
     },
     onUnmanagedVolumeSelectRow (value) {
       this.unmanagedVolumesSelectedRowKeys = value
-      if (value.length) this.managedVolumesSelectedRowKeys = []
     },
     onManagedVolumeSelectRow (value) {
       this.managedVolumesSelectedRowKeys = value
-      if (value.length) this.unmanagedVolumesSelectedRowKeys = []
     },
     isValidValueForKey (obj, key) {
       return key in obj && obj[key] != null
@@ -1396,4 +1378,13 @@ export default {
   vertical-align: text-bottom;
 }
 
+
+:deep(.ant-table-tbody > .import-row-selected > td) {
+  background-color: var(--ui-bg-selected);
+}
+
+:deep(.ant-table-tbody > tr:focus-visible) {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: -2px;
+}
 </style>

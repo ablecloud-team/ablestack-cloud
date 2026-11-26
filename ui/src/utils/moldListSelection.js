@@ -47,6 +47,36 @@ export function listSelectionForClick ({ current, key, anchor, orderedKeys, even
   return { keys, anchor: key }
 }
 
+export function selectableImportRow (selection, rows, index) {
+  const key = index
+  const current = selection.selectedRowKeys
+  const disabled = row => selection.getCheckboxProps?.(row)?.disabled
+  if (disabled(rows[key])) return { 'aria-disabled': true }
+  const selected = current.includes(key)
+  const select = event => {
+    const { keys } = listSelectionForClick({
+      current,
+      key,
+      anchor: current.at(-1),
+      orderedKeys: event.shiftKey ? rows.flatMap((row, index) => disabled(row) ? [] : [index]) : [],
+      event,
+      multiple: selection.type === 'checkbox'
+    })
+    selection.onChange(keys)
+  }
+  return {
+    tabindex: 0,
+    'aria-selected': selected,
+    class: selected ? 'import-row-selected' : '',
+    onClick: event => { if (isListRowClick(event)) select(event) },
+    onKeydown: event => {
+      if (event.target !== event.currentTarget || !['Enter', ' '].includes(event.key)) return
+      event.preventDefault()
+      select(event)
+    }
+  }
+}
+
 export function listGroupActionAvailable (action, records, getters) {
   return !!action.groupAction && action.api in (getters.apis || {}) &&
     (!action.groupShow || action.groupShow(records, getters)) &&

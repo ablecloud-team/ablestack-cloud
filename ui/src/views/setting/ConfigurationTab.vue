@@ -106,6 +106,7 @@
               :tab="localizedSection('All Settings')" >
               <ConfigurationHierarchy
                 v-if="!group"
+                :show-selection="false"
                 :config="config"
                 :korean-catalog="koreanCatalog"
                 :count="count"
@@ -131,6 +132,7 @@
                   <ConfigurationHierarchy
                     v-if="group.name === this.group && subgroup.name === this.subgroup"
                     grouped
+                    :show-selection="false"
                     :config="hierarchy"
                     :korean-catalog="koreanCatalog"
                     :expanded-row-keys="expandedRows[sectionKey] || []"

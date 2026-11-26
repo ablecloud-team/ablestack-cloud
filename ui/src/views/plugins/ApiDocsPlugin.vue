@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div>
+  <div class="api-docs">
     <resource-layout>
       <template #left>
         <a-card :bordered="false">
@@ -39,20 +39,14 @@
             <template #renderItem="{ item }">
               <a-list-item
                 v-if="item.toLowerCase().includes(query.toLowerCase())"
-                class="mold-api-command"
-                :class="selectedApi === item ? 'selected-item' : ''"
+                class="api-docs-command"
+                :class="{ 'selected-item': selectedApi === item }"
                 tabindex="0"
-                :aria-selected="selectedApi === item"
+                :aria-current="selectedApi === item ? 'true' : undefined"
                 @click="showApi(item)"
-                @contextmenu="openCommandMenu($event, item)"
-                @keydown="handleCommandKey($event, item)">
-                <a-checkbox
-                  :checked="selectedApi === item"
-                  :aria-label="item"
-                  @click.stop
-                  @change="showApi(item)" />
-                <TableOverflowText :text="item" />
-                <a-tag v-if="$store.getters.apis[item].isasync" color="blue">async</a-tag>
+                @keydown.enter.prevent="showApi(item)"
+                @keydown.space.prevent="showApi(item)">
+                {{ item }} <a-tag v-if="$store.getters.apis[item].isasync" class="api-docs-tag">async</a-tag>
               </a-list-item>
             </template>
           </a-list>
@@ -67,8 +61,8 @@
           style="width: 100%; overflow-x: auto">
           <span v-if="selectedApi && selectedApi in $store.getters.apis">
             <h2>{{ selectedApi }}
-              <a-tag v-if="$store.getters.apis[selectedApi].isasync" color="blue">Asynchronous API</a-tag>
-              <a-tag v-if="$store.getters.apis[selectedApi].since">Since {{ $store.getters.apis[selectedApi].since }}</a-tag>
+              <a-tag v-if="$store.getters.apis[selectedApi].isasync" class="api-docs-tag">Asynchronous API</a-tag>
+              <a-tag v-if="$store.getters.apis[selectedApi].since" class="api-docs-tag">Since {{ $store.getters.apis[selectedApi].since }}</a-tag>
               <tooltip-button
                 tooltipPlacement="right"
                 :tooltip="$t('label.copy') + ' ' + selectedApi"
@@ -80,18 +74,18 @@
             </h2>
             <p>{{ $store.getters.apis[selectedApi].description }}</p>
             <h3>{{ $t('label.request') }} {{ $t('label.params') }}:</h3>
-            <mold-list-table
+            <a-table
+              class="api-docs-fields"
               :columns="[{title: $t('label.name'), dataIndex: 'name'}, {title: $t('label.required'), dataIndex: 'required'}, {title: $t('label.type'), dataIndex: 'type'}, {title: $t('label.description'), dataIndex: 'description'}]"
               :data-source="selectedParams"
-              :scope="selectedApi"
               :pagination="false"
               size="small">
               <template #bodyCell="{text, column, record}">
-                <a-tag v-if="record.since && column.dataIndex === 'description'">Since {{ record.since }}</a-tag>
+                <a-tag v-if="record.since && column.dataIndex === 'description'" class="api-docs-tag">Since {{ record.since }}</a-tag>
                 <span v-if="record.required === true"><strong>{{ text }}</strong></span>
                 <span v-else>{{ text }}</span>
               </template>
-            </mold-list-table>
+            </a-table>
             <br/>
             <h3>{{ $t('label.response') }} {{ $t('label.params') }}:</h3>
             <a-alert v-if="responseError" type="error" :message="responseError" show-icon>
@@ -99,10 +93,10 @@
                 <a-button size="small" @click="showApi(selectedApi)">{{ $t('label.retry') }}</a-button>
               </template>
             </a-alert>
-            <mold-list-table
+            <a-table
+              class="api-docs-fields"
               :columns="[{title: $t('label.name'), dataIndex: 'name'}, {title: $t('label.type'), dataIndex: 'type'}, {title: $t('label.description'), dataIndex: 'description'}]"
               :data-source="selectedResponse"
-              :scope="selectedApi"
               :loading="loadingResponse"
               row-key="name"
               :pagination="false"
@@ -168,19 +162,9 @@
       </template>
     </resource-layout>
   </div>
-  <ResourceContextMenu
-    v-if="commandContext"
-    :entries="commandEntries"
-    :title-override="commandContext.item"
-    :position="commandContext.position"
-    @close="commandContext = null"
-    @execute-entry="executeCommandEntry" />
 </template>
 
 <script>
-import MoldListTable from '@/components/view/MoldListTable'
-import ResourceContextMenu from '@/components/view/ResourceContextMenu'
-import TableOverflowText from '@/components/view/TableOverflowText'
 import { getAPI } from '@/api'
 
 import ResourceLayout from '@/layouts/ResourceLayout'
@@ -191,15 +175,11 @@ const documentedFields = fields => Array.isArray(fields) ? fields.filter(field =
 export default {
   name: 'ApiDocsPlugin',
   components: {
-    MoldListTable,
-    ResourceContextMenu,
-    TableOverflowText,
     ResourceLayout,
     TooltipButton
   },
   data () {
     return {
-      commandContext: null,
       query: '',
       selectedApi: '',
       selectedParams: [],
@@ -235,11 +215,6 @@ export default {
     }
   },
   computed: {
-    commandEntries () {
-      const item = this.commandContext?.item
-      if (!item) return []
-      return [{ key: 'copy', label: 'label.copy', icon: 'copy-outlined', handler: () => this.$copyText(item) }]
-    },
     documentationContext () {
       return JSON.stringify([this.$store.state?.user?.token, this.$store.state?.user?.discoveryGeneration,
         this.$store.getters.userInfo?.id, this.$store.getters.project?.id])
@@ -248,7 +223,6 @@ export default {
   watch: {
     documentationContext () {
       this.responseRequestId += 1
-      this.commandContext = null
       this.selectedApi = ''
       this.selectedParams = []
       this.selectedResponse = []
@@ -272,24 +246,6 @@ export default {
     })
   },
   methods: {
-    openCommandMenu (event, item) {
-      event.preventDefault()
-      if (this.selectedApi !== item) this.showApi(item)
-      const rect = event.currentTarget.getBoundingClientRect()
-      this.commandContext = { item, position: event.type === 'keydown' ? { x: rect.left + 24, y: rect.top + 24 } : { x: event.clientX, y: event.clientY } }
-    },
-    handleCommandKey (event, item) {
-      if (event.target !== event.currentTarget) return
-      if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) this.openCommandMenu(event, item)
-      else if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault()
-        this.showApi(item)
-      }
-    },
-    executeCommandEntry (entry) {
-      this.commandContext = null
-      entry.handler()
-    },
     isCurrentResponse (api, requestId, context) {
       return requestId === this.responseRequestId && context === this.documentationContext &&
         this.selectedApi === api && Object.prototype.hasOwnProperty.call(this.$store.getters.apis, api)
@@ -331,3 +287,62 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.api-docs :deep(.ant-card),
+.api-docs :deep(h2),
+.api-docs :deep(h3),
+.api-docs :deep(.ant-result-title) {
+  color: var(--ui-text-primary);
+}
+
+.api-docs :deep(.ant-result-subtitle),
+.api-docs p {
+  color: var(--ui-text-secondary);
+}
+
+.api-docs :deep(.ant-card) {
+  background: var(--ui-bg-surface);
+}
+
+.api-docs-command {
+  padding-inline-start: 12px;
+  color: var(--ui-text-primary);
+  cursor: pointer;
+}
+
+.api-docs-command:hover {
+  background: var(--ui-bg-hover);
+}
+
+.api-docs .api-docs-command.selected-item {
+  background: var(--ui-bg-selected);
+}
+
+.api-docs-command:focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: -2px;
+}
+
+.api-docs :deep(.api-docs-fields .ant-table-thead > tr > th) {
+  color: var(--ui-text-primary);
+  background: var(--ui-bg-elevated);
+  border-color: var(--ui-border);
+}
+
+.api-docs :deep(.api-docs-fields .ant-table-tbody > tr > td) {
+  color: var(--ui-text-primary);
+  background: var(--ui-bg-surface);
+  border-color: var(--ui-border);
+}
+
+.api-docs :deep(.api-docs-fields .ant-table-tbody > tr:hover > td) {
+  background: var(--ui-bg-hover);
+}
+
+.api-docs-tag {
+  color: var(--ui-info-text);
+  background: var(--ui-info-bg);
+  border-color: var(--ui-info-border);
+}
+</style>

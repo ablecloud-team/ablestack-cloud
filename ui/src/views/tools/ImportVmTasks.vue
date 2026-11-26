@@ -61,20 +61,19 @@
           </div>
         </template>
         <div class="import-vm-tasks-table-wrap">
-          <mold-list-table
+          <a-table
             :data-source="tasks"
             class="instances-card-table import-vm-tasks-table"
             size="small"
             :pagination="false"
             :columns="taskColumns"
-            :context-actions="taskContextActions"
             :scroll="{ x: taskTableScrollX }">
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'convertinstancehostid'">
                 <router-link :to="{ path: '/host/' + record.convertinstancehostid }">{{ record.convertinstancehostname }}</router-link>
               </template>
               <template v-else-if="column.key === 'migrationtool'">
-                <a-space class="mold-task-migration-tool" :wrap="false">
+                <a-space>
                   <a-tag color="blue">{{ getMigrationToolLabel(record.migrationtool) }}</a-tag>
                   <a-tag>{{ getSourceProviderLabel(record.sourceprovider) }}</a-tag>
                 </a-space>
@@ -99,7 +98,9 @@
               </template>
               <template v-else-if="column.key === 'description'">
                 <div class="import-vm-task-sync-progress">
-                  <TableOverflowText :text="[getSyncProgressTitle(record), getSyncProgressBytes(record), getSyncProgressCumulative(record)].filter(Boolean).join(' · ')" />
+                  <div class="import-vm-task-sync-title">{{ getSyncProgressTitle(record) }}</div>
+                  <div class="import-vm-task-sync-bytes">{{ getSyncProgressBytes(record) }}</div>
+                  <div class="import-vm-task-sync-cumulative">{{ getSyncProgressCumulative(record) }}</div>
                   <a-progress
                     v-if="Number.isFinite(getSyncProgressPercent(record))"
                     size="small"
@@ -113,10 +114,27 @@
                     <template #icon><eye-outlined /></template>
                     {{ $t('label.details') }}
                   </a-button>
+                  <a-dropdown v-if="getTaskActions(record).length > 0" :trigger="['click']">
+                    <a-button size="small">
+                      {{ $t('label.select.action') }}
+                      <down-outlined />
+                    </a-button>
+                    <template #overlay>
+                      <a-menu @click="({ key }) => openActionConfirm(record, key)">
+                        <a-menu-item
+                          v-for="action in getTaskActions(record)"
+                          :key="action.key"
+                          :class="{ 'import-vm-task-action-danger': action.danger }">
+                          <component :is="action.icon" v-if="action.icon" />
+                          <span>{{ action.label }}</span>
+                        </a-menu-item>
+                      </a-menu>
+                    </template>
+                  </a-dropdown>
                 </a-space>
               </template>
             </template>
-          </mold-list-table>
+          </a-table>
         </div>
         <div class="instances-card-footer">
           <a-pagination
@@ -245,16 +263,12 @@
 </template>
 
 <script>
-import MoldListTable from '@/components/view/MoldListTable'
-import TableOverflowText from '@/components/view/TableOverflowText'
 import { getAPI, postAPI } from '@/api'
 import Status from '@/components/widgets/Status'
 
 export default {
   name: 'ImportVmTasks',
   components: {
-    MoldListTable,
-    TableOverflowText,
     Status
   },
   props: {
@@ -436,18 +450,6 @@ export default {
     }
   },
   methods: {
-    taskContextActions (record) {
-      return [
-        { key: 'details', label: 'label.details', icon: 'eye-outlined', handler: () => this.openTaskDetail(record) },
-        ...this.getTaskActions(record).map(action => ({
-          key: action.key,
-          label: action.label,
-          icon: action.danger ? 'delete-outlined' : 'play-circle-outlined',
-          danger: action.danger,
-          handler: () => this.openActionConfirm(record, action.key)
-        }))
-      ]
-    },
     fetchData () {
       this.$emit('fetch-import-vm-tasks')
     },
@@ -870,10 +872,9 @@ export default {
 
 .import-vm-task-sync-progress {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 5px;
-  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 180px;
 }
 
 .import-vm-task-sync-title {

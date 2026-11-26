@@ -57,9 +57,15 @@ export function moldListColumns (columns) {
   })
 }
 
-export function moldListScroll (columns, existingScroll) {
+export function moldListColumnsWithFixedSelection (columns) {
+  // Leave a data column free to absorb surplus width so the selection column stays at its declared width.
+  const flexible = columns.findIndex(column => !column.fixed && column.key !== 'filtercolumn' && column.key !== 'actions')
+  return columns.map((column, index) => index === flexible ? { ...column, width: undefined } : column)
+}
+
+export function moldListScroll (columns, existingScroll, showSelection = true) {
   return {
     ...existingScroll,
-    x: Math.max(Number(existingScroll?.x) || 0, columns.reduce((width, column) => width + (Number(column.width) || 126), MOLD_SELECTION_WIDTH))
+    x: Math.max(Number(existingScroll?.x) || 0, columns.reduce((width, column) => width + (Number(column.width) || 126), showSelection ? MOLD_SELECTION_WIDTH : 0))
   }
 }

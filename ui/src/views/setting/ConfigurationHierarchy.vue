@@ -27,6 +27,7 @@
       :loading="loading"
       :scroll="{ x: 760 }"
       :scope="grouped ? String(grouped) : page"
+      :show-selection="showSelection"
       :context-actions="configurationActions"
       @update:expanded-row-keys="$emit('update:expandedRowKeys', $event)">
       <template #bodyCell="{ column, record }">
@@ -96,6 +97,7 @@ export default {
     config: { type: Array, default: () => [] },
     expandedRowKeys: { type: Array, default: () => [] },
     grouped: { type: Boolean, default: false },
+    showSelection: { type: Boolean, default: true },
     rowActions: { type: Function, default: null },
     loading: { type: Boolean, default: false },
     count: { type: Number, default: 0 },

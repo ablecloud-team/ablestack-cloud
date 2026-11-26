@@ -20,7 +20,7 @@
     <a-table
       size="middle"
       :loading="loading"
-      :columns="displayColumns"
+      :columns="tableColumns"
       :dataSource="items"
       :tableLayout="standardTable || isIsoMainList || $route.meta?.name === 'ldapsetting' || scrollRegionLabel ? 'fixed' : undefined"
       :scroll="standardTable ? standardTableScroll : vmTableScroll || kmsTableScroll || tableScroll || systemOfferingTableScroll || kubernetesIsoTableScroll || isoTableScroll || templateTableScroll || (isRuntimeCatalogList ? { x: 850 } : $route.name === 'snapshot' ? { x: 1400 } : ['autoscalevmgroup', 'affinitygroup'].includes($route.name) ? { x: 980 } : undefined)"
@@ -1233,7 +1233,7 @@
         <span v-else> {{ text }} </span>
       </template>
       <template v-if="column.key === 'order'">
-        <div class="shift-btns" :class="{ 'system-offering-order-actions': systemOfferingOrder }">
+        <div class="shift-btns" :class="{ 'offering-order-actions': offeringOrderControls }">
           <a-tooltip
             :name="text"
             placement="top"
@@ -1435,7 +1435,7 @@
 <script>
 import { runtimeCatalogListQuery } from '@/utils/runtimeCatalog'
 import { changedSelectionAnchor, defaultListContextEntries, isListRowClick, listGroupActionAvailable, listSelectionForClick, MOLD_SELECTION_WIDTH, moldListRecords, visibleListRowKeys } from '@/utils/moldListSelection'
-import { moldListColumns, moldListScroll } from '@/utils/moldListColumns'
+import { moldListColumns, moldListColumnsWithFixedSelection, moldListScroll } from '@/utils/moldListColumns'
 import '@/style/components/view/mold-list-table.css'
 import RuntimeCatalogValue from '@/components/view/RuntimeCatalogValue'
 import Ipv4SubnetResourceLink from '@/components/widgets/Ipv4SubnetResourceLink'
@@ -1768,6 +1768,7 @@ export default {
         hideSelectAll: this.standardTable && !this.multipleSelection
       }
     },
+    tableColumns () { return this.standardTable && this.tableSelection ? moldListColumnsWithFixedSelection(this.displayColumns) : this.displayColumns },
     standardTableScroll () {
       if (this.isVmMainList) return this.vmTableScroll
       return moldListScroll(this.displayColumns, this.tableScroll || this.kmsTableScroll || this.systemOfferingTableScroll ||
@@ -1775,11 +1776,12 @@ export default {
     },
     vmTextColumns () { return vmTextColumns },
     vmTableScroll () {
-      return this.isVmMainList ? { x: this.displayColumns.reduce((total, column) => total + column.width, 30) } : null
+      return this.isVmMainList ? { x: this.displayColumns.reduce((total, column) => total + column.width, MOLD_SELECTION_WIDTH) } : null
     },
     isUsageList () { return this.$route.path === '/usage' && !this.resourcePath },
     isRuntimeCatalogList () { return this.$route.path === '/runtimebundle' && !this.resourcePath },
     emptyTableImage () { return Empty.PRESENTED_IMAGE_SIMPLE },
+    offeringOrderControls () { return !this.resourcePath && ['/systemoffering', '/computeoffering', '/diskoffering', '/networkoffering', '/vpcoffering'].includes(this.$route.path) },
     systemOfferingOrder () { return this.$route.path === '/systemoffering' },
     systemOfferingOrderAvailable () { return !!this.$store.getters.apis.listConfigurations && canReorderSystemOffering(this.$route.query, this.systemOfferingTableSorted) },
     systemOfferingOrderDisabled () { return this.systemOfferingOrder && (!this.systemOfferingOrderAvailable || this.systemOfferingOrderBusy) },
@@ -1804,8 +1806,8 @@ export default {
       const columns = this.isOrderUpdatable() ? this.columns : this.columns.filter(column => column.dataIndex !== 'order')
       if (this.isVmMainList) return columns.map(column => ({ ...column, width: vmColumnWidths[column.key] || 112 }))
       if (this.kmsTable) return kmsTableColumns(columns)
-      if (this.systemOfferingOrder) {
-        const widths = {
+      if (this.offeringOrderControls) {
+        const widths = this.systemOfferingOrder ? {
           name: this.$store.getters.device === 'mobile' ? 188 : 330,
           state: 84,
           systemvmtype: 154,
@@ -1813,13 +1815,11 @@ export default {
           cpuspeed: 96,
           memory: 88,
           storagetype: 114,
-          offerha: 80,
-          order: 132,
-          filtercolumn: 42
-        }
-        return columns.map(column => ({
+          offerha: 80
+        } : {}
+        return moldListColumns(columns).map(column => ({
           ...column,
-          width: widths[column.key] || column.width || 120,
+          width: column.key === 'order' ? 132 : column.key === 'filtercolumn' ? 42 : widths[column.key] || column.width,
           ...(['order', 'filtercolumn'].includes(column.key) ? { fixed: 'right' } : {}),
           ...(column.key === 'order' ? { sorter: false } : {})
         }))
@@ -1839,7 +1839,7 @@ export default {
     },
     systemOfferingTableScroll () {
       if (!this.systemOfferingOrder) return null
-      const selectionWidth = this.enableGroupAction() ? 30 : 0
+      const selectionWidth = this.tableSelection ? MOLD_SELECTION_WIDTH : 0
       return { x: this.displayColumns.reduce((total, column) => total + column.width, selectionWidth) }
     },
     kubernetesIsoTableScroll () {
@@ -2925,7 +2925,7 @@ export default {
 
   }
 
-  .system-offering-order-actions {
+  .offering-order-actions {
     gap: 4px;
 
     > :deep(.ant-tooltip-disabled-compatible-wrapper),

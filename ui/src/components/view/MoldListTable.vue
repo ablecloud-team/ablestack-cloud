@@ -22,7 +22,7 @@
     <a-table
       v-bind="$attrs"
       table-layout="fixed"
-      :columns="displayColumns"
+      :columns="tableColumns"
       :data-source="dataSource"
       :scroll="displayScroll"
       :row-key="keyFor"
@@ -56,7 +56,7 @@
 
 <script>
 import { changedSelectionAnchor, defaultListContextEntries, isListRowClick, listSelectionForClick, MOLD_SELECTION_WIDTH, moldListRecords, visibleListRowKeys } from '@/utils/moldListSelection'
-import { moldListColumns, moldListScroll } from '@/utils/moldListColumns'
+import { moldListColumns, moldListColumnsWithFixedSelection, moldListScroll } from '@/utils/moldListColumns'
 import ResourceContextMenu from '@/components/view/ResourceContextMenu'
 import TableOverflowText from '@/components/view/TableOverflowText'
 import '@/style/components/view/mold-list-table.css'
@@ -73,6 +73,7 @@ export default {
     customRow: { type: Function, default: null },
     scroll: { type: Object, default: null },
     multiple: { type: Boolean, default: true },
+    showSelection: { type: Boolean, default: true },
     scope: { type: [String, Number], default: '' },
     contextActions: { type: Function, default: null },
     externalContext: Boolean
@@ -92,6 +93,7 @@ export default {
     many () { return !!this.rowSelection && this.multiple && this.rowSelection.type !== 'radio' },
     keys () { return this.rowSelection?.selectedRowKeys ?? this.localKeys },
     selection () {
+      if (!this.showSelection) return null
       return {
         ...this.rowSelection,
         type: 'checkbox',
@@ -103,7 +105,8 @@ export default {
     },
     otherSlots () { return Object.keys(this.$slots).filter(name => !['headerCell', 'bodyCell'].includes(name)) },
     displayColumns () { return this.columns ? moldListColumns(this.columns) : undefined },
-    displayScroll () { return this.displayColumns?.length ? moldListScroll(this.displayColumns, this.scroll) : this.scroll }
+    tableColumns () { return this.showSelection && this.displayColumns ? moldListColumnsWithFixedSelection(this.displayColumns) : this.displayColumns },
+    displayScroll () { return this.displayColumns?.length ? moldListScroll(this.displayColumns, this.scroll, this.showSelection) : this.scroll }
   },
   watch: {
     keys () { this.context = null },
