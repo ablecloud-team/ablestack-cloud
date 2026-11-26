@@ -654,7 +654,7 @@
               <div class="resource-detail-item__label">{{ $t('label.network') }}</div>
               <div class="resource-detail-item__details resource-detail-item__details--start">
                 <wifi-outlined />
-                <loading-outlined v-if="vmNetworkAccessStatus === 'loading'" class="vm-network-access-loading" :aria-label="$t('label.loading')" />
+                <loading-outlined v-if="vmNetworkSummaryStatus === 'loading'" class="vm-network-access-loading" :aria-label="$t('label.loading')" />
                 <div>
                   <div v-if="'networkkbsread' in resource && 'networkkbswrite' in resource">
                     <a-tag><ArrowDownOutlined />RX {{ toSize(resource.networkkbsread) }}</a-tag>
@@ -677,13 +677,21 @@
                     <span v-if="!isStatic && eth.networkname && eth.networkid">
                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                       <apartment-outlined/>
-                      <router-link v-if="!vmNetworkAccessManaged || vmNetworks[eth.networkid]" :to="{ path: '/guestnetwork/' + eth.networkid }">
-                        {{ eth.networkname }}
+                      <router-link
+                        v-if="!vmNetworkAccessManaged || vmNetworkSummaryLinks[eth.networkid]"
+                        :to="{ path: '/guestnetwork/' + eth.networkid }"
+                        custom
+                        v-slot="{ href, navigate }">
+                        <a
+                          class="vm-network-summary-link"
+                          :href="canOpenVmNetwork(eth.networkid) ? href : undefined"
+                          :aria-disabled="canOpenVmNetwork(eth.networkid) ? undefined : 'true'"
+                          @click="canOpenVmNetwork(eth.networkid) && navigate($event)">{{ eth.networkname }}</a>
                       </router-link>
                       <span v-else>{{ eth.networkname }}</span>
                     </span>
                   </div>
-                  <a-alert v-if="vmNetworkAccessFailed" class="vm-network-access-error" type="warning" show-icon :message="$t('message.vm.network.lookup.failed')" role="status">
+                  <a-alert v-if="vmNetworkSummaryStatus === 'error'" class="vm-network-access-error" type="warning" show-icon :message="$t('message.vm.network.lookup.failed')" role="status">
                     <template #description><a-button size="small" @click="fetchVmNetworkAccess()">{{ $t('label.retry') }}</a-button></template>
                   </a-alert>
                 </div>
@@ -1233,7 +1241,7 @@ import { kmsRelations, kmsRelatedFilter } from '@/utils/kmsRelated'
 import { kmsDetailRoute } from '@/utils/kmsNavigation'
 import { isStorageServiceTemplate, canReadTemplateRuntimeCatalog } from '@/utils/templateDetails'
 import { networkTypeLabel } from '@/utils/networkLifecycle'
-import { vmNetworkAccessMixin } from '@/utils/vmNetworkAccess'
+import { vmNetworkAccessMixin, vmNetworkRouteFamily } from '@/utils/vmNetworkAccess'
 import { offeringNetworkQuery } from '@/utils/guestNetworkSearch'
 import SharedFSCapacitySummary from '@/views/storage/SharedFSCapacitySummary.vue'
 import SharedFSBootRecoverySummary from '@/views/storage/SharedFSBootRecoverySummary.vue'
@@ -1409,6 +1417,8 @@ export default {
   },
   beforeUnmount () { this.iconActive = false },
   computed: {
+    vmNetworkSummaryStatus () { return vmNetworkRouteFamily(this.$route) === 'vm' ? this.vmNetworkAccessState?.status : this.vmNetworkAccessStatus },
+    vmNetworkSummaryLinks () { return this.vmNetworkSummaryStatus === 'ready' ? this.vmNetworkAccessState.networks : {} },
     templateRuntimeToolVisible () { return canReadTemplateRuntimeCatalog(this.$store.getters) && !isStorageServiceTemplate(this.resource) },
     executionOsName () { return creationVmOsName(this.resource, this.$t) },
     kubernetesNodeTemplates () {
@@ -1530,6 +1540,7 @@ export default {
       return image || this.resource?.icon?.base64image || this.resource?.resourceIcon?.base64image || null
     },
     networkTypeLabel,
+    canOpenVmNetwork (id) { return !this.vmNetworkAccessManaged || !!this.vmNetworks[id] },
     policyVolumePath,
     volumeVmPath,
     sshKeyPairNameLink,
@@ -1791,6 +1802,9 @@ export default {
 .template-info-card .resource-details__name > div:last-child { min-width: 0; }
 .template-info-card .resource-detail-item__details { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
 .template-info-card .resource-detail-item__details a { white-space: normal; overflow-wrap: anywhere; }
+.vm-network-summary-link[aria-disabled="true"] {
+  color: var(--ui-link);
+}
 .vm-network-access-error {
   margin-top: 8px;
   overflow-wrap: anywhere;
