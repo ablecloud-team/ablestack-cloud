@@ -85,7 +85,7 @@
       <span v-if="isVmMainList && column.key === 'displayname'" class="vm-list-name">
         <span class="vm-list-name-icon">
           <resource-icon v-if="record.icon && record.icon.base64image" :image="record.icon.base64image" size="2x" />
-          <os-logo v-else :osId="record.ostypeid" :osName="record.ostypename || record.osdisplayname" size="xl" />
+          <os-logo v-else :osId="record.ostypeid" :osName="record.ostypename || record.osdisplayname" :use-cache="viewportScroll" size="xl" />
         </span>
         <a-tooltip :title="vmDisplayName(record)" :trigger="['hover', 'focus']">
           <router-link class="vm-display-name" :to="{ path: '/vm/' + record.id }">{{ vmDisplayName(record) }}</router-link>

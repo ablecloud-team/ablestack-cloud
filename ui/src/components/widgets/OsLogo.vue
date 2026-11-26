@@ -32,7 +32,16 @@
 import { getAPI } from '@/api'
 
 const CACHE_TTL_MS = 30_000
-const osTypeCache = new Map() // osId -> { ts, value?, promise? }
+const osTypeCaches = new WeakMap()
+
+function osTypeCacheFor (store) {
+  const generation = store.state?.user?.discoveryGeneration
+  const cached = osTypeCaches.get(store)
+  if (cached && cached.generation === generation) return cached.types
+  const types = new Map()
+  osTypeCaches.set(store, { generation, types })
+  return types
+}
 
 export default {
   name: 'OsLogo',
@@ -65,35 +74,36 @@ export default {
   },
   methods: {
     async fetchOsTypeName (osId, useCache = this.useCache) {
-      const now = Date.now()
-      if (useCache) {
-        const cached = osTypeCache.get(osId)
-        if (cached?.value && (now - cached.ts) < CACHE_TTL_MS) return cached.value
-        if (cached?.promise) return cached.promise
-        const promise = getAPI('listOsTypes', { id: osId })
-          .then(json => {
-            const t = json?.listostypesresponse?.ostype
-            const name = t?.length
-              ? (t[0].description || t[0].osdisplayname || 'Linux')
-              : 'Linux'
-            osTypeCache.set(osId, { ts: Date.now(), value: name })
-            return name
-          })
-          .catch(e => { osTypeCache.delete(osId); throw e })
-        osTypeCache.set(osId, { ts: now, promise })
-        return promise
-      }
-      const json = await getAPI('listOsTypes', { id: osId })
-      const t = json?.listostypesresponse?.ostype
-      return t?.length ? (t[0].description || t[0].osdisplayname || 'Linux') : 'Linux'
+      const readName = () => getAPI('listOsTypes', { id: osId }).then(json => {
+        const type = json?.listostypesresponse?.ostype?.[0]
+        return type?.description || type?.osdisplayname || 'Linux'
+      })
+      if (!useCache) return readName()
+
+      const cache = osTypeCacheFor(this.$store)
+      const cached = cache.get(osId)
+      if (cached?.value && (Date.now() - cached.ts) < CACHE_TTL_MS) return cached.value
+      if (cached?.promise) return cached.promise
+      const promise = readName().then(name => {
+        cache.set(osId, { ts: Date.now(), value: name })
+        return name
+      }).catch(error => {
+        cache.delete(osId)
+        throw error
+      })
+      cache.set(osId, { promise })
+      return promise
     },
     fetchData () {
       if (this.osName) {
         this.discoverOsLogo(this.osName)
       } else if (this.osId && ('listOsTypes' in this.$store.getters.apis)) {
-        this.fetchOsTypeName(this.osId)
-          .then(this.discoverOsLogo)
-          .catch(() => this.discoverOsLogo('Linux'))
+        const id = this.osId
+        const generation = this.$store.state?.user?.discoveryGeneration
+        const showName = name => {
+          if (id === this.osId && !this.osName && generation === this.$store.state?.user?.discoveryGeneration) this.discoverOsLogo(name)
+        }
+        this.fetchOsTypeName(id).then(showName).catch(() => showName('Linux'))
       }
     },
     discoverOsLogo (name) {
