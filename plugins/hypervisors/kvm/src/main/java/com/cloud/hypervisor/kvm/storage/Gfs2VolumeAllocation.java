@@ -141,12 +141,22 @@ public class Gfs2VolumeAllocation {
                 volume.getUuid() == null || !volume.getUuid().matches("[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}")) {
             throw new CloudRuntimeException("GFS2_ALLOCATION_REQUEST_UNSUPPORTED: unencrypted qualified format/policy creation or template copy only");
         }
-        try { return execute(volume, pool, source, intent, root(pool), new Context(timeout)); }
+        try { return execute(volume, pool, source, intent, root(pool), new Context(timeout), true); }
         catch (IOException e) { throw new CloudRuntimeException("GFS2_ALLOCATION_IO_FAILED: " + e.getMessage(), e); }
     }
 
+    public VolumeObjectTO verifyCopy(VolumeObjectTO volume, KVMStoragePool pool, KVMPhysicalDisk source, long timeout) {
+        Map<String, String> intent = VolumeAllocationPolicy.requireCreationIntent(volume.getAllocation());
+        if (source == null || intent.isEmpty() || volume.getSize() == null || volume.getSize() <= 0 ||
+                volume.getUuid() == null || !volume.getUuid().matches("[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}")) {
+            throw new CloudRuntimeException("GFS2_ALLOCATION_VERIFICATION_FAILED: owned copy request required");
+        }
+        try { return execute(volume, pool, source, intent, root(pool), new Context(timeout), false); }
+        catch (IOException failure) { throw new CloudRuntimeException("GFS2_ALLOCATION_IO_FAILED", failure); }
+    }
+
     private VolumeObjectTO execute(VolumeObjectTO volume, KVMStoragePool pool, KVMPhysicalDisk source,
-            Map<String, String> intent, Path directory, Context context) throws IOException {
+            Map<String, String> intent, Path directory, Context context, boolean allowCreate) throws IOException {
         String format = intent.get(VolumeAllocationPolicy.FORMAT), policy = intent.get(VolumeAllocationPolicy.POLICY);
         String operation = source == null ? "create" : "copy";
         Path original = null;
@@ -180,6 +190,7 @@ public class Gfs2VolumeAllocation {
             requireSourceUnchanged(original, sourceBefore);
             return result(volume, intent, operation, used);
         }
+        if (!allowCreate) throw new CloudRuntimeException("GFS2_ALLOCATION_TARGET_MISSING: verification cannot create or repair an image");
         JsonObject measured = json(context.run("qemu-img", "measure", "--output=json", "-O", format, "-o", "preallocation=" + policy,
                 "--size", volume.getSize().toString()));
         long needed = measured.get((source != null || List.of("falloc", "full").contains(policy)) ? "fully-allocated" : "required").getAsLong();

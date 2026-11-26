@@ -37,7 +37,7 @@ public final class VolumeAllocationPolicy {
     public static final String OBSERVED_AT = "allocation.observed.at";
     public static final String OBSERVED_SOURCE = "allocation.observed.source";
     public static final String AGENT_VERSION = "volume.allocation.capability.version";
-    public static final Set<String> OPERATIONS = Set.of("create", "copy", "resize", "restore", "migrate", "clone");
+    public static final Set<String> OPERATIONS = Set.of("create", "copy", "resize", "restore", "migrate", "clone", "import");
 
     public enum Policy { OFF, METADATA, FALLOC, FULL }
     public enum Format { QCOW2, RAW }
@@ -145,6 +145,9 @@ public final class VolumeAllocationPolicy {
         if (operation == null || !OPERATIONS.contains(operation)) {
             throw new InvalidParameterValueException("Invalid allocation operation: " + operation);
         }
+        if ("import".equals(operation) && !"GFS2".equals(backend)) {
+            throw new InvalidParameterValueException("ALLOCATION_IMPORT_UNSUPPORTED: qualified GFS2 import only");
+        }
         // These are allowed method identifiers, not a claim that any deployed Agent implements them.
         Map<String, String> allowed = new LinkedHashMap<>();
         if ("GFS2".equals(backend)) {
@@ -159,6 +162,9 @@ public final class VolumeAllocationPolicy {
             }
         } else {
             throw new InvalidParameterValueException("Unsupported allocation backend/format");
+        }
+        if ("GFS2".equals(backend) && "import".equals(operation)) {
+            allowed.clear(); allowed.putAll(VolumeAllocationImport.methods(format));
         }
         parse(Format.class, format, "allocationformat");
         if (methods == null || methods.isEmpty() || !methods.entrySet().stream().allMatch(e -> e.getValue() != null && e.getValue().equals(allowed.get(e.getKey())))) {
@@ -228,7 +234,7 @@ public final class VolumeAllocationPolicy {
                 result.put("appliedbackend", details.get(BACKEND));
                 result.put("appliedoperation", details.get(OPERATION));
                 result.put("evidence", "verified");
-                result.put("evidencescope", "creation-or-copy-time");
+                result.put("evidencescope", "import".equals(details.get(OPERATION)) ? "import-time" : "creation-or-copy-time");
                 if (bytes != null) {
                     result.put("observedallocatedbytes", bytes.toString());
                     result.put("observedat", at.toString());
@@ -238,6 +244,14 @@ public final class VolumeAllocationPolicy {
                 // Malformed historical observations must not masquerade as successful allocation.
                 result.put("evidence", "invalid");
             }
+        }
+        if (details != null && details.containsKey(VolumeAllocationImport.REQUEST_ID)) {
+            Map<String, String> names = Map.of(
+                "importrequestid", VolumeAllocationImport.REQUEST_ID, "importstrategy", VolumeAllocationImport.STRATEGY,
+                "importidentity", VolumeAllocationImport.IDENTITY, "importpool", VolumeAllocationImport.POOL,
+                "importpath", VolumeAllocationImport.FINAL_PATH, "importverifiedat", VolumeAllocationImport.VERIFIED_AT,
+                "importstartedat", VolumeAllocationImport.STARTED_AT);
+            names.forEach((name, key) -> { if (details.get(key) != null) result.put(name, details.get(key)); });
         }
         return result;
     }

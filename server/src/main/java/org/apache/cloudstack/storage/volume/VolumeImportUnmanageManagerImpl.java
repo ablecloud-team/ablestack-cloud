@@ -123,6 +123,9 @@ public class VolumeImportUnmanageManagerImpl implements VolumeImportUnmanageServ
     @Inject
     private SnapshotDataStoreDao snapshotDataStoreDao;
 
+    @Inject private org.apache.cloudstack.resourcedetail.dao.DiskOfferingDetailsDao diskOfferingDetailsDao;
+    @Inject private com.cloud.vm.dao.VMInstanceDao vmInstanceDao;
+
     static final String DEFAULT_DISK_OFFERING_NAME = "Default Custom Offering for Volume Import";
     static final String DEFAULT_DISK_OFFERING_UNIQUE_NAME = "Volume-Import";
     static final String DISK_OFFERING_NAME_SUFFIX_LOCAL = " - Local Storage";
@@ -139,6 +142,7 @@ public class VolumeImportUnmanageManagerImpl implements VolumeImportUnmanageServ
         cmdList.add(ListVolumesForImportCmd.class);
         cmdList.add(ImportVolumeCmd.class);
         cmdList.add(UnmanageVolumeCmd.class);
+        cmdList.add(org.apache.cloudstack.api.command.admin.volume.VerifyImportedVolumeAllocationCmd.class);
         return cmdList;
     }
 
@@ -183,6 +187,11 @@ public class VolumeImportUnmanageManagerImpl implements VolumeImportUnmanageServ
         // 2. check if pool exists and not in maintenance
         Long poolId = cmd.getStorageId();
         StoragePoolVO pool = checkIfPoolAvailable(poolId);
+
+        if (cmd.getAllocationPolicy() != null || cmd.getAllocationFormat() != null || cmd.getAllocationRequestId() != null ||
+                cmd.getAllocationContractVersion() != null || cmd.isAllocationAllowCopy()) {
+            return importAllocatedVolume(cmd, owner, pool);
+        }
 
         // 3. check if the volume already exists in cloudstack by path
         String volumePath = cmd.getPath();
@@ -266,6 +275,191 @@ public class VolumeImportUnmanageManagerImpl implements VolumeImportUnmanageServ
             logFailureAndThrowException("Volume cannot be imported due to " + answer.getDetails());
         }
         return  ((GetVolumesOnStorageAnswer) answer).getVolumes();
+    }
+
+
+    private VolumeResponse importAllocatedVolume(ImportVolumeCmd cmd, Account owner, StoragePoolVO pool) {
+        if (pool.getPoolType() != Storage.StoragePoolType.SharedMountPoint) {
+            throw new com.cloud.exception.InvalidParameterValueException("ALLOCATION_IMPORT_UNSUPPORTED: qualified GFS2 file storage required");
+        }
+        if (cmd.getDiskOfferingId() == null) throw new com.cloud.exception.InvalidParameterValueException("ALLOCATION_POLICY_MISMATCH: explicit allocation disk offering is required");
+        DiskOfferingVO offering = getOrCreateDiskOffering(owner, cmd.getDiskOfferingId(), pool.getDataCenterId(), pool.isLocal(), true);
+        Map<String, String> intent = com.cloud.storage.VolumeAllocationImport.expected(
+                diskOfferingDetailsDao.listDetailsKeyPairs(offering.getId()), cmd.getAllocationPolicy(), cmd.getAllocationFormat(),
+                cmd.getAllocationContractVersion(), cmd.getAllocationRequestId());
+        if (com.cloud.storage.VolumeAllocationImport.requiresCopy(intent.get(com.cloud.storage.VolumeAllocationPolicy.POLICY)) && !cmd.isAllocationAllowCopy()) {
+            throw new com.cloud.exception.InvalidParameterValueException("ALLOCATION_EVIDENCE_REQUIRED: explicitly allow allocation copy for metadata/full");
+        }
+        if (!volumeApiService.doesStoragePoolSupportDiskOffering(pool, offering)) {
+            throw new com.cloud.exception.InvalidParameterValueException("ALLOCATION_POLICY_MISMATCH: offering storage tags do not match pool");
+        }
+        String requestId = java.util.UUID.fromString(cmd.getAllocationRequestId()).toString();
+        com.cloud.utils.db.GlobalLock lock = com.cloud.utils.db.GlobalLock.getInternLock("volume-allocation-import-" + requestId);
+        boolean acquired = false;
+        try {
+            if (!(acquired = lock.lock(30))) throw new CloudRuntimeException("ALLOCATION_IMPORT_BUSY: retry the same request UUID");
+            VolumeVO existing = volumeDao.findByUuid(requestId);
+            if (existing != null) {
+                Map<String, String> saved = volumeDetailsDao.listDetailsKeyPairs(existing.getId());
+                if (existing.getRemoved() != null || existing.getState() != Volume.State.Ready || existing.getAccountId() != owner.getId() ||
+                        !java.util.Objects.equals(existing.getPoolId(), pool.getId()) || existing.getDiskOfferingId() != offering.getId() ||
+                        !cmd.getPath().equals(saved.get(com.cloud.storage.VolumeAllocationImport.REQUEST_PATH)) ||
+                        !intent.equals(com.cloud.storage.VolumeAllocationPolicy.validateStored(saved))) {
+                    throw new com.cloud.exception.InvalidParameterValueException("ALLOCATION_POLICY_MISMATCH: request UUID belongs to another import scope");
+                }
+                // A committed request is reconciled, never re-issued against its source image.
+                return responseGenerator.createVolumeResponse(ResponseObject.ResponseView.Full, existing);
+            }
+            VolumeOnStorageTO source = getVolumeOnStorageAndCheck(pool, cmd.getPath());
+            if (!intent.get(com.cloud.storage.VolumeAllocationPolicy.FORMAT).equalsIgnoreCase(source.getFormat())) {
+                throw new com.cloud.exception.InvalidParameterValueException("ALLOCATION_POLICY_MISMATCH: inspected source format differs from offering");
+            }
+            com.cloud.utils.db.GlobalLock sourceLock = com.cloud.utils.db.GlobalLock.getInternLock("allocation-source-" +
+                    java.util.UUID.nameUUIDFromBytes((pool.getUuid() + "/" + source.getPath()).getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+            boolean sourceAcquired = false;
+            try {
+            if (!(sourceAcquired = sourceLock.lock(30))) throw new CloudRuntimeException("ALLOCATION_IMPORT_BUSY: source is being imported");
+            if (checkIfVolumeManaged(pool, source.getPath()) || checkIfVolumeForTemplate(pool, source.getPath()) || checkIfVolumeForSnapshot(pool, source.getFullPath())) {
+                throw new com.cloud.exception.InvalidParameterValueException("ALLOCATION_IMPORT_SOURCE_MANAGED: source must be an independent unmanaged image");
+            }
+            if (offering.isCustomized()) volumeApiService.validateCustomDiskOfferingSizeRange(source.getVirtualSize() / ByteScaleUtils.GiB);
+            List<Reserver> reservations = new ArrayList<>();
+            try {
+                checkResourceLimitForImportVolume(owner, source, offering, reservations);
+                com.cloud.agent.api.ImportVolumeAllocationAnswer answer = executeAllocation(pool, "IMPORT", source.getPath(), null,
+                        requestId, owner.getId(), source.getVirtualSize(), cmd.isAllocationAllowCopy(), intent);
+                Map<String, String> evidence = new java.util.LinkedHashMap<>(answer.getAllocation());
+                evidence.put(com.cloud.storage.VolumeAllocationImport.REQUEST_PATH, cmd.getPath());
+                VolumeOnStorageTO adopted = answer.getVolume();
+                VolumeVO registered = com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<VolumeVO>) status -> {
+                    VolumeVO volume = new VolumeVO(Volume.Type.DATADISK, StringUtils.isNotBlank(cmd.getName()) ? cmd.getName().trim() : source.getName(),
+                            pool.getDataCenterId(), owner.getDomainId(), owner.getId(), offering.getId(), offering.getProvisioningType(),
+                            adopted.getVirtualSize(), offering.getMinIops(), offering.getMaxIops(), null);
+                    volume.setUuid(requestId); volume.setPoolId(pool.getId()); volume.setPoolType(pool.getPoolType());
+                    volume.setPath(adopted.getPath()); volume.setDeviceId(1L);
+                    volume.setFormat(Storage.ImageFormat.valueOf(adopted.getFormat().toUpperCase(java.util.Locale.ROOT)));
+                    volume.setState(Volume.State.Ready); volume = volumeDao.persist(volume);
+                    for (Map.Entry<String, String> entry : evidence.entrySet()) volumeDetailsDao.addDetail(volume.getId(), entry.getKey(), entry.getValue(), false);
+                    volumeDetailsDao.addDetail(volume.getId(), com.cloud.vm.VmCreationSourceService.PREFIX + "formatorigin", "driver-inspected", false);
+                    updateResourceLimitForVolumeImport(volume);
+                    return volume;
+                });
+                publicUsageEventForVolumeImportAndUnmanage(registered, true);
+                return responseGenerator.createVolumeResponse(ResponseObject.ResponseView.Full, registered);
+            } finally { ReservationHelper.closeAll(reservations); }
+            } finally { if (sourceAcquired) sourceLock.unlock(); sourceLock.releaseRef(); }
+        } finally { if (acquired) lock.unlock(); lock.releaseRef(); }
+    }
+
+    private com.cloud.agent.api.ImportVolumeAllocationAnswer executeAllocation(StoragePoolVO pool, String action, String sourcePath,
+            String finalPath, String requestId, long accountId, long size, boolean allowCopy, Map<String, String> intent) {
+        String format = intent.get(com.cloud.storage.VolumeAllocationPolicy.FORMAT);
+        HostVO selected = null;
+        for (StoragePoolHostVO link : storagePoolHostDao.listByPoolId(pool.getId())) {
+            HostVO host = hostDao.findById(link.getHostId());
+            if (host == null || host.getStatus() != com.cloud.host.Status.Up || host.getResourceState() != com.cloud.resource.ResourceState.Enabled || host.getHypervisorType() != Hypervisor.HypervisorType.KVM) continue;
+            com.cloud.agent.api.GetVolumeAllocationCapabilitiesCommand probe = new com.cloud.agent.api.GetVolumeAllocationCapabilitiesCommand(pool.getUuid(), format, "import");
+            Answer response = agentManager.easySend(host.getId(), probe);
+            if (!(response instanceof com.cloud.agent.api.GetVolumeAllocationCapabilitiesAnswer) || !response.getResult()) continue;
+            com.cloud.agent.api.GetVolumeAllocationCapabilitiesAnswer capability = (com.cloud.agent.api.GetVolumeAllocationCapabilitiesAnswer) response;
+            if (capability.getContractVersion() != 1 || !pool.getUuid().equals(capability.getPoolUuid()) || !format.equals(capability.getFormat()) ||
+                    !"import".equals(capability.getOperation()) || !"GFS2".equals(capability.getBackend())) continue;
+            com.cloud.storage.VolumeAllocationPolicy.validateCapability("GFS2", format, "import", capability.getMethods());
+            if (capability.getMethods().containsKey(intent.get(com.cloud.storage.VolumeAllocationPolicy.POLICY))) { selected = host; break; }
+        }
+        if (selected == null) throw new CloudRuntimeException("ALLOCATION_IMPORT_UNSUPPORTED: no live qualified storage worker");
+        com.cloud.agent.api.ImportVolumeAllocationCommand command = new com.cloud.agent.api.ImportVolumeAllocationCommand(action, new StorageFilerTO(pool),
+                sourcePath, finalPath, requestId, accountId, size, allowCopy, intent);
+        Answer raw = agentManager.easySend(selected.getId(), command);
+        if (!(raw instanceof com.cloud.agent.api.ImportVolumeAllocationAnswer) || !raw.getResult()) {
+            throw new CloudRuntimeException("ALLOCATION_IMPORT_UNCONFIRMED: " + (raw == null ? "no Agent answer; reconcile the same request UUID" : raw.getDetails()));
+        }
+        com.cloud.agent.api.ImportVolumeAllocationAnswer answer = (com.cloud.agent.api.ImportVolumeAllocationAnswer) raw;
+        VolumeOnStorageTO volume = answer.getVolume();
+        if (answer.getContractVersion() != 1 || !requestId.equals(answer.getRequestId()) || !pool.getUuid().equals(answer.getPoolUuid()) ||
+                volume == null || volume.getHypervisorType() != Hypervisor.HypervisorType.KVM || volume.getVirtualSize() != size || !format.equalsIgnoreCase(volume.getFormat()) ||
+                (finalPath != null && !finalPath.equals(volume.getPath()))) throw new CloudRuntimeException("ALLOCATION_EVIDENCE_REQUIRED: mismatched Agent answer");
+        com.cloud.storage.VolumeAllocationImport.validateEvidence(com.cloud.storage.VolumeAllocationPolicy.validateStored(intent), answer.getAllocation(),
+                requestId, pool.getUuid(), volume.getPath(), format, allowCopy);
+        return answer;
+    }
+
+    @Override
+    public VolumeResponse verifyImportedAllocation(org.apache.cloudstack.api.command.admin.volume.VerifyImportedVolumeAllocationCmd cmd) {
+        if (CallContext.current().getCallingAccount().getType() != Account.Type.ADMIN) throw new PermissionDeniedException("Root admin required");
+        VolumeVO volume = volumeDao.findById(cmd.getId());
+        if (volume == null) throw new com.cloud.exception.InvalidParameterValueException("Imported volume not found");
+        Map<String, String> details = volumeDetailsDao.listDetailsKeyPairs(volume.getId());
+        com.cloud.storage.VolumeAllocationImport.expected(details, cmd.getAllocationPolicy(), cmd.getAllocationFormat(), 1, cmd.getAllocationRequestId());
+        if (!cmd.getAllocationRequestId().equals(details.get(com.cloud.storage.VolumeAllocationImport.REQUEST_ID))) {
+            throw new CloudRuntimeException("ALLOCATION_POLICY_MISMATCH: request UUID differs");
+        }
+        if (volume.getInstanceId() != null && vmInstanceDao.findById(volume.getInstanceId()) != null &&
+                vmInstanceDao.findById(volume.getInstanceId()).getState() == com.cloud.vm.VirtualMachine.State.Running) {
+            if (!details.containsKey(com.cloud.storage.VolumeAllocationImport.VERIFIED_AT)) throw new CloudRuntimeException("ALLOCATION_EVIDENCE_REQUIRED");
+            recordAllocationStarted(volume.getInstanceId());
+            return responseGenerator.createVolumeResponse(ResponseObject.ResponseView.Full, volume);
+        }
+        if (details.containsKey(com.cloud.storage.VolumeAllocationImport.STARTED_AT)) throw new CloudRuntimeException("ALLOCATION_VERIFY_SCOPE_CLOSED: first-start contract is historical after guest use");
+        verifyAllocatedVolume(volume, details);
+        return responseGenerator.createVolumeResponse(ResponseObject.ResponseView.Full, volume);
+    }
+
+    private void verifyAllocatedVolume(VolumeVO volume, Map<String, String> details) {
+        if (volume.getState() != Volume.State.Ready || volume.getPoolId() == null ||
+                (volume.getInstanceId() != null && (vmInstanceDao.findById(volume.getInstanceId()) == null ||
+                    vmInstanceDao.findById(volume.getInstanceId()).getState() != com.cloud.vm.VirtualMachine.State.Stopped))) {
+            throw new CloudRuntimeException("ALLOCATION_IMAGE_ACTIVE_OR_UNAVAILABLE: final image must be stopped");
+        }
+        StoragePoolVO pool = checkIfPoolAvailable(volume.getPoolId());
+        com.cloud.agent.api.ImportVolumeAllocationAnswer verified = executeAllocation(pool, "VERIFY",
+                details.get(com.cloud.storage.VolumeAllocationImport.SOURCE_PATH), volume.getPath(),
+                details.get(com.cloud.storage.VolumeAllocationImport.REQUEST_ID), volume.getAccountId(), volume.getSize(),
+                "copy".equals(details.get(com.cloud.storage.VolumeAllocationImport.STRATEGY)), details);
+        if (!java.util.Objects.equals(details.get(com.cloud.storage.VolumeAllocationImport.IDENTITY),
+                verified.getAllocation().get(com.cloud.storage.VolumeAllocationImport.IDENTITY))) throw new CloudRuntimeException("ALLOCATION_POLICY_MISMATCH: final identity changed");
+        com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Void>) status -> {
+            for (Map.Entry<String, String> entry : verified.getAllocation().entrySet()) volumeDetailsDao.addDetail(volume.getId(), entry.getKey(), entry.getValue(), false);
+            return null;
+        });
+    }
+
+    @Override public void verifyAllocationForAssembly(long volumeId) {
+        VolumeVO volume = volumeDao.findById(volumeId);
+        if (volume == null || volume.getInstanceId() != null) throw new CloudRuntimeException("ALLOCATION_VOLUME_ALREADY_ATTACHED");
+        Map<String, String> details = volumeDetailsDao.listDetailsKeyPairs(volumeId);
+        if (details == null || !details.containsKey(com.cloud.storage.VolumeAllocationImport.REQUEST_ID)) throw new CloudRuntimeException("ALLOCATION_EVIDENCE_REQUIRED");
+        verifyAllocatedVolume(volume, details);
+    }
+
+    @Override public void verifyAllocationBeforeStart(long vmId) {
+        List<VolumeVO> volumes = volumeDao.findByInstance(vmId);
+        if (volumes == null) return;
+        for (VolumeVO volume : volumes) {
+            Map<String, String> details = volumeDetailsDao.listDetailsKeyPairs(volume.getId());
+            if (details == null || !details.containsKey(com.cloud.storage.VolumeAllocationImport.REQUEST_ID) ||
+                    details.containsKey(com.cloud.storage.VolumeAllocationImport.STARTED_AT)) continue;
+            com.cloud.vm.VMInstanceVO vm = vmInstanceDao.findById(vmId);
+            if (vm != null && vm.getState() == com.cloud.vm.VirtualMachine.State.Running &&
+                    details.containsKey(com.cloud.storage.VolumeAllocationImport.VERIFIED_AT)) {
+                recordAllocationStarted(vmId); continue; // Lost response after a verified first start; no offline image access.
+            }
+            verifyAllocatedVolume(volume, details);
+        }
+    }
+
+    @Override public void recordAllocationStarted(long vmId) {
+        com.cloud.vm.VMInstanceVO vm = vmInstanceDao.findById(vmId);
+        if (vm == null || vm.getState() != com.cloud.vm.VirtualMachine.State.Running) return;
+        List<VolumeVO> volumes = volumeDao.findByInstance(vmId);
+        if (volumes == null) return;
+        for (VolumeVO volume : volumes) {
+            Map<String, String> details = volumeDetailsDao.listDetailsKeyPairs(volume.getId());
+            if (details == null || !details.containsKey(com.cloud.storage.VolumeAllocationImport.REQUEST_ID) ||
+                    details.containsKey(com.cloud.storage.VolumeAllocationImport.STARTED_AT)) continue;
+            if (!details.containsKey(com.cloud.storage.VolumeAllocationImport.VERIFIED_AT)) throw new CloudRuntimeException("ALLOCATION_EVIDENCE_REQUIRED: first start was not verified");
+            volumeDetailsDao.addDetail(volume.getId(), com.cloud.storage.VolumeAllocationImport.STARTED_AT, java.time.Instant.now().toString(), false);
+        }
     }
 
     @Override
@@ -412,6 +606,10 @@ public class VolumeImportUnmanageManagerImpl implements VolumeImportUnmanageServ
     }
 
     protected DiskOfferingVO getOrCreateDiskOffering(Account owner, Long diskOfferingId, Long zoneId, boolean isLocal) {
+        return getOrCreateDiskOffering(owner, diskOfferingId, zoneId, isLocal, false);
+    }
+
+    private DiskOfferingVO getOrCreateDiskOffering(Account owner, Long diskOfferingId, Long zoneId, boolean isLocal, boolean allocationImport) {
         if (diskOfferingId != null) {
             // check if disk offering exists and active
             DiskOfferingVO diskOfferingVO = diskOfferingDao.findById(diskOfferingId);
@@ -429,7 +627,8 @@ public class VolumeImportUnmanageManagerImpl implements VolumeImportUnmanageServ
             }
             // check if disk offering is accessible by the account/owner
             try {
-                configMgr.checkDiskOfferingAccess(owner, diskOfferingVO, dcDao.findById(zoneId));
+                if (allocationImport) configMgr.checkDiskOfferingAccessForImport(owner, diskOfferingVO, dcDao.findById(zoneId));
+                else configMgr.checkDiskOfferingAccess(owner, diskOfferingVO, dcDao.findById(zoneId));
                 return diskOfferingVO;
             } catch (PermissionDeniedException ex) {
                 logFailureAndThrowException(String.format("Disk offering %s is not accessible by owner %s", diskOfferingVO, owner));

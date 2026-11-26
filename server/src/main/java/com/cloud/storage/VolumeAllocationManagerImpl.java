@@ -52,6 +52,19 @@ public class VolumeAllocationManagerImpl extends ManagerBase implements VolumeAl
             throw new InvalidParameterValueException("Invalid allocationformat or operation");
         }
         StoragePoolVO pool = poolDao.findById(cmd.getStorageId());
+        if (pool == null) throw new InvalidParameterValueException("Storage pool does not exist");
+        if (cmd.getHostId() == null) {
+            VolumeAllocationCapabilityResponse unavailable = new VolumeAllocationCapabilityResponse();
+            unavailable.setScope(pool.getUuid(), null, format, operation); unavailable.setReason("NO_QUALIFIED_STORAGE_WORKER");
+            for (StoragePoolHostVO link : poolHostDao.listByPoolId(pool.getId())) {
+                HostVO candidate = hostDao.findById(link.getHostId());
+                if (candidate != null) {
+                    VolumeAllocationCapabilityResponse response = capabilities(pool, candidate, format, operation, cmd.getAllocationPolicy());
+                    if (response.isSupported()) return response;
+                }
+            }
+            return unavailable;
+        }
         HostVO host = hostDao.findById(cmd.getHostId());
         if (pool == null || host == null || poolHostDao.findByPoolHost(pool.getId(), host.getId()) == null) {
             throw new InvalidParameterValueException("Host must be connected to the specified primary storage pool");
@@ -78,10 +91,13 @@ public class VolumeAllocationManagerImpl extends ManagerBase implements VolumeAl
             response.setReason("HOST_NOT_AVAILABLE");
             return response;
         }
-        if (!List.of("create", "copy", "clone").contains(operation) ||
+        if (!List.of("create", "copy", "clone", "import").contains(operation) ||
                 (pool.getPoolType() == Storage.StoragePoolType.RBD && !"raw".equals(format))) {
             response.setReason("ALLOCATION_OPERATION_UNSUPPORTED");
             return response;
+        }
+        if ("import".equals(operation) && pool.getPoolType() != Storage.StoragePoolType.SharedMountPoint) {
+            response.setReason("ALLOCATION_IMPORT_UNSUPPORTED"); return response;
         }
         try {
             hostDao.loadDetails(host);
@@ -89,7 +105,7 @@ public class VolumeAllocationManagerImpl extends ManagerBase implements VolumeAl
             response.setReason("CAPABILITY_QUERY_FAILED");
             return response;
         }
-        if (!"1".equals(host.getDetail(VolumeAllocationPolicy.AGENT_VERSION))) {
+        if (!"import".equals(operation) && !"1".equals(host.getDetail(VolumeAllocationPolicy.AGENT_VERSION))) {
             response.setReason("AGENT_CAPABILITY_NOT_ADVERTISED");
             return response;
         }
@@ -112,7 +128,7 @@ public class VolumeAllocationManagerImpl extends ManagerBase implements VolumeAl
             response.setAgentPolicies(capability.getBackend(), capability.getMethods());
             boolean implemented = ("GFS2".equals(capability.getBackend()) ||
                     ("RBD".equals(capability.getBackend()) && "raw".equals(format))) &&
-                    List.of("create", "copy", "clone").contains(operation) &&
+                    List.of("create", "copy", "clone", "import").contains(operation) &&
                     (requestedPolicy == null || capability.getMethods().containsKey(requestedPolicy.toLowerCase(Locale.ROOT)));
             response.setSupported(implemented);
             response.setReason(implemented ? null : "ALLOCATION_EXECUTION_NOT_IMPLEMENTED");

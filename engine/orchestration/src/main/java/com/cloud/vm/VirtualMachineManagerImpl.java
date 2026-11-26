@@ -599,6 +599,14 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
                 allocateRootVolume(persistedVm, template, rootDiskOfferingInfo, owner, rootDiskSizeFinal, volume, snapshot);
             } else if (!MapUtils.isEmpty(customParameters) && customParameters.containsKey("volumeId")) {
                 VolumeVO volVO =_volsDao.findById(Long.parseLong(customParameters.get("volumeId")));
+                Map<String, String> allocationImport = _volsDetailsDao.listDetailsKeyPairs(volVO.getId());
+                if (allocationImport != null && allocationImport.containsKey(com.cloud.storage.VolumeAllocationImport.REQUEST_ID)) {
+                    com.cloud.storage.VolumeAllocationImport.validateRootAssembly(volVO, persistedVm, allocationImport);
+                    // This is role assignment in the VM allocation transaction, not a manual image mutation.
+                    // Preserve the imported offering, inspected format, path and allocation evidence.
+                    volVO.setVolumeType(Volume.Type.ROOT);
+                    volVO.setDeviceId(0L);
+                }
                 volVO.setInstanceId(vm.getId());
                 _volsDao.update(volVO.getId(), volVO);
             } else if (isBlankInstance(template)) {

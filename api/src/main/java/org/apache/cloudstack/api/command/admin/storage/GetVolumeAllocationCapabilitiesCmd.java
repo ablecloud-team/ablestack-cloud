@@ -34,11 +34,11 @@ public class GetVolumeAllocationCapabilitiesCmd extends BaseCmd implements Admin
     @Inject private VolumeAllocationService allocationService;
     @Parameter(name = "storageid", type = CommandType.UUID, entityType = StoragePoolResponse.class, required = true)
     private Long storageId;
-    @Parameter(name = "hostid", type = CommandType.UUID, entityType = HostResponse.class, required = true)
+    @Parameter(name = "hostid", type = CommandType.UUID, entityType = HostResponse.class, required = false)
     private Long hostId;
     @Parameter(name = "allocationformat", type = CommandType.STRING, required = true, description = "qcow2 or raw")
     private String allocationFormat;
-    @Parameter(name = "operation", type = CommandType.STRING, required = true, description = "create, copy, resize, restore, migrate or clone")
+    @Parameter(name = "operation", type = CommandType.STRING, required = true, description = "create, copy, resize, restore, migrate, clone or import")
     private String operation;
     @Parameter(name = "allocationpolicy", type = CommandType.STRING, description = "Optional requested policy to validate against the pool/format/operation")
     private String allocationPolicy;
