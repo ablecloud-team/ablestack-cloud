@@ -93,7 +93,7 @@
   margin: 0;
 }
 
-.vm-workspace-list .vm-list-table .ant-spin-spinning + .ant-spin-container .ant-table-placeholder .ant-empty {
+.vm-workspace-list .vm-list-table .ant-spin-blur .ant-table-placeholder .ant-empty {
   visibility: hidden;
 }
 

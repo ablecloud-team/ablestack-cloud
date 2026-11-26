@@ -916,10 +916,10 @@
         <p v-if="isVmList && listRefreshError && items.length" role="status">{{ $t('message.list.refresh.stale') }}</p>
         <list-view
           v-if="(!(isVpnUser || isLdapUi || isOauthUi) || !listRefreshError) && (!(isPrimaryStorageList || isSecondaryStorageList) || !listRefreshError || items.length)"
-          :loading="sharedFSContentLoading || isVpnUser && vpnUserProjectSwitching || (isLdapUi || isOauthUi) && listRequestPending"
+          :loading="sharedFSContentLoading || isVmList && !vmListScopeReady && !listRefreshError || isVpnUser && vpnUserProjectSwitching || (isLdapUi || isOauthUi) && listRequestPending"
           :columns="presentedColumns"
           :kms-table="kmsListRoute($route)"
-          :items="items"
+          :items="isVmList && !vmListScopeReady ? [] : items"
           :viewport-scroll="isVmList"
           :empty-text="isLdapUi ? $t('message.ldap.list.empty') : isOauthUi ? $t('message.oauth.list.empty') : isVmList && listRefreshError ? $t('message.list.refresh.stale') : undefined"
           :actions="(asnSearchAuth && asnSearchFailure) || isSnapshotCopyList || snapshotSearchFailure || policySearchFailure || ((isSnapshotList || isPolicyList || isObjectStorageUi || $route.meta?.name === 'vnfapp') && !storageActionReady) || ($route.meta?.name === 'vmgroup' && !vmGroupQueryReady) ? [] : actions"
@@ -1709,6 +1709,7 @@ export default {
     isVmUi () { return this.$route.meta?.name === 'vm' },
     isRuntimeCatalog () { return this.$route.meta?.name === 'runtimebundle' },
     isVmList () { return !this.dataView && this.isVmUi },
+    vmListScopeReady () { return this.isVmList && this.listLoadedScope === this.listScope() },
     projectStateOptions () {
       return [{ value: '', label: this.$t('label.all') },
         ...projectStates.map(value => ({ value, label: this.$t('state.' + value.toLowerCase()) }))]
