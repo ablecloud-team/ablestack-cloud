@@ -17,8 +17,8 @@
 
 <template>
   <a-spin :wrapper-class-name="viewportScroll ? 'workspace-fill' : undefined" :spinning="loading">
-    <br />
     <a-tabs
+      class="resource-detail-tabset"
       :class="{ 'workspace-tabset': viewportScroll }"
       v-scroll-activity="viewportScroll && { selector: tabScrollSelector, label: $t('label.details'), scope: currentTab }"
       :tabPosition="resourceTabPosition"

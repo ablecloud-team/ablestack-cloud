@@ -23,120 +23,120 @@
       :title="title"
       @contextmenu="handleContextMenu">
       <div class="card-body">
-        <div v-scroll-activity="viewportScroll && { label: $t('label.summary') }" class="card-content" :tabindex="scrollable ? 0 : undefined" :role="scrollable ? 'region' : undefined" :aria-label="scrollable ? title : undefined">
-          <div>
-            <div class="resource-details">
-              <div class="resource-details__name">
-                <div
-                  class="avatar"
-                  @click="showUploadModal(true)"
-                  v-clipboard:copy="name" >
-                  <upload-resource-icon v-if="'uploadResourceIcon' in $store.getters.apis" :visible="showUpload" :resource="resource" @handle-close="showUpload(false)"/>
-                  <div class="ant-upload-preview" v-if="$showIcon() && !$route.path.includes('zones')">
-                    <edit-outlined class="upload-icon"/>
-                  </div>
-                  <slot name="avatar">
-                    <span v-if="resourceIcon && !['router', 'systemvm', 'volume'].includes($route.path.split('/')[1])">
-                      <resource-icon :image="resourceIcon" size="4x" style="margin-right: 5px"/>
-                    </span>
-                    <span v-else-if="resource.vmtype === 'sharedfsvm'">
-                      <file-text-outlined style="font-size: 36px;" />
-                    </span>
-                    <span v-else>
-                      <os-logo v-if="resource.ostypeid || resource.ostypename || resource.osdisplayname || ['guestoscategory'].includes($route.path.split('/')[1])" :osId="resource.ostypeid" :osName="executionOsName || resource.name" size="3x" />
-                      <render-icon v-else-if="typeof $route.meta.icon ==='string'" style="font-size: 36px" :icon="$route.meta.icon" />
-                      <font-awesome-icon
-                        v-else-if="$route.meta.icon && Array.isArray($route.meta.icon)"
-                        :icon="$route.meta.icon"
-                        size="3x"
-                        class="anticon"
-                        :style="[$store.getters.darkMode ? { color: 'rgba(255, 255, 255, 0.65)' } : { color: '#888' }]" />
-                      <render-icon v-else style="font-size: 36px" :svgIcon="$route.meta.icon" />
-                    </span>
-                  </slot>
+        <div class="resource-summary-header">
+          <div class="resource-details">
+            <div class="resource-details__name">
+              <div
+                class="avatar"
+                @click="showUploadModal(true)"
+                v-clipboard:copy="name" >
+                <upload-resource-icon v-if="'uploadResourceIcon' in $store.getters.apis" :visible="showUpload" :resource="resource" @handle-close="showUpload(false)"/>
+                <div class="ant-upload-preview" v-if="$showIcon() && !$route.path.includes('zones')">
+                  <edit-outlined class="upload-icon"/>
                 </div>
-                <slot name="name">
-                  <div v-if="$route.meta.name !== 'ssh' && ['USER.LOGIN', 'USER.LOGOUT', 'ROUTER.HEALTH.CHECKS', 'FIREWALL.CLOSE', 'ALERT.SERVICE.DOMAINROUTER'].includes(resource.name)">{{ $t(resource.name.toLowerCase()) }}</div>
-                  <div v-else>
-                    <h4 class="name">
-                      {{ name }}
-                    </h4>
-                  </div>
+                <slot name="avatar">
+                  <span v-if="resourceIcon && !['router', 'systemvm', 'volume'].includes($route.path.split('/')[1])">
+                    <resource-icon :image="resourceIcon" size="4x" style="margin-right: 5px"/>
+                  </span>
+                  <span v-else-if="resource.vmtype === 'sharedfsvm'">
+                    <file-text-outlined style="font-size: 36px;" />
+                  </span>
+                  <span v-else>
+                    <os-logo v-if="resource.ostypeid || resource.ostypename || resource.osdisplayname || ['guestoscategory'].includes($route.path.split('/')[1])" :osId="resource.ostypeid" :osName="executionOsName || resource.name" size="3x" />
+                    <render-icon v-else-if="typeof $route.meta.icon ==='string'" style="font-size: 36px" :icon="$route.meta.icon" />
+                    <font-awesome-icon
+                      v-else-if="$route.meta.icon && Array.isArray($route.meta.icon)"
+                      :icon="$route.meta.icon"
+                      size="3x"
+                      class="anticon"
+                      :style="[$store.getters.darkMode ? { color: 'rgba(255, 255, 255, 0.65)' } : { color: '#888' }]" />
+                    <render-icon v-else style="font-size: 36px" :svgIcon="$route.meta.icon" />
+                  </span>
                 </slot>
               </div>
-              <slot name="actions">
-                <div class="tags">
-                  <template v-if="$route.meta.name === 'acllist' && resource.id">
-                    <AclScopeValue :resource="resource" />
-                    <a-tag v-if="aclDisplaySupported($store.getters) && typeof resource.fordisplay === 'boolean'">
-                      {{ $t(aclDisplayLabel(resource.fordisplay)) }}
-                    </a-tag>
-                  </template>
-                  <a-tag v-if="resource.instancename">
-                    {{ resource.instancename }}
-                  </a-tag>
-                  <a-tag :color="$config.theme['@link-color']" v-if="$route.path.startsWith('/extension') && !resource.isuserdefined">
-                    {{ $t('label.inbuilt') }}
-                  </a-tag>
-                  <AffinityGroupPolicy v-if="resource.type && $route.meta.name === 'affinitygroup'" :type="resource.type" compact />
-                  <a-tag v-else-if="resource.type">
-                    <span v-if="['USER.LOGIN', 'USER.LOGOUT', 'ROUTER.HEALTH.CHECKS', 'FIREWALL.CLOSE', 'ALERT.SERVICE.DOMAINROUTER'].includes(resource.type)">{{ $t(resource.type.toLowerCase()) }}</span>
-                    <span v-else-if="$route.meta.name === 'guestnetwork'">{{ $t(networkTypeLabel(resource.type)) }}</span>
-                    <span v-else>
-                      {{ resource.type }}
-                    </span>
-                  </a-tag>
-                  <template v-if="$route.meta.name === 'role' && resource.id">
-                    <a-tag>{{ $t(resource.isdefault ? 'label.default' : 'label.role.kind.custom') }}</a-tag>
-                    <a-tag>{{ $t(resource.ispublic ? 'label.public' : 'label.role.visibility.private') }}</a-tag>
-                  </template>
-                  <a-tag v-if="resource.issourcenat">
-                    {{ $t('label.issourcenat') }}
-                  </a-tag>
-                  <a-tag v-if="resource.broadcasturi">
-                    {{ resource.broadcasturi }}
-                  </a-tag>
-                  <a-tag v-if="resource.arch">
-                    {{ resource.arch }}
-                  </a-tag>
-                  <a-tag v-if="resource.hypervisor">
-                    {{ resource.hypervisor }}
-                  </a-tag>
-                  <a-tag v-if="resource.haenable">
-                    {{ $t('label.haenable') }}
-                  </a-tag>
-                  <a-tag v-if="resource.isdynamicallyscalable">
-                    {{ $t('label.isdynamicallyscalable') }}
-                  </a-tag>
-                  <a-tag v-if="resource.scope">
-                    {{ resource.scope }}
-                  </a-tag>
-                  <a-tag v-if="resource.version">
-                    {{ $route.meta.name === 'kmskey' ? $t('label.kms.current.version', { version: resource.version }) : resource.version }}
-                  </a-tag>
-                  <a-tag v-if="resource.internetprotocol && ['IPv6', 'DualStack'].includes(resource.internetprotocol)">
-                    {{ resource.internetprotocol ? $t('label.ip.v4.v6') : resource.internetprotocol }}
-                  </a-tag>
-                  <a-tag v-if="resource.archived" :color="this.$config.theme['@warning-color']">
-                    {{ $t('label.archived') }}
-                  </a-tag>
-                  <a-tooltip placement="right" >
-                    <template #title>
-                      <span>{{ $t('label.view.console') }}</span>
-                    </template>
-                    <console
-                      style="margin-top: -5px;"
-                      :resource="resource"
-                      size="default"
-                      v-if="resource.id"
-                    />
-                  </a-tooltip>
+              <slot name="name">
+                <div v-if="$route.meta.name !== 'ssh' && ['USER.LOGIN', 'USER.LOGOUT', 'ROUTER.HEALTH.CHECKS', 'FIREWALL.CLOSE', 'ALERT.SERVICE.DOMAINROUTER'].includes(resource.name)">{{ $t(resource.name.toLowerCase()) }}</div>
+                <div v-else>
+                  <h4 class="name">
+                    {{ name }}
+                  </h4>
                 </div>
               </slot>
             </div>
-
-            <a-divider/>
-
+            <slot name="actions">
+              <div class="tags">
+                <template v-if="$route.meta.name === 'acllist' && resource.id">
+                  <AclScopeValue :resource="resource" />
+                  <a-tag v-if="aclDisplaySupported($store.getters) && typeof resource.fordisplay === 'boolean'">
+                    {{ $t(aclDisplayLabel(resource.fordisplay)) }}
+                  </a-tag>
+                </template>
+                <a-tag v-if="resource.instancename">
+                  {{ resource.instancename }}
+                </a-tag>
+                <a-tag :color="$config.theme['@link-color']" v-if="$route.path.startsWith('/extension') && !resource.isuserdefined">
+                  {{ $t('label.inbuilt') }}
+                </a-tag>
+                <AffinityGroupPolicy v-if="resource.type && $route.meta.name === 'affinitygroup'" :type="resource.type" compact />
+                <a-tag v-else-if="resource.type">
+                  <span v-if="['USER.LOGIN', 'USER.LOGOUT', 'ROUTER.HEALTH.CHECKS', 'FIREWALL.CLOSE', 'ALERT.SERVICE.DOMAINROUTER'].includes(resource.type)">{{ $t(resource.type.toLowerCase()) }}</span>
+                  <span v-else-if="$route.meta.name === 'guestnetwork'">{{ $t(networkTypeLabel(resource.type)) }}</span>
+                  <span v-else>
+                    {{ resource.type }}
+                  </span>
+                </a-tag>
+                <template v-if="$route.meta.name === 'role' && resource.id">
+                  <a-tag>{{ $t(resource.isdefault ? 'label.default' : 'label.role.kind.custom') }}</a-tag>
+                  <a-tag>{{ $t(resource.ispublic ? 'label.public' : 'label.role.visibility.private') }}</a-tag>
+                </template>
+                <a-tag v-if="resource.issourcenat">
+                  {{ $t('label.issourcenat') }}
+                </a-tag>
+                <a-tag v-if="resource.broadcasturi">
+                  {{ resource.broadcasturi }}
+                </a-tag>
+                <a-tag v-if="resource.arch">
+                  {{ resource.arch }}
+                </a-tag>
+                <a-tag v-if="resource.hypervisor">
+                  {{ resource.hypervisor }}
+                </a-tag>
+                <a-tag v-if="resource.haenable">
+                  {{ $t('label.haenable') }}
+                </a-tag>
+                <a-tag v-if="resource.isdynamicallyscalable">
+                  {{ $t('label.isdynamicallyscalable') }}
+                </a-tag>
+                <a-tag v-if="resource.scope">
+                  {{ resource.scope }}
+                </a-tag>
+                <a-tag v-if="resource.version">
+                  {{ $route.meta.name === 'kmskey' ? $t('label.kms.current.version', { version: resource.version }) : resource.version }}
+                </a-tag>
+                <a-tag v-if="resource.internetprotocol && ['IPv6', 'DualStack'].includes(resource.internetprotocol)">
+                  {{ resource.internetprotocol ? $t('label.ip.v4.v6') : resource.internetprotocol }}
+                </a-tag>
+                <a-tag v-if="resource.archived" :color="this.$config.theme['@warning-color']">
+                  {{ $t('label.archived') }}
+                </a-tag>
+                <a-tooltip placement="right" >
+                  <template #title>
+                    <span>{{ $t('label.view.console') }}</span>
+                  </template>
+                  <console
+                    style="margin-top: -5px;"
+                    :resource="resource"
+                    size="default"
+                    v-if="resource.id"
+                  />
+                </a-tooltip>
+              </div>
+            </slot>
+          </div>
+          <a-divider />
+        </div>
+        <div v-scroll-activity="viewportScroll && { label: $t('label.summary') }" class="card-content" :tabindex="scrollable ? 0 : undefined" :role="scrollable ? 'region' : undefined" :aria-label="scrollable ? title : undefined">
+          <div>
             <div v-if="kmsDetailRoute($route) && typeof resource.enabled === 'boolean'" class="resource-detail-item">
               <div class="resource-detail-item__label">{{ $t('label.status') }}</div>
               <div class="resource-detail-item__details">
@@ -1851,7 +1851,7 @@ export default {
   width: 100%;
   flex-grow: 1;
   overflow-y: auto;
-  padding: 30px;
+  padding: 24px 30px 30px;
 }
 
 .card-footer {
@@ -1861,13 +1861,13 @@ export default {
 
 .resource-details {
   text-align: center;
-  margin-bottom: 20px;
 
   &__name {
     display: flex;
     align-items: center;
 
     .avatar {
+      position: relative;
       margin-right: 20px;
       overflow: hidden;
       min-width: 50px;
@@ -1988,9 +1988,9 @@ export default {
 
 .upload-icon {
   position: absolute;
-  top: 70px;
+  inset-block-end: 0;
+  inset-inline-end: 0;
   opacity: 0.75;
-  left: 70px;
   font-size: 0.75em;
   padding: 0.25rem;
   background: rgba(247, 245, 245, 0.767);

@@ -18,7 +18,7 @@
 <template>
   <div class="network-ip-tab">
     <a-spin :spinning="fetchLoading">
-      <div class="network-ip-toolbar">
+      <div class="detail-tab-toolbar">
         <a-button
           v-if="!isShared || canAcquireIp"
           :disabled="!canAcquireIp"
@@ -65,7 +65,7 @@
         </a-select>
       </div>
       <a-table
-        size="small"
+        size="middle"
         :scroll="{ x: 860 }"
         :columns="visibleColumns"
         :dataSource="ips"
@@ -216,6 +216,7 @@
 
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import { detailTabContext } from '@/utils/detailTabData'
 import { networkMutationMixin } from '@/utils/networkMutation'
 import { networkBusy } from '@/utils/networkLifecycle'
 import { publicIpService, usablePublicIp } from '@/utils/publicIpRules'
@@ -231,7 +232,7 @@ import eventBus from '@/config/eventBus'
 import InfiniteScrollSelect from '@/components/widgets/InfiniteScrollSelect'
 
 export default {
-  mixins: [listRefreshMixin(['fetchData']), networkMutationMixin],
+  mixins: [listRefreshMixin(['fetchData'], { routeKey: vm => JSON.stringify([vm.ipListContext, vm.vpcTier]) }), networkMutationMixin],
   name: 'IpAddressesTab',
   components: {
     NetworkIpVmLink,
@@ -257,7 +258,6 @@ export default {
       fetchLoading: false,
       ips: [],
       ipsTiers: [],
-      networksList: [],
       defaultNetwork: '',
       vpcTier: '',
       page: 1,
@@ -316,25 +316,23 @@ export default {
     this.fetchData()
   },
   watch: {
-    resource: {
-      deep: true,
-      handler (newItem, previous) {
-        if (!newItem || !newItem.id) {
-          return
-        }
-        if (newItem.id !== previous?.id) {
-          this.ips = []
-          this.totalIps = 0
-          this.sourceNatIp = null
-          this.showAcquireIp = false
-          this.resetSelection()
-        }
-        this.fetchData()
-      }
+    ipListContext () {
+      this.ips = []
+      this.totalIps = 0
+      this.sourceNatIp = null
+      this.showAcquireIp = false
+      this.vpcTier = ''
+      this.listRefreshFailed = false
+      this.zoneExtNetProvider = ''
+      this.resetSelection()
+      this.fetchData()
     }
   },
   inject: ['parentFetchData'],
   computed: {
+    listContext () { return detailTabContext(this, ['listPublicIpAddresses', 'listZones']) },
+    ipListContext () { return JSON.stringify([this.listContext, this.resource.zoneid, this.isShared]) },
+    networksList () { return this.resource.network || [] },
     isShared () { return this.resource.type === 'Shared' },
     visibleColumns () { return this.isShared ? this.columns.filter(column => column.key !== 'actions') : this.columns },
     isVpc () { return this.$route.path.startsWith('/vpc') },
@@ -368,6 +366,7 @@ export default {
   },
   methods: {
     async fetchData () {
+      if (!this.resource.id || !('listPublicIpAddresses' in this.$store.getters.apis)) return
       const listRequest = this.listRequestToken('fetchData')
       const params = {
         listall: true,
@@ -375,7 +374,6 @@ export default {
         pagesize: this.pageSize
       }
       if (this.$route.path.startsWith('/vpc')) {
-        this.networksList = this.resource.network
         params.vpcid = this.resource.id
         params.forvirtualnetwork = true
         if (this.vpcTier) {
@@ -391,9 +389,14 @@ export default {
       this.fetchLoading = !listRequest.loaded
       try {
         if (!this.isShared) {
-          const zones = await getAPI('listZones', { id: this.resource.zoneid }, { preserveOnFailure: true })
-          if (!this.isListRequestCurrent('fetchData', listRequest)) return
-          this.zoneExtNetProvider = zones?.listzonesresponse?.zone?.[0]?.provider || null
+          const zone = (Array.isArray(this.$store.getters.zones) ? this.$store.getters.zones : []).find(zone => zone.id === this.resource.zoneid)
+          if (zone) {
+            this.zoneExtNetProvider = zone.provider || null
+          } else if (this.zoneExtNetProvider === '') {
+            const zones = await getAPI('listZones', { id: this.resource.zoneid }, { preserveOnFailure: true })
+            if (!this.isListRequestCurrent('fetchData', listRequest)) return
+            this.zoneExtNetProvider = zones?.listzonesresponse?.zone?.[0]?.provider || null
+          }
           if (['nsx', 'netris'].includes(this.zoneExtNetProvider?.toLowerCase())) params.forprovider = true
         }
         const json = await getAPI('listPublicIpAddresses', params, { preserveOnFailure: true })
@@ -574,7 +577,6 @@ export default {
 
 <style lang="scss" scoped>
 .network-ip-tab { min-width: 0; }
-.network-ip-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
 .network-ip-refresh-alert { margin-bottom: 16px; }
 .network-source-nat-warning { margin: 16px 0; }
 

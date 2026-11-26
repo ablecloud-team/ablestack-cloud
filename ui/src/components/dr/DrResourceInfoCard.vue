@@ -24,10 +24,7 @@
     :bordered="true"
     @contextmenu.stop.prevent="$emit('contextmenu', $event, resource)">
     <div class="card-body" :class="{ 'workspace-fill': viewportScroll }">
-      <div
-        class="card-content"
-        :class="{ 'workspace-panel': viewportScroll }"
-        v-scroll-activity="viewportScroll && { label: $t('label.summary'), scope: resource.id }">
+      <div class="resource-summary-header">
         <div class="resource-details">
           <div class="resource-details__name">
             <div class="avatar dr-resource-avatar">
@@ -50,9 +47,12 @@
             </a-tag>
           </div>
         </div>
-
         <a-divider />
-
+      </div>
+      <div
+        class="card-content"
+        :class="{ 'workspace-panel': viewportScroll }"
+        v-scroll-activity="viewportScroll && { label: $t('label.summary'), scope: resource.id }">
         <div
           v-for="field in visibleSummaryFields"
           :key="field.key"

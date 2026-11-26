@@ -71,8 +71,8 @@
         <a-tabs
           v-else
           v-scroll-activity="viewportScroll && { selector: tabScrollSelector, label: $t('label.details'), scope: activeTab }"
-          :class="{'workspace-tabset': viewportScroll, 's2s-gateway-tabs': $route.meta?.name === 's2svpn', 'template-main-tabs':['template','iso','kubernetesiso'].includes($route.meta?.name), 'project-tabs': isProjectDetailRoute($route), 'infrastructure-tabs': ['cluster', 'storagepool', 'imagestore'].includes($route.meta?.name), 'system-offering-tabs': isSystemOffering}"
-          :style="{ width: '100%', marginTop: isSystemOffering ? undefined : resourceTabPosition === 'top' ? '-12px' : '0' }"
+          :class="{'workspace-tabset': viewportScroll, 'resource-detail-tabset': !isSystemOffering, 's2s-gateway-tabs': $route.meta?.name === 's2svpn', 'template-main-tabs':['template','iso','kubernetesiso'].includes($route.meta?.name), 'project-tabs': isProjectDetailRoute($route), 'infrastructure-tabs': ['cluster', 'storagepool', 'imagestore'].includes($route.meta?.name), 'system-offering-tabs': isSystemOffering}"
+          style="width: 100%"
           :tabPosition="resourceTabPosition"
           :animated="false"
           :activeKey="activeTab"

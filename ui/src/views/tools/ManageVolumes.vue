@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <a-row :gutter="12" v-if="isPageAllowed" class="mold-workspace">
+  <a-row :gutter="12" v-if="isPageAllowed">
     <a-col :span="24" class="content-breadcrumb">
       <a-card class="breadcrumb-card breadcrumb-toolbar">
         <div class="breadcrumb-toolbar-row">
@@ -37,10 +37,9 @@
         </div>
       </a-card>
     </a-col>
-    <a-col :md="24" class="workspace-fill">
-      <div class="workspace-fill">
-        <a-card class="workspace-fill">
-          <div class="workspace-tool-filters" v-scroll-activity="{ label: $t('label.filterby') }">
+    <a-col :md="24">
+      <div>
+        <a-card>
           <a-alert
             type="info"
             :showIcon="true"
@@ -177,10 +176,9 @@
             </a-col>
           </a-row>
 
-          </div>
-          <a-row :gutter="[12, 16]" class="volume-list-panels workspace-fill workspace-side-by-side">
+          <a-row :gutter="[12, 16]" class="volume-list-panels">
             <a-col :span="24" :lg="12">
-              <a-card class="workspace-fill volumes-card unmanaged-volumes-card">
+              <a-card class="volumes-card unmanaged-volumes-card">
                 <template #title>
                   {{ $t('label.unmanaged.volumes') }}
                   <a-tooltip :title="$t('message.volumes.unmanaged')">
@@ -204,7 +202,7 @@
                   </span>
                 </template>
                 <a-table
-                  class="workspace-table workspace-fill volumes-card-table"
+                  class="workspace-table workspace-import-table volumes-card-table"
                   v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.storagepool'), scope: JSON.stringify([page, pageSize]) }"
                   :loading="unmanagedVolumesLoading"
                   :custom-row="unmanagedRow"
@@ -221,7 +219,7 @@
                     </template>
                   </template>
                 </a-table>
-                <div class="workspace-fill volumes-card-footer">
+                <div class="volumes-card-footer">
                   <a-pagination
                     class="row-element"
                     size="small"
@@ -251,7 +249,7 @@
               </a-card>
             </a-col>
             <a-col :span="24" :lg="12">
-              <a-card class="workspace-fill volumes-card">
+              <a-card class="volumes-card">
                 <template #title>
                   {{ $t('label.managed.volumes') }}
                   <a-tooltip :title="$t('message.volumes.managed')">
@@ -275,7 +273,7 @@
                   </span>
                 </template>
                 <a-table
-                  class="workspace-table workspace-fill volumes-card-table"
+                  class="workspace-table workspace-import-table volumes-card-table"
                   v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.storagepool'), scope: JSON.stringify([page, pageSize]) }"
                   :loading="managedVolumesLoading"
                   :custom-row="managedRow"
@@ -295,7 +293,7 @@
                     </template>
                   </template>
                 </a-table>
-                <div class="workspace-fill volumes-card-footer">
+                <div class="volumes-card-footer">
                   <a-pagination
                     class="row-element"
                     size="small"

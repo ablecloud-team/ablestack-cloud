@@ -152,6 +152,33 @@
   min-inline-size: 0;
 }
 
+/* Standardize action-and-table panes, including older tabs with local toolbars. */
+.resource-layout-viewport :is(.ant-tabs-tabpane, .ant-tabs-tabpane :is(div, section)):has(> .ant-table-wrapper):not(:has(> :is(.ant-form, .ant-descriptions, .ant-card, .ant-collapse, .ant-tabs)))
+  > :is([class$="-toolbar"], [class*="-toolbar "]) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-block-end: 20px;
+}
+
+.resource-layout-viewport :is(.ant-tabs-tabpane, .ant-tabs-tabpane :is(div, section)):has(> .ant-table-wrapper):not(:has(> :is(.ant-form, .ant-descriptions, .ant-card, .ant-collapse, .ant-tabs)))
+  > .ant-btn {
+  margin-block-end: 20px;
+}
+
+.resource-layout-viewport :is(.ant-tabs-tabpane, .ant-tabs-tabpane :is(div, section)):has(> :is([class$="-toolbar"], [class*="-toolbar "], .ant-btn)):not(:has(> :is(.ant-form, .ant-descriptions, .ant-card, .ant-collapse, .ant-tabs)))
+  > .ant-table-wrapper {
+  min-inline-size: 0;
+  margin-block-start: 0;
+}
+
+.resource-layout-viewport :is(.ant-tabs-tabpane, .ant-tabs-tabpane :is(div, section)):has(> :is([class$="-toolbar"], [class*="-toolbar "], .ant-btn)):not(:has(> :is(.ant-form, .ant-descriptions, .ant-card, .ant-collapse, .ant-tabs)))
+  > .ant-table-wrapper .ant-table-small :is(.ant-table-thead > tr, .ant-table-tbody > tr.ant-table-row) > .ant-table-cell {
+  padding-block: 12px;
+  padding-inline: 8px;
+}
+
 .workspace-detail {
   position: relative;
 }
@@ -207,6 +234,20 @@
   flex: 1 1 0;
   min-block-size: 0;
   min-inline-size: 0;
+}
+
+.resource-summary-header {
+  flex: none;
+  min-inline-size: 0;
+  padding: 30px 30px 0;
+}
+
+.resource-summary-header > .ant-divider {
+  margin: 20px 0 0;
+}
+
+.resource-detail-tabset.ant-tabs-top {
+  margin-block-start: -12px;
 }
 
 .mold-workspace .vm-tabs-viewport > .ant-spin-container > .ant-tabs > .ant-tabs-content-holder {
@@ -278,11 +319,10 @@
   min-block-size: 0;
 }
 
-.workspace-tool-filters {
-  flex: none;
-  max-block-size: min(37%, 285px);
-  min-block-size: 0;
-  overflow: auto;
+.workspace-import-table .ant-table-container > :is(.ant-table-content, .ant-table-body) {
+  flex-basis: auto;
+  min-block-size: 7.5rem;
+  max-block-size: min(45vh, 30rem);
 }
 
 .configuration-detail-card.workspace-layout-body {

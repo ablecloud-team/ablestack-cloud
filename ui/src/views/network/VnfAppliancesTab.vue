@@ -25,7 +25,7 @@
       :message="$t('message.guest.feature.load.failed')" />
     <a-table
       v-if="!listRefreshFailed || virtualmachines.length > 0"
-      size="small"
+      size="middle"
       :scroll="{ x: 680 }"
       :columns="columns"
       :dataSource="virtualmachines"
@@ -62,13 +62,14 @@
 
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import { detailTabContext } from '@/utils/detailTabData'
 
 import { getAPI } from '@/api'
 import NetworkRulesToolbar from '@/components/view/NetworkRulesToolbar'
 import Status from '@/components/widgets/Status'
 
 export default {
-  mixins: [listRefreshMixin(['fetchData'])],
+  mixins: [listRefreshMixin(['fetchData'], { routeKey: vm => vm.listContext })],
   name: 'VnfAppliancesTab',
   components: {
     Status,
@@ -123,15 +124,14 @@ export default {
   created () {
     this.fetchData()
   },
+  computed: {
+    listContext () { return detailTabContext(this, ['listVnfAppliances']) }
+  },
   watch: {
-    resource: {
-      deep: true,
-      handler (newItem) {
-        if (!newItem || !newItem.id) {
-          return
-        }
-        this.fetchData()
-      }
+    listContext () {
+      this.virtualmachines = []
+      this.listRefreshFailed = false
+      this.fetchData()
     }
   },
   methods: {

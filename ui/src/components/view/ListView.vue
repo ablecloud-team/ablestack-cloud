@@ -1790,7 +1790,7 @@ export default {
     isUsageList () { return this.$route.path === '/usage' && !this.resourcePath },
     isRuntimeCatalogList () { return this.$route.path === '/runtimebundle' && !this.resourcePath },
     emptyTableImage () { return Empty.PRESENTED_IMAGE_SIMPLE },
-    fixedOrderControls () { return !this.resourcePath && ['/systemoffering', '/computeoffering', '/diskoffering', '/networkoffering', '/vpcoffering', '/template', '/iso'].includes(this.$route.path) },
+    fixedOrderControls () { return !this.resourcePath && ['/systemoffering', '/computeoffering', '/diskoffering', '/networkoffering', '/vpcoffering', '/template', '/iso', '/guestoscategory'].includes(this.$route.path) },
     systemOfferingOrder () { return this.$route.path === '/systemoffering' },
     systemOfferingOrderAvailable () { return !!this.$store.getters.apis.listConfigurations && canReorderSystemOffering(this.$route.query, this.systemOfferingTableSorted) },
     systemOfferingOrderDisabled () { return this.systemOfferingOrder && (!this.systemOfferingOrderAvailable || this.systemOfferingOrderBusy) },

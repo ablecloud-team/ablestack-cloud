@@ -16,9 +16,9 @@
 // under the License.
 
 <template>
-  <a-row :gutter="12" class="workspace-fill">
-    <a-col :md="24" :lg="24" class="workspace-fill">
-      <a-card class="instances-card workspace-fill">
+  <a-row :gutter="12">
+    <a-col :md="24" :lg="24">
+      <a-card class="instances-card">
         <template #title>
           <div class="import-vm-tasks-header">
             <div class="import-vm-tasks-title">
@@ -60,10 +60,10 @@
             </div>
           </div>
         </template>
-        <div class="import-vm-tasks-table-wrap workspace-fill">
+        <div class="import-vm-tasks-table-wrap">
           <a-table
             :data-source="tasks"
-            class="instances-card-table import-vm-tasks-table workspace-table"
+            class="instances-card-table import-vm-tasks-table workspace-table workspace-import-table"
             v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.import.vm.tasks'), scope: JSON.stringify([filter, page, pageSize]) }"
             size="small"
             :pagination="false"

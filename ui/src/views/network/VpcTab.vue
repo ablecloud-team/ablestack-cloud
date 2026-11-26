@@ -40,7 +40,7 @@
       <a-tab-pane :tab="$t('label.network.acls')" key="acl" v-if="'listNetworkACLLists' in $store.getters.apis">
         <a-button
           type="primary"
-          class="vpc-tab-create"
+          class="detail-table-create"
           :disabled="!('createNetworkACLList' in $store.getters.apis)"
           @click="() => handleOpenModals('networkAcl')">
           <template #icon><plus-circle-outlined /></template>
@@ -48,7 +48,7 @@
         </a-button>
         <a-table
           class="table"
-          size="small"
+          size="middle"
           :columns="networkAclsColumns"
           :scroll="{ x: 480 }"
           :dataSource="networkAcls"
@@ -117,7 +117,7 @@ focus-guard
       <a-tab-pane :tab="$t('label.private.gateway')" key="pgw" v-if="'listPrivateGateways' in $store.getters.apis">
         <a-button
           type="primary"
-          class="vpc-tab-create"
+          class="detail-table-create"
           :disabled="!('createPrivateGateway' in $store.getters.apis)"
           @click="gatewayCreate = true">
           <template #icon><plus-circle-outlined /></template>
@@ -125,7 +125,7 @@ focus-guard
         </a-button>
         <a-table
           class="table"
-          size="small"
+          size="middle"
           :columns="privateGatewaysColumns"
           :scroll="{ x: 760 }"
           :dataSource="privateGateways"
@@ -186,7 +186,7 @@ focus-guard
       <a-tab-pane :tab="$t('label.vpn.connection')" key="vpnc" v-if="'listVpnConnections' in $store.getters.apis">
         <a-button
           type="primary"
-          class="vpc-tab-create"
+          class="detail-table-create"
           :disabled="!('createVpnConnection' in $store.getters.apis)"
           @click="handleOpenModals('vpnConnection')">
           <template #icon><plus-circle-outlined /></template>
@@ -194,7 +194,7 @@ focus-guard
         </a-button>
         <a-table
           class="table"
-          size="small"
+          size="middle"
           :columns="vpnConnectionsColumns"
           :scroll="{ x: 640 }"
           :dataSource="vpnConnections"
@@ -260,7 +260,7 @@ import scrollActivity, { tabScrollSelector } from '@/utils/scrollActivity'
 import MoldDialog from '@/components/network/VpcDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import VpcActionContext from '@/components/network/VpcActionContext'
-import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import { detailTabRouteKey, listRefreshMixin } from '@/utils/listRefreshMixin'
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import { mixinDevice } from '@/utils/mixin.js'
@@ -282,7 +282,7 @@ import PrivateGatewayCreate from './PrivateGatewayCreate'
 import { vpcVpnContext, vpcVpnOwner } from '@/utils/vpcVpn'
 
 export default {
-  mixins: [mixinDevice, listRefreshMixin(['fetchComments', 'fetchPrivateGateways', 'fetchVpnGateways', 'fetchVpnConnections', 'fetchAclList'], { select: vm => ({ vpngw: ['fetchVpnGateways'], pgw: ['fetchPrivateGateways'], vpnc: ['fetchVpnConnections'], acl: ['fetchAclList'], comments: ['fetchComments'] }[vm.currentTab] || []) })],
+  mixins: [mixinDevice, listRefreshMixin(['fetchComments', 'fetchPrivateGateways', 'fetchVpnGateways', 'fetchVpnConnections', 'fetchAclList'], { routeKey: vm => detailTabRouteKey(vm.$route), select: vm => ({ vpngw: ['fetchVpnGateways'], pgw: ['fetchPrivateGateways'], vpnc: ['fetchVpnConnections'], acl: ['fetchAclList'], comments: ['fetchComments'] }[vm.currentTab] || []) })],
   name: 'VpcTab',
   directives: { scrollActivity },
   components: {
@@ -414,8 +414,9 @@ export default {
       }
     },
     '$route.fullPath': function () {
+      const previous = this.currentTab
       this.setCurrentTab()
-      this.handleFetchData()
+      if (previous !== this.currentTab || this.$route.query.tab === this.currentTab) this.handleFetchData()
     }
   },
   created () {
@@ -448,10 +449,10 @@ export default {
       this.currentTab = e
       this.page = 1
       this.pageSize = 10
-      this.handleFetchData()
       this.$router.push({ path: this.$route.path, query: { ...this.$route.query, tab: e } })
     },
     handleFetchData () {
+      if (!this.resource.id) return
       switch (this.currentTab) {
         case 'pgw':
           this.fetchPrivateGateways()

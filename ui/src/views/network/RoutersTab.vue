@@ -17,7 +17,7 @@
 
 <template>
   <div class="network-routers-tab">
-    <div class="network-routers-toolbar">
+    <div class="detail-tab-toolbar">
       <a-button :loading="fetchLoading || listRefreshing > 0" @click="fetchData">
         <template #icon><reload-outlined /></template>
         {{ $t('label.refresh') }}
@@ -30,7 +30,7 @@
       show-icon
       :message="$t(loaded ? 'message.list.refresh.stale' : 'message.request.failed')" />
     <a-table
-      size="small"
+      size="middle"
       :scroll="{ x: 850 }"
       :columns="columns"
       :dataSource="routers"
@@ -63,12 +63,13 @@
 
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import { detailTabContext } from '@/utils/detailTabData'
 
 import { getAPI } from '@/api'
 import Status from '@/components/widgets/Status'
 
 export default {
-  mixins: [listRefreshMixin(['fetchData'])],
+  mixins: [listRefreshMixin(['fetchData'], { routeKey: vm => vm.listContext })],
   name: 'RoutersTab',
   components: {
     Status
@@ -132,24 +133,20 @@ export default {
   created () {
     this.fetchData()
   },
+  computed: {
+    listContext () { return detailTabContext(this, ['listRouters']) }
+  },
   watch: {
-    resource: {
-      deep: true,
-      handler (newItem, previous) {
-        if (!newItem || !newItem.id) {
-          return
-        }
-        if (newItem.id !== previous?.id) {
-          this.routers = []
-          this.loaded = false
-          this.listRefreshFailed = false
-        }
-        this.fetchData()
-      }
+    listContext () {
+      this.routers = []
+      this.loaded = false
+      this.listRefreshFailed = false
+      this.fetchData()
     }
   },
   methods: {
     fetchData () {
+      if (!this.resource.id || !('listRouters' in this.$store.getters.apis)) return
       const listRequest = this.listRequestToken('fetchData')
       const params = {
         listAll: true,
@@ -182,7 +179,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .network-routers-tab { min-width: 0; }
-.network-routers-toolbar, .network-routers-alert { margin-bottom: 16px; }
+.network-routers-alert { margin-bottom: 16px; }
 
 .status {
   margin-top: -5px;

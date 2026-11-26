@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <a-row :gutter="12" v-if="isPageAllowed" class="mold-workspace">
+  <a-row :gutter="12" v-if="isPageAllowed">
     <a-col :span="24" class="content-breadcrumb">
       <a-card class="breadcrumb-card breadcrumb-toolbar">
       <a-row class="breadcrumb-toolbar-row">
@@ -43,10 +43,9 @@
       </a-row>
     </a-card>
     </a-col>
-    <a-col :md="24" class="workspace-fill">
-      <div class="workspace-fill">
-        <a-card class="workspace-fill">
-          <div class="workspace-tool-filters" v-scroll-activity="{ label: $t('label.filterby') }">
+    <a-col :md="24">
+      <div>
+        <a-card>
           <a-alert
             class="manage-instances-alert"
             type="info"
@@ -402,12 +401,11 @@
           </a-row>
           <a-divider />
 
-          </div>
-          <a-tabs class="workspace-tabset workspace-tabset-with-list" v-model:activeKey="activeTabKey" @change="onTabChange">
+          <a-tabs v-model:activeKey="activeTabKey" @change="onTabChange">
             <a-tab-pane :key=1 :tab="$t('label.instances.listing')">
-              <a-row :gutter="12" class="workspace-fill workspace-side-by-side">
+              <a-row :gutter="12">
                 <a-col v-if="!isDiskImport" :md="24" :lg="(!isMigrateFromVmware && showManagedInstances) ? 12 : 24">
-                  <a-card class="instances-card workspace-fill">
+                  <a-card class="instances-card">
                     <template #title>
                       {{ (isMigrateFromVmware && vmwareVcenterType === 'existing') ? $t('label.instances') : $t('label.unmanaged.instances') }}
                       <a-tooltip :title="(isMigrateFromVmware && vmwareVcenterType === 'existing') ? $t('message.instances.migrate.vmware') : $t('message.instances.unmanaged')">
@@ -431,7 +429,7 @@
                       </span>
                     </template>
                     <a-table
-                      class="workspace-table instances-card-table"
+                      class="workspace-table workspace-import-table instances-card-table"
                       v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.instances'), scope: JSON.stringify([page, pageSize]) }"
                       v-if="!isExternal"
                       :loading="unmanagedInstancesLoading"
@@ -453,7 +451,7 @@
                       </template>
                     </a-table>
                     <a-table
-                      class="workspace-table instances-card-table"
+                      class="workspace-table workspace-import-table instances-card-table"
                       v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.instances'), scope: JSON.stringify([page, pageSize]) }"
                       v-if="isExternal"
                       :loading="unmanagedInstancesLoading"
@@ -499,7 +497,7 @@
                   </a-card>
                 </a-col>
                 <a-col :md="24" :lg="12" v-if="!isMigrateFromVmware && showManagedInstances">
-                  <a-card class="instances-card workspace-fill">
+                  <a-card class="instances-card">
                     <template #title>
                       {{ $t('label.managed.instances') }}
                       <a-tooltip :title="$t('message.instances.managed')">
@@ -523,7 +521,7 @@
                       </span>
                     </template>
                     <a-table
-                      class="workspace-table instances-card-table"
+                      class="workspace-table workspace-import-table instances-card-table"
                       v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.instances'), scope: JSON.stringify([page, pageSize]) }"
                       :loading="managedInstancesLoading"
                       :custom-row="managedRow"
