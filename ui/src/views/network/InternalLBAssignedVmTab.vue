@@ -20,7 +20,7 @@
     <network-rules-toolbar :show-add="false" :loading="fetchLoading || listRefreshing > 0 || lbBackendBusy" @refresh="fetchData" />
     <network-mutation-status :operation="lbBackendOperation" @recheck="recheckLbBackendRemoval" />
     <a-alert v-if="listRefreshFailed" type="warning" show-icon role="status" :message="$t('message.list.refresh.stale')" />
-    <a-table
+    <detail-tab-table
       v-show="!lbBackendSuspended"
       size="small"
       :loading="fetchLoading"
@@ -52,8 +52,8 @@
             @onClick="removeVmFromLB(record)" />
         </template>
       </template>
-    </a-table>
-    <a-pagination
+    </detail-tab-table>
+    <detail-tab-pagination
       class="row-element pagination"
       size="small"
       :current="page"
@@ -67,7 +67,7 @@
       <template #buildOptionText="props">
         <span>{{ props.value }} / {{ $t('label.page') }}</span>
       </template>
-    </a-pagination>
+    </detail-tab-pagination>
   </div>
 </template>
 <script>

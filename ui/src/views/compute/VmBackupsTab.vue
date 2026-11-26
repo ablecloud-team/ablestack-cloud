@@ -31,7 +31,7 @@
     </a-alert>
     <a-alert v-if="listRefreshFailed" class="backup-alert" type="warning" show-icon :message="$t('message.list.refresh.stale')" />
     <a-alert v-if="pending || unknown" class="backup-alert" :type="unknown ? 'warning' : 'info'" show-icon :message="$t(unknown ? 'message.job.result.unknown' : 'message.vmbackup.busy')" />
-    <a-table :columns="columns" :data-source="rows" row-key="id" :loading="loading" :pagination="false" :scroll="{ x: 900 }" size="small">
+    <detail-tab-table :columns="columns" :data-source="rows" row-key="id" :loading="loading" :pagination="false" :scroll="{ x: 900 }" size="small">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'name'"><router-link :to="'/backup/' + record.id">{{ record.name || record.id }}</router-link><small v-if="provider(record) === 'kboss'" class="backup-secondary">{{ $t('label.compressionstatus') }}: {{ record.compressionstatus || '—' }} · {{ $t('label.validationstatus') }}: {{ record.validationstatus || '—' }}</small></template>
         <template v-else-if="column.key === 'status'"><backup-progress :record="record" :statusText="record.status" @capabilities-change="record.capabilities = $event" @cancellation-change="record.backupcancellationpending = $event" @restore-finished="record.restoreoperationpending = false; record.restorejobstate = $event" /></template>
@@ -48,8 +48,8 @@
           </div>
         </template>
       </template>
-    </a-table>
-    <a-pagination v-model:current="page" v-model:pageSize="pageSize" :total="total" :show-size-changer="true" class="backup-pagination" @change="fetchData" />
+    </detail-tab-table>
+    <detail-tab-pagination v-model:current="page" v-model:pageSize="pageSize" :total="total" :show-size-changer="true" class="backup-pagination" @change="fetchData" />
     <a-modal :visible="!!selected" :title="$t(selectedAction.label || '')" :footer="null" :width="modalWidth" :mask-closable="false" @cancel="closeAction">
       <div v-if="selected" class="backup-dialog">
         <component v-if="selectedAction.component" :is="modalComponent" :resource="selected" @close-action="closeAction" @refresh="refresh" />

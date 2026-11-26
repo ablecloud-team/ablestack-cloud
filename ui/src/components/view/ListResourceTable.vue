@@ -26,9 +26,10 @@
       @search="handleSearch"
       v-focus="true" />
 
-    <a-table
-      :class="{ 'workspace-table': resourceViewportEnabled() }"
-      v-scroll-activity="resourceViewportEnabled() && { selector: tableScrollSelector, label: $t('label.items'), scope: JSON.stringify([resource.id, options.page, options.pageSize, filter]) }"
+    <component
+      :is="detailTab ? 'DetailTabTable' : 'a-table'"
+      :class="{ 'workspace-table': !detailTab && resourceViewportEnabled() }"
+      v-scroll-activity="!detailTab && resourceViewportEnabled() && { selector: tableScrollSelector, label: $t('label.items'), scope: JSON.stringify([resource.id, options.page, options.pageSize, filter]) }"
       size="small"
       :columns="fetchColumns()"
       :dataSource="dataSource"
@@ -71,10 +72,11 @@
           </template>
         </div>
       </template>
-    </a-table>
+    </component>
 
     <div v-if="!defaultPagination" style="display: block; text-align: right; margin-top: 10px;">
-      <a-pagination
+      <component
+        :is="detailTab ? 'DetailTabPagination' : 'a-pagination'"
         size="small"
         :current="options.page"
         :pageSize="options.pageSize"
@@ -87,7 +89,7 @@
         <template #buildOptionText="props">
           <span>{{ props.value }} / {{ $t('label.page') }}</span>
         </template>
-      </a-pagination>
+      </component>
     </div>
   </div>
 
@@ -113,6 +115,7 @@ export default {
   },
   mixins: [listRefreshMixin(['fetchData']), mixinDevice],
   props: {
+    detailTab: Boolean,
     resource: {
       type: Object,
       default: () => {}

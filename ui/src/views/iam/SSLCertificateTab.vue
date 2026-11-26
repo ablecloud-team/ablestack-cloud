@@ -29,6 +29,7 @@
     <a-row :gutter="12">
       <a-col :md="24" :lg="24">
         <mold-list-table
+detail-tab
           size="small"
           :loading="loading"
           :columns="columns"

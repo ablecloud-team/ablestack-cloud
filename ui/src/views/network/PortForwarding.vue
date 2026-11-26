@@ -28,7 +28,7 @@
       </a-button>
     </network-rules-toolbar>
     <a-alert v-if="listRefreshFailed" class="network-rules-guidance" type="warning" show-icon :message="$t('message.list.refresh.stale')" />
-    <a-table
+    <detail-tab-table
       size="small"
       style="overflow-y: auto"
       :loading="loading"
@@ -84,8 +84,8 @@
           </div>
         </template>
       </template>
-    </a-table>
-    <a-pagination
+    </detail-tab-table>
+    <detail-tab-pagination
       class="detail-tab-pagination"
       size="small"
       :current="page"
@@ -99,7 +99,7 @@
       <template #buildOptionText="props">
         <span>{{ props.value }} / {{ $t('label.page') }}</span>
       </template>
-    </a-pagination>
+    </detail-tab-pagination>
 
     <RuleTagsDialog
       v-if="tagRule && tagRule.parentId === resource.id"

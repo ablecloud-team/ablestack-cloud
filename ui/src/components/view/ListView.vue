@@ -19,11 +19,11 @@
   <div
     ref="tableViewport"
     class="list-view-table-wrapper"
-    v-scroll-activity="viewportScroll && { selector: tableScrollSelector, label: scrollRegionLabel || $t($route.meta?.title || 'label.items'), scope: viewportScope }"
-    :class="{ 'kms-table': kmsTable, 'autoscale-list': $route.name === 'autoscalevmgroup', 'snapshot-list-table': $route.name === 'snapshot', 'snapshot-policy-list-table': $route.name === 'snapshotpolicy', 'kubernetes-iso-list-table': isKubernetesIsoMainList, 'usage-records-list-table': isUsageList, 'vm-list-table': isVmMainList, 'mold-list-table': standardTable, 'workspace-table': viewportScroll }"
-    :tabindex="scrollRegionLabel && !viewportScroll ? 0 : undefined"
-    :role="scrollRegionLabel && !viewportScroll ? 'region' : undefined"
-    :aria-label="viewportScroll ? undefined : scrollRegionLabel"
+    v-scroll-activity="scrollInViewport && { selector: tableScrollSelector, label: scrollRegionLabel || $t($route.meta?.title || 'label.items'), scope: viewportScope ?? detailTabScope }"
+    :class="{ 'kms-table': kmsTable, 'autoscale-list': $route.name === 'autoscalevmgroup', 'snapshot-list-table': $route.name === 'snapshot', 'snapshot-policy-list-table': $route.name === 'snapshotpolicy', 'kubernetes-iso-list-table': isKubernetesIsoMainList, 'usage-records-list-table': isUsageList, 'vm-list-table': isVmMainList, 'mold-list-table': standardTable, 'workspace-table': scrollInViewport, 'detail-tab-table': detailTab && scrollInViewport }"
+    :tabindex="scrollRegionLabel && !scrollInViewport ? 0 : undefined"
+    :role="scrollRegionLabel && !scrollInViewport ? 'region' : undefined"
+    :aria-label="scrollInViewport ? undefined : scrollRegionLabel"
     @keydown="scrollWideTable"
     @contextmenu="handleGlobalContextMenu">
     <a-table
@@ -1605,6 +1605,7 @@ export default {
   ],
   props: {
     tableScroll: { type: Object, default: null },
+    detailTab: Boolean,
     viewportScroll: { type: Boolean, default: false },
     viewportScope: { type: [String, Number], default: undefined },
     standardList: { type: Boolean, default: undefined },
@@ -1654,7 +1655,11 @@ export default {
       type: Number
     }
   },
-  inject: ['parentFetchData', 'parentToggleLoading'],
+  inject: {
+    parentFetchData: { default: undefined },
+    parentToggleLoading: { default: undefined },
+    resourceViewportEnabled: { default: () => () => false }
+  },
   data () {
     return {
       systemOfferingOrderBusy: false,
@@ -1744,7 +1749,7 @@ export default {
       this.closeContextQuickView()
     },
     '$route.fullPath' () {
-      if (this.viewportScroll) {
+      if (this.scrollInViewport) {
         const viewport = this.$refs.tableViewport?.querySelector(tableScrollSelector)
         if (viewport) viewport.scrollTop = 0
       }
@@ -1755,6 +1760,11 @@ export default {
     }
   },
   computed: {
+    scrollInViewport () { return this.viewportScroll || (this.detailTab && this.resourceViewportEnabled()) },
+    detailTabScope () {
+      if (!this.detailTab) return undefined
+      return JSON.stringify([this.$route.path, this.items[0]?.id, this.items.at(-1)?.id])
+    },
     tableScrollSelector () { return tableScrollSelector },
     isVmMainList () { return this.$route.path === '/vm' && !this.resourcePath },
     standardTable () {

@@ -18,6 +18,7 @@
 <template>
   <section class="configuration-table" :class="{ 'workspace-list': viewportScroll }">
     <mold-list-table
+      :detail-tab="detailTab"
       size="small"
       :columns="columns"
       :data-source="config"
@@ -67,8 +68,9 @@
         </template>
       </template>
     </mold-list-table>
-    <a-pagination
-      v-if="!grouped && (viewportScroll || count > 0)"
+    <detail-tab-pagination
+      :enabled="detailTab"
+      v-if="!grouped && (detailTab || viewportScroll || count > 0)"
       class="configuration-pagination"
       size="small"
       :current="page"
@@ -95,6 +97,7 @@ export default {
   emits: ['change-page', 'update:expandedRowKeys', 'open-parent', 'show-setting', 'edit-setting', 'reset-setting'],
   props: {
     viewportScroll: Boolean,
+    detailTab: Boolean,
     viewportScope: { type: String, default: undefined },
     koreanCatalog: { type: Object, default: null },
     config: { type: Array, default: () => [] },

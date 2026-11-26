@@ -17,7 +17,7 @@
 
 <template>
   <div class="tungsten-network-table">
-    <a-table
+    <detail-tab-table
       size="middle"
       :loading="loading"
       :columns="columns"
@@ -69,8 +69,8 @@
           </span>
         </template>
       </template>
-    </a-table>
-    <a-pagination
+    </detail-tab-table>
+    <detail-tab-pagination
       class="row-element"
       size="small"
       :current="page"
@@ -87,7 +87,7 @@
       <template #buildOptionText="props">
         <span>{{ props.value }} / {{ $t('label.page') }}</span>
       </template>
-    </a-pagination>
+    </detail-tab-pagination>
   </div>
 </template>
 

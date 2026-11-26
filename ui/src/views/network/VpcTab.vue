@@ -46,7 +46,7 @@
           <template #icon><plus-circle-outlined /></template>
           {{ $t('label.add.network.acl') }}
         </a-button>
-        <a-table
+        <detail-tab-table
           class="table"
           size="middle"
           :columns="networkAclsColumns"
@@ -62,8 +62,8 @@
               </router-link>
             </template>
           </template>
-        </a-table>
-        <a-pagination
+        </detail-tab-table>
+        <detail-tab-pagination
           class="row-element pagination"
           size="small"
           :current="page"
@@ -77,7 +77,7 @@
           <template #buildOptionText="props">
             <span>{{ props.value }} / {{ $t('label.page') }}</span>
           </template>
-        </a-pagination>
+        </detail-tab-pagination>
         <MoldDialog
           size="md"
 form-actions
@@ -123,7 +123,7 @@ focus-guard
           <template #icon><plus-circle-outlined /></template>
           {{ $t('label.add.private.gateway') }}
         </a-button>
-        <a-table
+        <detail-tab-table
           class="table"
           size="middle"
           :columns="privateGatewaysColumns"
@@ -140,8 +140,8 @@ focus-guard
               <status :text="record.state" displayText></status>
             </template>
           </template>
-        </a-table>
-        <a-pagination
+        </detail-tab-table>
+        <detail-tab-pagination
           class="row-element pagination"
           size="small"
           :current="page"
@@ -155,7 +155,7 @@ focus-guard
           <template #buildOptionText="props">
             <span>{{ props.value }} / {{ $t('label.page') }}</span>
           </template>
-        </a-pagination>
+        </detail-tab-pagination>
 
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.vpn.gateway')" key="vpngw" v-if="'listVpnGateways' in $store.getters.apis">
@@ -192,7 +192,7 @@ focus-guard
           <template #icon><plus-circle-outlined /></template>
           {{ $t('label.create.site.vpn.connection') }}
         </a-button>
-        <a-table
+        <detail-tab-table
           class="table"
           size="middle"
           :columns="vpnConnectionsColumns"
@@ -211,8 +211,8 @@ focus-guard
               <status :text="text ? text : ''" displayText />
             </template>
           </template>
-        </a-table>
-        <a-pagination
+        </detail-tab-table>
+        <detail-tab-pagination
           class="row-element pagination"
           size="small"
           :current="page"
@@ -226,7 +226,7 @@ focus-guard
           <template #buildOptionText="props">
             <span>{{ props.value }} / {{ $t('label.page') }}</span>
           </template>
-        </a-pagination>
+        </detail-tab-pagination>
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.static.routes')" key="staticroutes">
         <StaticRoutesTab :resource="resource" :loading="loading" />

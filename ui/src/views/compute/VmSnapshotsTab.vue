@@ -27,7 +27,7 @@
     </div>
     <a-alert v-if="listRefreshFailed" type="warning" show-icon :message="$t('message.list.refresh.stale')" class="snapshot-alert" />
     <a-alert v-if="busy" type="info" show-icon :message="$t('message.vmsnapshot.busy')" class="snapshot-alert" />
-    <a-table :columns="columns" :data-source="rows" row-key="id" :loading="loading" :pagination="false" :scroll="{ x: 700 }" size="small">
+    <detail-tab-table :columns="columns" :data-source="rows" row-key="id" :loading="loading" :pagination="false" :scroll="{ x: 700 }" size="small">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'displayname'">
           <router-link :to="'/vmsnapshot/' + record.id">{{ record.displayname || record.name }}</router-link>
@@ -57,8 +57,8 @@
         </template>
       </template>
       <template #emptyText>{{ $t(listRefreshFailed ? 'message.vmsnapshot.load.failed' : 'message.vmsnapshot.empty') }}</template>
-    </a-table>
-    <a-pagination v-model:current="page" v-model:pageSize="pageSize" :total="total" :show-size-changer="true" class="snapshot-pagination" @change="fetchData" />
+    </detail-tab-table>
+    <detail-tab-pagination v-model:current="page" v-model:pageSize="pageSize" :total="total" :show-size-changer="true" class="snapshot-pagination" @change="fetchData" />
     <MoldDialog :visible="!!selected" :title="$t(actionLabel)" :closable="!submitting" @cancel="cancelAction">
       <template v-if="selected">
         <VmSnapshotSummary :snapshot="{ ...selected, virtualmachinename: resource.displayname || resource.name, virtualmachineinstancename: resource.instancename, virtualmachinestate: resource.state }" />

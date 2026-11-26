@@ -23,7 +23,7 @@
       <a-input-search v-model:value="search" :placeholder="$t('label.search')" allow-clear @search="current = 1" @change="current = 1" />
     </div>
     <a-alert v-if="listRefreshFailed" class="schedule-spacing" type="warning" show-icon :message="$t('message.list.refresh.stale')" />
-    <a-table :columns="columns" :data-source="visibleRows" row-key="id" :pagination="false" :loading="busy && loadedScope !== scopeKey" :scroll="{ x: 960 }" size="small">
+    <detail-tab-table :columns="columns" :data-source="visibleRows" row-key="id" :pagination="false" :loading="busy && loadedScope !== scopeKey" :scroll="{ x: 960 }" size="small">
       <template #emptyText>{{ $t(search ? 'message.schedule.search.empty' : 'message.schedule.empty') }}</template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'action'">{{ actionName(record.action) }}</template>
@@ -46,10 +46,10 @@
           </div>
         </template>
       </template>
-    </a-table>
-    <a-pagination v-model:current="current" v-model:pageSize="size" :total="filteredRows.length" :page-size-options="['10', '20', '50', '100']" show-size-changer class="schedule-pagination" @change="clampPage">
+    </detail-tab-table>
+    <detail-tab-pagination v-model:current="current" v-model:pageSize="size" :total="filteredRows.length" :page-size-options="['10', '20', '50', '100']" show-size-changer class="schedule-pagination" @change="clampPage">
       <template #buildOptionText="props">{{ props.value }} / {{ $t('label.page') }}</template>
-    </a-pagination>
+    </detail-tab-pagination>
     <a-modal
 :visible="!!mode"
 :title="modalTitle"

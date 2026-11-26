@@ -37,7 +37,8 @@
       </template>
     </a-alert>
 
-    <a-table
+    <detail-tab-table
+:enabled="!resource.ip4routing"
       size="middle"
       :scroll="{ x: 760 }"
       style="overflow-y: auto"
@@ -106,8 +107,8 @@
           </div>
         </template>
       </template>
-    </a-table>
-    <a-pagination
+    </detail-tab-table>
+    <detail-tab-pagination
       v-if="!this.resource.ip4routing"
       class="row-element pagination"
       size="small"
@@ -122,7 +123,7 @@
       <template #buildOptionText="props">
         <span>{{ props.value }} / {{ $t('label.page') }}</span>
       </template>
-    </a-pagination>
+    </detail-tab-pagination>
 
     <mold-dialog
       size="md"

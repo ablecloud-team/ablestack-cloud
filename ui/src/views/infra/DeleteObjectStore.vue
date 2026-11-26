@@ -19,7 +19,7 @@
     <a-alert show-icon :type="ready ? 'warning' : 'info'" :message="$t('message.objectstore.delete.empty.only')" />
     <p>{{ resource.name }}</p>
     <a-alert v-if="error" type="error" show-icon :message="$t('message.objectstore.delete.failed')" />
-    <ObjectStoreBuckets :resource="resource" :disabled="busy" @state="state = $event" />
+    <ObjectStoreBuckets :detail-viewport="false" :resource="resource" :disabled="busy" @state="state = $event" />
     <a-alert v-if="state.known && state.total > 0" show-icon type="warning" :message="$t('message.objectstore.delete.has.buckets')" />
     <MoldDialogActions :busy="busy">
       <a-button :disabled="busy" @click="$emit('close-action')">{{ $t('label.cancel') }}</a-button>

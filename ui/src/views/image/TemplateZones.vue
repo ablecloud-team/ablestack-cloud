@@ -22,7 +22,7 @@
       <a-button v-if="canSelectTemplateRows" danger :disabled="operationActive || listRefreshFailed || !selectedRowKeys.length" @click="bulkActionConfirmation"><template #icon><delete-outlined /></template>{{ $t('label.action.bulk.delete.templates') }} <span class="zone-selection-count" aria-live="polite">({{ selectedRowKeys.length }})</span></a-button>
     </div>
     <a-alert v-if="listRefreshFailed" type="warning" show-icon :message="$t('message.list.refresh.stale')" />
-    <a-table
+    <detail-tab-table
 size="small"
 :loading="loading || fetchLoading"
 :columns="columns"
@@ -61,8 +61,8 @@ size="small"
           </section>
         </template>
       </template>
-    </a-table>
-    <div class="template-tab-pagination"><span>{{ $t('label.total') }} {{ itemCount }} {{ $t('label.items') }}</span><a-pagination
+    </detail-tab-table>
+    <div class="template-tab-pagination"><span>{{ $t('label.total') }} {{ itemCount }} {{ $t('label.items') }}</span><detail-tab-pagination
 size="small"
 :current="page"
 :page-size="pageSize"
@@ -71,7 +71,7 @@ size="small"
 :page-size-options="['10','20','40','80','100']"
 show-size-changer
 @change="handleChangePage"
-@showSizeChange="handleChangePageSize"><template #buildOptionText="props"><span>{{ props.value }} / {{ $t('label.page') }}</span></template></a-pagination></div>
+@showSizeChange="handleChangePageSize"><template #buildOptionText="props"><span>{{ props.value }} / {{ $t('label.page') }}</span></template></detail-tab-pagination></div>
     <template-zone-operations
 ref="zoneOps"
 :resource="resource"

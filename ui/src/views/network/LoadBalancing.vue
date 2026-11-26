@@ -211,7 +211,8 @@ size="lg"
       </template>
     </MoldDialog>
     <network-mutation-status :operation="lbBackendOperation" @recheck="recheckLbBackendRemoval" />
-    <a-table
+    <detail-tab-table
+:enabled="detailViewport"
       size="small"
       class="list-view"
       v-show="!lbBackendSuspended"
@@ -300,8 +301,9 @@ size="lg"
           </div>
         </div>
       </template>
-    </a-table>
-    <a-pagination
+    </detail-tab-table>
+    <detail-tab-pagination
+:enabled="detailViewport"
       class="detail-tab-pagination"
       size="small"
       :current="page"
@@ -315,7 +317,7 @@ size="lg"
       <template #buildOptionText="props">
         <span>{{ props.value }} / {{ $t('label.page') }}</span>
       </template>
-    </a-pagination>
+    </detail-tab-pagination>
 
     <RuleTagsDialog
       v-if="tagRule && tagRule.parentId === resource.id"
@@ -736,6 +738,7 @@ export default {
     TooltipLabel
   },
   props: {
+    detailViewport: { type: Boolean, default: true },
     contextLoading: { type: Boolean, default: false },
     ruleOwners: { type: Object, default: () => ({}) },
     resource: {

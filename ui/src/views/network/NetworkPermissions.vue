@@ -21,7 +21,7 @@
     <a-alert type="info" show-icon class="detail-tab-notice" :message="$t('message.network.permission.effect')" />
     <a-alert v-if="readError" type="error" show-icon class="detail-tab-notice" :message="translate(readError)" />
     <a-alert v-if="writeError && !dialog" type="warning" show-icon class="detail-tab-notice" :message="translate(writeError)" />
-    <a-table
+    <detail-tab-table
       v-if="loaded"
       size="small"
       :columns="columns"
@@ -36,7 +36,7 @@
           {{ $t('label.action.delete.network.permission') }}
         </a-button>
       </template>
-    </a-table>
+    </detail-tab-table>
     <a-spin v-else-if="reading" />
     <CreateNetworkPermission
       v-if="dialog === 'grant'"

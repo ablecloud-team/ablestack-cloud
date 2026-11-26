@@ -83,6 +83,7 @@
           </a-button>
         </div>
         <ListResourceTable
+          detail-tab
           apiName="listSecurityGroups"
           :params="{virtualmachineid: dataResource.id}"
           :items="dataResource.securitygroup"

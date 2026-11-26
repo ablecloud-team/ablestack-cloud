@@ -34,6 +34,7 @@
       show-icon
       :message="$t(total ? 'message.runtime.catalog.used' : 'message.runtime.catalog.unused')" />
     <mold-list-table
+detail-tab
       v-if="hasSuccessfulRead || busy"
       :columns="columns"
       :data-source="rows"
@@ -52,7 +53,7 @@
         <RuntimeCatalogValue v-else-if="valueGroup(column.key)" :group="valueGroup(column.key)" :value="record[column.key]" />
       </template>
     </mold-list-table>
-    <a-pagination v-if="total > 0" :current="page" :page-size="pagesize" :total="total" :disabled="busy" show-size-changer @change="changePage" />
+    <detail-tab-pagination v-if="hasSuccessfulRead && (!error || total > 0)" :current="page" :page-size="pagesize" :total="total" :disabled="busy" show-size-changer @change="changePage" />
     <MoldDialog
       v-if="detail"
       class="sharedfs-standard-dialog"
@@ -76,7 +77,6 @@
 </template>
 <script>
 import MoldListTable from '@/components/view/MoldListTable'
-import SharedFSTablePagination from '@/components/storage/SharedFSTablePagination.vue'
 import { getAPI } from '@/api'
 import { ReloadOutlined } from '@ant-design/icons-vue'
 import MoldDialog from '@/components/view/MoldDialog'
@@ -90,7 +90,7 @@ const recordApis = {
 
 export default {
   name: 'RuntimeCatalogRecords',
-  components: { MoldListTable, APagination: SharedFSTablePagination, MoldDialog, ReloadOutlined, RuntimeCatalogValue },
+  components: { MoldListTable, MoldDialog, ReloadOutlined, RuntimeCatalogValue },
   props: {
     resource: { type: Object, required: true },
     tab: { type: String, required: true },

@@ -132,7 +132,7 @@
           <a-button :loading="loading" @click="parentFetchData"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
         </div>
         <a-alert v-if="resource.clustertype === 'ExternalManaged'" type="info" show-icon class="mold-dialog-summary" :message="$t('message.kubernetes.external.mapping')" />
-        <a-table
+        <detail-tab-table
           class="table"
           size="small"
           :columns="vmColumns"
@@ -175,9 +175,9 @@
               </a-tooltip>
             </template>
           </template>
-        </a-table>
+        </detail-tab-table>
       <div class="detail-tab-pagination">
-          <a-pagination
+          <detail-tab-pagination
 size="small"
 :current="vmPage"
 :page-size="vmPageSize"

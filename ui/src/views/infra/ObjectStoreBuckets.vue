@@ -23,7 +23,8 @@
     <p class="bucket-related-note">{{ $t('message.objectstore.buckets.scope') }}</p>
     <a-alert v-if="error" show-icon type="error" :message="$t(loadedScope === queryScope ? 'message.objectstore.buckets.stale' : 'message.objectstore.buckets.failed')"><template #description><a-button :disabled="disabled" :loading="loading" @click="load">{{ $t('label.retry') }}</a-button></template></a-alert>
     <div class="bucket-related-table" role="region" tabindex="0" :aria-label="$t('label.objectstore.buckets')">
-      <a-table
+      <detail-tab-table
+:enabled="detailViewport"
 row-key="id"
 size="middle"
 :columns="columns"
@@ -39,11 +40,12 @@ size="middle"
           <span v-else-if="column.key === 'quota'">{{ record.quota ?? '—' }} GiB</span>
           <span v-else>{{ text || '—' }}</span>
         </template>
-      </a-table>
+      </detail-tab-table>
     </div>
     <div class="bucket-related-footer">
       <span role="status" aria-live="polite">{{ $t('label.total') }}: {{ total === null ? $t('state.bucket.protection.unknown') : total }}</span>
-      <a-pagination
+      <detail-tab-pagination
+:enabled="detailViewport"
 :current="page"
 :page-size="pagesize"
 :total="total || 0"
@@ -61,7 +63,7 @@ import Status from '@/components/widgets/Status'
 export default {
   name: 'ObjectStoreBuckets',
   components: { Status },
-  props: { resource: { type: Object, required: true }, disabled: Boolean },
+  props: { detailViewport: { type: Boolean, default: true }, resource: { type: Object, required: true }, disabled: Boolean },
   emits: ['state'],
   data () { return { rows: [], total: null, page: 1, pagesize: 10, draft: '', keyword: '', loading: false, error: false, generation: 0, loadedScope: '' } },
   computed: {

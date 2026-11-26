@@ -21,7 +21,7 @@ for the specific language governing permissions and limitations. -->
     <a-alert v-if="limited" type="warning" show-icon role="status" :message="$t('message.cni.history.limited')" />
     <a-alert v-if="warnings" type="warning" show-icon role="status" :message="$t('message.cni.history.warnings', [warnings])" />
     <div class="cni-history-table">
-      <a-table
+      <detail-tab-table
         size="small"
         :columns="columns"
         :dataSource="pageRows"
@@ -46,10 +46,10 @@ for the specific language governing permissions and limitations. -->
           <a-button v-else-if="column.key === 'compare'" type="link" :disabled="!record.comparable || !parentReady || pending || comparing || !!error" @click="openComparison(record.parent, record.row, record.record)">{{ $t('label.cni.history.compare.parent') }}</a-button>
           <span v-else>{{ record.id }}</span>
         </template>
-      </a-table>
+      </detail-tab-table>
     </div>
-    <div v-if="rows.length" class="detail-tab-pagination">
-      <a-pagination :current="page" :pageSize="pagesize" :total="filteredRows.length" show-size-changer :pageSizeOptions="['10', '20', '50']" :showTotal="total => $t('message.cni.history.total', [total])" @change="changePage" />
+    <div v-if="rows.length || (parentReady && !pending && !error)" class="detail-tab-pagination">
+      <detail-tab-pagination :current="page" :pageSize="pagesize" :total="filteredRows.length" show-size-changer :pageSizeOptions="['10', '20', '50']" :showTotal="total => $t('message.cni.history.total', [total])" @change="changePage" />
     </div>
     <MoldDialog v-if="comparisonOpen" class="cni-comparison-dialog" size="xl" :title="$t('label.cni.history.compare')" @cancel="closeDialog">
       <a-spin :spinning="comparing || parentPending">

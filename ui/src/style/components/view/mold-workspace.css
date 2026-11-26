@@ -74,7 +74,7 @@
   overflow: visible;
 }
 
-.workspace-table .ant-table-container > :is(.ant-table-content, .ant-table-body) {
+.workspace-table .ant-table-container > :is(.ant-table-content, .ant-table-body):not(.ant-table-expanded-row *) {
   flex: 1 1 0;
   min-block-size: 0;
   overflow-y: auto !important;
@@ -85,17 +85,17 @@
   flex: none;
 }
 
-.workspace-table .ant-table-content > table > .ant-table-thead {
+.workspace-table .ant-table-content:not(.ant-table-expanded-row *) > table > .ant-table-thead {
   position: sticky;
   inset-block-start: 0;
   z-index: 5;
 }
 
-.workspace-table .ant-table-content:has(.ant-table-placeholder) {
+.workspace-table .ant-table-content:not(.ant-table-expanded-row *):has(> table > .ant-table-tbody > .ant-table-placeholder) {
   container-type: size;
 }
 
-.workspace-table .ant-table-placeholder > .ant-table-cell {
+.workspace-table .ant-table-placeholder:not(.ant-table-expanded-row *) > .ant-table-cell {
   block-size: calc(100cqh - var(--mold-list-row-height, 47px));
   padding: 0 !important;
   border-block-end: 0;
@@ -150,6 +150,69 @@
   flex-direction: column;
   min-block-size: 0;
   min-inline-size: 0;
+}
+
+/* A detail tab explicitly opts in by rendering a detail-tab-table. Ignore Ant's retained hidden panes. */
+.resource-layout-viewport .ant-tabs:has(> .ant-tabs-content-holder > .ant-tabs-content > .ant-tabs-tabpane-active .detail-tab-table:not(.ant-tabs-tabpane-hidden *)) {
+  flex: 1 1 0;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+.resource-layout-viewport .ant-tabs > .ant-tabs-content-holder:has(> .ant-tabs-content > .ant-tabs-tabpane-active .detail-tab-table:not(.ant-tabs-tabpane-hidden *)) {
+  overflow: clip;
+}
+.resource-layout-viewport .workspace-panel:has(.detail-tab-table:not(.ant-tabs-tabpane-hidden *)) {
+  display: flex;
+  flex-direction: column;
+  overflow: clip;
+}
+.resource-layout-viewport .ant-tabs-content:has(> .ant-tabs-tabpane-active .detail-tab-table:not(.ant-tabs-tabpane-hidden *)) {
+  block-size: 100%;
+  min-block-size: 0;
+}
+.resource-layout-viewport .ant-tabs-tabpane-active:has(.detail-tab-table:not(.ant-tabs-tabpane-hidden *)),
+.resource-layout-viewport .ant-tabs-tabpane-active :is(div, section, article):not(.ant-tabs, .ant-tabs-content-holder, .ant-tabs-content):has(.detail-tab-table:not(.ant-tabs-tabpane-hidden *)),
+.resource-layout-viewport .workspace-panel :is(div, section, article):not(.ant-tabs, .ant-tabs-content-holder, .ant-tabs-content):has(.detail-tab-table:not(.ant-tabs-tabpane-hidden *)) {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+.resource-layout-viewport .ant-tabs-tabpane-active .detail-tab-table,
+.resource-layout-viewport .ant-tabs-tabpane-active .detail-tab-table > :is(.ant-table-wrapper, .workspace-table) {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+.resource-layout-viewport .detail-tab-table,
+.resource-layout-viewport .detail-tab-table .ant-table-wrapper {
+  overflow: visible !important;
+}
+.resource-layout-viewport .detail-tab-table .ant-table-content:has(.ant-table-placeholder) {
+  overflow-y: hidden !important;
+}
+.resource-layout-viewport .detail-table-footer,
+.resource-layout-viewport .detail-table-empty-footer,
+.resource-layout-viewport :has(> .detail-table-footer):not(.ant-spin-container, .ant-tabs-tabpane-active):not(:has(.detail-tab-table)) {
+  flex: none;
+  order: 1;
+}
+.resource-layout-viewport .detail-table-footer.ant-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 20px 0 0;
+  max-inline-size: 100%;
+}
+.resource-layout-viewport .detail-tab-pagination > .detail-table-footer.ant-pagination {
+  margin-block-start: 0;
+}
+.resource-layout-viewport .detail-tab-table:has(> .ant-table-wrapper > .ant-spin-nested-loading > .ant-spin-container > .ant-table-pagination) > .detail-table-empty-footer {
+  display: none;
 }
 
 /* Standardize action-and-table panes, including older tabs with local toolbars. */

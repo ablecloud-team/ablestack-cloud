@@ -109,7 +109,7 @@
         <a-button type="primary" :loading="networkMutationBusy" :disabled="loading || networkMutationBlocked" @click="addRule">{{ $t('label.ok') }}</a-button>
       </template>
     </MoldDialog>
-    <a-table
+    <detail-tab-table
       size="small"
       style="overflow-y: auto"
       :loading="loading"
@@ -150,8 +150,8 @@
           </div>
         </template>
       </template>
-    </a-table>
-    <a-pagination
+    </detail-tab-table>
+    <detail-tab-pagination
       class="detail-tab-pagination"
       size="small"
       :current="page"
@@ -165,7 +165,7 @@
       <template #buildOptionText="props">
         <span>{{ props.value }} / {{ $t('label.page') }}</span>
       </template>
-    </a-pagination>
+    </detail-tab-pagination>
 
     <RuleTagsDialog
       v-if="tagRule && tagRule.parentId === resource.id"

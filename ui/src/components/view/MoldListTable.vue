@@ -22,7 +22,8 @@
     class="mold-list-table"
     :class="{ 'workspace-table': viewportScroll }"
     v-scroll-activity="viewportScroll && { selector: tableScrollSelector, label: $t($route.meta?.title || 'label.items'), scope }">
-    <a-table
+    <component
+      :is="detailTab ? 'DetailTabTable' : 'a-table'"
       v-bind="$attrs"
       table-layout="fixed"
       :columns="tableColumns"
@@ -49,7 +50,7 @@
       <template v-for="name in otherSlots" :key="name" #[name]="scope">
         <slot :name="name" v-bind="scope || {}"></slot>
       </template>
-    </a-table>
+    </component>
     <ResourceContextMenu
       v-if="context?.entries.length"
       :entries="context.entries"
@@ -81,6 +82,7 @@ export default {
     customRow: { type: Function, default: null },
     scroll: { type: Object, default: null },
     viewportScroll: Boolean,
+    detailTab: Boolean,
     multiple: { type: Boolean, default: true },
     showSelection: { type: Boolean, default: true },
     scope: { type: [String, Number], default: '' },

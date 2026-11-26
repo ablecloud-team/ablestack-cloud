@@ -36,7 +36,7 @@
       </a-select>
       <a-button @click="fetchCustomActions">{{ $t('label.refresh') }}</a-button>
     </div>
-    <a-table
+    <detail-tab-table
       size="small"
       :columns="columns"
       :dataSource="extensionCustomActions"
@@ -84,8 +84,8 @@
           :showHeader="true"
           :data-array="record.parameters" />
       </template>
-    </a-table>
-    <a-pagination
+    </detail-tab-table>
+    <detail-tab-pagination
       style="margin-top: 12px"
       size="small"
       :current="page"

@@ -64,7 +64,7 @@
           </a-select-option>
         </a-select>
       </div>
-      <a-table
+      <detail-tab-table
         size="middle"
         :scroll="{ x: 860 }"
         :columns="visibleColumns"
@@ -126,9 +126,9 @@
               @onClick="releaseIpAddress(record)" />
           </template>
         </template>
-      </a-table>
+      </detail-tab-table>
       <a-divider/>
-      <a-pagination
+      <detail-tab-pagination
         class="row-element pagination"
         size="small"
         :current="page"
@@ -142,7 +142,7 @@
         <template #buildOptionText="props">
           <span>{{ props.value }} / {{ $t('label.page') }}</span>
         </template>
-      </a-pagination>
+      </detail-tab-pagination>
     </a-spin>
     <MoldDialog
       v-if="showAcquireIp"

@@ -23,12 +23,12 @@
     </div>
     <p class="catalog-scope"><a-tooltip :title="$t('message.runtime.catalog.context.unknown')"><info-circle-outlined /> {{ $t('message.template.runtime.scope') }}</a-tooltip></p>
     <a-alert v-if="error" type="error" show-icon :message="error" />
-    <a-table :columns="columns" :data-source="rows" row-key="id" size="small" :pagination="false" :scroll="{ x: 650 }">
+    <detail-tab-table :columns="columns" :data-source="rows" row-key="id" size="small" :pagination="false" :scroll="{ x: 650 }">
       <template #bodyCell="{ column, record }">
         <router-link v-if="column.key === 'version'" :to="'/runtimebundle/' + record.id">{{ record.version }}</router-link>
       </template>
-    </a-table>
-    <div class="template-tab-pagination catalog-pagination"><a-pagination :current="page" :page-size="10" :total="total" @change="changePage" /></div>
+    </detail-tab-table>
+    <div class="template-tab-pagination catalog-pagination"><detail-tab-pagination :current="page" :page-size="10" :total="total" @change="changePage" /></div>
   </div>
 </template>
 <script>

@@ -45,7 +45,7 @@
         @search="applyKeyword" />
     </div>
     <a-alert v-if="listRefreshFailed" show-icon type="warning" :message="$t('message.list.refresh.stale')" class="project-tab-notice invitation-notice" />
-    <a-table
+    <detail-tab-table
       class="project-tab-table"
       :loading="loading"
       :columns="columns"
@@ -75,9 +75,9 @@
           </template>
         </a-space>
       </template>
-    </a-table>
-    <a-pagination
-      v-if="total"
+    </detail-tab-table>
+    <detail-tab-pagination
+      v-if="!listRefreshFailed || total > 0"
       class="invitation-pager"
       size="small"
       :current="page"
