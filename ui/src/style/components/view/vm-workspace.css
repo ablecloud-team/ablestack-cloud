@@ -180,8 +180,8 @@
 }
 
 @media (max-width: 991px) {
-  .vm-workspace .resource-layout-viewport > .ant-row {
-    row-gap: 12px;
+  .vm-workspace .resource-layout-viewport > .ant-row > .ant-col:first-child {
+    margin-block-end: 12px;
   }
 
   .vm-workspace-detail .workspace-scroll-region {
