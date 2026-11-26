@@ -26,6 +26,7 @@ import 'nprogress/nprogress.css' // progress bar style
 import message from 'ant-design-vue/es/message'
 import notification from 'ant-design-vue/es/notification'
 import { setDocumentTitle } from '@/utils/domUtil'
+import { initialListLocation } from '@/utils/listNavigation'
 import { ACCESS_TOKEN, APIS, SERVER_MANAGER, CURRENT_PROJECT } from '@/store/mutation-types'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
@@ -212,6 +213,8 @@ router.beforeEach((to, from, next) => {
     }
   }
 })
+
+router.beforeResolve(to => initialListLocation(to, store.getters, store.state.user?.token))
 
 router.afterEach(() => {
   NProgress.done() // finish progress bar

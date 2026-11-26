@@ -94,7 +94,7 @@
                         :filterOption="(input, option) => {
                           return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                         }"
-                        @change="onSelectSourceAction"
+                        @change="value => onSelectSourceAction(value)"
                         :loading="optionLoading.sourcehypervisor"
                         v-focus="true"
                       >
@@ -208,7 +208,7 @@
                       :filterOption="(input, option) => {
                         return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                       }"
-                      @change="onSelectZoneId"
+                      @change="value => onSelectZoneId(value)"
                       :loading="optionLoading.zones"
                     >
                       <a-select-option v-for="zoneitem in zoneSelectOptions" :key="zoneitem.value" :label="zoneitem.label">
@@ -232,7 +232,7 @@
                       :filterOption="filterOption"
                       :options="podSelectOptions"
                       :loading="optionLoading.pods"
-                      @change="onSelectPodId"
+                      @change="value => onSelectPodId(value)"
                     ></a-select>
                   </a-form-item>
                   <a-form-item
@@ -247,7 +247,7 @@
                       :filterOption="filterOption"
                       :options="clusterSelectOptions"
                       :loading="optionLoading.clusters"
-                      @change="onSelectClusterId"
+                      @change="value => onSelectClusterId(value)"
                     ></a-select>
                   </a-form-item>
                   <a-form-item v-if="isDestinationKVM && isMigrateFromVmware && clusterId != undefined">
@@ -339,7 +339,7 @@
                         :filterOption="filterOption"
                         :options="hostSelectOptions"
                         :loading="optionLoading.hosts"
-                        @change="onSelectHostId"
+                        @change="value => onSelectHostId(value)"
                       ></a-select>
                   </a-form-item>
                   <a-form-item
@@ -629,6 +629,7 @@
 
 <script>
 import { selectableImportRow } from '@/utils/moldListSelection'
+import { restoreImportOptions } from '@/utils/importOptionNavigation'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { ref, reactive, toRaw } from 'vue'
@@ -857,6 +858,7 @@ export default {
       managedInstancesSelectedRowKeys: [],
       showUnmanageForm: false,
       selectedUnmanagedInstance: {},
+      initialOptionsPending: false,
       query: {},
       vmwareVcenterType: undefined,
       selectedVmwareVcenter: undefined,
@@ -971,7 +973,6 @@ export default {
       return {
         zones: {
           list: 'listZones',
-          isLoad: false,
           field: 'zoneid',
           options: {
             showicon: true
@@ -979,7 +980,6 @@ export default {
         },
         pods: {
           list: 'listPods',
-          isLoad: false,
           options: {
             zoneid: _.get(this.zone, 'id')
           },
@@ -987,7 +987,6 @@ export default {
         },
         clusters: {
           list: 'listClusters',
-          isLoad: false,
           options: {
             zoneid: _.get(this.zone, 'id'),
             podid: this.podId,
@@ -998,7 +997,6 @@ export default {
         },
         hosts: {
           list: 'listHosts',
-          isLoad: false,
           options: {
             zoneid: _.get(this.zone, 'id'),
             podid: this.podId,
@@ -1008,7 +1006,6 @@ export default {
         },
         pools: {
           list: 'listStoragePools',
-          isLoad: false,
           options: {
             zoneid: _.get(this.zone, 'id'),
             podid: this.podId,
@@ -1132,15 +1129,16 @@ export default {
         password: [{ required: true, message: this.$t('message.error.input.value') }]
       })
     },
-    fetchData () {
+    async fetchData () {
+      if (this.initialOptionsPending) return
+      this.initialOptionsPending = true
       this.unmanagedInstances = []
       this.managedInstances = []
-      this.onSelectHypervisor(this.sourceHypervisor)
-      _.each(this.params, (param, name) => {
-        if (param.isLoad) {
-          this.fetchOptions(param, name)
-        }
-      })
+      try {
+        await restoreImportOptions(this.$router, initial => this.onSelectHypervisor(this.sourceHypervisor, initial))
+      } finally {
+        this.initialOptionsPending = false
+      }
     },
     filterOption (input, option) {
       return (
@@ -1162,43 +1160,19 @@ export default {
       }
       return '-'
     },
-    fetchOptions (param, name, exclude) {
-      if (exclude && exclude.length > 0) {
-        if (exclude.includes(name)) {
-          return
-        }
-      }
+    fetchOptions (param, name, exclude, initial) {
+      if (exclude?.includes(name)) return
       this.optionLoading[name] = true
-      param.loading = true
-      param.opts = []
-      const options = param.options || {}
-      if (!('listall' in options) && !['zones', 'pods', 'clusters', 'hosts', 'pools'].includes(name)) {
-        options.listall = true
-      }
-      getAPI(param.list, options).then((response) => {
-        param.loading = false
-        _.map(response, (responseItem, responseKey) => {
-          if (Object.keys(responseItem).length === 0) {
-            this.rowCount[name] = 0
-            this.options[name] = []
-            return
-          }
-          if (!responseKey.includes('response')) {
-            return
-          }
-          _.map(responseItem, (response, key) => {
-            if (key === 'count') {
-              this.rowCount[name] = response
-              return
-            }
-            param.opts = response
-            this.options[name] = response
-          })
-          this.handleFetchOptionsSuccess(name, param)
-        })
-      }).catch(function (error) {
+      const params = { ...param.options }
+      return getAPI(param.list, params).then(response => {
+        if (initial && this.$router.currentRoute.value !== initial.route) return
+        const body = Object.entries(response).find(([key]) => key.includes('response'))?.[1]
+        const options = Object.values(body || {}).find(Array.isArray) || []
+        this.rowCount[name] = body?.count ?? options.length
+        this.options[name] = options
+        return this.handleFetchOptionsSuccess(name, param, initial)
+      }).catch(error => {
         console.log(error.stack)
-        param.loading = false
       }).finally(() => {
         this.optionLoading[name] = false
       })
@@ -1209,10 +1183,10 @@ export default {
       }
       return 'dark-row'
     },
-    handleFetchOptionsSuccess (name, param) {
+    handleFetchOptionsSuccess (name, param, initial) {
       if (['zones', 'pods', 'clusters', 'hosts', 'pools'].includes(name)) {
         let paramid = ''
-        const query = Object.assign({}, this.$route.query)
+        const query = initial?.query || { ...this.$route.query }
         if (query[param.field] && _.find(this.options[name], (option) => option.id === query[param.field])) {
           paramid = query[param.field]
         }
@@ -1222,25 +1196,25 @@ export default {
         if (paramid) {
           this.form[param.field] = paramid
           if (name === 'zones') {
-            this.onSelectZoneId(paramid)
+            return this.onSelectZoneId(paramid, initial)
           } else if (name === 'pods') {
             this.form.podid = paramid
-            this.onSelectPodId(paramid)
+            return this.onSelectPodId(paramid, initial)
           } else if (name === 'clusters') {
             this.form.clusterid = paramid
-            this.onSelectClusterId(paramid)
+            return this.onSelectClusterId(paramid, initial)
           } else if (name === 'hosts') {
             this.form.hostid = paramid
-            this.onSelectHostId(paramid)
+            return this.onSelectHostId(paramid, initial)
           } else if (name === 'pools') {
             this.form.poolid = paramid
-            this.onSelectPoolId(paramid)
+            return this.onSelectPoolId(paramid, initial)
           }
         }
       }
     },
-    updateQuery (field, value) {
-      const query = Object.assign({}, this.$route.query)
+    updateQuery (field, value, initial) {
+      const query = initial?.query || { ...this.$route.query }
       if (query[field] === value + '') {
         return
       }
@@ -1249,7 +1223,7 @@ export default {
         query.managedpage = 1
         query.unmanagedpage = 1
       }
-      this.$router.push({ query })
+      if (!initial) this.$router.push({ query })
     },
     resetLists () {
       this.page.unmanaged = 1
@@ -1280,18 +1254,18 @@ export default {
       }
       return sourceActions[0]?.name || ''
     },
-    onSelectHypervisor (value) {
+    onSelectHypervisor (value, initial) {
       this.sourceHypervisor = value
       this.sourceActions = this.getSourceActionsForHypervisor(value)
       this.form.sourceAction = this.getDefaultSourceActionForHypervisor(value, this.sourceActions)
       this.selectedVmwareVcenter = undefined
       if (this.form.sourceAction) {
-        this.onSelectSourceAction(this.form.sourceAction)
+        return this.onSelectSourceAction(this.form.sourceAction, initial)
       } else {
         this.resetLists()
       }
     },
-    onSelectSourceAction (value) {
+    onSelectSourceAction (value, initial) {
       this.selectedSourceAction = value
       const selectedAction = _.find(this.AllSourceActions, (option) => option.name === value)
       if (!selectedAction) {
@@ -1308,10 +1282,10 @@ export default {
         this.form.sourceapi = this.form.sourceapi || 'v3'
         this.form.insecure = this.form.insecure !== false
       }
-      this.fetchOptions(this.params.zones, 'zones')
       this.resetLists()
+      return this.fetchOptions(this.params.zones, 'zones', undefined, initial)
     },
-    onSelectZoneId (value) {
+    onSelectZoneId (value, initial) {
       this.zoneId = value
       this.podId = null
       this.clusterId = null
@@ -1322,35 +1296,36 @@ export default {
       this.form.clusterid = undefined
       this.form.podid = undefined
       this.form.poolid = undefined
-      this.updateQuery('zoneid', value)
-      this.fetchOptions(this.params.pods, 'pods')
+      this.updateQuery('zoneid', value, initial)
+      return this.fetchOptions(this.params.pods, 'pods', undefined, initial)
     },
-    onSelectPodId (value) {
+    onSelectPodId (value, initial) {
       this.podId = value
       this.pod = _.find(this.options.pods, (option) => option.id === value)
       this.resetLists()
       this.clusterId = null
       this.form.clusterid = undefined
-      this.updateQuery('podid', value)
-      this.fetchOptions(this.params.clusters, 'clusters', value)
+      this.updateQuery('podid', value, initial)
+      return this.fetchOptions(this.params.clusters, 'clusters', value, initial)
     },
-    onSelectClusterId (value) {
+    onSelectClusterId (value, initial) {
       this.clusterId = value
       this.cluster = _.find(this.options.clusters, (option) => option.id === value)
       this.resetLists()
-      this.updateQuery('clusterid', value)
+      this.updateQuery('clusterid', value, initial)
       if (this.isUnmanaged) {
-        this.fetchInstances()
+        if (initial) initial.read = () => this.fetchInstances()
+        else this.fetchInstances()
       } else if (this.showHost) {
-        this.fetchOptions(this.params.hosts, 'hosts', value)
+        return this.fetchOptions(this.params.hosts, 'hosts', value, initial)
       } else if (this.showPool) {
-        this.fetchOptions(this.params.pools, 'pools', value)
+        return this.fetchOptions(this.params.pools, 'pools', value, initial)
       }
     },
-    onSelectHostId (value) {
+    onSelectHostId (value, initial) {
       this.hostId = value
-      this.updateQuery('scope', 'local')
-      this.fetchOptions(this.params.pools, 'pools', value)
+      this.updateQuery('scope', 'local', initial)
+      return this.fetchOptions(this.params.pools, 'pools', value, initial)
     },
     onSelectPoolId (value) {
       this.poolId = value

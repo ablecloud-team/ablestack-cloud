@@ -239,6 +239,7 @@
         :columns="columns"
         :table-scroll="{ x: tableWidth }"
         :items="usageRecords"
+        :usage-type-map="usageTypeMap"
         :columnKeys="columnKeys"
         :selectedColumns="selectedColumnKeys"
         ref="listview"

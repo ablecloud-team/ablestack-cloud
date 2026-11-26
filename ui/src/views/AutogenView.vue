@@ -973,6 +973,7 @@ import { templateObservationContext } from '@/utils/templateAvailability'
 import { isoZoneContext } from '@/utils/isoZoneOperations'
 import { isoListQuery, isoSearchQuery, isoSearchError, isoRequestParams, isoListOwner, isoFilterMismatch, isoFilterChips, isoColumn } from '@/utils/isoSearch'
 import { isoListResponse, readIsoResource } from '@/utils/isoModel'
+import { listRouteQuery } from '@/utils/listNavigation'
 import { kubernetesIsoApis, kubernetesIsoCapability, canKubernetesIsoAction, kubernetesIsoContext } from '@/utils/kubernetesIsoCapabilities'
 import { kubernetesIsoListResponse, kubernetesIsoReadParams, kubernetesIsoFailure } from '@/utils/kubernetesIsoModel'
 import { kubernetesIsoListQuery, kubernetesIsoListLocation, kubernetesIsoListOwner, kubernetesIsoSearchError, kubernetesIsoSearchQuery, kubernetesIsoSortFields, kubernetesIsoFilterMismatch } from '@/utils/kubernetesIsoSearch'
@@ -1000,7 +1001,7 @@ import { snapshotDetailRoute, snapshotDetailParams, snapshotDetailPermissions, r
 import { snapshotListPage, snapshotSourceVolumeRoute, loadSnapshotListColumns, saveSnapshotListColumns } from '@/utils/storageSnapshotPresentation'
 import { storageSnapshotListQuery, storageSnapshotSortColumn, storageSnapshotSortQuery } from '@/utils/storageSnapshotList'
 import { listGroupActionAvailable } from '@/utils/moldListSelection'
-import { normalizeSnapshotSearch, snapshotSearchError, snapshotSearchPermissionError, snapshotSearchQuery, snapshotCopyList, snapshotListRoute } from '@/utils/storageSnapshotSearch'
+import { snapshotSearchError, snapshotSearchPermissionError, snapshotSearchQuery, snapshotCopyList, snapshotListRoute } from '@/utils/storageSnapshotSearch'
 import { canDeletePolicy } from '@/utils/snapshotPolicyDeletion'
 import { snapshotBusy, snapshotSubmissions, trackUnknownSnapshotSubmission } from '@/utils/vmSnapshotActions'
 import VmSnapshotSummary from '@/components/view/VmSnapshotSummary'
@@ -1051,7 +1052,7 @@ import NetworkOperationPolicy from '@/components/view/NetworkOperationPolicy'
 import { storageUiRoute, storageDialogSize, storageDetailRouteKey } from '@/utils/storageUi'
 import { policyDetailRoute, policyDetailPermissions, readPolicyDetail } from '@/utils/snapshotPolicyDetail'
 import { snapshotPolicyListRoute, snapshotPolicyListQuery, snapshotPolicySortColumn, snapshotPolicySortQuery } from '@/utils/snapshotPolicyList'
-import { normalizePolicySearch, policyProjectScope, policySearchError, policySearchForm, policySearchQuery, policySearchParams, policyListPage } from '@/utils/snapshotPolicySearch'
+import { policySearchError, policySearchForm, policySearchQuery, policySearchParams, policyListPage } from '@/utils/snapshotPolicySearch'
 import ActionButton from '@/components/view/ActionButton'
 import { affinityGroupQuery } from '@/utils/affinityGroupCreation'
 import SearchView from '@/components/view/SearchView'
@@ -1092,7 +1093,7 @@ import { gatewayDisplayListLocation } from '@/utils/s2sGatewayDisplay'
 import { readGatewayDetail, gatewayVisibleColumns, gatewayDeletedListLocation } from '@/utils/s2sGateway'
 import { vpnConnectionDisplaySupported } from '@/utils/s2sConnection'
 import { s2sGatewayListLocation, s2sGatewayProject, s2sGatewayRoute, s2sGatewayListRoute, s2sGatewayAuth, s2sGatewayQuery, s2sGatewayError, s2sGatewayParams, s2sGatewaySearchQuery, readS2sGatewayQuery, vpnConnectionApi, vpnConnectionListRoute, vpnConnectionRoute, readVpnConnectionQuery } from '@/utils/s2sGatewaySearch'
-import { asnRoute, asnAuth, asnQuery, asnError, asnParams, asnSearchQuery, readAsnQuery } from '@/utils/asnSearch'
+import { asnRoute, asnAuth, asnError, asnParams, asnSearchQuery, readAsnQuery } from '@/utils/asnSearch'
 import { publicIpRoute, publicIpProject, publicIpDefaultFilter, publicIpQuery, publicIpSearchQuery, publicIpSearchError, publicIpParams, readPublicIpPage } from '@/utils/publicIpSearch'
 import { vnfRoute, vnfAuth, vnfProject, vnfListQuery, vnfSearchQuery, vnfSearchError, vnfListParams, readVnfPage, vnfStates } from '@/utils/vnfSearch'
 
@@ -1211,6 +1212,7 @@ export default {
       listRequestScope: null,
       listRequestPromise: null,
       listRefreshQueued: false,
+      listViewActive: true,
       listLoadedScope: null,
       listSchemaScope: null,
       listSecurityScope: null,
@@ -1238,6 +1240,7 @@ export default {
     }
   },
   beforeUnmount () {
+    this.listViewActive = false
     for (const [name, handler] of this.listEventHandlers || []) eventBus.off(name, handler)
     this.clearAutoRefresh()
     this.listRequestVersion += 1
@@ -1623,10 +1626,24 @@ export default {
         if ('pagesize' in to.query || ipv4SubnetRoute(to) || ldapConfigRoute(to) || oauthRoute(to)) this.pageSize = this.getValidPageSize(to.query.pagesize)
         this.itemCount = 0
         this.clearAutoRefresh()
-        this.fetchData()
-        this.scheduleAutoRefresh()
-        if (!s2sGatewayRoute(to) && !vpnConnectionListRoute(to) && !kmsRoute(to) && 'projectid' in to.query && !this.isKmsRelatedVolume(to) && to.meta?.name !== 'affinitygroup' && !isSshKeyPairDetailRoute(to)) {
-          this.switchProject(to.query.projectid)
+        const load = () => {
+          if (this.listViewActive === false || this.$route.fullPath !== to.fullPath) return
+          this.fetchData()
+          this.scheduleAutoRefresh()
+          if (!s2sGatewayRoute(to) && !vpnConnectionListRoute(to) && !kmsRoute(to) && 'projectid' in to.query && !this.isKmsRelatedVolume(to) && to.meta?.name !== 'affinitygroup' && !isSshKeyPairDetailRoute(to)) {
+            this.switchProject(to.query.projectid)
+          }
+        }
+        // The outgoing view can observe the route before RouterView replaces it.
+        // A reused view loads after that update; a new view loads in created().
+        if (to.path !== from.path) {
+          if (to.meta?.name !== from.meta?.name) {
+            this.items = []
+            this.listLoadedScope = null
+          }
+          this.$nextTick(load)
+        } else {
+          load()
         }
       }
     },
@@ -1663,6 +1680,7 @@ export default {
   },
   computed: {
     kubernetesIsoSecurityContext () { return kubernetesIsoContext(this.$store.getters, this.$store.state?.user?.token) },
+    kubernetesIsoScope () { return JSON.stringify([this.$route.fullPath, this.kubernetesIsoSecurityContext]) },
     vnfSearchAuth () { return vnfAuth(this.$store.getters, this.$store.state?.user?.token) },
     isKubernetesIsoList () { return this.$route.meta?.name === 'kubernetesiso' && !this.$route.params?.id },
     isIsoList () { return this.$route.meta?.name === 'iso' && !this.$route.params?.id },
@@ -2260,7 +2278,7 @@ export default {
       if (this.vpnUserDeleteScope) return this.vpnUserDeleteScope
       if (this.isKmsDetail) return JSON.stringify([kmsDetailKey(this.$route, this.$store.getters), this.kmsSearchAuth])
       if (kmsListRoute(this.$route)) return JSON.stringify([this.$route.fullPath, this.kmsSearchAuth])
-      if (this.$route.meta?.name === 'kubernetesiso') return JSON.stringify([this.$route.fullPath, kubernetesIsoContext(this.$store.getters, this.$store.state?.user?.token)])
+      if (this.$route.meta?.name === 'kubernetesiso') return this.kubernetesIsoScope
       if (vnfRoute(this.$route)) return JSON.stringify([this.$route.fullPath, vnfAuth(this.$store.getters, this.$store.state?.user?.token), this.$store.getters.metrics])
       if (isSshKeyPairDetailRoute(this.$route)) return sshKeyPairDetailScope(this.$route, this.$store.getters, this.$store.state?.user?.token)
       if (this.$route.meta?.name === 'project') return JSON.stringify([this.$route.fullPath, this.projectSearchScope])
@@ -2495,7 +2513,7 @@ export default {
           this.listRefreshError = true
           return
         }
-        const query = vpnUserListQuery(this.$route.query, this.pageSize, getters)
+        const query = listRouteQuery(this.$route, this.pageSize, getters)
         if (JSON.stringify(query) !== JSON.stringify(this.$route.query)) {
           this.invalidateVpnUserRead()
           return this.$router.replace({ query })
@@ -2512,7 +2530,7 @@ export default {
           return
         }
         const raw = this.$route.query
-        const query = kmsQuery(raw, api, this.$store.getters, this.getValidPageSize(this.pageSize))
+        const query = listRouteQuery(this.$route, this.getValidPageSize(this.pageSize), this.$store.getters)
         if (JSON.stringify(query) !== JSON.stringify(raw)) {
           this.invalidateKmsResults()
           return this.$router.replace({ query })
@@ -2521,7 +2539,7 @@ export default {
       }
       if (this.isS2sSearchList) {
         this.dataView = false
-        const query = s2sGatewayQuery(this.$route.query, this.getValidPageSize(this.pageSize), this.$store.getters, this.s2sSearchApi)
+        const query = listRouteQuery(this.$route, this.getValidPageSize(this.pageSize), this.$store.getters)
         const error = !this.$store.state?.user?.token ? 'permission' : s2sGatewayError(query, this.$store.getters, this.$getApiParams(this.s2sSearchApi), this.s2sSearchApi)
         if (error) { this.rejectS2sGatewaySearch(error); return Promise.resolve() }
         if (JSON.stringify(query) !== JSON.stringify(this.$route.query)) { this.rejectS2sGatewaySearch(''); return this.$router.replace({ query }) }
@@ -2529,7 +2547,7 @@ export default {
       }
       if (asnRoute(this.$route)) {
         this.dataView = false; this.asnSearchFailure = ''
-        const query = asnQuery(this.$route.query, this.getValidPageSize(this.pageSize), this.$store.getters)
+        const query = listRouteQuery(this.$route, this.getValidPageSize(this.pageSize), this.$store.getters)
         const error = !this.$store.state?.user?.token ? 'permission' : asnError(query, this.$store.getters)
         if (error) { this.rejectAsnSearch(error); return Promise.resolve() }
         if (JSON.stringify(query) !== JSON.stringify(this.$route.query)) { this.rejectAsnSearch(''); return this.$router.replace({ query }) }
@@ -2537,7 +2555,7 @@ export default {
       if (publicIpRoute(this.$route) && !this.$route.params?.id) {
         if (this.publicIpProjectSync) return Promise.resolve()
         this.dataView = false; this.publicIpSearchFailure = ''
-        const query = publicIpQuery(this.$route.query, this.getValidPageSize(this.pageSize), this.$store.getters)
+        const query = listRouteQuery(this.$route, this.getValidPageSize(this.pageSize), this.$store.getters)
         const target = { ...this.$store.getters, project: ['0', '-1'].includes(query.projectid) ? {} : { id: query.projectid }, listAllProjects: query.projectid === '-1' }
         const error = !this.$store.state?.user?.token ? 'message.public.ip.search.permission' : publicIpSearchError(query, target, this.$getApiParams('listPublicIpAddresses'))
         if (error || JSON.stringify(query) !== JSON.stringify(this.$route.query)) {
@@ -2561,7 +2579,7 @@ export default {
         if (!this.$store.state?.user?.token || !kubernetesIsoCapability('read', this.$store.getters).available) { reject('forbidden'); return Promise.resolve() }
         try { kubernetesIsoReadParams({}, this.$route.params?.id) } catch (_) { reject('invalid'); return Promise.resolve() }
         if (!this.dataView) {
-          const query = kubernetesIsoListQuery(this.$route.query, this.pageSize, this.$store.getters, this.$store.state?.user?.token)
+          const query = listRouteQuery(this.$route, this.pageSize, this.$store.getters, this.$store.state?.user?.token)
           if (JSON.stringify(query) !== JSON.stringify(this.$route.query)) return this.$router.replace({ query })
           const error = kubernetesIsoSearchError(query, this.$store.getters)
           if (error) { reject(error === 'message.kubernetes.iso.search.unsupported' ? 'unsupported' : 'searchInvalid'); return Promise.resolve() }
@@ -2575,7 +2593,7 @@ export default {
         this.vnfSearchFailure = ''
         if (!this.$store.state?.user?.token || !('listVnfAppliances' in (this.$store.getters.apis || {}))) { this.rejectVnfSearch('message.vnf.search.permission'); return Promise.resolve() }
         if (!this.dataView) {
-          const query = vnfListQuery(this.$route.query, this.getValidPageSize(this.pageSize), this.$store.getters)
+          const query = listRouteQuery(this.$route, this.getValidPageSize(this.pageSize), this.$store.getters)
           if (JSON.stringify(query) !== JSON.stringify(this.$route.query)) { this.rejectVnfSearch(''); return this.$router.replace({ query }) }
           const error = vnfSearchError(query, this.$store.getters, this.$getApiParams('listVnfAppliances'))
           if (error) { this.rejectVnfSearch(error); return Promise.resolve() }
@@ -2591,7 +2609,7 @@ export default {
         this.isoListError = ''
         if (!this.$route.params?.id) {
           this.dataView = false
-          const query = isoListQuery(this.$route.query, this.pageSize, this.$store.getters)
+          const query = listRouteQuery(this.$route, this.pageSize, this.$store.getters)
           if (JSON.stringify(query) !== JSON.stringify(this.$route.query)) return this.$router.replace({ query })
           this.isoListError = isoSearchError(query, this.$getApiParams('listIsos'), this.$store.getters)
           if (this.isoListError) {
@@ -2607,7 +2625,7 @@ export default {
       this.templateDetailError = ''
       this.templateFilterError = ''
       if (this.$route.meta?.name === 'template' && !templateDetail) {
-        const query = templateListQuery(this.$route.query, this.pageSize)
+        const query = listRouteQuery(this.$route, this.pageSize, this.$store.getters)
         this.dataView = false
         if (JSON.stringify(query) !== JSON.stringify(this.$route.query)) return this.$router.replace({ query })
         this.templateFilterError = templateSearchError(query, this.$getApiParams('listTemplates'))
@@ -2632,7 +2650,7 @@ export default {
         return
       }
       if (snapshotPolicyListRoute(this.$route)) {
-        const clean = snapshotPolicyListQuery(normalizePolicySearch({ ...this.$route.query, projectid: policyProjectScope(this.$route, this.$store.getters) }), this.pageSize)
+        const clean = listRouteQuery(this.$route, this.pageSize, this.$store.getters)
         if (JSON.stringify(clean) !== JSON.stringify(this.$route.query)) {
           this.listRequestVersion++; this.listRequestPending = false; this.listLoadedScope = null
           this.items = []; this.resource = {}; this.itemCount = 0; this.loading = false; this.resetSelection()
@@ -2648,8 +2666,7 @@ export default {
         this.policySearchFailure = ''
       }
       if (this.$route.name === 'snapshot' && !this.$route.params.id) {
-        const projectId = this.$route.query.projectid || this.$store.getters.project?.id || (this.$store.getters.listAllProjects ? '-1' : '0')
-        const clean = storageSnapshotListQuery(normalizeSnapshotSearch({ ...this.$route.query, ...(projectId ? { projectid: projectId } : {}) }))
+        const clean = listRouteQuery(this.$route, this.pageSize, this.$store.getters)
         if (JSON.stringify(clean) !== JSON.stringify(this.$route.query)) return this.$router.replace({ query: clean })
         this.snapshotSearchFailure = snapshotSearchError(clean) || snapshotSearchPermissionError(clean, this.$store.getters)
         if (this.snapshotSearchFailure) {

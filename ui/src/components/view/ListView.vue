@@ -105,7 +105,7 @@
         :location="record.domainid && $store.getters.apis.listDomains ? { path: '/domain/' + record.domainid, query: { tab: 'details' } } : null" />
       <VpnUserValue v-else-if="$route.meta?.name === 'vpnuser' && ['state', 'owners'].includes(column.key)" :field="column.key" :resource="record" />
       <AsnListCell v-else-if="$route.meta?.name === 'asnumbers' && column.key !== 'filtercolumn'" :record="record" :field="column.key" />
-      <IsoListCell v-else-if="isIsoMainList && ['name', 'state', 'ostypename', 'arch', 'account', 'project', 'size'].includes(column.key)" :record="record" :field="column.key" />
+      <IsoListCell v-else-if="isIsoMainList && ['name', 'state', 'ostypename', 'arch', 'account', 'project', 'size'].includes(column.key)" :record="record" :field="column.key" :detail-query="column.key === 'name' ? isoReturnQuery : null" />
       <S2sGatewayValue v-else-if="$route.meta?.name === 's2svpn' && ['publicip','vpcname','account','domain','project'].includes(column.key)" :resource="record" :field="column.key" list />
       <KubernetesIsoListCell v-else-if="isKubernetesIsoMainList && ['state', 'isostate', 'zonename', 'semanticversion', 'mincpunumber', 'minmemory', 'arch'].includes(column.key)" :resource="record" :field="column.key" />
       <TableOverflowText
@@ -211,13 +211,13 @@
           </span>
           <span v-if="isTemplateMainList && record.id" class="template-primary-name">
             <a-tooltip :title="text" :trigger="['hover', 'focus']" placement="topLeft">
-              <router-link class="template-name-link" :to="templateDetailLocation($route, record, $store.getters)">{{ text }}</router-link>
+              <router-link class="template-name-link" :to="{ path: '/template/' + record.id, query: templateReturnQuery }">{{ text }}</router-link>
             </a-tooltip>
-            <router-link v-if="record.hasannotations" class="template-name-comment" :aria-label="$t('label.comments')" :to="templateDetailLocation($route, record, $store.getters, 'comments')"><message-filled size="small" /></router-link>
+            <router-link v-if="record.hasannotations" class="template-name-comment" :aria-label="$t('label.comments')" :to="{ path: '/template/' + record.id, query: { ...templateReturnQuery, tab: 'comments' } }"><message-filled size="small" /></router-link>
           </span>
           <span v-else-if="isKubernetesIsoMainList && record.id" class="template-primary-name">
             <keyboard-tooltip :title="text" :trigger="['hover', 'focus']" placement="topLeft">
-              <router-link class="template-name-link" :to="kubernetesIsoDetailLocation($route, record, $store.getters, $store.state?.user?.token)">{{ text }}</router-link>
+              <router-link class="template-name-link" :to="{ path: '/kubernetesiso/' + record.id, query: kubernetesIsoReturnQuery }">{{ text }}</router-link>
             </keyboard-tooltip>
           </span>
           <span v-else-if="isSshKeyPairList">
@@ -1459,8 +1459,9 @@ import { kmsDetailLocation } from '@/utils/kmsNavigation'
 import { kmsListRoute } from '@/utils/kmsSearch'
 import { kmsCellLabel, kmsTableColumns } from '@/utils/kmsPresentation'
 import TableOverflowText from '@/components/view/TableOverflowText'
-import { kubernetesIsoDetailLocation } from '@/utils/kubernetesIsoSearch'
-import { templateDetailLocation } from '@/utils/templateSearch'
+import { kubernetesIsoDetailQuery } from '@/utils/kubernetesIsoSearch'
+import { isoDetailQuery } from '@/utils/isoSearch'
+import { templateDetailQuery } from '@/utils/templateSearch'
 import IsoListCell from '@/components/view/IsoListCell'
 import { networkDetailLocation } from '@/utils/guestNetworkSearch'
 import { policyInterval, policySchedule, policyScheduling } from '@/utils/snapshotPolicyPresentation'
@@ -1598,6 +1599,7 @@ export default {
     resourcePath: { type: String, default: '' },
     resourceLink: { type: Function, default: null },
     selectionDisabled: { type: Function, default: () => false },
+    usageTypeMap: { type: Object, default: () => ({}) },
     keyboardContextMenu: { type: Boolean, default: false },
     columns: {
       type: Array,
@@ -1691,7 +1693,6 @@ export default {
           disable: 'storageallocateddisablethreshold'
         }
       },
-      usageTypeMap: {},
       resourceIdToValidLinksMap: {},
       listDayOfWeek: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
       columnPickerVisible: false,
@@ -1735,9 +1736,6 @@ export default {
       this.resetSelection()
       this.closeContextQuickView()
     }
-  },
-  created () {
-    this.getUsageTypes()
   },
   computed: {
     isVmMainList () { return this.$route.path === '/vm' && !this.resourcePath },
@@ -1795,6 +1793,11 @@ export default {
       return vpnConnectionListRoute(this.$route) ? this.$t('label.site.to.site.vpn.connections') : undefined
     },
     isKubernetesIsoMainList () { return this.$route.meta?.name === 'kubernetesiso' && !this.$route.params?.id && !this.resourcePath },
+    templateReturnQuery () { return templateDetailQuery(this.$route.query, this.$store.getters) },
+    isoReturnQuery () { return isoDetailQuery(this.$route.query, this.$store.getters) },
+    kubernetesIsoReturnQuery () {
+      return kubernetesIsoDetailQuery(this.$route.query, this.$store.getters, this.$store.state?.user?.token)
+    },
     displayColumns () {
       const columns = this.isOrderUpdatable() ? this.columns : this.columns.filter(column => column.dataIndex !== 'order')
       if (this.isVmMainList) return columns.map(column => ({ ...column, width: vmColumnWidths[column.key] || 112 }))
@@ -1956,7 +1959,6 @@ export default {
     publicIpDetailLocation,
     vmDisplayName,
     isVmIdentityRoute,
-    templateDetailLocation,
     projectDetailLocation,
     roleDetailLocation,
     accountDetailLocation,
@@ -1987,7 +1989,6 @@ export default {
       event.preventDefault()
       scroller.scrollLeft = event.key === 'Home' ? 0 : event.key === 'End' ? scroller.scrollWidth - scroller.clientWidth : scroller.scrollLeft + (event.key === 'ArrowRight' ? 120 : -120)
     },
-    kubernetesIsoDetailLocation,
     aclDisplayLabel,
     aclListDetailLocation,
     isAclListRoute,
@@ -2653,24 +2654,6 @@ export default {
     },
     hasValue (value) {
       return value !== undefined && value !== null && value !== ''
-    },
-    getUsageTypes () {
-      if (this.$route.path.split('/')[1] === 'usage') {
-        getAPI('listUsageTypes').then(json => {
-          if (json && json.listusagetypesresponse && json.listusagetypesresponse.usagetype) {
-            this.usageTypes = json.listusagetypesresponse.usagetype.map(x => {
-              return {
-                id: x.id,
-                value: x.description
-              }
-            })
-            this.usageTypeMap = {}
-            for (var usageType of this.usageTypes) {
-              this.usageTypeMap[usageType.id] = usageType.value
-            }
-          }
-        })
-      }
     },
     getRemainingLeaseText (leaseDuration) {
       if (leaseDuration > 0) {

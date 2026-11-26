@@ -20,9 +20,9 @@
     <resource-icon v-if="$showIcon() && record.icon?.base64image" :image="record.icon.base64image" size="2x" />
     <os-logo v-else-if="record.ostypename" :osName="record.ostypename" size="xl" />
     <a-tooltip :title="record.name" :trigger="['hover', 'focus']">
-      <router-link class="iso-value iso-name" :to="isoDetailLocation($route, record, $store.getters)" :aria-label="record.name">{{ record.name }}</router-link>
+      <router-link class="iso-value iso-name" :to="{ path: '/iso/' + record.id, query: returnQuery }" :aria-label="record.name">{{ record.name }}</router-link>
     </a-tooltip>
-    <router-link v-if="record.hasannotations" :to="isoDetailLocation($route, record, $store.getters, 'comments')" :aria-label="$t('label.comments')"><message-filled /></router-link>
+    <router-link v-if="record.hasannotations" :to="{ path: '/iso/' + record.id, query: { ...returnQuery, tab: 'comments' } }" :aria-label="$t('label.comments')"><message-filled /></router-link>
   </span>
   <a-tooltip v-else :title="fullValue" :trigger="['hover', 'focus']">
     <span tabindex="0" class="iso-value" :aria-label="fullValue">
@@ -37,13 +37,14 @@
 import OsLogo from '@/components/widgets/OsLogo'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TemplateAvailability from '@/components/widgets/TemplateAvailability'
-import { isoDetailLocation } from '@/utils/isoSearch'
+import { isoDetailQuery } from '@/utils/isoSearch'
 import { isoAvailability } from '@/utils/isoModel'
 export default {
   name: 'IsoListCell',
   components: { OsLogo, ResourceIcon, TemplateAvailability },
-  props: { record: { type: Object, required: true }, field: { type: String, required: true } },
+  props: { record: { type: Object, required: true }, field: { type: String, required: true }, detailQuery: { type: Object, default: null } },
   computed: {
+    returnQuery () { return this.detailQuery || isoDetailQuery(this.$route.query, this.$store.getters) },
     fullValue () {
       if (this.field === 'state') {
         const state = isoAvailability(this.record)
@@ -53,8 +54,7 @@ export default {
       if (this.field === 'size') return value == null ? '—' : (Number(value) / (1024 ** 3)).toFixed(2) + ' GiB'
       return value == null || value === '' ? '—' : String(value)
     }
-  },
-  methods: { isoDetailLocation }
+  }
 }
 </script>
 <style scoped lang="less">

@@ -72,8 +72,9 @@ export function kubernetesIsoSearchQuery (query, opts, pageSize, getters, sessio
   }
   return kubernetesIsoListQuery({ ...next, page: '1', pagesize: pageSize }, pageSize, getters, session)
 }
-export function kubernetesIsoDetailLocation (route, row, getters, session) {
-  return { path: '/kubernetesiso/' + row.id, query: { kisoreturn: JSON.stringify(kubernetesIsoListQuery(route.query, undefined, getters, session)), kisoowner: kubernetesIsoListOwner(getters, session) } }
+export function kubernetesIsoDetailQuery (query, getters, session) {
+  const list = kubernetesIsoListQuery(query, undefined, getters, session)
+  return { kisoreturn: JSON.stringify(list), kisoowner: list.kisoowner }
 }
 export function kubernetesIsoListLocation (route, getters, session) {
   try {
