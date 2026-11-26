@@ -215,7 +215,8 @@
   overflow: auto;
 }
 
-.workspace-scroll-region {
+/* Match the themed workbench selectors so this region owns both scrollbar colors. */
+.layout-content .workspace-scroll-region {
   --workspace-scroll-thumb: transparent;
   scrollbar-width: thin;
   scrollbar-color: var(--workspace-scroll-thumb) transparent;
@@ -226,19 +227,20 @@
   --workspace-scroll-thumb: var(--ui-scroll-thumb);
 }
 
-.workspace-scroll-region::-webkit-scrollbar {
+.layout-content .workspace-scroll-region::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
-.workspace-scroll-region::-webkit-scrollbar-track,
-.workspace-scroll-region::-webkit-scrollbar-corner {
+.layout-content .workspace-scroll-region::-webkit-scrollbar-track,
+.layout-content .workspace-scroll-region::-webkit-scrollbar-corner {
   background: transparent;
 }
 
-.workspace-scroll-region::-webkit-scrollbar-thumb,
-.workspace-scroll-region::-webkit-scrollbar-thumb:hover {
+.layout-content .workspace-scroll-region::-webkit-scrollbar-thumb,
+.layout-content .workspace-scroll-region::-webkit-scrollbar-thumb:hover {
   background: var(--workspace-scroll-thumb);
+  border-color: transparent;
   background-clip: padding-box;
 }
 

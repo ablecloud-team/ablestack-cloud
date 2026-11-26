@@ -23,7 +23,7 @@
           <template #action><a-button size="small" @click="fetchData">{{ $t('label.refresh') }}</a-button></template>
         </a-alert>
         <resource-view
-          v-if="isPublicIpAddress && 'id' in resource"
+          v-if="isPublicIpAddress && resource.id === $route.params.id"
           viewport-scroll
           :key="resource.id"
           :loading="loading"

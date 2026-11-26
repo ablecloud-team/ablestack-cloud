@@ -59,16 +59,14 @@
           v-if="tabs.length === 1 && !isNetworkTabs && !['snapshotpolicy', 's2svpn'].includes($route.meta?.name)"
           :class="{ 'workspace-panel': viewportScroll && !hasOwnTabs, 'workspace-fill': viewportScroll && hasOwnTabs }"
           v-scroll-activity="viewportScroll && !hasOwnTabs && { label: $t('label.details'), scope: resource.id }">
-          <keep-alive>
-            <component
-              :is="tabs[0].component"
-              :key="tabs[0].name"
-              :resource="resource"
-              :loading="loading"
-              :tab="tabs[0].name"
-              v-bind="hasOwnTabs ? { viewportScroll } : $route.meta?.name === 'kubernetesiso' && ['details','zones'].includes(tabs[0].name) ? { observation: kubernetesIsoObservation } : {}"
-              v-on="tabListeners(tabs[0])" />
-          </keep-alive>
+          <component
+            :is="tabs[0].component"
+            :key="tabs[0].name"
+            :resource="resource"
+            :loading="loading"
+            :tab="tabs[0].name"
+            v-bind="hasOwnTabs ? { viewportScroll } : $route.meta?.name === 'kubernetesiso' && ['details','zones'].includes(tabs[0].name) ? { observation: kubernetesIsoObservation } : {}"
+            v-on="tabListeners(tabs[0])" />
         </div>
         <a-tabs
           v-else
@@ -84,16 +82,14 @@
               :key="tab.name"
               :tab="$t('label.' + tabName(tab))"
               v-if="showTab(tab)">
-              <keep-alive>
-                <component
-                  :is="tab.component"
-                  :key="tabInstanceKey(tab)"
-                  :resource="resource"
-                  :loading="loading && !(quietRefresh && tab.name === 'details' && resource.id && resource.id === $route.params?.id)"
-                  :tab="['runtimebundle', 's2svpnconn'].includes($route.meta?.name) ? tab.name : activeTab"
-                  v-bind="tabProperties(tab)"
-                  v-on="tabListeners(tab, true)" />
-              </keep-alive>
+              <component
+                :is="tab.component"
+                :key="tabInstanceKey(tab)"
+                :resource="resource"
+                :loading="loading && !(quietRefresh && tab.name === 'details' && resource.id && resource.id === $route.params?.id)"
+                :tab="['runtimebundle', 's2svpnconn'].includes($route.meta?.name) ? tab.name : activeTab"
+                v-bind="tabProperties(tab)"
+                v-on="tabListeners(tab, true)" />
             </a-tab-pane>
           </template>
         </a-tabs>
@@ -195,7 +191,7 @@ export default {
     templateTabScope () { return this.$route.meta?.name === 'template' ? JSON.stringify([this.templateContext, this.resource.templatetype, Object.keys(this.$store.getters.apis || {}).sort()]) : '' },
     templateContext () { return templateObservationContext(this.$route, this.resource, this.$store.getters, this.$store.state?.user?.token) },
     isNetworkTabs () { return networkTabRoute(this.$route) },
-    networkTabsReady () { return !!this.resource.id && (!this.$route.params?.id || this.$route.params.id === this.resource.id) && (!this.loading || this.viewportScroll) && (this.managedNetworkContext || !this.resource.associatednetworkid || this.networkService !== null) },
+    networkTabsReady () { return !!this.resource.id && (!this.$route.params?.id || this.$route.params.id === this.resource.id) && !this.loading && (this.managedNetworkContext || !this.resource.associatednetworkid || this.networkService !== null) },
     s2sTabScope () { return this.$route.meta?.name === 's2svpn' ? gatewayContext(this) : '' },
     dnsZoneTabScope () {
       if (this.$route.meta?.name !== 'dnszone') return ''
