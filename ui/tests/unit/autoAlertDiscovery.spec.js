@@ -166,6 +166,45 @@ test('Wall status is unknown until the initial probe completes, and healthy empt
   expect(wrapper.vm.showBanner).toBe(false)
 })
 
+test('observes the banner size when a later probe first shows it', async () => {
+  let now = 1000
+  let state = 'Disabled'
+  jest.spyOn(Date, 'now').mockImplementation(() => now)
+  store.getters.apis = { getWallAlertAvailability: {} }
+  getAPI.mockImplementation(() => Promise.resolve(statusReply(state)))
+
+  const originalObserver = Object.getOwnPropertyDescriptor(window, 'ResizeObserver')
+  const observe = jest.fn()
+  const disconnect = jest.fn()
+  Object.defineProperty(window, 'ResizeObserver', {
+    configurable: true,
+    value: function () {
+      this.observe = observe
+      this.disconnect = disconnect
+    }
+  })
+
+  try {
+    wrapper = mountAvailabilityBanner()
+    await flush()
+    expect(wrapper.find('.banner-list').exists()).toBe(false)
+
+    state = 'ConnectionFailed'
+    now += 31000
+    await window.__bannerPoll.pollTick()
+    await flush()
+    expect(observe).toHaveBeenCalledWith(wrapper.get('.banner-list').element)
+
+    disconnect.mockClear()
+    await wrapper.get('button.ant-alert-close-icon').trigger('click')
+    await flush()
+    expect(disconnect).toHaveBeenCalled()
+  } finally {
+    if (originalObserver) Object.defineProperty(window, 'ResizeObserver', originalObserver)
+    else delete window.ResizeObserver
+  }
+})
+
 test('real blue Alert closes with X and dismissal survives remount/reload and prolonged outage, but not a new session', async () => {
   let now = 1000
   jest.spyOn(Date, 'now').mockImplementation(() => now)
