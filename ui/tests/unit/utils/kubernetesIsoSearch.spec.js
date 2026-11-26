@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { kubernetesIsoListQuery as query, kubernetesIsoListOwner as owner, kubernetesIsoSearchError as error, kubernetesIsoSearchQuery as search, kubernetesIsoDetailLocation as detail, kubernetesIsoListLocation as back, validKubernetesMinimum, compareKubernetesMinimum } from '@/utils/kubernetesIsoSearch'
+import { kubernetesIsoListQuery as query, kubernetesIsoListOwner as owner, kubernetesIsoSearchError as error, kubernetesIsoSearchQuery as search, kubernetesIsoDetailQuery as detailQuery, kubernetesIsoListLocation as back, validKubernetesMinimum, compareKubernetesMinimum } from '@/utils/kubernetesIsoSearch'
 import { kubernetesIsoListResponse, kubernetesIsoReadParams } from '@/utils/kubernetesIsoModel'
 const id = '11111111-1111-4111-8111-111111111111'
 const fields = ['keyword', 'zoneid', 'arch', 'minimumsemanticversion', 'minimumkubernetesversionid', 'sortkey', 'sortorder']
@@ -50,13 +50,13 @@ test('keyword search preserves combined filters/sort while advanced mode replace
 })
 test('detail and breadcrumb restore the same combined global-sort/page state', () => {
   const g = getters(); const q = query({ keyword: 'part', minimumkubernetesversionid: id, arch: 'aarch64', zoneid: id, page: 2, pagesize: 10, sortkey: 'semanticversion', sortorder: 'desc' }, 20, g, 'session')
-  const route = detail({ query: q }, { id }, g, 'session')
+  const route = { query: detailQuery(q, g, 'session') }
   expect(back(route, g, 'session')).toEqual({ path: '/kubernetesiso', query: q })
   expect(kubernetesIsoReadParams(route.query, id)).toEqual({ id })
 })
 test.each(['account', 'role', 'project', 'session', 'permission'])('old return URL and list state cannot cross %s ownership', change => {
   const g = getters(); const original = query({ keyword: 'old', page: 3, minimumsemanticversion: '1.30.0' }, 20, g, 'old-session')
-  const route = detail({ query: original }, { id }, g, 'old-session')
+  const route = { query: detailQuery(original, g, 'old-session') }
   if (change === 'account') g.userInfo.id = 'new-account'
   if (change === 'role') g.userInfo.roleid = 'new-role'
   if (change === 'project') g.project = { id }
@@ -65,6 +65,14 @@ test.each(['account', 'role', 'project', 'session', 'permission'])('old return U
   expect(owner(g, session)).not.toBe(original.kisoowner)
   expect(back(route, g, session)).toEqual({ path: '/kubernetesiso' })
   expect(query(original, 20, g, session)).toEqual(query({}, 20, g, session))
+})
+test('detail links use one calculation of the list owner', () => {
+  const g = getters()
+  const readApis = jest.fn(() => g.apis)
+  const source = { ...g, get apis () { return readApis() } }
+  const details = detailQuery({ keyword: 'stable', page: '2' }, source, 'session')
+  expect(readApis).toHaveBeenCalledTimes(1)
+  expect(JSON.parse(details.kisoreturn)).toMatchObject({ kisoowner: details.kisoowner, keyword: 'stable', page: '2' })
 })
 test.each(['[]', 'null', 'not-json'])('malformed return state %s falls back to the catalog', value => {
   const g = getters()

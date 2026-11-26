@@ -186,7 +186,7 @@ test('history-only URL paging keeps the parent identity scope and skips clearing
   const ctx = { $route: from, $store: { getters: { userInfo: { id: 'user' }, project: {} } }, resource: source, resetSelection: jest.fn(), fetchData: jest.fn() }
   const before = Autogen.methods.listScope.call(ctx); ctx.$route = to
   expect(Autogen.methods.listScope.call(ctx)).toBe(before)
-  Autogen.watch.$route.call(ctx, to, from)
+  Autogen.watch.$route.handler.call(ctx, to, from)
   expect(ctx.fetchData).not.toHaveBeenCalled(); expect(ctx.resetSelection).not.toHaveBeenCalled(); expect(ctx.resource).toBe(source)
   ctx.$route = { ...to, query: { ...to.query, projectid: 'different' } }
   expect(Autogen.methods.listScope.call(ctx)).not.toBe(before)

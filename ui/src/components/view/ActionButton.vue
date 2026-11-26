@@ -154,6 +154,7 @@ export default {
       type: Boolean,
       default: false
     },
+    groupResource: { type: Object, default: null },
     selectedRowKeys: {
       type: Array,
       default () {
@@ -433,16 +434,17 @@ export default {
       if (this.isActionDisabled(action)) {
         return
       }
-      action.resource = this.resource
-      if (action.docHelp) {
-        action.docHelp = this.$applyDocHelpMappings(action.docHelp)
-      }
-      this.$emit('exec-action', action)
+      const resource = this.actionResource(action)
+      const docHelp = action.docHelp ? this.$applyDocHelpMappings(action.docHelp) : action.docHelp
+      this.$emit('exec-action', { ...action, resource, docHelp })
+    },
+    actionResource (action) {
+      return action.groupAction && this.groupResource ? this.groupResource : this.resource
     },
     isActionDisabled (action) {
       if ((this.dataView || action.groupAction) && this.resourceActionReady?.() === false) return true
       if (this.vmDeleteTooltip(action)) return true
-      return 'disabled' in action ? action.disabled(this.resource, this.$store.getters, this.selectedItems) : false
+      return 'disabled' in action ? action.disabled(this.actionResource(action), this.$store.getters, this.selectedItems) : false
     },
     vmDeleteTooltip (action) {
       if (!isVmDeletion(action)) return ''
@@ -460,7 +462,7 @@ export default {
       if (!('tooltip' in action)) {
         return ''
       }
-      const tooltip = action.tooltip(this.resource, this.$store.getters, this.selectedItems)
+      const tooltip = action.tooltip(this.actionResource(action), this.$store.getters, this.selectedItems)
       return tooltip ? this.$t(tooltip) : ''
     },
     async openConsole (copyUrlToClipboard) {

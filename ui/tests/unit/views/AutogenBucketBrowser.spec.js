@@ -31,14 +31,14 @@ const context = () => ({ resetSelection: jest.fn(), clearAutoRefresh: jest.fn(),
 
 test('does not refetch bucket metadata for its own browser path normalization or folder query', () => {
   const vm = context()
-  Autogen.watch.$route.call(vm, route('A', { tab: 'browser', browserPath: '' }), route('A', { tab: 'browser' }))
-  Autogen.watch.$route.call(vm, route('A', { tab: 'browser', browserPath: 'folder/' }), route('A', { tab: 'browser', browserPath: '' }))
+  Autogen.watch.$route.handler.call(vm, route('A', { tab: 'browser', browserPath: '' }), route('A', { tab: 'browser' }))
+  Autogen.watch.$route.handler.call(vm, route('A', { tab: 'browser', browserPath: 'folder/' }), route('A', { tab: 'browser', browserPath: '' }))
   expect(vm.fetchData).not.toHaveBeenCalled()
 })
 
 test('fetches fresh bucket metadata when a browser URL changes bucket id', () => {
   const vm = context()
-  Autogen.watch.$route.call(vm, route('B', { tab: 'browser' }), route('A', { tab: 'browser' }))
+  Autogen.watch.$route.handler.call(vm, route('B', { tab: 'browser' }), route('A', { tab: 'browser' }))
   expect(vm.resetSelection).toHaveBeenCalledTimes(1)
   expect(vm.fetchData).toHaveBeenCalledTimes(1)
   expect(vm.scheduleAutoRefresh).toHaveBeenCalledTimes(1)
@@ -47,7 +47,7 @@ test('fetches fresh bucket metadata when a browser URL changes bucket id', () =>
 
 test('preserves normal detail navigation metadata refresh', () => {
   const vm = context()
-  Autogen.watch.$route.call(vm, route('A', { tab: 'details' }), route('A', { tab: 'browser' }))
+  Autogen.watch.$route.handler.call(vm, route('A', { tab: 'details' }), route('A', { tab: 'browser' }))
   expect(vm.fetchData).toHaveBeenCalledTimes(1)
 })
 

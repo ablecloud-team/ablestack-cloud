@@ -118,7 +118,7 @@ describe('Shared selection context menu', () => {
     wrapper.vm.onSelectChange(['a', 'c'], [rows[0], rows[2]])
     await wrapper.vm.$nextTick()
     const element = document.createElement('tr')
-    element.classList.add('ant-table-row'); element.setAttribute('data-row-key', name === 'vm' ? 'c' : 'b')
+    element.classList.add('ant-table-row'); element.setAttribute('data-row-key', 'c')
     wrapper.vm.handleGlobalContextMenu({ target: element, clientX: 20, clientY: 40, preventDefault: jest.fn(), stopPropagation: jest.fn() })
     await wrapper.vm.$nextTick()
     await wrapper.vm.$nextTick()
@@ -171,7 +171,7 @@ test('VM toolbar bulk actions require the selected rows, permission and a common
     selectedItems: [stopped, { id: 'b', state: 'Stopped' }],
     $store: { getters: { apis: { startVirtualMachine: {}, stopVirtualMachine: {} } } }
   }
-  const canUse = action => AutogenView.methods.canUseVmBulkToolbarAction.call(context, action)
+  const canUse = action => AutogenView.methods.canUseListBulkAction.call(context, action)
   expect(canUse(start)).toBe(true)
   expect(canUse(stop)).toBe(false)
 

@@ -79,8 +79,11 @@ export function templateRequestParams (params, detail = false, getters = {}) {
 export function templateOwner (getters = {}) {
   return JSON.stringify([getters.userInfo?.id || '', getters.userInfo?.roletype || '', getters.userInfo?.roleid || '', getters.project?.id || '', !!getters.listAllProjects])
 }
+export function templateDetailQuery (query, getters) {
+  return { templatereturn: JSON.stringify(templateListQuery(query)), templateowner: templateOwner(getters) }
+}
 export function templateDetailLocation (route, record, getters, tab) {
-  return { path: '/template/' + record.id, query: { templatereturn: JSON.stringify(templateListQuery(route.query)), templateowner: templateOwner(getters), ...(tab ? { tab } : {}) } }
+  return { path: '/template/' + record.id, query: { ...templateDetailQuery(route.query, getters), ...(tab ? { tab } : {}) } }
 }
 export function templateListLocation (route, getters) {
   try {

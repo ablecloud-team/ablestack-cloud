@@ -26,6 +26,7 @@ import './core/lazy_use'
 import extensions from './core/ext'
 import './permission' // permission control
 import './style/components/view/DetailTab.scss'
+import './style/components/view/list-status.css'
 import './utils/filter' // global filter
 import {
   pollJobPlugin,

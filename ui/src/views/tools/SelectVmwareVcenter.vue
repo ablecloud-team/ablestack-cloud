@@ -49,7 +49,7 @@
               return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }"
             @change="onSelectZoneId"
-            :loading="loading"
+            :loading="zonesLoading || loading"
           >
             <a-select-option v-for="zoneitem in zones" :key="zoneitem.id" :label="zoneitem.name">
               <span>
@@ -163,6 +163,14 @@ export default {
       type: String,
       required: false
     },
+    zones: {
+      type: Array,
+      required: true
+    },
+    zonesLoading: {
+      type: Boolean,
+      default: false
+    },
     useAblestackV2KInventory: {
       type: Boolean,
       required: false,
@@ -177,7 +185,6 @@ export default {
       password: '',
       apiParams: {},
       loading: false,
-      zones: {},
       vcenterSelectedOption: '',
       existingvcenter: [],
       selectedExistingVcenterId: '',
@@ -220,7 +227,6 @@ export default {
   created () {
     this.apiParams = this.$getApiParams('listVmwareDcVms') || {}
     this.initForm()
-    this.fetchZones()
     if (this.useAblestackV2KInventory && !this.supportsVmwareDatacenterImport) {
       this.vcenterSelectedOption = 'new'
       this.$emit('onVcenterTypeChanged', this.vcenterSelectedOption)
@@ -270,16 +276,6 @@ export default {
           response: json[responseKey]
         }
         this.$emit('listedVmwareUnmanagedInstances', obj)
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.loading = false
-      })
-    },
-    fetchZones () {
-      this.loading = true
-      getAPI('listZones', { showicon: true }).then(response => {
-        this.zones = response.listzonesresponse.zone || []
       }).catch(error => {
         this.$notifyError(error)
       }).finally(() => {

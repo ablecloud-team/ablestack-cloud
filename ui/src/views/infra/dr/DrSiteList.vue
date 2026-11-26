@@ -182,8 +182,8 @@
     </template>
 
     <template v-else>
-      <div class="row-element" @contextmenu="openListContextMenu">
-        <a-table
+      <div class="row-element">
+        <mold-list-table
           class="cross-dr-standard-table"
           size="middle"
           :columns="tableColumns"
@@ -191,7 +191,10 @@
           :rowKey="record => record.id"
           :loading="loading"
           :pagination="false"
-          :rowSelection="listRowSelection">
+          :rowSelection="listRowSelection"
+          external-context
+          @row-context="openListContextMenu"
+          :multiple="false">
           <template #customFilterDropdown>
             <div style="padding: 8px" class="filter-dropdown">
               <a-menu>
@@ -219,7 +222,7 @@
               {{ $t(siteTypeLabel(text)) }}
             </template>
           </template>
-        </a-table>
+        </mold-list-table>
         <a-pagination
           class="row-element"
           style="margin-top: 10px"
@@ -423,6 +426,7 @@
 </template>
 
 <script>
+import MoldListTable from '@/components/view/MoldListTable'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import { notification } from 'ant-design-vue'
 import ActionButton from '@/components/view/ActionButton'
@@ -445,6 +449,7 @@ import { ClockCircleOutlined, GlobalOutlined, SafetyCertificateOutlined } from '
 export default {
   name: 'DrSiteList',
   components: {
+    MoldListTable,
     ActionButton,
     Breadcrumb,
     DrFormModal,
@@ -1392,17 +1397,9 @@ export default {
       this.contextMenuPosition = { x: event.clientX, y: event.clientY }
       this.contextMenuVisible = true
     },
-    openListContextMenu (event) {
-      const rowElement = event.target.closest('tr.ant-table-row')
-      if (!rowElement) {
-        this.closeContextMenu()
-        return
-      }
-      const rowKey = rowElement.getAttribute('data-row-key')
-      const site = this.pagedSites.find(item => String(item.id) === String(rowKey))
-      if (site) {
-        this.openSiteContextMenu(event, site)
-      }
+    openListContextMenu ({ event, record, position }) {
+      this.openSiteContextMenu(event, record)
+      this.contextMenuPosition = position
     },
     closeContextMenu () {
       this.contextMenuVisible = false

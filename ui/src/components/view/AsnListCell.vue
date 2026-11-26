@@ -17,7 +17,7 @@
 
 <template>
   <span class="asn-list-cell">
-    <a-tag v-if="field === 'allocationstate'" :class="{ 'asn-state-allocated': record.allocationstate === 'Allocated', 'asn-state-free': record.allocationstate === 'Free' }">{{ $t(record.allocationstate === 'Allocated' ? 'label.asn.state.allocated' : record.allocationstate === 'Free' ? 'label.asn.state.free' : 'label.unknown') }}</a-tag>
+    <a-badge v-if="field === 'allocationstate'" :status="record.allocationstate === 'Allocated' ? 'processing' : record.allocationstate === 'Free' ? 'success' : 'default'" :text="$t(record.allocationstate === 'Allocated' ? 'label.asn.state.allocated' : record.allocationstate === 'Free' ? 'label.asn.state.free' : 'label.unknown')" />
     <span v-else-if="field === 'releasereason'">{{ $t('message.asn.release.' + reason) }}</span>
     <span v-else-if="['allocated', 'created'].includes(field)">{{ record[field] ? $toLocaleDate(record[field]) : '—' }}</span>
     <template v-else>
@@ -41,7 +41,5 @@ export default {
 </script>
 <style scoped>
 .asn-list-cell { overflow-wrap: anywhere; color: var(--ui-text-primary); }
-.asn-list-cell .ant-tag.asn-state-free { color: var(--ui-success-text); background: var(--ui-success-bg); border-color: var(--ui-success-border); }
-.asn-list-cell .ant-tag.asn-state-allocated { color: var(--ui-info-text); background: var(--ui-info-bg); border-color: var(--ui-info-border); }
 .asn-list-cell a { color: var(--ui-link); }
 </style>

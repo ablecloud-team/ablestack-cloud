@@ -131,8 +131,9 @@
             </a-button>
 
             <a-layout-content
+              v-list-overflow-title
               class="layout-content"
-              :class="{ 'is-header-fixed': fixedHeader }">
+              :class="{ 'is-header-fixed': fixedHeader, 'dashboard-content': $route.name === 'dashboard' }">
               <slot />
             </a-layout-content>
 
@@ -167,10 +168,12 @@ import EventSidebar from '@/components/view/EventSidebar.vue'
 import AnnouncementBanner from '@/components/header/AnnouncementBanner.vue'
 import AutoAlertBanner from '@/components/header/AutoAlertBanner.vue'
 import { hasDiscoveryApi } from '@/utils/optionalDiscovery'
+import listOverflowTitle from '@/utils/listOverflowTitle'
 
 const HEADER_FIXED_PX = 78
 
 export default {
+  directives: { listOverflowTitle },
   name: 'GlobalLayout',
   components: {
     SideMenu,

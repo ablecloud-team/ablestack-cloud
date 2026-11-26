@@ -33,7 +33,7 @@ class="nfs-listener-table"
           <div v-if="!group(record).registered" class="nfs-listener-warning">{{ $t('message.storage.nfs.listeners.unregistered') }}</div>
         </template>
         <template v-else-if="column.key === 'state'">
-          <a-tag :color="stateColor(record.state)">{{ stateLabel(record.state) }}</a-tag>
+          <a-badge :status="listenerBadgeStatus(record.state)" :text="stateLabel(record.state)" />
           <div class="nfs-listener-hint">{{ record.observedAt || '—' }}</div>
           <div v-if="record.partial" class="nfs-listener-warning">{{ $t('message.storage.nfs.listeners.partial') }}</div>
         </template>
@@ -126,7 +126,7 @@ export default {
   methods: {
     group (row) { return this.groupsByKey[row.groupKey] },
     stateLabel (state) { return this.$t('label.storage.nfs.listeners.state.' + state.toLowerCase()) },
-    stateColor (state) { return ({ READY: 'green', FAILED: 'red', CONFLICT: 'orange', STALE: 'orange', UNAVAILABLE: 'orange' })[state] || 'default' },
+    listenerBadgeStatus (state) { return ({ READY: 'success', FAILED: 'error', CONFLICT: 'warning', STALE: 'warning', UNAVAILABLE: 'warning' })[state] || 'default' },
     roleLabel (role) { return this.$t('label.storage.nfs.listeners.role.' + (['PRIMARY', 'ALIAS', 'SECONDARY', 'DEDICATED'].includes(role) ? role.toLowerCase() : 'unknown')) },
     open (key) { this.selectedKey = key; this.selectedExport = null; this.visible = true },
     openExport (id) { this.selectedKey = null; this.selectedExport = id; this.visible = true },

@@ -25,6 +25,7 @@ const ruleAction = (kind, api, icon, label) => ({
   label,
   dataView: true,
   groupAction: true,
+  groupShowAllowsSubset: true,
   popup: true,
   selfManagedDialog: true,
   wallRuleAction: kind,
