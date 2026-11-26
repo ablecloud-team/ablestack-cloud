@@ -78,7 +78,7 @@
 }
 
 .vm-workspace-list .vm-list-table .ant-table-placeholder > .ant-table-cell {
-  block-size: max(0px, calc(100cqh - var(--mold-list-row-height)));
+  block-size: calc(100cqh - var(--mold-list-row-height));
   padding: 0 !important;
   border-block-end: 0;
   text-align: center;
