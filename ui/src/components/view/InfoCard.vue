@@ -1803,7 +1803,7 @@ export default {
 .template-info-card .resource-detail-item__details { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
 .template-info-card .resource-detail-item__details a { white-space: normal; overflow-wrap: anywhere; }
 .vm-network-summary-link[aria-disabled="true"] {
-  color: var(--ui-link);
+  cursor: default;
 }
 .vm-network-access-error {
   margin-top: 8px;
