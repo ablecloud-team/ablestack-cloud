@@ -1,3 +1,22 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
 # v2k 게스트 설정 결합과 현재 상태 검증
 
 v2k가 원본 의도와 OS 어댑터·첫 부팅 payload를 준비하고, Mold가 실제 VM/볼륨/NIC·실행 호스트와 결합해 결과를 확인한다. 게스트 설정은 `StartCommand` 응답을 기다리는 경로에서 처리하지 않는다. VM을 시작해 Running/host를 반영한 뒤 별도 reconcile 명령을 사용한다.
