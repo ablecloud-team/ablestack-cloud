@@ -446,6 +446,9 @@ export default {
       }, {
         name: 'egress.rule',
         component: shallowRef(defineAsyncComponent(() => import('@/views/network/IngressEgressRuleConfigure.vue')))
+      }, {
+        name: 'security.group.members',
+        component: shallowRef(defineAsyncComponent(() => import('@/views/network/SecurityGroupMembers.vue')))
       }],
       show: () => {
         if (!isZoneCreated()) {
