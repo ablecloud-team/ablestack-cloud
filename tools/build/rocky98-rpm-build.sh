@@ -250,12 +250,15 @@ verify_management_schema_resources() {
     fi
 
     mkdir -p "$extract_dir/runtime-smoke"
+    local runtime_classpath="$packaged_jar:$extract_dir/usr/share/cloudstack-management/lib/*"
     "$JAVA_HOME/bin/javac" \
-        -cp "$packaged_jar:$extract_dir/usr/share/cloudstack-management/lib/*" \
-        -d "$extract_dir/runtime-smoke" "$ROOT_DIR/tools/build/ManagementRuntimeSmoke.java"
-    timeout 60s "$JAVA_HOME/bin/java" \
-        -cp "$extract_dir/runtime-smoke:$packaged_jar:$extract_dir/usr/share/cloudstack-management/lib/*" \
-        ManagementRuntimeSmoke | tee "$ROOT_DIR/dist/rocky98-build/runtime-smoke.txt"
+        -cp "$runtime_classpath" -d "$extract_dir/runtime-smoke" \
+        "$ROOT_DIR/tools/build/ManagementRuntimeSmoke.java" \
+        "$ROOT_DIR/tools/build/ProjectAccountRuntimeSmoke.java"
+    timeout 60s "$JAVA_HOME/bin/java" -cp "$extract_dir/runtime-smoke:$runtime_classpath" \
+        ProjectAccountRuntimeSmoke | tee "$ROOT_DIR/dist/rocky98-build/runtime-smoke.txt"
+    timeout 60s "$JAVA_HOME/bin/java" -cp "$extract_dir/runtime-smoke:$runtime_classpath" \
+        ManagementRuntimeSmoke | tee -a "$ROOT_DIR/dist/rocky98-build/runtime-smoke.txt"
 
     for resource in \
         META-INF/db/schema-Europa-After.sql \

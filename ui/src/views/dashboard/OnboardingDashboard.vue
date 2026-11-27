@@ -26,35 +26,35 @@
         <div class="title">{{ $t('label.what.is.cloudstack') }}</div>
         <div class="subtitle">{{ $t('label.introduction.to.cloudstack') }}</div>
         <p>{{ $t('message.installwizard.copy.whatiscloudstack') }}</p>
-        <img class="center" src="assets/bg-what-is-ablestack.png">
-        <a-button @click="() => { this.step = 1 }" type="primary">
+        <img class="center" src="assets/bg-what-is-ablestack.png" alt="">
+        <a-button class="continue-install" type="primary" @click="step = 1">
           {{ $t('label.continue.install') }}
           <double-right-outlined />
         </a-button>
       </div>
     </div>
-    <a-modal
+    <mold-dialog
       :title="$t('label.installwizard.addzoneintro.title')"
       :visible="step === 1"
-      :closable="true"
-      :maskClosable="false"
-      :footer="null"
-      @cancel="closeAction"
-      centered
-      width="auto">
+      size="xl"
+      form-actions
+      focus-guard
+      @cancel="closeAction">
       <zone-wizard
         @close-action="closeAction"
         @refresh-data="parentFetchData" />
-    </a-modal>
+    </mold-dialog>
   </div>
 </template>
 
 <script>
+import MoldDialog from '@/components/view/MoldDialog.vue'
 import ZoneWizard from '@/views/infra/zone/ZoneWizard.vue'
 
 export default {
   name: 'OnboardingDashboard',
   components: {
+    MoldDialog,
     ZoneWizard
   },
   inject: ['parentFetchData'],
@@ -77,8 +77,9 @@ export default {
 .onboarding {
   font-family: sans-serif;
   padding: 20px 10px 50px 10px;
-  background: #fff;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  background: var(--ui-bg-surface);
+  color: var(--ui-text-secondary);
+  box-shadow: 0 1px 4px var(--ui-shadow);
   @media (min-width: 760px) {
     padding: 20px 10% 50px 10%;
   }
@@ -86,6 +87,12 @@ export default {
 
 .head {
   text-align: center;
+}
+
+h2,
+h3,
+.title {
+  color: var(--ui-text-primary);
 }
 
 h2 {
@@ -131,10 +138,32 @@ pre {
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 10px;
-  text-align: center;
+  max-inline-size: 100%;
+  block-size: auto;
 }
 
-button {
-  float: right;
+body.dark-mode .onboarding .center {
+  filter: brightness(1.6);
+}
+
+.continue-install {
+  display: flex;
+  align-items: center;
+  margin-inline-start: auto;
+  background-color: var(--ui-action-primary-bg);
+  border-color: var(--ui-action-primary-bg);
+  color: var(--ui-action-primary-text);
+
+  &:hover,
+  &:focus {
+    background-color: var(--ui-action-primary-hover);
+    border-color: var(--ui-action-primary-hover);
+    color: var(--ui-action-primary-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ui-focus);
+    outline-offset: 2px;
+  }
 }
 </style>
