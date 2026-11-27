@@ -37,9 +37,7 @@
             @change="resetRulePorts"
             showSearch
             optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
+            :filterOption="matchOption">
             <a-select-option value="tcp" :label="$t('label.tcp')">{{ capitalise($t('label.tcp')) }}</a-select-option>
             <a-select-option value="udp" :label="$t('label.udp')">{{ capitalise($t('label.udp')) }}</a-select-option>
             <a-select-option value="icmp" :label="$t('label.icmp')">{{ capitalise($t('label.icmp')) }}</a-select-option>
@@ -53,47 +51,41 @@
             v-model:value="newRule.protocolnumber"
             showSearch
             optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
-            <a-select-option v-for="(opt, optIndex) in protocolNumbers" :key="optIndex" :label="opt.name">
+            :filterOption="matchOption">
+            <a-select-option v-for="opt in protocolNumbers" :key="opt.index" :value="opt.index" :label="opt.index + ' - ' + opt.name">
               {{ opt.index + ' - ' + opt.name }}
             </a-select-option>
           </a-select>
         </div>
-        <div v-show="['tcp', 'udp', 'protocolnumber'].includes(newRule.protocol) && !(newRule.protocol === 'protocolnumber' && newRule.protocolnumber === 1)" class="form__item">
+        <div v-show="showsPorts" class="form__item">
           <div class="form__label">{{ $t('label.startport') }}</div>
           <a-input v-model:value="newRule.startport"></a-input>
         </div>
-        <div v-show="['tcp', 'udp', 'protocolnumber'].includes(newRule.protocol) && !(newRule.protocol === 'protocolnumber' && newRule.protocolnumber === 1)" class="form__item">
+        <div v-show="showsPorts" class="form__item">
           <div class="form__label">{{ $t('label.endport') }}</div>
           <a-input v-model:value="newRule.endport"></a-input>
         </div>
-        <div v-show="newRule.protocol === 'icmp' || (newRule.protocol === 'protocolnumber' && newRule.protocolnumber === 1)" class="form__item">
+        <div v-show="showsIcmp" class="form__item">
           <div class="form__label">{{ $t('label.icmptype') }}</div>
           <a-select
             v-model:value="newRule.icmptype"
             @change="val => { updateIcmpCodes(val) }"
             showSearch
             optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
-            <a-select-option v-for="(opt) in icmpTypes" :key="opt.index" :label="opt.description">
+            :filterOption="matchOption">
+            <a-select-option v-for="opt in icmpTypes" :key="opt.index" :value="opt.index" :label="opt.index + ' - ' + opt.description">
               {{ opt.index + ' - ' + opt.description }}
             </a-select-option>
           </a-select>
         </div>
-        <div v-show="newRule.protocol === 'icmp' || (newRule.protocol === 'protocolnumber' && newRule.protocolnumber === 1)" class="form__item">
+        <div v-show="showsIcmp" class="form__item">
           <div class="form__label">{{ $t('label.icmpcode') }}</div>
           <a-select
             v-model:value="newRule.icmpcode"
             showSearch
             optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
-            <a-select-option v-for="(opt) in icmpCodes" :key="opt.code" :label="opt.description">
+            :filterOption="matchOption">
+            <a-select-option v-for="opt in icmpCodes" :key="opt.code" :value="opt.code" :label="opt.code + ' - ' + opt.description">
               {{ opt.code + ' - ' + opt.description }}
             </a-select-option>
           </a-select>
@@ -113,9 +105,10 @@
           </div>
         </template>
         <div class="form__item" style="flex: 0">
-          <a-button :disabled="!('authorizeSecurityGroupIngress' in $store.getters.apis) && !('authorizeSecurityGroupEgress' in $store.getters.apis)" type="primary" @click="handleAddRule">{{ $t('label.add') }}</a-button>
+          <a-button :disabled="!canAddRule || isSubmitted" :loading="isSubmitted" type="primary" @click="handleAddRule">{{ $t('label.add') }}</a-button>
         </div>
       </div>
+      <a-alert v-if="ruleError" type="error" show-icon :message="ruleError" />
     </div>
 
     <a-table
@@ -151,7 +144,7 @@
             :cancelText="$t('label.no')"
           >
             <tooltip-button
-              :disabled="!('revokeSecurityGroupIngress' in $store.getters.apis) && !('revokeSecurityGroupEgress' in $store.getters.apis)"
+              :disabled="!canDeleteRule || isSubmitted"
               :tooltip="$t('label.delete')"
               type="primary"
               :danger="true"
@@ -214,6 +207,7 @@
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import TooltipButton from '@/components/widgets/TooltipButton'
+import { validCidr } from '@/utils/conditionalFirewallRule'
 
 export default {
   components: {
@@ -228,7 +222,6 @@ export default {
   inject: ['parentFetchData', 'parentToggleLoading'],
   data () {
     return {
-      rules: [],
       newRule: {
         protocol: 'tcp',
         startport: null,
@@ -254,7 +247,6 @@ export default {
       selectedRule: null,
       tagsLoading: false,
       addType: 'cidr',
-      tabType: null,
       page: 1,
       pagesize: 10,
       columns: [
@@ -293,24 +285,58 @@ export default {
           title: this.$t('label.actions')
         }
       ],
-      isSubmitted: false
+      isSubmitted: false,
+      ruleError: '',
+      ruleGeneration: 0
+    }
+  },
+  computed: {
+    tabType () {
+      return this.$route.query.tab === 'ingress.rule' ? 'ingress' : 'egress'
+    },
+    rules () {
+      return (this.tabType === 'ingress' ? this.resource.ingressrule : this.resource.egressrule) || []
+    },
+    ruleScope () {
+      return JSON.stringify([this.resource.id, this.tabType, this.$route.path])
+    },
+    authorizeCommand () {
+      return this.tabType === 'ingress' ? 'authorizeSecurityGroupIngress' : 'authorizeSecurityGroupEgress'
+    },
+    revokeCommand () {
+      return this.tabType === 'ingress' ? 'revokeSecurityGroupIngress' : 'revokeSecurityGroupEgress'
+    },
+    canAddRule () {
+      return this.authorizeCommand in (this.$store.getters.apis || {})
+    },
+    canDeleteRule () {
+      return this.revokeCommand in (this.$store.getters.apis || {})
+    },
+    showsPorts () {
+      return ['tcp', 'udp'].includes(this.newRule.protocol)
+    },
+    showsIcmp () {
+      return this.newRule.protocol === 'icmp' ||
+        (this.newRule.protocol === 'protocolnumber' && this.newRule.protocolnumber === 1)
     }
   },
   watch: {
-    resource: {
+    ruleScope () {
+      this.ruleGeneration++
+      this.isSubmitted = false
+      this.resetAllRules()
+    },
+    newRule: {
       deep: true,
-      handler (newItem) {
-        if (!newItem || !newItem.id) {
-          return
-        }
-        this.fetchData()
-      }
+      handler () { this.ruleError = '' }
     }
+  },
+  beforeUnmount () {
+    this.ruleGeneration++
   },
   created () {
     this.initForm()
     this.fetchNetworkProtocols()
-    this.fetchData()
   },
   methods: {
     initForm () {
@@ -321,118 +347,108 @@ export default {
         value: [{ required: true, message: this.$t('message.specify.tag.value') }]
       })
     },
+    matchOption (input, option) {
+      return String(option?.label || '').toLowerCase().includes(input.trim().toLowerCase())
+    },
     fetchNetworkProtocols () {
-      getAPI('listNetworkProtocols', {
-        option: 'protocolnumber'
-      }).then(json => {
-        this.protocolNumbers = json.listnetworkprotocolsresponse?.networkprotocol || []
-      })
-      getAPI('listNetworkProtocols', {
-        option: 'icmptype'
-      }).then(json => {
-        this.icmpTypes.push({ index: -1, description: this.$t('label.all') })
-        const results = json.listnetworkprotocolsresponse?.networkprotocol || []
-        for (const result of results) {
-          this.icmpTypes.push(result)
-        }
-      })
+      if (!('listNetworkProtocols' in (this.$store.getters.apis || {}))) return
+      getAPI('listNetworkProtocols', { option: 'protocolnumber' }).then(json => {
+        this.protocolNumbers = (json.listnetworkprotocolsresponse?.networkprotocol || []).map(row => ({ ...row, index: Number(row.index) }))
+      }).catch(error => this.$notifyError(error))
+      getAPI('listNetworkProtocols', { option: 'icmptype' }).then(json => {
+        const types = (json.listnetworkprotocolsresponse?.networkprotocol || []).map(row => ({ ...row, index: Number(row.index) }))
+        this.icmpTypes = [{ index: -1, description: this.$t('label.all') }, ...types]
+      }).catch(error => this.$notifyError(error))
     },
-    updateIcmpCodes (val) {
-      this.newRule.icmpcode = -1
-      this.icmpCodes = []
-      this.icmpCodes.push({ code: -1, description: this.$t('label.all') })
-      const icmpType = this.icmpTypes.find(icmpType => icmpType.index === val)
-      if (icmpType && icmpType.details) {
-        const icmpTypeDetails = icmpType.details
-        for (const k of Object.keys(icmpTypeDetails)) {
-          this.icmpCodes.push({ code: parseInt(k), description: icmpTypeDetails[k] })
-        }
+    updateIcmpCodes (type) {
+      const entry = this.icmpTypes.find(option => option.index === type)
+      const codes = Object.entries(entry?.details || {}).map(([code, description]) => ({ code: Number(code), description }))
+      this.icmpCodes = type === -1 ? [{ code: -1, description: this.$t('label.all') }]
+        : (codes.length ? codes : [{ code: 0, description: this.$t('label.none') }])
+      this.newRule.icmpcode = this.icmpCodes.length === 1 ? this.icmpCodes[0].code : null
+    },
+    getCapitalise (value) {
+      if (value === 'all') return this.$t('label.all')
+      if (value == null) return ''
+      const protocol = this.protocolNumbers.find(option => String(option.index) === String(value))
+      return protocol ? protocol.index + ' - ' + protocol.name : String(value).toUpperCase()
+    },
+    ruleParameters () {
+      const rule = this.newRule
+      const params = { protocol: rule.protocol === 'protocolnumber' ? rule.protocolnumber : rule.protocol }
+      if (rule.protocol === 'protocolnumber' &&
+          !this.protocolNumbers.some(option => option.index === params.protocol)) {
+        return { error: 'message.security.group.rule.protocol' }
       }
-    },
-    fetchData () {
-      this.tabType = this.$route.query.tab === 'ingress.rule' ? 'ingress' : 'egress'
-      this.rules = this.tabType === 'ingress' ? this.resource.ingressrule : this.resource.egressrule
-    },
-    getCapitalise (val) {
-      if (!val) {
-        return
+      if (this.showsPorts) {
+        const numbers = [rule.startport, rule.endport].map(value => String(value ?? '').trim())
+        if (!numbers.every(value => /^\d+$/.test(value) && Number(value) <= 65535) || Number(numbers[0]) > Number(numbers[1])) {
+          return { error: 'message.security.group.rule.ports' }
+        }
+        params.startport = Number(numbers[0])
+        params.endport = Number(numbers[1])
       }
-      if (val === 'all') return this.$t('label.all')
-      return val.toUpperCase()
+      if (this.showsIcmp) {
+        if (!this.icmpTypes.some(option => option.index === rule.icmptype) || !this.icmpCodes.some(option => option.code === rule.icmpcode)) {
+          return { error: 'message.security.group.rule.icmp' }
+        }
+        params.icmptype = rule.icmptype
+        params.icmpcode = rule.icmpcode
+      }
+      if (this.addType === 'cidr') {
+        const cidrs = String(rule.cidrlist ?? '').split(',').map(cidr => cidr.trim())
+        if (!cidrs.every(cidr => validCidr(cidr, cidr.includes(':')))) {
+          return { error: 'message.security.group.rule.cidrs' }
+        }
+        params.cidrlist = cidrs.join(',')
+      } else {
+        const account = rule.usersecuritygrouplist.account?.trim()
+        const group = rule.usersecuritygrouplist.group?.trim()
+        if (!account || !group) return { error: 'message.security.group.rule.reference' }
+        params['usersecuritygrouplist[0].account'] = account
+        params['usersecuritygrouplist[0].group'] = group
+      }
+      return { params }
     },
     handleAddRule () {
-      if (this.isSubmitted) return
-      this.isSubmitted = true
-      this.parentToggleLoading()
-      postAPI(this.tabType === 'ingress' ? 'authorizeSecurityGroupIngress' : 'authorizeSecurityGroupEgress', {
-        securitygroupid: this.resource.id,
-        domainid: this.resource.domainid,
-        account: this.resource.account,
-        protocol: this.newRule.protocol === 'protocolnumber' ? this.newRule.protocolnumber : this.newRule.protocol,
-        startport: this.newRule.startport,
-        endport: this.newRule.endport,
-        cidrlist: this.newRule.cidrlist,
-        icmptype: this.newRule.icmptype,
-        icmpcode: this.newRule.icmpcode,
-        'usersecuritygrouplist[0].account': this.newRule.usersecuritygrouplist.account,
-        'usersecuritygrouplist[0].group': this.newRule.usersecuritygrouplist.group
-      }).then(response => {
-        this.$pollJob({
-          jobId: this.tabType === 'ingress' ? response.authorizesecuritygroupingressresponse.jobid
-            : response.authorizesecuritygroupegressresponse.jobid,
-          successMessage: this.$t('message.success.add.rule'),
-          successMethod: () => {
-            this.parentToggleLoading()
-            this.isSubmitted = false
-          },
-          errorMessage: this.$t('message.add.rule.failed'),
-          errorMethod: () => {
-            this.parentToggleLoading()
-            this.isSubmitted = false
-          },
-          loadingMessage: this.$t('message.add.rule.processing'),
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.parentFetchData()
-            this.parentToggleLoading()
-            this.isSubmitted = false
-          }
-        })
-      }).catch(error => {
-        this.$notifyError(error)
-        this.parentToggleLoading()
-        this.isSubmitted = false
-      })
+      if (!this.canAddRule || this.isSubmitted) return
+      const { params, error } = this.ruleParameters()
+      if (error) {
+        this.ruleError = this.$t(error)
+        return
+      }
+      const messages = ['message.success.add.rule', 'message.add.rule.failed', 'message.add.rule.processing']
+      return this.submitRuleChange(this.authorizeCommand, { securitygroupid: this.resource.id, ...params }, messages)
     },
     handleDeleteRule (rule) {
-      this.parentToggleLoading()
-      postAPI(this.tabType === 'ingress' ? 'revokeSecurityGroupIngress' : 'revokeSecurityGroupEgress', {
-        id: rule.ruleid,
-        domainid: this.resource.domainid,
-        account: this.resource.account
-      }).then(response => {
-        this.$pollJob({
-          jobId: this.tabType === 'ingress' ? response.revokesecuritygroupingressresponse.jobid
-            : response.revokesecuritygroupegressresponse.jobid,
-          successMessage: this.$t('message.success.remove.rule'),
-          successMethod: () => {
-            this.parentToggleLoading()
-          },
-          errorMessage: this.$t('message.remove.rule.failed'),
-          errorMethod: () => {
-            this.parentToggleLoading()
-          },
-          loadingMessage: this.$t('message.remove.securitygroup.rule.processing'),
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.parentFetchData()
-            this.parentToggleLoading()
-          }
+      if (!this.canDeleteRule || this.isSubmitted || !this.rules.some(row => row.ruleid === rule.ruleid)) return
+      const messages = ['message.success.remove.rule', 'message.remove.rule.failed', 'message.remove.securitygroup.rule.processing']
+      return this.submitRuleChange(this.revokeCommand, { id: rule.ruleid }, messages)
+    },
+    async submitRuleChange (command, params, [success, failure, progress]) {
+      const generation = ++this.ruleGeneration
+      const scope = this.ruleScope
+      const active = () => this.ruleGeneration === generation && this.ruleScope === scope
+      this.isSubmitted = true
+      this.ruleError = ''
+      const root = command.toLowerCase() + 'response'
+      try {
+        const response = await postAPI(command, { ...params, domainid: this.resource.domainid, account: this.resource.account }, { preserveOnFailure: true })
+        const result = await this.$pollJob({
+          jobId: response[root].jobid,
+          successMessage: this.$t(success),
+          errorMessage: this.$t(failure),
+          loadingMessage: this.$t(progress),
+          catchMessage: this.$t('error.fetching.async.job.result')
         })
-      }).catch(error => {
-        this.$notifyError(error)
-        this.parentToggleLoading()
-      })
+        if (!active()) return
+        if (result.jobstatus === 1) await this.parentFetchData()
+        else this.ruleError = result.jobresult?.errortext || this.$t(failure)
+      } catch (error) {
+        if (active()) this.ruleError = error.response?.data?.[root]?.errortext || this.$t(failure)
+      } finally {
+        if (active()) this.isSubmitted = false
+      }
     },
     fetchTags (rule) {
       getAPI('listTags', {
@@ -545,6 +561,8 @@ export default {
     },
     resetAllRules () {
       this.newRule.protocol = 'tcp'
+      this.newRule.protocolnumber = null
+      this.ruleError = ''
       this.newRule.cidrlist = null
       this.newRule.usersecuritygrouplist.account = null
       this.newRule.usersecuritygrouplist.group = null
