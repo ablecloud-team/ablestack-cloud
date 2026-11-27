@@ -168,15 +168,19 @@ def split_ips_by_family(*addresses):
 
 
 def destroy_network_rules_for_nic(vm_name, vm_ip, vm_mac, vif, sec_ips):
-    try:
-        rules = execute("""iptables-save -t filter | awk '/ %s / { sub(/-A/, "-D", $1) ; print }'""" % vif ).split("\n")
-        for rule in [_f for _f in rules if _f]:
-            try:
-                execute("iptables " + rule)
-            except:
-                logging.debug("Ignoring failure to delete rule: " + rule)
-    except:
-        pass
+    bridges = delete_rules_for_vm_in_bridge_firewall_chain(vm_name, only_vif=vif)
+    vm_default = default_chain_name(vm_name)
+    for tool in ('iptables', 'ip6tables'):
+        try:
+            rules = execute(f'{tool} -w 10 -S {vm_default}')
+            updates = []
+            for line in rules.splitlines():
+                tokens = shlex.split(line)
+                if tokens[:2] == ['-A', vm_default] and bridge_rule_port(tokens) == vif:
+                    updates.append('-D ' + line[3:])
+            apply_filter_updates(tool, updates)
+        except CalledProcessError:
+            logging.exception('Failed to remove %s rules for NIC %s', tool, vif)
 
     try:
         dnats = execute("""iptables-save -t nat | awk '/ %s / { sub(/-A/, "-D", $1) ; print }'""" % vif ).split("\n")
@@ -213,6 +217,9 @@ def destroy_network_rules_for_nic(vm_name, vm_ip, vm_mac, vif, sec_ips):
     except:
         logging.debug("Ignoring failure to delete ebtable rules for vm: " + vm_name)
 
+    return cleanup_bridges(bridges)
+
+
 def get_bridge_physdev(brname):
     # eth1.50@eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master breth1-50 state forwarding priority 32 cost 4 |
     # eth1.50@eth1: | eth1.50@eth1 | eth1.50
@@ -226,9 +233,9 @@ def destroy_network_rules_for_vm(vm_name, vif=None):
     vmchain_default = default_chain_name(vm_name)
     vm_ipsetname=ipset_chain_name(vm_name)
 
-    delete_rules_for_vm_in_bridge_firewall_chain(vm_name)
+    bridges = delete_rules_for_vm_in_bridge_firewall_chain(vm_name)
     if is_system_vm_name(vm_name):
-        return True
+        return cleanup_bridges(bridges)
 
     destroy_ebtables_rules(vm_name, vif)
 
@@ -267,7 +274,7 @@ def destroy_network_rules_for_vm(vm_name, vif=None):
     remove_rule_log_for_vm(vm_name)
     remove_secip_log_for_vm(vm_name)
 
-    return True
+    return cleanup_bridges(bridges)
 
 
 def destroy_ebtables_rules(vm_name, vif):
@@ -758,36 +765,44 @@ def post_default_network_rules(vm_name, vm_id, vm_ip, vm_mac, vif, brname, dhcpS
             logging.debug("Failed to log default network rules, ignoring")
 
 
-def delete_rules_for_vm_in_bridge_firewall_chain(vmName, preserve_vifs=None):
-    vm_name = vmName
-    if is_system_vm_name(vm_name):
-        vmchain = iptables_chain_name(vm_name)
-    else:
-        vmchain = default_chain_name(vm_name)
+def bridge_rule_port(rule):
+    for flag in ('--physdev-in', '--physdev-out'):
+        if flag in rule:
+            return rule[rule.index(flag) + 1]
+    return None
 
-    delcmd = """iptables-save | awk '/BF(.*)physdev-is-bridged(.*)%s/ { sub(/-A/, "-D", $1) ; print }'""" % vmchain
-    delcmds = [_f for _f in execute(delcmd).split('\n') if _f]
-    for cmd in delcmds:
-        if preserve_vifs and 'cs-sg-guard:' in cmd:
-            rule = shlex.split(cmd)
-            if '--physdev-out' in rule and rule[rule.index('--physdev-out') + 1] in preserve_vifs:
-                continue
-        try:
-            execute("iptables " + cmd)
-        except:
-              logging.exception("Ignoring failure to delete rules for vm " + vmName)
 
-    delcmd = """ip6tables-save | awk '/BF(.*)physdev-is-bridged(.*)%s/ { sub(/-A/, "-D", $1) ; print }'""" % vmchain
-    delcmds = [_f for _f in execute(delcmd).split('\n') if _f]
-    for cmd in delcmds:
-        if preserve_vifs and 'cs-sg-guard:' in cmd:
-            rule = shlex.split(cmd)
-            if '--physdev-out' in rule and rule[rule.index('--physdev-out') + 1] in preserve_vifs:
+def apply_filter_updates(tool, updates):
+    if updates:
+        batch = '\n'.join(['*filter', *updates, 'COMMIT', ''])
+        check_output([f'{tool}-restore', '--wait', '10', '--noflush'], input=batch, text=True)
+
+
+def delete_rules_for_vm_in_bridge_firewall_chain(vm_name, preserve_vifs=None, only_vif=None):
+    vm_chain = iptables_chain_name(vm_name) if is_system_vm_name(vm_name) else default_chain_name(vm_name)
+    bridges = set()
+    for tool in ('iptables', 'ip6tables'):
+        updates = []
+        snapshot = execute(f'{tool} -w 10 -S')
+        for line in snapshot.splitlines():
+            rule = shlex.split(line)
+            if rule[:1] != ['-A'] or not rule[1].startswith('BF-') or not rule[1].endswith(('-IN', '-OUT')):
                 continue
-        try:
-            execute('ip6tables ' + cmd)
-        except:
-              logging.exception("Ignoring failure to delete rules for vm " + vmName)
+            if '--physdev-is-bridged' not in rule:
+                continue
+            vif = bridge_rule_port(rule)
+            if not vif or (only_vif and vif != only_vif):
+                continue
+
+            guard = rule[-4:] == ['--comment', 'cs-sg-guard:' + vm_chain, '-j', 'DROP']
+            if guard and preserve_vifs and vif in preserve_vifs:
+                continue
+            if guard or rule[-2:] == ['-j', vm_chain]:
+                bridges.add(rule[1][3:-3] if rule[1].endswith('-IN') else rule[1][3:-4])
+                updates.append('-D ' + line[3:])
+
+        apply_filter_updates(tool, updates)
+    return bridges
 
 
 def rewrite_rule_log_for_vm(vm_name, new_domid):
@@ -965,32 +980,71 @@ def cleanup_rules_for_dead_vms():
     return True
 
 
-def cleanup_bridge(bridge):
-    bridge_name = get_br_fw(bridge)
-    logging.debug("Cleaning old bridge chains: " + bridge_name)
-    if not bridge_name:
-        return True
+def unused_bridge_updates(bridge, current):
+    root = f'BF-{bridge}'
+    ingress, egress = root + '-IN', root + '-OUT'
+    owned_chains = {root, ingress, egress}
+    chains = set()
+    hooks = []
+    root_rules = [
+        ['-A', root, '-m', 'physdev', '--physdev-is-in', '--physdev-is-bridged', '-j', ingress],
+        ['-A', root, '-m', 'physdev', '--physdev-is-out', '--physdev-is-bridged', '-j', egress],
+    ]
+    for line in current.splitlines():
+        rule = shlex.split(line)
+        if rule[:1] == ['-N'] and rule[1] in owned_chains:
+            chains.add(rule[1])
+        if rule[:1] != ['-A']:
+            continue
+        if rule[1] in (ingress, egress):
+            # SG port jumps and guards, including rules of a VM starting up,
+            # remain in these chains until that port's reference is removed.
+            return None
+        if rule[1] == root and rule not in root_rules:
+            expected = ['-A', root, '-m', 'physdev', '--physdev-out']
+            if rule[:5] != expected or rule[6:] != ['--physdev-is-bridged', '-j', 'ACCEPT']:
+                return None
+        if rule[-2:] in (['-j', root], ['-g', root]):
+            if rule not in [
+                ['-A', 'FORWARD', side, bridge, '-m', 'physdev', '--physdev-is-bridged', '-j', root]
+                for side in ('-i', '-o')
+            ]:
+                return None
+            hooks.append('-D ' + line[3:])
 
-    # Delete iptables/bridge rules
-    rules = execute("""iptables-save | grep %s | grep '^-A' | sed 's/-A/-D/' """ % bridge_name).split("\n")
-    for rule in [_f for _f in rules if _f]:
-        try:
-            command = "iptables " + rule
-            execute(command)
-        except: pass
+    updates = hooks
+    if root in chains:
+        updates.extend([f'-F {root}', f'-X {root}'])
+    updates.extend(f'-X {chain}' for chain in (ingress, egress) if chain in chains)
+    return updates
 
-    chains = [bridge_name, bridge_name+'-IN', bridge_name+'-OUT']
-    # Flush old bridge chain
-    for chain in chains:
+
+def cleanup_bridges(bridges):
+    complete = True
+    for bridge in sorted(bridges):
         try:
-            execute("iptables -F " + chain)
-        except: pass
-    # Remove bridge chains
-    for chain in chains:
-        try:
-            execute("iptables -X " + chain)
-        except: pass
-    return True
+            plans = {tool: unused_bridge_updates(bridge, execute(f'{tool} -w 10 -S'))
+                     for tool in ('iptables', 'ip6tables')}
+            if any(plan is None for plan in plans.values()):
+                continue
+            for tool, updates in plans.items():
+                apply_filter_updates(tool, updates)
+                if updates:
+                    logging.info('Removed unused %s security group chains for bridge %s', tool, bridge)
+        except CalledProcessError:
+            logging.exception('Security group bridge %s cleanup will be retried', bridge)
+            complete = False
+    return complete
+
+
+def security_group_bridges():
+    bridges = set()
+    for tool in ('iptables', 'ip6tables'):
+        for line in execute(f'{tool} -w 10 -S').splitlines():
+            words = line.split()
+            if words[:1] == ['-N'] and words[1].startswith('BF-') and words[1].endswith('-OUT'):
+                bridges.add(words[1][3:-4])
+    return bridges
 
 
 def cleanup_rules():
@@ -1063,8 +1117,10 @@ def cleanup_rules():
             destroy_network_rules_for_vm(vmname)
 
         logging.debug("Cleaned up rules for " + str(len(cleanup)) + " chains")
-    except:
-        logging.debug("Failed to cleanup rules !")
+        return cleanup_bridges(security_group_bridges())
+    except Exception:
+        logging.exception("Failed to clean security group rules")
+        return False
 
 
 def check_rule_log_for_vm(vmName, vmId, vmIP, domID, signature, seqno):
@@ -1290,8 +1346,7 @@ def add_network_rules(vm_name, vm_id, vm_ip, vm_ip6, signature, seqno, vmMac, ru
             declarations = [f':{ingress} - [0:0]', f':{egress} - [0:0]']
             # Replace both directions and upgrade their source dispatch in one
             # filter-table transaction. An empty egress chain would allow traffic.
-            batch = '\n'.join(['*filter', *declarations, *dispatch[tool], *updated, 'COMMIT', ''])
-            check_output([f'{tool}-restore', '--wait', '10', '--noflush'], input=batch, text=True)
+            apply_filter_updates(tool, declarations + dispatch[tool] + updated)
 
         return write_rule_log_for_vm(vm_name, vm_id, vm_ip, dom_id, signature, seqno)
     except Exception:
@@ -1866,9 +1921,10 @@ if __name__ == '__main__':
         sys.exit(0 if applied else 1)
     elif cmd == "destroy_network_rules_for_vm":
         if not args.vmIP:
-            destroy_network_rules_for_vm(args.vmName, args.vif)
+            removed = destroy_network_rules_for_vm(args.vmName, args.vif)
         else:
-            destroy_network_rules_for_nic(args.vmName, args.vmIP, args.vmMAC, args.vif, args.nicSecIps)
+            removed = destroy_network_rules_for_nic(args.vmName, args.vmIP, args.vmMAC, args.vif, args.nicSecIps)
+        sys.exit(0 if removed else 1)
     elif cmd == "default_network_rules_systemvm":
         default_network_rules_systemvm(args.vmName, args.localbrname)
     elif cmd == "get_rule_logs_for_vms":
@@ -1880,7 +1936,7 @@ if __name__ == '__main__':
     elif cmd == "network_rules_vmSecondaryIp":
         network_rules_vmSecondaryIp(args.vmName, args.vmMAC, args.nicSecIps, args.action)
     elif cmd == "cleanup_rules":
-        cleanup_rules()
+        sys.exit(0 if cleanup_rules() else 1)
     elif cmd == "post_default_network_rules":
         post_default_network_rules(args.vmName, args.vmID, args.vmIP, args.vmMAC, args.vif, args.brname, args.dhcpSvr, args.hostIp, args.hostMacAddr)
     elif cmd == "verify_network_rules":
