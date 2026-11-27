@@ -61,7 +61,7 @@
       </a-popover>
     </div>
     <a-alert v-if="listRefreshFailed" type="warning" show-icon :message="$t('message.list.refresh.stale')" class="project-tab-notice" />
-    <a-table
+    <detail-tab-table
       class="project-tab-table"
       size="small"
       :scroll="{ x: apis.listProjectRoles ? 630 : 510 }"
@@ -88,9 +88,9 @@
           </a-space>
         </template>
       </template>
-    </a-table>
-    <a-pagination
-      v-if="itemCount"
+    </detail-tab-table>
+    <detail-tab-pagination
+      v-if="!listRefreshFailed || itemCount > 0"
       class="member-pagination"
       size="small"
       :current="page"

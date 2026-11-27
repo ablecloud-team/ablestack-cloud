@@ -22,14 +22,14 @@
       <a-input-search v-model:value="search" :aria-label="$t('label.search')" :placeholder="$t('label.search')" allow-clear />
     </div>
     <a-alert v-if="error" type="error" show-icon :message="$t(error)" role="alert" />
-    <a-table :columns="columns" :data-source="filteredRows" row-key="id" :loading="pending && !rows.length" :scroll="{ x: 760 }" :pagination="{ pageSize: 10, showSizeChanger: false }" :locale="{ emptyText: $t(error || 'label.no.data') }">
+    <detail-tab-table :columns="columns" :data-source="filteredRows" row-key="id" :loading="pending && !rows.length" :scroll="{ x: 760 }" :pagination="{ pageSize: 10, showSizeChanger: false }" :locale="{ emptyText: $t(error || 'label.no.data') }">
       <template #bodyCell="{ column, record, text }">
         <router-link v-if="column.key === 'publicip'" :to="{ path: '/s2svpnconn/' + record.id, ...(resource.projectid ? { query: { projectid: resource.projectid } } : {}) }">{{ text || record.id }}</router-link>
         <status v-else-if="column.key === 'state' && text" :text="text" display-text />
         <span v-else-if="column.key === 'created'">{{ text ? $toLocaleDate(text) : '-' }}</span>
         <span v-else>{{ text || '-' }}</span>
       </template>
-    </a-table>
+    </detail-tab-table>
   </div>
 </template>
 <script>

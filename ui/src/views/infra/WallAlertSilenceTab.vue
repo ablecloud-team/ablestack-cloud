@@ -47,7 +47,7 @@
       </span>
     </div>
 
-    <a-table
+    <detail-tab-table
       size="middle"
       :loading="loading"
       :columns="columns"
@@ -58,7 +58,7 @@
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'state'">
-          <a-tag :color="stateColor(record.state)">{{ record.state }}</a-tag>
+          <a-badge :status="silenceBadgeStatus(record.state)" :text="record.state" />
         </template>
 
         <!-- (유지) 시작/종료 시각: 초 단위, 'T'→공백, 'Z' 제거 -->
@@ -88,7 +88,7 @@
           </a-popconfirm>
         </template>
       </template>
-    </a-table>
+    </detail-tab-table>
   </div>
 </template>
 
@@ -215,11 +215,11 @@ export default {
       const m = mins % 60
       return h > 0 ? `${h}h ${m}m` : `${m}m`
     },
-    stateColor (s) {
+    silenceBadgeStatus (s) {
       const v = (s || '').toLowerCase()
-      if (v === 'active') return 'green'
-      if (v === 'pending') return 'gold'
-      if (v === 'expired') return 'red'
+      if (v === 'active') return 'success'
+      if (v === 'pending') return 'warning'
+      if (v === 'expired') return 'error'
       return 'default'
     },
 

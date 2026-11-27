@@ -117,7 +117,7 @@
       </template>
     </MoldDialog>
 
-    <a-table
+    <detail-tab-table
       size="small"
       style="overflow-y: auto"
       :loading="loading"
@@ -146,8 +146,8 @@
             @onClick="deleteRule(record)" />
         </template>
       </template>
-    </a-table>
-    <a-pagination
+    </detail-tab-table>
+    <detail-tab-pagination
       class="pagination"
       size="small"
       :current="page"
@@ -161,7 +161,7 @@
       <template #buildOptionText="props">
         <span>{{ props.value }} / {{ $t('label.page') }}</span>
       </template>
-    </a-pagination>
+    </detail-tab-pagination>
 
     <bulk-action-view
       v-if="showConfirmationAction || showGroupActionModal"

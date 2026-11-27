@@ -41,6 +41,9 @@ beforeEach(() => {
   })
   Object.assign(ctx, Autogen.data.call(ctx))
   Object.entries(Autogen.methods).forEach(([key, fn]) => { ctx[key] = fn.bind(ctx) })
+  for (const name of ['kubernetesIsoSecurityContext', 'kubernetesIsoScope']) {
+    Object.defineProperty(ctx, name, { get: () => Autogen.computed[name].call(ctx) })
+  }
   ctx.updateSelectedColumns = jest.fn()
   getAPI.mockResolvedValue(reply([{ id, name: 'Version', state: 'Enabled', directdownload: false }]))
 })

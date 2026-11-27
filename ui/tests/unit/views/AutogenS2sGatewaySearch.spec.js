@@ -50,7 +50,7 @@ test('a foreign project URL is blocked and a real project switch discards the pr
 
 test('canonical project URL updates never change the global project or create duplicate filter chips', () => {
   const from = c.$route; route({ keyword: 'new' }); c.switchProject = jest.fn(); c.fetchData = jest.fn(); c.clearAutoRefresh = jest.fn(); c.scheduleAutoRefresh = jest.fn()
-  Autogen.watch.$route.call(c, c.$route, from)
+  Autogen.watch.$route.handler.call(c, c.$route, from)
   expect(c.fetchData).toHaveBeenCalledTimes(1); expect(c.switchProject).not.toHaveBeenCalled()
   expect(Autogen.computed.activeFiltersList.call(c)).toEqual([])
 })

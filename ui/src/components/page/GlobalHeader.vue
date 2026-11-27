@@ -42,6 +42,7 @@
             mode="horizontal"
             :menu="menus"
             :theme="theme"
+            :project-view-class="projectViewClass"
           ></s-menu>
           <div v-else>
             <menu-fold-outlined class="trigger" v-if="collapsed" @click="toggle" />
@@ -92,6 +93,10 @@ export default {
       type: String,
       required: false,
       default: 'dark'
+    },
+    projectViewClass: {
+      type: String,
+      default: ''
     },
     collapsed: {
       type: Boolean,

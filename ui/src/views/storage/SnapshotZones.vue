@@ -30,7 +30,7 @@
       <template #description><p>{{ copyReadError.startsWith('message.') ? $t(copyReadError) : copyReadError }}</p><a-button size="small" :disabled="fetchLoading || listRefreshing > 0" @click="fetchData">{{ $t('label.retry') }}</a-button></template>
     </a-alert>
     <p class="snapshot-copy-caption">{{ $t('message.snapshot.copy.page', [visibleZoneGroups.length, dataSource.length]) }}</p>
-    <a-table
+    <detail-tab-table
       v-if="dataSource.length || (!fetchLoading && !listRefreshFailed)"
       class="snapshot-zone-table"
       size="small"
@@ -79,8 +79,8 @@
           </template>
         </a-table>
       </template>
-    </a-table>
-    <a-pagination
+    </detail-tab-table>
+    <detail-tab-pagination
       v-if="loadedCopyScope"
       class="detail-tab-pagination"
       size="small"

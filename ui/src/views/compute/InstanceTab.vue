@@ -16,28 +16,31 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="loading">
-    <KubernetesNodeNotice :resource="resource" />
-    <a-alert v-if="vm.qemuagentversion === 'Not Installed'" :message="$t('message.alert.qemuagentversion')" type="error" show-icon />
-    <br/>
-    <a-alert v-if="protectionLookupFailed" type="warning" show-icon class="protection-tab-notice">
-      <template #message>{{ $t('message.vm.protection.lookup.failed') }}</template>
-      <template #description>
-        <a-button size="small" :loading="protectionLookupPending" @click="refreshProtectionTabs"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
-      </template>
-    </a-alert>
-    <a-alert
-      v-else-if="protectionLookupPending && ['ftctl', 'drplans'].includes(currentTab)"
-      type="info"
-      show-icon
-      class="protection-tab-notice"
-      :message="$t('message.vm.protection.lookup.pending')" />
+  <a-spin :spinning="loading" :wrapper-class-name="viewportScroll ? 'vm-tabs-viewport' : undefined">
     <a-tabs
+      ref="vmTabs"
+      class="resource-detail-tabset"
+      :class="{ 'workspace-tabset': viewportScroll }"
+      v-scroll-activity="viewportScroll && { selector: '.ant-tabs-content-holder', label: $t('label.details') }"
       :tabPosition="resourceTabPosition"
       :activeKey="visibleCurrentTab"
       :animated="false"
       @change="handleChangeTab">
       <a-tab-pane :tab="$t('label.details')" key="details">
+        <KubernetesNodeNotice :resource="resource" />
+        <a-alert v-if="vm.qemuagentversion === 'Not Installed'" :message="$t('message.alert.qemuagentversion')" type="error" show-icon class="vm-summary-notice" />
+        <a-alert v-if="protectionLookupFailed" type="warning" show-icon class="protection-tab-notice">
+          <template #message>{{ $t('message.vm.protection.lookup.failed') }}</template>
+          <template #description>
+            <a-button size="small" :loading="protectionLookupPending" @click="refreshProtectionTabs"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
+          </template>
+        </a-alert>
+        <a-alert
+          v-else-if="protectionLookupPending && ['ftctl', 'drplans'].includes(currentTab)"
+          type="info"
+          show-icon
+          class="protection-tab-notice"
+          :message="$t('message.vm.protection.lookup.pending')" />
         <DetailsTab :resource="dataResource" :loading="loading" />
       </a-tab-pane>
       <a-tab-pane
@@ -80,6 +83,7 @@
           </a-button>
         </div>
         <ListResourceTable
+          detail-tab
           apiName="listSecurityGroups"
           :params="{virtualmachineid: dataResource.id}"
           :items="dataResource.securitygroup"
@@ -148,6 +152,7 @@
 </template>
 
 <script>
+import scrollActivity from '@/utils/scrollActivity'
 import KubernetesNodeNotice from '@/views/compute/KubernetesNodeNotice'
 
 import { getAPI, postAPI } from '@/api'
@@ -177,6 +182,7 @@ import vmProtectionTabs from '@/utils/vmProtectionTabs'
 
 export default {
   name: 'InstanceTab',
+  directives: { scrollActivity },
   components: {
     KubernetesNodeNotice,
     VmDevicesTab,
@@ -203,6 +209,7 @@ export default {
   },
   mixins: [mixinDevice, vmProtectionTabs],
   props: {
+    viewportScroll: { type: Boolean, default: false },
     resource: {
       type: Object,
       required: true
@@ -238,6 +245,15 @@ export default {
     window.addEventListener('popstate', this.setCurrentTab)
   },
   watch: {
+    visibleCurrentTab: {
+      flush: 'post',
+      handler () {
+        if (this.viewportScroll) {
+          const viewport = this.$refs.vmTabs?.$el?.querySelector('.ant-tabs-content-holder')
+          if (viewport) viewport.scrollTop = 0
+        }
+      }
+    },
     resource: {
       deep: true,
       handler (newData, oldData) {
@@ -492,6 +508,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.vm-summary-notice { margin-bottom: 12px; }
 .security-group-toolbar {
   display: flex;
   flex-wrap: wrap;

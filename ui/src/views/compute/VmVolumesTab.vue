@@ -29,7 +29,7 @@
     <a-alert v-if="operation" :type="operation.status === 'complete' ? 'success' : 'info'" show-icon class="volume-alert">
       <template #message><a @click="progressVisible = true">{{ $t('label.vmvolume.progress') }}: {{ $t('label.vmvolume.' + operation.status) }}</a></template>
     </a-alert>
-    <a-table :columns="columns" :data-source="filteredRows" row-key="id" :loading="loading" :pagination="{ pageSize: 10, hideOnSinglePage: true }" :scroll="{ x: 1120 }" size="small">
+    <detail-tab-table :columns="columns" :data-source="filteredRows" row-key="id" :loading="loading" :pagination="{ pageSize: 10, hideOnSinglePage: true }" :scroll="{ x: 1120 }" size="small">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'name'"><hdd-outlined /> <router-link :to="'/volume/' + record.id">{{ record.name }}</router-link> <AllocationSummary :resource="record" compact /></template>
         <template v-else-if="column.key === 'state'"><status :text="record.state" /> {{ record.state }}</template>
@@ -43,7 +43,7 @@
           </div>
         </template>
       </template>
-    </a-table>
+    </detail-tab-table>
     <a-modal centered wrap-class-name="vm-volume-modal" :visible="form === 'create'" :title="$t('label.vmvolume.create')" :mask-closable="false" @cancel="form = ''"><a-alert v-if="snapshotNotice" type="info" show-icon :message="$t(snapshotNotice)" class="volume-alert" /><a-alert v-if="backupReason" type="warning" show-icon :message="$t(backupReason)" class="volume-alert" /><CreateVolume ref="volumeCreator" v-if="form === 'create'" :resource="resource" :submit-handler="createAndAttach" hide-actions @close-action="form = ''" /><template #footer><a-button @click="form = ''">{{ $t('label.cancel') }}</a-button><a-button type="primary" :disabled="busy || !!reason('createVolume')" @click="$refs.volumeCreator.handleSubmit()">{{ $t('label.ok') }}</a-button></template></a-modal>
     <a-modal centered wrap-class-name="vm-volume-modal" :visible="form === 'attach'" :title="$t('label.vmvolume.attach')" :ok-button-props="{ disabled: !attachId || busy || candidatesLoading || !!deviceReason || !!snapshotReason || !!backupReason }" @ok="attachExisting" @cancel="form = ''">
       <a-alert v-if="backupReason" type="warning" show-icon :message="$t(backupReason)" class="volume-alert" />

@@ -27,7 +27,7 @@
       </a-button>
     </div>
     <a-alert v-if="listRefreshFailed" type="warning" show-icon :message="$t('message.list.refresh.stale')" class="project-tab-notice" />
-    <a-table
+    <detail-tab-table
       class="project-tab-table"
       size="small"
       :loading="loading"
@@ -60,7 +60,7 @@
             @onClick="openDialog('delete', record)" />
         </a-space>
       </template>
-    </a-table>
+    </detail-tab-table>
     <MoldDialog
       :visible="!!operation"
       :title="$t(dialogLabel)"

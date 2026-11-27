@@ -42,7 +42,22 @@
       </a-comment>
       <h4 class="annotation-title">{{ $t('label.comments') }} ({{ itemCount }})</h4>
       <a-divider dashed />
-      <a-list v-if="notes.length" :data-source="notes" item-layout="horizontal" :pagination="false" size="small">
+      <mold-list-table
+        v-if="$route.meta?.name === 'domain'"
+        :columns="annotationColumns"
+        :data-source="notes"
+        :context-actions="annotationRowActions"
+        :scope="page"
+        row-key="id"
+        :pagination="false">
+        <template #bodyCell="{ column, record }">
+          <TableOverflowText v-if="column.key === 'annotation'" :text="annotationText(record)" />
+          <TableOverflowText v-else-if="column.key === 'username'" :text="record.username" />
+          <span v-else-if="column.key === 'created'">{{ $toLocaleDate(record.created) }}</span>
+          <span v-else>{{ $t(record.adminsonly ? 'label.adminsonly' : 'label.annotation.everyone') }}</span>
+        </template>
+      </mold-list-table>
+      <a-list v-else-if="notes.length" :data-source="notes" item-layout="horizontal" :pagination="false" size="small">
         <template #renderItem="{ item }"><a-list-item :data-annotation-id="item.id">
           <a-comment class="comment" :content="annotationText(item)" :datetime="$toLocaleDate(item.created)" :author="item.username">
             <template #avatar><a-avatar><template #icon><message-outlined /></template></a-avatar></template>
@@ -79,18 +94,28 @@ showQuickJumper>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import { detailTabContext, detailTabDenied, detailTabError, detailTabProject, readDetailTabPage } from '@/utils/detailTabData'
 import { getAPI, postAPI } from '@/api'
-import { Empty } from 'ant-design-vue'
+import { Empty, Modal } from 'ant-design-vue'
+import MoldListTable from '@/components/view/MoldListTable'
+import TableOverflowText from '@/components/view/TableOverflowText'
 const commands = ['listAnnotations', 'addAnnotation', 'removeAnnotation', 'updateAnnotationVisibility']
 // AddAnnotationCmd uses Parameter's default length and Java String.length (UTF-16).
 const ANNOTATION_MAX_LENGTH = 255
 export default {
   mixins: [listRefreshMixin(['getAnnotations'], { routeKey: vm => vm.annotationContext, active: vm => !vm.annotationSaving })],
   name: 'AnnotationsTab',
-  components: { AEmpty: Empty },
+  components: { AEmpty: Empty, MoldListTable, TableOverflowText },
   props: { resource: { type: Object, required: true }, items: { type: Array, default: () => [] } },
   inject: ['parentFetchData'],
   data () { return { resourceType: '', loadingAnnotations: false, annotationSaving: false, annotationVersion: 0, notes: [], annotation: '', annotationType: '', annotationAdminsOnly: false, page: 1, pageSize: 10, itemCount: 0, loadedContext: '', readError: '', readDenied: false, mutationError: '' } },
   computed: {
+    annotationColumns () {
+      return [
+        { key: 'annotation', title: this.$t('label.comments'), width: 322 },
+        { key: 'username', title: this.$t('label.username'), width: 168 },
+        { key: 'created', title: this.$t('label.created'), width: 186 },
+        { key: 'visibility', title: this.$t('label.adminsonly'), width: 132 }
+      ]
+    },
     annotationLimit () { return ANNOTATION_MAX_LENGTH },
     annotationLength () { return this.annotation.length },
     annotationTooLong () { return this.annotationLength > this.annotationLimit },
@@ -104,6 +129,36 @@ export default {
   },
   created () { this.fetchData() },
   methods: {
+    annotationRowActions (record) {
+      const inspect = {
+        key: 'details',
+        label: 'label.details',
+        icon: 'eye-outlined',
+        handler: () => Modal.info({ title: this.$t('label.comments'), content: this.annotationText(record) })
+      }
+      const entries = [inspect]
+      if (!this.annotationReady) return entries
+      const confirm = (title, onOk) => Modal.confirm({ title, onOk, okText: this.$t('label.yes'), cancelText: this.$t('label.no') })
+      if (this.$store.getters.userInfo.roletype === 'Admin' && 'updateAnnotationVisibility' in this.$store.getters.apis) {
+        const label = record.adminsonly ? 'label.adminsonly' : 'label.annotation.everyone'
+        entries.push({
+          key: 'visibility',
+          label,
+          icon: 'eye-outlined',
+          handler: () => confirm(this.$t('message.detail.tab.visibility.confirm', [this.$t(record.adminsonly ? 'label.annotation.everyone' : 'label.adminsonly')]), () => this.updateVisibility(record))
+        })
+      }
+      if ('removeAnnotation' in this.$store.getters.apis && this.isAdminOrAnnotationOwner(record)) {
+        entries.push({
+          key: 'delete',
+          label: 'label.detail.tab.comment.delete',
+          icon: 'delete-outlined',
+          danger: true,
+          handler: () => confirm(this.$t('message.remove.annotation'), () => this.deleteNote(record))
+        })
+      }
+      return entries
+    },
     annotationText (item) { return this.$route.path?.startsWith('/cniconfiguration/') && item.annotation?.startsWith('MOLD_CNI_CLONE/1\n') ? this.$t('label.cni.clone.relation') : item.annotation },
     generateAnnotationType () {
       switch (this.resourceType) {

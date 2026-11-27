@@ -90,6 +90,7 @@
               <tooltip-label :title="$t('label.rules')" :tooltip="apiParams.rules.description"/>
             </template>
             <api-key-pair-permission-table
+              :detail-viewport="false"
               :resource="resource"
               @update-rules="updateRules"/>
           </a-form-item>

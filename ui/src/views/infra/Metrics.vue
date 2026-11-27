@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div>
+  <div class="mold-workspace">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <a-card class="breadcrumb-card breadcrumb-toolbar content-breadcrumb">
       <div class="breadcrumb-toolbar-row">
@@ -39,15 +39,16 @@
         </div>
       </div>
     </a-card>
-    <a-card>
-      <a-row :gutter="12">
+    <a-card class="workspace-fill">
+      <a-row :gutter="12" class="workspace-main workspace-side-by-side">
         <a-col :md="24" :lg="12" :gutter="12">
-          <a-card>
+          <a-card class="workspace-fill">
             <template #title>
               {{ $t('label.desc.db.stats') }}
             </template>
-            <a-table
+            <mold-list-table
               class="metric-card"
+              viewport-scroll
               :columns="columns"
               :loading="loading"
               :data-source="dbMetrics"
@@ -58,12 +59,13 @@
           </a-card>
         </a-col>
         <a-col :md="24" :lg="12" :gutter="12">
-          <a-card>
+          <a-card class="workspace-fill">
             <template #title>
               {{ $t('label.desc.usage.stats') }}
             </template>
-            <a-table
+            <mold-list-table
               class="metric-card"
+              viewport-scroll
               :columns="columns"
               :data-source="usageMetrics"
               :pagination="false"
@@ -81,6 +83,7 @@
 </template>
 
 <script>
+import MoldListTable from '@/components/view/MoldListTable'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import { getAPI } from '@/api'
 import { genericCompare } from '@/utils/sort.js'
@@ -90,6 +93,7 @@ export default {
   mixins: [listRefreshMixin(['fetchDetails'], { interval: 60000 })],
   name: 'Metrics',
   components: {
+    MoldListTable,
     Breadcrumb
   },
   props: {

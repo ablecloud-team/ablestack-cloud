@@ -27,7 +27,7 @@ under the License.
     <a-alert v-if="operation" class="nic-alert" :type="operation.status === 'complete' ? 'success' : operation.status === 'failed' ? 'error' : 'info'" show-icon>
       <template #message><a @click="progressVisible = true">{{ $t('label.vmnic.progress') }}: {{ $t('label.vmvolume.' + operation.status) }}</a></template>
     </a-alert>
-    <a-table :columns="columns" :data-source="filteredRows" row-key="id" size="small" :loading="loading" :pagination="{ pageSize: 10, hideOnSinglePage: true }" :scroll="{ x: 760 }">
+    <detail-tab-table :columns="columns" :data-source="filteredRows" row-key="id" size="small" :loading="loading" :pagination="{ pageSize: 10, hideOnSinglePage: true }" :scroll="{ x: 760 }">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'network'">
           <router-link v-if="networks[record.networkid]" :to="'/guestnetwork/' + record.networkid">{{ record.networkname || record.networkid }}</router-link>
@@ -47,7 +47,7 @@ under the License.
           </a-menu></template></a-dropdown>
         </div></template>
       </template>
-    </a-table>
+    </detail-tab-table>
     <a-modal centered wrap-class-name="vm-nic-modal" :visible="form === 'create'" :title="$t('label.vmnic.create')" :width="760" :mask-closable="false" @cancel="closeForm">
       <dl class="nic-context"><dt>{{ $t('label.virtualmachine') }}</dt><dd>{{ vm.displayname || vm.name }}</dd><dt>{{ $t('label.zone') }}</dt><dd>{{ vm.zonename }}</dd></dl>
       <a-checkbox v-if="allowed('updateDefaultNicForVirtualMachine')" v-model:checked="makeDefault">{{ $t('label.make.default') }}</a-checkbox>

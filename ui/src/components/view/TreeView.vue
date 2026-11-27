@@ -16,9 +16,9 @@
 // under the License.
 
 <template>
-  <resource-layout>
+  <resource-layout :viewport-scroll="viewportScroll">
     <template #left>
-      <a-card :bordered="false" :aria-busy="loading">
+      <a-card :class="{ 'workspace-fill': viewportScroll }" :bordered="false" :aria-busy="loading">
         <div class="domain-tree-toolbar">
           <a-input-search
             v-model:value="searchQuery"
@@ -28,7 +28,10 @@
             @search="$emit('search', $event)" />
           <slot name="filters" />
         </div>
-        <a-spin :spinning="loading">
+        <div
+          :class="{ 'workspace-panel': viewportScroll }"
+          v-scroll-activity="viewportScroll && { label: $t('label.domains'), scope: keyword }">
+          <a-spin :spinning="loading">
           <a-alert
             v-if="error"
             type="error"
@@ -40,26 +43,40 @@
             v-else-if="treeData.length"
             show-line
             show-icon
-            class="list-tree-view"
+            checkable
+            check-strictly
+            class="list-tree-view mold-domain-tree"
             :tree-data="treeData"
             :load-data="loadChildren"
             :selected-keys="resource.id ? [resource.id] : []"
+            :checked-keys="{ checked: resource.id ? [resource.id] : [], halfChecked: [] }"
             :expanded-keys="expandedKeys"
             :auto-expand-parent="false"
             @select="(_, event) => $emit('select', event.node.eventKey)"
+            @check="(_, event) => $emit('select', event.node.eventKey)"
             @expand="$emit('expand', $event)"
             @rightClick="handleContextMenu">
             <template #icon="{ data }"><block-outlined v-if="data.isLeaf" /></template>
+            <template #title="data">
+              <span
+                tabindex="0"
+                class="mold-domain-tree-title"
+                :title="data.title"
+                @keydown="handleTreeKey($event, data)">{{ data.title }}</span>
+            </template>
           </a-tree>
           <a-empty v-else-if="!loading" :description="$t('label.no.data')" />
-        </a-spin>
+          </a-spin>
+        </div>
         <slot name="pagination" />
       </a-card>
     </template>
     <template #right>
-      <a-spin :spinning="loading || selecting">
+      <a-spin :wrapper-class-name="viewportScroll ? 'workspace-fill' : undefined" :spinning="loading || selecting">
         <a-card v-if="resource.id && !loading" class="spin-content resource-content-card">
           <a-tabs
+            :class="{ 'workspace-tabset': viewportScroll }"
+            v-scroll-activity="viewportScroll && { selector: tabScrollSelector, label: $t('label.details'), scope: activeTab }"
             :key="resource.id"
             :tab-position="resourceTabPosition"
             :animated="false"
@@ -93,6 +110,7 @@
 </template>
 
 <script>
+import scrollActivity, { tabScrollSelector } from '@/utils/scrollActivity'
 import { Empty } from 'ant-design-vue'
 import { mixinDevice } from '@/utils/mixin.js'
 import ResourceLayout from '@/layouts/ResourceLayout'
@@ -100,9 +118,12 @@ import ResourceContextMenu from '@/components/view/ResourceContextMenu'
 
 export default {
   name: 'TreeView',
+  directives: { scrollActivity },
   components: { AEmpty: Empty, ResourceLayout, ResourceContextMenu },
   mixins: [mixinDevice],
+  provide () { return { resourceViewportEnabled: () => this.viewportScroll } },
   props: {
+    viewportScroll: Boolean,
     treeData: { type: Array, required: true },
     resource: { type: Object, required: true },
     tabs: { type: Array, required: true },
@@ -120,6 +141,7 @@ export default {
     return { searchQuery: this.keyword, contextRecord: null, contextPosition: null }
   },
   computed: {
+    tabScrollSelector () { return tabScrollSelector },
     contextMenuActions () {
       const record = this.contextRecord
       if (!record) return []
@@ -132,17 +154,25 @@ export default {
   },
   watch: {
     keyword (value) { this.searchQuery = value },
-    loading (value) { if (value) this.contextRecord = null },
-    selecting (value) { if (value) this.contextRecord = null }
+    loading (value) { if (value) this.contextRecord = null }
   },
   methods: {
+    handleTreeKey (event, data) {
+      if (event.key !== 'ContextMenu' && !(event.shiftKey && event.key === 'F10')) return
+      const rect = event.currentTarget.getBoundingClientRect()
+      this.openTreeMenu(event, data, { x: rect.left + 16, y: rect.top + 20 })
+    },
     handleContextMenu ({ event, node }) {
-      if (this.loading || this.selecting) return
-      this.contextRecord = node.dataRef.id === this.resource.id ? this.resource : node.dataRef
+      this.openTreeMenu(event, node.dataRef, { x: event.clientX, y: event.clientY })
+    },
+    openTreeMenu (event, record, position) {
+      if (this.loading || this.selecting || !record?.id) return
+      this.contextRecord = record.id === this.resource.id ? this.resource : record
+      if (record.id !== this.resource.id) this.$emit('select', record.id)
       if (!this.contextMenuActions.length) return
       event.preventDefault()
       event.stopPropagation()
-      this.contextPosition = { x: event.clientX, y: event.clientY }
+      this.contextPosition = position
     },
     handleContextAction (action) {
       const record = this.contextRecord
@@ -154,6 +184,9 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.mold-domain-tree :deep(.ant-tree-treenode) { min-height: 47px; align-items: center; min-width: 0; }
+.mold-domain-tree :deep(.ant-tree-node-content-wrapper) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mold-domain-tree-title { white-space: nowrap; text-overflow: ellipsis; }
 .domain-tree-toolbar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

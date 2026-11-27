@@ -26,7 +26,7 @@
     </a-alert>
     <a-alert v-if="!canReadNodes && rows.length" class="usage-feedback" type="info" show-icon :message="$t('message.cni.usage.nodes.forbidden')" />
     <div class="usage-table">
-      <a-table
+      <detail-tab-table
         size="small"
         :scroll="{ x: 1100 }"
         :columns="columns"
@@ -57,10 +57,10 @@
             </a-table>
           </section>
         </template>
-      </a-table>
+      </detail-tab-table>
     </div>
     <div v-if="status === 'ready' || rows.length" class="detail-tab-pagination usage-pagination">
-      <a-pagination :current="page" :pageSize="pagesize" :total="count" :showTotal="total => $t('message.cni.usage.total', [total])" show-size-changer :pageSizeOptions="['10', '20', '50', '100']" @change="changePage" />
+      <detail-tab-pagination :current="page" :pageSize="pagesize" :total="count" :showTotal="total => $t('message.cni.usage.total', [total])" show-size-changer :pageSizeOptions="['10', '20', '50', '100']" @change="changePage" />
     </div>
   </section>
 </template>

@@ -26,6 +26,8 @@ import './core/lazy_use'
 import extensions from './core/ext'
 import './permission' // permission control
 import './style/components/view/DetailTab.scss'
+import { DetailTabTable, DetailTabPagination } from './components/view/detailTabList'
+import './style/components/view/list-status.css'
 import './utils/filter' // global filter
 import {
   pollJobPlugin,
@@ -68,6 +70,8 @@ vueApp.use(extensionsUtilPlugin)
 vueApp.use(backupUtilPlugin)
 vueApp.use(extensions)
 vueApp.use(directives)
+vueApp.component(DetailTabTable.name, DetailTabTable)
+vueApp.component(DetailTabPagination.name, DetailTabPagination)
 
 const renderError = (err) => {
   console.error('Fatal error during app initialization: ', err)

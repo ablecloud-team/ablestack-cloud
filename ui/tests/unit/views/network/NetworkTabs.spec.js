@@ -126,8 +126,8 @@ test('tab-only route changes do not requery Autogen, but a real filter does', ()
   const next = { ...route, fullPath: route.path + '?tab=events', query: { tab: 'events' } }
   const vm = { resetSelection: jest.fn(), clearAutoRefresh: jest.fn(), fetchData: jest.fn(), scheduleAutoRefresh: jest.fn() }
   expect(networkTabRouteKey(route)).toBe(networkTabRouteKey(next))
-  AutogenView.watch.$route.call(vm, next, route); expect(vm.fetchData).not.toHaveBeenCalled()
-  AutogenView.watch.$route.call(vm, { ...next, fullPath: next.fullPath + '&keyword=x', query: { ...next.query, keyword: 'x' } }, next)
+  AutogenView.watch.$route.handler.call(vm, next, route); expect(vm.fetchData).not.toHaveBeenCalled()
+  AutogenView.watch.$route.handler.call(vm, { ...next, fullPath: next.fullPath + '&keyword=x', query: { ...next.query, keyword: 'x' } }, next)
   expect(vm.fetchData).toHaveBeenCalledTimes(1)
 })
 test('late associated-network response cannot overwrite a newer Public IP network', async () => {

@@ -16,14 +16,15 @@
 // under the License.
 
 <template>
-  <div>
+  <div class="workspace-host">
     <autogen-view @change-resource="changeResource" @public-ip-read-state="state => { readPending = state.pending; readFailed = state.failed }">
       <template #resource>
         <a-alert v-if="contextFailed" type="warning" show-icon :message="$t('message.guest.feature.load.failed')">
           <template #action><a-button size="small" @click="fetchData">{{ $t('label.refresh') }}</a-button></template>
         </a-alert>
         <resource-view
-          v-if="isPublicIpAddress && 'id' in resource"
+          v-if="isPublicIpAddress && resource.id === $route.params.id"
+          viewport-scroll
           :key="resource.id"
           :loading="loading"
           :managed-network-context="true"

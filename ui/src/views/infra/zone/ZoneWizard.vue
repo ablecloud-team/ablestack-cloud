@@ -23,10 +23,9 @@
       size="small"
       :current="currentStep">
       <a-step
-        v-for="(item, index) in zoneSteps"
+        v-for="item in zoneSteps"
         :key="item.title"
-        :title="$t(item.title)"
-        :ref="`step${index}`">
+        :title="$t(item.title)">
       </a-step>
     </a-steps>
     <div>
@@ -206,18 +205,19 @@ export default {
       this.scrollToStepActive()
     },
     scrollToStepActive () {
-      if (!this.isMobile()) {
-        return
-      }
+      if (!this.isMobile()) return
       this.$nextTick(() => {
-        if (!this.$refs.zoneStep) {
-          return
+        const steps = this.$refs.zoneStep?.$el
+        const activeStep = steps?.querySelector('.ant-steps-item-process')
+        if (!activeStep) return
+
+        const row = steps.getBoundingClientRect()
+        const active = activeStep.getBoundingClientRect()
+        if (active.left < row.left) {
+          steps.scrollLeft += active.left - row.left
+        } else if (active.right > row.right) {
+          steps.scrollLeft += active.right - row.right
         }
-        if (this.currentStep === 0) {
-          this.$refs.zoneStep.$el.scrollLeft = 0
-          return
-        }
-        this.$refs.zoneStep.$el.scrollLeft = this.$refs['step' + (this.currentStep - 1)][0].$el.offsetLeft
       })
     },
     onFieldsChanged (data) {

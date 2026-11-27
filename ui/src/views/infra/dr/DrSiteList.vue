@@ -17,7 +17,7 @@
   under the License.
 -->
 <template>
-  <div class="cross-dr-page cross-dr-standard-page">
+  <div class="cross-dr-page cross-dr-standard-page mold-workspace">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <div class="content-breadcrumb">
       <a-card class="breadcrumb-card breadcrumb-toolbar" style="z-index: 10">
@@ -108,9 +108,10 @@
       :message="$t('message.dr.api.unavailable')" />
 
     <template v-else-if="detailId">
-      <resource-layout>
+      <resource-layout viewport-scroll>
         <template #left>
           <dr-resource-info-card
+            viewport-scroll
             resourceType="site"
             :resource="detailSite"
             :title="detailSite.name || detailSite.id || '-'"
@@ -122,12 +123,14 @@
 
         <template #right>
           <a-card
-            class="spin-content"
+            class="spin-content resource-content-card"
             :loading="loading"
             :bordered="true"
             style="width: 100%"
             @contextmenu.stop.prevent="openSiteContextMenu($event, detailSite)">
             <a-tabs
+              class="workspace-tabset"
+              v-scroll-activity="{ selector: tabScrollSelector, label: $t('label.details'), scope: activeTab }"
               :tabPosition="resourceTabPosition"
               :style="{ width: '100%', marginTop: resourceTabPosition === 'top' ? '-12px' : '0' }"
               :activeKey="activeTab"
@@ -182,8 +185,10 @@
     </template>
 
     <template v-else>
-      <div class="row-element" @contextmenu="openListContextMenu">
-        <a-table
+      <div class="row-element workspace-list">
+        <mold-list-table
+          viewport-scroll
+          :scope="normalizedPage + ':' + pageSize + ':' + $route.fullPath"
           class="cross-dr-standard-table"
           size="middle"
           :columns="tableColumns"
@@ -191,7 +196,10 @@
           :rowKey="record => record.id"
           :loading="loading"
           :pagination="false"
-          :rowSelection="listRowSelection">
+          :rowSelection="listRowSelection"
+          external-context
+          @row-context="openListContextMenu"
+          :multiple="false">
           <template #customFilterDropdown>
             <div style="padding: 8px" class="filter-dropdown">
               <a-menu>
@@ -219,7 +227,7 @@
               {{ $t(siteTypeLabel(text)) }}
             </template>
           </template>
-        </a-table>
+        </mold-list-table>
         <a-pagination
           class="row-element"
           style="margin-top: 10px"
@@ -232,7 +240,7 @@
           @change="changePage"
           @showSizeChange="changePageSize"
           showSizeChanger
-          showQuickJumper>
+          :showQuickJumper="filteredSites.length > 0">
           <template #buildOptionText="props">
             <span>{{ props.value }} / {{ $t('label.page') }}</span>
           </template>
@@ -423,6 +431,8 @@
 </template>
 
 <script>
+import scrollActivity, { tabScrollSelector } from '@/utils/scrollActivity'
+import MoldListTable from '@/components/view/MoldListTable'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import { notification } from 'ant-design-vue'
 import ActionButton from '@/components/view/ActionButton'
@@ -444,7 +454,9 @@ import { ClockCircleOutlined, GlobalOutlined, SafetyCertificateOutlined } from '
 
 export default {
   name: 'DrSiteList',
+  directives: { scrollActivity },
   components: {
+    MoldListTable,
     ActionButton,
     Breadcrumb,
     DrFormModal,
@@ -524,6 +536,7 @@ export default {
     }
   },
   computed: {
+    tabScrollSelector () { return tabScrollSelector },
     hasListApi () {
       return 'listDrSites' in this.$store.getters.apis
     },
@@ -1392,17 +1405,9 @@ export default {
       this.contextMenuPosition = { x: event.clientX, y: event.clientY }
       this.contextMenuVisible = true
     },
-    openListContextMenu (event) {
-      const rowElement = event.target.closest('tr.ant-table-row')
-      if (!rowElement) {
-        this.closeContextMenu()
-        return
-      }
-      const rowKey = rowElement.getAttribute('data-row-key')
-      const site = this.pagedSites.find(item => String(item.id) === String(rowKey))
-      if (site) {
-        this.openSiteContextMenu(event, site)
-      }
+    openListContextMenu ({ event, record, position }) {
+      this.openSiteContextMenu(event, record)
+      this.contextMenuPosition = position
     },
     closeContextMenu () {
       this.contextMenuVisible = false

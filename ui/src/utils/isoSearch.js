@@ -102,8 +102,12 @@ export function isoRequestParams (params, detail = false, getters = {}) {
   for (const key of ['filter', 'q', 'isoowner', 'sortkey', 'sortorder']) delete result[key]
   return result
 }
+export function isoDetailQuery (query, getters) {
+  const list = isoListQuery(query, 20, getters)
+  return { isoreturn: JSON.stringify(list), isoowner: list.isoowner }
+}
 export function isoDetailLocation (route, record, getters, tab) {
-  return { path: '/iso/' + record.id, query: { isoreturn: JSON.stringify(isoListQuery(route.query, 20, getters)), isoowner: isoListOwner(getters), ...(tab ? { tab } : {}) } }
+  return { path: '/iso/' + record.id, query: { ...isoDetailQuery(route.query, getters), ...(tab ? { tab } : {}) } }
 }
 export function isoListLocation (route, getters) {
   try {

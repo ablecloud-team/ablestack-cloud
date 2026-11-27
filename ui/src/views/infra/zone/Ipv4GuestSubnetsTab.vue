@@ -28,7 +28,7 @@
       </a-button>
     </resource-table-toolbar>
 
-    <a-table
+    <detail-tab-table
       size="small"
       :scroll="{ x: 680 }"
       style="overflow-y: auto"
@@ -97,8 +97,8 @@
           </div>
         </template>
       </template>
-    </a-table>
-    <a-pagination
+    </detail-tab-table>
+    <detail-tab-pagination
       class="row-element pagination"
       size="small"
       :current="ipv4SubnetPage"
@@ -112,7 +112,7 @@
       <template #buildOptionText="props">
         <span>{{ props.value }} / {{ $t('label.page') }}</span>
       </template>
-    </a-pagination>
+    </detail-tab-pagination>
 
     <mold-dialog
       size="md"

@@ -21,7 +21,7 @@
       <template #add-label>{{ $t('label.apply.tungsten.network.policy') }}</template>
     </NetworkRulesToolbar>
     <a-alert v-if="listRefreshFailed" type="warning" show-icon :message="$t('message.guest.feature.load.failed')" />
-    <a-table
+    <detail-tab-table
       :scroll="{ x: 560 }"
       size="small"
       :loading="fetchLoading"
@@ -48,9 +48,9 @@
           </a-popconfirm>
         </template>
       </template>
-    </a-table>
+    </detail-tab-table>
     <div style="display: block; text-align: right; margin-top: 10px;">
-      <a-pagination
+      <detail-tab-pagination
         size="small"
         :current="page"
         :pageSize="pageSize"
@@ -63,7 +63,7 @@
         <template #buildOptionText="props">
           <span>{{ props.value }} / {{ $t('label.page') }}</span>
         </template>
-      </a-pagination>
+      </detail-tab-pagination>
     </div>
     <MoldDialog
       size="md"

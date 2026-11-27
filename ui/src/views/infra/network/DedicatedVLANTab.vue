@@ -28,7 +28,7 @@
         {{ $t('label.dedicate.vlan.vni.range') }}
       </a-button>
     </resource-table-toolbar>
-    <a-table
+    <detail-tab-table
       size="small"
       :scroll="{ x: 720 }"
       style="overflow-y: auto;"
@@ -48,8 +48,8 @@
             @onClick="openRelease(record)" />
         </template>
       </template>
-    </a-table>
-    <a-pagination
+    </detail-tab-table>
+    <detail-tab-pagination
       class="pagination"
       size="small"
       :current="page"
@@ -63,7 +63,7 @@
       <template #buildOptionText="props">
         <span>{{ props.value }} / {{ $t('label.page') }}</span>
       </template>
-    </a-pagination>
+    </detail-tab-pagination>
 
     <MoldDialog
       :visible="modal"

@@ -95,6 +95,7 @@
 </template>
 
 <script>
+import { detailTabRouteKey } from '@/utils/listRefreshMixin'
 import { CheckOutlined, CloseOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons-vue'
 import { getAPI, postAPI } from '@/api'
 import MoldDialog from '@/components/view/MoldDialog.vue'
@@ -134,7 +135,7 @@ export default {
     identity () { return tagIdentity(this.$store) },
     context () { return tagContext(this.$store, this.resource, this.resourceType) },
     viewScope () {
-      return JSON.stringify([this.context, this.$route.fullPath, this.$route.meta.resourceType, this.parentIpId,
+      return JSON.stringify([this.context, detailTabRouteKey(this.$route), this.$route.meta.resourceType, this.parentIpId,
         ...['listTags', 'createTags', 'deleteTags'].map(api => api in this.$store.getters.apis), this.canEdit])
     },
     bindingKey () { return JSON.stringify([this.viewScope, this.available]) },

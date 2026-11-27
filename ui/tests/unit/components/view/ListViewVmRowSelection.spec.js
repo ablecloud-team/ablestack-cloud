@@ -21,7 +21,7 @@ import ListView from '@/components/view/ListView'
 
 jest.mock('@/api', () => ({ getAPI: jest.fn().mockResolvedValue({}) }))
 
-function mountTable ({ order = ['a', 'b', 'c', 'd', 'e'], disabled = [], path = '/vm' } = {}) {
+function mountTable ({ order = ['a', 'b', 'c', 'd', 'e'], disabled = [], path = '/vm', multiple = true } = {}) {
   const items = ['a', 'b', 'c', 'd', 'e'].map(id => ({ id, displayname: id.toUpperCase() }))
   const route = reactive({ name: path.slice(1), path, fullPath: path, meta: { name: path.slice(1) } })
   const linkClick = jest.fn()
@@ -30,7 +30,7 @@ function mountTable ({ order = ['a', 'b', 'c', 'd', 'e'], disabled = [], path = 
     props: {
       items,
       columns: ['displayname', 'state', 'qemuagentversion', 'templatetype', 'arch', 'resources'].map(key => ({ key, dataIndex: key })),
-      actions: [{ api: 'startVirtualMachine', dataView: true, groupAction: true }],
+      actions: [{ api: 'startVirtualMachine', dataView: true, groupAction: multiple }],
       selectionDisabled: record => disabled.includes(record.id)
     },
     global: {
@@ -165,11 +165,11 @@ test('right-click anchors the next Shift range in the same selection state', asy
   wrapper.unmount()
 })
 
-test('another list has its existing row behavior', async () => {
-  const { wrapper, click } = mountTable({ path: '/vmsnapshot' })
+test('a list without group operations selects only the last row', async () => {
+  const { wrapper, click } = mountTable({ path: '/vmsnapshot', multiple: false })
   await click('a')
   await click('b', { ctrlKey: true })
-  expect(wrapper.vm.selectedRowKeys).toEqual([])
+  expect(wrapper.vm.selectedRowKeys).toEqual(['b'])
   wrapper.unmount()
 })
 

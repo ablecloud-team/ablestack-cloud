@@ -19,30 +19,31 @@
   <div>
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <a-spin :spinning="fetchLoading">
-      <a-button
-        v-if="'registerUserKeys' in $store.getters.apis"
-        type="dashed"
-        style="width: 100%; margin-bottom: 15px"
-        @click="onShowAddKeyPair()">
-        <template #icon><plus-outlined /></template>
-        {{ $t('label.register.api.key') }}
-      </a-button>
-      <a-button
-        v-if="this.selectedRowKeys.length > 0 && ('deleteUserKeys' in $store.getters.apis)"
-        type="primary"
-        danger
-        style="width: 100%; margin-bottom: 15px"
-        @click="bulkActionConfirmation()">
-        <template #icon><delete-outlined /></template>
-        {{ $t('label.action.bulk.delete.api.keys') }}
-      </a-button>
-      <a-table
+      <div class="breadcrumb-toolbar-actions api-key-list-actions">
+        <a-button
+          v-if="'registerUserKeys' in $store.getters.apis"
+          type="primary"
+          shape="round"
+          @click="onShowAddKeyPair()">
+          <template #icon><plus-outlined /></template>
+          {{ $t('label.register.api.key') }}
+        </a-button>
+        <a-tooltip v-if="selectedRowKeys.length > 1 && 'deleteUserKeys' in $store.getters.apis" :title="$t('label.action.bulk.delete.api.keys')">
+          <a-button shape="circle" danger :aria-label="$t('label.action.bulk.delete.api.keys')" @click="bulkActionConfirmation()">
+            <template #icon><delete-outlined /></template>
+          </a-button>
+        </a-tooltip>
+      </div>
+      <mold-list-table
+detail-tab
         size="small"
         style="overflow-y: auto"
         :columns="columns"
         :dataSource="keypairs"
         :rowKey="item => item.id"
         :rowSelection="rowSelection()"
+        :context-actions="keyPairActions"
+        :scope="page"
         :pagination="false" >
         <template #name="{ record }">
           <div>
@@ -62,9 +63,7 @@
               @onClick="$message.success($t('label.copied.clipboard'))"
               :copyResource="record.apikey" />
           </strong>
-          <div>
-            {{ record.apikey.substring(0, 20) }}...
-          </div>
+          <span class="api-key-preview">{{ record.apikey.substring(0, 20) }}...</span>
         </template>
 
         <template #secretkey="{ record }">
@@ -78,9 +77,7 @@
               @onClick="$message.success($t('label.copied.clipboard'))"
               :copyResource="record.secretkey" />
           </strong>
-          <div>
-            {{ record.secretkey.substring(0, 20) }}...
-          </div>
+          <span class="api-key-preview">{{ record.secretkey.substring(0, 20) }}...</span>
         </template>
 
         <template #startdate="{ record }">
@@ -95,9 +92,9 @@
           <div> {{ $toLocaleDate(record.created) }} </div>
         </template>
 
-      </a-table>
+      </mold-list-table>
       <a-divider/>
-      <a-pagination
+      <detail-tab-pagination
         class="row-element pagination"
         size="small"
         :current="page"
@@ -111,7 +108,7 @@
         <template #buildOptionText="props">
           <span>{{ props.value }} / {{ $t('label.page') }}</span>
         </template>
-      </a-pagination>
+      </detail-tab-pagination>
     </a-spin>
     <bulk-action-view
       v-if="(showConfirmationAction || showGroupActionModal)"
@@ -137,6 +134,7 @@
   </div>
 </template>
 <script>
+import MoldListTable from '@/components/view/MoldListTable'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { getAPI, postAPI } from '@/api'
@@ -149,6 +147,7 @@ export default {
   mixins: [listRefreshMixin(['fetchData'])],
   name: 'ApiKeyPairsTab',
   components: {
+    MoldListTable,
     TooltipButton,
     BulkActionView,
     GenerateApiKeyPair
@@ -231,6 +230,18 @@ export default {
   },
   inject: ['parentFetchData'],
   methods: {
+    keyPairActions (record, selection) {
+      if (!('deleteUserKeys' in this.$store.getters.apis) || this.fetchLoading || this.listRefreshFailed) return []
+      return [{
+        key: 'delete',
+        label: 'label.action.bulk.delete.api.keys',
+        icon: 'delete-outlined',
+        danger: true,
+        handler: () => {
+          if (selection.every(row => this.selectedRowKeys.includes(row.id))) this.bulkActionConfirmation()
+        }
+      }]
+    },
     fetchData () {
       const listRequest = this.listRequestToken('fetchData')
       const params = {

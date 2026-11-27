@@ -19,7 +19,7 @@ import Autogen from '@/views/AutogenView'
 import Search from '@/components/view/KubernetesIsoSearch'
 import Breadcrumb from '@/components/widgets/Breadcrumb'
 import ResourceView from '@/components/view/ResourceView'
-import { kubernetesIsoListQuery, kubernetesIsoDetailLocation } from '@/utils/kubernetesIsoSearch'
+import { kubernetesIsoListQuery, kubernetesIsoDetailQuery } from '@/utils/kubernetesIsoSearch'
 import { getAPI, callAPI } from '@/api'
 import store from '@/store'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), callAPI: jest.fn(), postAPI: jest.fn() }))
@@ -53,6 +53,9 @@ beforeEach(() => {
   }
   Object.assign(ctx, Autogen.data.call(ctx))
   Object.entries(Autogen.methods).forEach(([k, f]) => { ctx[k] = f.bind(ctx) })
+  for (const name of ['kubernetesIsoSecurityContext', 'kubernetesIsoScope']) {
+    Object.defineProperty(ctx, name, { get: () => Autogen.computed[name].call(ctx) })
+  }
   ctx.updateSelectedColumns = jest.fn()
   ctx.$router.replace.mockImplementation(({ query }) => { route(query); return ctx.fetchData() })
   route({}); getAPI.mockResolvedValue(response([row]))
@@ -101,7 +104,7 @@ test('a server ignoring minimum/arch conditions never presents broad rows as mat
 })
 test('detail tabs use the router and breadcrumb preserves the complete list return query', () => {
   route({ keyword: 'part', page: 2, pagesize: 10, sortkey: 'semanticversion', sortorder: 'desc' })
-  const location = kubernetesIsoDetailLocation(ctx.$route, row, store.getters, store.state.user.token)
+  const location = { path: '/kubernetesiso/' + row.id, query: kubernetesIsoDetailQuery(ctx.$route.query, store.getters, store.state.user.token) }
   const detail = { ...ctx.$route, path: location.path, params: { id }, query: location.query }
   const c = { $route: detail, $store: store, $router: ctx.$router, $emit: jest.fn() }
   ResourceView.methods.onTabChange.call(c, 'events')

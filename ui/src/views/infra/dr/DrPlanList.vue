@@ -17,7 +17,7 @@
   under the License.
 -->
 <template>
-  <div class="cross-dr-page cross-dr-standard-page">
+  <div class="cross-dr-page cross-dr-standard-page mold-workspace">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <div class="content-breadcrumb">
       <a-card class="breadcrumb-card breadcrumb-toolbar" style="z-index: 10">
@@ -71,21 +71,9 @@
               :resource="detailPlan"
               :triggerStyle="{ float: device === 'mobile' ? 'left' : 'right' }"
               @exec-action="runPlanAction" />
-            <span
-              v-if="!detailId && selectedRowKeys.length > 0 && 'startDrProtectionGroupAction' in $store.getters.apis"
-              class="row-action-button">
-              <a-button
-                type="primary"
-                shape="round"
-                class="action-button-item"
-                @click="openGroupModal">
-                <ApartmentOutlined class="action-button-item__icon" />
-                <span>{{ $t('label.dr.protection.group.action') }}</span>
-              </a-button>
-            </span>
             <action-button
               breadcrumb-toolbar
-              v-else-if="!detailId && 'createDrPlan' in $store.getters.apis"
+              v-if="!detailId && 'createDrPlan' in $store.getters.apis"
               :loading="loading"
               :actions="createPlanActions"
               :selectedRowKeys="selectedRowKeys"
@@ -93,6 +81,11 @@
               :dataView="false"
               :resource="{}"
               @exec-action="openCreateModal" />
+            <a-tooltip v-if="!detailId && selectedRowKeys.length > 1 && 'startDrProtectionGroupAction' in $store.getters.apis" :title="$t('label.dr.protection.group.action')">
+              <a-button shape="circle" :aria-label="$t('label.dr.protection.group.action')" @click="openGroupModal">
+                <template #icon><ApartmentOutlined /></template>
+              </a-button>
+            </a-tooltip>
             <dr-checkpoint-manager
               v-if="!detailId"
               toolbar />
@@ -130,9 +123,10 @@
       :description="listLoadWarning" />
 
     <template v-else-if="detailId">
-      <resource-layout>
+      <resource-layout viewport-scroll>
         <template #left>
           <dr-resource-info-card
+            viewport-scroll
             resourceType="plan"
             :resource="detailPlan"
             :title="detailPlan.name || detailPlan.id || '-'"
@@ -144,7 +138,7 @@
 
         <template #right>
           <a-card
-            class="spin-content"
+            class="spin-content resource-content-card"
             :loading="loading"
             :bordered="true"
             style="width: 100%"
@@ -157,6 +151,8 @@
               :message="$t('message.dr.plan.detail.fallback')"
               :description="detailLoadWarning" />
             <a-tabs
+              class="workspace-tabset"
+              v-scroll-activity="{ selector: tabScrollSelector, label: $t('label.details'), scope: activeTab }"
               :tabPosition="resourceTabPosition"
               :style="{ width: '100%', marginTop: resourceTabPosition === 'top' ? '-12px' : '0' }"
               :activeKey="activeTab"
@@ -202,7 +198,7 @@
     </template>
 
     <template v-else>
-      <div class="row-element" @contextmenu="openListContextMenu">
+      <div class="row-element workspace-list">
         <section v-if="trackedGroupRun.id" class="cross-dr-group-run-panel">
           <div class="cross-dr-group-run-panel__header">
             <div>
@@ -265,7 +261,9 @@
             </a-table-column>
           </a-table>
         </section>
-        <a-table
+        <mold-list-table
+          viewport-scroll
+          :scope="normalizedPage + ':' + pageSize + ':' + $route.fullPath"
           class="cross-dr-standard-table"
           size="middle"
           :columns="tableColumns"
@@ -273,7 +271,10 @@
           :rowKey="record => record.id"
           :loading="loading"
           :pagination="false"
-          :rowSelection="listRowSelection">
+          :rowSelection="listRowSelection"
+          :multiple="'startDrProtectionGroupAction' in $store.getters.apis"
+          external-context
+          @row-context="openListContextMenu">
           <template #customFilterDropdown>
             <div style="padding: 8px" class="filter-dropdown">
               <a-menu>
@@ -315,7 +316,7 @@
               </span>
             </template>
           </template>
-        </a-table>
+        </mold-list-table>
         <a-pagination
           class="row-element"
           style="margin-top: 10px"
@@ -328,7 +329,7 @@
           @change="changePage"
           @showSizeChange="changePageSize"
           showSizeChanger
-          showQuickJumper>
+          :showQuickJumper="listTotal > 0">
           <template #buildOptionText="props">
             <span>{{ props.value }} / {{ $t('label.page') }}</span>
           </template>
@@ -1178,6 +1179,8 @@
 </template>
 
 <script>
+import scrollActivity, { tabScrollSelector } from '@/utils/scrollActivity'
+import MoldListTable from '@/components/view/MoldListTable'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import DrCheckpointManager from '@/components/dr/DrCheckpointManager.vue'
 import { h } from 'vue'
@@ -1209,7 +1212,9 @@ import { ApartmentOutlined, BranchesOutlined, ClockCircleOutlined, DesktopOutlin
 
 export default {
   name: 'DrPlanList',
+  directives: { scrollActivity },
   components: {
+    MoldListTable,
     DrCheckpointManager,
     ActionButton,
     Breadcrumb,
@@ -1343,6 +1348,7 @@ export default {
     }
   },
   computed: {
+    tabScrollSelector () { return tabScrollSelector },
     targetSizingFields () {
       if (!this.directionUsesKvmTarget || !this.createForm.targetcomputeref) return []
       const compute = this.findOptionByValue(this.targetComputeOptions, this.createForm.targetcomputeref)
@@ -3631,21 +3637,13 @@ export default {
       this.contextMenuPosition = { x: event.clientX, y: event.clientY }
       this.contextMenuVisible = true
     },
-    openListContextMenu (event) {
-      const rowElement = event.target.closest('tr.ant-table-row')
-      if (!rowElement) {
-        this.closeContextMenu()
-        return
-      }
-      if (this.selectedRowKeys.length > 1) {
+    openListContextMenu ({ event, record, keys, position }) {
+      if (keys.length > 1) {
         this.openMultiplePlanContextMenu(event)
-        return
+      } else {
+        this.openPlanContextMenu(event, record)
       }
-      const rowKey = rowElement.getAttribute('data-row-key')
-      const plan = this.pagedPlans.find(item => String(item.id) === String(rowKey))
-      if (plan) {
-        this.openPlanContextMenu(event, plan)
-      }
+      this.contextMenuPosition = position
     },
     runContextMenuAction (action, plan) {
       if (action?.contextAction === 'openProtectionGroup') {

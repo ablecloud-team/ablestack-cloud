@@ -598,9 +598,9 @@ export default {
 </script>
 <style scoped lang="less">
   .form-content {
-    border: 1px dashed #e9e9e9;
+    border: 1px dashed var(--ui-border);
     border-radius: 6px;
-    background-color: #fafafa;
+    background-color: var(--ui-bg-page);
     min-height: 200px;
     text-align: center;
     vertical-align: center;

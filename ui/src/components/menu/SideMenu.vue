@@ -28,6 +28,7 @@
       :collapsed="isCollapsed"
       :menu="menus"
       :theme="theme"
+      :project-view-class="projectViewClass"
       :mode="mode"
       @select="onSelect"></s-menu>
   </a-layout-sider>
@@ -53,6 +54,10 @@ export default {
       type: String,
       required: false,
       default: 'dark'
+    },
+    projectViewClass: {
+      type: String,
+      default: ''
     },
     collapsible: {
       type: Boolean,

@@ -16,9 +16,11 @@
 // under the License.
 
 <template>
-  <a-spin class="vpc-tab" :spinning="fetchLoading">
+  <a-spin :wrapper-class-name="viewportScroll ? 'workspace-fill' : undefined" class="vpc-tab" :spinning="fetchLoading">
     <a-alert v-if="listRefreshFailed" type="warning" show-icon :message="$t('message.list.refresh.stale')" class="vpc-query-notice"><template #description><a-button size="small" :disabled="fetchLoading" @click="handleFetchData">{{ $t('label.retry') }}</a-button></template></a-alert>
     <a-tabs
+      :class="{ 'workspace-tabset': viewportScroll }"
+      v-scroll-activity="viewportScroll && { selector: tabScrollSelector, label: $t('label.details'), scope: currentTab }"
       :tabPosition="resourceTabPosition"
       :activeKey="currentTab"
       :animated="false"
@@ -38,15 +40,15 @@
       <a-tab-pane :tab="$t('label.network.acls')" key="acl" v-if="'listNetworkACLLists' in $store.getters.apis">
         <a-button
           type="primary"
-          class="vpc-tab-create"
+          class="detail-table-create"
           :disabled="!('createNetworkACLList' in $store.getters.apis)"
           @click="() => handleOpenModals('networkAcl')">
           <template #icon><plus-circle-outlined /></template>
           {{ $t('label.add.network.acl') }}
         </a-button>
-        <a-table
+        <detail-tab-table
           class="table"
-          size="small"
+          size="middle"
           :columns="networkAclsColumns"
           :scroll="{ x: 480 }"
           :dataSource="networkAcls"
@@ -60,8 +62,8 @@
               </router-link>
             </template>
           </template>
-        </a-table>
-        <a-pagination
+        </detail-tab-table>
+        <detail-tab-pagination
           class="row-element pagination"
           size="small"
           :current="page"
@@ -75,7 +77,7 @@
           <template #buildOptionText="props">
             <span>{{ props.value }} / {{ $t('label.page') }}</span>
           </template>
-        </a-pagination>
+        </detail-tab-pagination>
         <MoldDialog
           size="md"
 form-actions
@@ -115,15 +117,15 @@ focus-guard
       <a-tab-pane :tab="$t('label.private.gateway')" key="pgw" v-if="'listPrivateGateways' in $store.getters.apis">
         <a-button
           type="primary"
-          class="vpc-tab-create"
+          class="detail-table-create"
           :disabled="!('createPrivateGateway' in $store.getters.apis)"
           @click="gatewayCreate = true">
           <template #icon><plus-circle-outlined /></template>
           {{ $t('label.add.private.gateway') }}
         </a-button>
-        <a-table
+        <detail-tab-table
           class="table"
-          size="small"
+          size="middle"
           :columns="privateGatewaysColumns"
           :scroll="{ x: 760 }"
           :dataSource="privateGateways"
@@ -138,8 +140,8 @@ focus-guard
               <status :text="record.state" displayText></status>
             </template>
           </template>
-        </a-table>
-        <a-pagination
+        </detail-tab-table>
+        <detail-tab-pagination
           class="row-element pagination"
           size="small"
           :current="page"
@@ -153,7 +155,7 @@ focus-guard
           <template #buildOptionText="props">
             <span>{{ props.value }} / {{ $t('label.page') }}</span>
           </template>
-        </a-pagination>
+        </detail-tab-pagination>
 
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.vpn.gateway')" key="vpngw" v-if="'listVpnGateways' in $store.getters.apis">
@@ -184,15 +186,15 @@ focus-guard
       <a-tab-pane :tab="$t('label.vpn.connection')" key="vpnc" v-if="'listVpnConnections' in $store.getters.apis">
         <a-button
           type="primary"
-          class="vpc-tab-create"
+          class="detail-table-create"
           :disabled="!('createVpnConnection' in $store.getters.apis)"
           @click="handleOpenModals('vpnConnection')">
           <template #icon><plus-circle-outlined /></template>
           {{ $t('label.create.site.vpn.connection') }}
         </a-button>
-        <a-table
+        <detail-tab-table
           class="table"
-          size="small"
+          size="middle"
           :columns="vpnConnectionsColumns"
           :scroll="{ x: 640 }"
           :dataSource="vpnConnections"
@@ -209,8 +211,8 @@ focus-guard
               <status :text="text ? text : ''" displayText />
             </template>
           </template>
-        </a-table>
-        <a-pagination
+        </detail-tab-table>
+        <detail-tab-pagination
           class="row-element pagination"
           size="small"
           :current="page"
@@ -224,7 +226,7 @@ focus-guard
           <template #buildOptionText="props">
             <span>{{ props.value }} / {{ $t('label.page') }}</span>
           </template>
-        </a-pagination>
+        </detail-tab-pagination>
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.static.routes')" key="staticroutes">
         <StaticRoutesTab :resource="resource" :loading="loading" />
@@ -254,10 +256,11 @@ focus-guard
 </template>
 
 <script>
+import scrollActivity, { tabScrollSelector } from '@/utils/scrollActivity'
 import MoldDialog from '@/components/network/VpcDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import VpcActionContext from '@/components/network/VpcActionContext'
-import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import { detailTabRouteKey, listRefreshMixin } from '@/utils/listRefreshMixin'
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import { mixinDevice } from '@/utils/mixin.js'
@@ -279,8 +282,9 @@ import PrivateGatewayCreate from './PrivateGatewayCreate'
 import { vpcVpnContext, vpcVpnOwner } from '@/utils/vpcVpn'
 
 export default {
-  mixins: [mixinDevice, listRefreshMixin(['fetchComments', 'fetchPrivateGateways', 'fetchVpnGateways', 'fetchVpnConnections', 'fetchAclList'], { select: vm => ({ vpngw: ['fetchVpnGateways'], pgw: ['fetchPrivateGateways'], vpnc: ['fetchVpnConnections'], acl: ['fetchAclList'], comments: ['fetchComments'] }[vm.currentTab] || []) })],
+  mixins: [mixinDevice, listRefreshMixin(['fetchComments', 'fetchPrivateGateways', 'fetchVpnGateways', 'fetchVpnConnections', 'fetchAclList'], { routeKey: vm => detailTabRouteKey(vm.$route), select: vm => ({ vpngw: ['fetchVpnGateways'], pgw: ['fetchPrivateGateways'], vpnc: ['fetchVpnConnections'], acl: ['fetchAclList'], comments: ['fetchComments'] }[vm.currentTab] || []) })],
   name: 'VpcTab',
+  directives: { scrollActivity },
   components: {
     MoldDialog,
     MoldDialogActions,
@@ -302,6 +306,7 @@ export default {
     ResourceIcon
   },
   props: {
+    viewportScroll: Boolean,
     resource: {
       type: Object,
       required: true
@@ -394,6 +399,7 @@ export default {
     }
   },
   computed: {
+    tabScrollSelector () { return tabScrollSelector },
     aclContext () {
       const getters = this.$store.getters
       const user = getters.userInfo || {}
@@ -408,8 +414,9 @@ export default {
       }
     },
     '$route.fullPath': function () {
+      const previous = this.currentTab
       this.setCurrentTab()
-      this.handleFetchData()
+      if (previous !== this.currentTab || this.$route.query.tab === this.currentTab) this.handleFetchData()
     }
   },
   created () {
@@ -442,10 +449,10 @@ export default {
       this.currentTab = e
       this.page = 1
       this.pageSize = 10
-      this.handleFetchData()
       this.$router.push({ path: this.$route.path, query: { ...this.$route.query, tab: e } })
     },
     handleFetchData () {
+      if (!this.resource.id) return
       switch (this.currentTab) {
         case 'pgw':
           this.fetchPrivateGateways()

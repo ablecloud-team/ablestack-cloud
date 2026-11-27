@@ -102,7 +102,8 @@
       </a-button>
     </div>
 
-    <a-table
+    <detail-tab-table
+:enabled="detailViewport"
       v-else-if="disabled"
       :columns="columns"
       :dataSource="rules"
@@ -164,7 +165,7 @@
           {{ record.description }}
         </template>
       </template>
-    </a-table>
+    </detail-tab-table>
   </div>
 </template>
 
@@ -186,6 +187,7 @@ export default {
     TooltipButton
   },
   props: {
+    detailViewport: { type: Boolean, default: true },
     resource: {
       type: Object,
       required: true

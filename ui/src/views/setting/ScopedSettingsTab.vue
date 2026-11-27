@@ -35,6 +35,7 @@
       :message="$t('message.domain.settings.scope', { path: resource.path || resource.name })"
       :description="$t('message.domain.settings.inheritance')" />
     <configuration-hierarchy
+detail-tab
       :config="pageRows"
       :korean-catalog="koreanCatalog"
       :loading="loading && !items.length"
@@ -42,6 +43,7 @@
       :page="page"
       :pagesize="pageSize"
       @change-page="changePage"
+      :row-actions="settingActions"
       @show-setting="open('details', $event)">
       <template #actions="{ record }">
         <a-space size="small">
@@ -53,18 +55,15 @@
             @click="open('edit', record)">
             {{ $t('label.edit') }}
           </a-button>
-          <a-dropdown v-if="canReset" :trigger="['click']" placement="bottomRight">
-            <a-button size="small" :aria-label="$t('label.actions')" :disabled="loading || loadFailed">
-              <down-outlined />
-            </a-button>
-            <template #overlay>
-              <a-menu>
-                <a-menu-item key="reset" @click="open('reset', record)">
-                  {{ $t('label.reset.config.value') }}
-                </a-menu-item>
-              </a-menu>
-            </template>
-          </a-dropdown>
+          <a-button
+            v-if="canReset"
+            shape="circle"
+            size="small"
+            :aria-label="$t('label.reset.config.value')"
+            :disabled="loading || loadFailed"
+            @click="open('reset', record)">
+            <template #icon><reload-outlined /></template>
+          </a-button>
         </a-space>
       </template>
     </configuration-hierarchy>
@@ -102,7 +101,7 @@
 </template>
 
 <script>
-import { DownOutlined } from '@ant-design/icons-vue'
+import { ReloadOutlined } from '@ant-design/icons-vue'
 import { getAPI } from '@/api'
 import MoldDialog from '@/components/view/MoldDialog'
 import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
@@ -114,7 +113,7 @@ import { configurationScopeParams } from './configurationScope'
 
 export default {
   name: 'ScopedSettingsTab',
-  components: { ConfigurationHierarchy, ConfigurationValue, DownOutlined, MoldDialog, ResourceTableToolbar },
+  components: { ConfigurationHierarchy, ConfigurationValue, ReloadOutlined, MoldDialog, ResourceTableToolbar },
   props: { resource: { type: Object, required: true } },
   data () {
     return {
@@ -199,6 +198,13 @@ export default {
     this.revision++
   },
   methods: {
+    settingActions (record) {
+      const disabled = this.loading || this.loadFailed
+      return [
+        ...(this.canUpdate ? [{ key: 'edit', label: 'label.edit', icon: 'edit-outlined', disabled, handler: () => this.open('edit', record) }] : []),
+        ...(this.canReset ? [{ key: 'reset', label: 'label.reset.config.value', icon: 'reload-outlined', disabled, handler: () => this.open('reset', record) }] : [])
+      ]
+    },
     formatConfigurationValue,
     localizedText (record, field) {
       return configurationText(record, field, this.$i18n.locale, this.koreanCatalog)

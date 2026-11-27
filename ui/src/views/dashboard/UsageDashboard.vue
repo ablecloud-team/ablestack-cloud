@@ -17,7 +17,7 @@
 
 <template>
   <a-alert v-if="dashboardReadError" type="error" show-icon :message="$t('message.request.failed')"><template #description><a-button @click="fetchData">{{ $t('label.refresh') }}</a-button></template></a-alert>
-  <a-row class="capacity-dashboard" :gutter="[12,12]">
+  <a-row class="capacity-dashboard dashboard-card-grid" :gutter="[12,12]">
     <a-col :xs="{ span: 24 }" :lg="{ span: 12 }" :xl="{ span: 8 }" :xxl="{ span: 8 }">
       <chart-card :loading="loading" class="dashboard-card">
         <template #title>
@@ -164,7 +164,7 @@
       </chart-card>
     </a-col>
     <a-col :xs="{ span: 24 }" :lg="{ span: 12 }" :xl="{ span: 8 }" :xxl="{ span: 8 }" v-if="'listVirtualMachines' in $store.getters.apis">
-      <chart-card :loading="loading" class="dashboard-compute">
+      <chart-card :loading="loading" class="dashboard-compute dashboard-card-scroll">
         <template #title>
           <div class="center">
             <h3>
@@ -229,7 +229,7 @@
       </chart-card>
     </a-col>
     <a-col :xs="{ span: 24 }" :lg="{ span: 12 }" :xl="{ span: 8 }" :xxl="{ span: 8 }">
-      <chart-card :loading="loading" class="dashboard-storage">
+      <chart-card :loading="loading" class="dashboard-storage dashboard-card-scroll">
         <template #title>
           <div class="center">
             <h3><hdd-outlined /> {{ $t('label.storage') }}</h3>
@@ -336,7 +336,7 @@
       </chart-card>
     </a-col>
     <a-col :xs="{ span: 24 }" :lg="{ span: 12 }" :xl="{ span: 8 }" :xxl="{ span: 8 }" v-if="'listEvents' in $store.getters.apis">
-      <chart-card :loading="loading" class="dashboard-card dashboard-event">
+      <chart-card :loading="loading" class="dashboard-card dashboard-event dashboard-card-scroll">
         <template #title>
           <div class="center">
             <h3><schedule-outlined /> {{ $t('label.events') }}</h3>
@@ -654,30 +654,8 @@ export default {
     }
   }
 
-  .dashboard-card {
-    width: 100%;
-    min-height: 420px;
-  }
-
-  .dashboard-compute {
-    width: 100%;
-    overflow-x:hidden;
-    overflow-y: scroll;
-    max-height: 420px;
-  }
-
-  .dashboard-storage {
-    width: 100%;
-    overflow-x:hidden;
-    overflow-y: scroll;
-    max-height: 420px;
-  }
-
-  .dashboard-event {
-    width: 100%;
-    overflow-x:hidden;
-    overflow-y: scroll;
-    max-height: 420px;
+  .dashboard-card-grid {
+    --dashboard-card-min-height: 420px;
   }
 
   .center {

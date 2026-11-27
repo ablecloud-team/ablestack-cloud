@@ -28,12 +28,15 @@
     </div>
     <a-row :gutter="12">
       <a-col :md="24" :lg="24">
-        <a-table
+        <mold-list-table
+detail-tab
           size="small"
           :loading="loading"
           :columns="columns"
           :dataSource="dataSource"
           :rowKey="record => record.id"
+          :context-actions="certificateActions"
+          :scope="page"
           :pagination="{ current: page, pageSize, total, hideOnSinglePage: true }"
           @change="handleTableChange"
           :scroll="{ x: 680 }"
@@ -59,7 +62,7 @@
                 @onClick="onShowConfirm(record)" />
             </template>
           </template>
-        </a-table>
+        </mold-list-table>
 
         <a-list size="small" :dataSource="detailColumn" v-if="quickview">
           <div class="close-quickview">
@@ -179,6 +182,7 @@
 </template>
 
 <script>
+import MoldListTable from '@/components/view/MoldListTable'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { getAPI, postAPI } from '@/api'
@@ -192,6 +196,7 @@ export default {
   mixins: [listRefreshMixin(['fetchData'], { scopeKey: vm => [vm.sslScope, vm.scopeSuspended, vm.page, vm.pageSize] })],
   name: 'SSLCertificate',
   components: {
+    MoldListTable,
     TooltipLabel,
     TooltipButton,
     MoldDialog
@@ -305,6 +310,12 @@ export default {
   },
   beforeUnmount () { this.disposed = true; this.invalidateScope(); eventBus.off('project-switch-start', this.invalidateScope) },
   methods: {
+    certificateActions (record) {
+      return [
+        { key: 'details', label: 'label.quickview', icon: 'eye-outlined', handler: () => this.onQuickView(record.id) },
+        ...(this.canDelete ? [{ key: 'delete', label: 'label.delete.sslcertificate', danger: true, icon: 'delete-outlined', handler: () => this.onShowConfirm(record) }] : [])
+      ]
+    },
     invalidateScope () {
       this.scopeSuspended = true; this.uploadVersion++; this.showUploadForm = false; this.uploading = false
       this.dataSource = []; this.total = 0; this.page = 1; this.detail = []; this.quickview = false; this.loading = false; this.initForm()

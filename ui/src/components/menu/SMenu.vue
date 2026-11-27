@@ -25,7 +25,10 @@
       @openChange="onOpenChange"
     >
     <template v-for="(item, index) in menuData" :key="index">
-      <a-sub-menu v-if="item.children && !item.hideChildrenInMenu" :key="item.path">
+      <a-sub-menu
+        v-if="item.children && !item.hideChildrenInMenu"
+        :key="item.path"
+        :popup-class-name="projectViewClass">
         <template #title>
           <span>
             <render-icon
@@ -84,6 +87,10 @@ export default {
       type: String,
       required: false,
       default: 'dark'
+    },
+    projectViewClass: {
+      type: String,
+      default: ''
     },
     mode: {
       type: String,

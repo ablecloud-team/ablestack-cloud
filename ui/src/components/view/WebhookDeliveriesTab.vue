@@ -99,6 +99,7 @@
     </a-space>
     <a-alert v-if="operationNotice" class="delivery-actions" :type="operationNotice.type" :message="operationNotice.title" :description="operationNotice.detail" show-icon />
     <list-view
+detail-tab
       :loading="tabLoading"
       :columns="columns"
       :items="deliveries"
@@ -112,7 +113,7 @@
       @open-webhook-delivery="selectedDelivery = $event"
       @refresh="this.fetchData"
       @selection-change="updateSelectedRows"/>
-    <a-pagination
+    <detail-tab-pagination
       class="row-element"
       style="margin-top: 10px"
       size="small"
@@ -129,7 +130,7 @@
       <template #buildOptionText="props">
         <span>{{ props.value }} / {{ $t('label.page') }}</span>
       </template>
-    </a-pagination>
+    </detail-tab-pagination>
   </div>
 </template>
 

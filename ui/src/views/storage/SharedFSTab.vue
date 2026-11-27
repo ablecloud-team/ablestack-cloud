@@ -18,7 +18,7 @@
 -->
 
 <template>
-  <div class="sharedfs-detail">
+  <div class="sharedfs-detail" :class="{ 'workspace-fill': viewportScroll }">
     <a-alert
       v-if="Object.keys(storageReadErrors).length"
       class="storage-service__alert"
@@ -35,6 +35,8 @@
       </template>
     </a-alert>
     <a-tabs
+      :class="{ 'workspace-tabset': viewportScroll }"
+      v-scroll-activity="viewportScroll && { selector: tabScrollSelector, label: $t('label.details'), scope: currentTab }"
       :tabPosition="resourceTabPosition"
       class="storage-service-tabs"
       :activeKey="currentTab"
@@ -2447,6 +2449,7 @@ size="md"
   </div>
 </template>
 <script>
+import scrollActivity, { tabScrollSelector } from '@/utils/scrollActivity'
 import SharedFSTable from '@/components/storage/SharedFSTable.vue'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
@@ -2523,6 +2526,7 @@ const EllipsisText = {
     }
   },
   computed: {
+    tabScrollSelector () { return tabScrollSelector },
     displayValue () {
       if (this.value === undefined || this.value === null || this.value === '') {
         return '-'
@@ -2680,6 +2684,7 @@ const CapacityInput = {
 
 export default {
   name: 'SharedFSTab',
+  directives: { scrollActivity },
   provide () { return { sharedfsTableLayout: true } },
   components: {
     ATable: SharedFSTable,
@@ -2730,6 +2735,7 @@ export default {
   },
   mixins: [listRefreshMixin(['fetchStorageServiceData'], { interval: 60000, active: vm => vm.hasStorageServiceApi, requestScope: vm => vm.storageReadScope }), mixinDevice],
   props: {
+    viewportScroll: Boolean,
     resource: {
       type: Object,
       required: true
@@ -4994,9 +5000,13 @@ export default {
         this.refreshConfigurationProtection()
       }
     },
-    storageReadScope () {
-      this.resetConfigurationProtection()
-      this.fetchStorageServiceData()
+    storageReadScope: {
+      flush: 'post',
+      handler () {
+        if (this._storageDataScope === this.storageReadScope) return
+        this.resetConfigurationProtection()
+        this.fetchStorageServiceData()
+      }
     },
     resource: {
       deep: true,
@@ -5259,6 +5269,7 @@ export default {
         this.volumes = json.listvolumesresponse.volume || []
         this.volume = this.volumes[0] || {}
         delete this.storageReadErrors.volume
+        return this.volumes
       } catch (error) {
         if (!controller.signal.aborted && scope === this.storageReadScope) this.storageReadErrors.volume = this.storageReadErrorKind(error)
       } finally {
@@ -5267,12 +5278,12 @@ export default {
     },
     fetchData () {
       this.fetchInstances()
-      this.fetchVolumes()
+      const primaryVolumeRead = { id: this.resource.volumeid, result: this.fetchVolumes() }
       this.fetchAvailableVolumes()
       this.fetchDiskOfferings()
       this.fetchStoragePools()
       if (this.hasStorageServiceApi) {
-        this.fetchStorageServiceData()
+        this.fetchStorageServiceData(primaryVolumeRead)
       }
     },
     fetchDiskOfferings () {
@@ -5401,7 +5412,7 @@ export default {
         instanceid: this.storageService.instance.id, idmappingmode: this.forms.nfsIdentity.idmappingmode
       })
     },
-    async fetchStorageServiceData () {
+    async fetchStorageServiceData (primaryVolumeRead) {
       if (!this.hasStorageServiceApi) return
       this.cancelStorageRead()
       const request = this.listRequestToken('fetchStorageServiceData')
@@ -5501,7 +5512,8 @@ export default {
             smbShares: this.storageService.smbShares,
             iscsiTargets: this.storageService.iscsiTargets,
             nvmeNamespaces: this.storageService.nvmeNamespaces,
-            readOptions: options
+            readOptions: options,
+            primaryVolumeRead
           }), value => { this.storageService.backingVolumes = value })
         ])
         if (!current()) return
@@ -5652,7 +5664,7 @@ export default {
         nvmeNamespaces: this.storageService.nvmeNamespaces
       })
     },
-    async loadBackingVolumes ({ instance, nfsExports, smbShares, iscsiTargets, nvmeNamespaces, readOptions = {} }) {
+    async loadBackingVolumes ({ instance, nfsExports, smbShares, iscsiTargets, nvmeNamespaces, readOptions = {}, primaryVolumeRead }) {
       if (!('listVolumes' in this.$store.getters.apis)) {
         return []
       }
@@ -5683,11 +5695,13 @@ export default {
       if (this.volume.id) {
         ids.add(this.volume.id)
       }
-      const volumeRequests = [...ids].map(id => this.listApi('listVolumes', {
-        id,
-        listall: true,
-        listsystemvms: true
-      }, 'volume', readOptions))
+      const volumeRequests = [...ids].map(async id => {
+        if (id === primaryVolumeRead?.id) {
+          const rows = await primaryVolumeRead.result
+          if (rows) return rows
+        }
+        return this.listApi('listVolumes', { id, listall: true, listsystemvms: true }, 'volume', readOptions)
+      })
       const vmId = this.resource.virtualmachineid || this.vm.id || instance?.virtualmachineid
       if (vmId) {
         volumeRequests.push(this.listApi('listVolumes', {

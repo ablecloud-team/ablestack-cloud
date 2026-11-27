@@ -37,8 +37,9 @@
       </template>
     </a-alert>
 
-    <a-table
-      size="small"
+    <detail-tab-table
+:enabled="!resource.ip4routing"
+      size="middle"
       :scroll="{ x: 760 }"
       style="overflow-y: auto"
       :columns="bgpPeersColumns"
@@ -106,8 +107,8 @@
           </div>
         </template>
       </template>
-    </a-table>
-    <a-pagination
+    </detail-tab-table>
+    <detail-tab-pagination
       v-if="!this.resource.ip4routing"
       class="row-element pagination"
       size="small"
@@ -122,7 +123,7 @@
       <template #buildOptionText="props">
         <span>{{ props.value }} / {{ $t('label.page') }}</span>
       </template>
-    </a-pagination>
+    </detail-tab-pagination>
 
     <mold-dialog
       size="md"
@@ -363,6 +364,7 @@ import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
 import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import { detailTabContext } from '@/utils/detailTabData'
 
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
@@ -372,7 +374,7 @@ import ChangeBgpPeersForNetwork from '@/views/network/ChangeBgpPeerForNetwork.vu
 import ChangeBgpPeersForVpc from '@/views/network/ChangeBgpPeerForVpc.vue'
 
 export default {
-  mixins: [listRefreshMixin(['fetchZoneBgpPeer'])],
+  mixins: [listRefreshMixin(['fetchZoneBgpPeer'], { active: vm => !vm.resource.ip4routing, routeKey: vm => JSON.stringify([vm.listContext, vm.bgpPeersPage, vm.bgpPeersPageSize]) })],
   name: 'BgpPeersTab',
   components: {
     ResourceTableToolbar,
@@ -460,12 +462,19 @@ export default {
     this.initUpdateBgpPeerForm()
     this.fetchData()
   },
+  computed: {
+    listContext () { return detailTabContext(this, ['listBgpPeers']) }
+  },
   watch: {
-    resource (newItem, oldItem) {
-      if (!newItem || !newItem.id) {
-        return
-      }
+    listContext () {
+      this.bgpPeers = []
+      this.bgpPeersTotal = 0
+      this.bgpPeersPage = 1
+      this.listRefreshFailed = false
       this.fetchData()
+    },
+    'resource.bgppeers' (peers) {
+      if (this.resource.ip4routing) this.bgpPeers = peers || []
     }
   },
   methods: {
@@ -503,18 +512,18 @@ export default {
     },
     fetchData () {
       if (this.resource.ip4routing) {
-        this.bgpPeers = this.resource.bgppeers
+        this.bgpPeers = this.resource.bgppeers || []
       } else {
         this.fetchZoneBgpPeer()
       }
     },
     fetchZoneBgpPeer () {
+      if (!this.resource.id || this.resource.ip4routing || !('listBgpPeers' in this.$store.getters.apis)) return
       const listRequest = this.listRequestToken('fetchZoneBgpPeer')
       this.componentLoading = !listRequest.loaded
       return getAPI('listBgpPeers', {
         zoneid: this.resource.id,
         projectid: -1,
-        showicon: true,
         page: this.bgpPeersPage,
         pagesize: this.bgpPeersPageSize
       }).then(response => {
@@ -530,12 +539,7 @@ export default {
 
         this.$notifyError(error)
       }).finally(() => {
-        if (!this.isListRequestCurrent('fetchZoneBgpPeer', listRequest)) return
-
-        this.componentLoading = false
-      }).finally(() => {
-        if (!this.isListRequestCurrent('fetchZoneBgpPeer', listRequest)) return
-        this.componentLoading = false
+        if (this.isListRequestCurrent('fetchZoneBgpPeer', listRequest)) this.componentLoading = false
       })
     },
     handleAddAccountForBgpPeer () {

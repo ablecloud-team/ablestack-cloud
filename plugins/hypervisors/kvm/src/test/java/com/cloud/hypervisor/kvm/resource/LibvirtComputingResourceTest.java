@@ -54,6 +54,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import javax.naming.ConfigurationException;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -69,8 +70,10 @@ import com.google.gson.JsonParser;
 import org.apache.cloudstack.api.ApiConstants.IoDriverPolicy;
 import org.apache.cloudstack.storage.command.AttachAnswer;
 import org.apache.cloudstack.storage.command.AttachCommand;
+import org.apache.cloudstack.storage.configdrive.ConfigDrive;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import org.apache.cloudstack.storage.to.SnapshotObjectTO;
+import org.apache.cloudstack.storage.to.TemplateObjectTO;
 import org.apache.cloudstack.storage.to.VolumeObjectTO;
 import org.apache.cloudstack.utils.bytescale.ByteScaleUtils;
 import org.apache.cloudstack.utils.linux.CPUStat;
@@ -215,6 +218,7 @@ import com.cloud.hypervisor.kvm.resource.wrapper.LibvirtUtilitiesHelper;
 import com.cloud.hypervisor.kvm.storage.KVMPhysicalDisk;
 import com.cloud.hypervisor.kvm.storage.KVMStoragePool;
 import com.cloud.hypervisor.kvm.storage.KVMStoragePoolManager;
+import com.cloud.network.element.NetworkElement;
 import com.cloud.network.Networks.TrafficType;
 import com.cloud.network.PhysicalNetworkSetupInfo;
 import com.cloud.storage.Storage.ImageFormat;
@@ -1981,6 +1985,173 @@ public class LibvirtComputingResourceTest {
 
         final Answer answer = wrapper.execute(command, libvirtComputingResourceMock);
         assertTrue(answer.getResult());
+    }
+
+    @Test
+    public void testQ35UsesDedicatedSataCdromsAndSkipsOccupiedPortsForBiosAndUefi() throws Exception {
+        for (GuestDef.BootType bootType : List.of(GuestDef.BootType.BIOS, GuestDef.BootType.UEFI)) {
+            String machine = bootType == GuestDef.BootType.BIOS ? "pc-q35-rhel9.8.0" : "q35";
+            LibvirtVMDef vm = cdromTestVm(machine, bootType);
+            DiskDef sataRoot = new DiskDef();
+            sataRoot.defBlockBasedDisk("/dev/root", "sda", DiskDef.DiskBus.SATA);
+            DiskDef sataData = new DiskDef();
+            sataData.defBlockBasedDisk("/dev/data", "sdf", DiskDef.DiskBus.SATA);
+            DiskDef scsiData = new DiskDef();
+            scsiData.defBlockBasedDisk("/dev/scsi-data", "sde", DiskDef.DiskBus.SCSI);
+            vm.getDevices().addDevice(sataRoot);
+            vm.getDevices().addDevice(sataData);
+            vm.getDevices().addDevice(scsiData);
+            VirtualMachineTO spec = cdromTestSpec();
+            if (bootType == GuestDef.BootType.UEFI) {
+                spec.getDetails().put("UEFI", "LEGACY");
+            }
+            spec.setDisks(new DiskTO[]{new DiskTO(new TemplateObjectTO(), 3L, null, Volume.Type.ISO)});
+
+            libvirtComputingResourceSpy.createVbd(null, spec, "cdrom-test", vm);
+
+            List<DiskDef> disks = vm.getDevices().getDisks();
+            assertEquals(List.of("sda", "sdf", "sde", "sdzza", "sdzzb"),
+                    disks.stream().map(DiskDef::getDiskLabel).collect(Collectors.toList()));
+            assertEquals(DiskDef.DiskBus.SATA, disks.get(3).getBusType());
+            assertEquals(DiskDef.DiskBus.SATA, disks.get(4).getBusType());
+            assertTrue(disks.get(3).toString().contains("controller='0' bus='0' target='0' unit='4'"));
+            assertTrue(disks.get(4).toString().contains("controller='0' bus='0' target='0' unit='3'"));
+            assertEquals(DiskDef.DiskBus.SCSI, disks.get(2).getBusType());
+        }
+    }
+
+    @Test
+    public void testI440fxKeepsExistingCdromTargetsForBiosAndUefi() throws Exception {
+        String machine = "pc-i440fx-rhel7.6.0";
+        LibvirtVMDef pcBios = cdromTestVm(machine, GuestDef.BootType.BIOS);
+        libvirtComputingResourceSpy.createVbd(null, cdromTestSpec(), "pc-test", pcBios);
+        List<DiskDef> biosDisks = pcBios.getDevices().getDisks();
+        assertEquals(List.of("hdc", "hdd"), biosDisks.stream().map(DiskDef::getDiskLabel).collect(Collectors.toList()));
+        assertTrue(biosDisks.stream().allMatch(disk -> disk.getBusType() == DiskDef.DiskBus.IDE));
+
+        LibvirtVMDef pcUefi = cdromTestVm(machine, GuestDef.BootType.UEFI);
+        VirtualMachineTO uefi = cdromTestSpec();
+        uefi.getDetails().put("UEFI", "LEGACY");
+        libvirtComputingResourceSpy.createVbd(null, uefi, "pc-uefi-test", pcUefi);
+        List<DiskDef> uefiDisks = pcUefi.getDevices().getDisks();
+        assertEquals(List.of("sdd", "sde"), uefiDisks.stream().map(DiskDef::getDiskLabel).collect(Collectors.toList()));
+        assertTrue(uefiDisks.stream().allMatch(disk -> disk.getBusType() == DiskDef.DiskBus.SATA));
+        assertFalse(uefiDisks.get(0).toString().contains("<address"));
+    }
+
+    @Test
+    public void testLiveIsoUpdatePreservesLegacyQ35UefiCdromTargetAndAddress() throws Exception {
+        Connect conn = Mockito.mock(Connect.class);
+        Domain domain = Mockito.mock(Domain.class);
+        when(conn.domainLookupByName("q35-uefi-test")).thenReturn(domain);
+        when(domain.getXMLDesc(0)).thenReturn("<domain><os><type machine='q35'>hvm</type></os><devices>"
+                + "<disk type='file' device='cdrom'><target dev='sdd' bus='sata'/></disk>"
+                + "<disk type='file' device='cdrom'><target dev='sde' bus='sata'/>"
+                + "<address type='drive' controller='0' bus='0' target='0' unit='4'/></disk>"
+                + "</devices></domain>");
+
+        assertTrue(libvirtComputingResourceSpy.updateExistingIsoMedia(conn, "q35-uefi-test", 4,
+                "/second.iso", DiskDef.DiskType.FILE));
+
+        ArgumentCaptor<String> xml = ArgumentCaptor.forClass(String.class);
+        verify(domain).updateDeviceFlags(xml.capture(), Mockito.eq(1));
+        assertTrue(xml.getValue().contains("dev='sde' bus='sata'"));
+        assertTrue(xml.getValue().contains("controller='0' bus='0' target='0' unit='4'"));
+        assertTrue(xml.getValue().contains("file='/second.iso'"));
+        assertFalse(xml.getValue().contains("sdzzb"));
+    }
+
+    @Test
+    public void testUpdateIsoMediaUsesLiveCdromAddressAndCleansUpOnlyThatSlot() throws Exception {
+        Connect conn = Mockito.mock(Connect.class);
+        Domain domain = Mockito.mock(Domain.class);
+        when(conn.domainLookupByName("cdrom-test")).thenReturn(domain);
+        when(domain.getXMLDesc(0)).thenReturn("<domain><devices>"
+                + "<disk type='file' device='cdrom'><source file='/first.iso'/><target dev='sdzza' bus='sata'/></disk>"
+                + "<disk type='block' device='cdrom'><source dev='/dev/second'/><target dev='sdzzb' bus='sata'/>"
+                + "<address type='drive' controller='1' bus='0' target='0' unit='2'/></disk>"
+                + "</devices></domain>");
+        doReturn(true).when(libvirtComputingResourceSpy).cleanupDisk(any(DiskDef.class));
+
+        assertTrue(libvirtComputingResourceSpy.updateExistingIsoMedia(conn, "cdrom-test", 4, null, DiskDef.DiskType.FILE));
+
+        ArgumentCaptor<String> xml = ArgumentCaptor.forClass(String.class);
+        verify(domain).updateDeviceFlags(xml.capture(), Mockito.eq(1));
+        assertTrue(xml.getValue().contains("dev='sdzzb' bus='sata'"));
+        assertTrue(xml.getValue().contains("controller='1' bus='0' target='0' unit='2'"));
+        assertFalse(xml.getValue().contains("/dev/second"));
+        assertFalse(xml.getValue().contains("sdzza"));
+        ArgumentCaptor<DiskDef> previous = ArgumentCaptor.forClass(DiskDef.class);
+        verify(libvirtComputingResourceSpy).cleanupDisk(previous.capture());
+        assertEquals("/dev/second", previous.getValue().getDiskPath());
+    }
+
+    @Test
+    public void testArmS390xAndSystemVmKeepExistingCdromBuses() throws Exception {
+        java.lang.reflect.Field arch = LibvirtComputingResource.class.getDeclaredField("guestCpuArch");
+        arch.setAccessible(true);
+        for (String guestArch : List.of("aarch64", "s390x")) {
+            arch.set(libvirtComputingResourceSpy, guestArch);
+            LibvirtVMDef vm = cdromTestVm("virt", GuestDef.BootType.BIOS);
+            vm.getGuestDefinition().setGuestArch(guestArch);
+            libvirtComputingResourceSpy.createVbd(null, cdromTestSpec(), "non-x86-test", vm);
+            assertTrue(vm.getDevices().getDisks().stream().allMatch(disk -> disk.getBusType() == DiskDef.DiskBus.SCSI));
+        }
+
+        arch.set(libvirtComputingResourceSpy, "x86_64");
+        VirtualMachineTO consoleProxy = cdromTestSpec();
+        consoleProxy.setType(VirtualMachine.Type.ConsoleProxy);
+        LibvirtVMDef vm = cdromTestVm("pc", GuestDef.BootType.BIOS);
+        libvirtComputingResourceSpy.createVbd(null, consoleProxy, "system-test", vm);
+        List<DiskDef> disks = vm.getDevices().getDisks();
+        assertEquals(1, disks.size());
+        assertEquals(DiskDef.DiskBus.IDE, disks.get(0).getBusType());
+        assertEquals("hdc", disks.get(0).getDiskLabel());
+    }
+
+    @Test
+    public void testQ35BiosKeepsConfigDriveInTheSecondaryCdromSlot() throws Exception {
+        String path = ConfigDrive.createConfigDrivePath("cdrom-test");
+        TemplateObjectTO configDrive = new TemplateObjectTO();
+        configDrive.setPath(path);
+        VirtualMachineTO spec = cdromTestSpec();
+        spec.setConfigDriveLocation(NetworkElement.Location.HOST);
+        spec.setDisks(new DiskTO[]{
+                new DiskTO(new TemplateObjectTO(), 3L, null, Volume.Type.ISO),
+                new DiskTO(new TemplateObjectTO(), 4L, null, Volume.Type.ISO),
+                new DiskTO(configDrive, 4L, path, Volume.Type.ISO)});
+        doReturn("/var/lib/libvirt").when(libvirtComputingResourceSpy).getConfigPath();
+        LibvirtVMDef vm = cdromTestVm("q35", GuestDef.BootType.BIOS);
+
+        libvirtComputingResourceSpy.createVbd(null, spec, "cdrom-test", vm);
+
+        List<DiskDef> disks = vm.getDevices().getDisks();
+        assertEquals(2, disks.size());
+        assertEquals("sdzza", disks.get(0).getDiskLabel());
+        assertNull(disks.get(0).getDiskPath());
+        assertEquals("sdzzb", disks.get(1).getDiskLabel());
+        assertEquals(DiskDef.DiskBus.SATA, disks.get(1).getBusType());
+        assertEquals("/var/lib/libvirt/" + path, disks.get(1).getDiskPath());
+    }
+
+    private LibvirtVMDef cdromTestVm(String machine, GuestDef.BootType bootType) {
+        LibvirtVMDef vm = new LibvirtVMDef();
+        GuestDef guest = new GuestDef();
+        guest.setGuestType(GuestDef.GuestType.KVM);
+        guest.setGuestArch("x86_64");
+        guest.setMachineType(machine);
+        guest.setBootType(bootType);
+        vm.addComp(guest);
+        vm.addComp(new DevicesDef());
+        return vm;
+    }
+
+    private VirtualMachineTO cdromTestSpec() {
+        VirtualMachineTO spec = new VirtualMachineTO(1L, "cdrom-test", VirtualMachine.Type.User, 1, 2000, 1024,
+                1024, BootloaderType.HVM, "Rocky Linux 9", false, false, null);
+        spec.setDisks(new DiskTO[0]);
+        spec.setDetails(new HashMap<>());
+        return spec;
     }
 
     @Test

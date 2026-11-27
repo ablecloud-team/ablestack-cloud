@@ -23,7 +23,7 @@
     </div>
     <div class="kubernetes-iso-zone-scope"><strong>{{ $t('label.kubernetes.iso.registration.scope') }}</strong>: <kubernetes-iso-scope :resource="resource" /></div>
     <template v-if="observation?.status === 'ready'">
-      <a-table size="small" :columns="columns" :data-source="visibleRows" :pagination="false" :scroll="{ x: 890 }" :row-key="record => record.zoneid" :row-expandable="record => record.downloaddetails?.length > 0">
+      <detail-tab-table size="small" :columns="columns" :data-source="visibleRows" :pagination="false" :scroll="{ x: 890 }" :row-key="record => record.zoneid" :row-expandable="record => record.downloaddetails?.length > 0">
         <template #bodyCell="{ column, record }">
           <kubernetes-iso-scope v-if="column.key === 'zonename'" :resource="{ zoneid: record.zoneid, zonename: record.zonename }" />
           <kubernetes-iso-status v-else-if="column.key === 'availability'" :resource="resource" :observation="rowObservation(record)" compact />
@@ -43,8 +43,8 @@
             </a-table>
           </section>
         </template>
-      </a-table>
-      <div class="template-tab-pagination"><span>{{ $t('label.total') }} {{ filteredRows.length }} {{ $t('label.items') }}</span><a-pagination
+      </detail-tab-table>
+      <div class="template-tab-pagination"><span>{{ $t('label.total') }} {{ filteredRows.length }} {{ $t('label.items') }}</span><detail-tab-pagination
         size="small"
         :current="page"
         :page-size="pageSize"

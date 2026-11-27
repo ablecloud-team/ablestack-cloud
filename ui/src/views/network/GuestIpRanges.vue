@@ -23,7 +23,7 @@
     </div>
     <a-alert v-if="!canRead" class="range-notice" type="warning" show-icon :message="$t('message.guest.range.unsupported')" />
     <a-alert v-else-if="listRefreshFailed" class="range-notice" type="warning" show-icon :message="$t(loaded ? 'message.list.refresh.stale' : 'message.guest.range.read.failed')" />
-    <a-table
+    <detail-tab-table
 v-if="canRead"
 size="small"
 :columns="columns"
@@ -41,9 +41,9 @@ row-key="id"
           <a-tooltip :title="$t('label.action.delete.ip.range')"><a-button v-if="allowed('deleteVlanIpRange')" size="small" danger :aria-label="$t('label.action.delete.ip.range') + ' ' + rangeLabel(record)" :disabled="busy || editorBusy || !ready" @click="openDelete(record)"><template #icon><delete-outlined /></template></a-button></a-tooltip>
         </div></template>
       </template>
-    </a-table>
-    <a-pagination
-v-if="canRead && total"
+    </detail-tab-table>
+    <detail-tab-pagination
+v-if="canRead && (loaded || !listRefreshFailed)"
 class="range-pagination"
 size="small"
 :current="page"

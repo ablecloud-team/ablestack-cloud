@@ -16,9 +16,15 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="loading">
-    <br />
-    <a-tabs :tabPosition="resourceTabPosition" :activeKey="currentTab" :animated="false" @change="handleChangeTab">
+  <a-spin :wrapper-class-name="viewportScroll ? 'workspace-fill' : undefined" :spinning="loading">
+    <a-tabs
+      class="resource-detail-tabset"
+      :class="{ 'workspace-tabset': viewportScroll }"
+      v-scroll-activity="viewportScroll && { selector: tabScrollSelector, label: $t('label.details'), scope: currentTab }"
+      :tabPosition="resourceTabPosition"
+      :activeKey="currentTab"
+      :animated="false"
+      @change="handleChangeTab">
       <a-tab-pane key="details" :tab="$t('label.details')"><DetailsTab :resource="detailsResource" :loading="loading" /></a-tab-pane>
       <a-tab-pane key="members" :tab="$t('label.instances')"><InstanceGroupMembers :resource="resource" :active="currentTab === 'members'" /></a-tab-pane>
       <a-tab-pane key="comments" :tab="$t('label.annotations')" v-if="'listAnnotations' in $store.getters.apis"><AnnotationsTab :resource="resource" resourceType="VMInstanceGroup" /></a-tab-pane>
@@ -26,6 +32,7 @@
   </a-spin>
 </template>
 <script>
+import scrollActivity, { tabScrollSelector } from '@/utils/scrollActivity'
 import { mixinDevice } from '@/utils/mixin'
 import DetailsTab from '@/components/view/DetailsTab'
 import AnnotationsTab from '@/components/view/AnnotationsTab'
@@ -34,11 +41,13 @@ import { vmGroupMemberSummary } from '@/utils/vmGroupMembers'
 
 export default {
   name: 'InstanceGroupTab',
+  directives: { scrollActivity },
   components: { DetailsTab, AnnotationsTab, InstanceGroupMembers },
   mixins: [mixinDevice],
-  props: { resource: { type: Object, required: true }, loading: { type: Boolean, default: false } },
+  props: { viewportScroll: Boolean, resource: { type: Object, required: true }, loading: { type: Boolean, default: false } },
   data () { return { currentTab: 'details' } },
   computed: {
+    tabScrollSelector () { return tabScrollSelector },
     detailsResource () {
       const summary = vmGroupMemberSummary(this.resource)
       return {

@@ -23,7 +23,7 @@
       <a-input-search v-model:value="searchText" :aria-label="$t('label.iso.zone.search')" :placeholder="$t('label.search')" :disabled="operationActive" allow-clear @search="searchZones" />
     </div>
     <a-alert v-if="listRefreshFailed" type="warning" show-icon :message="$t('message.list.refresh.stale')" />
-    <a-table
+    <detail-tab-table
 size="small"
 :loading="loading || fetchLoading"
 :columns="columns"
@@ -58,8 +58,8 @@ size="small"
           </a-table>
         </section>
       </template>
-    </a-table>
-    <div class="template-tab-pagination"><span>{{ $t('label.total') }} {{ filteredRows.length }} {{ $t('label.items') }}</span><a-pagination
+    </detail-tab-table>
+    <div class="template-tab-pagination"><span>{{ $t('label.total') }} {{ filteredRows.length }} {{ $t('label.items') }}</span><detail-tab-pagination
 size="small"
 :current="page"
 :page-size="pageSize"
@@ -68,7 +68,7 @@ size="small"
 :page-size-options="['10','20','40','80','100']"
 show-size-changer
 @change="handleChangePage"
-@showSizeChange="handleChangePageSize"><template #buildOptionText="props"><span>{{ props.value }} / {{ $t('label.page') }}</span></template></a-pagination></div>
+@showSizeChange="handleChangePageSize"><template #buildOptionText="props"><span>{{ props.value }} / {{ $t('label.page') }}</span></template></detail-tab-pagination></div>
     <iso-vm-attach v-if="attachRecord" :resource="{...resource,...attachRecord}" @close-action="attachRecord=null" />
     <iso-zone-operations
 ref="zoneOps"

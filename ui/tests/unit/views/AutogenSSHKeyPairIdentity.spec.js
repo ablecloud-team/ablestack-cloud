@@ -154,7 +154,7 @@ test.each(['created', 'route'].flatMap(hook => ['ssh', 'vm'].map(kind => [hook, 
   ctx.onListEvent = jest.fn(); ctx.fetchData = jest.fn(); ctx.switchProject = jest.fn()
   ctx.setModalWidthByScreen = jest.fn(); ctx.scheduleAutoRefresh = jest.fn(); ctx.clearAutoRefresh = jest.fn()
   if (hook === 'created') Autogen.created.call(ctx)
-  else Autogen.watch.$route.call(ctx, ctx.$route, { path: '/' + kind + '/' + b, fullPath: '/' + kind + '/' + b, query: {}, meta: { name: kind } })
+  else Autogen.watch.$route.handler.call(ctx, ctx.$route, { path: '/' + kind + '/' + b, fullPath: '/' + kind + '/' + b, query: {}, meta: { name: kind } })
   if (kind === 'ssh') expect(ctx.switchProject).not.toHaveBeenCalled()
   else expect(ctx.switchProject).toHaveBeenCalledWith(b)
   expect(ctx.$route.query.projectid).toBe(b)

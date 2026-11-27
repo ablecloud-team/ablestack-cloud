@@ -101,6 +101,7 @@
       </mold-dialog-actions>
     </mold-dialog>
     <list-view
+detail-tab
       :loading="tabLoading"
       :columns="columns"
       :items="filters"
@@ -112,7 +113,7 @@
       @update-selected-columns="updateSelectedColumns"
       @refresh="this.fetchData"
       @selection-change="updateSelectedRows"/>
-    <a-pagination
+    <detail-tab-pagination
       class="row-element"
       style="margin-top: 10px"
       size="small"
@@ -127,7 +128,7 @@
       <template #buildOptionText="props">
         <span>{{ props.value }} / {{ $t('label.page') }}</span>
       </template>
-    </a-pagination>
+    </detail-tab-pagination>
   </div>
 </template>
 

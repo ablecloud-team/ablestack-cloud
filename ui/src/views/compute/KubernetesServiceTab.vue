@@ -16,8 +16,10 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="networkLoading">
+  <a-spin :wrapper-class-name="viewportScroll ? 'workspace-fill' : undefined" :spinning="networkLoading">
     <a-tabs
+      :class="{ 'workspace-tabset': viewportScroll }"
+      v-scroll-activity="viewportScroll && { selector: tabScrollSelector, label: $t('label.details'), scope: currentTab }"
       :tabPosition="resourceTabPosition"
       :activeKey="currentTab"
       :animated="false"
@@ -130,7 +132,7 @@
           <a-button :loading="loading" @click="parentFetchData"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
         </div>
         <a-alert v-if="resource.clustertype === 'ExternalManaged'" type="info" show-icon class="mold-dialog-summary" :message="$t('message.kubernetes.external.mapping')" />
-        <a-table
+        <detail-tab-table
           class="table"
           size="small"
           :columns="vmColumns"
@@ -173,9 +175,9 @@
               </a-tooltip>
             </template>
           </template>
-        </a-table>
+        </detail-tab-table>
       <div class="detail-tab-pagination">
-          <a-pagination
+          <detail-tab-pagination
 size="small"
 :current="vmPage"
 :page-size="vmPageSize"
@@ -219,6 +221,7 @@ v-else-if="publicIpAddress && network.type !== 'Shared'"
 </template>
 
 <script>
+import scrollActivity, { tabScrollSelector } from '@/utils/scrollActivity'
 import { kubernetesNodeActions } from '@/utils/kubernetesClusterActions'
 import { getAPI, postAPI } from '@/api'
 import { isAdmin } from '@/role'
@@ -237,6 +240,7 @@ import EventsTab from '@/components/view/EventsTab'
 
 export default {
   name: 'KubernetesServiceTab',
+  directives: { scrollActivity },
   components: {
     DetailsTab,
     AclRulesTab,
@@ -251,6 +255,7 @@ export default {
   mixins: [mixinDevice],
   inject: { parentFetchData: { default: () => {} }, parentExecuteAction: { default: null } },
   props: {
+    viewportScroll: Boolean,
     resource: {
       type: Object,
       required: true
@@ -347,6 +352,7 @@ export default {
     }
   },
   computed: {
+    tabScrollSelector () { return tabScrollSelector },
     nodeActions () { return kubernetesNodeActions(this.resource, this.$store.getters.apis) },
     pagedVirtualmachines () { return this.virtualmachines.slice((this.vmPage - 1) * this.vmPageSize, this.vmPage * this.vmPageSize) },
     dashboardCleanupCommands () {

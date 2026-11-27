@@ -16,10 +16,10 @@
 // under the License.
 
 <template>
-  <div>
-    <resource-layout>
+  <div class="api-docs mold-workspace">
+    <resource-layout viewport-scroll>
       <template #left>
-        <a-card :bordered="false">
+        <a-card :bordered="false" class="workspace-fill">
           <a-auto-complete
             v-model:value="query"
             :options="options.filter(value => value.value.toLowerCase().includes(query.toLowerCase()))"
@@ -35,17 +35,24 @@
                 <template #prefix><search-outlined /></template>
             </a-input-search>
           </a-auto-complete>
-          <a-list style="margin-top: 12px; height:580px; overflow-y: scroll;" size="small" :data-source="Object.keys($store.getters.apis).sort()">
+          <a-list
+            class="workspace-panel"
+            style="margin-top: 12px"
+            v-scroll-activity="{ label: $t('label.api.docs'), scope: query }"
+            size="small"
+            :data-source="Object.keys($store.getters.apis).sort()">
             <template #renderItem="{ item }">
-              <a>
               <a-list-item
                 v-if="item.toLowerCase().includes(query.toLowerCase())"
+                class="api-docs-command"
+                :class="{ 'selected-item': selectedApi === item }"
+                tabindex="0"
+                :aria-current="selectedApi === item ? 'true' : undefined"
                 @click="showApi(item)"
-                style="padding-left: 12px"
-                :class="selectedApi === item ? 'selected-item' : ''">
-                {{ item }} <a-tag v-if="$store.getters.apis[item].isasync" color="blue">async</a-tag>
+                @keydown.enter.prevent="showApi(item)"
+                @keydown.space.prevent="showApi(item)">
+                {{ item }} <a-tag v-if="$store.getters.apis[item].isasync" class="api-docs-tag">async</a-tag>
               </a-list-item>
-              </a>
             </template>
           </a-list>
           <a-divider style="margin-bottom: 12px" />
@@ -54,13 +61,13 @@
       </template>
       <template #right>
         <a-card
-          class="spin-content"
+          class="spin-content workspace-fill"
           :bordered="true"
           style="width: 100%; overflow-x: auto">
-          <span v-if="selectedApi && selectedApi in $store.getters.apis">
+          <div class="workspace-fill" v-if="selectedApi && selectedApi in $store.getters.apis">
             <h2>{{ selectedApi }}
-              <a-tag v-if="$store.getters.apis[selectedApi].isasync" color="blue">Asynchronous API</a-tag>
-              <a-tag v-if="$store.getters.apis[selectedApi].since">Since {{ $store.getters.apis[selectedApi].since }}</a-tag>
+              <a-tag v-if="$store.getters.apis[selectedApi].isasync" class="api-docs-tag">Asynchronous API</a-tag>
+              <a-tag v-if="$store.getters.apis[selectedApi].since" class="api-docs-tag">Since {{ $store.getters.apis[selectedApi].since }}</a-tag>
               <tooltip-button
                 tooltipPlacement="right"
                 :tooltip="$t('label.copy') + ' ' + selectedApi"
@@ -70,15 +77,17 @@
                 @onClick="$message.success($t('label.copied.clipboard'))"
                 :copyResource="selectedApi" />
             </h2>
+            <div class="workspace-panel" v-scroll-activity="{ label: $t('label.details'), scope: selectedApi }">
             <p>{{ $store.getters.apis[selectedApi].description }}</p>
             <h3>{{ $t('label.request') }} {{ $t('label.params') }}:</h3>
             <a-table
+              class="api-docs-fields"
               :columns="[{title: $t('label.name'), dataIndex: 'name'}, {title: $t('label.required'), dataIndex: 'required'}, {title: $t('label.type'), dataIndex: 'type'}, {title: $t('label.description'), dataIndex: 'description'}]"
               :data-source="selectedParams"
               :pagination="false"
               size="small">
               <template #bodyCell="{text, column, record}">
-                <a-tag v-if="record.since && column.dataIndex === 'description'">Since {{ record.since }}</a-tag>
+                <a-tag v-if="record.since && column.dataIndex === 'description'" class="api-docs-tag">Since {{ record.since }}</a-tag>
                 <span v-if="record.required === true"><strong>{{ text }}</strong></span>
                 <span v-else>{{ text }}</span>
               </template>
@@ -91,13 +100,15 @@
               </template>
             </a-alert>
             <a-table
+              class="api-docs-fields"
               :columns="[{title: $t('label.name'), dataIndex: 'name'}, {title: $t('label.type'), dataIndex: 'type'}, {title: $t('label.description'), dataIndex: 'description'}]"
               :data-source="selectedResponse"
               :loading="loadingResponse"
               row-key="name"
               :pagination="false"
               size="small" />
-          </span>
+            </div>
+          </div>
           <span v-else>
             <a-alert
               :message="$t('label.api.docs')"
@@ -161,6 +172,7 @@
 </template>
 
 <script>
+import scrollActivity from '@/utils/scrollActivity'
 import { getAPI } from '@/api'
 
 import ResourceLayout from '@/layouts/ResourceLayout'
@@ -170,6 +182,7 @@ const documentedFields = fields => Array.isArray(fields) ? fields.filter(field =
 
 export default {
   name: 'ApiDocsPlugin',
+  directives: { scrollActivity },
   components: {
     ResourceLayout,
     TooltipButton
@@ -283,3 +296,62 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.api-docs :deep(.ant-card),
+.api-docs :deep(h2),
+.api-docs :deep(h3),
+.api-docs :deep(.ant-result-title) {
+  color: var(--ui-text-primary);
+}
+
+.api-docs :deep(.ant-result-subtitle),
+.api-docs p {
+  color: var(--ui-text-secondary);
+}
+
+.api-docs :deep(.ant-card) {
+  background: var(--ui-bg-surface);
+}
+
+.api-docs-command {
+  padding-inline-start: 12px;
+  color: var(--ui-text-primary);
+  cursor: pointer;
+}
+
+.api-docs-command:hover {
+  background: var(--ui-bg-hover);
+}
+
+.api-docs .api-docs-command.selected-item {
+  background: var(--ui-bg-selected);
+}
+
+.api-docs-command:focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: -2px;
+}
+
+.api-docs :deep(.api-docs-fields .ant-table-thead > tr > th) {
+  color: var(--ui-text-primary);
+  background: var(--ui-bg-elevated);
+  border-color: var(--ui-border);
+}
+
+.api-docs :deep(.api-docs-fields .ant-table-tbody > tr > td) {
+  color: var(--ui-text-primary);
+  background: var(--ui-bg-surface);
+  border-color: var(--ui-border);
+}
+
+.api-docs :deep(.api-docs-fields .ant-table-tbody > tr:hover > td) {
+  background: var(--ui-bg-hover);
+}
+
+.api-docs-tag {
+  color: var(--ui-info-text);
+  background: var(--ui-info-bg);
+  border-color: var(--ui-info-border);
+}
+</style>

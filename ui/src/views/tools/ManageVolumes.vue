@@ -37,8 +37,7 @@
         </div>
       </a-card>
     </a-col>
-    <a-col
-      :md="24">
+    <a-col :md="24">
       <div>
         <a-card>
           <a-alert
@@ -52,14 +51,11 @@
           </a-alert>
           <br />
           <a-row :gutter="12">
-            <!-- ------------ -->
-            <!-- TOP -->
-            <!-- ------------ -->
-            <a-card class="source-dest-card">
-              <template #title>
-                {{ $t('label.storagepool') }}
-              </template>
-              <a-col :md="24" :lg="48">
+            <a-col :span="24" :lg="12">
+              <a-card class="volume-storage-pool">
+                <template #title>
+                  {{ $t('label.storagepool') }}
+                </template>
                 <a-form
                   style="min-width: 170px"
                   :ref="formRef"
@@ -96,7 +92,7 @@
                       :filterOption="(input, option) => {
                         return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                       }"
-                      @change="onSelectZoneId"
+                      @change="value => onSelectZoneId(value)"
                       :loading="optionLoading.zones"
                     >
                       <a-select-option v-for="zoneitem in zoneSelectOptions" :key="zoneitem.value" :label="zoneitem.label">
@@ -120,7 +116,7 @@
                       :filterOption="filterOption"
                       :options="podSelectOptions"
                       :loading="optionLoading.pods"
-                      @change="onSelectPodId"
+                      @change="value => onSelectPodId(value)"
                     ></a-select>
                   </a-form-item>
                   <a-form-item
@@ -135,7 +131,7 @@
                       :filterOption="filterOption"
                       :options="clusterSelectOptions"
                       :loading="optionLoading.clusters"
-                      @change="onSelectClusterId"
+                      @change="value => onSelectClusterId(value)"
                     ></a-select>
                   </a-form-item>
                   <a-form-item
@@ -154,7 +150,7 @@
                         :filterOption="filterOption"
                         :options="hostSelectOptions"
                         :loading="optionLoading.hosts"
-                        @change="onSelectHostId"
+                        @change="value => onSelectHostId(value)"
                       ></a-select>
                   </a-form-item>
                   <a-form-item
@@ -172,17 +168,17 @@
                         :filterOption="filterOption"
                         :options="poolSelectOptions"
                         :loading="optionLoading.pools"
-                        @change="onSelectPoolId"
+                        @change="value => onSelectPoolId(value)"
                       ></a-select>
                   </a-form-item>
                 </a-form>
-              </a-col>
-            </a-card>
+              </a-card>
+            </a-col>
           </a-row>
 
-          <a-row :gutter="12">
-            <a-col :md="24" :lg="12">
-              <a-card class="volumes-card">
+          <a-row :gutter="[12, 16]" class="volume-list-panels">
+            <a-col :span="24" :lg="12">
+              <a-card class="volumes-card unmanaged-volumes-card">
                 <template #title>
                   {{ $t('label.unmanaged.volumes') }}
                   <a-tooltip :title="$t('message.volumes.unmanaged')">
@@ -206,9 +202,10 @@
                   </span>
                 </template>
                 <a-table
-                  class="volumes-card-table"
+                  class="workspace-table workspace-import-table volumes-card-table"
+                  v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.storagepool'), scope: JSON.stringify([page, pageSize]) }"
                   :loading="unmanagedVolumesLoading"
-                  :rowSelection="unmanagedVolumeSelection"
+                  :custom-row="unmanagedRow"
                   :rowKey="(record, index) => index"
                   :columns="unmanagedVolumesColumns"
                   :data-source="unmanagedVolumes"
@@ -251,7 +248,7 @@
                 </div>
               </a-card>
             </a-col>
-            <a-col :md="24" :lg="12">
+            <a-col :span="24" :lg="12">
               <a-card class="volumes-card">
                 <template #title>
                   {{ $t('label.managed.volumes') }}
@@ -276,9 +273,10 @@
                   </span>
                 </template>
                 <a-table
-                  class="volumes-card-table"
+                  class="workspace-table workspace-import-table volumes-card-table"
+                  v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.storagepool'), scope: JSON.stringify([page, pageSize]) }"
                   :loading="managedVolumesLoading"
-                  :rowSelection="managedVolumeSelection"
+                  :custom-row="managedRow"
                   :rowKey="(record, index) => index"
                   :columns="managedVolumesColumns"
                   :data-source="managedVolumes"
@@ -462,6 +460,9 @@
 </template>
 
 <script>
+import scrollActivity, { tableScrollSelector } from '@/utils/scrollActivity'
+import { selectableImportRow } from '@/utils/moldListSelection'
+import { restoreImportOptions } from '@/utils/importOptionNavigation'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
@@ -484,6 +485,7 @@ export default {
     InfiniteScrollSelect
   },
   name: 'ManageVolumes',
+  directives: { scrollActivity },
   data () {
     const unmanagedVolumesColumns = [
       {
@@ -593,6 +595,7 @@ export default {
       managedVolumesSelectedRowKeys: [],
       showImportForm: false,
       selectedUnmanagedVolume: null,
+      initialOptionsPending: false,
       query: {}
     }
   },
@@ -603,6 +606,7 @@ export default {
     this.fetchData()
   },
   computed: {
+    tableScrollSelector () { return tableScrollSelector },
     isPageAllowed () {
       if (this.$route.meta.permission) {
         for (var apiName of this.$route.meta.permission) {
@@ -659,7 +663,6 @@ export default {
       return {
         zones: {
           list: 'listZones',
-          isLoad: true,
           field: 'zoneid',
           options: {
             showicon: true
@@ -667,7 +670,6 @@ export default {
         },
         pods: {
           list: 'listPods',
-          isLoad: false,
           options: {
             zoneid: _.get(this.zone, 'id')
           },
@@ -675,7 +677,6 @@ export default {
         },
         clusters: {
           list: 'listClusters',
-          isLoad: false,
           options: {
             zoneid: _.get(this.zone, 'id'),
             podid: this.podId
@@ -684,7 +685,6 @@ export default {
         },
         hosts: {
           list: 'listHosts',
-          isLoad: false,
           options: {
             zoneid: _.get(this.zone, 'id'),
             podid: this.podId,
@@ -694,7 +694,6 @@ export default {
         },
         pools: {
           list: 'listStoragePools',
-          isLoad: false,
           options: {
             zoneid: _.get(this.zone, 'id'),
             podid: this.podId,
@@ -804,6 +803,12 @@ export default {
     }
   },
   methods: {
+    unmanagedRow (record, index) {
+      return selectableImportRow(this.unmanagedVolumeSelection, this.unmanagedVolumes, index)
+    },
+    managedRow (record, index) {
+      return selectableImportRow(this.managedVolumeSelection, this.managedVolumes, index)
+    },
     initForm () {
       this.formRef = ref()
       this.form = reactive({
@@ -814,60 +819,36 @@ export default {
       this.importForm = reactive({
       })
     },
-    fetchData () {
+    async fetchData () {
+      if (this.initialOptionsPending) return
+      this.initialOptionsPending = true
       this.unmanagedVolumes = []
       this.managedVolumes = []
-      _.each(this.params, (param, name) => {
-        if (param.isLoad) {
-          this.fetchOptions(param, name)
-        }
-      })
+      try {
+        await restoreImportOptions(this.$router, initial => this.fetchOptions(this.params.zones, 'zones', undefined, initial))
+      } finally {
+        this.initialOptionsPending = false
+      }
     },
     filterOption (input, option) {
       return (
         option.label.toUpperCase().indexOf(input.toUpperCase()) >= 0
       )
     },
-    fetchOptions (param, name, exclude) {
-      if (exclude && exclude.length > 0) {
-        if (exclude.includes(name)) {
-          return
-        }
-      }
+    fetchOptions (param, name, exclude, initial) {
+      if (exclude?.includes(name)) return
       this.optionLoading[name] = true
-      param.loading = true
-      param.opts = []
-      const options = param.options || {}
-      if (!('listall' in options) && !['zones', 'pods', 'clusters', 'hosts', 'pools'].includes(name)) {
-        options.listall = true
-      }
-      getAPI(param.list, options).then((response) => {
-        param.loading = false
-        _.map(response, (responseItem, responseKey) => {
-          if (Object.keys(responseItem).length === 0) {
-            this.rowCount[name] = 0
-            this.options[name] = []
-            return
-          }
-          if (!responseKey.includes('response')) {
-            return
-          }
-          _.map(responseItem, (response, key) => {
-            if (key === 'count') {
-              this.rowCount[name] = response
-              return
-            }
-            if (name === 'clusters') {
-              response = response.filter(cluster => ['KVM'].includes(cluster.hypervisortype))
-            }
-            param.opts = response
-            this.options[name] = response
-          })
-          this.handleFetchOptionsSuccess(name, param)
-        })
-      }).catch(function (error) {
+      const params = { ...param.options }
+      return getAPI(param.list, params).then(response => {
+        if (initial && this.$router.currentRoute.value !== initial.route) return
+        const body = Object.entries(response).find(([key]) => key.includes('response'))?.[1]
+        let options = Object.values(body || {}).find(Array.isArray) || []
+        if (name === 'clusters') options = options.filter(cluster => cluster.hypervisortype === 'KVM')
+        this.rowCount[name] = body?.count ?? options.length
+        this.options[name] = options
+        return this.handleFetchOptionsSuccess(name, param, initial)
+      }).catch(error => {
         console.log(error.stack)
-        param.loading = false
       }).finally(() => {
         this.optionLoading[name] = false
       })
@@ -878,10 +859,10 @@ export default {
       }
       return 'dark-row'
     },
-    handleFetchOptionsSuccess (name, param) {
+    handleFetchOptionsSuccess (name, param, initial) {
       if (['zones', 'pods', 'clusters', 'hosts', 'pools'].includes(name)) {
         let paramid = ''
-        const query = Object.assign({}, this.$route.query)
+        const query = initial?.query || { ...this.$route.query }
         if (query[param.field] && _.find(this.options[name], (option) => option.id === query[param.field])) {
           paramid = query[param.field]
         }
@@ -891,25 +872,25 @@ export default {
         if (paramid) {
           this.form[param.field] = paramid
           if (name === 'zones') {
-            this.onSelectZoneId(paramid)
+            return this.onSelectZoneId(paramid, initial)
           } else if (name === 'pods') {
             this.form.podid = paramid
-            this.onSelectPodId(paramid)
+            return this.onSelectPodId(paramid, initial)
           } else if (name === 'clusters') {
             this.form.clusterid = paramid
-            this.onSelectClusterId(paramid)
+            return this.onSelectClusterId(paramid, initial)
           } else if (name === 'hosts') {
             this.form.hostid = paramid
-            this.onSelectHostId(paramid)
+            return this.onSelectHostId(paramid, initial)
           } else if (name === 'pools') {
             this.form.poolid = paramid
-            this.onSelectPoolId(paramid)
+            return this.onSelectPoolId(paramid, initial)
           }
         }
       }
     },
-    updateQuery (field, value) {
-      const query = Object.assign({}, this.$route.query)
+    updateQuery (field, value, initial) {
+      const query = initial?.query || { ...this.$route.query }
       if (query[field] === value + '') {
         return
       }
@@ -920,7 +901,7 @@ export default {
         this.searchParams.managed.keyword = null
         this.searchParams.unmanaged.keyword = null
       }
-      this.$router.push({ query })
+      if (!initial) this.$router.push({ query })
     },
     resetLists () {
       this.page.unmanaged = 1
@@ -930,7 +911,7 @@ export default {
       this.managedVolumes = []
       this.managedVolumesSelectedRowKeys = []
     },
-    onSelectZoneId (value) {
+    onSelectZoneId (value, initial) {
       this.zoneId = value
       this.podId = null
       this.clusterId = null
@@ -942,10 +923,10 @@ export default {
       this.form.podid = undefined
       this.form.hostid = undefined
       this.form.poolid = undefined
-      this.updateQuery('zoneid', value)
-      this.fetchOptions(this.params.pods, 'pods')
+      this.updateQuery('zoneid', value, initial)
+      return this.fetchOptions(this.params.pods, 'pods', undefined, initial)
     },
-    onSelectPodId (value) {
+    onSelectPodId (value, initial) {
       this.podId = value
       this.pod = _.find(this.options.pods, (option) => option.id === value)
       this.resetLists()
@@ -955,10 +936,10 @@ export default {
       this.poolId = null
       this.form.hostid = undefined
       this.form.poolid = undefined
-      this.updateQuery('podid', value)
-      this.fetchOptions(this.params.clusters, 'clusters', value)
+      this.updateQuery('podid', value, initial)
+      return this.fetchOptions(this.params.clusters, 'clusters', value, initial)
     },
-    onSelectClusterId (value) {
+    onSelectClusterId (value, initial) {
       this.clusterId = value
       this.cluster = _.find(this.options.clusters, (option) => option.id === value)
       this.resetLists()
@@ -966,23 +947,24 @@ export default {
       this.poolId = null
       this.form.hostid = undefined
       this.form.poolid = undefined
-      this.updateQuery('clusterid', value)
+      this.updateQuery('clusterid', value, initial)
       if (this.showHost) {
-        this.fetchOptions(this.params.hosts, 'hosts', value)
+        return this.fetchOptions(this.params.hosts, 'hosts', value, initial)
       } else {
-        this.fetchOptions(this.params.pools, 'pools', value)
+        return this.fetchOptions(this.params.pools, 'pools', value, initial)
       }
     },
-    onSelectHostId (value) {
+    onSelectHostId (value, initial) {
       this.hostId = value
-      this.updateQuery('scope', 'local')
-      this.updateQuery('hostid', value)
-      this.fetchOptions(this.params.pools, 'pools', value)
+      this.updateQuery('scope', 'local', initial)
+      this.updateQuery('hostid', value, initial)
+      return this.fetchOptions(this.params.pools, 'pools', value, initial)
     },
-    onSelectPoolId (value) {
+    onSelectPoolId (value, initial) {
       this.poolId = value
-      this.updateQuery('poolid', value)
-      this.fetchVolumes()
+      this.updateQuery('poolid', value, initial)
+      if (initial) initial.read = () => this.fetchVolumes()
+      else this.fetchVolumes()
     },
     onSelectPoolScope (value) {
       this.poolscope = value
@@ -1327,9 +1309,8 @@ export default {
 .volumes-card {
   height: 100%;
 }
-.source-dest-card {
-  width: 50%;
-  height: 100%;
+.volume-list-panels {
+  margin-block-start: 16px;
 }
 .volumes-card-table {
   overflow-y: auto;
@@ -1371,4 +1352,12 @@ export default {
   vertical-align: text-bottom;
 }
 
+:deep(.ant-table-tbody > .import-row-selected > td) {
+  background-color: var(--ui-bg-selected);
+}
+
+:deep(.ant-table-tbody > tr:focus-visible) {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: -2px;
+}
 </style>

@@ -32,6 +32,7 @@ for the specific language governing permissions and limitations. -->
       </template>
     </a-alert>
     <ListView
+detail-tab
       v-else
       :resource-path="'/' + definition.target"
       kms-table
@@ -41,7 +42,7 @@ for the specific language governing permissions and limitations. -->
       :loading="loading || status === 'loading'"
       :empty-text="$t(status === 'ready' ? 'message.kms.related.empty' : 'label.loading')"
       :table-scroll="{ y: 440 }" />
-    <a-pagination
+    <detail-tab-pagination
       v-if="status === 'ready'"
       class="detail-tab-pagination"
       :current="criteria.page"

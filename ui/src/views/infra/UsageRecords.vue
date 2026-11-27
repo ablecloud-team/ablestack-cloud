@@ -16,6 +16,7 @@
 // under the License.
 
 <template>
+  <div class="mold-workspace">
   <div class="content-breadcrumb">
     <a-card class="breadcrumb-card breadcrumb-toolbar">
       <a-row class="breadcrumb-toolbar-row">
@@ -232,13 +233,16 @@
       </a-card>
     </a-col>
   </a-row>
-  <a-row justify="space-around">
-    <a-col :span="24">
+  <a-row justify="space-around" class="workspace-main">
+    <a-col :span="24" class="workspace-list">
       <list-view
+        viewport-scroll
+        :viewport-scope="page + ':' + pageSize"
         :loading="tableLoading"
         :columns="columns"
         :table-scroll="{ x: tableWidth }"
         :items="usageRecords"
+        :usage-type-map="usageTypeMap"
         :columnKeys="columnKeys"
         :selectedColumns="selectedColumnKeys"
         ref="listview"
@@ -258,7 +262,7 @@
         :pageSizeOptions="['20', '50', '100']"
         @change="handleTableChange"
         :showSizeChanger="true"
-        :showQuickJumper="true"
+        :showQuickJumper="totalUsageRecords > 0"
       >
         <template #buildOptionText="{ value }">
           <span>{{ value }} / {{ $t('label.page') }}</span>
@@ -350,6 +354,7 @@
   >
     <pre style="text-align: start; white-space: break-spaces;">{{ JSON.stringify(recordView, null, 2) }}</pre>
   </a-modal>
+  </div>
 </template>
 
 <script>

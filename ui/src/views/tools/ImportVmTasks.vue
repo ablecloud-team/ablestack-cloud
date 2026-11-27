@@ -63,7 +63,8 @@
         <div class="import-vm-tasks-table-wrap">
           <a-table
             :data-source="tasks"
-            class="instances-card-table import-vm-tasks-table"
+            class="instances-card-table import-vm-tasks-table workspace-table workspace-import-table"
+            v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.import.vm.tasks'), scope: JSON.stringify([filter, page, pageSize]) }"
             size="small"
             :pagination="false"
             :columns="taskColumns"
@@ -89,9 +90,7 @@
                 <span>{{ record.displaystep || record.step || '-' }}</span>
               </template>
               <template v-else-if="column.key === 'credentialstate'">
-                <a-tag :color="getCredentialStateColor(record.credentialstate)">
-                  {{ $t('label.credential.state.' + (record.credentialstate || 'unknown')) }}
-                </a-tag>
+                <a-badge :status="getCredentialBadgeStatus(record.credentialstate)" :text="$t('label.credential.state.' + (record.credentialstate || 'unknown'))" />
               </template>
               <template v-else-if="column.key === 'state'">
                 <status :text="record.state || ''" displayText />
@@ -263,11 +262,13 @@
 </template>
 
 <script>
+import scrollActivity, { tableScrollSelector } from '@/utils/scrollActivity'
 import { getAPI, postAPI } from '@/api'
 import Status from '@/components/widgets/Status'
 
 export default {
   name: 'ImportVmTasks',
+  directives: { scrollActivity },
   components: {
     Status
   },
@@ -418,6 +419,7 @@ export default {
     }
   },
   computed: {
+    tableScrollSelector () { return tableScrollSelector },
     taskTableScrollX () {
       return this.taskColumns.reduce((total, column) => total + (column.width || 120), 0)
     },
@@ -668,10 +670,10 @@ export default {
       if (provider === 'vmware') return this.$t('label.vmware')
       return provider || '-'
     },
-    getCredentialStateColor (state) {
-      if (state === 'stored' || state === 'managed') return 'green'
-      if (state === 'missing') return 'red'
-      if (state === 'legacy') return 'orange'
+    getCredentialBadgeStatus (state) {
+      if (state === 'stored' || state === 'managed') return 'success'
+      if (state === 'missing') return 'error'
+      if (state === 'legacy') return 'warning'
       return 'default'
     },
     getSyncProgressTitle (record) {

@@ -296,10 +296,23 @@ test.each(['selected', 'all'])('%s batch keeps the existing AntD spinner active 
   wrapper.unmount()
 })
 
-test.each([[], [rules[0]], [...rules, { uid: 'c', isPaused: true }]].map(selectedItems => [selectedItems]))('alert-rule list has no header action buttons for selection %j', selectedItems => {
+test.each([
+  [[], []],
+  [[rules[0]], []],
+  [[...rules, { uid: 'c', isPaused: true }], ['pause', 'resume', 'silence']]
+])('alert-rule list shows actions for an eligible multi-selection %j', (selectedItems, expected) => {
   const apis = Object.fromEntries(config.actions.map(action => [action.api, {}]))
-  const view = { actions: config.actions, dataView: false, selectedRowKeys: selectedItems.map(rule => rule.uid), selectedItems, resource: {}, $store: { getters: { apis } } }
-  expect(AutogenView.computed.visibleListActions.call(view)).toEqual([])
+  const view = {
+    actions: config.actions,
+    dataView: false,
+    selectedRowKeys: selectedItems.map(rule => rule.uid),
+    selectedItems,
+    resource: {},
+    $route: { name: 'alertRules', meta: {} },
+    $store: { getters: { apis } },
+    canUseListBulkAction: AutogenView.methods.canUseListBulkAction
+  }
+  expect(AutogenView.computed.visibleListActions.call(view).map(action => action.wallRuleAction)).toEqual(expected)
 })
 
 test('alert-rule list enables checkboxes and exposes eligible context actions for mixed states', async () => {
@@ -486,7 +499,8 @@ test('blank list space opens only the all-rule menu without a checkbox selection
     $store: { getters: { apis: { pauseWallAlertRule: {}, createWallAlertSilence: {} } } },
     quickViewEnabled: () => true,
     closeContextQuickView: jest.fn(),
-    contextMenuActions: config.actions.filter(action => action.contextOnly)
+    contextMenuActions: config.actions.filter(action => action.contextOnly),
+    openContextQuickView: ListView.methods.openContextQuickView
   }
   const event = { target: { closest: () => null }, clientX: 100, clientY: 200, preventDefault: jest.fn(), stopPropagation: jest.fn() }
   ListView.methods.handleGlobalContextMenu.call(context, event)

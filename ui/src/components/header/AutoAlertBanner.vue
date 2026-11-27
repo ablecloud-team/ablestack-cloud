@@ -3043,6 +3043,12 @@ export default {
       scheduleMeasure()
     })
 
+    watch(listRef, element => {
+      if (!ro) return
+      ro.disconnect()
+      if (element) ro.observe(element)
+    })
+
     watch(visibleAlerts, () => scheduleMeasure(), { deep: true })
 
     // ===== 노출 =====

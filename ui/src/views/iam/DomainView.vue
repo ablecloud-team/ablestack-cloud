@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div>
+  <div class="mold-workspace">
     <a-card class="breadcrumb-card breadcrumb-toolbar content-breadcrumb">
       <div class="breadcrumb-toolbar-row">
         <div class="breadcrumb-toolbar-path">
@@ -78,12 +78,13 @@
       </div>
     </a-card>
 
-    <div class="row-element">
+    <div class="row-element workspace-detail">
       <template v-if="dataView">
         <a-alert v-if="readError" type="error" show-icon :message="readError">
           <template #description><a-button size="small" @click="fetchData()">{{ $t('label.retry') }}</a-button></template>
         </a-alert>
         <resource-view
+          viewport-scroll
           v-else-if="loading || resource.id"
           :key="$route.params.id"
           :resource="resource"
@@ -95,6 +96,7 @@
         <a-empty v-else :description="$t('label.no.data')" />
       </template>
       <tree-view
+        viewport-scroll
         v-else
         :key="treeViewKey"
         :tree-data="treeData"

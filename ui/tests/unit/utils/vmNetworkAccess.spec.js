@@ -40,6 +40,43 @@ test('summary and NIC consumers share an in-flight request and authoritative ref
   expect(first.w.find('a').exists()).toBe(false); expect(second.w.find('a').exists()).toBe(false)
   expect(first.w.text()).toContain('Shared network'); expect(first.w.vm.vmNetworkAccessStatus).toBe('ready')
 })
+test('rechecks access without clearing the settled summary or permitting navigation', async () => {
+  const { w } = setup()
+  await flushPromises()
+  const settled = w.vm.vmNetworkAccessState.networks
+  let finish
+  getAPI.mockReturnValueOnce(new Promise(resolve => { finish = resolve }))
+  const refresh = w.vm.fetchVmNetworkAccess()
+  await flushPromises()
+  expect(w.vm.vmNetworkAccessState.status).toBe('ready')
+  expect(w.vm.vmNetworkAccessState.networks).toBe(settled)
+  expect(w.vm.vmNetworkAccessStatus).toBe('loading')
+  expect(w.find('a').exists()).toBe(false)
+
+  finish(page([]))
+  await refresh
+  expect(w.vm.vmNetworkAccessState.networks).toEqual({})
+  expect(w.vm.vmNetworkAccessStatus).toBe('ready')
+})
+
+test('keeps the failure notice stable during retry and clears it on success', async () => {
+  const { w } = setup()
+  await flushPromises()
+  getAPI.mockRejectedValueOnce(new Error('offline'))
+  await w.vm.fetchVmNetworkAccess()
+  let finish
+  getAPI.mockReturnValueOnce(new Promise(resolve => { finish = resolve }))
+  const retry = w.vm.fetchVmNetworkAccess()
+  await flushPromises()
+  expect(w.vm.vmNetworkAccessState.status).toBe('error')
+  expect(w.vm.vmNetworkAccessState.networks).toEqual({})
+  expect(w.vm.vmNetworks).toEqual({})
+  finish(page([{ id: 'shared' }]))
+  await retry
+  expect(w.vm.vmNetworkAccessState.status).toBe('ready')
+  expect(w.vm.vmNetworks.shared.id).toBe('shared')
+})
+
 test('a failed refresh removes old allowed links, distinguishes absence, and can retry', async () => {
   const { w } = setup(); await flushPromises()
   getAPI.mockRejectedValue(new Error('offline')); await w.vm.fetchVmNetworkAccess(); await flushPromises()

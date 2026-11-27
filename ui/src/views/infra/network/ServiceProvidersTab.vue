@@ -49,7 +49,7 @@
             </a-button>
           </template>
         </resource-table-toolbar>
-        <a-table
+        <detail-tab-table
           size="small"
           row-key="name"
           :columns="serviceColumns"
@@ -63,7 +63,7 @@
             <span v-else-if="column.key === 'providers'">{{ record.providers.map(provider => provider.name).join(', ') }}</span>
             <span v-else>{{ record.activeProviders }} / {{ record.providers.length }}</span>
           </template>
-        </a-table>
+        </detail-tab-table>
       </div>
     </a-spin>
 
