@@ -19,6 +19,8 @@ package com.cloud.network.element;
 import com.cloud.agent.AgentManager;
 import com.cloud.agent.api.HandleConfigDriveIsoAnswer;
 import com.cloud.agent.api.HandleConfigDriveIsoCommand;
+import com.cloud.agent.api.to.DataStoreTO;
+import com.cloud.agent.api.to.NfsTO;
 import com.cloud.dc.DataCenter;
 import com.cloud.dc.DataCenterVO;
 import com.cloud.dc.dao.DataCenterDao;
@@ -40,6 +42,7 @@ import com.cloud.network.dao.NetworkVO;
 import com.cloud.offerings.NetworkOfferingVO;
 import com.cloud.service.ServiceOfferingVO;
 import com.cloud.service.dao.ServiceOfferingDao;
+import com.cloud.storage.DataStoreRole;
 import com.cloud.storage.GuestOSCategoryVO;
 import com.cloud.storage.GuestOSVO;
 import com.cloud.storage.dao.GuestOSCategoryDao;
@@ -56,6 +59,7 @@ import com.cloud.vm.UserVmVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.VirtualMachineProfile;
 import com.cloud.vm.VirtualMachineProfileImpl;
+import com.cloud.vm.VmDetailConstants;
 import com.cloud.vm.dao.UserVmDao;
 import com.cloud.vm.dao.VMInstanceDetailsDao;
 import com.cloud.vm.dao.VMInstanceDao;
@@ -68,9 +72,12 @@ import org.apache.cloudstack.engine.subsystem.api.storage.DataStore;
 import org.apache.cloudstack.engine.subsystem.api.storage.DataStoreManager;
 import org.apache.cloudstack.engine.subsystem.api.storage.EndPoint;
 import org.apache.cloudstack.engine.subsystem.api.storage.EndPointSelector;
+import org.apache.cloudstack.engine.subsystem.api.storage.ZoneScope;
 import org.apache.cloudstack.framework.config.dao.ConfigurationDao;
 import org.apache.cloudstack.storage.configdrive.ConfigDrive;
 import org.apache.cloudstack.storage.configdrive.ConfigDriveBuilder;
+import org.apache.cloudstack.storage.datastore.db.ImageStoreDao;
+import org.apache.cloudstack.storage.datastore.db.ImageStoreVO;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -94,9 +101,11 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -116,13 +125,14 @@ public class ConfigDriveNetworkElementTest {
     private final long VMID = 30L;
     private final String VMUSERDATA = "H4sIABCvw1oAAystTi1KSSxJ5AIAUPllwQkAAAA=";
     private final long SOID = 31L;
-    private final long HOSTID = NETWORK_ID;
     private final long DOMAINID = 1L;
 
     @Mock private DataCenter dataCenter;
     @Mock private ConfigurationDao _configDao;
     @Mock private DataCenterDao _dcDao;
     @Mock private DataStoreManager _dataStoreMgr;
+    @Mock private ImageStoreDao imgstore;
+    @Mock private ImageStoreVO imageStoreVO;
     @Mock private GuestOSCategoryDao _guestOSCategoryDao ;
     @Mock private GuestOSDao _guestOSDao;
     @Mock private HostDao _hostDao;
@@ -196,7 +206,6 @@ public class ConfigDriveNetworkElementTest {
         when(dataCenter.getId()).thenReturn(DATACENTERID);
         when(deployDestination.getHost()).thenReturn(hostVO);
         when(deployDestination.getDataCenter()).thenReturn(dataCenter);
-        when(hostVO.getId()).thenReturn(HOSTID);
         when(nic.getNetworkId()).thenReturn(NETWORK_ID);
         when(network.getId()).thenReturn(NETWORK_ID);
         when(_networkModel.getNetwork(NETWORK_ID)).thenReturn(network);
@@ -297,6 +306,7 @@ public class ConfigDriveNetworkElementTest {
 
     @Test
     public void testCreateConfigDriveIso() throws Exception {
+        mockWritableNfsStore();
         try (MockedStatic<ConfigDriveBuilder> ignored1 = Mockito.mockStatic(ConfigDriveBuilder.class); MockedStatic<CallContext> ignored2 = Mockito.mockStatic(CallContext.class)) {
             Mockito.when(CallContext.current()).thenReturn(callContextMock);
             Mockito.when(ConfigDriveBuilder.buildConfigDrive(Mockito.anyList(), Mockito.anyList(), Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyMap())).thenReturn("content");
@@ -304,7 +314,7 @@ public class ConfigDriveNetworkElementTest {
             final HandleConfigDriveIsoAnswer answer = mock(HandleConfigDriveIsoAnswer.class);
             when(agentManager.easySend(Mockito.anyLong(), Mockito.any(HandleConfigDriveIsoCommand.class))).thenReturn(answer);
             when(answer.getResult()).thenReturn(true);
-            when(answer.getConfigDriveLocation()).thenReturn(NetworkElement.Location.PRIMARY);
+            when(answer.getConfigDriveLocation()).thenReturn(NetworkElement.Location.SECONDARY);
             when(virtualMachine.getUuid()).thenReturn("vm-uuid");
 
             Map<VirtualMachineProfile.Param, Object> parms = Maps.newHashMap();
@@ -324,4 +334,94 @@ public class ConfigDriveNetworkElementTest {
             assertTrue(createCommand.getIsoFile().equals(ConfigDrive.createConfigDrivePath(profile.getInstanceName())));
         }
     }
+
+    @Test
+    public void testConfigDriveRejectsMissingImageStoreBeforeAgentCall() {
+        when(imgstore.findByZone(Mockito.any(ZoneScope.class), Mockito.eq(Boolean.FALSE))).thenReturn(Collections.emptyList());
+
+        ResourceUnavailableException error = assertThrows(ResourceUnavailableException.class,
+                () -> _configDrivesNetworkElement.createConfigDriveIso(nicp, newConfigDriveProfile(), deployDestination, null));
+
+        assertTrue(error.getMessage().contains("no writable secondary image store"));
+        verify(agentManager, never()).easySend(Mockito.anyLong(), Mockito.any(HandleConfigDriveIsoCommand.class));
+    }
+
+    @Test
+    public void testConfigDriveRejectsUnsupportedImageStoreBeforeAgentCall() {
+        when(imgstore.findByZone(Mockito.any(ZoneScope.class), Mockito.eq(Boolean.FALSE))).thenReturn(Collections.singletonList(imageStoreVO));
+        when(imageStoreVO.getId()).thenReturn(34L);
+        when(_dataStoreMgr.getDataStore(34L, DataStoreRole.Image)).thenReturn(dataStore);
+        when(dataStore.getTO()).thenReturn(mock(DataStoreTO.class));
+
+        ResourceUnavailableException error = assertThrows(ResourceUnavailableException.class,
+                () -> _configDrivesNetworkElement.createConfigDriveIso(nicp, newConfigDriveProfile(), deployDestination, null));
+
+        assertTrue(error.getMessage().contains("NFS required"));
+        verify(agentManager, never()).easySend(Mockito.anyLong(), Mockito.any(HandleConfigDriveIsoCommand.class));
+    }
+
+    @Test
+    public void testConfigDriveRejectsImageStoreOverCapacityThreshold() {
+        mockWritableNfsStore();
+        when(_dataStoreMgr.getImageStoreWithFreeCapacity(Mockito.anyList())).thenReturn(null);
+
+        ResourceUnavailableException error = assertThrows(ResourceUnavailableException.class,
+                () -> _configDrivesNetworkElement.createConfigDriveIso(nicp, newConfigDriveProfile(), deployDestination, null));
+
+        assertTrue(error.getMessage().contains("configured capacity threshold"));
+        verify(agentManager, never()).easySend(Mockito.anyLong(), Mockito.any(HandleConfigDriveIsoCommand.class));
+    }
+
+    @Test
+    public void testConfigDriveRejectsImageStoreWithNoSecondaryAgent() {
+        mockWritableNfsStore();
+        when(_ep.select(dataStore)).thenReturn(null);
+
+        ResourceUnavailableException error = assertThrows(ResourceUnavailableException.class,
+                () -> _configDrivesNetworkElement.createConfigDriveIso(nicp, newConfigDriveProfile(), deployDestination, null));
+
+        assertTrue(error.getMessage().contains("no secondary storage agent"));
+        verify(agentManager, never()).easySend(Mockito.anyLong(), Mockito.any(HandleConfigDriveIsoCommand.class));
+    }
+
+    @Test
+    public void testConfigDriveNullOrRejectedAgentReplyLeavesDiskAndLocationUnmodified() {
+        mockWritableNfsStore();
+        VirtualMachineProfile profile = newConfigDriveProfile();
+        HandleConfigDriveIsoAnswer rejected = mock(HandleConfigDriveIsoAnswer.class);
+        String privateReply = "private agent payload placeholder";
+        when(rejected.getDetails()).thenReturn(privateReply);
+        when(agentManager.easySend(Mockito.anyLong(), Mockito.any(HandleConfigDriveIsoCommand.class))).thenReturn(null, rejected);
+        try (MockedStatic<ConfigDriveBuilder> builder = Mockito.mockStatic(ConfigDriveBuilder.class)) {
+            builder.when(() -> ConfigDriveBuilder.buildConfigDrive(Mockito.anyList(), Mockito.anyList(),
+                    Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyMap())).thenReturn("content");
+
+            ResourceUnavailableException missingReply = assertThrows(ResourceUnavailableException.class,
+                    () -> _configDrivesNetworkElement.createConfigDriveIso(nicp, profile, deployDestination, null));
+            ResourceUnavailableException negativeReply = assertThrows(ResourceUnavailableException.class,
+                    () -> _configDrivesNetworkElement.createConfigDriveIso(nicp, profile, deployDestination, null));
+
+            assertTrue(missingReply.getMessage().contains("did not respond"));
+            assertTrue(negativeReply.getMessage().contains("could not write the ISO"));
+            assertFalse(negativeReply.getMessage().contains(privateReply));
+            assertTrue(profile.getDisks().isEmpty());
+            verify(_vmInstanceDetailsDao, never()).addDetail(VMID, VmDetailConstants.CONFIG_DRIVE_LOCATION, "SECONDARY", false);
+        }
+    }
+
+    private VirtualMachineProfile newConfigDriveProfile() {
+        VirtualMachineProfile profile = new VirtualMachineProfileImpl(virtualMachine, null, serviceOfferingVO, null, Collections.emptyMap());
+        profile.setConfigDriveLabel("testlabel");
+        profile.setVmData(Collections.emptyList());
+        return profile;
+    }
+
+    private void mockWritableNfsStore() {
+        when(imgstore.findByZone(Mockito.any(ZoneScope.class), Mockito.eq(Boolean.FALSE))).thenReturn(Collections.singletonList(imageStoreVO));
+        when(imageStoreVO.getId()).thenReturn(34L);
+        when(_dataStoreMgr.getDataStore(34L, DataStoreRole.Image)).thenReturn(dataStore);
+        when(dataStore.getTO()).thenReturn(new NfsTO("nfs://test.invalid/secondary", DataStoreRole.Image));
+        Mockito.lenient().when(_dataStoreMgr.getImageStoreWithFreeCapacity(Mockito.anyList())).thenReturn(dataStore);
+    }
+
 }
