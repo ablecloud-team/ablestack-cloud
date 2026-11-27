@@ -64,6 +64,28 @@ public class MigrationGuestConfigurationResponse extends BaseResponse {
     @Param(description = "Bound guest observation")
     private Map<String, Object> observation;
 
+    @SerializedName("features")
+    @Param(description = "Positively confirmed guest features")
+    private java.util.List<String> features;
+
+    @SerializedName("supportedplanversions")
+    @Param(description = "Supported guest plan versions")
+    private java.util.List<Integer> supportedPlanVersions;
+
+    @SerializedName("supportedwindowsbuilds")
+    @Param(description = "Qualified Windows builds")
+    private java.util.List<String> supportedWindowsBuilds;
+
+    public void setContractVersion(int value) {
+        version = value;
+        supportedPlanVersions = value == 2 ? java.util.List.of(1, 2) : java.util.List.of(1);
+    }
+
+    public void setWindowsNetworkSupported(boolean ok) {
+        features = ok ? java.util.List.of(com.cloud.storage.MigrationWindowsNetworkPolicy.FEATURE) : java.util.List.of();
+        supportedWindowsBuilds = ok ? java.util.List.of("20348") : java.util.List.of();
+    }
+
     public void capability(String storage, boolean ok, String why) {
         storageId = storage;
         supported = ok;

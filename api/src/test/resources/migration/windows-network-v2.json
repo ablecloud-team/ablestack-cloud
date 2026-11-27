@@ -1,0 +1,213 @@
+{
+  "plan": {
+    "version": 2,
+    "policy": "preserve",
+    "operation_id": "c57d02bf-9f7d-4330-91c5-fa44e265dfa8",
+    "source_vm_uuid": "c98c5d08-f405-4026-b49d-99ad6615c1bc",
+    "source_capture_id": "b967b222-db62-4e77-9e72-a615bb517657",
+    "controller_plan_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "os": "windows",
+    "root_identity": "gpt:c8b54bd6-2d50-425b-a57d-c64aea40e785",
+    "root_source_disk_id": "scsi0:0",
+    "helper_version": 2,
+    "source_boot_id": null,
+    "source_collected_at": null,
+    "os_version": "20348",
+    "windows": {
+      "san_policy": "OfflineShared",
+      "disks": [
+        {
+          "is_boot": false,
+          "identity": "gpt:8ff95ca8-08d9-48ed-8e68-da73cd435b21",
+          "size_bytes": 200,
+          "partition_style": "GPT",
+          "online": true,
+          "read_only": false,
+          "partitions": [
+            {
+              "guid": "1dfef97e-f1df-45fc-b3d9-15d2e87f191e",
+              "offset": 1048576,
+              "size_bytes": 199,
+              "access_paths": [
+                "E:\\"
+              ]
+            }
+          ],
+          "source_disk_id": "scsi0:1"
+        }
+      ],
+      "source_cdrom_letters": [],
+      "reserved_letters": []
+    },
+    "required_features": [
+      "windows-network-ipv4-v1"
+    ],
+    "network": {
+      "adapter": "windows-nettcpip",
+      "version": 1,
+      "interfaces": [
+        {
+          "source_mac": "00:50:56:39:90:01",
+          "source_interface_guid": "11111111-1111-4111-8111-111111111111",
+          "source_pnp_id": "PCI\\VEN_1AF4&DEV_1000\\0001",
+          "admin_enabled": true,
+          "ipv4": {
+            "dhcp": false,
+            "addresses": [
+              {
+                "address": "192.0.2.10",
+                "prefix_length": 24,
+                "skip_as_source": false
+              }
+            ]
+          },
+          "default_routes": [
+            {
+              "next_hop": "192.0.2.1",
+              "route_metric": 10,
+              "persistent": true
+            }
+          ],
+          "interface_metric": {
+            "automatic": false,
+            "value": 10
+          },
+          "dns": {
+            "mode": "static",
+            "servers": [
+              "192.0.2.53",
+              "192.0.2.54"
+            ]
+          },
+          "source_nic_id": "4000",
+          "target_mac": "00:50:56:39:90:01",
+          "target_network_uuid": "22222222-2222-4222-8222-222222222222"
+        }
+      ]
+    },
+    "helper_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "network_reader_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "network_helper_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "hash": "b8ed053622c54a71236e22ad18e1167683462b703a7f87f814c4c859e54bf0ba"
+  },
+  "report": {
+    "version": 2,
+    "helper_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "network_reader_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "network_helper_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "network": {
+      "status": "VERIFIED",
+      "interfaces": [
+        {
+          "target_mac": "00:50:56:39:90:01",
+          "nic_uuid": "01535f64-e672-45fa-84fd-a7aa305e26c7",
+          "network_uuid": "22222222-2222-4222-8222-222222222222",
+          "interface_guid": "3de23a36-2563-4af8-b5be-92872af28278",
+          "pnp_id": "PCI\\VEN_1AF4&DEV_1000\\0002",
+          "ifindex": 7,
+          "status": "VERIFIED",
+          "ipv4": {
+            "dhcp": false,
+            "addresses": [
+              {
+                "address": "192.0.2.10",
+                "prefix_length": 24,
+                "skip_as_source": false
+              }
+            ]
+          },
+          "default_routes": [
+            {
+              "next_hop": "192.0.2.1",
+              "route_metric": 10,
+              "persistent": true
+            }
+          ],
+          "interface_metric": {
+            "automatic": false,
+            "value": 10
+          },
+          "dns": {
+            "mode": "static",
+            "servers": [
+              "192.0.2.53",
+              "192.0.2.54"
+            ]
+          },
+          "observed": {
+            "intent": {
+              "source_mac": "00:50:56:39:90:01",
+              "source_interface_guid": "11111111-1111-4111-8111-111111111111",
+              "source_pnp_id": "PCI\\VEN_1AF4&DEV_1000\\0001",
+              "admin_enabled": true,
+              "ipv4": {
+                "dhcp": false,
+                "addresses": [
+                  {
+                    "address": "192.0.2.10",
+                    "prefix_length": 24,
+                    "skip_as_source": false
+                  }
+                ]
+              },
+              "default_routes": [
+                {
+                  "next_hop": "192.0.2.1",
+                  "route_metric": 10,
+                  "persistent": true
+                }
+              ],
+              "interface_metric": {
+                "automatic": false,
+                "value": 10
+              },
+              "dns": {
+                "mode": "static",
+                "servers": [
+                  "192.0.2.53",
+                  "192.0.2.54"
+                ]
+              },
+              "source_nic_id": "4000",
+              "target_mac": "00:50:56:39:90:01",
+              "target_network_uuid": "22222222-2222-4222-8222-222222222222"
+            },
+            "interface_guid": "3de23a36-2563-4af8-b5be-92872af28278",
+            "pnp_id": "PCI\\VEN_1AF4&DEV_1000\\0002",
+            "ifindex": 7,
+            "admin_status": "Up",
+            "link_status": "Up",
+            "addresses": [
+              {
+                "address": "192.0.2.10",
+                "prefix_length": 24,
+                "skip_as_source": false,
+                "state": "Preferred",
+                "origin": "Manual"
+              }
+            ],
+            "routes": [
+              {
+                "next_hop": "192.0.2.1",
+                "route_metric": 10
+              }
+            ],
+            "dns_servers": [
+              "192.0.2.53",
+              "192.0.2.54"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "binding": {
+    "nics": [
+      {
+        "mac": "00:50:56:39:90:01",
+        "id": "01535f64-e672-45fa-84fd-a7aa305e26c7",
+        "network_uuid": "22222222-2222-4222-8222-222222222222"
+      }
+    ]
+  }
+}

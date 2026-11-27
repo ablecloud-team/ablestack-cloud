@@ -37,15 +37,17 @@ public class LibvirtMigrationGuestConfigurationCommandWrapper
     public Answer execute(
             MigrationGuestConfigurationCommand cmd, LibvirtComputingResource resource) {
         try {
-            if (cmd.getContractVersion() != 1)
+            if (cmd.getContractVersion() != 1 && cmd.getContractVersion() != 2)
                 throw new IllegalArgumentException("GUEST_CONFIG_CONTRACT_UNSUPPORTED");
             Map<String, Object> result = new LinkedHashMap<>();
             result.put("supported", true);
             result.put("fresh_observation", true);
             result.put("transport", "qga-file-v1");
             result.put("status", "SUPPORTED");
+            result.put("features", java.util.List.of(com.cloud.storage.MigrationWindowsNetworkPolicy.FEATURE));
             if (cmd.getPlan() != null) {
                 var p = MigrationGuestConfigurationPolicy.parse(cmd.getPlan());
+                if (p.get("version").getAsInt() != cmd.getContractVersion()) throw new IllegalArgumentException("GUEST_CONFIG_CONTRACT_UNSUPPORTED");
                 result.put("plan_hash", p.get("hash").getAsString());
             }
             if ("CAPABILITIES".equals(cmd.getAction()))
@@ -75,7 +77,18 @@ public class LibvirtMigrationGuestConfigurationCommandWrapper
                                         cmd.getVmName(), cmd.getVmUuid()));
                 if (cmd.getNicBindings() == null)
                     throw new IllegalArgumentException("GUEST_NIC_BINDING_REQUIRED");
-                binding.add("nics", com.google.gson.JsonParser.parseString(cmd.getNicBindings()));
+                var databaseNics = com.google.gson.JsonParser.parseString(cmd.getNicBindings()).getAsJsonArray();
+                if (plan.get("version").getAsInt() == 2) {
+                    var actualMacs = new java.util.HashSet<String>();
+                    for (var value : binding.getAsJsonArray("nics")) actualMacs.add(value.getAsJsonObject().get("mac").getAsString());
+                    var databaseMacs = new java.util.HashSet<String>();
+                    for (var value : databaseNics) {
+                        var n = value.getAsJsonObject();
+                        if (!databaseMacs.add(n.get("mac").getAsString()) || n.get("id").getAsString().isBlank() || n.get("network_uuid").getAsString().isBlank()) throw new IllegalArgumentException("NIC_BINDING_MISMATCH");
+                    }
+                    if (!actualMacs.equals(databaseMacs)) throw new IllegalArgumentException("NIC_BINDING_MISMATCH");
+                }
+                binding.add("nics", databaseNics);
                 var exchange =
                         new MigrationGuestConfigurationExchange(
                                 value -> {

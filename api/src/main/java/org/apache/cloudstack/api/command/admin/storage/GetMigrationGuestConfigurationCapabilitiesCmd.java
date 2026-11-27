@@ -57,6 +57,15 @@ public class GetMigrationGuestConfigurationCapabilitiesCmd extends BaseCmd imple
         return hostId;
     }
 
+    @Parameter(name = "contractversion", type = CommandType.INTEGER, description = "Guest configuration contract version (1 or 2)")
+    private Integer contractVersion;
+
+    public int getContractVersion() {
+        int version = contractVersion == null ? 1 : contractVersion;
+        if (version != 1 && version != 2) throw new com.cloud.exception.InvalidParameterValueException("GUEST_CONFIG_CONTRACT_UNSUPPORTED");
+        return version;
+    }
+
     @Override
     public long getEntityOwnerId() {
         return 0;

@@ -40,8 +40,13 @@ public class MigrationGuestConfigurationCommand extends Command {
         vmName = name;
         vmUuid = uuid;
         this.plan = plan;
+        if (plan != null) contractVersion = com.google.gson.JsonParser.parseString(plan).getAsJsonObject().get("version").getAsInt();
         controllerPlan = controller;
         volumeBindings = bindings;
+    }
+
+    public void setContractVersion(int value) {
+        contractVersion = value;
     }
 
     public int getContractVersion() {

@@ -67,6 +67,7 @@ public class MigrationGuestConfigurationManagerImpl extends ManagerBase
     @Inject private VMInstanceDao vmDao;
     @Inject private VMInstanceDetailsDao detailsDao;
     @Inject private NicDao nicDao;
+    @Inject private com.cloud.network.dao.NetworkDao networkDao;
     @Inject private MigrationDiskControllerService controllerService;
 
     @Override
@@ -94,13 +95,17 @@ public class MigrationGuestConfigurationManagerImpl extends ManagerBase
         Answer raw = agentManager.easySend(hostId, command);
         if (!(raw instanceof MigrationGuestConfigurationAnswer)
                 || !raw.getResult()
-                || ((MigrationGuestConfigurationAnswer) raw).getContractVersion() != 1)
+                || ((MigrationGuestConfigurationAnswer) raw).getContractVersion() != command.getContractVersion())
             throw new CloudRuntimeException("GUEST_CONFIG_UNCONFIRMED");
         Map<String, Object> value = ((MigrationGuestConfigurationAnswer) raw).getObservation();
         if (value == null
                 || !Boolean.TRUE.equals(value.get("supported"))
                 || !Boolean.TRUE.equals(value.get("fresh_observation")))
             throw new CloudRuntimeException("GUEST_CONFIG_UNCONFIRMED");
+        if (command.getContractVersion() == 2 && "CAPABILITIES".equals(command.getAction())
+                && (!(value.get("features") instanceof java.util.Collection)
+                    || !((java.util.Collection<?>) value.get("features")).contains(MigrationWindowsNetworkPolicy.FEATURE)))
+            throw new CloudRuntimeException("GUEST_CONFIG_CAPABILITY_REQUIRED");
         if (command.getPlan() != null
                 && !MigrationGuestConfigurationPolicy.parse(command.getPlan())
                         .get("hash")
@@ -116,22 +121,26 @@ public class MigrationGuestConfigurationManagerImpl extends ManagerBase
         admin();
         var pool = poolDao.findById(cmd.getStorageId());
         if (pool == null) throw new InvalidParameterValueException("Primary storage not found");
+        int version = Math.max(1, cmd.getContractVersion());
         var response = new MigrationGuestConfigurationResponse();
+        response.setContractVersion(version);
         response.capability(pool.getUuid(), false, "NO_QUALIFIED_LIVE_WORKER");
+        int candidates = 0, qualified = 0;
         for (var link : poolHostDao.listByPoolId(pool.getId())) {
             if (cmd.getHostId() != null && !cmd.getHostId().equals(link.getHostId())) continue;
+            if (!live(hostDao.findById(link.getHostId()))) continue;
+            candidates++;
             try {
-                var value =
-                        send(
-                                link.getHostId(),
-                                new MigrationGuestConfigurationCommand(
-                                        "CAPABILITIES", null, null, null, null, null));
-                if (!"qga-file-v1".equals(value.get("transport"))) continue;
-                response.capability(pool.getUuid(), true, null);
-                break;
+                var command = new MigrationGuestConfigurationCommand("CAPABILITIES", null, null, null, null, null);
+                command.setContractVersion(version);
+                var value = send(link.getHostId(), command);
+                if ("qga-file-v1".equals(value.get("transport"))) qualified++;
             } catch (CloudRuntimeException unavailable) {
             }
         }
+        boolean ok = qualified > 0 && (version == 1 || qualified == candidates);
+        response.capability(pool.getUuid(), ok, ok ? null : "GUEST_CONFIG_CAPABILITY_REQUIRED");
+        response.setWindowsNetworkSupported(version == 2 && ok);
         return response;
     }
 
@@ -186,7 +195,25 @@ public class MigrationGuestConfigurationManagerImpl extends ManagerBase
             item.addProperty("network_id", nic.getNetworkId());
             item.addProperty("mac", nic.getMacAddress().toLowerCase(java.util.Locale.ROOT));
             macs.add(nic.getMacAddress().toLowerCase(java.util.Locale.ROOT));
+            if (plan.get("version").getAsInt() == 2) {
+                var network = networkDao.findById(nic.getNetworkId());
+                if (network == null || network.getGuestType() != com.cloud.network.Network.GuestType.L2)
+                    throw new CloudRuntimeException("WINDOWS_NETWORK_IPAM_UNSUPPORTED");
+                item.addProperty("network_uuid", network.getUuid());
+            }
             result.add(item);
+        }
+        if (plan.get("version").getAsInt() == 2) {
+            var wanted = plan.getAsJsonObject("network").getAsJsonArray("interfaces");
+            if (wanted.size() != result.size()) throw new CloudRuntimeException("NIC_BINDING_MISMATCH");
+            for (var value : wanted) {
+                var want = value.getAsJsonObject(); int count = 0;
+                for (var actual : result) {
+                    var nic = actual.getAsJsonObject();
+                    if (want.get("target_mac").equals(nic.get("mac")) && want.get("target_network_uuid").equals(nic.get("network_uuid"))) count++;
+                }
+                if (count != 1) throw new CloudRuntimeException("NIC_BINDING_MISMATCH");
+            }
         }
         if ("linux".equals(plan.get("os").getAsString())) {
             var wanted = plan.getAsJsonObject("network").getAsJsonArray("interfaces");
@@ -215,21 +242,18 @@ public class MigrationGuestConfigurationManagerImpl extends ManagerBase
             var pool = poolDao.findByUuid(b.getAsJsonObject().get("pool").getAsString());
             if (pool == null) throw new CloudRuntimeException("GUEST_CONFIG_POOL_UNAVAILABLE");
             boolean capable = false;
-            for (var link : poolHostDao.listByPoolId(pool.getId()))
+            for (var link : poolHostDao.listByPoolId(pool.getId())) {
+                if (!live(hostDao.findById(link.getHostId()))) continue;
                 try {
-                    send(
-                            link.getHostId(),
-                            new MigrationGuestConfigurationCommand(
-                                    "CAPABILITIES",
-                                    vm.getInstanceName(),
-                                    vm.getUuid(),
-                                    MigrationDiskControllerPolicy.canonical(p),
-                                    null,
-                                    null));
+                    var command = new MigrationGuestConfigurationCommand("CAPABILITIES", vm.getInstanceName(), vm.getUuid(), MigrationGuestConfigurationPolicy.canonical(p), null, null);
+                    command.setContractVersion(p.get("version").getAsInt());
+                    send(link.getHostId(), command);
                     capable = true;
-                    break;
+                    if (p.get("version").getAsInt() == 1) break;
                 } catch (CloudRuntimeException unavailable) {
+                    if (p.get("version").getAsInt() == 2) throw new CloudRuntimeException("GUEST_CONFIG_CAPABILITY_REQUIRED");
                 }
+            }
             if (!capable) throw new CloudRuntimeException("GUEST_CONFIG_WORKER_UNAVAILABLE");
         }
     }
@@ -245,6 +269,8 @@ public class MigrationGuestConfigurationManagerImpl extends ManagerBase
         if (!p.get("hash").getAsString().equals(cmd.getPlanHash())
                 || !p.get("operation_id").getAsString().equals(cmd.getOperationId()))
             throw new InvalidParameterValueException("GUEST_CONFIG_PLAN_HASH_MISMATCH");
+        if (Math.max(1, cmd.getContractVersion()) != p.get("version").getAsInt())
+            throw new InvalidParameterValueException("GUEST_CONFIG_CONTRACT_UNSUPPORTED");
         controllerService.beforeStart(vm.getId());
         String
                 ctl =
@@ -275,9 +301,10 @@ public class MigrationGuestConfigurationManagerImpl extends ManagerBase
                             "RECONCILE",
                             vm.getInstanceName(),
                             vm.getUuid(),
-                            MigrationDiskControllerPolicy.canonical(p),
+                            MigrationGuestConfigurationPolicy.canonical(p),
                             ctl,
                             volumes);
+            command.setContractVersion(p.get("version").getAsInt());
             String previousEvidence =
                     MigrationDiskControllerPolicy.read(
                             details, MigrationGuestConfigurationPolicy.EVIDENCE);
@@ -302,6 +329,8 @@ public class MigrationGuestConfigurationManagerImpl extends ManagerBase
         } else if (vm.getState() != VirtualMachine.State.Stopped)
             throw new CloudRuntimeException("GUEST_CONFIG_VM_STATE_UNAVAILABLE");
         var response = new MigrationGuestConfigurationResponse();
+        response.setContractVersion(p.get("version").getAsInt());
+        response.setWindowsNetworkSupported(p.get("version").getAsInt() == 2);
         response.evidence(vm.getUuid(), cmd.getPlanHash(), cmd.getOperationId(), observation);
         return response;
     }

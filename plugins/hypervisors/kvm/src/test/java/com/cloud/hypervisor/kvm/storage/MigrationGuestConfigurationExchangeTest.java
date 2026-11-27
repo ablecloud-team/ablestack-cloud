@@ -77,7 +77,7 @@ public class MigrationGuestConfigurationExchangeTest {
                 out.add("return", value);
             } else if (name.equals("guest-file-open")) {
                 String path = a.get("path").getAsString();
-                assertTrue(path.startsWith("/var/lib/ablestack-v2k/guest-config/"));
+                assertTrue(path.startsWith("/var/lib/ablestack-v2k/guest-config/") || path.startsWith("C:/ProgramData/ABLECLOUD/V2K/GuestConfig/"));
                 if (a.get("mode").getAsString().equals("r") && !files.containsKey(path)) {
                     out.add("error", new JsonObject());
                 } else {
@@ -172,6 +172,30 @@ public class MigrationGuestConfigurationExchangeTest {
                 new MigrationGuestConfigurationExchange(guest::call)
                         .reconcile(plan(), binding(), null);
         assertEquals(first.get("binding_sha256"), second.get("binding_sha256"));
+    }
+
+    @Test
+    public void controlledGuestRebootGetsOneFreshChallengeWithinTheSameQemuProcess() {
+        var guest = new Guest();
+        var p = plan(); p.addProperty("version", 2); p.addProperty("os", "windows");
+        p.addProperty("helper_sha256", "b".repeat(64));
+        var b = binding();
+        var first = new MigrationGuestConfigurationExchange(guest::call).reconcile(p, b);
+        String directory = "C:/ProgramData/ABLECLOUD/V2K/GuestConfig/";
+        var report = new JsonObject();
+        report.addProperty("version", 2);
+        report.add("operation_id", p.get("operation_id")); report.add("plan_hash", p.get("hash"));
+        report.add("vm_uuid", b.get("vm_uuid")); report.add("boot_scope", b.get("boot_scope"));
+        report.add("root_identity", p.get("root_identity")); report.add("helper_sha256", p.get("helper_sha256"));
+        report.addProperty("binding_sha256", (String)first.get("binding_sha256"));
+        report.addProperty("boot_id", "previous-guest-boot"); report.addProperty("status", "PENDING");
+        report.addProperty("reason", "WINDOWS_NETWORK_REBOOT_REQUIRED");
+        guest.files.put(directory + "report.json", report.toString());
+        var second = new MigrationGuestConfigurationExchange(guest::call).reconcile(p, b);
+        org.junit.Assert.assertNotEquals(first.get("binding_sha256"), second.get("binding_sha256"));
+        var third = new MigrationGuestConfigurationExchange(guest::call).reconcile(p, b);
+        assertEquals(second.get("binding_sha256"), third.get("binding_sha256"));
+        assertTrue(guest.handles.isEmpty());
     }
 
     @Test

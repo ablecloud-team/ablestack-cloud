@@ -5771,7 +5771,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             if(key.startsWith(com.cloud.storage.MigrationGuestConfigurationPolicy.PREFIX)) {
                 if(!key.equals(com.cloud.storage.MigrationGuestConfigurationPolicy.PLAN)||hypervisorType!=HypervisorType.KVM||customParameters.get("volumeId")==null||CallContext.current().getCallingAccount().getType()!=Account.Type.ADMIN)throw new InvalidParameterValueException("GUEST_CONFIG_RESERVED_DETAILS");
                 var guestPlan=com.cloud.storage.MigrationGuestConfigurationPolicy.parse(customParameters.get(key));
-                com.cloud.storage.MigrationDiskControllerPolicy.chunks(key,com.cloud.storage.MigrationDiskControllerPolicy.canonical(guestPlan)).forEach(vm::setDetail);continue;
+                com.cloud.storage.MigrationDiskControllerPolicy.chunks(key,com.cloud.storage.MigrationGuestConfigurationPolicy.canonical(guestPlan)).forEach(vm::setDetail);continue;
             }
             if (key.startsWith("migration.disk.controller.")) {
                 if (!key.equals(com.cloud.storage.MigrationDiskControllerPolicy.PLAN)

@@ -224,7 +224,7 @@ public final class MigrationGuestConfigurationExchange {
             throw new CloudRuntimeException("GUEST_VM_IDENTITY_MISMATCH");
         requireChannel(xml);
         JsonObject result = new JsonObject();
-        result.addProperty("version", 1);
+        result.add("version", plan.get("version"));
         result.addProperty("operation_id", plan.get("operation_id").getAsString());
         result.addProperty("plan_hash", plan.get("hash").getAsString());
         result.addProperty("source_vm_uuid", plan.get("source_vm_uuid").getAsString());
@@ -274,6 +274,10 @@ public final class MigrationGuestConfigurationExchange {
             for (var nic : plan.getAsJsonObject("network").getAsJsonArray("interfaces"))
                 if (!macs.contains(nic.getAsJsonObject().get("mac").getAsString()))
                     throw new CloudRuntimeException("NIC_MAPPING_MISMATCH");
+        if (plan.get("version").getAsInt() == 2)
+            for (var nic : plan.getAsJsonObject("network").getAsJsonArray("interfaces"))
+                if (!macs.contains(nic.getAsJsonObject().get("target_mac").getAsString()))
+                    throw new CloudRuntimeException("NIC_MAPPING_MISMATCH");
         result.add("nics", nics);
         boolean empty = true;
         for (Element d : children(devices, "disk"))
@@ -288,7 +292,7 @@ public final class MigrationGuestConfigurationExchange {
     private static boolean matches(
             JsonObject report, JsonObject plan, JsonObject binding, String sha) {
         return report.has("version")
-                && report.get("version").getAsInt() == 1
+                && report.get("version").equals(plan.get("version"))
                 && report.has("operation_id")
                 && report.get("operation_id").equals(plan.get("operation_id"))
                 && report.has("plan_hash")
@@ -306,6 +310,8 @@ public final class MigrationGuestConfigurationExchange {
     }
 
     public static void verifyReport(JsonObject report, JsonObject plan, JsonObject binding) {
+        if (plan.get("version").getAsInt() == 2)
+            com.cloud.storage.MigrationWindowsNetworkPolicy.verifyReport(plan, report, binding);
         if (plan.has("helper_sha256")
                 && (!report.has("helper_sha256")
                         || !plan.get("helper_sha256").equals(report.get("helper_sha256"))))
@@ -383,7 +389,24 @@ public final class MigrationGuestConfigurationExchange {
         JsonObject desired = binding.deepCopy();
         desired.remove("observation_nonce");
         boolean reuse = false;
-        if (existing != null && !bytesHash(existing).equals(lastVerifiedHash)) {
+        boolean rebootChallenge = false;
+        if (existing != null && plan.get("version").getAsInt() == 2) {
+            String pending = read(directory + "report.json");
+            if (pending != null) {
+                try {
+                    var report = JsonParser.parseString(pending).getAsJsonObject();
+                    var previous = JsonParser.parseString(existing).getAsJsonObject();
+                    rebootChallenge = matches(report, plan, previous, bytesHash(existing))
+                            && "PENDING".equals(report.get("status").getAsString())
+                            && report.has("reason")
+                            && "WINDOWS_NETWORK_REBOOT_REQUIRED".equals(report.get("reason").getAsString())
+                            && plan.get("helper_sha256").equals(report.get("helper_sha256"));
+                } catch (RuntimeException incomplete) {
+                    // Incomplete or unbound reports cannot request a new challenge.
+                }
+            }
+        }
+        if (!rebootChallenge && existing != null && !bytesHash(existing).equals(lastVerifiedHash)) {
             try {
                 JsonObject candidate = JsonParser.parseString(existing).getAsJsonObject();
                 var nonce = candidate.remove("observation_nonce");

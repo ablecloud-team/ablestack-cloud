@@ -27,6 +27,7 @@ public class MigrationGuestConfigurationAnswer extends Answer {
     public MigrationGuestConfigurationAnswer(
             MigrationGuestConfigurationCommand cmd, Map<String, Object> value) {
         super(cmd, true, null);
+        contractVersion = cmd.getContractVersion();
         observation = value;
     }
 
