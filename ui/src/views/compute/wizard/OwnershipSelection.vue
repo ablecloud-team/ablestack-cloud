@@ -21,7 +21,7 @@
       <template #description><a-button :loading="loading" @click="retrySafe">{{ $t('label.retry') }}</a-button></template>
     </a-alert>
     <a-button v-if="safeScope" class="owner-options-reload" :disabled="disabled || loading" @click="fetchData"><template #icon><reload-outlined /></template>{{ $t('label.bucket.owner.options.reload') }}</a-button>
-    <a-form-item :label="$t('label.owner.type')">
+    <a-form-item v-if="!accountOnly" :label="$t('label.owner.type')">
       <a-select
         @change="changeAccountTypeOrDomain"
         v-model:value="selectedAccountType"
@@ -160,7 +160,7 @@ export default {
       domains: [],
       accounts: [],
       projects: [],
-      selectedAccountType: this.$store.getters.project?.id ? 'Project' : 'Account',
+      selectedAccountType: !this.accountOnly && this.$store.getters.project?.id ? 'Project' : 'Account',
       selectedDomain: null,
       selectedAccount: null,
       selectedProject: null,
@@ -169,6 +169,7 @@ export default {
     }
   },
   props: {
+    accountOnly: { type: Boolean, default: false },
     embedded: { type: Boolean, default: false },
     safeScope: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false },

@@ -436,7 +436,7 @@ export default {
       permission: ['listSecurityGroups'],
       resourceType: 'SecurityGroup',
       columns: ['name', 'description', 'account', 'domain'],
-      details: ['name', 'id', 'description', 'account', 'domain'],
+      details: ['name', 'id', 'description', 'account', 'domain', 'project'],
       tabs: [{
         name: 'details',
         component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailsTab.vue')))
@@ -461,7 +461,10 @@ export default {
           label: 'label.add.security.group',
           docHelp: 'adminguide/networking_and_traffic.html#adding-a-security-group',
           listView: true,
-          args: ['name', 'description']
+          popup: true,
+          standardDialogSize: 'md',
+          standardDialogInitialFocus: 'input',
+          component: shallowRef(defineAsyncComponent(() => import('@/views/network/CreateSecurityGroup.vue')))
         },
         {
           api: 'updateSecurityGroup',
