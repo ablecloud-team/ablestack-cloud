@@ -535,7 +535,7 @@ def check_default_network_rules(vm_name, vm_id, vm_ip, vm_ip6, vm_mac, vif, brna
         rules = None
     if not rules:
         logging.debug("iptables rules do not exist, programming default rules for %s %s" % (vm_name,vif))
-        default_network_rules(vm_name, vm_id, vm_ip, vm_ip6, vm_mac, vif, brname, sec_ips, is_first_nic)
+        return default_network_rules(vm_name, vm_id, vm_ip, vm_ip6, vm_mac, vif, brname, sec_ips, is_first_nic)
     else:
         if not reconcile_bridge_firewall(brname):
             return False
@@ -585,6 +585,10 @@ def default_network_rules(vm_name, vm_id, vm_ip, vm_ip6, vm_mac, vif, brname, se
                 execute('ip6tables -N ' + chain)
             except:
                 execute('ip6tables -F ' + chain)
+
+        # A new VM remains fail-closed until the manager programs its egress policy.
+        execute('iptables -A ' + vmchain_egress + ' -j DROP')
+        execute('ip6tables -A ' + vmchain_egress + ' -j DROP')
 
         #create ipset and add vm ips to that ip set
         if not create_ipset_forvm(vmipsetName):
@@ -637,12 +641,12 @@ def default_network_rules(vm_name, vm_id, vm_ip, vm_ip6, vm_mac, vif, brname, se
         if vm_ip:
             execute("iptables -A " + vmchain_default + " -m physdev --physdev-is-bridged --physdev-in " + vif + " -m set ! --match-set " + vmipsetName + " src -j DROP")
             execute("iptables -A " + vmchain_default + " -m physdev --physdev-is-bridged --physdev-out " + vif + " -m set ! --match-set " + vmipsetName + " dst -j DROP")
-            execute("iptables -A " + vmchain_default + " -m physdev --physdev-is-bridged --physdev-in " + vif + " -m set --match-set " + vmipsetName + " src -p udp --dport 53  -j ACCEPT")
-            execute("iptables -A " + vmchain_default + " -m physdev --physdev-is-bridged --physdev-in " + vif + " -m set --match-set " + vmipsetName + " src -p tcp --dport 53  -j ACCEPT")
-            execute("iptables -A " + vmchain_default + " -m physdev --physdev-is-bridged --physdev-in " + vif + " -m set --match-set " + vmipsetName + " src -j " + vmchain_egress)
+            execute("iptables -A " + vmchain_default + " -m physdev --physdev-is-bridged --physdev-in " + vif + " -m set --match-set " + vmipsetName + " src -p udp --dport 53  -j RETURN")
+            execute("iptables -A " + vmchain_default + " -m physdev --physdev-is-bridged --physdev-in " + vif + " -m set --match-set " + vmipsetName + " src -p tcp --dport 53  -j RETURN")
+            execute("iptables -A " + vmchain_default + " -m physdev --physdev-is-bridged --physdev-in " + vif + " -m set --match-set " + vmipsetName + " src -g " + vmchain_egress)
 
         execute("iptables -A " + vmchain_default + " -m physdev --physdev-is-bridged --physdev-out " + vif + " -j " + vmchain)
-        execute("iptables -A " + vmchain_default + " -m physdev --physdev-is-bridged --physdev-in " + vif + " -m state --state ESTABLISHED,RELATED -j ACCEPT")
+        execute("iptables -A " + vmchain_default + " -m physdev --physdev-is-bridged --physdev-in " + vif + " -m state --state ESTABLISHED,RELATED -j RETURN")
         execute("iptables -A " + vmchain_default + " -m physdev --physdev-is-bridged --physdev-out " + vif + " -m state --state ESTABLISHED,RELATED -j ACCEPT")
         execute("iptables -A " + vmchain_default + " -m physdev --physdev-is-bridged --physdev-in " + vif + " -j DROP")
         execute("iptables -A " + vmchain_default + " -m physdev --physdev-is-bridged --physdev-out " + vif + " -j DROP")
@@ -696,18 +700,18 @@ def default_network_rules(vm_name, vm_id, vm_ip, vm_ip6, vm_mac, vif, brname, se
         execute('ip6tables -A ' + vmchain_default + ' -m physdev --physdev-is-bridged --physdev-in ' + vif + ' -p udp --sport 547 ! --dst fe80::/64 -j DROP')
 
         # Always allow outbound DNS over UDP and TCP
-        execute('ip6tables -A ' + vmchain_default + ' -m physdev --physdev-is-bridged --physdev-in ' + vif + ' -p udp --dport 53 -m set --match-set ' + vmipsetName6 + ' src -j ACCEPT')
-        execute('ip6tables -A ' + vmchain_default + ' -m physdev --physdev-is-bridged --physdev-in ' + vif + ' -p tcp --dport 53 -m set --match-set ' + vmipsetName6 + ' src -j ACCEPT')
+        execute('ip6tables -A ' + vmchain_default + ' -m physdev --physdev-is-bridged --physdev-in ' + vif + ' -p udp --dport 53 -m set --match-set ' + vmipsetName6 + ' src -j RETURN')
+        execute('ip6tables -A ' + vmchain_default + ' -m physdev --physdev-is-bridged --physdev-in ' + vif + ' -p tcp --dport 53 -m set --match-set ' + vmipsetName6 + ' src -j RETURN')
 
         # Prevent source address spoofing
         execute('ip6tables -A ' + vmchain_default + ' -m physdev --physdev-is-bridged --physdev-in ' + vif + ' -m set ! --match-set ' + vmipsetName6 + ' src -j DROP')
 
-        # Send proper traffic to the egress chain of the Instance
-        execute('ip6tables -A ' + vmchain_default + ' -m physdev --physdev-is-bridged --physdev-in ' + vif + ' -m set --match-set ' + vmipsetName6 + ' src -j ' + vmchain_egress)
+        # A permitted egress flow returns to the bridge and checks destination ingress.
+        execute('ip6tables -A ' + vmchain_default + ' -m physdev --physdev-is-bridged --physdev-in ' + vif + ' -m set --match-set ' + vmipsetName6 + ' src -g ' + vmchain_egress)
 
         execute('ip6tables -A ' + vmchain_default + ' -m physdev --physdev-is-bridged --physdev-out ' + vif + ' -j ' + vmchain)
 
-        execute('ip6tables -A ' + vmchain_default + ' -m physdev --physdev-is-bridged --physdev-in ' + vif + ' -m state --state ESTABLISHED,RELATED -j ACCEPT')
+        execute('ip6tables -A ' + vmchain_default + ' -m physdev --physdev-is-bridged --physdev-in ' + vif + ' -m state --state ESTABLISHED,RELATED -j RETURN')
         execute('ip6tables -A ' + vmchain_default + ' -m physdev --physdev-is-bridged --physdev-out ' + vif + ' -m state --state ESTABLISHED,RELATED -j ACCEPT')
         execute('ip6tables -A ' + vmchain_default + ' -m physdev --physdev-is-bridged --physdev-in ' + vif + ' -j DROP')
         execute('ip6tables -A ' + vmchain_default + ' -m physdev --physdev-is-bridged --physdev-out ' + vif + ' -j DROP')
@@ -1194,151 +1198,105 @@ def parse_network_rules(rules):
     return ret
 
 
-def can_disable_conntrack(rules, ip_family):
-    """Only skip tracking when both directions allow all traffic in this family."""
-    all_cidr = '0.0.0.0/0' if ip_family == 'ipv4' else '::/0'
-    ingress_all = False
-    egress_all = False
-    has_egress_rules = False
-
-    for rule in rules:
-        if not rule[ip_family]:
+def source_policy_updates(default_chain, egress_chain, current_rules):
+    """Upgrade the existing per-VM source rules without removing other rules."""
+    updates = []
+    prefix = f'-A {default_chain} '
+    rules = [line for line in current_rules.splitlines() if line.startswith(prefix)]
+    for number, line in enumerate(rules, 1):
+        rule = shlex.split(line)
+        if '--physdev-in' not in rule or '--physdev-out' in rule:
             continue
-        is_egress = rule['ruletype'] == 'E'
-        if is_egress:
-            has_egress_rules = True
-        if rule['protocol'].lower() == 'all' and all_cidr in rule[ip_family]:
-            if is_egress:
-                egress_all = True
-            else:
-                ingress_all = True
+        if rule[-2:] == ['-j', egress_chain]:
+            match, _ = line[len(prefix):].rsplit(' -j ', 1)
+            updates.append(f'-R {default_chain} {number} {match} -g {egress_chain}')
+        elif rule[-2:] == ['-j', 'ACCEPT'] and (
+                '--state' in rule or ('--dport' in rule and rule[rule.index('--dport') + 1] == '53')):
+            match, _ = line[len(prefix):].rsplit(' -j ', 1)
+            updates.append(f'-R {default_chain} {number} {match} -j RETURN')
+    return updates
 
-    # Empty egress rules allow all; empty ingress rules deny new connections.
-    # A restricted direction needs tracking to recognize allowed replies.
-    return ingress_all and (egress_all or not has_egress_rules)
+
+def vm_policy_rules(rules, family, ingress_chain, egress_chain):
+    updates = [f'-F {ingress_chain}', f'-F {egress_chain}',
+               f'-A {egress_chain} -m state --state RELATED,ESTABLISHED -j RETURN']
+    has_egress_rules = False
+    for rule in rules:
+        sources = rule[family]
+        if not sources:
+            continue
+
+        if rule['ruletype'] == 'E':
+            has_egress_rules = True
+            chain, direction, verdict = egress_chain, '-d', 'RETURN'
+        else:
+            chain, direction, verdict = ingress_chain, '-s', 'ACCEPT'
+
+        protocol = rule['protocol']
+        start, end = rule['start'], rule['end']
+        if protocol == 'all':
+            match = ''
+        elif protocol == 'icmp' and family == 'ipv4':
+            icmp_type = 'any' if start == -1 else f'{start}/{end}'
+            match = f' -p icmp --icmp-type {icmp_type}'
+        elif protocol == 'icmp':
+            match = ' -p icmpv6'
+            if start != -1:
+                match += f' --icmpv6-type {start}/{end}'
+        else:
+            match = f' -p {protocol}'
+            if start or end:
+                match += f' --dport {start}:{end}'
+
+        for address in sources:
+            updates.append(f'-A {chain}{match} {direction} {address} -j {verdict}')
+
+    updates.append(f'-A {ingress_chain} -j RETURN')
+    verdict = 'DROP' if has_egress_rules else 'RETURN'
+    updates.append(f'-A {egress_chain} -j {verdict}')
+    return updates
 
 
 def add_network_rules(vm_name, vm_id, vm_ip, vm_ip6, signature, seqno, vmMac, rules, vif, brname, sec_ips):
     try:
-        vmName = vm_name
-        domId = get_vm_id(vmName)
-
-        changes = check_rule_log_for_vm(vmName, vm_id, vm_ip, domId, signature, seqno)
-
-        if 1 not in changes:
-            logging.debug("Rules already programmed for vm " + vm_name)
-            return True
-
-        logging.debug("programming network rules for IP: " + vm_ip + " vmname=%s", vm_name)
-
-        egress_chain_name(vm_name)
-        vmchain = iptables_chain_name(vm_name)
-        egress_vmchain = egress_chain_name(vm_name)
+        dom_id = get_vm_id(vm_name)
+        ingress = iptables_chain_name(vm_name)
+        egress = egress_chain_name(vm_name)
+        default = default_chain_name(vm_name)
 
         try:
-            for chain in [vmchain, egress_vmchain]:
-                execute('iptables -F ' + chain)
-                execute('ip6tables -F ' + chain)
-        except:
-            logging.debug("Error flushing iptables rules for " + vm_name + ". Presuming firewall rules deleted, re-initializing." )
-            default_network_rules(vm_name, vm_id, vm_ip, vm_ip6, vmMac, vif, brname, sec_ips, True)
+            current = {tool: execute(f'{tool} -w 10 -S {default}') for tool in ('iptables', 'ip6tables')}
+        except CalledProcessError:
+            if not default_network_rules(vm_name, vm_id, vm_ip, vm_ip6, vmMac, vif, brname, sec_ips, True):
+                return False
+            current = {tool: execute(f'{tool} -w 10 -S {default}') for tool in ('iptables', 'ip6tables')}
 
-        egressrule_v4 = 0
-        egressrule_v6 = 0
+        dispatch = {tool: source_policy_updates(default, egress, lines) for tool, lines in current.items()}
+        changes = check_rule_log_for_vm(vm_name, vm_id, vm_ip, dom_id, signature, seqno)
+        if not any(changes) and not any(dispatch.values()):
+            logging.debug('Rules already programmed for vm %s', vm_name)
+            return True
 
+        logging.debug('Programming security group policy for %s', vm_name)
+        # An all-allow VM can communicate with a restricted VM. Keep reply
+        # tracking for both sides and retire this VM's old NOTRACK memberships.
         ip4s, ip6s = split_ips_by_family(vm_ip, vm_ip6, sec_ips, str(ipv6_link_local_addr(vmMac)))
+        add_to_ipset(NOTRACK_IPV4_IPSET, ip4s, "del")
+        add_to_ipset(NOTRACK_IPV6_IPSET, ip6s, "del")
 
-        rules = parse_network_rules(rules)
-        conntrack4_not_needed = can_disable_conntrack(rules, 'ipv4')
-        conntrack6_not_needed = can_disable_conntrack(rules, 'ipv6')
+        parsed_rules = parse_network_rules(rules)
+        for tool, family in (('iptables', 'ipv4'), ('ip6tables', 'ipv6')):
+            updated = vm_policy_rules(parsed_rules, family, ingress, egress)
+            declarations = [f':{ingress} - [0:0]', f':{egress} - [0:0]']
+            # Replace both directions and upgrade their source dispatch in one
+            # filter-table transaction. An empty egress chain would allow traffic.
+            batch = '\n'.join(['*filter', *declarations, *dispatch[tool], *updated, 'COMMIT', ''])
+            check_output([f'{tool}-restore', '--wait', '10', '--noflush'], input=batch, text=True)
 
-        if conntrack4_not_needed:
-            add_to_ipset(NOTRACK_IPV4_IPSET, ip4s, "add")
-        else:
-            add_to_ipset(NOTRACK_IPV4_IPSET, ip4s, "del")
-
-        if conntrack6_not_needed:
-            add_to_ipset(NOTRACK_IPV6_IPSET, ip6s, "add")
-        else:
-            add_to_ipset(NOTRACK_IPV6_IPSET, ip6s, "del")
-
-        for rule in rules:
-            start = rule['start']
-            end = rule['end']
-            protocol = rule['protocol']
-
-            if rule['ruletype'] == 'E':
-                vmchain = egress_vmchain
-                direction = "-d"
-                action = "ACCEPT"
-                if rule['ipv4']:
-                    egressrule_v4 =+ 1
-
-                if rule['ipv6']:
-                    egressrule_v6 +=1
-
-            else:
-                vmchain = vm_name
-                action = "ACCEPT"
-                direction = "-s"
-
-            if start == 0 and end == 0:
-                dport = ""
-            else:
-                dport = " --dport " + str(start) + ":" + str(end)
-
-            if protocol != 'all' and protocol != 'icmp' and protocol != 'tcp' and protocol != 'udp':
-                protocol_all = " -p " + protocol
-            else:
-                protocol_all = " -p " + protocol + " -m " + protocol
-
-            if 'icmp' == protocol:
-                range = str(start) + '/' + str(end)
-                if start == -1:
-                    range = 'any'
-
-            for ip in rule['ipv4']:
-                if protocol == 'all':
-                    execute('iptables -I ' + vmchain + ' ' + direction + ' ' + ip + ' -j ' + action)
-                elif protocol == 'icmp':
-                    execute("iptables -I " + vmchain + " -p icmp --icmp-type " + range + " " + direction + " " + ip + " -j " + action)
-                else:
-                    execute("iptables -I " + vmchain + protocol_all + dport + " " + direction + " " + ip + " -j "+ action)
-
-            for ip in rule['ipv6']:
-                if protocol == 'all':
-                    execute('ip6tables -I ' + vmchain + ' ' + direction + ' ' + ip + ' -j ' + action)
-                elif 'icmp' != protocol:
-                    execute("ip6tables -I " + vmchain + protocol_all + dport + ' ' + direction + " " + ip + " -j "+ action)
-                else:
-                    # ip6tables does not allow '--icmpv6-type any', allowing all ICMPv6 is done by not allowing a specific type
-                    if range == 'any':
-                        execute('ip6tables -I ' + vmchain + ' -p icmpv6 ' + direction + ' ' + ip + ' -j ' + action)
-                    else:
-                        execute('ip6tables -I ' + vmchain + ' -p icmpv6 --icmpv6-type ' + range + ' ' + direction + ' ' + ip + ' -j ' + action)
-
-        egress_vmchain = egress_chain_name(vm_name)
-        if egressrule_v4 == 0 :
-            execute('iptables -A ' + egress_vmchain + ' -j ACCEPT')
-        else:
-            execute('iptables -A ' + egress_vmchain + ' -j RETURN')
-
-        if egressrule_v6 == 0 :
-            execute('ip6tables -A ' + egress_vmchain + ' -j ACCEPT')
-        else:
-            execute('ip6tables -A ' + egress_vmchain + ' -j RETURN')
-
-        vmchain = iptables_chain_name(vm_name)
-
-        execute('iptables -A ' + vmchain + ' -j RETURN')
-        execute('ip6tables -A ' + vmchain + ' -j RETURN')
-
-        if not write_rule_log_for_vm(vmName, vm_id, vm_ip, domId, signature, seqno):
-            return False
-
-        return True
-    except:
-        logging.exception("Failed to network rule !")
+        return write_rule_log_for_vm(vm_name, vm_id, vm_ip, dom_id, signature, seqno)
+    except Exception:
+        logging.exception('Failed to program security group policy for %s', vm_name)
+        return False
 
 
 def get_vifs(vm_name):
@@ -1732,11 +1690,11 @@ def verify_default_iptables_rules_for_vm(vm_name, vm_id, vm_ips, vm_ip6, vm_mac,
     expected_rules.append("-A %s -p udp -m physdev --physdev-in %s --physdev-is-bridged -m udp --sport 67 -j DROP" % (vm_def, vif))
     expected_rules.append("-A %s -m physdev --physdev-in %s --physdev-is-bridged -m set ! --match-set %s src -j DROP" % (vm_def, vif, vm_name))
     expected_rules.append("-A %s -m physdev --physdev-out %s --physdev-is-bridged -m set ! --match-set %s dst -j DROP" % (vm_def, vif, vm_name))
-    expected_rules.append("-A %s -p udp -m physdev --physdev-in %s --physdev-is-bridged -m set --match-set %s src -m udp --dport 53 -j ACCEPT" % (vm_def, vif, vm_name))
-    expected_rules.append("-A %s -p tcp -m physdev --physdev-in %s --physdev-is-bridged -m set --match-set %s src -m tcp --dport 53 -j ACCEPT" % (vm_def, vif, vm_name))
-    expected_rules.append("-A %s -m physdev --physdev-in %s --physdev-is-bridged -m set --match-set %s src -j %s" % (vm_def, vif, vm_name, vmchain_egress))
+    expected_rules.append("-A %s -p udp -m physdev --physdev-in %s --physdev-is-bridged -m set --match-set %s src -m udp --dport 53 -j RETURN" % (vm_def, vif, vm_name))
+    expected_rules.append("-A %s -p tcp -m physdev --physdev-in %s --physdev-is-bridged -m set --match-set %s src -m tcp --dport 53 -j RETURN" % (vm_def, vif, vm_name))
+    expected_rules.append("-A %s -m physdev --physdev-in %s --physdev-is-bridged -m set --match-set %s src -g %s" % (vm_def, vif, vm_name, vmchain_egress))
     expected_rules.append("-A %s -m physdev --physdev-out %s --physdev-is-bridged -j %s" % (vm_def, vif, vmchain))
-    expected_rules.append("-A %s -m physdev --physdev-in %s -m state --state RELATED,ESTABLISHED -j ACCEPT" % (vm_def, vif))
+    expected_rules.append("-A %s -m physdev --physdev-in %s -m state --state RELATED,ESTABLISHED -j RETURN" % (vm_def, vif))
     expected_rules.append("-A %s -m physdev --physdev-out %s -m state --state RELATED,ESTABLISHED -j ACCEPT" % (vm_def, vif))
     expected_rules.append("-A %s -m physdev --physdev-in %s -j DROP" % (vm_def, vif))
     expected_rules.append("-A %s -m physdev --physdev-out %s -j DROP" % (vm_def, vif))
@@ -1892,13 +1850,20 @@ if __name__ == '__main__':
             time.sleep(0.5)
         else:
             break
+    else:
+        logging.error("Timed out waiting for the security group rules lock")
+        sys.exit(1)
 
     if cmd == "can_bridge_firewall":
         can_bridge_firewall(args.privnic)
     elif cmd == "default_network_rules" and args.check:
-        check_default_network_rules(args.vmName, args.vmID, args.vmIP, args.vmIP6, args.vmMAC, args.vif, args.brname, args.nicSecIps, args.isFirstNic)
+        applied = check_default_network_rules(args.vmName, args.vmID, args.vmIP, args.vmIP6, args.vmMAC,
+                                              args.vif, args.brname, args.nicSecIps, args.isFirstNic)
+        sys.exit(0 if applied else 1)
     elif cmd == "default_network_rules" and not args.check:
-        default_network_rules(args.vmName, args.vmID, args.vmIP, args.vmIP6, args.vmMAC, args.vif, args.brname, args.nicSecIps, args.isFirstNic)
+        applied = default_network_rules(args.vmName, args.vmID, args.vmIP, args.vmIP6, args.vmMAC,
+                                        args.vif, args.brname, args.nicSecIps, args.isFirstNic)
+        sys.exit(0 if applied else 1)
     elif cmd == "destroy_network_rules_for_vm":
         if not args.vmIP:
             destroy_network_rules_for_vm(args.vmName, args.vif)
@@ -1909,7 +1874,9 @@ if __name__ == '__main__':
     elif cmd == "get_rule_logs_for_vms":
         get_rule_logs_for_vms()
     elif cmd == "add_network_rules":
-        add_network_rules(args.vmName, args.vmID, args.vmIP, args.vmIP6, args.sig, args.seq, args.vmMAC, args.rules, args.vif, args.brname, args.nicSecIps)
+        applied = add_network_rules(args.vmName, args.vmID, args.vmIP, args.vmIP6, args.sig, args.seq,
+                                    args.vmMAC, args.rules, args.vif, args.brname, args.nicSecIps)
+        sys.exit(0 if applied else 1)
     elif cmd == "network_rules_vmSecondaryIp":
         network_rules_vmSecondaryIp(args.vmName, args.vmMAC, args.nicSecIps, args.action)
     elif cmd == "cleanup_rules":
