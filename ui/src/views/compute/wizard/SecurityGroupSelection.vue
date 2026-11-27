@@ -141,7 +141,7 @@ export default {
         type: 'checkbox',
         selectedRowKeys: this.selectedRowKeys,
         preserveSelectedRowKeys: this.requireOwner,
-        getCheckboxProps: () => ({ disabled: this.requireOwner && (this.fetchLoading || !!this.fetchError) }),
+        getCheckboxProps: () => ({ disabled: this.requireOwner && (this.loading || this.fetchLoading || !!this.fetchError) }),
         onChange: (rows) => {
           this.$emit('select-security-group-item', rows)
         }
@@ -171,6 +171,7 @@ export default {
       this.fetchData()
     },
     loading () {
+      if (this.requireOwner) return
       if (!this.loading) {
         if (this.preFillContent?.securitygroupids) {
           this.selectedRowKeys = this.preFillContent?.securitygroupids
