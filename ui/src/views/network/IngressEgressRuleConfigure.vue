@@ -79,22 +79,71 @@
       size="md"
       form-actions
       focus-guard
+      initial-focus=".rule-target-form input:checked"
       :title="$t('label.add.rule')"
       @cancel="addRuleVisible = false">
       <div v-ctrl-enter="handleAddRule">
-        <div class="rule-source">
-          <div class="form__label">{{ $t('label.add.by') }}</div>
-          <a-radio-group v-model:value="addType" :disabled="isSubmitted" @change="resetAllRules">
-            <a-radio value="cidr">{{ $t('label.cidr') }}</a-radio>
-            <a-radio value="account">{{ $t('label.account') }}</a-radio>
-          </a-radio-group>
+        <div class="rule-target-form">
+          <div class="form__item">
+            <div class="form__label">{{ targetTypeLabel }}</div>
+            <a-radio-group
+              v-model:value="addType"
+              role="radiogroup"
+              :aria-label="targetTypeLabel"
+              :disabled="isSubmitted"
+              @change="changeTargetType">
+              <a-radio value="cidr">{{ $t('label.cidr') }}</a-radio>
+              <a-radio value="securitygroup">{{ $t('label.security.group.rule.group') }}</a-radio>
+            </a-radio-group>
+          </div>
+          <div v-if="addType === 'cidr'" class="form__item">
+            <div class="form__label">{{ $t('label.cidr') }}</div>
+            <a-input v-model:value="newRule.cidrlist" :aria-label="$t('label.cidr')" :disabled="isSubmitted" />
+          </div>
+          <div v-else class="rule-form-grid">
+            <div class="form__item">
+              <label for="sg-rule-owner" class="form__label">{{ $t('label.security.group.rule.owner') }}</label>
+              <a-select
+                id="sg-rule-owner"
+                v-model:value="newRule.referenceAccountId"
+                :aria-label="$t('label.security.group.rule.owner')"
+                :placeholder="$t('label.security.group.rule.select.owner')"
+                :options="referenceAccounts"
+                :filter-option="matchOption"
+                :loading="referenceLoading === 'accounts'"
+                :disabled="isSubmitted || referenceLoading === 'accounts'"
+                show-search
+                @change="fetchReferenceGroups" />
+            </div>
+            <div class="form__item">
+              <label for="sg-rule-peer" class="form__label">{{ $t('label.security.group.rule.group') }}</label>
+              <a-select
+                id="sg-rule-peer"
+                v-model:value="newRule.referenceGroupId"
+                :aria-label="$t('label.security.group.rule.group')"
+                :placeholder="$t('label.security.group.rule.select.group')"
+                :options="referenceGroups"
+                :filter-option="matchOption"
+                :loading="referenceLoading === 'groups'"
+                :disabled="isSubmitted || !newRule.referenceAccountId || referenceLoading === 'groups'"
+                show-search />
+            </div>
+          </div>
+          <a-alert
+            v-if="referenceError"
+            type="error"
+            show-icon
+            :message="$t(referenceError === 'accounts' ? 'message.security.group.rule.accounts.failed' : 'message.security.group.rule.groups.failed')">
+            <template #description>
+              <a-button size="small" @click="referenceError === 'accounts' ? fetchReferenceAccounts() : fetchReferenceGroups()">{{ $t('label.retry') }}</a-button>
+            </template>
+          </a-alert>
         </div>
 
-        <div class="rule-form">
+        <div class="rule-form-grid rule-traffic-form">
           <div class="form__item">
             <div class="form__label">{{ $t('label.protocol') }}</div>
             <a-select
-              v-focus="true"
               v-model:value="newRule.protocol"
               :aria-label="$t('label.protocol')"
               :disabled="isSubmitted"
@@ -160,26 +209,16 @@
               </a-select-option>
             </a-select>
           </div>
-          <div class="form__item" v-if="addType === 'cidr'">
-            <div class="form__label">{{ $t('label.cidr') }}</div>
-            <a-input v-model:value="newRule.cidrlist" :aria-label="$t('label.cidr')" :disabled="isSubmitted" />
-          </div>
-          <template v-if="addType === 'account'">
-            <div class="form__item">
-              <div class="form__label">{{ $t('label.account') }}</div>
-              <a-input v-model:value="newRule.usersecuritygrouplist.account" :aria-label="$t('label.account')" :disabled="isSubmitted" />
-            </div>
-            <div class="form__item">
-              <div class="form__label">{{ $t('label.securitygroup') }}</div>
-              <a-input v-model:value="newRule.usersecuritygrouplist.group" :aria-label="$t('label.securitygroup')" :disabled="isSubmitted" />
-            </div>
-          </template>
         </div>
         <a-alert v-if="ruleError" type="error" show-icon :message="ruleError" />
       </div>
       <MoldDialogActions :busy="isSubmitted">
         <a-button :disabled="isSubmitted" @click="addRuleVisible = false">{{ $t('label.cancel') }}</a-button>
-        <a-button type="primary" :disabled="!canAddRule || isSubmitted" :loading="isSubmitted" @click="handleAddRule">{{ $t('label.add') }}</a-button>
+        <a-button
+          type="primary"
+          :disabled="!canAddRule || isSubmitted || (addType === 'securitygroup' && !newRule.referenceGroupId)"
+          :loading="isSubmitted"
+          @click="handleAddRule">{{ $t('label.add') }}</a-button>
       </MoldDialogActions>
     </MoldDialog>
 
@@ -238,6 +277,7 @@ import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import { validCidr } from '@/utils/conditionalFirewallRule'
+import { networkCollection } from '@/utils/networkLifecycle'
 
 export default {
   components: {
@@ -263,11 +303,14 @@ export default {
         cidrlist: null,
         icmptype: null,
         icmpcode: null,
-        usersecuritygrouplist: {
-          account: null,
-          group: null
-        }
+        referenceAccountId: undefined,
+        referenceGroupId: undefined
       },
+      referenceAccounts: [],
+      referenceGroups: [],
+      referenceLoading: '',
+      referenceError: '',
+      referenceRequest: 0,
       protocolNumbers: [],
       icmpTypes: [],
       icmpCodes: [],
@@ -336,6 +379,9 @@ export default {
     tabType () {
       return this.$route.query.tab === 'ingress.rule' ? 'ingress' : 'egress'
     },
+    targetTypeLabel () {
+      return this.$t(this.tabType === 'ingress' ? 'label.security.group.rule.source.type' : 'label.security.group.rule.destination.type')
+    },
     rules () {
       return (this.tabType === 'ingress' ? this.resource.ingressrule : this.resource.egressrule) || []
     },
@@ -349,7 +395,7 @@ export default {
       }
     },
     ruleScope () {
-      return JSON.stringify([this.resource.id, this.tabType, this.$route.path])
+      return JSON.stringify([this.resource.id, this.resource.domainid, this.tabType, this.$route.path])
     },
     authorizeCommand () {
       return this.tabType === 'ingress' ? 'authorizeSecurityGroupIngress' : 'authorizeSecurityGroupEgress'
@@ -379,6 +425,9 @@ export default {
       this.page = 1
       this.resetAllRules()
     },
+    addRuleVisible (visible) {
+      if (!visible) this.resetReference()
+    },
     'rules.length' (count) {
       this.page = Math.min(this.page, Math.max(1, Math.ceil(count / this.pageSize)))
     },
@@ -389,6 +438,7 @@ export default {
   },
   beforeUnmount () {
     this.ruleGeneration++
+    this.referenceRequest++
   },
   created () {
     this.initForm()
@@ -405,6 +455,63 @@ export default {
     },
     matchOption (input, option) {
       return String(option?.label || '').toLowerCase().includes(input.trim().toLowerCase())
+    },
+    resetReference () {
+      this.referenceRequest++
+      this.referenceAccounts = []
+      this.referenceGroups = []
+      this.referenceLoading = ''
+      this.referenceError = ''
+      this.newRule.referenceAccountId = undefined
+      this.newRule.referenceGroupId = undefined
+    },
+    changeTargetType () {
+      this.newRule.cidrlist = null
+      this.resetReference()
+      if (this.addType === 'securitygroup') this.fetchReferenceAccounts()
+    },
+    async fetchReferenceAccounts () {
+      const domainid = this.resource.domainid
+      const request = ++this.referenceRequest
+      this.referenceLoading = 'accounts'
+      this.referenceError = ''
+      try {
+        if (!domainid) throw new Error('Missing security group domain')
+        const rows = await networkCollection(getAPI, 'listAccounts', 'account', { domainid, listall: true, isrecursive: false, ignoreproject: true })
+        if (request !== this.referenceRequest) return
+        this.referenceAccounts = rows
+          .filter(row => row.domainid === domainid && Number(row.accounttype ?? row.type) !== 5 && row.name)
+          .map(row => ({ value: row.id, label: row.name }))
+          .sort((a, b) => a.label.localeCompare(b.label))
+      } catch (error) {
+        if (request === this.referenceRequest) this.referenceError = 'accounts'
+      } finally {
+        if (request === this.referenceRequest) this.referenceLoading = ''
+      }
+    },
+    async fetchReferenceGroups () {
+      const account = this.referenceAccounts.find(option => option.value === this.newRule.referenceAccountId)
+      if (!account) return
+      const domainid = this.resource.domainid
+      const request = ++this.referenceRequest
+      this.newRule.referenceGroupId = undefined
+      this.referenceGroups = []
+      this.referenceError = ''
+      this.referenceLoading = 'groups'
+      try {
+        const rows = await networkCollection(getAPI, 'listSecurityGroups', 'securitygroup', {
+          account: account.label, domainid, listall: true, isrecursive: false, ignoreproject: true
+        })
+        if (request !== this.referenceRequest) return
+        this.referenceGroups = rows
+          .filter(row => row.domainid === domainid && row.account === account.label && !row.projectid && row.name)
+          .map(row => ({ value: row.id, label: row.name }))
+          .sort((a, b) => a.label.localeCompare(b.label))
+      } catch (error) {
+        if (request === this.referenceRequest) this.referenceError = 'groups'
+      } finally {
+        if (request === this.referenceRequest) this.referenceLoading = ''
+      }
     },
     fetchNetworkProtocols () {
       if (!('listNetworkProtocols' in (this.$store.getters.apis || {}))) return
@@ -458,11 +565,11 @@ export default {
         }
         params.cidrlist = cidrs.join(',')
       } else {
-        const account = rule.usersecuritygrouplist.account?.trim()
-        const group = rule.usersecuritygrouplist.group?.trim()
+        const account = this.referenceAccounts.find(option => option.value === rule.referenceAccountId)
+        const group = this.referenceGroups.find(option => option.value === rule.referenceGroupId)
         if (!account || !group) return { error: 'message.security.group.rule.reference' }
-        params['usersecuritygrouplist[0].account'] = account
-        params['usersecuritygrouplist[0].group'] = group
+        params['usersecuritygrouplist[0].account'] = account.label
+        params['usersecuritygrouplist[0].group'] = group.label
       }
       return { params }
     },
@@ -633,8 +740,7 @@ export default {
       this.newRule.protocolnumber = null
       this.ruleError = ''
       this.newRule.cidrlist = null
-      this.newRule.usersecuritygrouplist.account = null
-      this.newRule.usersecuritygrouplist.group = null
+      this.resetReference()
       this.resetRulePorts()
     },
     capitalise (val) {
@@ -661,17 +767,28 @@ export default {
     color: var(--ui-link);
   }
 
-  .rule-source,
-  .rule-form,
+  .rule-target-form,
+  .rule-form-grid,
   .form__item {
     display: grid;
     gap: 8px;
     min-inline-size: 0;
   }
 
-  .rule-form {
+  .rule-target-form {
+    gap: 12px;
+
+    :deep(.ant-select:not(.ant-select-disabled) .ant-select-selection-placeholder) {
+      color: var(--ui-text-muted);
+    }
+  }
+
+  .rule-form-grid {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
     gap: 16px;
+  }
+
+  .rule-traffic-form {
     margin-block: 16px 4px;
   }
 
