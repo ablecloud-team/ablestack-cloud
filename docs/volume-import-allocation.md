@@ -23,6 +23,16 @@ Issue: https://github.com/ablecloud-team/ablestack-qemu-exec-tools/issues/87
 
 The explicit import contract preserves the selected policy through stopped VM assembly and the first guest start. It does not infer a historical qemu command from sparse extents or accept a client `verified` flag.
 
+## Client cache policy and incomplete verification
+
+[Tools issue #92](https://github.com/ablecloud-team/ablestack-qemu-exec-tools/issues/92) changes new v2k/n2k jobs to `cachemode=none`, with explicit `--target-disk-cache writeback` support. Allocation policy still defaults to `falloc`. Clients create/reuse separate None offerings instead of modifying existing Writeback offerings. An explicit offering must match the requested cache, storage and allocation intent. ROOT and DATA are checked by final volume UUID, VM UUID, device index and positive `cachemode` evidence.
+
+The existing `DiskOffering.CacheMode.NONE`, offering API, root/data import and KVM XML rendering already support this value; this increment requires no additional Mold API, schema, management jar or agent deployment. Existing sealed Writeback jobs keep their original intent. Live GFS2 validation checks API `cachemode=none` and running XML `cache='none'` for both tools.
+
+Incomplete guest Verification does not roll back the imported VM/volumes or change their power state. The tool records `runtime.cloud.retention.status=RETAINED_UNVERIFIED` locally, with IDs, phase/reason, failure exit code and resume instructions, while complete/validated remain false. This is distinct from Mold's VM state and guest reconciliation status. `define-only`/explicit guest-policy `off` also remain unverified. Safety gates before first start continue to apply. Reconciliation uses the same sealed manifest/VM/volume identities without reopening managed images. A successful reconciliation resolves the retention marker while preserving its history.
+
+The 2026-11-28 test intentionally uses tiny nonbootable/no-QGA fixtures to force a timeout after real Mold start. This qualifies cache propagation, failed-verification resource preservation and idempotent retry, **not guest OS boot or complete external-hypervisor migration**. See the paired Tools PR #88 validation report for resource IDs and limits. Earlier Windows/Linux boot qualifications retain their originally recorded Writeback policy.
+
 ## Public API
 
 * `getVolumeAllocationCapabilities`: `storageid`, optional `hostid`, `allocationpolicy`, `allocationformat`, `operation=import`. A live storage worker must positively acknowledge the exact version/pool/format/method tuple. Import is separately authorized from ordinary create/copy/restore capabilities.
