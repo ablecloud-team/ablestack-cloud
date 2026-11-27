@@ -53,3 +53,18 @@ KVM의 실제 devices/channel을 검사한다. metadata의 동명 문자열로 Q
 v2k의 Linux adapter에 NetworkManager Ethernet keyfile을 추가한다. 기존 version 1의 MAC/ifname·ROOT 식별자·operation/plan/helper 해시와 새 report 검증 계약을 재사용하므로 Mold API·DB 스키마·Agent RPC를 추가하지 않는다. source OS의 QGA RPC allow list와 SELinux 접근 권한은 v2k가 반입 전에 복제본에서 준비한다. QGA의 guest-file 기능만 추가하며 전용 디렉터리에 국한한 SELinux CIL 정책으로 Enforcing을 유지한다. Mold가 게스트 명령을 실행하거나 네트워크를 직접 조정하지 않는다.
 
 실기 범위는 13번 GFS2의 Rocky 9.7 IDE/BIOS, SATA/EFI, SCSI/EFI이다. [도구 측 검증 기록](https://github.com/dhslove/ablestack-qemu-exec-tools/blob/codex/issue-87-mold-preallocation/docs/validation/issue90-v2k-rocky-cluster13-20261127.md)에 최초 자동 검증과 재기동 결과, 제한 및 기존 VM 보존을 기록한다. 기존 Ubuntu/Windows 계약과 새 NetworkManager 단위 검증을 함께 유지한다.
+
+
+## 2026-11-27 n2k source adapter와 13번 GFS2 검증
+
+n2k도 기존 version 1 disk-controller/guest plan, fixed-path binding/commit/report와 actual-domain 검증을 사용한다. 이번 확장에는 신규 Mold API·DB 테이블/컬럼·Agent Java 변경이 없다. 소스 인증·원본 상태 수집·PE device/vDisk identity 연결·오프라인 준비·완료 gate는 도구가 소유한다. Mold는 현재 VM/ROOT/DATA/NIC/XML/host와 신선한 보고서를 검증한다.
+
+Nutanix CE의 Windows Server 2022·Ubuntu 24.04.5·Rocky 9.9 각 IDE/SATA/SCSI 9대(모두 UEFI)가 Running/VERIFIED를 완료했다. 기존 123대의 ID·이름·전원·호스트를 보존했고 최종 132대, 18개 qcow2/falloc/writeback 볼륨과 실제 실행 XML을 확인했다. 다른 호스트 stop/start 뒤 source fixture SHA와 ROOT/DATA fsync I/O를 반복했다.
+
+초기 실행·보완·재개를 구분한다. PC device UUID/PE vDisk UUID 차이와 CD-ROM source-map, 같은 크기 디스크, whole-filesystem DATA, Rocky 활성 profile/cloud-init ifcfg, Windows 최대 절전 NTFS·완전 종료·VirtIO serial·32비트 firstboot 실행 경로를 보완했다. Linux bounded observer의 지연 재조회에는 path와 timer를 사용하며 VERIFIED 뒤 적용은 해제하고 관찰만 재개한다. 반입된 실행 이미지를 guestfs로 다시 열지 않는다.
+
+Windows boot_id는 helper 시작 때 고정한 startup token이다. host RTC/Windows 시간 보정 뒤 Win32 LastBootUpTime의 UTC 문자열과 다를 수 있다. 재기동 검증은 바뀐 token, 현재 actual-domain binding/scope/SHA, 실제 VM·ROOT·DATA 및 관측 파일/I/O를 함께 대조했다. Running 또는 오래된 VERIFIED를 새 성공으로 재사용하지 않았다.
+
+Windows 검증은 basic GPT/NTFS DATA T:/online/RW 및 기존 SAN 정책 범위다. 원본 Windows 정적 IP 자동 복원은 v1 DATA adapter 범위에 포함하지 않으며 이 시험은 새 VirtIO NIC의 DHCP로 접근했다. 공식 Release/전체 오프라인 RPM 설치, 직접 libvirt/RAW/RBD 및 추가 OS/네트워크 조합 자격과 구분한다.
+
+[도구 실기 기록과 자격 범위](https://github.com/dhslove/ablestack-qemu-exec-tools/blob/codex/issue-87-mold-preallocation/docs/validation/issue90-n2k-cluster13-20261127.md) · [기계 판독 증거](https://github.com/dhslove/ablestack-qemu-exec-tools/blob/codex/issue-87-mold-preallocation/docs/validation/issue90-n2k-cluster13-20261127.json)
