@@ -4734,6 +4734,8 @@
   "message.select.load.balancer.rule": "AutoScale VM 그룹에 대한 로드 밸런서 규칙을 선택하십시오.",
   "message.select.migration.policy": "마이그레이션 정책을 선택하십시오.",
   "message.select.nic.network": "NIC에 대한 네트워크를 선택하십시오.",
+  "message.vm.security.groups.stop": "보안 그룹을 변경하려면 가상머신을 정지하세요.",
+  "message.security.groups.load.failed": "가상머신 소유자의 보안 그룹을 불러오지 못했습니다.",
   "message.select.security.groups": "새로운 가상머신 보안그룹을 선택해 주십시오.",
   "message.select.template": "새 가상 인스턴스에 대한 템플릿을 선택하십시오.",
   "message.select.tier": "Tier를 선택하십시오.",

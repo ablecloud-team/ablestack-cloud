@@ -23,6 +23,11 @@
       :placeholder="$t('label.search')"
       v-model:value="filter"
       @search="handleSearch" />
+    <a-alert
+      v-if="fetchError && requireOwner"
+      type="error"
+      show-icon
+      :message="fetchError" />
     <a-table
       :loading="loading || fetchLoading"
       :columns="columns"
@@ -74,7 +79,7 @@ export default {
     },
     preFillContent: {
       type: Object,
-      default: () => {}
+      default: () => ({})
     },
     domainId: {
       type: String,
@@ -87,12 +92,18 @@ export default {
     projectId: {
       type: String,
       default: () => ''
+    },
+    requireOwner: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
     return {
       filter: '',
       fetchLoading: false,
+      fetchError: '',
+      fetchVersion: 0,
       columns: [
         {
           dataIndex: 'name',
@@ -106,7 +117,7 @@ export default {
         }
       ],
       items: [],
-      selectedRowKeys: this?.preFillContent?.securitygroupids || [],
+      selectedRowKeys: this.preFillContent?.securitygroupids || this.value || [],
       page: 1,
       pageSize: 10,
       keyword: null,
@@ -115,12 +126,22 @@ export default {
   },
   computed: {
     ownerParams () {
-      return `${this.domainId}-${this.account}-${this.projectId}`
+      const projectid = this.projectId || (!this.requireOwner && this.$store.getters.project?.id)
+      if (projectid) return { projectid }
+      const domainid = this.domainId || (!this.requireOwner && this.$store.getters.userInfo?.domainid)
+      const account = this.account || (!this.requireOwner && this.$store.getters.userInfo?.account)
+      if (!domainid || !account) return this.requireOwner ? null : {}
+      return { domainid, account, ignoreproject: this.requireOwner }
+    },
+    ownerKey () {
+      return JSON.stringify(this.ownerParams)
     },
     rowSelection () {
       return {
         type: 'checkbox',
         selectedRowKeys: this.selectedRowKeys,
+        preserveSelectedRowKeys: this.requireOwner,
+        getCheckboxProps: () => ({ disabled: this.requireOwner && (this.fetchLoading || !!this.fetchError) }),
         onChange: (rows) => {
           this.$emit('select-security-group-item', rows)
         }
@@ -130,22 +151,30 @@ export default {
   mounted () {
     this.fetchData()
   },
+  beforeUnmount () {
+    this.fetchVersion++
+  },
   watch: {
     value (newValue, oldValue) {
       if (newValue && !_.isEqual(newValue, oldValue)) {
         this.selectedRowKeys = newValue
       }
     },
-    ownerParams () {
-      this.selectedRowKeys = []
-      this.$emit('select-security-group-item', null)
+    ownerKey () {
+      if (!this.requireOwner) {
+        this.selectedRowKeys = []
+        this.$emit('select-security-group-item', null)
+      }
+      this.page = 1
+      this.keyword = null
+      this.filter = ''
       this.fetchData()
     },
     loading () {
       if (!this.loading) {
-        if (this.preFillContent.securitygroupids) {
-          this.selectedRowKeys = this.preFillContent.securitygroupids
-          this.$emit('select-security-group-item', this.preFillContent.securitygroupids)
+        if (this.preFillContent?.securitygroupids) {
+          this.selectedRowKeys = this.preFillContent?.securitygroupids
+          this.$emit('select-security-group-item', this.preFillContent?.securitygroupids)
         } else {
           if (this.oldZoneId === this.zoneId) {
             return
@@ -158,38 +187,38 @@ export default {
     }
   },
   methods: {
-    fetchData () {
-      const params = {
-        projectid: this.projectId || (this.$store.getters.project ? this.$store.getters.project.id : null),
-        domainid: this.projectId || (this.$store.getters.project && this.$store.getters.project.id) ? null : (this.domainId || this.$store.getters.userInfo.domainid),
-        account: this.projectId || (this.$store.getters.project && this.$store.getters.project.id) ? null : (this.account || this.$store.getters.userInfo.account),
-        page: this.page,
-        pageSize: this.pageSize
+    async fetchData () {
+      const version = ++this.fetchVersion
+      const owner = this.ownerParams
+      this.fetchError = ''
+      this.$emit('options-ready', false)
+      if (!owner || !('listSecurityGroups' in (this.$store.getters.apis || {}))) {
+        this.items = []
+        this.rowCount = 0
+        this.fetchLoading = false
+        return
       }
 
-      if (this.keyword) {
-        params.keyword = this.keyword
-      }
-
-      this.items = []
+      const params = { ...owner, page: this.page, pagesize: this.pageSize }
+      if (this.keyword) params.keyword = this.keyword
       this.fetchLoading = true
 
-      getAPI('listSecurityGroups', params).then(json => {
-        const items = json.listsecuritygroupsresponse.securitygroup || []
-        this.rowCount = json.listsecuritygroupsresponse.count || 0
-        if (items && items.length > 0) {
-          for (let i = 0; i < items.length; i++) {
-            this.items.push(items[i])
-          }
-          this.items.sort((a, b) => {
-            if (a.name < b.name) return -1
-            if (a.name > b.name) return 1
-            return 0
-          })
-        }
-      }).finally(() => {
-        this.fetchLoading = false
-      })
+      try {
+        const json = await getAPI('listSecurityGroups', params, { preserveOnFailure: this.requireOwner })
+        if (version !== this.fetchVersion) return
+        const response = json.listsecuritygroupsresponse
+        if (!response || response.errorcode) throw new Error(response?.errortext)
+        this.items = [...(response.securitygroup || [])].sort((a, b) => a.name.localeCompare(b.name))
+        this.rowCount = response.count || 0
+        this.$emit('options-ready', true)
+      } catch (error) {
+        if (version !== this.fetchVersion) return
+        this.items = []
+        this.rowCount = 0
+        this.fetchError = error?.response?.data?.listsecuritygroupsresponse?.errortext || this.$t('message.security.groups.load.failed')
+      } finally {
+        if (version === this.fetchVersion) this.fetchLoading = false
+      }
     },
     handleSearch (value) {
       this.filter = value

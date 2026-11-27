@@ -74,13 +74,18 @@
         <NicsTab :resource="vm"/>
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.securitygroups')" key="securitygroups" v-if="(dataResource.securitygroup && dataResource.securitygroup.length > 0) || ($store.getters.showSecurityGroups && securityGroupNetworkProviderUseThisVM)">
-        <div class="security-group-toolbar">
-          <a-button
-            type="primary"
-            @click="showUpdateSGModal"
-            :loading="loading">
-            <template #icon><edit-outlined /></template> {{ $t('label.action.update.security.groups') }}
-          </a-button>
+        <div v-if="canManageVmSecurityGroups" class="security-group-toolbar">
+          <a-tooltip :title="vm.state !== 'Stopped' ? $t('message.vm.security.groups.stop') : undefined">
+            <span>
+              <a-button
+                type="primary"
+                :disabled="vm.state !== 'Stopped'"
+                :loading="loading"
+                @click="showUpdateSGModal">
+                <template #icon><edit-outlined /></template> {{ $t('label.action.update.security.groups') }}
+              </a-button>
+            </span>
+          </a-tooltip>
         </div>
         <ListResourceTable
           detail-tab
@@ -134,18 +139,26 @@
     </a-tabs>
 
     <a-modal
-      :visible="showUpdateSecurityGroupsModal"
+      v-if="showUpdateSecurityGroupsModal"
+      :visible="true"
       :title="$t('label.action.update.security.groups')"
       :maskClosable="false"
-      :closable="true"
+      :closable="!savingSecurityGroups"
+      :confirmLoading="savingSecurityGroups"
+      :okButtonProps="{ disabled: !securityGroupOptionsReady || !canManageVmSecurityGroups || vm.state !== 'Stopped' }"
+      :cancelButtonProps="{ disabled: savingSecurityGroups }"
       @ok="updateSecurityGroups"
       @cancel="closeModals">
       <security-group-selection
-        :zoneId="this.vm.zoneid"
+        :zoneId="vm.zoneid"
         :value="securitygroupids"
-        :loading="false"
-        :preFillContent="dataPreFill"
-        @select-security-group-item="($event) => updateSecurityGroupsSelection($event)"></security-group-selection>
+        :loading="savingSecurityGroups"
+        :domainId="vmSecurityGroupOwner.domainid"
+        :account="vmSecurityGroupOwner.account"
+        :projectId="vmSecurityGroupOwner.projectid"
+        require-owner
+        @options-ready="securityGroupOptionsReady = $event"
+        @select-security-group-item="updateSecurityGroupsSelection" />
     </a-modal>
 
   </a-spin>
@@ -232,8 +245,10 @@ export default {
       dataResource: {},
       editeNic: '',
       editNicLinkStat: '',
-      dataPreFill: {},
       securitygroupids: [],
+      securityGroupOptionsReady: false,
+      savingSecurityGroups: false,
+      securityGroupFetchVersion: 0,
       securityGroupNetworkProviderUseThisVM: false
 
     }
@@ -242,6 +257,7 @@ export default {
     this.dataResource = this.resource
     this.vm = this.dataResource
     this.fetchData()
+    this.fetchSecurityGroupSupport()
     window.addEventListener('popstate', this.setCurrentTab)
   },
   watch: {
@@ -276,6 +292,12 @@ export default {
         }
       }
     },
+    vmSecurityGroupScope () {
+      this.showUpdateSecurityGroupsModal = false
+      this.securityGroupOptionsReady = false
+      this.savingSecurityGroups = false
+      this.fetchSecurityGroupSupport()
+    },
     '$route.fullPath': function () {
       this.setCurrentTab()
     }
@@ -288,6 +310,22 @@ export default {
     this.setCurrentTab()
   },
   computed: {
+    vmSecurityGroupOwner () {
+      if (this.vm.projectid) return { projectid: this.vm.projectid }
+      if (!this.vm.account || !this.vm.domainid) return {}
+      return { account: this.vm.account, domainid: this.vm.domainid }
+    },
+    vmSecurityGroupNetworks () {
+      return [...new Set((this.vm.nic || []).map(nic => nic.networkid).filter(Boolean))]
+    },
+    vmSecurityGroupScope () {
+      return JSON.stringify([this.vm.id, this.vmSecurityGroupOwner, this.vmSecurityGroupNetworks])
+    },
+    canManageVmSecurityGroups () {
+      const apis = this.$store.getters.apis || {}
+      return !!this.vm.id && this.vm.hypervisor !== 'VMware' && !!Object.keys(this.vmSecurityGroupOwner).length &&
+        this.securityGroupNetworkProviderUseThisVM && 'listSecurityGroups' in apis && 'updateVirtualMachine' in apis
+    },
     attachedIsos () {
       if (this.vm.isos && this.vm.isos.length > 0) {
         return [...this.vm.isos].sort((a, b) => (a.deviceseq || 0) - (b.deviceseq || 0))
@@ -406,31 +444,18 @@ export default {
           this.annotations = json.listannotationsresponse?.annotation || []
         })
       }
-      const canReadProvider = () => !this.listRefreshDisposed && annotationEntityId === this.dataResource.id &&
-        this.$store.getters.apis?.listNetworks && this.$store.getters.apis?.listVirtualMachines
-      if (canReadProvider()) {
-        getAPI('listNetworks', { supportedservices: 'SecurityGroup' }).then(json => {
-          if (!canReadProvider()) return
-          if (json.listnetworksresponse && json.listnetworksresponse.network) {
-            for (const net of json.listnetworksresponse.network) {
-              if (this.securityGroupNetworkProviderUseThisVM) {
-                break
-              }
-              const listVmParams = {
-                id: annotationEntityId,
-                networkid: net.id,
-                listall: true
-              }
-              getAPI('listVirtualMachines', listVmParams).then(json => {
-                if (!canReadProvider()) return
-                if (json.listvirtualmachinesresponse && json.listvirtualmachinesresponse?.virtualmachine?.length > 0) {
-                  this.securityGroupNetworkProviderUseThisVM = true
-                }
-              })
-            }
-          }
-        })
-      }
+    },
+    async fetchSecurityGroupSupport () {
+      const version = ++this.securityGroupFetchVersion
+      const scope = this.vmSecurityGroupScope
+      this.securityGroupNetworkProviderUseThisVM = false
+      if (!this.vm.id || !this.$store.getters.apis?.listNetworks) return
+
+      const results = await Promise.allSettled(this.vmSecurityGroupNetworks.map(id => getAPI('listNetworks',
+        { id, supportedservices: 'SecurityGroup', ignoreproject: true, projectid: this.vmSecurityGroupOwner.projectid },
+        { preserveOnFailure: true }).then(json => (json.listnetworksresponse?.network || []).some(network => network.id === id))))
+      if (this.listRefreshDisposed || version !== this.securityGroupFetchVersion || scope !== this.vmSecurityGroupScope) return
+      this.securityGroupNetworkProviderUseThisVM = results.some(result => result.status === 'fulfilled' && result.value)
     },
     listDiskOfferings () {
       getAPI('listDiskOfferings', {
@@ -445,30 +470,34 @@ export default {
       this.listDiskOfferings()
     },
     showUpdateSGModal () {
-      this.loadingSG = true
-      if (this.vm.securitygroup && this.vm.securitygroup?.length > 0) {
-        this.securitygroupids = []
-        for (const sg of this.vm.securitygroup) {
-          this.securitygroupids.push(sg.id)
-        }
-        this.dataPreFill = { securitygroupids: this.securitygroupids }
-      }
+      if (!this.canManageVmSecurityGroups || this.vm.state !== 'Stopped') return
+      this.securitygroupids = (this.vm.securitygroup || []).map(group => group.id)
+      this.securityGroupOptionsReady = false
       this.showUpdateSecurityGroupsModal = true
-      this.loadingSG = false
     },
     closeModals () {
-      this.showUpdateSecurityGroupsModal = false
+      if (!this.savingSecurityGroups) this.showUpdateSecurityGroupsModal = false
     },
     updateSecurityGroupsSelection (securitygroupids) {
-      this.securitygroupids = securitygroupids || []
+      if (!this.savingSecurityGroups) this.securitygroupids = securitygroupids || []
     },
-    updateSecurityGroups () {
-      postAPI('updateVirtualMachine', { id: this.vm.id, securitygroupids: this.securitygroupids.join(',') }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.closeModals()
-        this.parentFetchData()
-      })
+    async updateSecurityGroups () {
+      if (!this.canManageVmSecurityGroups || this.vm.state !== 'Stopped' || !this.securityGroupOptionsReady || this.savingSecurityGroups) return
+      const scope = this.vmSecurityGroupScope
+      const id = this.vm.id
+      const active = () => !this.listRefreshDisposed && this.vmSecurityGroupScope === scope
+      this.savingSecurityGroups = true
+      try {
+        await postAPI('updateVirtualMachine', { id, securitygroupids: this.securitygroupids.join(','), ignoreproject: true }, { preserveOnFailure: true })
+        if (active()) {
+          this.showUpdateSecurityGroupsModal = false
+          await this.parentFetchData()
+        }
+      } catch (error) {
+        if (active()) this.$notifyError(error)
+      } finally {
+        if (active()) this.savingSecurityGroups = false
+      }
     },
     async handleChangeTab (activeKey) {
       if ((activeKey === 'ftctl' && !this.showFtTab) || (activeKey === 'drplans' && !this.showDrTab)) return
