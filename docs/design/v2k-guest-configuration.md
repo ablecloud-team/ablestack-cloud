@@ -47,3 +47,9 @@ KVM의 실제 devices/channel을 검사한다. metadata의 동명 문자열로 Q
 채널 부재/비활성 RPC·상한 초과·과거/불완전 보고서·잘못된 UUID/serial/NIC·계획 변경은 완료로 승격하지 않는다. 현재 host와 guest 채널을 새로 조회하며 source 이미지에 대한 offline 수정을 수행하지 않는다. 실제 게스트 변경과 재시도/보상은 도구 어댑터의 소유 journal로 제한한다. VERIFIED 후 관측은 읽기 전용이다.
 
 [도구 PR #88](https://github.com/ablecloud-team/ablestack-qemu-exec-tools/pull/88)과 [13번 GFS2 실기 증거](https://github.com/dhslove/ablestack-qemu-exec-tools/blob/codex/issue-87-mold-preallocation/docs/validation/issue90-v2k-cluster13-20261127.md)를 함께 검토한다. 전용 CI는 기존 allocation/controller 계약에 guest plan·worker·QGA 전송 검증을 포함한다.
+
+## Rocky Linux 9.7 검증 확장
+
+v2k의 Linux adapter에 NetworkManager Ethernet keyfile을 추가한다. 기존 version 1의 MAC/ifname·ROOT 식별자·operation/plan/helper 해시와 새 report 검증 계약을 재사용하므로 Mold API·DB 스키마·Agent RPC를 추가하지 않는다. source OS의 QGA RPC allow list와 SELinux 접근 권한은 v2k가 반입 전에 복제본에서 준비한다. QGA의 guest-file 기능만 추가하며 전용 디렉터리에 국한한 SELinux CIL 정책으로 Enforcing을 유지한다. Mold가 게스트 명령을 실행하거나 네트워크를 직접 조정하지 않는다.
+
+실기 범위는 13번 GFS2의 Rocky 9.7 IDE/BIOS, SATA/EFI, SCSI/EFI이다. [도구 측 검증 기록](https://github.com/dhslove/ablestack-qemu-exec-tools/blob/codex/issue-87-mold-preallocation/docs/validation/issue90-v2k-rocky-cluster13-20261127.md)에 최초 자동 검증과 재기동 결과, 제한 및 기존 VM 보존을 기록한다. 기존 Ubuntu/Windows 계약과 새 NetworkManager 단위 검증을 함께 유지한다.
