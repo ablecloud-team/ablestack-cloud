@@ -13,6 +13,11 @@ export function offeringServiceProviders (values, selected, services) {
   }))
 }
 
+export function requiresRouterOffering (guestType, providers) {
+  return ['isolated', 'shared'].includes(guestType) &&
+    Object.values(providers).some(provider => ['VirtualRouter', 'VpcVirtualRouter'].includes(provider))
+}
+
 export function offeringFields (values, providers) {
   const { guestiptype: type, provider } = values
   const external = ['NSX', 'Netris'].includes(provider)
@@ -31,7 +36,7 @@ export function offeringFields (values, providers) {
     fields.push('nsxsupportlb')
     if (values.forvpc && values.nsxsupportlb) fields.push('nsxsupportsinternallb')
   }
-  if ((isolated || shared) && ['VirtualRouter', 'VpcVirtualRouter'].some(router => Object.values(providers).includes(router))) fields.push('serviceofferingid')
+  if (requiresRouterOffering(type, providers)) fields.push('serviceofferingid')
   if ((isolated || shared) && providers.SourceNat) fields.push('conservemode')
   if (isolated && providers.SourceNat) fields.push('availability')
   const params = Object.fromEntries(fields.filter(key => values[key] !== '' && values[key] != null).map(key => [key, values[key]]))

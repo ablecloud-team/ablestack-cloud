@@ -341,7 +341,11 @@
             </a-radio-button>
           </a-radio-group>
         </a-form-item>
-        <a-form-item name="serviceofferingid" ref="serviceofferingid" v-if="guestType !== 'l2' && isVirtualRouterForAtLeastOneService">
+        <a-form-item
+          v-if="routerOfferingRequired"
+          name="serviceofferingid"
+          ref="serviceofferingid"
+          :rules="[{ required: true, message: $t('message.error.select') }]">
           <template #label>
             <tooltip-label :title="$t('label.serviceofferingid')" :tooltip="apiParams.serviceofferingid.description"/>
           </template>
@@ -591,7 +595,7 @@ import MoldDialogActions from '@/components/view/MoldDialogActions'
 import NetworkOfferingLbFields from './NetworkOfferingLbFields'
 import { offeringLbSupport, lbSettingsParams } from '@/utils/networkOfferingLb'
 import { buildServiceCapabilityParams } from '@/composables/useServiceCapabilityParams'
-import { offeringFields, offeringServiceProviders, cloneOfferingServiceParams } from '@/utils/networkOfferingForm'
+import { requiresRouterOffering, offeringFields, offeringServiceProviders, cloneOfferingServiceParams } from '@/utils/networkOfferingForm'
 
 export default {
   name: 'CloneNetworkOffering',
@@ -612,6 +616,7 @@ export default {
   },
   data () {
     return {
+      form: null,
       loading: false,
       VPCVR: {
         name: 'VPCVirtualRouter',
@@ -686,7 +691,21 @@ export default {
   beforeCreate () {
     this.apiParams = this.$getApiParams('cloneNetworkOffering')
   },
+  computed: {
+    routerOfferingRequired () {
+      if (!this.form) return false
+      const providers = offeringServiceProviders(this.form, this.selectedServiceProviderMap, this.supportedServices)
+      return requiresRouterOffering(this.form.guestiptype, providers)
+    }
+  },
   watch: {
+    routerOfferingRequired (required) {
+      if (!required) {
+        this.form.serviceofferingid = undefined
+        const form = this.formRef.value
+        if (form) form.clearValidate(['serviceofferingid'])
+      }
+    },
     'form.elasticip' (newVal) {
       this.isElasticIp = newVal
     }
