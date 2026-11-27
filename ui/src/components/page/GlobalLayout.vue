@@ -198,7 +198,6 @@ export default {
   data () {
     return {
       collapsed: false,
-      menus: [],
       showSetting: false,
       showClear: false,
       isSidebarVisible: false,
@@ -217,6 +216,16 @@ export default {
     ...mapState({
       mainMenu: state => state.permission.addRouters
     }),
+    menus () {
+      const menus = this.mainMenu.find(item => item.path === '/')?.children || []
+      if (this.$store.getters.showSecurityGroups) return menus
+      return menus.flatMap(item => {
+        if (item.name !== 'network') return [item]
+        const children = item.children.filter(child => child.name !== 'securitygroups')
+        const firstVisible = children.find(child => !child.hidden)
+        return firstVisible ? [{ ...item, children, redirect: firstVisible.path }] : []
+      })
+    },
     projectViewClass () {
       return this.$store.getters.project?.id ? 'mold-project-view' : ''
     },
@@ -238,7 +247,6 @@ export default {
   },
   watch: {
     sidebarOpened (val) { this.collapsed = !val },
-    mainMenu (newMenu) { this.menus = newMenu.find(item => item.path === '/').children },
     '$store.getters.countNotify' (n) { this.showClear = !!(n && n > 0) },
     isShutdown () { this.measureShutdown() },
     readyForShutdownEnabled (enabled) {
@@ -251,7 +259,6 @@ export default {
   },
   provide () { return { parentToggleSetting: this.toggleSetting } },
   created () {
-    this.menus = this.mainMenu.find(item => item.path === '/').children
     this.collapsed = !this.sidebarOpened
     this.startShutdownPolling()
   },

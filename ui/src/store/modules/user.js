@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { discoverOptional } from '@/utils/optionalDiscovery'
+import { discoverOptional, hasDiscoveryApi } from '@/utils/optionalDiscovery'
 import { toApiMetadata, toCachedApiMetadata } from '@/utils/apiMetadata'
 import { resetWallBannerDismissal } from '@/utils/wallAvailability'
 import Cookies from 'js-cookie'
@@ -58,6 +58,8 @@ import {
 const user = {
   state: {
     discoveryGeneration: 0,
+    securityGroupDiscoveryId: 0,
+    securityGroupAvailability: 'checking',
     token: '',
     name: '',
     avatar: '',
@@ -102,7 +104,7 @@ const user = {
       state.isLdapEnabled = false
       state.cloudian = {}
       state.zones = {}
-      state.showSecurityGroups = false
+      state.securityGroupAvailability = 'checking'
       state.customHypervisorName = 'Custom'
       state.defaultListViewPageSize = 20
       for (const key of [APIS, ZONES, SHOW_SECURTIY_GROUPS]) vueProps.$localStorage.remove(key)
@@ -161,9 +163,12 @@ const user = {
       state.zones = zones
       vueProps.$localStorage.set(ZONES, zones)
     },
-    SET_SHOW_SECURITY_GROUPS: (state, show) => {
-      state.showSecurityGroups = show
-      vueProps.$localStorage.set(SHOW_SECURTIY_GROUPS, show)
+    BEGIN_SECURITY_GROUP_DISCOVERY: (state) => {
+      state.securityGroupDiscoveryId++
+      state.securityGroupAvailability = 'checking'
+    },
+    SET_SECURITY_GROUP_AVAILABILITY: (state, availability) => {
+      state.securityGroupAvailability = availability
     },
     SET_DOMAIN_STORE (state, domainStore) {
       state.domainStore = domainStore
@@ -377,12 +382,12 @@ const user = {
         const cachedUseBrowserTimezone = vueProps.$localStorage.get(USE_BROWSER_TIMEZONE, true)
         const cachedCustomColumns = vueProps.$localStorage.get(CUSTOM_COLUMNS, {})
         const domainStore = vueProps.$localStorage.get(DOMAIN_STORE, {})
-        const cachedShowSecurityGroups = vueProps.$localStorage.get(SHOW_SECURTIY_GROUPS, false)
         const darkMode = vueProps.$localStorage.get(DARK_MODE, false)
         const msId = vueProps.$localStorage.get(MS_ID, false) || Cookies.get('managementserverid') || ''
         const latestVersion = vueProps.$localStorage.get(LATEST_CS_VERSION, { version: '', fetchedTs: 0 })
         const hasAuth = Object.keys(cachedApis).length > 0
         let themePermissions = Promise.resolve(cachedApis)
+        let zonesRequest
 
         commit('SET_DOMAIN_STORE', domainStore)
         commit('SET_DARK_MODE', darkMode)
@@ -390,13 +395,14 @@ const user = {
 
         const loadFeatures = async (apis) => {
           if (!current()) return
-          const response = await discoverOptional(apis, 'listCapabilities')
+          const capabilities = discoverOptional(apis, 'listCapabilities')
+          store.dispatch('DiscoverSecurityGroups', { apis, zones: zonesRequest, capabilities })
+          const response = await capabilities
           if (!current()) return
           const result = response?.listcapabilitiesresponse?.capability || {}
           commit('SET_FEATURES', result)
           commit('SET_DEFAULT_LISTVIEW_PAGE_SIZE', result.defaultuipagesize || 20)
           commit('SET_CUSTOM_HYPERVISOR_NAME', result.customhypervisordisplayname || 'Custom')
-          commit('SET_SHOW_SECURITY_GROUPS', !!result.securitygroupsenabled)
           // Optional integrations must not delay login or route creation.
           Promise.all([
             ['listHSMProfiles', { listall: true }, json => {
@@ -404,9 +410,6 @@ const user = {
             }],
             ['listConfigurations', { name: 'backup.framework.provider.plugin' }, json => {
               commit('SET_FEATURES', { ...state.features, backupProviderPlugins: json.listconfigurationsresponse?.configuration?.[0]?.value || '' })
-            }],
-            ['listNetworkServiceProviders', { name: 'SecurityGroupProvider', state: 'Enabled' }, json => {
-              commit('SET_SHOW_SECURITY_GROUPS', json.listnetworkserviceprovidersresponse?.count > 0)
             }],
             ['listLdapConfigurations', {}, json => {
               commit('SET_LDAP', json.ldapconfigurationresponse?.count > 0)
@@ -427,7 +430,8 @@ const user = {
           // A catalog-only role need not read infrastructure or networks to log in.
           // Clear old owner data before optionally discovering the current grants.
           commit('SET_ZONES', [])
-          discoverOptional(apis, 'listZones').then(json => {
+          zonesRequest = discoverOptional(apis, 'listZones', { ignoreproject: true })
+          zonesRequest.then(json => {
             if (current() && json) commit('SET_ZONES', json.listzonesresponse?.zone || [])
           })
           for (const [api, params, responseKey, key, title, path] of [
@@ -451,7 +455,6 @@ const user = {
         if (hasAuth) {
           console.log('Login detected, revalidating API permissions')
           commit('SET_ZONES', [])
-          commit('SET_SHOW_SECURITY_GROUPS', cachedShowSecurityGroups)
           commit('SET_TIMEZONE_OFFSET', cachedTimezoneOffset)
           commit('SET_USE_BROWSER_TIMEZONE', cachedUseBrowserTimezone)
           commit('SET_CUSTOM_COLUMNS', cachedCustomColumns)
@@ -490,12 +493,11 @@ const user = {
             loadFeatures(apis).then(() => {
               resolve(current() ? apis : {})
               if (!current()) { hide(); return }
-              store.dispatch('GenerateRoutes', { apis }).then(() => {
-                if (!current()) return
-                store.getters.addRouters.map(route => {
-                  router.addRoute(route)
+              if (switchDomain) {
+                store.dispatch('GenerateRoutes', { apis }).then(() => {
+                  if (current()) store.getters.addRouters.forEach(route => router.addRoute(route))
                 })
-              })
+              }
               hide()
               message.success(i18n.global.t('message.sussess.discovering.feature'))
             })
@@ -601,19 +603,64 @@ const user = {
       })
       commit('SET_HEADER_NOTICES', noticeArray)
     },
-    async ProjectView ({ commit, state }, projectid) {
-      commit('ADVANCE_DISCOVERY')
+    async DiscoverSecurityGroups ({ commit, state }, { apis = state.apis, projectid = state.project?.id, zones, capabilities } = {}) {
+      commit('BEGIN_SECURITY_GROUP_DISCOVERY')
       const generation = state.discoveryGeneration
-      const response = await getAPI('listApis', { projectid: projectid, ignoreproject: true })
-      if (state.discoveryGeneration !== generation) throw new Error('Project discovery scope changed')
-      const apis = toApiMetadata(response.listapisresponse.api)
-      commit('SET_APIS', apis)
-      await store.dispatch('GenerateRoutes', { apis })
-      if (state.discoveryGeneration !== generation) throw new Error('Project discovery scope changed')
-      store.getters.addRouters.forEach(route => {
-        router.addRoute(route)
-      })
-      return apis
+      const discoveryId = state.securityGroupDiscoveryId
+      const current = () => state.discoveryGeneration === generation && state.securityGroupDiscoveryId === discoveryId
+      if (!hasDiscoveryApi(apis, 'listSecurityGroups')) {
+        commit('SET_SECURITY_GROUP_AVAILABILITY', 'forbidden')
+        return
+      }
+
+      const withoutProject = { ignoreproject: true }
+      const enabled = value => value === true || value === 'true'
+      const sources = [
+        ['listCapabilities', withoutProject, 'listcapabilitiesresponse', body => enabled(body.capability?.securitygroupsenabled), capabilities],
+        ['listZones', withoutProject, 'listzonesresponse', body => (body.zone || []).some(zone => enabled(zone.securitygroupsenabled)), zones],
+        ['listNetworkServiceProviders', { ...withoutProject, name: 'SecurityGroupProvider', state: 'Enabled' }, 'listnetworkserviceprovidersresponse',
+          body => (body.networkserviceprovider || []).some(provider => provider.name === 'SecurityGroupProvider' && provider.state === 'Enabled')],
+        ['listNetworks', { ...withoutProject, projectid: projectid || undefined, supportedservices: 'SecurityGroup', type: 'Shared' }, 'listnetworksresponse',
+          body => (body.network || []).some(network => enabled(network.securitygroupenabled))]
+      ].filter(([api]) => hasDiscoveryApi(apis, api))
+
+      const results = await Promise.all(sources.map(async ([api, params, key, hasSupport, pending]) => {
+        const response = await (pending || discoverOptional(apis, api, params))
+        const body = response?.[key]
+        if (!body || body.errorcode) return 'failed'
+        try {
+          if (!hasSupport(body)) return 'unavailable'
+          if (current()) commit('SET_SECURITY_GROUP_AVAILABILITY', 'available')
+          return 'available'
+        } catch (_) {
+          return 'failed'
+        }
+      }))
+      if (current() && !results.includes('available')) {
+        commit('SET_SECURITY_GROUP_AVAILABILITY', results.includes('failed') ? 'failed' : 'unavailable')
+      }
+    },
+    async ProjectView ({ commit, state, dispatch }, projectid) {
+      commit('ADVANCE_DISCOVERY')
+      commit('BEGIN_SECURITY_GROUP_DISCOVERY')
+      const generation = state.discoveryGeneration
+      const previousApis = state.apis
+      try {
+        const response = await getAPI('listApis', { projectid: projectid, ignoreproject: true })
+        if (state.discoveryGeneration !== generation) throw new Error('Project discovery scope changed')
+        const apis = toApiMetadata(response.listapisresponse.api)
+        commit('SET_APIS', apis)
+        await dispatch('GenerateRoutes', { apis })
+        if (state.discoveryGeneration !== generation) throw new Error('Project discovery scope changed')
+        store.getters.addRouters.forEach(route => router.addRoute(route))
+        dispatch('DiscoverSecurityGroups', { apis, projectid: projectid || null })
+        return apis
+      } catch (error) {
+        if (state.discoveryGeneration === generation) {
+          dispatch('DiscoverSecurityGroups', { apis: previousApis, projectid: state.project?.id })
+        }
+        throw error
+      }
     },
     async RefreshFeatures ({ commit, state }) {
       const generation = state.discoveryGeneration

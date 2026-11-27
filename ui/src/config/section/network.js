@@ -447,13 +447,7 @@ export default {
         name: 'egress.rule',
         component: shallowRef(defineAsyncComponent(() => import('@/views/network/IngressEgressRuleConfigure.vue')))
       }],
-      show: () => {
-        if (!isZoneCreated()) {
-          return false
-        }
-        const listZoneHaveSGEnabled = store.getters.zones.filter(zone => zone.securitygroupsenabled === true)
-        return (listZoneHaveSGEnabled && listZoneHaveSGEnabled.length > 0) || store.getters.showSecurityGroups
-      },
+      component: shallowRef(defineAsyncComponent(() => import('@/views/network/SecurityGroupView.vue'))),
       actions: [
         {
           api: 'createSecurityGroup',
@@ -462,6 +456,7 @@ export default {
           docHelp: 'adminguide/networking_and_traffic.html#adding-a-security-group',
           listView: true,
           popup: true,
+          popupOnly: true,
           standardDialogSize: 'md',
           standardDialogInitialFocus: 'input',
           component: shallowRef(defineAsyncComponent(() => import('@/views/network/CreateSecurityGroup.vue')))
