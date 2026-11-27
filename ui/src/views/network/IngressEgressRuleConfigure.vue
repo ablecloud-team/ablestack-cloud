@@ -16,114 +16,32 @@
 // under the License.
 
 <template>
-  <div>
-
-    <div v-ctrl-enter="handleAddRule">
-      <div style="margin-bottom: 20px;">
-        <div class="form__label">{{ $t('label.add.by') }}:</div>
-        <a-radio-group @change="resetAllRules" v-model:value="addType">
-          <a-radio value="cidr">{{ $t('label.cidr') }}</a-radio>
-          <a-radio value="account">{{ $t('label.account') }}</a-radio>
-        </a-radio-group>
-      </div>
-
-      <div class="form">
-        <div class="form__item">
-          <div class="form__label">{{ $t('label.protocol') }}</div>
-          <a-select
-            v-focus="true"
-            v-model:value="newRule.protocol"
-            style="width: 100%;"
-            @change="resetRulePorts"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="matchOption">
-            <a-select-option value="tcp" :label="$t('label.tcp')">{{ capitalise($t('label.tcp')) }}</a-select-option>
-            <a-select-option value="udp" :label="$t('label.udp')">{{ capitalise($t('label.udp')) }}</a-select-option>
-            <a-select-option value="icmp" :label="$t('label.icmp')">{{ capitalise($t('label.icmp')) }}</a-select-option>
-            <a-select-option value="all" :label="$t('label.all')">{{ capitalise($t('label.all')) }}</a-select-option>
-            <a-select-option value="protocolnumber" :label="$t('label.protocol.number')">{{ capitalise($t('label.protocol.number')) }}</a-select-option>
-          </a-select>
-        </div>
-        <div v-show="newRule.protocol === 'protocolnumber'" class="form__item">
-          <div class="form__label">{{ $t('label.protocol.number') }}</div>
-          <a-select
-            v-model:value="newRule.protocolnumber"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="matchOption">
-            <a-select-option v-for="opt in protocolNumbers" :key="opt.index" :value="opt.index" :label="opt.index + ' - ' + opt.name">
-              {{ opt.index + ' - ' + opt.name }}
-            </a-select-option>
-          </a-select>
-        </div>
-        <div v-show="showsPorts" class="form__item">
-          <div class="form__label">{{ $t('label.startport') }}</div>
-          <a-input v-model:value="newRule.startport"></a-input>
-        </div>
-        <div v-show="showsPorts" class="form__item">
-          <div class="form__label">{{ $t('label.endport') }}</div>
-          <a-input v-model:value="newRule.endport"></a-input>
-        </div>
-        <div v-show="showsIcmp" class="form__item">
-          <div class="form__label">{{ $t('label.icmptype') }}</div>
-          <a-select
-            v-model:value="newRule.icmptype"
-            @change="val => { updateIcmpCodes(val) }"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="matchOption">
-            <a-select-option v-for="opt in icmpTypes" :key="opt.index" :value="opt.index" :label="opt.index + ' - ' + opt.description">
-              {{ opt.index + ' - ' + opt.description }}
-            </a-select-option>
-          </a-select>
-        </div>
-        <div v-show="showsIcmp" class="form__item">
-          <div class="form__label">{{ $t('label.icmpcode') }}</div>
-          <a-select
-            v-model:value="newRule.icmpcode"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="matchOption">
-            <a-select-option v-for="opt in icmpCodes" :key="opt.code" :value="opt.code" :label="opt.code + ' - ' + opt.description">
-              {{ opt.code + ' - ' + opt.description }}
-            </a-select-option>
-          </a-select>
-        </div>
-        <div class="form__item" v-if="addType === 'cidr'">
-          <div class="form__label">{{ $t('label.cidr') }}</div>
-          <a-input v-model:value="newRule.cidrlist"></a-input>
-        </div>
-        <template v-if="addType === 'account'">
-          <div class="form__item">
-            <div class="form__label">{{ $t('label.account') }}</div>
-            <a-input v-model:value="newRule.usersecuritygrouplist.account" style="margin-right: 10px;"></a-input>
-          </div>
-          <div class="form__item">
-            <div class="form__label">{{ $t('label.securitygroup') }}</div>
-            <a-input v-model:value="newRule.usersecuritygrouplist.group"></a-input>
-          </div>
-        </template>
-        <div class="form__item" style="flex: 0">
-          <a-button :disabled="!canAddRule || isSubmitted" :loading="isSubmitted" type="primary" @click="handleAddRule">{{ $t('label.add') }}</a-button>
-        </div>
-      </div>
-      <a-alert v-if="ruleError" type="error" show-icon :message="ruleError" />
+  <div class="security-group-rules">
+    <div class="detail-tab-toolbar">
+      <a-button class="add-rule-button" type="primary" :disabled="!canAddRule || isSubmitted" @click="openAddRule">
+        <template #icon><plus-outlined /></template>
+        {{ $t('label.add.rule') }}
+      </a-button>
     </div>
+    <a-alert v-if="ruleError && !addRuleVisible" class="detail-tab-notice" type="error" show-icon :message="ruleError" />
 
-    <a-table
+    <detail-tab-table
       size="small"
-      style="overflow-y: auto"
       :columns="columns"
-      :dataSource="rules"
-      :pagination="{ pageSizeOptions: ['10', '20', '40', '80', '100', '200'], showSizeChanger: true}"
-      :rowKey="record => record.ruleid">
+      :data-source="rules"
+      :loading="loading"
+      :pagination="pagination"
+      :scroll="{ x: 1000 }"
+      row-key="ruleid">
       <template #bodyCell="{ column, text, record }">
         <template v-if="column.key === 'protocol'">
           {{ getCapitalise(record.protocol) }}
         </template>
+        <template v-if="column.key === 'cidr'">
+          <span class="rule-target">{{ text }}</span>
+        </template>
         <template v-if="column.key === 'account'">
-          <div v-if="record.account && record.securitygroupname">
+          <div v-if="record.account && record.securitygroupname" class="rule-target">
             {{ record.account }} - {{ record.securitygroupname }}
           </div>
         </template>
@@ -136,24 +54,134 @@
           <div v-else>{{ text }}</div>
         </template>
         <template v-if="column.key === 'actions'">
-          <tooltip-button :tooltip="$t('label.edit.tags')" icon="tag-outlined" buttonClass="rule-action" @onClick="() => openTagsModal(record)" />
-          <a-popconfirm
-            :title="$t('label.delete') + '?'"
-            @confirm="handleDeleteRule(record)"
-            :okText="$t('label.yes')"
-            :cancelText="$t('label.no')"
-          >
-            <tooltip-button
-              :disabled="!canDeleteRule || isSubmitted"
-              :tooltip="$t('label.delete')"
-              type="primary"
-              :danger="true"
-              icon="delete-outlined"
-              buttonClass="rule-action" />
-          </a-popconfirm>
+          <div class="rule-actions">
+            <tooltip-button :tooltip="$t('label.edit.tags')" icon="tag-outlined" @onClick="() => openTagsModal(record)" />
+            <a-popconfirm
+              :title="$t('label.delete') + '?'"
+              @confirm="handleDeleteRule(record)"
+              :okText="$t('label.yes')"
+              :cancelText="$t('label.no')"
+            >
+              <tooltip-button
+                :disabled="!canDeleteRule || isSubmitted"
+                :tooltip="$t('label.delete')"
+                type="primary"
+                :danger="true"
+                icon="delete-outlined" />
+            </a-popconfirm>
+          </div>
         </template>
       </template>
-    </a-table>
+    </detail-tab-table>
+
+    <MoldDialog
+      v-if="addRuleVisible"
+      size="md"
+      form-actions
+      focus-guard
+      :title="$t('label.add.rule')"
+      @cancel="addRuleVisible = false">
+      <div v-ctrl-enter="handleAddRule">
+        <div class="rule-source">
+          <div class="form__label">{{ $t('label.add.by') }}</div>
+          <a-radio-group v-model:value="addType" :disabled="isSubmitted" @change="resetAllRules">
+            <a-radio value="cidr">{{ $t('label.cidr') }}</a-radio>
+            <a-radio value="account">{{ $t('label.account') }}</a-radio>
+          </a-radio-group>
+        </div>
+
+        <div class="rule-form">
+          <div class="form__item">
+            <div class="form__label">{{ $t('label.protocol') }}</div>
+            <a-select
+              v-focus="true"
+              v-model:value="newRule.protocol"
+              :aria-label="$t('label.protocol')"
+              :disabled="isSubmitted"
+              @change="resetRulePorts"
+              showSearch
+              optionFilterProp="label"
+              :filterOption="matchOption">
+              <a-select-option value="tcp" :label="$t('label.tcp')">{{ $t('label.tcp') }}</a-select-option>
+              <a-select-option value="udp" :label="$t('label.udp')">{{ $t('label.udp') }}</a-select-option>
+              <a-select-option value="icmp" :label="$t('label.icmp')">{{ $t('label.icmp') }}</a-select-option>
+              <a-select-option value="all" :label="$t('label.all')">{{ $t('label.all') }}</a-select-option>
+              <a-select-option value="protocolnumber" :label="$t('label.protocol.number')">{{ $t('label.protocol.number') }}</a-select-option>
+            </a-select>
+          </div>
+          <div v-if="newRule.protocol === 'protocolnumber'" class="form__item">
+            <div class="form__label">{{ $t('label.protocol.number') }}</div>
+            <a-select
+              v-model:value="newRule.protocolnumber"
+              :aria-label="$t('label.protocol.number')"
+              :disabled="isSubmitted"
+              showSearch
+              optionFilterProp="label"
+              :filterOption="matchOption">
+              <a-select-option v-for="opt in protocolNumbers" :key="opt.index" :value="opt.index" :label="opt.index + ' - ' + opt.name">
+                {{ opt.index + ' - ' + opt.name }}
+              </a-select-option>
+            </a-select>
+          </div>
+          <div v-if="showsPorts" class="form__item">
+            <div class="form__label">{{ $t('label.startport') }}</div>
+            <a-input v-model:value="newRule.startport" :aria-label="$t('label.startport')" :disabled="isSubmitted" />
+          </div>
+          <div v-if="showsPorts" class="form__item">
+            <div class="form__label">{{ $t('label.endport') }}</div>
+            <a-input v-model:value="newRule.endport" :aria-label="$t('label.endport')" :disabled="isSubmitted" />
+          </div>
+          <div v-if="showsIcmp" class="form__item">
+            <div class="form__label">{{ $t('label.icmptype') }}</div>
+            <a-select
+              v-model:value="newRule.icmptype"
+              :aria-label="$t('label.icmptype')"
+              :disabled="isSubmitted"
+              @change="val => { updateIcmpCodes(val) }"
+              showSearch
+              optionFilterProp="label"
+              :filterOption="matchOption">
+              <a-select-option v-for="opt in icmpTypes" :key="opt.index" :value="opt.index" :label="opt.index + ' - ' + opt.description">
+                {{ opt.index + ' - ' + opt.description }}
+              </a-select-option>
+            </a-select>
+          </div>
+          <div v-if="showsIcmp" class="form__item">
+            <div class="form__label">{{ $t('label.icmpcode') }}</div>
+            <a-select
+              v-model:value="newRule.icmpcode"
+              :aria-label="$t('label.icmpcode')"
+              :disabled="isSubmitted"
+              showSearch
+              optionFilterProp="label"
+              :filterOption="matchOption">
+              <a-select-option v-for="opt in icmpCodes" :key="opt.code" :value="opt.code" :label="opt.code + ' - ' + opt.description">
+                {{ opt.code + ' - ' + opt.description }}
+              </a-select-option>
+            </a-select>
+          </div>
+          <div class="form__item" v-if="addType === 'cidr'">
+            <div class="form__label">{{ $t('label.cidr') }}</div>
+            <a-input v-model:value="newRule.cidrlist" :aria-label="$t('label.cidr')" :disabled="isSubmitted" />
+          </div>
+          <template v-if="addType === 'account'">
+            <div class="form__item">
+              <div class="form__label">{{ $t('label.account') }}</div>
+              <a-input v-model:value="newRule.usersecuritygrouplist.account" :aria-label="$t('label.account')" :disabled="isSubmitted" />
+            </div>
+            <div class="form__item">
+              <div class="form__label">{{ $t('label.securitygroup') }}</div>
+              <a-input v-model:value="newRule.usersecuritygrouplist.group" :aria-label="$t('label.securitygroup')" :disabled="isSubmitted" />
+            </div>
+          </template>
+        </div>
+        <a-alert v-if="ruleError" type="error" show-icon :message="ruleError" />
+      </div>
+      <MoldDialogActions :busy="isSubmitted">
+        <a-button :disabled="isSubmitted" @click="addRuleVisible = false">{{ $t('label.cancel') }}</a-button>
+        <a-button type="primary" :disabled="!canAddRule || isSubmitted" :loading="isSubmitted" @click="handleAddRule">{{ $t('label.add') }}</a-button>
+      </MoldDialogActions>
+    </MoldDialog>
 
     <a-modal
       :title="$t('label.edit.tags')"
@@ -206,18 +234,23 @@
 <script>
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
+import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import { validCidr } from '@/utils/conditionalFirewallRule'
 
 export default {
   components: {
+    MoldDialog,
+    MoldDialogActions,
     TooltipButton
   },
   props: {
     resource: {
       type: Object,
       required: true
-    }
+    },
+    loading: Boolean
   },
   inject: ['parentFetchData', 'parentToggleLoading'],
   data () {
@@ -247,41 +280,50 @@ export default {
       selectedRule: null,
       tagsLoading: false,
       addType: 'cidr',
+      addRuleVisible: false,
       page: 1,
-      pagesize: 10,
+      pageSize: 10,
       columns: [
         {
           key: 'protocol',
+          width: 115,
           title: this.$t('label.protocol')
         },
         {
           key: 'startport',
+          width: 100,
           title: this.$t('label.startport'),
           dataIndex: 'startport'
         },
         {
           key: 'endport',
+          width: 100,
           title: this.$t('label.endport'),
           dataIndex: 'endport'
         },
         {
           title: this.$t('label.icmptype'),
+          width: 100,
           dataIndex: 'icmptype'
         },
         {
           title: this.$t('label.icmpcode'),
+          width: 100,
           dataIndex: 'icmpcode'
         },
         {
+          key: 'cidr',
           title: this.$t('label.cidr'),
           dataIndex: 'cidr'
         },
         {
           key: 'account',
+          width: 205,
           title: this.$t('label.account.and.security.group')
         },
         {
           key: 'actions',
+          width: 100,
           title: this.$t('label.actions')
         }
       ],
@@ -296,6 +338,15 @@ export default {
     },
     rules () {
       return (this.tabType === 'ingress' ? this.resource.ingressrule : this.resource.egressrule) || []
+    },
+    pagination () {
+      return {
+        current: this.page,
+        pageSize: this.pageSize,
+        pageSizeOptions: ['10', '20', '40', '80', '100', '200'],
+        showSizeChanger: true,
+        onChange: this.changePage
+      }
     },
     ruleScope () {
       return JSON.stringify([this.resource.id, this.tabType, this.$route.path])
@@ -324,7 +375,12 @@ export default {
     ruleScope () {
       this.ruleGeneration++
       this.isSubmitted = false
+      this.addRuleVisible = false
+      this.page = 1
       this.resetAllRules()
+    },
+    'rules.length' (count) {
+      this.page = Math.min(this.page, Math.max(1, Math.ceil(count / this.pageSize)))
     },
     newRule: {
       deep: true,
@@ -410,6 +466,15 @@ export default {
       }
       return { params }
     },
+    changePage (page, size) {
+      this.page = this.pageSize === size ? page : 1
+      this.pageSize = size
+    },
+    openAddRule () {
+      this.addType = 'cidr'
+      this.resetAllRules()
+      this.addRuleVisible = true
+    },
     handleAddRule () {
       if (!this.canAddRule || this.isSubmitted) return
       const { params, error } = this.ruleParameters()
@@ -442,8 +507,12 @@ export default {
           catchMessage: this.$t('error.fetching.async.job.result')
         })
         if (!active()) return
-        if (result.jobstatus === 1) await this.parentFetchData()
-        else this.ruleError = result.jobresult?.errortext || this.$t(failure)
+        if (result.jobstatus === 1) {
+          await this.parentFetchData()
+          if (active() && command === this.authorizeCommand) this.addRuleVisible = false
+        } else {
+          this.ruleError = result.jobresult?.errortext || this.$t(failure)
+        }
       } catch (error) {
         if (active()) this.ruleError = error.response?.data?.[root]?.errortext || this.$t(failure)
       } finally {
@@ -576,56 +645,46 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .list {
+  .add-rule-button:not(:disabled) {
+    color: var(--ui-action-primary-text);
+    background: var(--ui-action-primary-bg);
+    border-color: var(--ui-action-primary-bg);
 
-    &__title {
-      font-weight: bold;
+    &:hover,
+    &:focus-visible {
+      background: var(--ui-action-primary-hover);
+      border-color: var(--ui-action-primary-hover);
     }
-
-    &__col {
-      flex: 1;
-    }
-
   }
 
-  .actions {
+  .security-group-rules :deep(.detail-table-footer .ant-pagination-item-active a) {
+    color: var(--ui-link);
+  }
+
+  .rule-source,
+  .rule-form,
+  .form__item {
+    display: grid;
+    gap: 8px;
+    min-inline-size: 0;
+  }
+
+  .rule-form {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    gap: 16px;
+    margin-block: 16px 4px;
+  }
+
+  .rule-actions {
     display: flex;
+    gap: 8px;
     align-items: center;
   }
 
-  .form {
-    display: flex;
-    align-items: flex-end;
-    margin-right: -20px;
-    flex-direction: column;
-    margin-bottom: 20px;
-    @media (min-width: 760px) {
-      flex-direction: row;
-    }
-    &__item {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      padding-right: 20px;
-      margin-bottom: 20px;
-      @media (min-width: 760px) {
-        margin-bottom: 0;
-      }
-      input,
-      .ant-select {
-        margin-top: auto;
-      }
-    }
-    &__label {
-      font-weight: bold;
-    }
+  .rule-target {
+    overflow-wrap: anywhere;
   }
 
-  .rule-action {
-    &:not(:last-of-type) {
-      margin-right: 10px;
-    }
-  }
   .tags {
     margin-bottom: 10px;
   }
