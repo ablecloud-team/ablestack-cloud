@@ -20,6 +20,7 @@ import com.cloud.storage.MigrationDiskControllerPolicy;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -183,9 +184,35 @@ public final class MigrationDiskControllerGuard {
                 throw new CloudRuntimeException("DISK_CONTROLLER_BUS_UNSUPPORTED");
     }
 
+    private Map<String, String> krbd(String device, String expected) {
+        if (!device.startsWith("/dev/") || !expected.matches("[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+"))
+            throw new CloudRuntimeException("DISK_CONTROLLER_KRBD_PATH_INVALID");
+        String real = runner.run(List.of("readlink", "-e", device)).trim();
+        if (!real.matches("/dev/rbd[0-9]+"))
+            throw new CloudRuntimeException("DISK_CONTROLLER_KRBD_DEVICE_INVALID");
+        var parsed = JsonParser.parseString(runner.run(List.of("rbd", "showmapped", "--format", "json")));
+        List<JsonObject> mapped = new ArrayList<>();
+        if (parsed.isJsonObject()) parsed.getAsJsonObject().entrySet().forEach(e -> mapped.add(e.getValue().getAsJsonObject()));
+        else parsed.getAsJsonArray().forEach(e -> mapped.add(e.getAsJsonObject()));
+        var matches = mapped.stream().filter(v -> v.has("device") && real.equals(v.get("device").getAsString())).toList();
+        if (matches.size() != 1) throw new CloudRuntimeException("DISK_CONTROLLER_KRBD_MAPPING_MISSING");
+        var value = matches.get(0);
+        if (!expected.equals(value.get("pool").getAsString() + "/" + value.get("name").getAsString())
+                || (value.has("namespace") && !value.get("namespace").getAsString().isEmpty())
+                || !"-".equals(value.get("snap").getAsString()))
+            throw new CloudRuntimeException("DISK_CONTROLLER_KRBD_IDENTITY_MISMATCH");
+        String id = runner.run(List.of("cat", "/sys/bus/rbd/devices/" + real.substring("/dev/rbd".length()) + "/image_id")).trim();
+        var info = JsonParser.parseString(runner.run(List.of("rbd", "info", expected, "--format", "json"))).getAsJsonObject();
+        if (id.isEmpty() || !id.equals(info.get("id").getAsString()))
+            throw new CloudRuntimeException("DISK_CONTROLLER_KRBD_IMAGE_CHANGED");
+        return Map.of("image_id", id, "device_path", real, "rbd_access_mode", "krbd");
+    }
+
     public Map<String, Object> validate(
-            String planText, String bindingsText, String actualXml, boolean normalized) {
-        JsonObject plan = MigrationDiskControllerPolicy.parse(planText);
+            String serializedPlan, String bindingsText, String actualXml, boolean normalized) {
+        JsonObject plan = MigrationDiskControllerPolicy.parse(serializedPlan);
+        if (plan.has("rbd_access_mode") && !List.of("krbd", "librbd").contains(plan.get("rbd_access_mode").getAsString()))
+            throw new CloudRuntimeException("DISK_CONTROLLER_RBD_ACCESS_MODE_UNSUPPORTED");
         JsonArray expected = MigrationDiskControllerPolicy.bindingArray(bindingsText);
         Element root = xml(actualXml).getDocumentElement(), os = first(root, "os");
         Element type = os == null ? null : first(os, "type");
@@ -239,12 +266,22 @@ public final class MigrationDiskControllerGuard {
                     || driver == null
                     || !bound.get("format").getAsString().equals(driver.getAttribute("type")))
                 throw new CloudRuntimeException("DISK_CONTROLLER_IMAGE_FORMAT_MISMATCH");
-            String observed =
-                    "rbd".equals(storage)
-                            ? source.getAttribute("name")
-                            : source.getAttribute("file");
-            if (!bound.get("path").getAsString().equals(observed)
-                    || ("rbd".equals(storage) && !"rbd".equals(source.getAttribute("protocol"))))
+            String observed;
+            Map<String, String> rbdProof = Map.of();
+            if ("rbd".equals(storage)) {
+                String mode = plan.has("rbd_access_mode") ? plan.get("rbd_access_mode").getAsString() : "legacy";
+                if ("block".equals(disk.getAttribute("type")) && !source.getAttribute("dev").isEmpty()) {
+                    if ("librbd".equals(mode)) throw new CloudRuntimeException("DISK_CONTROLLER_RBD_ACCESS_MODE_MISMATCH");
+                    observed = bound.get("path").getAsString();
+                    rbdProof = krbd(source.getAttribute("dev"), observed);
+                } else {
+                    if ("krbd".equals(mode)) throw new CloudRuntimeException("DISK_CONTROLLER_KRBD_REQUIRED");
+                    observed = source.getAttribute("name");
+                    if (!"rbd".equals(source.getAttribute("protocol")))
+                        throw new CloudRuntimeException("DISK_CONTROLLER_VOLUME_IDENTITY_MISMATCH");
+                }
+            } else observed = source.getAttribute("file");
+            if (!bound.get("path").getAsString().equals(observed))
                 throw new CloudRuntimeException("DISK_CONTROLLER_VOLUME_IDENTITY_MISMATCH");
             Element boot = first(disk, "boot");
             if (i == 0 && boot != null && !"1".equals(boot.getAttribute("order")))
@@ -289,6 +326,7 @@ public final class MigrationDiskControllerGuard {
             item.put("model", want.get("model").getAsString());
             item.put("path", observed);
             item.put("format", driver.getAttribute("type"));
+            item.putAll(rbdProof);
             observations.add(item);
         }
         Map<String, Object> result = new LinkedHashMap<>();
