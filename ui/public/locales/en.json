@@ -780,6 +780,8 @@
   "label.action.health.monitor": "Health monitor",
   "label.action.image.store.read.only": "Make image store read-only",
   "label.action.image.store.read.write": "Make image store read-write",
+  "label.current.account": "Current account",
+  "message.you.are.not.authorized": "You do not have access to this workspace.",
   "label.action.import.instances.volumes": "Import Instances and Volumes",
   "label.instances.unmanage.tab": "Unmanage Instances",
   "label.action.import.export.instances": "Import-Export Instances",

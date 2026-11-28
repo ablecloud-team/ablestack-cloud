@@ -51,13 +51,13 @@
           </a-alert>
           <br />
           <a-row :gutter="12">
-            <a-col :span="24" :lg="12">
+            <a-col :span="24">
               <a-card class="volume-storage-pool">
                 <template #title>
                   {{ $t('label.storagepool') }}
                 </template>
                 <a-form
-                  style="min-width: 170px"
+                  class="volume-scope-form"
                   :ref="formRef"
                   :model="form"
                   :rules="rules"
@@ -176,8 +176,12 @@
             </a-col>
           </a-row>
 
+          <a-radio-group v-model:value="volumeList" class="volume-list-panels" button-style="solid" @change="fetchVolumes">
+            <a-radio-button v-if="canListUnmanaged" value="unmanaged">{{ $t('label.unmanaged.volumes') }}</a-radio-button>
+            <a-radio-button v-if="canListManaged" value="managed">{{ $t('label.managed.volumes') }}</a-radio-button>
+          </a-radio-group>
           <a-row :gutter="[12, 16]" class="volume-list-panels">
-            <a-col :span="24" :lg="12">
+            <a-col v-if="canListUnmanaged" v-show="volumeList === 'unmanaged'" :span="24">
               <a-card class="volumes-card unmanaged-volumes-card">
                 <template #title>
                   {{ $t('label.unmanaged.volumes') }}
@@ -201,6 +205,7 @@
                     />
                   </span>
                 </template>
+                <a-alert v-if="unmanagedListError" type="error" show-icon :message="$t('message.request.failed')" />
                 <a-table
                   class="workspace-table workspace-import-table volumes-card-table"
                   v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.storagepool'), scope: JSON.stringify([page, pageSize]) }"
@@ -213,10 +218,10 @@
                   size="middle"
                   :rowClassName="getRowClassName"
                 >
-                  <template #bodyCell="{ column, text }">
-                    <template v-if="column.key === 'state'">
-                      <status :text="text ? text : ''" displayText />
-                    </template>
+                  <template #bodyCell="{ column, text, record }">
+                    <template v-if="column.key === 'format'">{{ readableVolumeFormat(record) }}</template>
+                    <template v-else-if="column.key === 'allocated'">{{ isRbd(record) ? '—' : readableSize(text) }}</template>
+                    <template v-else-if="column.key === 'virtual'">{{ readableSize(text) }}</template>
                   </template>
                 </a-table>
                 <div class="volumes-card-footer">
@@ -238,7 +243,7 @@
                   <div :span="24" class="action-button-right">
                     <a-button
                       :loading="importUnmanagedVolumeLoading"
-                      :disabled="!(('importVolume' in $store.getters.apis) && unmanagedVolumesSelectedRowKeys.length > 0)"
+                      :disabled="!(('importVolume' in $store.getters.apis) && selectedImportVolume)"
                       type="primary"
                       @click="onImportVolumeAction">
                       <template #icon><import-outlined /></template>
@@ -248,7 +253,7 @@
                 </div>
               </a-card>
             </a-col>
-            <a-col :span="24" :lg="12">
+            <a-col v-if="canListManaged" v-show="volumeList === 'managed'" :span="24">
               <a-card class="volumes-card">
                 <template #title>
                   {{ $t('label.managed.volumes') }}
@@ -272,6 +277,7 @@
                     />
                   </span>
                 </template>
+                <a-alert v-if="managedListError" type="error" show-icon :message="$t('message.request.failed')" />
                 <a-table
                   class="workspace-table workspace-import-table volumes-card-table"
                   v-scroll-activity="{ selector: tableScrollSelector, label: $t('label.storagepool'), scope: JSON.stringify([page, pageSize]) }"
@@ -311,7 +317,8 @@
                   </a-pagination>
                   <div :span="24" class="action-button-right">
                     <a-button
-                      :disabled="!(('unmanageVolume' in $store.getters.apis) && managedVolumesSelectedRowKeys.length > 0)"
+                      :loading="unmanagePending"
+                      :disabled="!(('unmanageVolume' in $store.getters.apis) && releasableVolumes.length > 0)"
                       type="primary"
                       @click="onUnmanageVolumeAction">
                       <template #icon><disconnect-outlined /></template>
@@ -328,7 +335,8 @@
           v-if="showImportForm"
           :visible="showImportForm"
           :title="$t('label.import.volume')"
-          :closable="true"
+          :closable="!importUnmanagedVolumeLoading"
+          :keyboard="!importUnmanagedVolumeLoading"
           :maskClosable="false"
           :footer="null"
           :cancelText="$t('label.cancel')"
@@ -347,6 +355,10 @@
             v-ctrl-enter="handleSubmitImportVolumeForm"
             class="import-form"
           >
+            <a-descriptions v-if="selectedUnmanagedVolume" bordered size="small" :column="1">
+              <a-descriptions-item :label="$t('label.path')">{{ selectedUnmanagedVolume.path }}</a-descriptions-item>
+              <a-descriptions-item :label="$t('label.format')">{{ readableVolumeFormat(selectedUnmanagedVolume) }}</a-descriptions-item>
+            </a-descriptions>
             <a-form-item
               name="name"
               ref="name"
@@ -363,18 +375,15 @@
                 v-model:value="importForm.selectedAccountType"
                 v-focus="true"
                 showSearch
-                optionFilterProp="value"
-                :filterOption="(input, option) => {
-                  return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                }">
-                <a-select-option :value="null"></a-select-option>
-                <a-select-option :value="$t('label.account')">{{ $t('label.account') }}</a-select-option>
-                <a-select-option :value="$t('label.project')">{{ $t('label.project') }}</a-select-option>
+                optionFilterProp="label">
+                <a-select-option value="Current">{{ $t('label.current.account') }}</a-select-option>
+                <a-select-option value="Account" :label="$t('label.account')">{{ $t('label.account') }}</a-select-option>
+                <a-select-option value="Project" :label="$t('label.project')">{{ $t('label.project') }}</a-select-option>
               </a-select>
             </a-form-item>
 
             <a-form-item
-              v-if="importForm.selectedAccountType === $t('label.account') || importForm.selectedAccountType === $t('label.project')"
+              v-if="importForm.selectedAccountType === 'Account' || importForm.selectedAccountType === 'Project'"
               name="domain"
               ref="domain"
               :label="$t('label.domain')">
@@ -391,7 +400,7 @@
             </a-form-item>
 
             <a-form-item
-              v-if="importForm.selectedAccountType === $t('label.account')"
+              v-if="importForm.selectedAccountType === 'Account'"
               name="account"
               ref="account"
               :label="$t('label.account')">
@@ -409,7 +418,7 @@
             </a-form-item>
 
             <a-form-item
-              v-if="importForm.selectedAccountType === $t('label.project')"
+              v-if="importForm.selectedAccountType === 'Project'"
               name="project"
               ref="project"
               :label="$t('label.project')">
@@ -449,8 +458,8 @@
             </a-form-item>
 
             <div :span="24" class="action-button">
-              <a-button @click="onCloseImportVolumeForm">{{ $t('label.cancel') }}</a-button>
-              <a-button type="primary" ref="submit" @click="handleSubmitImportVolumeForm">{{ $t('label.ok') }}</a-button>
+              <a-button :disabled="importUnmanagedVolumeLoading" @click="onCloseImportVolumeForm">{{ $t('label.cancel') }}</a-button>
+              <a-button type="primary" ref="submit" :loading="importUnmanagedVolumeLoading" :disabled="!canSubmitVolume" @click="handleSubmitImportVolumeForm">{{ $t('label.ok') }}</a-button>
             </div>
           </a-form>
         </a-modal>
@@ -502,10 +511,12 @@ export default {
         dataIndex: 'format'
       },
       {
+        key: 'allocated',
         title: this.$t('label.size'),
         dataIndex: 'size'
       },
       {
+        key: 'virtual',
         title: this.$t('label.virtualsize'),
         dataIndex: 'virtualsize'
       }
@@ -599,12 +610,19 @@ export default {
       showImportForm: false,
       selectedUnmanagedVolume: null,
       initialOptionsPending: false,
+      volumeList: 'unmanaged',
+      unmanagedListError: false,
+      managedListError: false,
+      unmanagePending: false,
+      optionRequestIds: {},
+      diskOfferingRequest: null,
       query: {}
     }
   },
   created () {
     this.page.unmanaged = parseInt(this.$route.query.unmanagedpage || 1)
     this.page.managed = parseInt(this.$route.query.managedpage || 1)
+    if (!this.canListUnmanaged) this.volumeList = 'managed'
     this.initForm()
     this.fetchData()
   },
@@ -658,6 +676,22 @@ export default {
         details: 'min',
         isrecursive: false
       }
+    },
+    canListUnmanaged () {
+      return 'listVolumesForImport' in this.$store.getters.apis
+    },
+    canListManaged () {
+      return 'listVolumes' in this.$store.getters.apis
+    },
+    selectedImportVolume () {
+      return this.unmanagedVolumes[this.unmanagedVolumesSelectedRowKeys[0]]
+    },
+    releasableVolumes () {
+      return this.managedVolumesSelectedRowKeys.map(key => this.managedVolumes[key]).filter(volume =>
+        volume && volume.state === 'Ready' && volume.type === 'DATADISK' && !volume.virtualmachineid && !volume.vmname)
+    },
+    canSubmitVolume () {
+      return this.importForm.name?.trim() && this.importForm.selectedDiskoffering && !this.loading
     },
     showHost () {
       return this.poolscope === 'host'
@@ -840,10 +874,13 @@ export default {
     },
     fetchOptions (param, name, exclude, initial) {
       if (exclude?.includes(name)) return
+      if (!(param.list in this.$store.getters.apis)) return
+      const request = Symbol(name)
+      this.optionRequestIds[name] = request
       this.optionLoading[name] = true
       const params = { ...param.options }
       return getAPI(param.list, params).then(response => {
-        if (initial && this.$router.currentRoute.value !== initial.route) return
+        if (this.optionRequestIds[name] !== request || (initial && this.$router.currentRoute.value !== initial.route)) return
         const body = Object.entries(response).find(([key]) => key.includes('response'))?.[1]
         let options = Object.values(body || {}).find(Array.isArray) || []
         if (name === 'clusters') options = options.filter(cluster => cluster.hypervisortype === 'KVM')
@@ -853,8 +890,24 @@ export default {
       }).catch(error => {
         console.log(error.stack)
       }).finally(() => {
-        this.optionLoading[name] = false
+        if (this.optionRequestIds[name] === request) this.optionLoading[name] = false
       })
+    },
+    isRbd (volume) {
+      return volume.storagetype?.toUpperCase() === 'RBD'
+    },
+    readableVolumeFormat (volume) {
+      return this.isRbd(volume) ? 'RBD' : volume.format || '—'
+    },
+    readableSize (size) {
+      return size == null ? '—' : this.$bytesToHumanReadableSize(size)
+    },
+    clearPoolOptions (fields) {
+      for (const field of fields) {
+        this.options[field] = []
+        this.optionLoading[field] = false
+        this.optionRequestIds[field] = undefined
+      }
     },
     getRowClassName (record, index) {
       if (index % 2 === 0) {
@@ -907,6 +960,11 @@ export default {
       if (!initial) this.$router.push({ query })
     },
     resetLists () {
+      this.unmanagedListError = false
+      this.managedListError = false
+      this.unmanagedVolumesLoading = false
+      this.managedVolumesLoading = false
+      this.itemCount = {}
       this.page.unmanaged = 1
       this.unmanagedVolumes = []
       this.unmanagedVolumesSelectedRowKeys = []
@@ -926,8 +984,11 @@ export default {
       this.form.podid = undefined
       this.form.hostid = undefined
       this.form.poolid = undefined
+      this.clearPoolOptions(['pods', 'clusters', 'hosts', 'pools'])
       this.updateQuery('zoneid', value, initial)
-      return this.fetchOptions(this.params.pods, 'pods', undefined, initial)
+      return this.poolscope === 'zone'
+        ? this.fetchOptions(this.params.pools, 'pools', undefined, initial)
+        : this.fetchOptions(this.params.pods, 'pods', undefined, initial)
     },
     onSelectPodId (value, initial) {
       this.podId = value
@@ -939,6 +1000,7 @@ export default {
       this.poolId = null
       this.form.hostid = undefined
       this.form.poolid = undefined
+      this.clearPoolOptions(['clusters', 'hosts', 'pools'])
       this.updateQuery('podid', value, initial)
       return this.fetchOptions(this.params.clusters, 'clusters', value, initial)
     },
@@ -950,6 +1012,7 @@ export default {
       this.poolId = null
       this.form.hostid = undefined
       this.form.poolid = undefined
+      this.clearPoolOptions(['hosts', 'pools'])
       this.updateQuery('clusterid', value, initial)
       if (this.showHost) {
         return this.fetchOptions(this.params.hosts, 'hosts', value, initial)
@@ -959,7 +1022,10 @@ export default {
     },
     onSelectHostId (value, initial) {
       this.hostId = value
-      this.updateQuery('scope', 'local', initial)
+      this.poolId = null
+      this.form.poolid = undefined
+      this.clearPoolOptions(['pools'])
+      this.resetLists()
       this.updateQuery('hostid', value, initial)
       return this.fetchOptions(this.params.pools, 'pools', value, initial)
     },
@@ -971,10 +1037,9 @@ export default {
     },
     onSelectPoolScope (value) {
       this.poolscope = value
-      this.zoneId = null
-      this.podId = null
-      this.clusterId = null
-      this.poolId = null
+      this.zoneId = this.podId = this.clusterId = this.hostId = this.poolId = null
+      this.clearPoolOptions(['pods', 'clusters', 'hosts', 'pools'])
+      this.resetLists()
       this.updateQuery('scope', value)
       this.fetchOptions(this.params.zones, 'zones', value)
     },
@@ -983,13 +1048,18 @@ export default {
       this.importForm.selectedAccount = null
       this.importForm.selectedProject = null
       this.importForm.selectedDiskoffering = null
-      this.diskOfferings = {}
+      this.diskOfferings = []
+      this.diskOfferingRequest = null
+      this.loading = false
+      if (this.importForm.selectedAccountType === 'Current') this.fetchDiskOfferings()
     },
     changeDomain () {
       this.importForm.selectedAccount = null
       this.importForm.selectedProject = null
       this.importForm.selectedDiskoffering = null
-      this.diskOfferings = {}
+      this.diskOfferings = []
+      this.diskOfferingRequest = null
+      this.loading = false
       // InfiniteScrollSelect will auto-reload when apiParams changes
     },
     changeAccount () {
@@ -1005,9 +1075,12 @@ export default {
       this.fetchDiskOfferings()
     },
     fetchDiskOfferings () {
+      const pool = this.options.pools.find(option => option.id === this.poolId)
+      if (!pool) return
+      const request = Symbol('diskOfferings')
+      this.diskOfferingRequest = request
       this.loading = true
-      const selectedPool = this.options.pools.filter(pool => pool.id === this.poolId)
-      const storagetype = selectedPool[0].scope === 'HOST' ? 'local' : 'shared'
+      const storagetype = pool.scope === 'HOST' ? 'local' : 'shared'
       var params = {
         zoneid: this.zoneId,
         storageid: this.poolId,
@@ -1024,14 +1097,16 @@ export default {
       }
 
       getAPI('listDiskOfferings', params).then(json => {
-        this.diskOfferings = json.listdiskofferingsresponse.diskoffering || []
+        if (this.diskOfferingRequest === request) this.diskOfferings = json.listdiskofferingsresponse.diskoffering || []
+      }).catch(error => {
+        if (this.diskOfferingRequest === request) this.$notifyError(error)
       }).finally(() => {
-        this.loading = false
+        if (this.diskOfferingRequest === request) this.loading = false
       })
     },
     fetchVolumes () {
-      this.fetchUnmanagedVolumes()
-      this.fetchManagedVolumes()
+      if (this.volumeList === 'unmanaged' && this.canListUnmanaged) return this.fetchUnmanagedVolumes()
+      if (this.volumeList === 'managed' && this.canListManaged) return this.fetchManagedVolumes()
     },
     fetchUnmanagedVolumes (page, pageSize) {
       const params = {
@@ -1049,6 +1124,7 @@ export default {
       if (!this.poolId) {
         return
       }
+      this.unmanagedListError = false
       const listRequest = this.listRequestToken('fetchUnmanagedVolumes')
       this.unmanagedVolumesLoading = !listRequest.loaded
       this.searchParams.unmanaged = params
@@ -1059,20 +1135,14 @@ export default {
       return getAPI(apiName, params).then(json => {
         if (!this.isListRequestCurrent('fetchUnmanagedVolumes', listRequest)) return
         const selectedIds = new Set(this.unmanagedVolumesSelectedRowKeys.map(index => this.unmanagedVolumes[index]).filter(Boolean).map(row => row.id || row.path))
-        this.unmanagedVolumes = []
         const response = json.listvolumesforimportresponse
-        const listUnmanagedVolumes = response.volumeforimport
-        if (this.arrayHasItems(listUnmanagedVolumes)) {
-          for (let index = (this.page.unmanaged - 1) * this.pageSize.unmanaged; index < this.page.unmanaged * this.pageSize.unmanaged - 1; index++) {
-            if (listUnmanagedVolumes[index]) {
-              this.unmanagedVolumes.push(listUnmanagedVolumes[index])
-            }
-          }
-        }
+        const start = (this.page.unmanaged - 1) * this.pageSize.unmanaged
+        this.unmanagedVolumes = (response.volumeforimport || []).slice(start, start + this.pageSize.unmanaged)
         this.unmanagedVolumesSelectedRowKeys = this.unmanagedVolumes.map((row, index) => selectedIds.has(row.id || row.path) ? index : -1).filter(index => index >= 0)
         this.itemCount.unmanaged = response.count
       }).catch(error => {
         if (!this.isListRequestCurrent('fetchUnmanagedVolumes', listRequest)) return
+        this.unmanagedListError = true
         listRequest.failed = true
         this.listRefreshFailed = true
         if (!listRequest.loaded) this.$notifyError(error)
@@ -1103,6 +1173,7 @@ export default {
       if (!this.poolId) {
         return
       }
+      this.managedListError = false
       const listRequest = this.listRequestToken('fetchManagedVolumes')
       this.managedVolumesLoading = !listRequest.loaded
       this.searchParams.managed = params
@@ -1120,6 +1191,7 @@ export default {
         this.itemCount.managed = response.count
       }).catch(error => {
         if (!this.isListRequestCurrent('fetchManagedVolumes', listRequest)) return
+        this.managedListError = true
         listRequest.failed = true
         this.listRefreshFailed = true
         if (!listRequest.loaded) this.$notifyError(error)
@@ -1154,70 +1226,73 @@ export default {
       }
     },
     onImportVolumeAction () {
-      this.selectedUnmanagedVolume = null
-      if (this.unmanagedVolumes.length > 0 &&
-        this.unmanagedVolumesSelectedRowKeys.length > 0) {
-        this.selectedUnmanagedVolume = this.unmanagedVolumes[this.unmanagedVolumesSelectedRowKeys[0]]
-        this.importForm.name = this.selectedUnmanagedVolume.name
-      }
+      if (!this.selectedImportVolume) return
+      this.selectedUnmanagedVolume = this.selectedImportVolume
+      this.importForm.name = this.selectedUnmanagedVolume.name
+      this.importForm.selectedAccountType = 'Current'
+      this.importForm.selectedDiskoffering = null
       this.fetchDiskOfferings()
       this.showImportForm = true
     },
-    handleSubmitImportVolumeForm () {
-      if (this.selectedUnmanagedVolume === null) {
-        return
-      }
-      this.values = toRaw(this.importForm)
-      const volumeName = this.selectedUnmanagedVolume.name
-
-      let variableKey = ''
-      let variableValue = ''
-      if (this.values.selectedAccountType === 'Account') {
-        if (!this.values.selectedAccount) {
-          this.importForm.accountError = true
-          return
-        }
-        variableKey = 'account'
-        variableValue = this.values.selectedAccount
-      } else if (this.values.selectedAccountType === 'Project') {
-        if (!this.values.selectedProject) {
-          this.importForm.projectError = true
-          return
-        }
-        variableKey = 'projectid'
-        variableValue = this.values.selectedProject
-      }
-
-      var params = {
-        diskofferingid: this.importForm.selectedDiskoffering,
-        domainid: this.importForm.selectedDomain,
-        [variableKey]: variableValue,
+    async handleSubmitImportVolumeForm () {
+      const selected = this.selectedUnmanagedVolume
+      if (!selected || this.importUnmanagedVolumeLoading || !this.canSubmitVolume) return
+      const { selectedAccountType, selectedAccount, selectedProject, selectedDomain, selectedDiskoffering, name } = toRaw(this.importForm)
+      const params = {
+        diskofferingid: selectedDiskoffering,
         storageid: this.poolId,
-        path: this.selectedUnmanagedVolume.path,
-        name: this.values.name
+        path: selected.path,
+        name: name.trim()
       }
-      postAPI('importVolume', params).then(json => {
-        const jobId = json.importvolumeresponse.jobid
+      if (selectedAccountType === 'Account') {
+        this.importForm.accountError = !selectedDomain || !selectedAccount
+        if (this.importForm.accountError) return
+        Object.assign(params, { account: selectedAccount, domainid: selectedDomain })
+      } else if (selectedAccountType === 'Project') {
+        this.importForm.projectError = !selectedDomain || !selectedProject
+        if (this.importForm.projectError) return
+        Object.assign(params, { projectid: selectedProject, domainid: selectedDomain })
+      }
+
+      this.importUnmanagedVolumeLoading = true
+      const complete = () => { this.importUnmanagedVolumeLoading = false }
+      try {
+        const result = await getAPI('listVolumesForImport', { storageid: params.storageid, path: params.path })
+        const source = result.listvolumesforimportresponse?.volumeforimport?.[0]
+        const sourceIdentity = selected.details?.SOURCE_IDENTITY
+        if (!source || (sourceIdentity && source.details?.SOURCE_IDENTITY !== sourceIdentity)) {
+          complete()
+          this.$notification.error({ message: this.$t('message.request.failed'), description: this.$t('message.please.enter.valid.value') })
+          return
+        }
+        if (source.details?.SOURCE_IDENTITY) params.sourceidentity = source.details.SOURCE_IDENTITY
+        const response = await postAPI('importVolume', params)
         this.$pollJob({
-          jobId,
+          jobId: response.importvolumeresponse.jobid,
           title: this.$t('label.import.volume'),
-          description: volumeName,
-          loadingMessage: `${this.$t('label.import.volume')} ${volumeName} ${this.$t('label.in.progress')}`,
+          description: params.name,
+          loadingMessage: this.$t('label.in.progress'),
           catchMessage: this.$t('error.fetching.async.job.result'),
-          successMessage: this.$t('message.success.import.volume') + ' ' + volumeName,
-          successMethod: result => {
-            this.fetchVolumes()
+          successMessage: this.$t('message.success.import.volume') + ' ' + params.name,
+          errorMethod: complete,
+          catchMethod: complete,
+          successMethod: () => {
+            complete()
+            this.onCloseImportVolumeForm()
+            if (params.storageid === this.poolId) {
+              this.volumeList = this.canListManaged ? 'managed' : 'unmanaged'
+              this.fetchVolumes()
+            }
           }
         })
-      }).catch(error => {
+      } catch (error) {
+        complete()
         this.$notifyError(error)
-      }).finally(() => {
-        this.loading = false
-      })
-      this.selectedUnmanagedVolume = null
-      this.onCloseImportVolumeForm()
+      }
     },
     onCloseImportVolumeForm () {
+      if (this.importUnmanagedVolumeLoading) return
+      this.selectedUnmanagedVolume = null
       this.showImportForm = false
       this.importForm.selectedAccountType = null
       this.importForm.selectedDomain = null
@@ -1225,50 +1300,44 @@ export default {
       this.importForm.selectedProject = null
     },
     onUnmanageVolumeAction () {
-      const self = this
-      const title = this.managedVolumesSelectedRowKeys.length > 1
-        ? this.$t('message.action.unmanage.volumes')
-        : this.$t('message.action.unmanage.volume')
-      var volumeNames = []
-      for (var index of this.managedVolumesSelectedRowKeys) {
-        volumeNames.push(this.managedVolumes[index].name)
-      }
-      const content = volumeNames.join(', ')
+      const volumes = this.releasableVolumes
+      if (!volumes.length || this.unmanagePending || !('unmanageVolume' in this.$store.getters.apis)) return
       this.$confirm({
-        title: title,
+        title: this.$t(volumes.length > 1 ? 'message.action.unmanage.volumes' : 'message.action.unmanage.volume'),
         okText: this.$t('label.ok'),
         okType: 'danger',
-        content: content,
+        content: volumes.map(volume => volume.name).join(', '),
         cancelText: this.$t('label.cancel'),
-        onOk () {
-          self.unmanageVolumes()
-        }
+        onOk: () => this.unmanageVolumes(volumes)
       })
     },
-    unmanageVolumes () {
-      for (var index of this.managedVolumesSelectedRowKeys) {
-        const vm = this.managedVolumes[index]
-        var params = { id: vm.id }
-        postAPI('unmanageVolume', params).then(json => {
-          const jobId = json.unmanagevolumeresponse.jobid
-          this.$pollJob({
-            jobId,
-            title: this.$t('label.unmanage.volume'),
-            description: vm.name,
-            loadingMessage: `${this.$t('label.unmanage.volume')} ${vm.name} ${this.$t('label.in.progress')}`,
-            catchMessage: this.$t('error.fetching.async.job.result'),
-            successMessage: this.$t('message.success.unmanage.volume') + ' ' + vm.name,
-            successMethod: result => {
-              if (index === this.managedVolumesSelectedRowKeys[this.managedVolumesSelectedRowKeys.length - 1]) {
-                this.fetchVolumes()
-              }
-            }
+    async unmanageVolumes (volumes) {
+      this.unmanagePending = true
+      const pool = this.poolId
+      try {
+        const results = await Promise.allSettled(volumes.map(async volume => {
+          const response = await postAPI('unmanageVolume', { id: volume.id })
+          return new Promise(resolve => {
+            this.$pollJob({
+              jobId: response.unmanagevolumeresponse.jobid,
+              title: this.$t('label.unmanage.volume'),
+              description: volume.name,
+              loadingMessage: this.$t('label.in.progress'),
+              catchMessage: this.$t('error.fetching.async.job.result'),
+              successMessage: this.$t('message.success.unmanage.volume') + ' ' + volume.name,
+              successMethod: () => resolve(true),
+              errorMethod: () => resolve(false),
+              catchMethod: () => resolve(false)
+            })
           })
-        }).catch(error => {
-          this.$notifyError(error)
-        }).finally(() => {
-          this.loading = false
-        })
+        }))
+        results.filter(result => result.status === 'rejected').forEach(result => this.$notifyError(result.reason))
+        if (this.poolId === pool) {
+          if (this.canListUnmanaged && results.every(result => result.status === 'fulfilled' && result.value)) this.volumeList = 'unmanaged'
+          await this.fetchVolumes()
+        }
+      } finally {
+        this.unmanagePending = false
       }
     }
   }
@@ -1312,21 +1381,31 @@ export default {
 .volumes-card {
   height: 100%;
 }
+.volume-scope-form {
+  display: grid;
+  grid-template-columns: ~"repeat(auto-fit, minmax(min(100%, 180px), 1fr))";
+  gap: 0 12px;
+}
+
 .volume-list-panels {
   margin-block-start: 16px;
 }
 .volumes-card-table {
-  overflow-y: auto;
-  margin-bottom: 100px;
+  flex: none;
+  min-block-size: 7.5rem;
+}
+
+.volumes-card-table :deep(.ant-table-container > :is(.ant-table-content, .ant-table-body)) {
+  flex: 0 1 auto;
+  min-block-size: 7.5rem;
+  max-block-size: 45vh;
 }
 .volumes-card-footer {
-  height: 100px;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  margin-left: 10px;
-  right: 0;
-  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 .row-element {
   margin-top: 10px;
