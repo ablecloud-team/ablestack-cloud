@@ -111,6 +111,7 @@ import com.cloud.event.ActionEvent;
 import com.cloud.event.ActionEventUtils;
 import com.cloud.event.EventTypes;
 import com.cloud.event.EventVO;
+import com.cloud.exception.PermissionDeniedException;
 import com.cloud.exception.ConcurrentOperationException;
 import com.cloud.exception.InsufficientCapacityException;
 import com.cloud.exception.InsufficientServerCapacityException;
@@ -158,6 +159,11 @@ import com.cloud.projects.Project.ListProjectResourcesCriteria;
 import com.cloud.server.ResourceTag;
 import com.cloud.service.ServiceOfferingVO;
 import com.cloud.service.dao.ServiceOfferingDao;
+import com.cloud.storage.StoragePoolStatus;
+import com.cloud.storage.VmStorageSelectionManager;
+import com.cloud.vm.VmDiskInfo;
+import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
+import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 import com.cloud.storage.GuestOSVO;
 import com.cloud.storage.dao.DiskOfferingDao;
 import com.cloud.storage.dao.GuestOSDao;
@@ -312,6 +318,14 @@ public class AutoScaleManagerImpl extends ManagerBase implements AutoScaleManage
     @Inject
     private ResourceScheduleManager resourceScheduleManager;
 
+    @Inject
+    private VmStorageSelectionManager vmStorageSelectionManager;
+    @Inject
+    private PrimaryDataStoreDao primaryDataStoreDao;
+
+    private static final String PARAM_ROOT_STORAGE_ID = "rootstorageid";
+    private static final String PARAM_DATA_STORAGE_ID = "datastorageid";
+    private static final long DATA_DISK_DEVICE_ID = 1L;
     private static final String PARAM_ROOT_DISK_SIZE = "rootdisksize";
     private static final String PARAM_DISK_OFFERING_ID = "diskofferingid";
     private static final String PARAM_DISK_SIZE = "disksize";
@@ -322,7 +336,7 @@ public class AutoScaleManagerImpl extends ManagerBase implements AutoScaleManage
     private static final String PARAM_NETWORK_IDS = "networkids";
 
     private static final List<String> supportedDeployParams = Arrays.asList(PARAM_ROOT_DISK_SIZE, PARAM_DISK_OFFERING_ID, PARAM_DISK_SIZE, PARAM_SECURITY_GROUP_IDS,
-            PARAM_OVERRIDE_DISK_OFFERING_ID, PARAM_SSH_KEYPAIRS, PARAM_AFFINITY_GROUP_IDS, PARAM_NETWORK_IDS);
+            PARAM_OVERRIDE_DISK_OFFERING_ID, PARAM_SSH_KEYPAIRS, PARAM_AFFINITY_GROUP_IDS, PARAM_NETWORK_IDS, PARAM_ROOT_STORAGE_ID, PARAM_DATA_STORAGE_ID);
 
     protected static final String VM_HOSTNAME_PREFIX = "autoScaleVm-";
     protected static final int VM_HOSTNAME_RANDOM_SUFFIX_LENGTH = 6;
@@ -506,6 +520,7 @@ public class AutoScaleManagerImpl extends ManagerBase implements AutoScaleManage
             for (AutoScaleVmGroupVO vmGroup : vmGroups) {
                 Network.Provider provider = getLoadBalancerServiceProvider(vmGroup.getLoadBalancerId());
                 if (Network.Provider.Netscaler.equals(provider)) {
+                    rejectNetScalerStorage(vmProfile);
                     checkAutoScaleUser(autoscaleUserId, vmProfile.getAccountId());
                 }
             }
@@ -537,6 +552,18 @@ public class AutoScaleManagerImpl extends ManagerBase implements AutoScaleManage
         }
         validateNewAutoScaleProfileSources(owner, zone, offering, template);
         validateAutoScaleDeployParams(vmProfile, owner, zone, offering);
+        Map<String, String> deployParams = getDeployParams(vmProfile.getOtherDeployParams());
+        if (hasSelectedStorage(deployParams)) {
+            if (isNew) {
+                checkStorageSelectionPermission();
+            }
+            Map<Long, Long> storage = resolveSelectedStorage(deployParams, zone.getId());
+            List<VmDiskInfo> dataDisks = selectedDataDisk(deployParams, storage);
+            Long rootOfferingId = getVmOverrideDiskOfferingId(deployParams);
+            Long rootSize = deployParams.containsKey(PARAM_ROOT_DISK_SIZE) ? Long.valueOf(deployParams.get(PARAM_ROOT_DISK_SIZE)) : null;
+            vmStorageSelectionManager.validateAutoScaleStorage(storage, zone, owner, offering, template,
+                    rootOfferingId != null ? rootOfferingId : Long.valueOf(offering.getDiskOfferingId()), rootSize, dataDisks);
+        }
         vmProfile = autoScaleVmProfileDao.persist(vmProfile);
 
         return vmProfile;
@@ -567,7 +594,7 @@ public class AutoScaleManagerImpl extends ManagerBase implements AutoScaleManage
                 if (PARAM_OVERRIDE_DISK_OFFERING_ID.equals(key) && offering.getDiskOfferingStrictness()) {
                     throw new InvalidParameterValueException("Cannot override the disk offering of a strict service offering");
                 }
-            } else {
+            } else if (!PARAM_ROOT_STORAGE_ID.equals(key) && !PARAM_DATA_STORAGE_ID.equals(key)) {
                 Set<String> unique = new HashSet<>();
                 for (String item : value.split(",", -1)) {
                     if (StringUtils.isBlank(item) || !item.equals(item.trim()) || !unique.add(item)) {
@@ -610,6 +637,52 @@ public class AutoScaleManagerImpl extends ManagerBase implements AutoScaleManage
             if (!dataDisk.isCustomized() && params.containsKey(PARAM_DISK_SIZE)) {
                 throw new InvalidParameterValueException("AutoScale disksize is only supported for a custom data disk offering");
             }
+        }
+    }
+
+    private boolean hasSelectedStorage(Map<String, String> params) {
+        return params.containsKey(PARAM_ROOT_STORAGE_ID) || params.containsKey(PARAM_DATA_STORAGE_ID);
+    }
+
+    private void checkStorageSelectionPermission() {
+        if (!accountMgr.isRootAdmin(CallContext.current().getCallingAccount().getId())) {
+            throw new PermissionDeniedException("Direct AutoScale primary storage selection requires administrator permission");
+        }
+    }
+
+    private Map<Long, Long> resolveSelectedStorage(Map<String, String> params, long zoneId) {
+        Map<Long, Long> storage = new HashMap<>();
+        addSelectedStorage(storage, 0L, params.get(PARAM_ROOT_STORAGE_ID), zoneId);
+        addSelectedStorage(storage, DATA_DISK_DEVICE_ID, params.get(PARAM_DATA_STORAGE_ID), zoneId);
+        return storage;
+    }
+
+    private void addSelectedStorage(Map<Long, Long> storage, long deviceId, String uuid, long zoneId) {
+        if (uuid == null) {
+            return;
+        }
+        StoragePoolVO pool = primaryDataStoreDao.findByUuid(uuid);
+        if (pool == null || pool.getDataCenterId() != zoneId || pool.getStatus() != StoragePoolStatus.Up) {
+            throw new InvalidParameterValueException("Selected primary storage is unavailable or outside the AutoScale profile zone");
+        }
+        storage.put(deviceId, pool.getId());
+    }
+
+    private List<VmDiskInfo> selectedDataDisk(Map<String, String> params, Map<Long, Long> storage) {
+        if (!storage.containsKey(DATA_DISK_DEVICE_ID)) {
+            return null;
+        }
+        String offeringUuid = params.get(PARAM_DISK_OFFERING_ID);
+        DiskOffering disk = offeringUuid == null ? null : diskOfferingDao.findByUuid(offeringUuid);
+        if (disk == null || disk.getState() == DiskOffering.State.Inactive) {
+            throw new InvalidParameterValueException("AutoScale data storage requires an active data disk offering");
+        }
+        return Collections.singletonList(new VmDiskInfo(disk, getVmDataDiskSize(params), null, null, DATA_DISK_DEVICE_ID));
+    }
+
+    private void rejectNetScalerStorage(AutoScaleVmProfileVO profile) {
+        if (hasSelectedStorage(getDeployParams(profile.getOtherDeployParams()))) {
+            throw new InvalidParameterValueException("AutoScale primary storage selection is not supported by NetScaler");
         }
     }
 
@@ -791,6 +864,9 @@ public class AutoScaleManagerImpl extends ManagerBase implements AutoScaleManage
             vmProfile.setOtherDeployParams(null);
         } else if (otherDeployParams != null) {
             vmProfile.setOtherDeployParamsForUpdate(otherDeployParams);
+            if (hasSelectedStorage(getDeployParams(vmProfile.getOtherDeployParams()))) {
+                checkStorageSelectionPermission();
+            }
         }
         if (cmd.isClearCounterParams()) {
             vmProfile.setCounterParams(null);
@@ -1493,6 +1569,7 @@ public class AutoScaleManagerImpl extends ManagerBase implements AutoScaleManage
 
         Network.Provider provider = getLoadBalancerServiceProvider(vmGroup.getLoadBalancerId());
         if (Network.Provider.Netscaler.equals(provider)) {
+            rejectNetScalerStorage(profileVO);
             checkAutoScaleUser(profileVO.getAutoScaleUserId(), vmGroup.getAccountId());
         }
 
@@ -2053,7 +2130,6 @@ public class AutoScaleManagerImpl extends ManagerBase implements AutoScaleManage
             Long userDataId = profileVo.getUserDataId();
             String userDataDetails = profileVo.getUserDataDetails();
 
-            UserVm vm = null;
             IpAddresses addrs = new IpAddresses(null, null);
             HypervisorType hypervisorType = template.getHypervisorType();
             final Network network = getNetwork(asGroup.getLoadBalancerId());
@@ -2084,33 +2160,52 @@ public class AutoScaleManagerImpl extends ManagerBase implements AutoScaleManage
             asGroup.setNextVmSeq(asGroup.getNextVmSeq() + 1);
             autoScaleVmGroupDao.updateNextVmSeq(asGroup.getId(), asGroup.getNextVmSeq());
 
-            if (zone.getNetworkType() == NetworkType.Basic) {
-                vm = userVmService.createBasicSecurityGroupVirtualMachine(zone, serviceOffering, template, securityGroupIds, owner, vmHostName,
-                        vmDisplayName, diskOfferingId, dataDiskSize, null, null,
-                        hypervisorType, HTTPMethod.POST, userData, userDataId, userDataDetails, sshKeyPairs,
-                        null, null, true, null, affinityGroupIdList, customParameters, null, null, null,
-                        null, true, overrideDiskOfferingId, null, null, null);
-            } else {
-                if (networkModel.checkSecurityGroupSupportForNetwork(owner, zone, networkIds,
-                        Collections.emptyList())) {
-                    vm = userVmService.createAdvancedSecurityGroupVirtualMachine(zone, serviceOffering, template, networkIds, securityGroupIds,
-                            owner, vmHostName, vmDisplayName, diskOfferingId, dataDiskSize, null, null,
+            Map<Long, Long> storage = hasSelectedStorage(deployParams)
+                    ? resolveSelectedStorage(deployParams, zone.getId()) : Collections.emptyMap();
+            List<VmDiskInfo> dataDisks = selectedDataDisk(deployParams, storage);
+            if (dataDisks != null) {
+                diskOfferingId = null;
+                dataDiskSize = null;
+            }
+            CallContext context = CallContext.current();
+            Object previousSelection = context.getContextParameter(VmStorageSelectionManager.Selection.class);
+            try {
+                if (!storage.isEmpty()) {
+                    context.putContextParameter(VmStorageSelectionManager.Selection.class, new VmStorageSelectionManager.Selection(storage));
+                }
+                if (zone.getNetworkType() == NetworkType.Basic) {
+                    return userVmService.createBasicSecurityGroupVirtualMachine(zone, serviceOffering, template, securityGroupIds, owner, vmHostName,
+                            vmDisplayName, diskOfferingId, dataDiskSize, dataDisks, null,
                             hypervisorType, HTTPMethod.POST, userData, userDataId, userDataDetails, sshKeyPairs,
                             null, null, true, null, affinityGroupIdList, customParameters, null, null, null,
-                            null, true, overrideDiskOfferingId, null, null, null, null);
+                            null, true, overrideDiskOfferingId, null, null, null);
                 } else {
-                    if (!securityGroupIds.isEmpty()) {
-                        throw new InvalidParameterValueException("AutoScale security groups require a security-group-enabled network");
+                    if (networkModel.checkSecurityGroupSupportForNetwork(owner, zone, networkIds,
+                            Collections.emptyList())) {
+                        return userVmService.createAdvancedSecurityGroupVirtualMachine(zone, serviceOffering, template, networkIds, securityGroupIds,
+                                owner, vmHostName, vmDisplayName, diskOfferingId, dataDiskSize, dataDisks, null,
+                                hypervisorType, HTTPMethod.POST, userData, userDataId, userDataDetails, sshKeyPairs,
+                                null, null, true, null, affinityGroupIdList, customParameters, null, null, null,
+                                null, true, overrideDiskOfferingId, null, null, null, null);
+                    } else {
+                        if (!securityGroupIds.isEmpty()) {
+                            throw new InvalidParameterValueException("AutoScale security groups require a security-group-enabled network");
+                        }
+                        return userVmService.createAdvancedVirtualMachine(zone, serviceOffering, template, networkIds, owner, vmHostName, vmDisplayName,
+                                diskOfferingId, dataDiskSize, dataDisks, null,
+                                hypervisorType, HTTPMethod.POST, userData, userDataId, userDataDetails, sshKeyPairs,
+                                null, addrs, true, null, affinityGroupIdList, customParameters, null, null, null,
+                                null, true, null, overrideDiskOfferingId, null, null, null);
                     }
-                    vm = userVmService.createAdvancedVirtualMachine(zone, serviceOffering, template, networkIds, owner, vmHostName, vmDisplayName,
-                            diskOfferingId, dataDiskSize, null, null,
-                            hypervisorType, HTTPMethod.POST, userData, userDataId, userDataDetails, sshKeyPairs,
-                            null, addrs, true, null, affinityGroupIdList, customParameters, null, null, null,
-                            null, true, null, overrideDiskOfferingId, null, null, null);
+                }
+            } finally {
+                if (!storage.isEmpty()) {
+                    context.removeContextParameter(VmStorageSelectionManager.Selection.class);
+                    if (previousSelection != null) {
+                        context.putContextParameter(VmStorageSelectionManager.Selection.class, previousSelection);
+                    }
                 }
             }
-
-            return vm;
         } catch (InsufficientCapacityException ex) {
             logger.info(ex);
             logger.trace(ex.getMessage(), ex);

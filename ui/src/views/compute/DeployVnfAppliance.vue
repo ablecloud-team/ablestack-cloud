@@ -44,6 +44,53 @@
               :selectedValue="form.zoneid"
               @change="onSelectZoneId" />
           </a-form-item>
+          <a-form-item
+            v-if="zoneSelected && !isNormalAndDomainUser"
+            :label="$t('label.podid')"
+            name="podid"
+            ref="podid">
+            <a-select
+              v-model:value="form.podid"
+              showSearch
+              optionFilterProp="label"
+              :filterOption="filterOption"
+              :options="podSelectOptions"
+              :loading="loading.pods"
+              @change="onSelectPodId"
+            ></a-select>
+          </a-form-item>
+          <a-form-item
+            v-if="zoneSelected && !isNormalAndDomainUser"
+            :label="$t('label.clusterid')"
+            name="clusterid"
+            ref="clusterid">
+            <a-select
+              v-model:value="form.clusterid"
+              showSearch
+              optionFilterProp="label"
+              :filterOption="filterOption"
+              :options="clusterSelectOptions"
+              :loading="loading.clusters"
+              :disabled="loading.clusters"
+              @change="onSelectClusterId"
+            ></a-select>
+          </a-form-item>
+          <a-form-item
+            v-if="zoneSelected && !isNormalAndDomainUser"
+            :label="$t('label.hostid')"
+            name="hostid"
+            ref="hostid">
+            <a-select
+              v-model:value="form.hostid"
+              showSearch
+              optionFilterProp="label"
+              :filterOption="filterOption"
+              :options="hostSelectOptions"
+              :loading="loading.hosts"
+              :disabled="loading.hosts"
+              @change="onSelectHostId"
+            ></a-select>
+          </a-form-item>
         </div>
       </section>
       <section v-show="wizardStep === 11" class="resource-create-section" data-wizard-step="11">
@@ -458,53 +505,6 @@
             <a-switch v-model:checked="showDetails" style="margin-left: 10px"/>
           </span>
           <div style="margin-top: 15px" v-if="showDetails">
-            <div>
-              <a-form-item
-                v-if="!isNormalAndDomainUser"
-                :label="$t('label.podid')"
-                name="podid"
-                ref="podid">
-                <a-select
-                  v-model:value="form.podid"
-                  showSearch
-                  optionFilterProp="label"
-                  :filterOption="filterOption"
-                  :options="podSelectOptions"
-                  :loading="loading.pods"
-                  @change="onSelectPodId"
-                ></a-select>
-              </a-form-item>
-              <a-form-item
-                v-if="!isNormalAndDomainUser"
-                :label="$t('label.clusterid')"
-                name="clusterid"
-                ref="clusterid">
-                <a-select
-                  v-model:value="form.clusterid"
-                  showSearch
-                  optionFilterProp="label"
-                  :filterOption="filterOption"
-                  :options="clusterSelectOptions"
-                  :loading="loading.clusters"
-                  @change="onSelectClusterId"
-                ></a-select>
-              </a-form-item>
-              <a-form-item
-                v-if="!isNormalAndDomainUser"
-                :label="$t('label.hostid')"
-                name="hostid"
-                ref="hostid">
-                <a-select
-                  v-model:value="form.hostid"
-                  showSearch
-                  optionFilterProp="label"
-                  :filterOption="filterOption"
-                  :options="hostSelectOptions"
-                  :loading="loading.hosts"
-                  @change="onSelectHostId"
-                ></a-select>
-              </a-form-item>
-            </div>
             <div
               v-if="vm.templateid && ['KVM', 'VMware', 'XenServer'].includes(hypervisor) && this.template && !template.deployasis">
               <a-form-item :label="$t('label.boottype')" name="boottype" ref="boottype">
@@ -2650,6 +2650,7 @@ export default {
       this.zoneId = value
       this.podId = null
       this.clusterId = null
+      this.hostId = null
       this.zone = _.find(this.options.zones, (option) => option.id === value)
       this.zoneSelected = true
       this.isZoneSelectedMultiArch = this.zone.ismultiarch
@@ -2675,6 +2676,10 @@ export default {
         this.form.podid = undefined
       }
 
+      this.clusterId = null
+      this.hostId = null
+      this.form.clusterid = undefined
+      this.form.hostid = undefined
       this.fetchOptions(this.params.clusters, 'clusters')
       this.fetchOptions(this.params.hosts, 'hosts')
     },
@@ -2684,6 +2689,8 @@ export default {
         this.form.clusterid = undefined
       }
 
+      this.hostId = null
+      this.form.hostid = undefined
       this.fetchOptions(this.params.hosts, 'hosts')
     },
     onSelectHostId (value) {
