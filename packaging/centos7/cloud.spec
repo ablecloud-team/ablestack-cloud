@@ -219,8 +219,13 @@ echo Doing CloudStack build
 cp packaging/centos7/replace.properties build/replace.properties
 echo VERSION=%{_maventag} >> build/replace.properties
 echo PACKAGE=%{name} >> build/replace.properties
-touch build/gitrev.txt
-echo $(git rev-parse HEAD) > build/gitrev.txt
+# package.sh records the source revision before archiving the worktree.
+if [ ! -s build/gitrev.txt ]; then
+    echo unknown > build/gitrev.txt
+fi
+if [ ! -s build/security-group.sha256 ]; then
+    (cd scripts && sha256sum vm/network/security_group.py) > build/security-group.sha256
+fi
 
 if [ "%{_ossnoss}" == "NOREDIST" -o "%{_ossnoss}" == "noredist" ] ; then
    echo "Adding noredist flag to the maven build"
@@ -264,6 +269,8 @@ mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-common/vms
 mkdir -p ${RPM_BUILD_ROOT}%{python_sitearch}/
 mkdir -p ${RPM_BUILD_ROOT}/usr/bin
 cp -r scripts/* ${RPM_BUILD_ROOT}%{_datadir}/%{name}-common/scripts
+(cd ${RPM_BUILD_ROOT}%{_datadir}/%{name}-common/scripts && sha256sum -c -) < build/security-group.sha256
+install -m 0644 build/security-group.sha256 ${RPM_BUILD_ROOT}%{_datadir}/%{name}-common/scripts/security-group.sha256
 install -D systemvm/dist/* ${RPM_BUILD_ROOT}%{_datadir}/%{name}-common/vms/
 install python/lib/cloud_utils.py ${RPM_BUILD_ROOT}%{python_sitearch}/cloud_utils.py
 cp -r python/lib/cloudutils ${RPM_BUILD_ROOT}%{python_sitearch}/

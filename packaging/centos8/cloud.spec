@@ -191,8 +191,13 @@ echo Doing CloudStack build
 cp packaging/centos8/replace.properties build/replace.properties
 echo VERSION=%{_maventag} >> build/replace.properties
 echo PACKAGE=%{name} >> build/replace.properties
-touch build/gitrev.txt
-echo $(git rev-parse HEAD) > build/gitrev.txt
+# package.sh records the source revision before archiving the worktree.
+if [ ! -s build/gitrev.txt ]; then
+    echo unknown > build/gitrev.txt
+fi
+if [ ! -s build/security-group.sha256 ]; then
+    (cd scripts && sha256sum vm/network/security_group.py) > build/security-group.sha256
+fi
 
 if [ "%{?_ossnoss}" == "NOREDIST" -o "%{?_ossnoss}" == "noredist" ] ; then
    echo "Adding noredist flag to the maven build"
@@ -243,6 +248,8 @@ mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-common/python-site
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-common/lib
 mkdir -p ${RPM_BUILD_ROOT}/usr/bin
 cp -r scripts/* ${RPM_BUILD_ROOT}%{_datadir}/%{name}-common/scripts
+(cd ${RPM_BUILD_ROOT}%{_datadir}/%{name}-common/scripts && sha256sum -c -) < build/security-group.sha256
+install -m 0644 build/security-group.sha256 ${RPM_BUILD_ROOT}%{_datadir}/%{name}-common/scripts/security-group.sha256
 # Bundle the current source SQL for the runtime schema replay utility.
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-common/scripts/util/schema-repair/sql
 cp engine/schema/src/main/resources/META-INF/db/schema-*.sql ${RPM_BUILD_ROOT}%{_datadir}/%{name}-common/scripts/util/schema-repair/sql/

@@ -332,12 +332,11 @@
             </a-radio-button>
           </a-radio-group>
         </a-form-item>
-        <a-form-item name="serviceofferingid" ref="serviceofferingid" v-if="guestType !== 'l2'">
-          <a-alert v-if="!isVirtualRouterForAtLeastOneService" type="warning" style="margin-bottom: 10px">
-            <template #message>
-              <span v-html="$t('message.vr.alert.upon.network.offering.creation.others')" />
-            </template>
-          </a-alert>
+        <a-form-item
+          v-if="routerOfferingRequired"
+          name="serviceofferingid"
+          ref="serviceofferingid"
+          :rules="[{ required: true, message: $t('message.error.select') }]">
           <template #label>
             <tooltip-label :title="$t('label.serviceofferingid')" :tooltip="apiParams.serviceofferingid.description"/>
           </template>
@@ -352,9 +351,10 @@
             :loading="serviceOfferingLoading"
             :placeholder="apiParams.serviceofferingid.description">
             <a-select-option
-              v-for="(offering, index) in serviceOfferings"
+              v-for="offering in serviceOfferings"
               :value="offering.id"
-              :key="index">
+              :label="offering.displaytext || offering.name"
+              :key="offering.id">
               {{ offering.displaytext || offering.name }}
             </a-select-option>
           </a-select>
@@ -598,7 +598,7 @@ import MoldDialogActions from '@/components/view/MoldDialogActions'
 import NetworkOfferingLbFields from './NetworkOfferingLbFields'
 import { offeringLbSupport, lbSettingsParams } from '@/utils/networkOfferingLb'
 import { buildServiceCapabilityParams } from '@/composables/useServiceCapabilityParams'
-import { offeringFields, offeringServiceProviders } from '@/utils/networkOfferingForm'
+import { requiresRouterOffering, offeringFields, offeringServiceProviders } from '@/utils/networkOfferingForm'
 
 export default {
   name: 'AddNetworkOffering',
@@ -611,6 +611,7 @@ export default {
   },
   data () {
     return {
+      form: null,
       hasAdvanceZone: false,
       requiredNetworkOfferingExists: false,
       guestType: 'isolated',
@@ -699,6 +700,22 @@ export default {
     this.initForm()
     this.fetchData()
   },
+  computed: {
+    routerOfferingRequired () {
+      if (!this.form) return false
+      const providers = offeringServiceProviders(this.form, this.selectedServiceProviderMap, this.supportedServices)
+      return requiresRouterOffering(this.form.guestiptype, providers)
+    }
+  },
+  watch: {
+    routerOfferingRequired (required) {
+      if (!required) {
+        this.form.serviceofferingid = undefined
+        const form = this.formRef.value
+        if (form) form.clearValidate(['serviceofferingid'])
+      }
+    }
+  },
   methods: {
     initForm () {
       this.formRef = ref()
@@ -729,7 +746,6 @@ export default {
           { type: 'number', validator: this.validateNumber },
           { required: true, message: this.$t('message.error.required.input') }
         ],
-        serviceofferingid: [{ required: true, message: this.$t('message.error.select') }],
         domainid: [{ type: 'array', required: true, message: this.$t('message.error.select') }],
         zoneid: [{
           type: 'array',

@@ -1620,6 +1620,7 @@ export default {
       try {
         const hasJobId = await this.executeApi(this.currentAction.api, params)
         if (!hasJobId) {
+          if (this.actionTarget?.name === 'SecurityGroupProvider') this.$store.dispatch('DiscoverSecurityGroups')
           await this.fetchData()
         }
         this.actionLoading = false

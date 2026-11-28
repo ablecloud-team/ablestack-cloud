@@ -125,7 +125,7 @@ function generateRouterMap (section) {
       }
       if (child.actions) {
         child.actions.forEach(function (action) {
-          if (!action.component || !action.api) {
+          if (!action.component || !action.api || action.popupOnly) {
             return
           }
           map.children.push({
@@ -284,7 +284,7 @@ export function asyncRouterMap () {
     ]
   },
   {
-    path: '/:catchAll(.*)', redirect: '/dashboard', hidden: true
+    path: '/:catchAll(.*)', name: 'authenticated-fallback', redirect: '/dashboard', hidden: true
   }]
 
   const plugins = vueProps.$config.plugins

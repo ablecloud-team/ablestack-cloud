@@ -16,121 +16,32 @@
 // under the License.
 
 <template>
-  <div>
-
-    <div v-ctrl-enter="handleAddRule">
-      <div style="margin-bottom: 20px;">
-        <div class="form__label">{{ $t('label.add.by') }}:</div>
-        <a-radio-group @change="resetAllRules" v-model:value="addType">
-          <a-radio value="cidr">{{ $t('label.cidr') }}</a-radio>
-          <a-radio value="account">{{ $t('label.account') }}</a-radio>
-        </a-radio-group>
-      </div>
-
-      <div class="form">
-        <div class="form__item">
-          <div class="form__label">{{ $t('label.protocol') }}</div>
-          <a-select
-            v-focus="true"
-            v-model:value="newRule.protocol"
-            style="width: 100%;"
-            @change="resetRulePorts"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
-            <a-select-option value="tcp" :label="$t('label.tcp')">{{ capitalise($t('label.tcp')) }}</a-select-option>
-            <a-select-option value="udp" :label="$t('label.udp')">{{ capitalise($t('label.udp')) }}</a-select-option>
-            <a-select-option value="icmp" :label="$t('label.icmp')">{{ capitalise($t('label.icmp')) }}</a-select-option>
-            <a-select-option value="all" :label="$t('label.all')">{{ capitalise($t('label.all')) }}</a-select-option>
-            <a-select-option value="protocolnumber" :label="$t('label.protocol.number')">{{ capitalise($t('label.protocol.number')) }}</a-select-option>
-          </a-select>
-        </div>
-        <div v-show="newRule.protocol === 'protocolnumber'" class="form__item">
-          <div class="form__label">{{ $t('label.protocol.number') }}</div>
-          <a-select
-            v-model:value="newRule.protocolnumber"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
-            <a-select-option v-for="(opt, optIndex) in protocolNumbers" :key="optIndex" :label="opt.name">
-              {{ opt.index + ' - ' + opt.name }}
-            </a-select-option>
-          </a-select>
-        </div>
-        <div v-show="['tcp', 'udp', 'protocolnumber'].includes(newRule.protocol) && !(newRule.protocol === 'protocolnumber' && newRule.protocolnumber === 1)" class="form__item">
-          <div class="form__label">{{ $t('label.startport') }}</div>
-          <a-input v-model:value="newRule.startport"></a-input>
-        </div>
-        <div v-show="['tcp', 'udp', 'protocolnumber'].includes(newRule.protocol) && !(newRule.protocol === 'protocolnumber' && newRule.protocolnumber === 1)" class="form__item">
-          <div class="form__label">{{ $t('label.endport') }}</div>
-          <a-input v-model:value="newRule.endport"></a-input>
-        </div>
-        <div v-show="newRule.protocol === 'icmp' || (newRule.protocol === 'protocolnumber' && newRule.protocolnumber === 1)" class="form__item">
-          <div class="form__label">{{ $t('label.icmptype') }}</div>
-          <a-select
-            v-model:value="newRule.icmptype"
-            @change="val => { updateIcmpCodes(val) }"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
-            <a-select-option v-for="(opt) in icmpTypes" :key="opt.index" :label="opt.description">
-              {{ opt.index + ' - ' + opt.description }}
-            </a-select-option>
-          </a-select>
-        </div>
-        <div v-show="newRule.protocol === 'icmp' || (newRule.protocol === 'protocolnumber' && newRule.protocolnumber === 1)" class="form__item">
-          <div class="form__label">{{ $t('label.icmpcode') }}</div>
-          <a-select
-            v-model:value="newRule.icmpcode"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
-            <a-select-option v-for="(opt) in icmpCodes" :key="opt.code" :label="opt.description">
-              {{ opt.code + ' - ' + opt.description }}
-            </a-select-option>
-          </a-select>
-        </div>
-        <div class="form__item" v-if="addType === 'cidr'">
-          <div class="form__label">{{ $t('label.cidr') }}</div>
-          <a-input v-model:value="newRule.cidrlist"></a-input>
-        </div>
-        <template v-if="addType === 'account'">
-          <div class="form__item">
-            <div class="form__label">{{ $t('label.account') }}</div>
-            <a-input v-model:value="newRule.usersecuritygrouplist.account" style="margin-right: 10px;"></a-input>
-          </div>
-          <div class="form__item">
-            <div class="form__label">{{ $t('label.securitygroup') }}</div>
-            <a-input v-model:value="newRule.usersecuritygrouplist.group"></a-input>
-          </div>
-        </template>
-        <div class="form__item" style="flex: 0">
-          <a-button :disabled="!('authorizeSecurityGroupIngress' in $store.getters.apis) && !('authorizeSecurityGroupEgress' in $store.getters.apis)" type="primary" @click="handleAddRule">{{ $t('label.add') }}</a-button>
-        </div>
-      </div>
+  <div class="security-group-rules">
+    <div class="detail-tab-toolbar">
+      <a-button class="add-rule-button" type="primary" :disabled="!canAddRule || isSubmitted" @click="openAddRule">
+        <template #icon><plus-outlined /></template>
+        {{ $t('label.add.rule') }}
+      </a-button>
     </div>
+    <a-alert v-if="ruleError && !addRuleVisible" class="detail-tab-notice" type="error" show-icon :message="ruleError" />
 
-    <a-table
+    <detail-tab-table
       size="small"
-      style="overflow-y: auto"
       :columns="columns"
-      :dataSource="rules"
-      :pagination="{ pageSizeOptions: ['10', '20', '40', '80', '100', '200'], showSizeChanger: true}"
-      :rowKey="record => record.ruleid">
+      :data-source="rules"
+      :loading="loading"
+      :pagination="pagination"
+      :scroll="{ x: 1000 }"
+      row-key="ruleid">
       <template #bodyCell="{ column, text, record }">
         <template v-if="column.key === 'protocol'">
           {{ getCapitalise(record.protocol) }}
         </template>
+        <template v-if="column.key === 'cidr'">
+          <span class="rule-target">{{ text }}</span>
+        </template>
         <template v-if="column.key === 'account'">
-          <div v-if="record.account && record.securitygroupname">
+          <div v-if="record.account && record.securitygroupname" class="rule-target">
             {{ record.account }} - {{ record.securitygroupname }}
           </div>
         </template>
@@ -143,24 +54,173 @@
           <div v-else>{{ text }}</div>
         </template>
         <template v-if="column.key === 'actions'">
-          <tooltip-button :tooltip="$t('label.edit.tags')" icon="tag-outlined" buttonClass="rule-action" @onClick="() => openTagsModal(record)" />
-          <a-popconfirm
-            :title="$t('label.delete') + '?'"
-            @confirm="handleDeleteRule(record)"
-            :okText="$t('label.yes')"
-            :cancelText="$t('label.no')"
-          >
-            <tooltip-button
-              :disabled="!('revokeSecurityGroupIngress' in $store.getters.apis) && !('revokeSecurityGroupEgress' in $store.getters.apis)"
-              :tooltip="$t('label.delete')"
-              type="primary"
-              :danger="true"
-              icon="delete-outlined"
-              buttonClass="rule-action" />
-          </a-popconfirm>
+          <div class="rule-actions">
+            <tooltip-button :tooltip="$t('label.edit.tags')" icon="tag-outlined" @onClick="() => openTagsModal(record)" />
+            <a-popconfirm
+              :title="$t('label.delete') + '?'"
+              @confirm="handleDeleteRule(record)"
+              :okText="$t('label.yes')"
+              :cancelText="$t('label.no')"
+            >
+              <tooltip-button
+                :disabled="!canDeleteRule || isSubmitted"
+                :tooltip="$t('label.delete')"
+                type="primary"
+                :danger="true"
+                icon="delete-outlined" />
+            </a-popconfirm>
+          </div>
         </template>
       </template>
-    </a-table>
+    </detail-tab-table>
+
+    <MoldDialog
+      v-if="addRuleVisible"
+      size="md"
+      form-actions
+      focus-guard
+      initial-focus=".rule-target-form input:checked"
+      :title="$t('label.add.rule')"
+      @cancel="addRuleVisible = false">
+      <div v-ctrl-enter="handleAddRule">
+        <div class="rule-target-form">
+          <div class="form__item">
+            <div class="form__label">{{ targetTypeLabel }}</div>
+            <a-radio-group
+              v-model:value="addType"
+              role="radiogroup"
+              :aria-label="targetTypeLabel"
+              :disabled="isSubmitted"
+              @change="changeTargetType">
+              <a-radio value="cidr">{{ $t('label.cidr') }}</a-radio>
+              <a-radio value="securitygroup">{{ $t('label.security.group.rule.group') }}</a-radio>
+            </a-radio-group>
+          </div>
+          <div v-if="addType === 'cidr'" class="form__item">
+            <div class="form__label">{{ $t('label.cidr') }}</div>
+            <a-input v-model:value="newRule.cidrlist" :aria-label="$t('label.cidr')" :disabled="isSubmitted" />
+          </div>
+          <div v-else class="rule-form-grid">
+            <div class="form__item">
+              <label for="sg-rule-owner" class="form__label">{{ $t('label.security.group.rule.owner') }}</label>
+              <a-select
+                id="sg-rule-owner"
+                v-model:value="newRule.referenceAccountId"
+                :aria-label="$t('label.security.group.rule.owner')"
+                :placeholder="$t('label.security.group.rule.select.owner')"
+                :options="referenceAccounts"
+                :filter-option="matchOption"
+                :loading="referenceLoading === 'accounts'"
+                :disabled="isSubmitted || referenceLoading === 'accounts'"
+                show-search
+                @change="fetchReferenceGroups" />
+            </div>
+            <div class="form__item">
+              <label for="sg-rule-peer" class="form__label">{{ $t('label.security.group.rule.group') }}</label>
+              <a-select
+                id="sg-rule-peer"
+                v-model:value="newRule.referenceGroupId"
+                :aria-label="$t('label.security.group.rule.group')"
+                :placeholder="$t('label.security.group.rule.select.group')"
+                :options="referenceGroups"
+                :filter-option="matchOption"
+                :loading="referenceLoading === 'groups'"
+                :disabled="isSubmitted || !newRule.referenceAccountId || referenceLoading === 'groups'"
+                show-search />
+            </div>
+          </div>
+          <a-alert
+            v-if="referenceError"
+            type="error"
+            show-icon
+            :message="$t(referenceError === 'accounts' ? 'message.security.group.rule.accounts.failed' : 'message.security.group.rule.groups.failed')">
+            <template #description>
+              <a-button size="small" @click="referenceError === 'accounts' ? fetchReferenceAccounts() : fetchReferenceGroups()">{{ $t('label.retry') }}</a-button>
+            </template>
+          </a-alert>
+        </div>
+
+        <div class="rule-form-grid rule-traffic-form">
+          <div class="form__item">
+            <div class="form__label">{{ $t('label.protocol') }}</div>
+            <a-select
+              v-model:value="newRule.protocol"
+              :aria-label="$t('label.protocol')"
+              :disabled="isSubmitted"
+              @change="resetRulePorts"
+              showSearch
+              optionFilterProp="label"
+              :filterOption="matchOption">
+              <a-select-option value="tcp" :label="$t('label.tcp')">{{ $t('label.tcp') }}</a-select-option>
+              <a-select-option value="udp" :label="$t('label.udp')">{{ $t('label.udp') }}</a-select-option>
+              <a-select-option value="icmp" :label="$t('label.icmp')">{{ $t('label.icmp') }}</a-select-option>
+              <a-select-option value="all" :label="$t('label.all')">{{ $t('label.all') }}</a-select-option>
+              <a-select-option value="protocolnumber" :label="$t('label.protocol.number')">{{ $t('label.protocol.number') }}</a-select-option>
+            </a-select>
+          </div>
+          <div v-if="newRule.protocol === 'protocolnumber'" class="form__item">
+            <div class="form__label">{{ $t('label.protocol.number') }}</div>
+            <a-select
+              v-model:value="newRule.protocolnumber"
+              :aria-label="$t('label.protocol.number')"
+              :disabled="isSubmitted"
+              showSearch
+              optionFilterProp="label"
+              :filterOption="matchOption">
+              <a-select-option v-for="opt in protocolNumbers" :key="opt.index" :value="opt.index" :label="opt.index + ' - ' + opt.name">
+                {{ opt.index + ' - ' + opt.name }}
+              </a-select-option>
+            </a-select>
+          </div>
+          <div v-if="showsPorts" class="form__item">
+            <div class="form__label">{{ $t('label.startport') }}</div>
+            <a-input v-model:value="newRule.startport" :aria-label="$t('label.startport')" :disabled="isSubmitted" />
+          </div>
+          <div v-if="showsPorts" class="form__item">
+            <div class="form__label">{{ $t('label.endport') }}</div>
+            <a-input v-model:value="newRule.endport" :aria-label="$t('label.endport')" :disabled="isSubmitted" />
+          </div>
+          <div v-if="showsIcmp" class="form__item">
+            <div class="form__label">{{ $t('label.icmptype') }}</div>
+            <a-select
+              v-model:value="newRule.icmptype"
+              :aria-label="$t('label.icmptype')"
+              :disabled="isSubmitted"
+              @change="val => { updateIcmpCodes(val) }"
+              showSearch
+              optionFilterProp="label"
+              :filterOption="matchOption">
+              <a-select-option v-for="opt in icmpTypes" :key="opt.index" :value="opt.index" :label="opt.index + ' - ' + opt.description">
+                {{ opt.index + ' - ' + opt.description }}
+              </a-select-option>
+            </a-select>
+          </div>
+          <div v-if="showsIcmp" class="form__item">
+            <div class="form__label">{{ $t('label.icmpcode') }}</div>
+            <a-select
+              v-model:value="newRule.icmpcode"
+              :aria-label="$t('label.icmpcode')"
+              :disabled="isSubmitted"
+              showSearch
+              optionFilterProp="label"
+              :filterOption="matchOption">
+              <a-select-option v-for="opt in icmpCodes" :key="opt.code" :value="opt.code" :label="opt.code + ' - ' + opt.description">
+                {{ opt.code + ' - ' + opt.description }}
+              </a-select-option>
+            </a-select>
+          </div>
+        </div>
+        <a-alert v-if="ruleError" type="error" show-icon :message="ruleError" />
+      </div>
+      <MoldDialogActions :busy="isSubmitted">
+        <a-button :disabled="isSubmitted" @click="addRuleVisible = false">{{ $t('label.cancel') }}</a-button>
+        <a-button
+          type="primary"
+          :disabled="!canAddRule || isSubmitted || (addType === 'securitygroup' && !newRule.referenceGroupId)"
+          :loading="isSubmitted"
+          @click="handleAddRule">{{ $t('label.add') }}</a-button>
+      </MoldDialogActions>
+    </MoldDialog>
 
     <a-modal
       :title="$t('label.edit.tags')"
@@ -213,22 +273,28 @@
 <script>
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
+import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import TooltipButton from '@/components/widgets/TooltipButton'
+import { validCidr } from '@/utils/conditionalFirewallRule'
+import { networkCollection } from '@/utils/networkLifecycle'
 
 export default {
   components: {
+    MoldDialog,
+    MoldDialogActions,
     TooltipButton
   },
   props: {
     resource: {
       type: Object,
       required: true
-    }
+    },
+    loading: Boolean
   },
   inject: ['parentFetchData', 'parentToggleLoading'],
   data () {
     return {
-      rules: [],
       newRule: {
         protocol: 'tcp',
         startport: null,
@@ -237,11 +303,14 @@ export default {
         cidrlist: null,
         icmptype: null,
         icmpcode: null,
-        usersecuritygrouplist: {
-          account: null,
-          group: null
-        }
+        referenceAccountId: undefined,
+        referenceGroupId: undefined
       },
+      referenceAccounts: [],
+      referenceGroups: [],
+      referenceLoading: '',
+      referenceError: '',
+      referenceRequest: 0,
       protocolNumbers: [],
       icmpTypes: [],
       icmpCodes: [],
@@ -254,63 +323,126 @@ export default {
       selectedRule: null,
       tagsLoading: false,
       addType: 'cidr',
-      tabType: null,
+      addRuleVisible: false,
       page: 1,
-      pagesize: 10,
+      pageSize: 10,
       columns: [
         {
           key: 'protocol',
+          width: 115,
           title: this.$t('label.protocol')
         },
         {
           key: 'startport',
+          width: 100,
           title: this.$t('label.startport'),
           dataIndex: 'startport'
         },
         {
           key: 'endport',
+          width: 100,
           title: this.$t('label.endport'),
           dataIndex: 'endport'
         },
         {
           title: this.$t('label.icmptype'),
+          width: 100,
           dataIndex: 'icmptype'
         },
         {
           title: this.$t('label.icmpcode'),
+          width: 100,
           dataIndex: 'icmpcode'
         },
         {
+          key: 'cidr',
           title: this.$t('label.cidr'),
           dataIndex: 'cidr'
         },
         {
           key: 'account',
+          width: 205,
           title: this.$t('label.account.and.security.group')
         },
         {
           key: 'actions',
+          width: 100,
           title: this.$t('label.actions')
         }
       ],
-      isSubmitted: false
+      isSubmitted: false,
+      ruleError: '',
+      ruleGeneration: 0
+    }
+  },
+  computed: {
+    tabType () {
+      return this.$route.query.tab === 'ingress.rule' ? 'ingress' : 'egress'
+    },
+    targetTypeLabel () {
+      return this.$t(this.tabType === 'ingress' ? 'label.security.group.rule.source.type' : 'label.security.group.rule.destination.type')
+    },
+    rules () {
+      return (this.tabType === 'ingress' ? this.resource.ingressrule : this.resource.egressrule) || []
+    },
+    pagination () {
+      return {
+        current: this.page,
+        pageSize: this.pageSize,
+        pageSizeOptions: ['10', '20', '40', '80', '100', '200'],
+        showSizeChanger: true,
+        onChange: this.changePage
+      }
+    },
+    ruleScope () {
+      return JSON.stringify([this.resource.id, this.resource.domainid, this.tabType, this.$route.path])
+    },
+    authorizeCommand () {
+      return this.tabType === 'ingress' ? 'authorizeSecurityGroupIngress' : 'authorizeSecurityGroupEgress'
+    },
+    revokeCommand () {
+      return this.tabType === 'ingress' ? 'revokeSecurityGroupIngress' : 'revokeSecurityGroupEgress'
+    },
+    canAddRule () {
+      return this.authorizeCommand in (this.$store.getters.apis || {})
+    },
+    canDeleteRule () {
+      return this.revokeCommand in (this.$store.getters.apis || {})
+    },
+    showsPorts () {
+      return ['tcp', 'udp'].includes(this.newRule.protocol)
+    },
+    showsIcmp () {
+      return this.newRule.protocol === 'icmp' ||
+        (this.newRule.protocol === 'protocolnumber' && this.newRule.protocolnumber === 1)
     }
   },
   watch: {
-    resource: {
+    ruleScope () {
+      this.ruleGeneration++
+      this.isSubmitted = false
+      this.addRuleVisible = false
+      this.page = 1
+      this.resetAllRules()
+    },
+    addRuleVisible (visible) {
+      if (!visible) this.resetReference()
+    },
+    'rules.length' (count) {
+      this.page = Math.min(this.page, Math.max(1, Math.ceil(count / this.pageSize)))
+    },
+    newRule: {
       deep: true,
-      handler (newItem) {
-        if (!newItem || !newItem.id) {
-          return
-        }
-        this.fetchData()
-      }
+      handler () { this.ruleError = '' }
     }
+  },
+  beforeUnmount () {
+    this.ruleGeneration++
+    this.referenceRequest++
   },
   created () {
     this.initForm()
     this.fetchNetworkProtocols()
-    this.fetchData()
   },
   methods: {
     initForm () {
@@ -321,118 +453,178 @@ export default {
         value: [{ required: true, message: this.$t('message.specify.tag.value') }]
       })
     },
+    matchOption (input, option) {
+      return String(option?.label || '').toLowerCase().includes(input.trim().toLowerCase())
+    },
+    resetReference () {
+      this.referenceRequest++
+      this.referenceAccounts = []
+      this.referenceGroups = []
+      this.referenceLoading = ''
+      this.referenceError = ''
+      this.newRule.referenceAccountId = undefined
+      this.newRule.referenceGroupId = undefined
+    },
+    changeTargetType () {
+      this.newRule.cidrlist = null
+      this.resetReference()
+      if (this.addType === 'securitygroup') this.fetchReferenceAccounts()
+    },
+    async fetchReferenceAccounts () {
+      const domainid = this.resource.domainid
+      const request = ++this.referenceRequest
+      this.referenceLoading = 'accounts'
+      this.referenceError = ''
+      try {
+        if (!domainid) throw new Error('Missing security group domain')
+        const rows = await networkCollection(getAPI, 'listAccounts', 'account', { domainid, listall: true, isrecursive: false, ignoreproject: true })
+        if (request !== this.referenceRequest) return
+        this.referenceAccounts = rows
+          .filter(row => row.domainid === domainid && Number(row.accounttype ?? row.type) !== 5 && row.name)
+          .map(row => ({ value: row.id, label: row.name }))
+          .sort((a, b) => a.label.localeCompare(b.label))
+      } catch (error) {
+        if (request === this.referenceRequest) this.referenceError = 'accounts'
+      } finally {
+        if (request === this.referenceRequest) this.referenceLoading = ''
+      }
+    },
+    async fetchReferenceGroups () {
+      const account = this.referenceAccounts.find(option => option.value === this.newRule.referenceAccountId)
+      if (!account) return
+      const domainid = this.resource.domainid
+      const request = ++this.referenceRequest
+      this.newRule.referenceGroupId = undefined
+      this.referenceGroups = []
+      this.referenceError = ''
+      this.referenceLoading = 'groups'
+      try {
+        const rows = await networkCollection(getAPI, 'listSecurityGroups', 'securitygroup', {
+          account: account.label, domainid, listall: true, isrecursive: false, ignoreproject: true
+        })
+        if (request !== this.referenceRequest) return
+        this.referenceGroups = rows
+          .filter(row => row.domainid === domainid && row.account === account.label && !row.projectid && row.name)
+          .map(row => ({ value: row.id, label: row.name }))
+          .sort((a, b) => a.label.localeCompare(b.label))
+      } catch (error) {
+        if (request === this.referenceRequest) this.referenceError = 'groups'
+      } finally {
+        if (request === this.referenceRequest) this.referenceLoading = ''
+      }
+    },
     fetchNetworkProtocols () {
-      getAPI('listNetworkProtocols', {
-        option: 'protocolnumber'
-      }).then(json => {
-        this.protocolNumbers = json.listnetworkprotocolsresponse?.networkprotocol || []
-      })
-      getAPI('listNetworkProtocols', {
-        option: 'icmptype'
-      }).then(json => {
-        this.icmpTypes.push({ index: -1, description: this.$t('label.all') })
-        const results = json.listnetworkprotocolsresponse?.networkprotocol || []
-        for (const result of results) {
-          this.icmpTypes.push(result)
-        }
-      })
+      if (!('listNetworkProtocols' in (this.$store.getters.apis || {}))) return
+      getAPI('listNetworkProtocols', { option: 'protocolnumber' }).then(json => {
+        this.protocolNumbers = (json.listnetworkprotocolsresponse?.networkprotocol || []).map(row => ({ ...row, index: Number(row.index) }))
+      }).catch(error => this.$notifyError(error))
+      getAPI('listNetworkProtocols', { option: 'icmptype' }).then(json => {
+        const types = (json.listnetworkprotocolsresponse?.networkprotocol || []).map(row => ({ ...row, index: Number(row.index) }))
+        this.icmpTypes = [{ index: -1, description: this.$t('label.all') }, ...types]
+      }).catch(error => this.$notifyError(error))
     },
-    updateIcmpCodes (val) {
-      this.newRule.icmpcode = -1
-      this.icmpCodes = []
-      this.icmpCodes.push({ code: -1, description: this.$t('label.all') })
-      const icmpType = this.icmpTypes.find(icmpType => icmpType.index === val)
-      if (icmpType && icmpType.details) {
-        const icmpTypeDetails = icmpType.details
-        for (const k of Object.keys(icmpTypeDetails)) {
-          this.icmpCodes.push({ code: parseInt(k), description: icmpTypeDetails[k] })
-        }
+    updateIcmpCodes (type) {
+      const entry = this.icmpTypes.find(option => option.index === type)
+      const codes = Object.entries(entry?.details || {}).map(([code, description]) => ({ code: Number(code), description }))
+      this.icmpCodes = type === -1 ? [{ code: -1, description: this.$t('label.all') }]
+        : (codes.length ? codes : [{ code: 0, description: this.$t('label.none') }])
+      this.newRule.icmpcode = this.icmpCodes.length === 1 ? this.icmpCodes[0].code : null
+    },
+    getCapitalise (value) {
+      if (value === 'all') return this.$t('label.all')
+      if (value == null) return ''
+      const protocol = this.protocolNumbers.find(option => String(option.index) === String(value))
+      return protocol ? protocol.index + ' - ' + protocol.name : String(value).toUpperCase()
+    },
+    ruleParameters () {
+      const rule = this.newRule
+      const params = { protocol: rule.protocol === 'protocolnumber' ? rule.protocolnumber : rule.protocol }
+      if (rule.protocol === 'protocolnumber' &&
+          !this.protocolNumbers.some(option => option.index === params.protocol)) {
+        return { error: 'message.security.group.rule.protocol' }
       }
-    },
-    fetchData () {
-      this.tabType = this.$route.query.tab === 'ingress.rule' ? 'ingress' : 'egress'
-      this.rules = this.tabType === 'ingress' ? this.resource.ingressrule : this.resource.egressrule
-    },
-    getCapitalise (val) {
-      if (!val) {
-        return
+      if (this.showsPorts) {
+        const numbers = [rule.startport, rule.endport].map(value => String(value ?? '').trim())
+        if (!numbers.every(value => /^\d+$/.test(value) && Number(value) <= 65535) || Number(numbers[0]) > Number(numbers[1])) {
+          return { error: 'message.security.group.rule.ports' }
+        }
+        params.startport = Number(numbers[0])
+        params.endport = Number(numbers[1])
       }
-      if (val === 'all') return this.$t('label.all')
-      return val.toUpperCase()
+      if (this.showsIcmp) {
+        if (!this.icmpTypes.some(option => option.index === rule.icmptype) || !this.icmpCodes.some(option => option.code === rule.icmpcode)) {
+          return { error: 'message.security.group.rule.icmp' }
+        }
+        params.icmptype = rule.icmptype
+        params.icmpcode = rule.icmpcode
+      }
+      if (this.addType === 'cidr') {
+        const cidrs = String(rule.cidrlist ?? '').split(',').map(cidr => cidr.trim())
+        if (!cidrs.every(cidr => validCidr(cidr, cidr.includes(':')))) {
+          return { error: 'message.security.group.rule.cidrs' }
+        }
+        params.cidrlist = cidrs.join(',')
+      } else {
+        const account = this.referenceAccounts.find(option => option.value === rule.referenceAccountId)
+        const group = this.referenceGroups.find(option => option.value === rule.referenceGroupId)
+        if (!account || !group) return { error: 'message.security.group.rule.reference' }
+        params['usersecuritygrouplist[0].account'] = account.label
+        params['usersecuritygrouplist[0].group'] = group.label
+      }
+      return { params }
+    },
+    changePage (page, size) {
+      this.page = this.pageSize === size ? page : 1
+      this.pageSize = size
+    },
+    openAddRule () {
+      this.addType = 'cidr'
+      this.resetAllRules()
+      this.addRuleVisible = true
     },
     handleAddRule () {
-      if (this.isSubmitted) return
-      this.isSubmitted = true
-      this.parentToggleLoading()
-      postAPI(this.tabType === 'ingress' ? 'authorizeSecurityGroupIngress' : 'authorizeSecurityGroupEgress', {
-        securitygroupid: this.resource.id,
-        domainid: this.resource.domainid,
-        account: this.resource.account,
-        protocol: this.newRule.protocol === 'protocolnumber' ? this.newRule.protocolnumber : this.newRule.protocol,
-        startport: this.newRule.startport,
-        endport: this.newRule.endport,
-        cidrlist: this.newRule.cidrlist,
-        icmptype: this.newRule.icmptype,
-        icmpcode: this.newRule.icmpcode,
-        'usersecuritygrouplist[0].account': this.newRule.usersecuritygrouplist.account,
-        'usersecuritygrouplist[0].group': this.newRule.usersecuritygrouplist.group
-      }).then(response => {
-        this.$pollJob({
-          jobId: this.tabType === 'ingress' ? response.authorizesecuritygroupingressresponse.jobid
-            : response.authorizesecuritygroupegressresponse.jobid,
-          successMessage: this.$t('message.success.add.rule'),
-          successMethod: () => {
-            this.parentToggleLoading()
-            this.isSubmitted = false
-          },
-          errorMessage: this.$t('message.add.rule.failed'),
-          errorMethod: () => {
-            this.parentToggleLoading()
-            this.isSubmitted = false
-          },
-          loadingMessage: this.$t('message.add.rule.processing'),
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.parentFetchData()
-            this.parentToggleLoading()
-            this.isSubmitted = false
-          }
-        })
-      }).catch(error => {
-        this.$notifyError(error)
-        this.parentToggleLoading()
-        this.isSubmitted = false
-      })
+      if (!this.canAddRule || this.isSubmitted) return
+      const { params, error } = this.ruleParameters()
+      if (error) {
+        this.ruleError = this.$t(error)
+        return
+      }
+      const messages = ['message.success.add.rule', 'message.add.rule.failed', 'message.add.rule.processing']
+      return this.submitRuleChange(this.authorizeCommand, { securitygroupid: this.resource.id, ...params }, messages)
     },
     handleDeleteRule (rule) {
-      this.parentToggleLoading()
-      postAPI(this.tabType === 'ingress' ? 'revokeSecurityGroupIngress' : 'revokeSecurityGroupEgress', {
-        id: rule.ruleid,
-        domainid: this.resource.domainid,
-        account: this.resource.account
-      }).then(response => {
-        this.$pollJob({
-          jobId: this.tabType === 'ingress' ? response.revokesecuritygroupingressresponse.jobid
-            : response.revokesecuritygroupegressresponse.jobid,
-          successMessage: this.$t('message.success.remove.rule'),
-          successMethod: () => {
-            this.parentToggleLoading()
-          },
-          errorMessage: this.$t('message.remove.rule.failed'),
-          errorMethod: () => {
-            this.parentToggleLoading()
-          },
-          loadingMessage: this.$t('message.remove.securitygroup.rule.processing'),
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.parentFetchData()
-            this.parentToggleLoading()
-          }
+      if (!this.canDeleteRule || this.isSubmitted || !this.rules.some(row => row.ruleid === rule.ruleid)) return
+      const messages = ['message.success.remove.rule', 'message.remove.rule.failed', 'message.remove.securitygroup.rule.processing']
+      return this.submitRuleChange(this.revokeCommand, { id: rule.ruleid }, messages)
+    },
+    async submitRuleChange (command, params, [success, failure, progress]) {
+      const generation = ++this.ruleGeneration
+      const scope = this.ruleScope
+      const active = () => this.ruleGeneration === generation && this.ruleScope === scope
+      this.isSubmitted = true
+      this.ruleError = ''
+      const root = command.toLowerCase() + 'response'
+      try {
+        const response = await postAPI(command, { ...params, domainid: this.resource.domainid, account: this.resource.account }, { preserveOnFailure: true })
+        const result = await this.$pollJob({
+          jobId: response[root].jobid,
+          successMessage: this.$t(success),
+          errorMessage: this.$t(failure),
+          loadingMessage: this.$t(progress),
+          catchMessage: this.$t('error.fetching.async.job.result')
         })
-      }).catch(error => {
-        this.$notifyError(error)
-        this.parentToggleLoading()
-      })
+        if (!active()) return
+        if (result.jobstatus === 1) {
+          await this.parentFetchData()
+          if (active() && command === this.authorizeCommand) this.addRuleVisible = false
+        } else {
+          this.ruleError = result.jobresult?.errortext || this.$t(failure)
+        }
+      } catch (error) {
+        if (active()) this.ruleError = error.response?.data?.[root]?.errortext || this.$t(failure)
+      } finally {
+        if (active()) this.isSubmitted = false
+      }
     },
     fetchTags (rule) {
       getAPI('listTags', {
@@ -545,9 +737,10 @@ export default {
     },
     resetAllRules () {
       this.newRule.protocol = 'tcp'
+      this.newRule.protocolnumber = null
+      this.ruleError = ''
       this.newRule.cidrlist = null
-      this.newRule.usersecuritygrouplist.account = null
-      this.newRule.usersecuritygrouplist.group = null
+      this.resetReference()
       this.resetRulePorts()
     },
     capitalise (val) {
@@ -558,56 +751,57 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .list {
+  .add-rule-button:not(:disabled) {
+    color: var(--ui-action-primary-text);
+    background: var(--ui-action-primary-bg);
+    border-color: var(--ui-action-primary-bg);
 
-    &__title {
-      font-weight: bold;
+    &:hover,
+    &:focus-visible {
+      background: var(--ui-action-primary-hover);
+      border-color: var(--ui-action-primary-hover);
     }
-
-    &__col {
-      flex: 1;
-    }
-
   }
 
-  .actions {
+  .security-group-rules :deep(.detail-table-footer .ant-pagination-item-active a) {
+    color: var(--ui-link);
+  }
+
+  .rule-target-form,
+  .rule-form-grid,
+  .form__item {
+    display: grid;
+    gap: 8px;
+    min-inline-size: 0;
+  }
+
+  .rule-target-form {
+    gap: 12px;
+
+    :deep(.ant-select:not(.ant-select-disabled) .ant-select-selection-placeholder) {
+      color: var(--ui-text-muted);
+    }
+  }
+
+  .rule-form-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    gap: 16px;
+  }
+
+  .rule-traffic-form {
+    margin-block: 16px 4px;
+  }
+
+  .rule-actions {
     display: flex;
+    gap: 8px;
     align-items: center;
   }
 
-  .form {
-    display: flex;
-    align-items: flex-end;
-    margin-right: -20px;
-    flex-direction: column;
-    margin-bottom: 20px;
-    @media (min-width: 760px) {
-      flex-direction: row;
-    }
-    &__item {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      padding-right: 20px;
-      margin-bottom: 20px;
-      @media (min-width: 760px) {
-        margin-bottom: 0;
-      }
-      input,
-      .ant-select {
-        margin-top: auto;
-      }
-    }
-    &__label {
-      font-weight: bold;
-    }
+  .rule-target {
+    overflow-wrap: anywhere;
   }
 
-  .rule-action {
-    &:not(:last-of-type) {
-      margin-right: 10px;
-    }
-  }
   .tags {
     margin-bottom: 10px;
   }

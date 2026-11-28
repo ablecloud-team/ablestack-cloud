@@ -217,7 +217,8 @@ function packaging() {
 
     echo ". preparing source tarball"
     (set -o pipefail; cd "$PWD/../" && tar -c --exclude .git --exclude dist . | tar -C "$RPM_SOURCE_DIR" -x ) || exit 3
-    (cd "$RPMDIR/SOURCES/"; tar -czf "$PACK_PROJECT-$VERSION.tgz" "$PACK_PROJECT-$VERSION")
+    bash "$PWD/record-security-group-provenance.sh" "$PWD/.." "$RPM_SOURCE_DIR" || exit 3
+    (cd "$RPMDIR/SOURCES/"; tar -czf "$PACK_PROJECT-$VERSION.tgz" "$PACK_PROJECT-$VERSION") || exit 3
 
     # Build the host runtime into the same artifact tree before Cloud packages.
     bash "$PWD/network-runtime/build.sh" "$RPMDIR" || exit 3
