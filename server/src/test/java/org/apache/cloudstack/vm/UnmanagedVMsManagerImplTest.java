@@ -88,6 +88,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.cloud.agent.AgentManager;
 import com.cloud.agent.api.Answer;
+import com.cloud.agent.api.Command;
 import com.cloud.agent.api.CheckConvertInstanceAnswer;
 import com.cloud.agent.api.CheckConvertInstanceCommand;
 import com.cloud.agent.api.CheckVolumeAnswer;
@@ -465,6 +466,26 @@ public class UnmanagedVMsManagerImplTest {
         closeable.close();
         actionEventUtilsMocked.close();
         CallContext.unregister();
+    }
+
+    @Test
+    public void startAblestackN2KConversionAcceptsSuccessfulAgentAnswer() throws Exception {
+        Command command = mock(Command.class);
+        HostVO host = mock(HostVO.class);
+        when(host.getId()).thenReturn(1L);
+        when(agentManager.send(1L, command)).thenReturn(new Answer(command, true, "worker started"));
+
+        unmanagedVMsManager.startAblestackN2KConversionProcess(command, host, "source-vm");
+    }
+
+    @Test(expected = CloudRuntimeException.class)
+    public void startAblestackN2KConversionRejectsUnsuccessfulAgentAnswer() throws Exception {
+        Command command = mock(Command.class);
+        HostVO host = mock(HostVO.class);
+        when(host.getId()).thenReturn(1L);
+        when(agentManager.send(1L, command)).thenReturn(new Answer(command, false, "worker failed"));
+
+        unmanagedVMsManager.startAblestackN2KConversionProcess(command, host, "source-vm");
     }
 
     @Test

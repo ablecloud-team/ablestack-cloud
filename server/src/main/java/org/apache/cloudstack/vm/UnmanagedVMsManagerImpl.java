@@ -5138,7 +5138,7 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
             throw new CloudRuntimeException(err);
         }
 
-        if (!(convertAnswer instanceof ConvertInstanceAnswer) || !convertAnswer.getResult()) {
+        if (convertAnswer == null || !convertAnswer.getResult()) {
             String err = String.format("The ablestack-n2k convert process failed for instance %s on host %s: %s",
                     sourceVM, convertHost, convertAnswer == null ? "No answer" : convertAnswer.getDetails());
             logger.error(err);

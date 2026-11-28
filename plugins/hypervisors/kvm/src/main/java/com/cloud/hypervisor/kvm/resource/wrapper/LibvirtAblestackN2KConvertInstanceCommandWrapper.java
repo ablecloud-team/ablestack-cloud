@@ -110,6 +110,10 @@ public class LibvirtAblestackN2KConvertInstanceCommandWrapper extends CommandWra
             return new Answer(cmd, false, "ablestack_n2k run currently supports sourceApi=v3 for Cloud-managed execution");
         }
 
+        if (cmd.isResume() && !Files.isRegularFile(Path.of(cmd.getWorkdir(), "manifest.json"))) {
+            return new Answer(cmd, false, "Cannot resume ablestack_n2k without its existing migration manifest");
+        }
+
         final long timeout = (long) cmd.getWait() * 1000;
         final KVMStoragePoolManager storagePoolMgr = serverResource.getStoragePoolMgr();
         final KVMStoragePool targetStoragePool = getTargetStoragePool(cmd.getTargetStorageLocation(), storagePoolMgr);
@@ -122,9 +126,8 @@ public class LibvirtAblestackN2KConvertInstanceCommandWrapper extends CommandWra
             Path cloudCredentialFile = createN2KCloudCredentialFile(cmd, targetProvider);
             Script script = new Script("ablestack_n2k", timeout, logger);
             script.add("--workdir", cmd.getWorkdir());
-            if (cmd.isResume()) {
-                script.add("--resume");
-            }
+            // The CLI's global --resume only prints a plan. Run resumes completed
+            // steps from the existing manifest when given the same work directory.
             script.add("run");
             if (background) {
                 script.add("--background");
