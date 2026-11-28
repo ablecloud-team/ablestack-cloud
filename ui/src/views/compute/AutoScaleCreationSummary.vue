@@ -16,16 +16,10 @@
 // under the License.
 
 <template>
-  <section class="autoscale-creation-summary" :aria-label="$t('label.autoscale.creation.summary')">
-    <h4>{{ $t('label.autoscale.creation.summary') }}</h4>
-    <dl>
-      <div><dt>{{ $t('label.autoscale.members.range') }}</dt><dd>{{ $t('label.autoscale.range', { min: form.minmembers || '—', max: form.maxmembers || '—' }) }}</dd></div>
-      <div><dt>{{ $t('label.interval') }}</dt><dd>{{ form.interval || '—' }} {{ $t('label.seconds') }}</dd></div>
-      <div><dt>{{ $t('label.loadbalancerrule') }}</dt><dd>{{ loadbalancer.name || '—' }}</dd></div>
-      <div><dt>{{ $t('label.autoscale.port.mapping') }}</dt><dd>{{ loadbalancer.publicip || '—' }}:{{ loadbalancer.publicport ?? '—' }} → {{ loadbalancer.privateport ?? '—' }}</dd></div>
-    </dl>
-    <p>{{ $t('message.autoscale.name.ascii') }}</p>
-  </section>
+  <div class="kubernetes-summary-item"><strong>{{ $t('label.autoscale.members.range') }}</strong><div>{{ $t('label.autoscale.range', { min: form.minmembers || '—', max: form.maxmembers || '—' }) }}</div></div>
+  <div class="kubernetes-summary-item"><strong>{{ $t('label.interval') }}</strong><div>{{ form.interval || '—' }} {{ $t('label.seconds') }}</div></div>
+  <div class="kubernetes-summary-item"><strong>{{ $t('label.loadbalancerrule') }}</strong><div>{{ loadbalancer.name || '—' }}</div></div>
+  <div class="kubernetes-summary-item"><strong>{{ $t('label.autoscale.port.mapping') }}</strong><div>{{ loadbalancer.publicip || '—' }}:{{ loadbalancer.publicport ?? '—' }} → {{ loadbalancer.privateport ?? '—' }}</div></div>
 </template>
 <script>
 export default {
@@ -33,8 +27,3 @@ export default {
   props: { form: { type: Object, required: true }, loadbalancer: { type: Object, default: () => ({}) } }
 }
 </script>
-<style lang="less" scoped>
-.autoscale-creation-summary { color: var(--ui-text-primary); overflow-wrap: anywhere; text-align: left;
-  dl > div { margin: 12px 0; } dt { font-weight: 600; } dd { margin: 4px 0 0; }
-}
-</style>
