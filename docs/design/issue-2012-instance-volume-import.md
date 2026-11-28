@@ -29,7 +29,7 @@ under the License.
 | 2 | Mold 라우트와 UI | 도구 메뉴를 **인스턴스/볼륨 가져오기**로 통합하고 원본별 마법사, 데이터 볼륨 목록, 인스턴스 관리 해제, 이관 작업을 배치한다. |
 | 3 | 이관 소비자와 검증 | V2K·N2K의 같은 API 소비와 실제 ROOT/DATA 실행을 확인한다. 31번 파일형과 32번 RBD 시험을 증거로 기록한다. |
 
-현재 `ui/src/config/section/tools.js`의 `manageinstances`와 `managevolumes`가 분리되어 있다. `ManageInstances.vue`, `ImportUnmanagedInstance.vue`와 `ManageVolumes.vue`가 각 화면을 구성한다. `VolumeImportUnmanageManagerImpl`은 조회와 등록을 KVM의 `LibvirtGetVolumesOnStorageCommandWrapper`를 통해 수행한다. Agent는 QCOW2/RAW를 조사하고 RBD 풀에서는 RBD 경로를 구성한다. 응답은 `storagepooltype`, `format`, `size`, `virtualsize`를 이미 보낸다. 실제 3종 이미지의 등록·부팅·관리 해제는 아래 시험에서 확인한다.
+현재 `ui/src/config/section/tools.js`의 `manageinstances`와 `managevolumes`가 분리되어 있다. `ManageInstances.vue`, `ImportUnmanagedInstance.vue`와 `ManageVolumes.vue`가 각 화면을 구성한다. `VolumeImportUnmanageManagerImpl`은 조회와 등록을 KVM의 `LibvirtGetVolumesOnStorageCommandWrapper`를 통해 수행한다. Agent는 QCOW2/RAW를 조사하고 RBD 풀에서는 RBD 경로를 구성한다. 응답은 `storagetype`, `format`, `size`, `virtualsize`를 이미 보낸다. 실제 3종 이미지의 등록·부팅·관리 해제는 아래 시험에서 확인한다.
 
 ## UI
 
@@ -49,13 +49,15 @@ under the License.
 | 파일 RAW | RAW | RAW | 등록 파일 풀의 경로·크기와 RAW 조사 결과, 정상 읽기 |
 | Ceph 블록 이미지 | RBD | RAW | 등록된 RBD 풀의 image ID·크기, 이미지 접근 상태와 pool/namespace 일치 |
 
-기존 `listVolumesForImport`의 `storagepooltype + format`으로 UI 원본 유형을 구한다. RBD는 저장소 유형을 기준으로 표기하고, DB와 QEMU에서 쓰는 디스크 형식은 RAW로 유지한다. 파일명 확장자는 후보 안내에 쓴다. 기존 응답 필드의 의미, 단위와 V2K·N2K 소비 계약을 유지하며, 필요한 추가 관측 값은 호환성 시험을 거친다.
+기존 `listVolumesForImport`의 `storagetype + format`으로 UI 원본 유형을 구한다. RBD는 저장소 유형을 기준으로 표기하고, DB와 QEMU에서 쓰는 디스크 형식은 RAW로 유지한다. 파일명 확장자는 후보 안내에 쓴다. 기존 응답 필드의 의미, 단위와 V2K·N2K 소비 계약을 유지하며, 필요한 추가 관측 값은 호환성 시험을 거친다.
 
 1. 후보 조회와 등록 모두 서버가 풀과 적격 호스트를 확인한다. 파일은 해당 풀에서 정규화한 경로를 사용한다. RBD는 등록 풀과 현재 Ceph 이미지 식별자를 확인한다. 정규화 경로·Ceph ID·크기 등 확인한 식별 정보가 등록 시 달라지면 새 조회를 요구한다. 풀 범위 밖 참조 또는 직접 지정한 Ceph 인증 정보는 입력으로 받지 않는다.
 2. 등록 직전에 관리·템플릿·스냅샷 참조, 원본 잠금/사용 상태, backing chain·암호화·RBD 의존 상태, 오퍼링·소유권·할당량을 확인한다. 원본 조사 오류와 실제 빈 목록을 상태와 메시지로 구분한다. 크기 계측이 불가하면 등록 가능 여부와 값을 구분한다.
 3. 기존 `importVolume(storageid, path, ...)`로 같은 풀의 DATA 볼륨을 채택한다. 풀 ID와 정규화된 원본에 대한 등록 경쟁을 직렬화하고, 등록과 용량·이벤트 반영의 경계에서 실패 후 재시도 결과를 확인한다. 현재 Agent/KVM 경로를 재사용한다. 별도 복제/변환은 기존 명시적 이관·할당 API 경로의 사례로 구분한다.
 4. `unmanageVolume`은 분리되고 준비 상태인 KVM DATA 볼륨에 적용한다. 관리 해제 후 파일 또는 Ceph image ID와 데이터가 유지되고, 작업 상태에서 같은 원본을 다시 조회하여 등록할 수 있어야 한다. 등록 실패·취소·재개 시 작업 전용 자원만 정리한다.
 5. qemu tools는 기존 V2K·N2K의 `listVolumesForImport`–`importVolume` 인계와 KRBD 실행을 담당한다. 독립 볼륨 등록은 KVM Agent가 처리한다. 이 계약이 기존 응답을 그대로 쓰면 API 명령이나 SDK 변경 사항은 없다. 계약 검증에서 소비 코드 수정이 확인되면 해당 저장소를 이슈에 연결한다.
+
+선택한 원본의 상세 조회는 `listVolumesForImport(storageid, path)`를 사용한다. UI는 응답의 `details.SOURCE_IDENTITY`를 `importVolume`의 선택 매개변수 `sourceidentity`로 보낸다. 기존 호출자는 기존 매개변수로 작업할 수 있다.
 
 ## 인수 테스트
 

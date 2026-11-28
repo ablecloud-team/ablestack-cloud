@@ -111,6 +111,61 @@ public class RbdVolumeAllocation {
         }
     }
 
+    public static final class ImportImage {
+        private final String identity;
+        private final long size;
+        private final boolean hasWatchers;
+        private final boolean hasParent;
+
+        ImportImage(String identity, long size, boolean hasWatchers, boolean hasParent) {
+            this.identity = identity;
+            this.size = size;
+            this.hasWatchers = hasWatchers;
+            this.hasParent = hasParent;
+        }
+
+        public String identity() {
+            return identity;
+        }
+
+        public long size() {
+            return size;
+        }
+
+        public boolean hasWatchers() {
+            return hasWatchers;
+        }
+
+        public boolean hasParent() {
+            return hasParent;
+        }
+    }
+
+    /** Inspect an existing image and its current watchers without mapping or modifying it. */
+    public ImportImage inspectImportImage(KVMStoragePool pool, String name) {
+        if (pool.getType() != Storage.StoragePoolType.RBD || name == null || !name.matches("[A-Za-z0-9_.-]+")) {
+            throw new CloudRuntimeException("Unsupported RBD import source");
+        }
+        try (Context context = new Context(pool, 30_000, true)) {
+            String image = pool.getSourceDir() + "/" + name;
+            JsonObject info = json(context.rbd("info", image, "--format", "json"));
+            String id = info.get("id").getAsString();
+            long size = info.get("size").getAsLong();
+            if (!id.matches("[a-zA-Z0-9_-]+") || size <= 0) {
+                throw new CloudRuntimeException("RBD image identity or size is unavailable");
+            }
+            JsonObject status = json(context.rbd("status", image, "--format", "json"));
+            boolean active = status.getAsJsonArray("watchers").size() > 0;
+            JsonObject current = json(context.rbd("info", image, "--format", "json"));
+            if (!id.equals(current.get("id").getAsString()) || size != current.get("size").getAsLong()) {
+                throw new CloudRuntimeException("RBD image changed during inspection");
+            }
+            return new ImportImage("rbd:" + id, size, active, info.has("parent") && !info.get("parent").isJsonNull());
+        } catch (IOException | RuntimeException error) {
+            throw new CloudRuntimeException("Unable to inspect the RBD source or its active clients");
+        }
+    }
+
     private static JsonObject exportIdentity(String value) {
         JsonObject info = json(value);
         info.remove("access_timestamp"); // Read access is expected and does not modify image contents.
@@ -419,12 +474,16 @@ public class RbdVolumeAllocation {
         private final long deadline;
 
         Context(KVMStoragePool pool, long timeout) throws IOException {
+            this(pool, timeout, false);
+        }
+
+        Context(KVMStoragePool pool, long timeout, boolean readOnly) throws IOException {
             Map<String, String> details = pool.getDetails();
             if (!pool.getSourceDir().matches("[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}") || pool.getAuthUserName() == null ||
                     !pool.getAuthUserName().matches("[A-Za-z0-9_.-]+") || pool.getAuthSecret() == null ||
                     !pool.getAuthSecret().matches("[A-Za-z0-9+/=]+") || pool.getSourceHost() == null ||
                     !pool.getSourceHost().matches("[A-Za-z0-9.,:;\\[\\]-]+") ||
-                    (details != null && details.get(KVMPhysicalDisk.RBD_DEFAULT_DATA_POOL) != null)) {
+                    (!readOnly && details != null && details.get(KVMPhysicalDisk.RBD_DEFAULT_DATA_POOL) != null)) {
                 throw new CloudRuntimeException("RBD_ALLOCATION_POOL_UNSUPPORTED: authenticated replicated RAW pool configuration required");
             }
             user = pool.getAuthUserName();

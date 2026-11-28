@@ -211,8 +211,34 @@ public class RbdVolumeAllocationTest {
         assertFalse(command("create")); assertFalse(command("rm"));
     }
 
+    @Test
+    public void importInspectionReportsImageIdentityAndWatchersWithoutMapping() {
+        runner.watched = true;
+        RbdVolumeAllocation.ImportImage image = adapter.inspectImportImage(pool, "data-image");
+        assertEquals("rbd:import-id", image.identity());
+        assertEquals(SIZE, image.size());
+        assertTrue(image.hasWatchers());
+        assertFalse(command("map"));
+        assertFalse(command("create"));
+        assertFalse(command("rm"));
+    }
+
+    @Test
+    public void importInspectionRejectsAnImageReplacedDuringTheLookup() {
+        runner.replaceAfterStatus = true;
+        try {
+            adapter.inspectImportImage(pool, "data-image");
+            fail("Expected changed image to fail inspection");
+        } catch (CloudRuntimeException expected) {
+            assertTrue(expected.getMessage().contains("Unable to inspect"));
+        }
+        assertFalse(command("map"));
+        assertFalse(command("rm"));
+    }
+
     private static class Fake implements RbdVolumeAllocation.Runner {
         List<List<String>> commands = new ArrayList<>();
+        boolean watched; boolean replaceAfterStatus; boolean statusRead;
         boolean offlineChain; String stage; String fail; boolean cleanupFail; boolean exists; boolean parent; String receipt; String linkedParent;
         long used = SIZE; long infoSize = SIZE; long sourceSize = SIZE; long available = SIZE * 10; boolean missingCapacity;
         int index(String op) { for (int i = 0; i < commands.size(); i++) if (commands.get(i).contains(op)) return i; return -1; }
@@ -227,7 +253,15 @@ public class RbdVolumeAllocationTest {
             if (op.equals("rename")) exists = true;
             if (op.equals("image-meta")) { if (args.contains("get")) return receipt; receipt = args.get(args.size() - 1); }
             if (op.equals("snap")) return "[{\"name\":\"snapshot\",\"protected\":true}]";
+            if (op.equals("status")) {
+                statusRead = true;
+                return watched ? "{\"watchers\":[{}]}" : "{\"watchers\":[]}";
+            }
             if (op.equals("info")) {
+                if (args.contains("rbd/data-image")) {
+                    return "{\"id\":\"" + (statusRead && replaceAfterStatus ? "different-id" : "import-id") + "\",\"size\":" + infoSize + "}";
+                }
+
                 if (args.get(0).equals("qemu-img") && offlineChain) return "[{\"format\":\"raw\",\"virtual-size\":"+sourceSize+"}]";
                 if (args.get(0).equals("qemu-img")) return "{\"virtual-size\":" + sourceSize + "}";
                 return "{\"size\":" + infoSize + (linkedParent != null ? ",\"parent\":{\"pool\":\"rbd\",\"image\":\""+linkedParent+"\",\"snapshot\":\"snapshot\"}" : parent ? ",\"parent\":{}" : "") + "}";

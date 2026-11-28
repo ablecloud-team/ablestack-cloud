@@ -92,6 +92,7 @@ public class LibvirtGetVolumesOnStorageCommandWrapperTest {
 
         qemuImg = Mockito.mockConstruction(QemuImg.class, (mock, context) -> {
             Mockito.when(mock.info(Mockito.any(QemuImgFile.class), Mockito.eq(true))).thenReturn(qemuImgInfo);
+            Mockito.when(mock.info(Mockito.any(QemuImgFile.class), Mockito.eq(false))).thenReturn(qemuImgInfo);
         });
         volumeOnStorageTOMock = Mockito.mockConstruction(VolumeOnStorageTO.class);
     }
@@ -132,6 +133,7 @@ public class LibvirtGetVolumesOnStorageCommandWrapperTest {
         Mockito.when(disk.getQemuEncryptFormat()).thenReturn(QemuObject.EncryptFormat.LUKS);
         Mockito.when(storagePool.getPhysicalDisk(volumePath)).thenReturn(disk);
         Mockito.when(storagePool.getType()).thenReturn(poolType);
+        Mockito.doReturn("file:abc").when(libvirtGetVolumesOnStorageCommandWrapper).inspectFileIdentity(storagePool, disk);
 
         Mockito.when(qemuImgInfo.get(QemuImg.BACKING_FILE)).thenReturn(backingFilePath);
         Mockito.when(qemuImgInfo.get(QemuImg.BACKING_FILE_FORMAT)).thenReturn(backingFileFormat);
@@ -154,5 +156,6 @@ public class LibvirtGetVolumesOnStorageCommandWrapperTest {
         Mockito.verify(volumeOnStorageTO).addDetail(VolumeOnStorageTO.Detail.FILE_FORMAT, fileFormat);
         Mockito.verify(volumeOnStorageTO).addDetail(VolumeOnStorageTO.Detail.IS_ENCRYPTED, "true");
         Mockito.verify(volumeOnStorageTO).addDetail(VolumeOnStorageTO.Detail.IS_LOCKED, "false");
+        Mockito.verify(volumeOnStorageTO).addDetail(VolumeOnStorageTO.Detail.SOURCE_IDENTITY, "file:abc");
     }
 }

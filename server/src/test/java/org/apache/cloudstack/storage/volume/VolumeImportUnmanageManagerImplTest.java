@@ -50,6 +50,10 @@ import com.cloud.user.AccountVO;
 import com.cloud.user.ResourceLimitService;
 import com.cloud.user.User;
 import com.cloud.user.UserVO;
+import com.cloud.exception.InvalidParameterValueException;
+import com.cloud.utils.db.GlobalLock;
+import com.cloud.utils.db.Transaction;
+import com.cloud.utils.db.TransactionCallback;
 import com.cloud.utils.Pair;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.vm.DiskProfile;
@@ -249,8 +253,42 @@ public class VolumeImportUnmanageManagerImplTest {
         Assert.assertEquals(storagePoolUuid, response.getStoragePoolId());
     }
 
+    private MockedStatic<Transaction> immediateTransaction() {
+        MockedStatic<Transaction> transactions = Mockito.mockStatic(Transaction.class);
+        transactions.when(() -> Transaction.execute(Mockito.<TransactionCallback<Object>>any())).thenAnswer(invocation ->
+                invocation.<TransactionCallback<Object>>getArgument(0).doInTransaction(null));
+        return transactions;
+    }
+
+    private GlobalLock stubSourceLock() {
+        GlobalLock lock = mock(GlobalLock.class);
+        when(lock.lock(30)).thenReturn(true);
+        doReturn(lock).when(volumeImportUnmanageManager).getImportSourceLock(storagePoolVO, path);
+        return lock;
+    }
+
+    @Test
+    public void testImportRejectsChangedSourceBeforeRegistration() {
+        ImportVolumeCmd cmd = mock(ImportVolumeCmd.class);
+        when(cmd.getAllocationContractVersion()).thenReturn(null);
+        when(cmd.getPath()).thenReturn(path);
+        when(cmd.getStorageId()).thenReturn(poolId);
+        when(cmd.getSourceIdentity()).thenReturn("rbd:old-image");
+        VolumeOnStorageTO inspected = new VolumeOnStorageTO(hypervisorType, path, name, fullPath, "RAW", size, virtualSize);
+        inspected.addDetail(VolumeOnStorageTO.Detail.SOURCE_IDENTITY, "rbd:replacement");
+        doReturn(inspected).when(volumeImportUnmanageManager).getVolumeOnStorageAndCheck(storagePoolVO, path);
+        GlobalLock lock = stubSourceLock();
+
+        Assert.assertThrows(InvalidParameterValueException.class, () -> volumeImportUnmanageManager.importVolume(cmd));
+
+        Mockito.verifyNoInteractions(volumeManager);
+        verify(lock).unlock();
+        verify(lock).releaseRef();
+    }
+
     @Test
     public void testImportVolumeAllGood() throws ResourceAllocationException {
+        GlobalLock lock = stubSourceLock();
         ImportVolumeCmd cmd = mock(ImportVolumeCmd.class);
         // Omitted API Integer is null; Mockito otherwise supplies zero for wrapper types.
         when(cmd.getAllocationContractVersion()).thenReturn(null);
@@ -288,7 +326,8 @@ public class VolumeImportUnmanageManagerImplTest {
         VolumeResponse response = mock(VolumeResponse.class);
         doReturn(response).when(responseGenerator).createVolumeResponse(ResponseObject.ResponseView.Full, volumeVO);
         try (MockedStatic<UsageEventUtils> ignored = Mockito.mockStatic(UsageEventUtils.class);
-             MockedStatic<ActionEventUtils> ignoredtoo = Mockito.mockStatic(ActionEventUtils.class)) {
+             MockedStatic<ActionEventUtils> ignoredtoo = Mockito.mockStatic(ActionEventUtils.class);
+             MockedStatic<Transaction> transactions = immediateTransaction()) {
             VolumeResponse result = volumeImportUnmanageManager.importVolume(cmd);
             Assert.assertEquals(response, result);
         }
@@ -368,6 +407,7 @@ public class VolumeImportUnmanageManagerImplTest {
 
     @Test
     public void testUnmanageVolume() {
+        stubSourceLock();
         when(volumeVO.getState()).thenReturn(Volume.State.Ready);
         when(volumeVO.getPoolId()).thenReturn(poolId);
         when(volumeVO.getInstanceId()).thenReturn(null);
@@ -379,7 +419,8 @@ public class VolumeImportUnmanageManagerImplTest {
         doNothing().when(resourceLimitService).decrementResourceCount(accountId, Resource.ResourceType.primary_storage, virtualSize);
 
         try (MockedStatic<UsageEventUtils> ignored = Mockito.mockStatic(UsageEventUtils.class);
-             MockedStatic<ActionEventUtils> ignoredtoo = Mockito.mockStatic(ActionEventUtils.class)) {
+             MockedStatic<ActionEventUtils> ignoredtoo = Mockito.mockStatic(ActionEventUtils.class);
+             MockedStatic<Transaction> transactions = immediateTransaction()) {
             volumeImportUnmanageManager.unmanageVolume(volumeId);
         }
 
