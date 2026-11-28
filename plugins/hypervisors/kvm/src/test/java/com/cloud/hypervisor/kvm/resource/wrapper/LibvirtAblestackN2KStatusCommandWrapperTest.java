@@ -133,4 +133,23 @@ public class LibvirtAblestackN2KStatusCommandWrapperTest {
             Assert.assertEquals("vm-uuid", answer.getCloudVmId());
         }
     }
+
+    @Test
+    public void executeReportsCompletedCloudCheckpointWhenPhaseTwoMarkerWasNotWritten() {
+        AblestackN2KStatusCommand cmd = new AblestackN2KStatusCommand("rhel", "/work/rhel");
+        String statusJson = "{\"runtime\":{\"split\":{\"phase1\":{\"done\":true},\"phase2\":{\"done\":false}},"
+                + "\"cloud\":{\"provider\":\"ablestack-cloud\",\"checkpoint\":{\"complete\":true,\"vm_id\":\"vm-uuid\"}}}}";
+
+        try (MockedConstruction<Script> ignored = Mockito.mockConstruction(Script.class, (mock, context) -> {
+            Mockito.when(mock.execute(Mockito.any(OutputInterpreter.class))).thenReturn(statusJson);
+            Mockito.when(mock.getExitValue()).thenReturn(0);
+        })) {
+            AblestackN2KStatusAnswer answer = (AblestackN2KStatusAnswer) new LibvirtAblestackN2KStatusCommandWrapper().execute(cmd, libvirtComputingResource);
+
+            Assert.assertTrue(answer.getResult());
+            Assert.assertEquals("phase2", answer.getPhase());
+            Assert.assertEquals("completed", answer.getMigrationState());
+            Assert.assertEquals("vm-uuid", answer.getCloudVmId());
+        }
+    }
 }

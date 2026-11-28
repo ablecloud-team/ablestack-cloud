@@ -64,8 +64,13 @@ public class LibvirtAblestackN2KStatusCommandWrapper extends CommandWrapper<Able
             JsonObject phases = getObject(status, "phases");
             JsonObject progress = getObject(runtime, "progress");
 
-            String phase = resolvePhase(runtime, phases, resume, progress);
-            String migrationState = resolveMigrationState(runtime, phases, resume, progress);
+            JsonObject cloudRuntime = getObject(runtime, "cloud");
+            JsonObject checkpoint = getObject(cloudRuntime, "checkpoint");
+            String completedCloudVmId = getBoolean(checkpoint, "complete")
+                    && "ablestack-cloud".equals(getString(cloudRuntime, "provider")) ? getString(checkpoint, "vm_id") : null;
+            boolean completedCloudCutover = StringUtils.isNotBlank(completedCloudVmId);
+            String phase = completedCloudCutover ? "phase2" : resolvePhase(runtime, phases, resume, progress);
+            String migrationState = completedCloudCutover ? "completed" : resolveMigrationState(runtime, phases, resume, progress);
             String failedPhase = "phase2".equals(phase) && "completed".equals(migrationState)
                     ? null : readFailedRunnerPhase(cmd.getWorkdir(), phase);
             if (failedPhase != null) {
@@ -82,10 +87,10 @@ public class LibvirtAblestackN2KStatusCommandWrapper extends CommandWrapper<Able
             String workdir = StringUtils.defaultIfBlank(getString(status, "workdir"), cmd.getWorkdir());
             JsonObject target = getObject(status, "target");
             JsonObject targetResult = getObject(target, "result");
-            JsonObject cloudRuntime = getObject(runtime, "cloud");
             String targetProvider = StringUtils.defaultIfBlank(getString(targetResult, "provider"),
                     StringUtils.defaultIfBlank(getString(cloudRuntime, "provider"), getString(target, "provider")));
-            String cloudVmId = StringUtils.defaultIfBlank(getString(targetResult, "vm_id"), getString(cloudRuntime, "vm_id"));
+            String cloudVmId = StringUtils.defaultIfBlank(completedCloudVmId,
+                    StringUtils.defaultIfBlank(getString(targetResult, "vm_id"), getString(cloudRuntime, "vm_id")));
             AblestackN2KStatusAnswer answer = new AblestackN2KStatusAnswer(cmd, true, "OK", phase, migrationState, migrationStep,
                     syncPhysical, workdir, status.toString(), targetProvider, cloudVmId);
             applyStructuredProgress(answer, status);
