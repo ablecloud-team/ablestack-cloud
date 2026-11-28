@@ -4384,7 +4384,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                 PhysicalDiskFormat.RAW.equals(physicalDisk.getFormat());
     }
 
-    static boolean isFileBackedRawDisk(KVMPhysicalDisk disk) {
+    public static boolean isFileBackedRawDisk(KVMPhysicalDisk disk) {
         if (disk == null || disk.getPool() == null || disk.getFormat() != PhysicalDiskFormat.RAW || disk.getPath() == null) {
             return false;
         }
