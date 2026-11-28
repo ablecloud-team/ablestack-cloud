@@ -91,6 +91,7 @@ import com.cloud.agent.api.Answer;
 import com.cloud.agent.api.CheckConvertInstanceAnswer;
 import com.cloud.agent.api.CheckConvertInstanceCommand;
 import com.cloud.agent.api.CheckVolumeAnswer;
+import org.apache.cloudstack.storage.volume.VolumeOnStorageTO;
 import com.cloud.agent.api.CheckVolumeCommand;
 import com.cloud.agent.api.ConvertInstanceAnswer;
 import com.cloud.agent.api.ConvertInstanceCommand;
@@ -145,6 +146,7 @@ import com.cloud.storage.DiskOfferingVO;
 import com.cloud.storage.ScopeType;
 import com.cloud.storage.Storage;
 import com.cloud.storage.StoragePool;
+import com.cloud.storage.StoragePoolStatus;
 import com.cloud.storage.StoragePoolHostVO;
 import com.cloud.storage.VMTemplateStoragePoolVO;
 import com.cloud.storage.VMTemplateVO;
@@ -1021,16 +1023,16 @@ public class UnmanagedVMsManagerImplTest {
     }
 
     @Test
-    public void importFromLocalDisk() throws InsufficientServerCapacityException {
+    public void importFromLocalDisk() throws Exception {
         importFromDisk("local");
     }
 
     @Test
-    public void importFromsharedStorage() throws InsufficientServerCapacityException {
+    public void importFromsharedStorage() throws Exception {
         importFromDisk("shared");
     }
 
-    private void importFromDisk(String source) throws InsufficientServerCapacityException {
+    private void importFromDisk(String source) throws Exception {
         String vmname = "testVm";
         ImportVmCmd cmd = Mockito.mock(ImportVmCmd.class);
         when(cmd.getZoneId()).thenReturn(1L);
@@ -1044,10 +1046,14 @@ public class UnmanagedVMsManagerImplTest {
         when(cmd.getStoragePoolId()).thenReturn(1L);
         when(cmd.getDetails()).thenReturn(new HashMap<>());
         when(cmd.getDomainId()).thenReturn(null);
-        if ("local".equals(source)) {
-            when(cmd.getHostId()).thenReturn(1L);
-        }
+        when(cmd.getHostId()).thenReturn("local".equals(source) ? 1L : null);
         HostVO host = Mockito.mock(HostVO.class);
+        when(host.getId()).thenReturn(1L);
+        when(host.getDataCenterId()).thenReturn(1L);
+        when(host.getType()).thenReturn(Host.Type.Routing);
+        when(host.getStatus()).thenReturn(Status.Up);
+        when(host.getResourceState()).thenReturn(ResourceState.Enabled);
+        when(host.getHypervisorType()).thenReturn(Hypervisor.HypervisorType.KVM);
         when(hostDao.findById(anyLong())).thenReturn(host);
         NetworkOffering netOffering = Mockito.mock(NetworkOffering.class);
         when(entityMgr.findById(NetworkOffering.class, 0L)).thenReturn(netOffering);
@@ -1059,16 +1065,30 @@ public class UnmanagedVMsManagerImplTest {
         Map<Volume, StoragePool> storage = new HashMap<>();
         VolumeVO volume = Mockito.mock(VolumeVO.class);
         StoragePoolVO storagePool = Mockito.mock(StoragePoolVO.class);
+        when(storagePool.getId()).thenReturn(1L);
+        when(storagePool.getDataCenterId()).thenReturn(1L);
+        when(storagePool.getStatus()).thenReturn(StoragePoolStatus.Up);
+        when(storagePool.isLocal()).thenReturn("local".equals(source));
+        when(storagePool.getPoolType()).thenReturn("local".equals(source) ? Storage.StoragePoolType.Filesystem : Storage.StoragePoolType.SharedMountPoint);
         storage.put(volume, storagePool);
         when(mockDest.getStorageForDisks()).thenReturn(storage);
         when(mockDest.getHost()).thenReturn(host);
         when(volumeDao.findById(anyLong())).thenReturn(volume);
         CheckVolumeAnswer answer = Mockito.mock(CheckVolumeAnswer.class);
         when(answer.getResult()).thenReturn(true);
+        when(answer.getSize()).thenReturn(1L << 30);
+        String format = "local".equals(source) ? "raw" : "qcow2";
+        when(answer.getSourcePath()).thenReturn("test.img");
+        when(answer.getVolumeDetails()).thenReturn(Map.of(VolumeOnStorageTO.Detail.FILE_FORMAT, format,
+                VolumeOnStorageTO.Detail.SOURCE_IDENTITY, "file:known"));
+        GlobalLock sourceLock = mock(GlobalLock.class);
+        when(sourceLock.lock(30)).thenReturn(true);
+        Mockito.doReturn(sourceLock).when(unmanagedVMsManager).getKvmImageSourceLock(storagePool, "test.img");
+        when(volumeManager.updateImportedVolume(any(), any(), any(), any(), any(), any(), any(), any(), any(), Mockito.eq(diskProfile))).thenReturn(diskProfile);
+        when(volumeDao.update(anyLong(), any())).thenReturn(true);
+        when(networkOrchestrationService.importNic(any(), anyInt(), any(), any(), any(), any(), any(), anyBoolean()))
+                .thenReturn(new Pair<>(null, 0));
         when(agentManager.easySend(anyLong(), any(CheckVolumeCommand.class))).thenReturn(answer);
-        List<StoragePoolVO> storagePools = new ArrayList<>();
-        storagePools.add(storagePool);
-        when(primaryDataStoreDao.findLocalStoragePoolsByHostAndTags(anyLong(), any())).thenReturn(storagePools);
         when(primaryDataStoreDao.findById(anyLong())).thenReturn(storagePool);
         when(volumeApiService.doesStoragePoolSupportDiskOffering(any(StoragePool.class), any())).thenReturn(true);
         StoragePoolHostVO storagePoolHost = Mockito.mock(StoragePoolHostVO.class);
@@ -1076,6 +1096,9 @@ public class UnmanagedVMsManagerImplTest {
         try (MockedStatic<UsageEventUtils> ignored = Mockito.mockStatic(UsageEventUtils.class)) {
                 unmanagedVMsManager.importVm(cmd);
         }
+        verify(volume).setFormat(Storage.ImageFormat.valueOf(format.toUpperCase(java.util.Locale.ROOT)));
+        verify(sourceLock).unlock();
+        verify(sourceLock).releaseRef();
     }
 
     @Test

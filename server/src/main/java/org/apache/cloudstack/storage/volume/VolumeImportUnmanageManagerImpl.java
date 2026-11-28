@@ -85,14 +85,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.inject.Inject;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 public class VolumeImportUnmanageManagerImpl implements VolumeImportUnmanageService {
     protected Logger logger = LogManager.getLogger(VolumeImportUnmanageManagerImpl.class);
@@ -234,8 +232,7 @@ public class VolumeImportUnmanageManagerImpl implements VolumeImportUnmanageServ
     }
 
     protected GlobalLock getImportSourceLock(StoragePoolVO pool, String path) {
-        UUID lockId = UUID.nameUUIDFromBytes((pool.getUuid() + "/" + path).getBytes(StandardCharsets.UTF_8));
-        return GlobalLock.getInternLock("allocation-source-" + lockId);
+        return VolumeImportSourceLock.get(pool, path);
     }
 
     protected void verifySourceIdentity(String expectedIdentity, VolumeOnStorageTO selected, VolumeOnStorageTO current) {
