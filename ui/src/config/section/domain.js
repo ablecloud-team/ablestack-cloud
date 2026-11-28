@@ -65,13 +65,8 @@ export default {
       component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailsTab.vue')))
     },
     {
-      name: 'limits',
-      show: (record, route, user) => { return ['Admin', 'DomainAdmin'].includes(user.roletype) },
-      component: shallowRef(defineAsyncComponent(() => import('@/components/view/ResourceCountUsage.vue')))
-    },
-    {
       name: 'limits.configure',
-      show: (record, route, user) => { return ['Admin'].includes(user.roletype) || (['DomainAdmin'].includes(user.roletype) && record.id !== user.domainid) },
+      show: (record, route, user) => ['Admin', 'DomainAdmin'].includes(user.roletype),
       component: shallowRef(defineAsyncComponent(() => import('@/components/view/ResourceLimitTab.vue')))
     },
     {

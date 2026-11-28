@@ -15,7 +15,20 @@
 // specific language governing permissions and limitations
 // under the License.
 <template>
-  <a-spin class="project-limit-editor" :spinning="loading">
+  <div class="project-limit-editor">
+    <div class="detail-tab-toolbar">
+      <a-button
+        v-if="canWrite"
+        type="primary"
+        :loading="saving"
+        :disabled="!canEdit || saving || !dirtyCount"
+        @click="save">
+        <template #icon><save-outlined /></template>{{ $t('label.save') }}
+      </a-button>
+      <a-button :disabled="loading || saving" :loading="loading" @click="refreshUsage">
+        <template #icon><reload-outlined /></template>{{ $t('label.refresh') }}
+      </a-button>
+    </div>
     <a-alert v-if="readError" type="error" show-icon :message="readError" class="project-limit-notice" />
     <a-alert
       v-else-if="inactive || !canWrite"
@@ -30,54 +43,20 @@
       show-icon
       :message="$t('message.project.limit.summary', summary)"
       class="project-limit-notice" />
-    <section v-for="group in groups" :key="group.label" class="project-limit-group">
-      <h3>{{ $t(group.label) }}</h3>
-      <a-table
-        size="small"
-        row-key="key"
-        :columns="columns"
-        :data-source="group.rows"
-        :pagination="false"
-        :scroll="{ x: 416 }"
-        class="project-tab-table">
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'label'">
-            <span>{{ resourceLabel(record) }}</span>
-            <a-tag v-if="record.tag" class="project-limit-tag">{{ record.tag }}</a-tag>
-          </template>
-          <template v-else-if="column.key === 'saved'">
-            {{ record.saved === -1 ? $t('label.unlimited') + ' (-1)' : record.saved }}
-          </template>
-          <template v-else-if="column.key === 'draft'">
-            <a-input-number
-              :value="record.draft"
-              :aria-label="resourceLabel(record) + (record.tag ? ' ' + record.tag : '')"
-              :disabled="!canEdit || saving"
-              class="project-limit-input"
-              @change="value => edit(record, value)" />
-          </template>
-          <template v-else-if="column.key === 'result' && record.status">
-            <a-tag :color="{ saved: 'green', failed: 'red', unknown: 'orange' }[record.status]">{{ $t('label.project.limit.' + record.status) }}</a-tag>
-            <p v-if="record.detail" class="project-limit-detail">{{ record.detail }}</p>
-          </template>
-        </template>
-      </a-table>
-    </section>
-    <a-space class="project-limit-actions">
-      <a-button :disabled="loading || saving" @click="refresh">{{ $t('label.refresh') }}</a-button>
-      <a-button
-        type="primary"
-        :loading="saving"
-        :disabled="!canEdit || saving || !dirtyCount"
-        @click="save">
-        {{ $t('label.save') }}
-      </a-button>
-    </a-space>
-  </a-spin>
+    <resource-limit-table
+      project
+      :resource="resource"
+      :settings="rows"
+      :loading="loading"
+      :can-configure="canWrite"
+      :can-edit="canEdit && !saving"
+      @edit="edit" />
+  </div>
 </template>
 
 <script>
 import { getAPI, postAPI } from '@/api'
+import ResourceLimitTable from '@/components/view/ResourceLimitTable.vue'
 import { projectListScope } from '@/utils/projectSearch'
 import {
   orderProjectLimitChanges, projectLimitDirty, projectLimitEditAllowed,
@@ -86,6 +65,7 @@ import {
 
 export default {
   name: 'ProjectResourceLimitTab',
+  components: { ResourceLimitTable },
   inject: ['parentFetchData'],
   props: {
     resource: { type: Object, required: true }
@@ -104,7 +84,8 @@ export default {
   computed: {
     getters () { return this.$store.getters },
     scope () { return JSON.stringify([this.resource.id, projectListScope(this.getters, this.$store.state?.user?.token)]) },
-    canWrite () { return this.getters.apis.updateResourceLimit && ['Admin', 'DomainAdmin'].includes(this.getters.userInfo?.roletype) },
+    canRead () { return !!this.getters.apis.listResourceLimits && ['Admin', 'DomainAdmin'].includes(this.getters.userInfo?.roletype) },
+    canWrite () { return this.canRead && !!this.getters.apis.updateResourceLimit && !!this.getters.apis.listProjects },
     effectiveState () { return this.latestState || this.resource.state },
     inactive () { return this.effectiveState !== 'Active' },
     canEdit () {
@@ -113,38 +94,18 @@ export default {
     dirtyCount () { return this.rows.filter(projectLimitDirty).length },
     summary () {
       return ['saved', 'failed', 'unknown'].map(status => this.rows.filter(row => row.status === status).length)
-    },
-    groups () {
-      const categories = [
-        { label: 'label.compute', types: [0, 8, 9, 16] },
-        { label: 'label.network', types: [1, 6, 7] },
-        { label: 'label.storage', types: [2, 3, 4, 10, 11, 12, 13, 14, 15] }
-      ]
-      const known = categories.flatMap(category => category.types)
-      return [
-        ...categories.map(category => ({ ...category, rows: this.rows.filter(row => category.types.includes(row.type)) })),
-        { label: 'label.other', rows: this.rows.filter(row => !known.includes(row.type)) }
-      ].filter(group => group.rows.length)
-    },
-    columns () {
-      return [
-        { key: 'label', title: this.$t('label.project.limit.resource'), width: '32%' },
-        { key: 'saved', title: this.$t('label.project.limit.applied'), width: '19%' },
-        { key: 'draft', title: this.$t('label.project.limit.requested'), width: '23%' },
-        { key: 'result', title: this.$t('label.project.limit.result') }
-      ]
     }
   },
   created () { this.reset() },
   watch: {
     scope () { this.reset() },
+    canRead () { this.reset() },
     'resource.state' (state) { this.latestState = state }
   },
   beforeUnmount () { this.generation++ },
   methods: {
-    resourceLabel (row) {
-      if (row.name === 'backup') return this.$t('label.maxbackups')
-      return row.name ? this.$t('label.max' + row.name.replace('_', '')) : String(row.type)
+    async refreshUsage () {
+      await Promise.all([this.refresh(), this.parentFetchData?.()])
     },
     edit (row, value) {
       if (!this.canEdit || this.saving) return
@@ -202,13 +163,13 @@ export default {
       }
     },
     async refresh () {
-      if (this.loading || this.saving || !this.resource.id) return
+      if (!this.canRead || this.loading || this.saving || !this.resource.id) return
       const generation = this.generation
       const projectid = this.resource.id
       this.loading = true
       this.readError = ''
       try {
-        const [latest, state] = await Promise.all([this.getLimits(projectid), this.observeProject(projectid)])
+        const [latest, state] = await Promise.all([this.getLimits(projectid), this.getters.apis.listProjects ? this.observeProject(projectid) : this.resource.state])
         if (!this.current(generation, projectid)) return
         this.latestState = state
         this.merge(latest)
@@ -319,13 +280,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import '@/style/components/view/DetailTab.scss';
 .project-limit-notice { margin-bottom: 10px; }
-.project-limit-actions { display: flex; justify-content: flex-end; margin-top: 12px; }
-.project-limit-tag { margin-inline-start: 8px; }
-.project-limit-detail { margin: 4px 0 0; overflow-wrap: anywhere; }
-.project-limit-group { margin-bottom: 16px; }
-.project-limit-group h3 { margin: 0 0 8px; color: var(--ui-text-primary); font-size: 14px; font-weight: 600; }
-.project-limit-input { width: 100%; max-width: 116px; }
-.project-limit-group :deep(.ant-tag) { max-width: 100%; white-space: normal; }
 </style>

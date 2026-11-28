@@ -38,17 +38,17 @@
         <IpAddressesTab :resource="resource" :loading="loading" />
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.network.acls')" key="acl" v-if="'listNetworkACLLists' in $store.getters.apis">
-        <a-button
-          type="primary"
-          class="detail-table-create"
-          :disabled="!('createNetworkACLList' in $store.getters.apis)"
-          @click="() => handleOpenModals('networkAcl')">
-          <template #icon><plus-circle-outlined /></template>
-          {{ $t('label.add.network.acl') }}
-        </a-button>
+        <div class="detail-tab-toolbar">
+          <a-button
+            type="primary"
+            :disabled="!('createNetworkACLList' in $store.getters.apis)"
+            @click="() => handleOpenModals('networkAcl')">
+            <template #icon><plus-outlined /></template>
+            {{ $t('label.add.network.acl') }}
+          </a-button>
+        </div>
         <detail-tab-table
-          class="table"
-          size="middle"
+          size="small"
           :columns="networkAclsColumns"
           :scroll="{ x: 480 }"
           :dataSource="networkAcls"
@@ -64,12 +64,10 @@
           </template>
         </detail-tab-table>
         <detail-tab-pagination
-          class="row-element pagination"
           size="small"
           :current="page"
           :pageSize="pageSize"
           :total="itemCounts.networkAcls"
-          :showTotal="total => `${$t('label.total')} ${total} ${$t('label.items')}`"
           :pageSizeOptions="['10', '20', '40', '80', '100']"
           @change="changePage"
           @showSizeChange="changePageSize"
@@ -115,17 +113,17 @@ focus-guard
         </MoldDialog>
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.private.gateway')" key="pgw" v-if="'listPrivateGateways' in $store.getters.apis">
-        <a-button
-          type="primary"
-          class="detail-table-create"
-          :disabled="!('createPrivateGateway' in $store.getters.apis)"
-          @click="gatewayCreate = true">
-          <template #icon><plus-circle-outlined /></template>
-          {{ $t('label.add.private.gateway') }}
-        </a-button>
+        <div class="detail-tab-toolbar">
+          <a-button
+            type="primary"
+            :disabled="!('createPrivateGateway' in $store.getters.apis)"
+            @click="gatewayCreate = true">
+            <template #icon><plus-outlined /></template>
+            {{ $t('label.add.private.gateway') }}
+          </a-button>
+        </div>
         <detail-tab-table
-          class="table"
-          size="middle"
+          size="small"
           :columns="privateGatewaysColumns"
           :scroll="{ x: 760 }"
           :dataSource="privateGateways"
@@ -142,12 +140,10 @@ focus-guard
           </template>
         </detail-tab-table>
         <detail-tab-pagination
-          class="row-element pagination"
           size="small"
           :current="page"
           :pageSize="pageSize"
           :total="itemCounts.privateGateways"
-          :showTotal="total => `${$t('label.total')} ${total} ${$t('label.items')}`"
           :pageSizeOptions="['10', '20', '40', '80', '100']"
           @change="changePage"
           @showSizeChange="changePageSize"
@@ -184,17 +180,17 @@ focus-guard
         </a-list>
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.vpn.connection')" key="vpnc" v-if="'listVpnConnections' in $store.getters.apis">
-        <a-button
-          type="primary"
-          class="detail-table-create"
-          :disabled="!('createVpnConnection' in $store.getters.apis)"
-          @click="handleOpenModals('vpnConnection')">
-          <template #icon><plus-circle-outlined /></template>
-          {{ $t('label.create.site.vpn.connection') }}
-        </a-button>
+        <div class="detail-tab-toolbar">
+          <a-button
+            type="primary"
+            :disabled="!('createVpnConnection' in $store.getters.apis)"
+            @click="handleOpenModals('vpnConnection')">
+            <template #icon><plus-outlined /></template>
+            {{ $t('label.create.site.vpn.connection') }}
+          </a-button>
+        </div>
         <detail-tab-table
-          class="table"
-          size="middle"
+          size="small"
           :columns="vpnConnectionsColumns"
           :scroll="{ x: 640 }"
           :dataSource="vpnConnections"
@@ -213,12 +209,10 @@ focus-guard
           </template>
         </detail-tab-table>
         <detail-tab-pagination
-          class="row-element pagination"
           size="small"
           :current="page"
           :pageSize="pageSize"
           :total="itemCounts.vpnConnections"
-          :showTotal="total => `${$t('label.total')} ${total} ${$t('label.items')}`"
           :pageSizeOptions="['10', '20', '40', '80', '100']"
           @change="changePage"
           @showSizeChange="changePageSize"
@@ -616,6 +610,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/style/components/view/DetailTab.scss';
+
 .vpc-tab { min-width: 0; }
 .vpc-tab-create { margin-bottom: 16px; }
 .vpc-query-notice { margin-bottom: 16px; }
@@ -645,14 +641,5 @@ export default {
     font-weight: bold;
   }
 
-}
-
-.pagination {
-  margin-top: 20px;
-}
-
-.table {
-  margin-top: 20px;
-  overflow-y: auto;
 }
 </style>

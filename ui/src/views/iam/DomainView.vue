@@ -245,8 +245,9 @@ export default {
       return !!this.domainStore.keyword || Object.keys(this.domainStore.filters || {}).length > 0
     },
     treeActiveTab () {
-      return this.treeTabs.some(tab => tab.name === this.domainStore.tab)
-        ? this.domainStore.tab
+      const tabName = this.domainStore.tab === 'limits' ? 'limits.configure' : this.domainStore.tab
+      return this.treeTabs.some(tab => tab.name === tabName)
+        ? tabName
         : this.treeTabs[0]?.name
     },
     breadcrumbResource () {

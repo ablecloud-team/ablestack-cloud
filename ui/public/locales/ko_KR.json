@@ -2133,7 +2133,7 @@
   "label.limit": "제한",
   "label.limitcpuuse": "CPU 제한",
   "label.limits": "제한",
-  "label.limits.configure": "구성 제한",
+  "label.limits.configure": "제한 구성",
   "label.link": "Link",
   "label.link.domain.to.ldap": "LDAP에 도메인 연결",
   "label.linklocalip": "로컬 연결 IP 주소",

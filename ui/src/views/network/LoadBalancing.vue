@@ -31,178 +31,202 @@
     <a-alert v-if="listRefreshFailed" class="network-rules-guidance" type="warning" show-icon :message="$t('message.list.refresh.stale')" />
     <slot name="guidance" />
     <MoldDialog
-class="network-rule-dialog"
-size="lg"
-:visible="createModalVisible"
-:title="$t('label.network.rule.add')"
+      class="network-rule-dialog"
+      size="lg"
+      focus-guard
+      :visible="createModalVisible"
+      :title="$t('label.network.rule.add')"
+      :closable="!loading"
+      :keyboard="!loading"
+      @cancel="!loading && closeModal()">
+      <div @keyup.ctrl.enter="handleAddNewRule">
+        <NetworkRuleContext :resource="resource" />
+        <a-alert
+          v-if="creationFailed"
+          type="error"
+          show-icon
+          class="mold-dialog-summary"
+          :message="$t(creationUncertain ? 'message.public.ip.lb.uncertain' : 'message.network.lb.create.failed')" />
+        <a-alert
+          v-if="assignmentFailed"
+          class="mold-dialog-summary"
+          type="error"
+          show-icon
+          :message="$t('message.network.lb.retry')" />
+        <div class="form">
+          <div class="form__item form__item--full" ref="newRuleName">
+            <div class="form__label"><span class="form__required">*</span>{{ $t('label.name') }}</div>
+            <a-input v-focus="true" v-model:value="newRule.name"></a-input>
+            <span class="error-text">{{ $t('label.required') }}</span>
+          </div>
+          <div class="form__item" ref="newRulePublicPort">
+            <div class="form__label"><span class="form__required">*</span>{{ $t('label.publicport') }}</div>
+            <a-input v-model:value="newRule.publicport"></a-input>
+            <span class="error-text">{{ $t('label.required') }}</span>
+          </div>
+          <div class="form__item" ref="newRulePrivatePort">
+            <div class="form__label"><span class="form__required">*</span>{{ $t('label.privateport') }}</div>
+            <a-input v-model:value="newRule.privateport"></a-input>
+            <span class="error-text">{{ $t('label.required') }}</span>
+          </div>
+        </div>
+        <div class="form">
+          <div class="form__item form__item--full" ref="newCidrList">
+            <tooltip-label :title="$t('label.sourcecidrlist')" bold :tooltip="createLoadBalancerRuleParams.cidrlist.description" :tooltip-placement="'right'"/>
+            <a-input v-model:value="newRule.cidrlist"></a-input>
+          </div>
+          <div class="form__item" v-if="lbProvider !== 'Netris'">
+            <div class="form__label">{{ $t('label.algorithm') }}</div>
+            <a-select
+              v-model:value="newRule.algorithm"
+              showSearch
+              optionFilterProp="label"
+              :filterOption="(input, option) => {
+                return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }" >
+              <a-select-option value="roundrobin" :label="$t('label.lb.algorithm.roundrobin')">{{ $t('label.lb.algorithm.roundrobin') }}</a-select-option>
+              <a-select-option value="leastconn" :label="$t('label.lb.algorithm.leastconn')">{{ $t('label.lb.algorithm.leastconn') }}</a-select-option>
+              <a-select-option value="source" :label="$t('label.lb.algorithm.source')">{{ $t('label.lb.algorithm.source') }}</a-select-option>
+            </a-select>
+          </div>
+          <div class="form__item">
+            <div class="form__label">{{ $t('label.protocol') }}</div>
+            <a-select
+              v-model:value="newRule.protocol"
+              style="min-width: 100px"
+              showSearch
+              optionFilterProp="label"
+              :filterOption="(input, option) => {
+                return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }" >
+              <a-select-option v-if="lbProvider !== 'Netris'" value="tcp-proxy" :label="$t('label.tcp.proxy')">{{ $t('label.tcp.proxy') }}</a-select-option>
+              <a-select-option value="tcp" :label="$t('label.tcp')">{{ $t('label.tcp') }}</a-select-option>
+              <a-select-option value="udp" :label="$t('label.udp')">{{ $t('label.udp') }}</a-select-option>
+              <a-select-option value="ssl" :label="$t('label.ssl')">{{ $t('label.ssl') }}</a-select-option>
+              <a-select-option value="http" :label="$t('label.lb.protocol.http')">{{ $t('label.lb.protocol.http') }}</a-select-option>
+            </a-select>
+          </div>
+          <div class="form__item">
+            <div class="form__label">{{ $t('label.autoscale') }}</div>
+            <a-select
+              v-model:value="newRule.autoscale"
+              :disabled="loading || !!creationJob || !!selectedRule"
+              defaultValue="no"
+              style="min-width: 100px"
+              showSearch
+              optionFilterProp="value"
+              :filterOption="(input, option) => {
+                return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }" >
+              <a-select-option value="yes">{{ $t('label.yes') }}</a-select-option>
+              <a-select-option value="no">{{ $t('label.no') }}</a-select-option>
+            </a-select>
+          </div>
+          <div class="form__item" v-if="newRule.protocol === 'ssl'" >
+            <div class="form__label">{{ $t('label.sslcertificate') }}</div>
+            <a-button :disabled="!sslSelectionAllowed" type="primary" @click="handleOpenAddSslCertModal(null)">
+              {{ this.selectedSsl.id != null ? this.selectedSsl.name : $t('label.add') }}
+            </a-button>
+          </div>
+          <div class="form__item" v-if="newRule.protocol === 'ssl'">
+            <div class="form__label">{{ $t('label.backend.ssl') }}</div>
+            <a-switch v-model:checked="newRule.backendssl" />
+          </div>
 
-:closable="!loading"
-:keyboard="!loading"
-@cancel="!loading && closeModal()">
-      <div class="mold-form-dialog"><div class="mold-form-content"><NetworkRuleContext :resource="resource" /><a-alert v-if="creationFailed" type="error" show-icon class="mold-dialog-summary" :message="$t(creationUncertain ? 'message.public.ip.lb.uncertain' : 'message.network.lb.create.failed')" /><a-alert v-if="assignmentFailed" class="mold-dialog-summary" type="error" show-icon :message="$t('message.network.lb.retry')" />
-    <div @keyup.ctrl.enter="handleAddNewRule">
-      <div class="form">
-        <div class="form__item form__item--full" ref="newRuleName">
-          <div class="form__label"><span class="form__required">*</span>{{ $t('label.name') }}</div>
-          <a-input v-focus="true" v-model:value="newRule.name"></a-input>
-          <span class="error-text">{{ $t('label.required') }}</span>
         </div>
-        <div class="form__item" ref="newRulePublicPort">
-          <div class="form__label"><span class="form__required">*</span>{{ $t('label.publicport') }}</div>
-          <a-input v-model:value="newRule.publicport"></a-input>
-          <span class="error-text">{{ $t('label.required') }}</span>
-        </div>
-        <div class="form__item" ref="newRulePrivatePort">
-          <div class="form__label"><span class="form__required">*</span>{{ $t('label.privateport') }}</div>
-          <a-input v-model:value="newRule.privateport"></a-input>
-          <span class="error-text">{{ $t('label.required') }}</span>
+        <a-alert v-if="newRule.autoscale === 'yes'" class="mold-dialog-section" type="info" show-icon :message="$t('message.network.lb.autoscale.create')" />
+        <PublicLbTierSelect
+          v-if="publicTierRequired"
+          :state="tiers"
+          :value="lbTargetNetworkId"
+          :vpc-name="vpcName || resource.vpcname || resource.vpcid"
+          :project-name="resource.project || resource.projectid"
+          :hide-select="newRule.autoscale === 'yes' && !resource.associatednetworkid"
+          :fixed="!!selectedRule || (!!resource.associatednetworkid && !vpcConserveMode)"
+          :busy="loading || contextLoading"
+          @change="selectPublicTier"
+          @refresh="fetchListTiers" />
+        <div v-if="newRule.autoscale !== 'yes'" class="mold-dialog-section">
+          <div class="network-form-group-label">{{ $t('label.network.lb.targets') }}</div>
+          <a-radio-group v-model:value="targetMode" @change="targetModeChanged">
+            <a-radio-button value="select" :disabled="!('assignToLoadBalancerRule' in $store.getters.apis)">{{ $t('label.network.lb.select') }}</a-radio-button>
+            <a-radio-button value="later">{{ $t('label.network.lb.later') }}</a-radio-button>
+          </a-radio-group>
+          <a-alert
+            class="mold-dialog-section"
+            type="info"
+            show-icon
+            :message="$t(targetMode === 'later' ? 'message.network.lb.later' : 'message.network.lb.targets')" />
+          <div v-if="targetMode === 'select'" class="mold-dialog-section">
+            <a-input-search
+              v-focus="!('vpcid' in resource && !('associatednetworkid' in resource))"
+              class="input-search"
+              :placeholder="$t('label.search')"
+              v-model:value="searchQuery"
+              allowClear
+              @search="onSearch" />
+            <a-table
+              size="small"
+              class="lb-target-list"
+              :loading="addVmModalLoading"
+              :columns="vmColumns"
+              :dataSource="vms"
+              :pagination="false"
+              :rowKey="record => record.id"
+              :scroll="{ x: 400 }">
+              <template #bodyCell="{ column, text, record }">
+                <template v-if="column.key === 'name'">
+                  <span>
+                    {{ text }}
+                  </span>
+                  <loading-outlined v-if="addVmModalNicLoading" />
+                  <a-select
+                    style="display: block"
+                    v-else-if="!addVmModalNicLoading && selectedBackends[record.id]"
+                    mode="multiple"
+                    v-model:value="selectedBackends[record.id].ips"
+                    showSearch
+                    optionFilterProp="label"
+                    :filterOption="(input, option) => {
+                      return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    }" >
+                    <a-select-option
+                      v-for="(nic, nicIndex) in selectedBackends[record.id].options"
+                      :key="nic"
+                      :value="nic"
+                      :label="nic + (nicIndex === 0 ? ' (' + $t('label.primary') + ')' : '')">
+                      {{ nic }}{{ nicIndex === 0 ? ` (${$t('label.primary')})` : null }}
+                    </a-select-option>
+                  </a-select>
+                </template>
+
+                <template v-if="column.key === 'state'">
+                  <status :text="text ? text : ''" displayText></status>
+                </template>
+
+                <template v-if="column.key === 'actions'" style="text-align: center" :text="text">
+                  <a-checkbox :disabled="loading || publicTierSubmissionBlocked" :checked="!!selectedBackends[record.id]" :value="record.id" @change="e => fetchNics(e, record.id)" />
+                </template>
+              </template>
+            </a-table>
+            <a-pagination
+              class="detail-tab-pagination"
+              size="small"
+              :current="vmPage"
+              :pageSize="vmPageSize"
+              :total="vmCount"
+              :showTotal="total => `${$t('label.total')} ${total} ${$t('label.items')}`"
+              :pageSizeOptions="['10', '20', '40', '80', '100']"
+              @change="handleChangeVmPage"
+              @showSizeChange="handleChangeVmPageSize"
+              showSizeChanger>
+              <template #buildOptionText="props">
+                <span>{{ props.value }} / {{ $t('label.page') }}</span>
+              </template>
+            </a-pagination>
+          </div>
         </div>
       </div>
-      <div class="form">
-        <div class="form__item form__item--full" ref="newCidrList">
-          <tooltip-label :title="$t('label.sourcecidrlist')" bold :tooltip="createLoadBalancerRuleParams.cidrlist.description" :tooltip-placement="'right'"/>
-          <a-input v-model:value="newRule.cidrlist"></a-input>
-        </div>
-        <div class="form__item" v-if="lbProvider !== 'Netris'">
-          <div class="form__label">{{ $t('label.algorithm') }}</div>
-          <a-select
-            v-model:value="newRule.algorithm"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
-            <a-select-option value="roundrobin" :label="$t('label.lb.algorithm.roundrobin')">{{ $t('label.lb.algorithm.roundrobin') }}</a-select-option>
-            <a-select-option value="leastconn" :label="$t('label.lb.algorithm.leastconn')">{{ $t('label.lb.algorithm.leastconn') }}</a-select-option>
-            <a-select-option value="source" :label="$t('label.lb.algorithm.source')">{{ $t('label.lb.algorithm.source') }}</a-select-option>
-          </a-select>
-        </div>
-        <div class="form__item">
-          <div class="form__label">{{ $t('label.protocol') }}</div>
-          <a-select
-            v-model:value="newRule.protocol"
-            style="min-width: 100px"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
-            <a-select-option v-if="lbProvider !== 'Netris'" value="tcp-proxy" :label="$t('label.tcp.proxy')">{{ $t('label.tcp.proxy') }}</a-select-option>
-            <a-select-option value="tcp" :label="$t('label.tcp')">{{ $t('label.tcp') }}</a-select-option>
-            <a-select-option value="udp" :label="$t('label.udp')">{{ $t('label.udp') }}</a-select-option>
-            <a-select-option value="ssl" :label="$t('label.ssl')">{{ $t('label.ssl') }}</a-select-option>
-            <a-select-option value="http" :label="$t('label.lb.protocol.http')">{{ $t('label.lb.protocol.http') }}</a-select-option>
-          </a-select>
-        </div>
-        <div class="form__item">
-          <div class="form__label">{{ $t('label.autoscale') }}</div>
-          <a-select
-            v-model:value="newRule.autoscale"
-            :disabled="loading || !!creationJob || !!selectedRule"
-            defaultValue="no"
-            style="min-width: 100px"
-            showSearch
-            optionFilterProp="value"
-            :filterOption="(input, option) => {
-              return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
-            <a-select-option value="yes">{{ $t('label.yes') }}</a-select-option>
-            <a-select-option value="no">{{ $t('label.no') }}</a-select-option>
-          </a-select>
-        </div>
-        <div class="form__item" v-if="newRule.protocol === 'ssl'" >
-          <div class="form__label">{{ $t('label.sslcertificate') }}</div>
-          <a-button :disabled="!sslSelectionAllowed" type="primary" @click="handleOpenAddSslCertModal(null)">
-            {{ this.selectedSsl.id != null ? this.selectedSsl.name : $t('label.add') }}
-          </a-button>
-        </div>
-        <div class="form__item" v-if="newRule.protocol === 'ssl'">
-          <div class="form__label">{{ $t('label.backend.ssl') }}</div>
-          <a-switch v-model:checked="newRule.backendssl" />
-        </div>
-
-      </div>
-    </div>
-      <a-alert v-if="newRule.autoscale === 'yes'" class="mold-dialog-section" type="info" show-icon :message="$t('message.network.lb.autoscale.create')" />
-      <PublicLbTierSelect
-        v-if="publicTierRequired"
-        :state="tiers"
-        :value="lbTargetNetworkId"
-        :vpc-name="vpcName || resource.vpcname || resource.vpcid"
-        :project-name="resource.project || resource.projectid"
-        :hide-select="newRule.autoscale === 'yes' && !resource.associatednetworkid"
-        :fixed="!!selectedRule || (!!resource.associatednetworkid && !vpcConserveMode)"
-        :busy="loading || contextLoading"
-        @change="selectPublicTier"
-        @refresh="fetchListTiers" />
-      <div v-if="newRule.autoscale !== 'yes'" class="mold-dialog-section"><div class="network-form-group-label">{{ $t('label.network.lb.targets') }}</div><a-radio-group v-model:value="targetMode" @change="targetModeChanged"><a-radio-button value="select" :disabled="!('assignToLoadBalancerRule' in $store.getters.apis)">{{ $t('label.network.lb.select') }}</a-radio-button><a-radio-button value="later">{{ $t('label.network.lb.later') }}</a-radio-button></a-radio-group><a-alert class="mold-dialog-section" type="info" show-icon :message="$t(targetMode === 'later' ? 'message.network.lb.later' : 'message.network.lb.targets')" /><div v-if="targetMode === 'select'" class="mold-dialog-section">
-        <a-input-search
-          v-focus="!('vpcid' in resource && !('associatednetworkid' in resource))"
-          class="input-search"
-          :placeholder="$t('label.search')"
-          v-model:value="searchQuery"
-          allowClear
-          @search="onSearch" />
-        <a-table
-          size="small"
-          class="list-view"
-          :loading="addVmModalLoading"
-          :columns="vmColumns"
-          :dataSource="vms"
-          :pagination="false"
-          :rowKey="record => record.id"
-          :scroll="{ y: 300 }">
-          <template #bodyCell="{ column, text, record }">
-            <template v-if="column.key === 'name'">
-              <span>
-                {{ text }}
-              </span>
-              <loading-outlined v-if="addVmModalNicLoading" />
-              <a-select
-                style="display: block"
-                v-else-if="!addVmModalNicLoading && selectedBackends[record.id]"
-                mode="multiple"
-                v-model:value="selectedBackends[record.id].ips"
-                showSearch
-                optionFilterProp="label"
-                :filterOption="(input, option) => {
-                  return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                }" >
-                <a-select-option
-                  v-for="(nic, nicIndex) in selectedBackends[record.id].options"
-                  :key="nic"
-                  :value="nic"
-                  :label="nic + (nicIndex === 0 ? ' (' + $t('label.primary') + ')' : '')">
-                  {{ nic }}{{ nicIndex === 0 ? ` (${$t('label.primary')})` : null }}
-                </a-select-option>
-              </a-select>
-            </template>
-
-            <template v-if="column.key === 'state'">
-              <status :text="text ? text : ''" displayText></status>
-            </template>
-
-            <template v-if="column.key === 'actions'" style="text-align: center" :text="text">
-              <a-checkbox :disabled="loading || publicTierSubmissionBlocked" :checked="!!selectedBackends[record.id]" :value="record.id" @change="e => fetchNics(e, record.id)" />
-            </template>
-          </template>
-        </a-table>
-        <a-pagination
-          class="detail-tab-pagination"
-          size="small"
-          :current="vmPage"
-          :pageSize="vmPageSize"
-          :total="vmCount"
-          :showTotal="total => `${$t('label.total')} ${total} ${$t('label.items')}`"
-          :pageSizeOptions="['10', '20', '40', '80', '100']"
-          @change="handleChangeVmPage"
-          @showSizeChange="handleChangeVmPageSize"
-          showSizeChanger>
-          <template #buildOptionText="props">
-            <span>{{ props.value }} / {{ $t('label.page') }}</span>
-          </template>
-        </a-pagination>
-</div></div></div></div>
       <template #footer>
         <a-button :disabled="loading" @click="closeModal">{{ $t('label.cancel') }}</a-button>
         <a-button type="primary" :loading="loading" :disabled="ruleSubmissionBlocked || !('createLoadBalancerRule' in $store.getters.apis)" @click="handleAddNewRule">
