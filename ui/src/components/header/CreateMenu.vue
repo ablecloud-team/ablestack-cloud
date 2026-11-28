@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <a-dropdown v-if="accessibleCreateActions && accessibleCreateActions.length > 0">
+  <a-dropdown v-if="accessibleCreateActions && accessibleCreateActions.length > 0" :trigger="['click']" placement="bottomRight">
     <template #overlay>
       <a-menu>
         <a-menu-item style="width: 100%; padding: 12px" v-for="menuItem in accessibleCreateActions" :key="menuItem.api">

@@ -37,7 +37,7 @@
             <a-table size="small" :columns="storeColumns" :data-source="stores(record,section.role)" :pagination="false" :scroll="{ x: 570 }" :row-key="(row,index) => row.datastoreId || index">
               <template #bodyCell="{ column, record: store }">
                 <keyboard-tooltip v-if="column.key === 'datastore'" :title="store.datastore || '—'" :trigger="['hover','focus']"><span tabindex="0" class="template-cell-value">{{ store.datastore || '—' }}</span></keyboard-tooltip>
-                <template v-else-if="column.key === 'downloadPercent'"><a-progress v-if="isoStorePresentation(store).percent !== null" :percent="isoStorePresentation(store).percent" size="small" :status="isoStorePresentation(store).badge === 'error' ? 'exception' : undefined" /><span v-else>—</span></template>
+                <template v-else-if="column.key === 'downloadPercent'"><a-progress :format="percent => percent + '%'" v-if="isoStorePresentation(store).percent !== null" :percent="isoStorePresentation(store).percent" size="small" :status="isoStorePresentation(store).badge === 'error' ? 'exception' : undefined" /><span v-else>—</span></template>
                 <a-badge v-else-if="column.key === 'downloadState'" :status="isoStorePresentation(store).badge" :text="$t(isoStorePresentation(store).label)" />
               </template>
             </a-table>

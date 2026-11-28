@@ -54,7 +54,7 @@ size="small"
             <a-table size="small" :columns="storeColumns" :data-source="storeRows(record,section.role)" :pagination="false" :bordered="false" :scroll="{x:580}" :row-key="item=>item.datastoreId || item.datastore">
               <template #bodyCell="{column,record:item}">
                 <a-tooltip v-if="column.key==='datastore'" :title="item.datastore"><router-link v-if="item.datastoreId" class="template-cell-value" :to="section.path+'/'+encodeURIComponent(item.datastoreId)">{{ item.datastore }}</router-link><span v-else class="template-cell-value">{{ item.datastore }}</span></a-tooltip>
-                <template v-else-if="column.key==='downloadPercent'"><a-progress v-if="storePresentation(item).percent!==null" :percent="storePresentation(item).percent" size="small" :status="storePresentation(item).badge==='error'?'exception':undefined" /><span v-else>—</span></template>
+                <template v-else-if="column.key==='downloadPercent'"><a-progress :format="percent => percent + '%'" v-if="storePresentation(item).percent!==null" :percent="storePresentation(item).percent" size="small" :status="storePresentation(item).badge==='error'?'exception':undefined" /><span v-else>—</span></template>
                 <a-tooltip v-else-if="column.key==='downloadState'" :title="item.downloadState"><a-badge :status="storePresentation(item).badge" :text="$t(storePresentation(item).label)" /></a-tooltip>
               </template>
             </a-table>

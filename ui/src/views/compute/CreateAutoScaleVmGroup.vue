@@ -16,7 +16,17 @@
 // under the License.
 
 <template>
-  <div ref="creationLayout" class="autoscale-create" :class="{ 'autoscale-create--bounded': creationViewportHeight }" :style="{ '--autoscale-viewport-height': creationViewportHeight }">
+  <resource-create-wizard
+    ref="wizard"
+    v-model:step="wizardStep"
+    :stages="wizardStages"
+    :title="$t('label.new.autoscale.vmgroup')"
+    return-route="/autoscalevmgroup"
+    :validate-step="validateWizardStep"
+    split-scroll
+    summary-title-key="label.vm.wizard.summary"
+    :busy="loading.deploy || submitting || creationBusy"
+    :blocked="!hasRequiredCreationApis">
     <a-alert v-if="!hasRequiredCreationApis" type="error" show-icon :message="$t('message.autoscale.apis.required')" style="margin-bottom: 16px" />
     <a-alert v-if="userDataLookupFailed" type="error" show-icon :message="$t('message.autoscale.userdata.unavailable')" style="margin-bottom: 16px">
       <template #description><a-button size="small" @click="retryUserDataLookup">{{ $t('label.retry') }}</a-button></template>
@@ -24,982 +34,918 @@
     <a-alert v-if="creationOperation" type="info" show-icon :message="$t('label.autoscale.creation.' + creationOperation.status)" style="margin-bottom: 16px">
       <template #description><a-button @click="processStatusModalVisible = true">{{ $t('label.autoscale.creation.inspect') }}</a-button></template>
     </a-alert>
-    <a-row v-if="hasRequiredCreationApis" :gutter="12">
-      <a-col :xs="24" :lg="17" class="autoscale-create-form-column">
-        <a-card :bordered="true" :title="$t('label.new.autoscale.vmgroup')">
-          <a-form
-            class="autoscale-create-form-scroll"
-            tabindex="0"
-            :aria-label="$t('label.new.autoscale.vmgroup')"
-            v-ctrl-enter="handleSubmit"
-            :ref="formRef"
-            :model="form"
-            :rules="rules"
-            @finish="handleSubmit"
-            layout="vertical"
-          >
-            <a-steps direction="vertical" size="small">
-              <a-step :title="$t('label.select.a.zone')" status="process">
-                <template #description>
-                  <div style="margin-top: 15px">
-                    <span>{{ $t('message.select.a.zone') }}</span><br/>
-                    <a-form-item :label="$t('label.zoneid')" name="zoneid" ref="zoneid">
-                      <zone-block-radio-group-select
-                        :items="zones"
-                        :selectedValue="form.zoneid"
-                        @change="onSelectZoneId" />
-                    </a-form-item>
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                v-if="!zoneSelected || isZoneSelectedMultiArch"
-                :title="$t('label.arch')"
-                :status="zoneSelected ? 'process' : 'wait'">
-                <template #description>
-                  <div v-if="zoneSelected" style="margin-top: 15px">
-                    {{ $t('message.instance.architecture') }}
-                    <block-radio-group-select
-                      style="margin-top: 5px;"
-                      :items="architectureTypes.opts"
-                      :selectedValue="selectedArchitecture"
-                      @change="changeArchitecture">
-                        <template #radio-option="{ item }">
-                          <span>{{ item.name || item.description }}</span>
+    <a-form
+      v-if="hasRequiredCreationApis"
+      tabindex="0"
+      :aria-label="$t('label.new.autoscale.vmgroup')"
+      v-ctrl-enter="handleWizardEnter"
+      :ref="formRef"
+      :model="form"
+      :rules="rules"
+      @finish="handleWizardEnter"
+      layout="vertical"
+    >
+      <section v-show="wizardStep === 0" class="resource-create-section" data-wizard-step="0">
+        <h3 class="resource-create-section-title">{{ $t('label.select.a.zone') }}</h3>
+        <div style="margin-top: 15px">
+          <span>{{ $t('message.select.a.zone') }}</span><br/>
+          <a-form-item :label="$t('label.zoneid')" name="zoneid" ref="zoneid">
+            <zone-block-radio-group-select
+              :items="zones"
+              :selectedValue="form.zoneid"
+              @change="onSelectZoneId" />
+          </a-form-item>
+        </div>
+      </section>
+      <section v-show="wizardStep === 13" class="resource-create-section" data-wizard-step="13">
+        <h3 class="resource-create-section-title">{{ $t('label.vm.wizard.basic') }}</h3>
+        <template v-if="zoneSelected">
+          <div style="margin-top: 15px">
+            <a-form-item name="name" ref="name">
+              <template #label>
+                <tooltip-label :title="$t('label.name')" :tooltip="createAutoScaleVmGroupApiParams.name.description"/>
+              </template>
+              <a-input v-model:value="form.name"></a-input>
+            </a-form-item>
+            <a-form-item name="expungevmgraceperiod" ref="expungevmgraceperiod">
+              <template #label>
+                <tooltip-label :title="$t('label.expungevmgraceperiod')" :tooltip="createAutoScaleVmProfileApiParams.expungevmgraceperiod.description"/>
+              </template>
+              <a-input v-model:value="form.expungevmgraceperiod" type="number"></a-input>
+            </a-form-item>
+            <a-form-item name="maxmembers" ref="maxmembers">
+              <template #label>
+                <tooltip-label :title="$t('label.maxmembers')" :tooltip="createAutoScaleVmGroupApiParams.maxmembers.description"/>
+              </template>
+              <a-input v-model:value="form.maxmembers" type="number"></a-input>
+            </a-form-item>
+            <a-form-item name="minmembers" ref="minmembers">
+              <template #label>
+                <tooltip-label :title="$t('label.minmembers')" :tooltip="createAutoScaleVmGroupApiParams.minmembers.description"/>
+              </template>
+              <a-input v-model:value="form.minmembers" type="number"></a-input>
+            </a-form-item>
+            <a-form-item name="interval" ref="interval">
+              <template #label>
+                <tooltip-label :title="$t('label.interval')" :tooltip="createAutoScaleVmGroupApiParams.interval.description"/>
+              </template>
+              <a-input v-model:value="form.interval" type="number"></a-input>
+            </a-form-item>
+          </div>
+        </template>
+      </section>
+      <section v-if="wizardStepIds.has(1)" v-show="wizardStep === 1" class="resource-create-section" data-wizard-step="1">
+        <h3 class="resource-create-section-title">{{ $t('label.arch') }}</h3>
+        <div v-if="zoneSelected" style="margin-top: 15px">
+          {{ $t('message.instance.architecture') }}
+          <block-radio-group-select
+            style="margin-top: 5px;"
+            :items="architectureTypes.opts"
+            :selectedValue="selectedArchitecture"
+            @change="changeArchitecture">
+              <template #radio-option="{ item }">
+                <span>{{ item.name || item.description }}</span>
+              </template>
+              <template #select-option="{ item }">
+                <span>{{ item.name || item.description }}</span>
+              </template>
+          </block-radio-group-select>
+        </div>
+      </section>
+      <section v-show="wizardStep === 2" class="resource-create-section" data-wizard-step="2">
+        <h3 class="resource-create-section-title">{{ $t('label.template.select') }}</h3>
+        <div v-if="zoneSelected" style="margin-top: 15px">
+          <os-based-image-selection
+            v-if="isModernImageSelection"
+            :imageTypeSelectionAllowed="false"
+            :imagePreSelected="!!this.queryTemplateId"
+            :guestOsCategoriesSelectionDisallowed="!this.queryGuestOsCategoryId && !!this.queryTemplateId"
+            :guestOsCategories="options.guestOsCategories"
+            :guestOsCategoriesLoading="loading.guestOsCategories"
+            :selectedGuestOsCategoryId="form.guestoscategoryid"
+            :imageItems="autoScaleImageItems"
+            :imagesLoading="loading.templates"
+            :diskSizeSelectionAllowed="false"
+            :filterOption="filterOption"
+            :preFillContent="dataPreFill"
+            @change-guest-os-category="onSelectGuestOsCategory"
+            @handle-image-search-filter="($event) => fetchAllTemplates($event)"
+            @update-image="updateFieldValue"
+            @update-disk-size="updateFieldValue" />
+          <a-card
+            v-else
+            :tabList="imageTypeList"
+            :activeTabKey="imageType">
+            <div>
+              {{ $t('message.template.desc') }}
+              <template-iso-selection
+                input-decorator="templateid"
+                :items="options.templates"
+                :selected="imageType"
+                :loading="loading.templates"
+                :preFillContent="dataPreFill"
+                :key="templateKey"
+                @handle-search-filter="($event) => fetchAllTemplates($event)"
+                @update-template-iso="updateFieldValue" />
+            </div>
+          </a-card>
+          <a-form-item class="form-item-hidden">
+            <a-input v-model:value="form.templateid" />
+          </a-form-item>
+        </div>
+      </section>
+      <section v-show="wizardStep === 3" class="resource-create-section" data-wizard-step="3">
+        <h3 class="resource-create-section-title">{{ $t('label.serviceofferingid') }}</h3>
+        <div v-if="zoneSelected">
+          <a-form-item v-if="zoneSelected && templateConfigurationExists" name="templateConfiguration" ref="templateConfiguration">
+            <template #label>
+              <tooltip-label :title="$t('label.configuration')" :tooltip="$t('message.ovf.configurations')"/>
+            </template>
+            <a-select
+              showSearch
+              optionFilterProp="label"
+              v-model:value="form.templateConfiguration"
+              defaultActiveFirstOption
+              :placeholder="$t('message.ovf.configurations')"
+              :filterOption="(input, option) => {
+                return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }"
+              @change="onSelectTemplateConfigurationId"
+            >
+              <a-select-option v-for="opt in templateConfigurations" :key="opt.id" :label="opt.name || opt.description">
+                {{ opt.name || opt.description }}
+              </a-select-option>
+            </a-select>
+            <span v-if="selectedTemplateConfiguration && selectedTemplateConfiguration.description">{{ selectedTemplateConfiguration.description }}</span>
+          </a-form-item>
+          <compute-offering-selection
+            name-only
+            :compute-items="options.serviceOfferings"
+            :selected-template="template ? template : {}"
+            :row-count="rowCount.serviceOfferings"
+            :zoneId="zoneId"
+            :autoscale="true"
+            :value="serviceOffering ? serviceOffering.id : ''"
+            :loading="loading.serviceOfferings"
+            :preFillContent="dataPreFill"
+            :show-gpu-filter="zone.gputotal && zone.gputotal > 0"
+            :minimum-cpunumber="templateConfigurationExists && selectedTemplateConfiguration && selectedTemplateConfiguration.cpunumber ? selectedTemplateConfiguration.cpunumber : 0"
+            :minimum-cpuspeed="templateConfigurationExists && selectedTemplateConfiguration && selectedTemplateConfiguration.cpuspeed ? selectedTemplateConfiguration.cpuspeed : 0"
+            :minimum-memory="templateConfigurationExists && selectedTemplateConfiguration && selectedTemplateConfiguration.memory ? selectedTemplateConfiguration.memory : 0"
+            @select-compute-item="($event) => updateComputeOffering($event)"
+            @handle-search-filter="($event) => handleSearchFilter('serviceOfferings', $event)"
+          ></compute-offering-selection>
+          <compute-selection
+            v-if="serviceOffering && (serviceOffering.iscustomized || serviceOffering.iscustomizediops)"
+            cpuNumberInputDecorator="cpunumber"
+            cpuSpeedInputDecorator="cpuspeed"
+            memoryInputDecorator="memory"
+            :preFillContent="dataPreFill"
+            :computeOfferingId="vmgroupConfig.computeofferingid"
+            :isConstrained="isOfferingConstrained(serviceOffering)"
+            :minCpu="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.mincpunumber*1 : 0"
+            :maxCpu="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.maxcpunumber*1 : Number.MAX_SAFE_INTEGER"
+            :minMemory="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.minmemory*1 : 0"
+            :maxMemory="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.maxmemory*1 : Number.MAX_SAFE_INTEGER"
+            :isCustomized="serviceOffering.iscustomized"
+            :isCustomizedIOps="'iscustomizediops' in serviceOffering && serviceOffering.iscustomizediops"
+            @handler-error="handlerError"
+            @update-iops-value="updateIOPSValue"
+            @update-compute-cpunumber="updateFieldValue"
+            @update-compute-cpuspeed="updateFieldValue"
+            @update-compute-memory="updateFieldValue" />
+          <span v-if="serviceOffering && serviceOffering.iscustomized">
+            <a-form-item name="cpunumber" ref="cpunumber" class="form-item-hidden">
+              <a-input v-model:value="form.cpunumber"/>
+            </a-form-item>
+            <a-form-item
+              class="form-item-hidden"
+              v-if="(serviceOffering && !(serviceOffering.cpuspeed > 0))"
+              name="cpuspeed"
+              ref="cpuspeed">
+              <a-input v-model:value="form.cpuspeed"/>
+            </a-form-item>
+            <a-form-item class="form-item-hidden" name="memory" ref="memory">
+              <a-input v-model:value="form.memory"/>
+            </a-form-item>
+          </span>
+        </div>
+      </section>
+      <section v-show="wizardStep === 15" class="resource-create-section" data-wizard-step="15">
+        <h3 class="resource-create-section-title">{{ $t('label.rootdisk') }}</h3>
+        <div v-if="serviceOffering?.id">
+          <section class="disk-step-section root-offering-section">
+            <h4 class="disk-step-heading"><span>1</span>{{ $t('label.vm.root.offering') }}</h4>
+            <a-form-item :label="$t('label.override.root.diskoffering')">
+              <a-switch
+                :checked="showOverrideDiskOfferingOption"
+                :disabled="rootOfferingLocked"
+                @change="updateOverrideRootDiskShowParam" />
+              <p class="option-help">{{ $t('message.vm.root.offering.override') }}</p>
+            </a-form-item>
+            <a-tag v-if="!showOverrideDiskOfferingOption">{{ defaultRootOfferingName }}</a-tag>
+            <p v-if="serviceOffering.diskofferingstrictness" class="option-help">{{ $t('message.vm.root.offering.required') }}</p>
+            <p v-if="template?.deployasis" class="option-help">{{ $t('message.deployasis') }}</p>
+            <disk-offering-selection
+              v-if="showOverrideDiskOfferingOption"
+              :items="options.diskOfferings"
+              :row-count="rowCount.diskOfferings"
+              :zone-id="zoneId"
+              :value="form.overridediskofferingid || ''"
+              :loading="loading.diskOfferings"
+              is-root-disk-offering
+              @on-selected-root-disk-size="onSelectRootDiskSize"
+              @select-disk-offering-item="updateOverrideDiskOffering"
+              @handle-search-filter="handleSearchFilter('diskOfferings', $event)" />
+          </section>
+          <deployment-storage-selection
+            v-if="storageSelectionEnabled && (!showOverrideDiskOfferingOption || overrideDiskOffering?.id)"
+            v-model:value="rootStorageSelection"
+            :title="$t('label.vm.storage.root')"
+            :query="rootStorageQuery"
+            class="disk-step-storage root-storage-section" />
+          <section v-if="!showOverrideDiskOfferingOption || overrideDiskOffering?.id" class="disk-step-section root-size-section">
+            <h4 class="disk-step-heading"><span>{{ storageSelectionEnabled ? 3 : 2 }}</span>{{ $t('label.vm.root.capacity') }}</h4>
+            <template v-if="!showOverrideDiskOfferingOption">
+              <div v-if="selectedRootDiskSize && !showRootDiskSizeChanger" class="disk-fixed-value">{{ selectedRootDiskSize }} GB</div>
+              <a-form-item :label="$t('label.override.rootdisk.size')">
+                <a-switch
+                  :checked="showRootDiskSizeChanger"
+                  :disabled="rootOfferingLocked || rootDiskSizeFixed > 0"
+                  @change="changeRootDiskSizeOverride" />
+                <p class="option-help">{{ $t('message.vm.root.size.override') }}</p>
+              </a-form-item>
+            </template>
+            <a-form-item v-if="showOverrideDiskOfferingOption && !overrideDiskOffering.iscustomized">
+              <a-input-number :value="selectedRootDiskSize" disabled />
+              <span class="disk-size-unit">GB</span>
+              <a-tag>{{ $t('label.vm.disk.fixed') }}</a-tag>
+            </a-form-item>
+            <disk-size-selection
+              v-if="showRootDiskSizeChanger || overrideDiskOffering?.iscustomized || overrideDiskOffering?.iscustomizediops"
+              :key="form.overridediskofferingid || 'default-root'"
+              input-decorator="rootdisksize"
+              :value="form.rootdisksize"
+              hide-size-label
+              allow-empty-size
+              :show-size="showRootDiskSizeChanger || !!overrideDiskOffering?.iscustomized"
+              :is-customized="showRootDiskSizeChanger || !!overrideDiskOffering?.iscustomized"
+              :pre-fill-content="dataPreFill"
+              :min-disk-size="dataPreFill.minrootdisksize"
+              :root-disk-selected="overrideDiskOffering || {}"
+              @handler-error="handlerError"
+              @update-disk-size="updateFieldValue"
+              @update-root-disk-iops-value="updateIOPSValue" />
+          </section>
+        </div>
+      </section>
+      <section v-if="wizardStepIds.has(4)" v-show="wizardStep === 4" class="resource-create-section" data-wizard-step="4">
+        <h3 class="resource-create-section-title">{{ $t('label.data.disk') }}</h3>
+        <div v-if="zoneSelected">
+          <multi-disk-selection
+            :items="template.childtemplates"
+            :diskOfferings="options.diskOfferings"
+            :zoneId="zoneId"
+            @select-multi-disk-offering="updateMultiDiskOffering($event)" />
+        </div>
+      </section>
+      <section v-if="wizardStepIds.has(5)" v-show="wizardStep === 5" class="resource-create-section" data-wizard-step="5">
+        <h3 class="resource-create-section-title">{{ $t('label.data.disk') }}</h3>
+        <div v-if="zoneSelected">
+          <section class="disk-step-section data-offering-section">
+            <h4 class="disk-step-heading"><span>1</span>{{ $t('label.autoscale.data.disk.offering') }}</h4>
+            <disk-offering-selection
+              :items="options.diskOfferings"
+              :row-count="rowCount.diskOfferings"
+              :zone-id="zoneId"
+              :value="form.diskofferingid || ''"
+              :loading="loading.diskOfferings"
+              :pre-fill-content="dataPreFill"
+              @on-selected-disk-size="onSelectDiskSize"
+              @select-disk-offering-item="updateDiskOffering"
+              @handle-search-filter="handleSearchFilter('diskOfferings', $event)" />
+          </section>
+          <template v-if="diskOffering?.id">
+            <deployment-storage-selection
+              v-if="storageSelectionEnabled"
+              v-model:value="dataStorageSelection"
+              :title="$t('label.vm.storage.data')"
+              :query="dataStorageQuery"
+              class="disk-step-storage data-storage-section" />
+            <section class="disk-step-section data-size-section">
+              <h4 class="disk-step-heading"><span>{{ storageSelectionEnabled ? 3 : 2 }}</span>{{ $t('label.autoscale.data.disk.capacity') }}</h4>
+              <a-form-item v-if="!diskOffering.iscustomized">
+                <a-input-number :value="selectedDataDiskSize" disabled />
+                <span class="disk-size-unit">GB</span>
+                <a-tag>{{ $t('label.vm.disk.fixed') }}</a-tag>
+              </a-form-item>
+              <disk-size-selection
+                v-if="diskOffering.iscustomized || diskOffering.iscustomizediops"
+                :key="diskOffering.id"
+                input-decorator="size"
+                :value="form.size"
+                hide-size-label
+                allow-empty-size
+                :disk-selected="diskOffering"
+                :is-customized="diskOffering.iscustomized"
+                @handler-error="handlerError"
+                @update-disk-size="updateFieldValue"
+                @update-iops-value="updateIOPSValue" />
+            </section>
+          </template>
+        </div>
+      </section>
+      <section v-if="wizardStepIds.has(6)" v-show="wizardStep === 6" class="resource-create-section" data-wizard-step="6">
+        <h3 class="resource-create-section-title">{{ $t('label.select.network') }}</h3>
+        <label>{{ $t('message.autoscale.vm.networks') }}</label>
+        <div v-if="zoneSelected">
+          <div v-if="vm.templateid && templateNics && templateNics.length > 0">
+            <instance-nics-network-select-list-view
+              :nics="templateNics"
+              :zoneid="selectedZone"
+              @select="handleNicsNetworkSelection" />
+          </div>
+          <div v-show="!(vm.templateid && templateNics && templateNics.length > 0)" >
+            <network-selection
+              :localize-auto-scale-support="true"
+              :items="options.networks"
+              :row-count="rowCount.networks"
+              :value="networkOfferingIds"
+              :loading="loading.networks"
+              :zoneId="zoneId"
+              :preFillContent="dataPreFill"
+              @select-network-item="($event) => updateNetworks($event)"
+              @handle-search-filter="($event) => handleSearchFilter('networks', $event)"
+            ></network-selection>
+            <network-configuration
+              v-if="networks.length > 0"
+              :items="networks"
+              :autoscale="true"
+              :preFillContent="dataPreFill"
+              @handler-error="($event) => hasError = $event"
+              @select-default-network-item="($event) => updateDefaultNetworks($event)"
+            ></network-configuration>
+          </div>
+        </div>
+      </section>
+      <section v-if="wizardStepIds.has(7)" v-show="wizardStep === 7" class="resource-create-section" data-wizard-step="7">
+        <h3 class="resource-create-section-title">{{ $t('label.loadbalancing') }}</h3>
+        <load-balancer-selection
+          :items="options.loadbalancers"
+          :rowCount="rowCount.loadbalancers"
+          :zoneId="zoneId"
+          :loading="loading.loadbalancers"
+          :preFillContent="dataPreFill"
+          @select-load-balancer-item="($event) => updateLoadBalancers($event)"
+          @handle-search-filter="($event) => handleSearchFilter('loadbalancers', $event)"
+        ></load-balancer-selection>
+        <a-alert v-if="netScalerStorageConflict" type="warning" show-icon :message="$t('message.autoscale.storage.netscaler')" />
+        <a-form-item name="autoscaleuserid" ref="autoscaleuserid" v-if="selectedLbProdiver === 'Netscaler'">
+          <template #label>
+            <tooltip-label :title="$t('label.user')" :tooltip="createAutoScaleVmProfileApiParams.autoscaleuserid.description"/>
+          </template>
+          <a-select
+            style="width: 100%"
+            showSearch
+            optionFilterProp="label"
+            :filterOption="(input, option) => {
+              return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }"
+            v-model:value="form.autoscaleuserid">
+            <a-select-option
+              v-for="(user, index) in usersList"
+              :value="user.id"
+              :key="index"
+              :label="user.username">
+              {{ user.username }}
+            </a-select-option>
+          </a-select>
+        </a-form-item>
+      </section>
+      <section v-if="wizardStepIds.has(8)" v-show="wizardStep === 8" class="resource-create-section" data-wizard-step="8">
+        <h3 class="resource-create-section-title">{{ $t('label.security.groups') }}</h3>
+        <security-group-selection
+          :zoneId="zoneId"
+          :value="securitygroupids"
+          :loading="loading.networks"
+          :preFillContent="dataPreFill"
+          @select-security-group-item="($event) => updateSecurityGroups($event)"></security-group-selection>
+      </section>
+      <section v-if="wizardStepIds.has(9)" v-show="wizardStep === 9" class="resource-create-section" data-wizard-step="9">
+        <h3 class="resource-create-section-title">{{ $t('label.ovf.properties') }}</h3>
+        <div v-for="(props, category) in templateProperties" :key="category">
+          <a-alert :message="'Category: ' + category + ' (' + props.length + ' properties)'" type="info" />
+          <div style="margin-left: 15px; margin-top: 10px">
+            <a-form-item
+              v-for="(property, propertyIndex) in props"
+              :key="propertyIndex"
+              :v-bind="property.key"
+              :name="'properties.' + escapePropertyKey(property.key)"
+              :ref="'properties.' + escapePropertyKey(property.key)">
+              <tooltip-label style="text-transform: capitalize" :title="property.label" :tooltip="property.description"/>
+
+              <span v-if="property.type && property.type==='boolean'">
+                <a-switch
+                  v-model:checked="form['properties.' + escapePropertyKey(property.key)]"
+                  :placeholder="property.description"
+                />
+              </span>
+              <span v-else-if="property.type && (property.type==='int' || property.type==='real')">
+                <a-input-number
+                  v-model:value="form['properties.'+ escapePropertyKey(property.key)]"
+                  :placeholder="property.description"
+                  :min="getPropertyQualifiers(property.qualifiers, 'number-select').min"
+                  :max="getPropertyQualifiers(property.qualifiers, 'number-select').max" />
+              </span>
+              <span v-else-if="property.type && property.type==='string' && property.qualifiers && property.qualifiers.startsWith('ValueMap')">
+                <a-select
+                  showSearch
+                  optionFilterProp="value"
+                  v-model:value="form['properties.' + escapePropertyKey(property.key)]"
+                  :placeholder="property.description"
+                  :filterOption="(input, option) => {
+                    return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }"
+                >
+                  <a-select-option v-for="opt in getPropertyQualifiers(property.qualifiers, 'select')" :key="opt">
+                    {{ opt }}
+                  </a-select-option>
+                </a-select>
+              </span>
+              <span v-else-if="property.type && property.type==='string' && property.password">
+                <a-input-password
+                  v-model:value="form['properties.' + escapePropertyKey(property.key)]"
+                  :placeholder="property.description" />
+              </span>
+              <span v-else>
+                <a-input
+                  v-model:value="form['properties.' + escapePropertyKey(property.key)]"
+                  :placeholder="property.description" />
+              </span>
+            </a-form-item>
+          </div>
+        </div>
+      </section>
+      <section v-show="wizardStep === 10" class="resource-create-section" data-wizard-step="10">
+        <h3 class="resource-create-section-title">{{ $t('label.scaleup.policies') }}</h3>
+        <label>{{ $t('message.scaleup.policies') }}</label>
+        <a-divider/>
+        <div class="form">
+          <strong>{{ $t('label.scaleup.policy') }} &nbsp;&nbsp;&nbsp;</strong>
+          <a-select
+            style="width: 320px"
+            v-model:value="selectedScaleUpPolicyId"
+            @change="fetchScaleUpConditions()"
+            :placeholder="$t('label.scaleup.policy')"
+            showSearch
+            optionFilterProp="label"
+            :filterOption="(input, option) => {
+              return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }" >
+            <a-select-option
+              v-for="policy in this.scaleUpPolicies"
+              :key="policy.id"
+              :label="policy.name">
+              {{ policy.name }}
+            </a-select-option>
+          </a-select>
+          <a-button style="margin-left: 10px" ref="submit" type="primary" @click="addNewScaleUpPolicy">
+            <template #icon><plus-outlined /></template>
+            {{ $t('label.add.policy') }}
+          </a-button>
+          <a-button style="margin-left: 10px" ref="submit" type="primary" @click="removeScaleUpPolicy" :danger="true" >
+            <template #icon><delete-outlined /></template>
+            {{ $t('label.remove.policy') }}
+          </a-button>
+        </div>
+        <div class="form">
+          <a-form-item>
+            <template #label>
+              <span class="form__required">*</span>
+              <tooltip-label :title="$t('label.name')" :tooltip="createAutoScalePolicyApiParams.name.description"/>
+            </template>
+            <a-input v-model:value="selectedScaleUpPolicy.name"></a-input>
+            <span class="error-text">{{ $t('label.required') }}</span>
+          </a-form-item>
+          <a-form-item name="scaleupduration" ref="scaleupduration">
+            <template #label>
+              <span class="form__required">*</span>
+              <tooltip-label :title="$t('label.duration')" :tooltip="createAutoScalePolicyApiParams.duration.description"/>
+            </template>
+            <a-input v-model:value="selectedScaleUpPolicy.scaleupduration" type="number"></a-input>
+            <span class="error-text">{{ $t('label.required') }}</span>
+          </a-form-item>
+          <a-form-item name="scaleupquiettime" ref="scaleupquiettime">
+            <template #label>
+              <tooltip-label :title="$t('label.autoscale.cooldown.seconds')" :tooltip="createAutoScalePolicyApiParams.quiettime.description"/>
+            </template>
+            <a-input v-model:value="selectedScaleUpPolicy.scaleupquiettime" type="number"></a-input>
+          </a-form-item>
+        </div>
+        <a-divider/>
+        <div class="form">
+          <div class="form__item" ref="newScaleUpConditionCounterId">
+            <div class="form__label">
+              <span class="form__required">*</span>
+              <tooltip-label :title="$t('label.counter')" :tooltip="$t('label.counter.name')"/>
+            </div>
+            <a-select
+              style="width: 100%"
+              showSearch
+              optionFilterProp="label"
+              :filterOption="(input, option) => {
+                return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }"
+              v-focus="true"
+              v-model:value="newScaleUpCondition.counterid">
+              <a-select-option
+                v-for="(counter, index) in countersList"
+                :value="counter.id"
+                :key="index"
+                :label="counterLabel(counter.name)">
+                {{ counterLabel(counter.name) }}
+              </a-select-option>
+            </a-select>
+            <span class="error-text">{{ $t('label.required') }}</span>
+          </div>
+          <div class="form__item" ref="newScaleUpConditionRelationalOperator">
+            <div class="form__label">
+              <span class="form__required">*</span>
+              <tooltip-label :title="$t('label.relationaloperator')" :tooltip="createConditionApiParams.relationaloperator.description"/>
+            </div>
+            <a-select
+              v-model:value="newScaleUpCondition.relationaloperator"
+              style="width: 100%;"
+              optionFilterProp="value"
+              :filterOption="(input, option) => {
+                return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }" >
+              <a-select-option v-for="operator in ['GT', 'GE', 'LT', 'LE', 'EQ']" :key="operator" :value="operator">{{ getOperator(operator) }}</a-select-option>
+            </a-select>
+            <span class="error-text">{{ $t('label.required') }}</span>
+          </div>
+          <div class="form__item" ref="newScaleUpConditionThreshold">
+            <div class="form__label">
+              <span class="form__required">*</span>
+              <tooltip-label :title="$t('label.threshold')" :tooltip="$t('label.threshold.description')"/>
+            </div>
+            <a-input v-model:value="newScaleUpCondition.threshold" type="number"></a-input>
+            <span class="error-text">{{ $t('label.invalid.number') }}</span>
+          </div>
+          <div class="form__item">
+            <div class="form__label">{{ $t('label.action') }}</div>
+            <a-button ref="submit" type="primary" @click="addScaleUpCondition">
+              <template #icon><plus-outlined /></template>
+              {{ $t('label.autoscale.condition.add') }}
+            </a-button>
+          </div>
+        </div>
+        <a-divider/>
+        <div>
+          <a-table
+            size="small"
+            style="overflow-y: auto"
+            :loading="false"
+            :columns="scaleUpColumns"
+            :dataSource="scaleUpConditions"
+            :pagination="false"
+            :rowKey="record => record.counterid">
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.dataIndex === 'countername'">
+                {{ counterLabel(record.countername) }}
+              </template>
+              <template v-if="column.key === 'relationaloperator'">
+                {{ getOperator(record.relationaloperator) }}
+              </template>
+              <template v-if="column.key === 'actions'">
+                <a-button ref="submit" type="primary" :danger="true" @click="deleteScaleUpCondition(record.counterid)">
+                  <template #icon><delete-outlined /></template>
+                  {{ $t('label.delete') }}
+                </a-button>
+              </template>
+            </template>
+          </a-table>
+        </div>
+      </section>
+      <section v-show="wizardStep === 11" class="resource-create-section" data-wizard-step="11">
+        <h3 class="resource-create-section-title">{{ $t('label.scaledown.policies') }}</h3>
+        <label>{{ $t('message.scaledown.policies') }}</label>
+        <a-divider/>
+        <div class="form">
+          <strong>{{ $t('label.scaledown.policy') }} &nbsp;&nbsp;&nbsp;</strong>
+          <a-select
+            style="width: 320px"
+            v-model:value="selectedScaleDownPolicyId"
+            @change="fetchScaleDownConditions()"
+            :placeholder="$t('label.scaledown.policy')"
+            showSearch
+            optionFilterProp="label"
+            :filterOption="(input, option) => {
+              return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }" >
+            <a-select-option
+              v-for="policy in this.scaleDownPolicies"
+              :key="policy.id"
+              :label="policy.name">
+              {{ policy.name }}
+            </a-select-option>
+          </a-select>
+          <a-button style="margin-left: 10px" ref="submit" type="primary" @click="addNewScaleDownPolicy">
+            <template #icon><plus-outlined /></template>
+            {{ $t('label.add.policy') }}
+          </a-button>
+          <a-button style="margin-left: 10px" ref="submit" type="primary" @click="removeScaleDownPolicy" :danger="true" >
+            <template #icon><delete-outlined /></template>
+            {{ $t('label.remove.policy') }}
+          </a-button>
+        </div>
+        <div class="form">
+          <a-form-item>
+            <template #label>
+              <span class="form__required">*</span>
+              <tooltip-label :title="$t('label.name')" :tooltip="createAutoScalePolicyApiParams.name.description"/>
+            </template>
+            <a-input v-model:value="selectedScaleDownPolicy.name"></a-input>
+            <span class="error-text">{{ $t('label.required') }}</span>
+          </a-form-item>
+          <a-form-item name="scaledownduration" ref="scaledownduration">
+            <template #label>
+              <span class="form__required">*</span>
+              <tooltip-label :title="$t('label.duration')" :tooltip="createAutoScalePolicyApiParams.duration.description"/>
+            </template>
+            <a-input v-model:value="selectedScaleDownPolicy.scaledownduration" type="number"></a-input>
+            <span class="error-text">{{ $t('label.required') }}</span>
+          </a-form-item>
+          <a-form-item name="scaledownquiettime" ref="scaledownquiettime">
+            <template #label>
+              <tooltip-label :title="$t('label.autoscale.cooldown.seconds')" :tooltip="createAutoScalePolicyApiParams.quiettime.description"/>
+            </template>
+            <a-input v-model:value="selectedScaleDownPolicy.scaledownquiettime" type="number"></a-input>
+          </a-form-item>
+        </div>
+        <a-divider/>
+        <div class="form">
+          <div class="form__item" ref="newScaleDownConditionCounterId">
+            <div class="form__label">
+              <span class="form__required">*</span>
+              <tooltip-label :title="$t('label.counter')" :tooltip="$t('label.counter.name')"/>
+            </div>
+            <a-select
+              style="width: 100%"
+              showSearch
+              optionFilterProp="label"
+              :filterOption="(input, option) => {
+                return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }"
+              v-focus="true"
+              v-model:value="newScaleDownCondition.counterid">
+              <a-select-option
+                v-for="(counter, index) in countersList"
+                :value="counter.id"
+                :key="index"
+                :label="counterLabel(counter.name)">
+                {{ counterLabel(counter.name) }}
+              </a-select-option>
+            </a-select>
+            <span class="error-text">{{ $t('label.required') }}</span>
+          </div>
+          <div class="form__item" ref="newScaleDownConditionRelationalOperator">
+            <div class="form__label">
+              <span class="form__required">*</span>
+              <tooltip-label :title="$t('label.relationaloperator')" :tooltip="createConditionApiParams.relationaloperator.description"/>
+            </div>
+            <a-select
+              v-model:value="newScaleDownCondition.relationaloperator"
+              style="width: 100%;"
+              optionFilterProp="value"
+              :filterOption="(input, option) => {
+                return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }" >
+              <a-select-option v-for="operator in ['GT', 'GE', 'LT', 'LE', 'EQ']" :key="operator" :value="operator">{{ getOperator(operator) }}</a-select-option>
+            </a-select>
+            <span class="error-text">{{ $t('label.required') }}</span>
+          </div>
+          <div class="form__item" ref="newScaleDownConditionThreshold">
+            <div class="form__label">
+              <span class="form__required">*</span>
+              <tooltip-label :title="$t('label.threshold')" :tooltip="$t('label.threshold.description')"/>
+            </div>
+            <a-input v-model:value="newScaleDownCondition.threshold" type="number"></a-input>
+            <span class="error-text">{{ $t('label.invalid.number') }}</span>
+          </div>
+          <div class="form__item">
+            <div class="form__label">{{ $t('label.action') }}</div>
+            <a-button ref="submit" type="primary" @click="addScaleDownCondition">
+              <template #icon><plus-outlined /></template>
+              {{ $t('label.autoscale.condition.add') }}
+            </a-button>
+          </div>
+        </div>
+        <a-divider/>
+        <div style="display: block">
+          <a-table
+            size="small"
+            style="overflow-y: auto"
+            :loading="false"
+            :columns="scaleDownColumns"
+            :dataSource="scaleDownConditions"
+            :pagination="false"
+            :rowKey="record => record.counterid">
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.dataIndex === 'countername'">
+                {{ counterLabel(record.countername) }}
+              </template>
+              <template v-if="column.key === 'relationaloperator'">
+                {{ getOperator(record.relationaloperator) }}
+              </template>
+              <template v-if="column.key === 'actions'">
+                <a-button ref="submit" type="primary" :danger="true" @click="deleteScaleDownCondition(record.counterid)">
+                  <template #icon><delete-outlined /></template>
+                  {{ $t('label.delete') }}
+                </a-button>
+              </template>
+            </template>
+          </a-table>
+        </div>
+      </section>
+      <section v-show="wizardStep === 12" class="resource-create-section" data-wizard-step="12">
+        <h3 class="resource-create-section-title">{{ $t('label.vm.wizard.advanced') }}</h3>
+        <template v-if="zoneSelected">
+          <span>
+            {{ $t('label.isadvanced') }}
+            <a-switch v-model:checked="showDetails" style="margin-left: 10px"/>
+          </span>
+          <a-alert v-if="userDataSelectionBlocked" class="autoscale-userdata-status" type="warning" show-icon :message="$t('message.autoscale.userdata.selection.blocked')">
+            <template #description><a-button size="small" @click="showDetails = true">{{ $t('label.isadvanced') }}</a-button></template>
+          </a-alert>
+          <p v-else-if="!showDetails && !form.userdataid && !template?.userdataid && userdataTabKey === 'userdataregistered'" class="autoscale-userdata-status" role="status">{{ $t('label.user.data') }}: {{ $t('label.noselect') }}</p>
+          <div style="margin-top: 15px" v-if="showDetails">
+            <a-form-item :label="$t('label.sshkeypairs')">
+              <ssh-key-pair-selection
+                :items="options.sshKeyPairs"
+                :row-count="rowCount.sshKeyPairs"
+                :zoneId="zoneId"
+                :value="sshKeyPairs"
+                :loading="loading.sshKeyPairs"
+                :preFillContent="dataPreFill"
+                @select-ssh-key-pair-item="($event) => updateSshKeyPairs($event)"
+                @handle-search-filter="($event) => handleSearchFilter('sshKeyPairs', $event)"
+              />
+            </a-form-item>
+            <a-form-item :label="$t('label.affinity.groups')">
+              <affinity-group-selection
+                :items="options.affinityGroups"
+                :row-count="rowCount.affinityGroups"
+                :zoneId="zoneId"
+                :value="affinityGroupIds"
+                :loading="loading.affinityGroups"
+                :error="affinityGroupsError"
+                :owner="params.affinityGroups.options"
+                :preFillContent="dataPreFill"
+                @select-affinity-group-item="($event) => updateAffinityGroups($event)"
+                @handle-search-filter="($event) => handleSearchFilter('affinityGroups', $event)"/>
+            </a-form-item>
+          </div>
+            <!-- Keep selection ownership/readiness alive while advanced fields are collapsed. -->
+            <a-form-item v-show="showDetails" class="autoscale-userdata-options">
+              <template #label>
+                <tooltip-label :title="$t('label.user.data')" :tooltip="createAutoScaleVmProfileApiParams.userdata.description"/>
+              </template>
+              <a-card>
+                <div v-if="this.template && this.template.userdataid">
+                  <a-typography-text>
+                    Userdata "{{ $t(this.template.userdataname) }}" is linked with template "{{ $t(this.template.name) }}" with override policy "{{ $t(this.template.userdatapolicy) }}"
+                  </a-typography-text><br/><br/>
+                  <div v-if="templateUserDataParams.length > 0 && !doUserdataOverride">
+                    <a-typography-text v-if="this.template && this.template.userdataid && templateUserDataParams.length > 0">
+                      Enter the values for the variables in userdata
+                    </a-typography-text>
+                    <a-input-group>
+                      <a-table
+                        size="small"
+                        style="overflow-y: auto"
+                        :columns="userDataParamCols"
+                        :dataSource="templateUserDataParams"
+                        :pagination="false"
+                        :rowKey="record => record.key">
+                        <template #value="{ record }">
+                          <a-input v-model:value="templateUserDataValues[record.key]" />
                         </template>
-                        <template #select-option="{ item }">
-                          <span>{{ item.name || item.description }}</span>
-                        </template>
-                    </block-radio-group-select>
+                      </a-table>
+                    </a-input-group>
                   </div>
-                </template>
-              </a-step>
-              <a-step
-                :title="$t('label.template.select')"
-                :status="zoneSelected ? 'process' : 'wait'">
-                <template #description>
-                  <div v-if="zoneSelected" style="margin-top: 15px">
-                    <os-based-image-selection
-                      v-if="isModernImageSelection"
-                      :imageTypeSelectionAllowed="false"
-                      :imagePreSelected="!!this.queryTemplateId"
-                      :guestOsCategoriesSelectionDisallowed="!this.queryGuestOsCategoryId && !!this.queryTemplateId"
-                      :guestOsCategories="options.guestOsCategories"
-                      :guestOsCategoriesLoading="loading.guestOsCategories"
-                      :selectedGuestOsCategoryId="form.guestoscategoryid"
-                      :imageItems="autoScaleImageItems"
-                      :imagesLoading="loading.templates"
-                      :diskSizeSelectionDeployAsIsMessageVisible="template && template.deployasis"
-                      :rootDiskOverrideDisabled="rootDiskSizeFixed > 0 || (template && template.deployasis) || showOverrideDiskOfferingOption"
-                      :rootDiskOverrideChecked="form.rootdisksizeitem"
-                      :filterOption="filterOption"
-                      :preFillContent="dataPreFill"
-                      @change-guest-os-category="onSelectGuestOsCategory"
-                      @handle-image-search-filter="($event) => fetchAllTemplates($event)"
-                      @update-image="updateFieldValue"
-                      @update-disk-size="updateFieldValue" />
-                    <a-card
-                      v-else
-                      :tabList="imageTypeList"
-                      :activeTabKey="imageType">
-                      <div>
-                        {{ $t('message.template.desc') }}
-                        <template-iso-selection
-                          input-decorator="templateid"
-                          :items="options.templates"
-                          :selected="imageType"
-                          :loading="loading.templates"
-                          :preFillContent="dataPreFill"
-                          :key="templateKey"
-                          @handle-search-filter="($event) => fetchAllTemplates($event)"
-                          @update-template-iso="updateFieldValue" />
-                         <div>
-                          {{ $t('label.override.rootdisk.size') }}
-                          <a-switch
-                            v-model:checked="form.rootdisksizeitem"
-                            :disabled="rootDiskSizeFixed > 0 || (template && template.deployasis) || showOverrideDiskOfferingOption"
-                            @change="val => { showRootDiskSizeChanger = val }"
-                            style="margin-left: 10px;"/>
-                          <div v-if="template && template.deployasis">  {{ $t('message.deployasis') }} </div>
-                        </div>
-                        <disk-size-selection
-                          v-if="showRootDiskSizeChanger"
-                          input-decorator="rootdisksize"
-                          :preFillContent="dataPreFill"
-                          :isCustomized="true"
-                          :minDiskSize="dataPreFill.minrootdisksize"
-                          @update-disk-size="updateFieldValue"
-                          style="margin-top: 10px;"/>
-                      </div>
-                    </a-card>
-                    <a-form-item class="form-item-hidden">
-                      <a-input v-model:value="form.templateid" />
-                    </a-form-item>
-                    <a-form-item class="form-item-hidden">
-                      <a-input v-model:value="form.rootdisksize" />
-                    </a-form-item>
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                :title="$t('label.serviceofferingid')"
-                :status="zoneSelected ? 'process' : 'wait'">
-                <template #description>
-                  <div v-if="zoneSelected">
-                    <a-form-item v-if="zoneSelected && templateConfigurationExists" name="templateConfiguration" ref="templateConfiguration">
-                      <template #label>
-                        <tooltip-label :title="$t('label.configuration')" :tooltip="$t('message.ovf.configurations')"/>
-                      </template>
-                      <a-select
-                        showSearch
-                        optionFilterProp="label"
-                        v-model:value="form.templateConfiguration"
-                        defaultActiveFirstOption
-                        :placeholder="$t('message.ovf.configurations')"
-                        :filterOption="(input, option) => {
-                          return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                        }"
-                        @change="onSelectTemplateConfigurationId"
-                      >
-                        <a-select-option v-for="opt in templateConfigurations" :key="opt.id" :label="opt.name || opt.description">
-                          {{ opt.name || opt.description }}
-                        </a-select-option>
-                      </a-select>
-                      <span v-if="selectedTemplateConfiguration && selectedTemplateConfiguration.description">{{ selectedTemplateConfiguration.description }}</span>
-                    </a-form-item>
-                    <compute-offering-selection
-                      :compute-items="options.serviceOfferings"
-                      :selected-template="template ? template : {}"
-                      :row-count="rowCount.serviceOfferings"
-                      :zoneId="zoneId"
-                      :autoscale="true"
-                      :value="serviceOffering ? serviceOffering.id : ''"
-                      :loading="loading.serviceOfferings"
-                      :preFillContent="dataPreFill"
-                      :show-gpu-filter="zone.gputotal && zone.gputotal > 0"
-                      :minimum-cpunumber="templateConfigurationExists && selectedTemplateConfiguration && selectedTemplateConfiguration.cpunumber ? selectedTemplateConfiguration.cpunumber : 0"
-                      :minimum-cpuspeed="templateConfigurationExists && selectedTemplateConfiguration && selectedTemplateConfiguration.cpuspeed ? selectedTemplateConfiguration.cpuspeed : 0"
-                      :minimum-memory="templateConfigurationExists && selectedTemplateConfiguration && selectedTemplateConfiguration.memory ? selectedTemplateConfiguration.memory : 0"
-                      @select-compute-item="($event) => updateComputeOffering($event)"
-                      @handle-search-filter="($event) => handleSearchFilter('serviceOfferings', $event)"
-                    ></compute-offering-selection>
-                    <compute-selection
-                      v-if="serviceOffering && (serviceOffering.iscustomized || serviceOffering.iscustomizediops)"
-                      cpuNumberInputDecorator="cpunumber"
-                      cpuSpeedInputDecorator="cpuspeed"
-                      memoryInputDecorator="memory"
-                      :preFillContent="dataPreFill"
-                      :computeOfferingId="vmgroupConfig.computeofferingid"
-                      :isConstrained="isOfferingConstrained(serviceOffering)"
-                      :minCpu="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.mincpunumber*1 : 0"
-                      :maxCpu="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.maxcpunumber*1 : Number.MAX_SAFE_INTEGER"
-                      :minMemory="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.minmemory*1 : 0"
-                      :maxMemory="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.maxmemory*1 : Number.MAX_SAFE_INTEGER"
-                      :isCustomized="serviceOffering.iscustomized"
-                      :isCustomizedIOps="'iscustomizediops' in serviceOffering && serviceOffering.iscustomizediops"
-                      @handler-error="handlerError"
-                      @update-iops-value="updateIOPSValue"
-                      @update-compute-cpunumber="updateFieldValue"
-                      @update-compute-cpuspeed="updateFieldValue"
-                      @update-compute-memory="updateFieldValue" />
-                    <span v-if="serviceOffering && serviceOffering.iscustomized">
-                      <a-form-item name="cpunumber" ref="cpunumber" class="form-item-hidden">
-                        <a-input v-model:value="form.cpunumber"/>
-                      </a-form-item>
-                      <a-form-item
-                        class="form-item-hidden"
-                        v-if="(serviceOffering && !(serviceOffering.cpuspeed > 0))"
-                        name="cpuspeed"
-                        ref="cpuspeed">
-                        <a-input v-model:value="form.cpuspeed"/>
-                      </a-form-item>
-                      <a-form-item class="form-item-hidden" name="memory" ref="memory">
-                        <a-input v-model:value="form.memory"/>
-                      </a-form-item>
-                    </span>
-                    <span>
-                      {{ $t('label.override.root.diskoffering') }}
-                      <a-switch
-                        v-model:checked="showOverrideDiskOfferingOption"
-                        :checked="serviceOffering && !serviceOffering.diskofferingstrictness && showOverrideDiskOfferingOption"
-                        :disabled="(serviceOffering && serviceOffering.diskofferingstrictness)"
-                        @change="val => { updateOverrideRootDiskShowParam(val) }"
-                        style="margin-left: 10px;"/>
-                    </span>
-                    <span v-if="serviceOffering && !serviceOffering.diskofferingstrictness">
-                      <a-step
-                        :status="zoneSelected ? 'process' : 'wait'"
-                        v-if="template && !template.deployasis && template.childtemplates && template.childtemplates.length > 0" >
-                        <template #description>
-                          <div v-if="zoneSelected">
-                            <multi-disk-selection
-                              :items="template.childtemplates"
-                              :diskOfferings="options.diskOfferings"
-                              :zoneId="zoneId"
-                              @select-multi-disk-offering="updateMultiDiskOffering($event)" />
+                </div><br/><br/>
+                <div v-if="userdataDefaultOverridePolicy === 'ALLOWOVERRIDE' || userdataDefaultOverridePolicy === 'APPEND' || !userdataDefaultOverridePolicy">
+                  <span v-if="userdataDefaultOverridePolicy === 'ALLOWOVERRIDE'" >
+                    {{ $t('label.user.data.do.override') }}
+                    <a-switch v-model:checked="doUserdataOverride" style="margin-left: 10px"/>
+                  </span>
+                  <span v-if="userdataDefaultOverridePolicy === 'APPEND'">
+                    {{ $t('label.user.data.do.append') }}
+                    <a-switch v-model:checked="doUserdataAppend" style="margin-left: 10px"/>
+                  </span>
+                  <a-step
+                    :status="zoneSelected ? 'process' : 'wait'">
+                    <template #description>
+                      <div v-if="doUserdataOverride || doUserdataAppend || !userdataDefaultOverridePolicy" style="margin-top: 15px">
+                        <a-card
+                          :tabList="userdataTabList"
+                          :activeTabKey="userdataTabKey"
+                          @tabChange="key => onUserdataTabChange(key, 'userdataTabKey')">
+                          <div v-if="userdataTabKey === 'userdataregistered'">
+                            <a-step
+                              :status="zoneSelected ? 'process' : 'wait'">
+                              <template #description>
+                                <div v-if="zoneSelected">
+                                  <user-data-selection
+                                    :scope="userDataOwner"
+                                    :value="form.userdataid"
+                                    :zoneId="zoneId"
+                                    :disabled="template.userdatapolicy === 'DENYOVERRIDE'"
+                                    :preFillContent="dataPreFill"
+                                    @select-user-data-item="updateUserData"
+                                    @ready="userDataSelectionReady = $event"
+                                  />
+                                  <div v-if="userDataParams.length > 0">
+                                    <a-input-group>
+                                      <a-table
+                                        size="small"
+                                        style="overflow-y: auto"
+                                        :columns="userDataParamCols"
+                                        :dataSource="userDataParams"
+                                        :pagination="false"
+                                        :rowKey="record => record.key">
+                                        <template #value="{ record }">
+                                          <a-input v-model:value="userDataValues[record.key]" />
+                                        </template>
+                                      </a-table>
+                                    </a-input-group>
+                                  </div>
+                                </div>
+                              </template>
+                            </a-step>
                           </div>
-                        </template>
-                      </a-step>
-                      <a-step
-                        v-else
-                        :status="zoneSelected ? 'process' : 'wait'">
-                        <template #description>
-                          <div v-if="zoneSelected">
-                            <disk-offering-selection
-                              v-if="showOverrideDiskOfferingOption"
-                              :items="options.diskOfferings"
-                              :row-count="rowCount.diskOfferings"
-                              :zoneId="zoneId"
-                              :value="overrideDiskOffering ? overrideDiskOffering.id : ''"
-                              :loading="loading.diskOfferings"
-                              :preFillContent="dataPreFill"
-                              :isIsoSelected="imageType==='isoid'"
-                              :isRootDiskOffering="true"
-                              @on-selected-root-disk-size="onSelectRootDiskSize"
-                              @select-disk-offering-item="($event) => updateOverrideDiskOffering($event)"
-                              @handle-search-filter="($event) => handleSearchFilter('diskOfferings', $event)"
-                            ></disk-offering-selection>
-                            <disk-size-selection
-                              v-if="overrideDiskOffering && (overrideDiskOffering.iscustomized || overrideDiskOffering.iscustomizediops)"
-                              input-decorator="rootdisksize"
-                              :preFillContent="dataPreFill"
-                              :minDiskSize="dataPreFill.minrootdisksize"
-                              :rootDiskSelected="overrideDiskOffering"
-                              :isCustomized="overrideDiskOffering.iscustomized"
-                              @handler-error="handlerError"
-                              @update-disk-size="updateFieldValue"
-                              @update-root-disk-iops-value="updateIOPSValue"/>
-                            <a-form-item class="form-item-hidden">
-                              <a-input v-model:value="form.rootdisksize"/>
+                          <div v-else>
+                            <a-form-item name="userdata" ref="userdata" >
+                              <a-textarea
+                                placeholder="Userdata"
+                                v-model:value="form.userdata">
+                              </a-textarea>
                             </a-form-item>
                           </div>
-                        </template>
-                      </a-step>
-                    </span>
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                :title="$t('label.data.disk')"
-                :status="zoneSelected ? 'process' : 'wait'"
-                v-if="template && !template.deployasis && template.childtemplates && template.childtemplates.length > 0" >
-                <template #description>
-                  <div v-if="zoneSelected">
-                    <multi-disk-selection
-                      :items="template.childtemplates"
-                      :diskOfferings="options.diskOfferings"
-                      :zoneId="zoneId"
-                      @select-multi-disk-offering="updateMultiDiskOffering($event)" />
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                v-else
-                :title="imageType === 'templateid' ? $t('label.data.disk') : $t('label.disk.size')"
-                :status="zoneSelected ? 'process' : 'wait'">
-                <template #description>
-                  <div v-if="zoneSelected">
-                    <span>
-                      {{ $t('label.data.disk') }}
-                      <a-switch
-                        v-model:checked="showDiskOfferingOption"
-                        @change="updateDiskOffering(0)"
-                        style="margin-left: 10px;"/>
-                    </span>
-                    <disk-offering-selection
-                      v-if="showDiskOfferingOption"
-                      :items="options.diskOfferings"
-                      :row-count="rowCount.diskOfferings"
-                      :zoneId="zoneId"
-                      :value="diskOffering ? diskOffering.id : ''"
-                      :loading="loading.diskOfferings"
-                      :preFillContent="dataPreFill"
-                      :isIsoSelected="imageType==='isoid'"
-                      @on-selected-disk-size="onSelectDiskSize"
-                      @select-disk-offering-item="($event) => updateDiskOffering($event)"
-                      @handle-search-filter="($event) => handleSearchFilter('diskOfferings', $event)"
-                    ></disk-offering-selection>
-                    <disk-size-selection
-                      v-if="diskOffering && (diskOffering.iscustomized || diskOffering.iscustomizediops)"
-                      input-decorator="size"
-                      :preFillContent="dataPreFill"
-                      :diskSelected="diskSelected"
-                      :isCustomized="diskOffering.iscustomized"
-                      @handler-error="handlerError"
-                      @update-disk-size="updateFieldValue"
-                      @update-iops-value="updateIOPSValue"/>
-                    <a-form-item class="form-item-hidden">
-                      <a-input v-model:value="form.size"/>
-                    </a-form-item>
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                :title="$t('label.select.network')"
-                :status="zoneSelected ? 'process' : 'wait'"
-                v-if="zone && zone.networktype !== 'Basic'">
-                <template #description>
-                  <label>{{ $t('message.autoscale.vm.networks') }}</label>
-                  <div v-if="zoneSelected">
-                    <div v-if="vm.templateid && templateNics && templateNics.length > 0">
-                      <instance-nics-network-select-list-view
-                        :nics="templateNics"
-                        :zoneid="selectedZone"
-                        @select="handleNicsNetworkSelection" />
-                    </div>
-                    <div v-show="!(vm.templateid && templateNics && templateNics.length > 0)" >
-                      <network-selection
-                        :localize-auto-scale-support="true"
-                        :items="options.networks"
-                        :row-count="rowCount.networks"
-                        :value="networkOfferingIds"
-                        :loading="loading.networks"
-                        :zoneId="zoneId"
-                        :preFillContent="dataPreFill"
-                        @select-network-item="($event) => updateNetworks($event)"
-                        @handle-search-filter="($event) => handleSearchFilter('networks', $event)"
-                      ></network-selection>
-                      <network-configuration
-                        v-if="networks.length > 0"
-                        :items="networks"
-                        :autoscale="true"
-                        :preFillContent="dataPreFill"
-                        @handler-error="($event) => hasError = $event"
-                        @select-default-network-item="($event) => updateDefaultNetworks($event)"
-                      ></network-configuration>
-                    </div>
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                :title="$t('label.loadbalancing')"
-                :status="zoneSelected ? 'process' : 'wait'"
-                v-if="networks.length > 0">
-                <template #description>
-                  <load-balancer-selection
-                    :items="options.loadbalancers"
-                    :rowCount="rowCount.loadbalancers"
-                    :zoneId="zoneId"
-                    :loading="loading.loadbalancers"
-                    :preFillContent="dataPreFill"
-                    @select-load-balancer-item="($event) => updateLoadBalancers($event)"
-                    @handle-search-filter="($event) => handleSearchFilter('loadbalancers', $event)"
-                  ></load-balancer-selection>
-                </template>
-              </a-step>
-              <a-step
-                v-if="showSecurityGroupSection"
-                :title="$t('label.security.groups')"
-                :status="zoneSelected ? 'process' : 'wait'">
-                <template #description>
-                  <security-group-selection
-                    :zoneId="zoneId"
-                    :value="securitygroupids"
-                    :loading="loading.networks"
-                    :preFillContent="dataPreFill"
-                    @select-security-group-item="($event) => updateSecurityGroups($event)"></security-group-selection>
-                </template>
-              </a-step>
-              <a-step
-                :title="$t('label.ovf.properties')"
-                :status="zoneSelected ? 'process' : 'wait'"
-                v-if="vm.templateid && templateProperties && Object.keys(templateProperties).length > 0">
-                <template #description>
-                  <div v-for="(props, category) in templateProperties" :key="category">
-                    <a-alert :message="'Category: ' + category + ' (' + props.length + ' properties)'" type="info" />
-                    <div style="margin-left: 15px; margin-top: 10px">
-                      <a-form-item
-                        v-for="(property, propertyIndex) in props"
-                        :key="propertyIndex"
-                        :v-bind="property.key"
-                        :name="'properties.' + escapePropertyKey(property.key)"
-                        :ref="'properties.' + escapePropertyKey(property.key)">
-                        <tooltip-label style="text-transform: capitalize" :title="property.label" :tooltip="property.description"/>
-
-                        <span v-if="property.type && property.type==='boolean'">
-                          <a-switch
-                            v-model:checked="form['properties.' + escapePropertyKey(property.key)]"
-                            :placeholder="property.description"
-                          />
-                        </span>
-                        <span v-else-if="property.type && (property.type==='int' || property.type==='real')">
-                          <a-input-number
-                            v-model:value="form['properties.'+ escapePropertyKey(property.key)]"
-                            :placeholder="property.description"
-                            :min="getPropertyQualifiers(property.qualifiers, 'number-select').min"
-                            :max="getPropertyQualifiers(property.qualifiers, 'number-select').max" />
-                        </span>
-                        <span v-else-if="property.type && property.type==='string' && property.qualifiers && property.qualifiers.startsWith('ValueMap')">
-                          <a-select
-                            showSearch
-                            optionFilterProp="value"
-                            v-model:value="form['properties.' + escapePropertyKey(property.key)]"
-                            :placeholder="property.description"
-                            :filterOption="(input, option) => {
-                              return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                            }"
-                          >
-                            <a-select-option v-for="opt in getPropertyQualifiers(property.qualifiers, 'select')" :key="opt">
-                              {{ opt }}
-                            </a-select-option>
-                          </a-select>
-                        </span>
-                        <span v-else-if="property.type && property.type==='string' && property.password">
-                          <a-input-password
-                            v-model:value="form['properties.' + escapePropertyKey(property.key)]"
-                            :placeholder="property.description" />
-                        </span>
-                        <span v-else>
-                          <a-input
-                            v-model:value="form['properties.' + escapePropertyKey(property.key)]"
-                            :placeholder="property.description" />
-                        </span>
-                      </a-form-item>
-                    </div>
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                :title="$t('label.scaleup.policies')"
-                :status="zoneSelected ? 'process' : 'wait'">
-                <template #description>
-                  <label>{{ $t('message.scaleup.policies') }}</label>
-                  <a-divider/>
-                  <div class="form">
-                    <strong>{{ $t('label.scaleup.policy') }} &nbsp;&nbsp;&nbsp;</strong>
-                    <a-select
-                      style="width: 320px"
-                      v-model:value="selectedScaleUpPolicyId"
-                      @change="fetchScaleUpConditions()"
-                      :placeholder="$t('label.scaleup.policy')"
-                      showSearch
-                      optionFilterProp="label"
-                      :filterOption="(input, option) => {
-                        return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                      }" >
-                      <a-select-option
-                        v-for="policy in this.scaleUpPolicies"
-                        :key="policy.id"
-                        :label="policy.name">
-                        {{ policy.name }}
-                      </a-select-option>
-                    </a-select>
-                    <a-button style="margin-left: 10px" ref="submit" type="primary" @click="addNewScaleUpPolicy">
-                      <template #icon><plus-outlined /></template>
-                      {{ $t('label.add.policy') }}
-                    </a-button>
-                    <a-button style="margin-left: 10px" ref="submit" type="primary" @click="removeScaleUpPolicy" :danger="true" >
-                      <template #icon><delete-outlined /></template>
-                      {{ $t('label.remove.policy') }}
-                    </a-button>
-                  </div>
-                  <div class="form">
-                    <a-form-item>
-                      <template #label>
-                        <span class="form__required">*</span>
-                        <tooltip-label :title="$t('label.name')" :tooltip="createAutoScalePolicyApiParams.name.description"/>
-                      </template>
-                      <a-input v-model:value="selectedScaleUpPolicy.name"></a-input>
-                      <span class="error-text">{{ $t('label.required') }}</span>
-                    </a-form-item>
-                    <a-form-item name="scaleupduration" ref="scaleupduration">
-                      <template #label>
-                        <span class="form__required">*</span>
-                        <tooltip-label :title="$t('label.duration')" :tooltip="createAutoScalePolicyApiParams.duration.description"/>
-                      </template>
-                      <a-input v-model:value="selectedScaleUpPolicy.scaleupduration" type="number"></a-input>
-                      <span class="error-text">{{ $t('label.required') }}</span>
-                    </a-form-item>
-                    <a-form-item name="scaleupquiettime" ref="scaleupquiettime">
-                      <template #label>
-                        <tooltip-label :title="$t('label.autoscale.cooldown.seconds')" :tooltip="createAutoScalePolicyApiParams.quiettime.description"/>
-                      </template>
-                      <a-input v-model:value="selectedScaleUpPolicy.scaleupquiettime" type="number"></a-input>
-                    </a-form-item>
-                  </div>
-                  <a-divider/>
-                  <div class="form">
-                    <div class="form__item" ref="newScaleUpConditionCounterId">
-                      <div class="form__label">
-                        <span class="form__required">*</span>
-                        <tooltip-label :title="$t('label.counter')" :tooltip="$t('label.counter.name')"/>
+                        </a-card>
                       </div>
-                      <a-select
-                        style="width: 100%"
-                        showSearch
-                        optionFilterProp="label"
-                        :filterOption="(input, option) => {
-                          return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                        }"
-                        v-focus="true"
-                        v-model:value="newScaleUpCondition.counterid">
-                        <a-select-option
-                          v-for="(counter, index) in countersList"
-                          :value="counter.id"
-                          :key="index"
-                          :label="counterLabel(counter.name)">
-                          {{ counterLabel(counter.name) }}
-                        </a-select-option>
-                      </a-select>
-                      <span class="error-text">{{ $t('label.required') }}</span>
-                    </div>
-                    <div class="form__item" ref="newScaleUpConditionRelationalOperator">
-                      <div class="form__label">
-                        <span class="form__required">*</span>
-                        <tooltip-label :title="$t('label.relationaloperator')" :tooltip="createConditionApiParams.relationaloperator.description"/>
-                      </div>
-                      <a-select
-                        v-model:value="newScaleUpCondition.relationaloperator"
-                        style="width: 100%;"
-                        optionFilterProp="value"
-                        :filterOption="(input, option) => {
-                          return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                        }" >
-                        <a-select-option v-for="operator in ['GT', 'GE', 'LT', 'LE', 'EQ']" :key="operator" :value="operator">{{ getOperator(operator) }}</a-select-option>
-                      </a-select>
-                      <span class="error-text">{{ $t('label.required') }}</span>
-                    </div>
-                    <div class="form__item" ref="newScaleUpConditionThreshold">
-                      <div class="form__label">
-                        <span class="form__required">*</span>
-                        <tooltip-label :title="$t('label.threshold')" :tooltip="$t('label.threshold.description')"/>
-                      </div>
-                      <a-input v-model:value="newScaleUpCondition.threshold" type="number"></a-input>
-                      <span class="error-text">{{ $t('label.invalid.number') }}</span>
-                    </div>
-                    <div class="form__item">
-                      <div class="form__label">{{ $t('label.action') }}</div>
-                      <a-button ref="submit" type="primary" @click="addScaleUpCondition">
-                        <template #icon><plus-outlined /></template>
-                        {{ $t('label.autoscale.condition.add') }}
-                      </a-button>
-                    </div>
-                  </div>
-                  <a-divider/>
-                  <div>
-                    <a-table
-                      size="small"
-                      style="overflow-y: auto"
-                      :loading="false"
-                      :columns="scaleUpColumns"
-                      :dataSource="scaleUpConditions"
-                      :pagination="false"
-                      :rowKey="record => record.counterid">
-                      <template #bodyCell="{ column, record }">
-                        <template v-if="column.dataIndex === 'countername'">
-                          {{ counterLabel(record.countername) }}
-                        </template>
-                        <template v-if="column.key === 'relationaloperator'">
-                          {{ getOperator(record.relationaloperator) }}
-                        </template>
-                        <template v-if="column.key === 'actions'">
-                          <a-button ref="submit" type="primary" :danger="true" @click="deleteScaleUpCondition(record.counterid)">
-                            <template #icon><delete-outlined /></template>
-                            {{ $t('label.delete') }}
-                          </a-button>
-                        </template>
-                      </template>
-                    </a-table>
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                :title="$t('label.scaledown.policies')"
-                :status="zoneSelected ? 'process' : 'wait'">
-                <template #description>
-                  <label>{{ $t('message.scaledown.policies') }}</label>
-                  <a-divider/>
-                  <div class="form">
-                    <strong>{{ $t('label.scaledown.policy') }} &nbsp;&nbsp;&nbsp;</strong>
-                    <a-select
-                      style="width: 320px"
-                      v-model:value="selectedScaleDownPolicyId"
-                      @change="fetchScaleDownConditions()"
-                      :placeholder="$t('label.scaledown.policy')"
-                      showSearch
-                      optionFilterProp="label"
-                      :filterOption="(input, option) => {
-                        return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                      }" >
-                      <a-select-option
-                        v-for="policy in this.scaleDownPolicies"
-                        :key="policy.id"
-                        :label="policy.name">
-                        {{ policy.name }}
-                      </a-select-option>
-                    </a-select>
-                    <a-button style="margin-left: 10px" ref="submit" type="primary" @click="addNewScaleDownPolicy">
-                      <template #icon><plus-outlined /></template>
-                      {{ $t('label.add.policy') }}
-                    </a-button>
-                    <a-button style="margin-left: 10px" ref="submit" type="primary" @click="removeScaleDownPolicy" :danger="true" >
-                      <template #icon><delete-outlined /></template>
-                      {{ $t('label.remove.policy') }}
-                    </a-button>
-                  </div>
-                  <div class="form">
-                    <a-form-item>
-                      <template #label>
-                        <span class="form__required">*</span>
-                        <tooltip-label :title="$t('label.name')" :tooltip="createAutoScalePolicyApiParams.name.description"/>
-                      </template>
-                      <a-input v-model:value="selectedScaleDownPolicy.name"></a-input>
-                      <span class="error-text">{{ $t('label.required') }}</span>
-                    </a-form-item>
-                    <a-form-item name="scaledownduration" ref="scaledownduration">
-                      <template #label>
-                        <span class="form__required">*</span>
-                        <tooltip-label :title="$t('label.duration')" :tooltip="createAutoScalePolicyApiParams.duration.description"/>
-                      </template>
-                      <a-input v-model:value="selectedScaleDownPolicy.scaledownduration" type="number"></a-input>
-                      <span class="error-text">{{ $t('label.required') }}</span>
-                    </a-form-item>
-                    <a-form-item name="scaledownquiettime" ref="scaledownquiettime">
-                      <template #label>
-                        <tooltip-label :title="$t('label.autoscale.cooldown.seconds')" :tooltip="createAutoScalePolicyApiParams.quiettime.description"/>
-                      </template>
-                      <a-input v-model:value="selectedScaleDownPolicy.scaledownquiettime" type="number"></a-input>
-                    </a-form-item>
-                  </div>
-                  <a-divider/>
-                  <div class="form">
-                    <div class="form__item" ref="newScaleDownConditionCounterId">
-                      <div class="form__label">
-                        <span class="form__required">*</span>
-                        <tooltip-label :title="$t('label.counter')" :tooltip="$t('label.counter.name')"/>
-                      </div>
-                      <a-select
-                        style="width: 100%"
-                        showSearch
-                        optionFilterProp="label"
-                        :filterOption="(input, option) => {
-                          return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                        }"
-                        v-focus="true"
-                        v-model:value="newScaleDownCondition.counterid">
-                        <a-select-option
-                          v-for="(counter, index) in countersList"
-                          :value="counter.id"
-                          :key="index"
-                          :label="counterLabel(counter.name)">
-                          {{ counterLabel(counter.name) }}
-                        </a-select-option>
-                      </a-select>
-                      <span class="error-text">{{ $t('label.required') }}</span>
-                    </div>
-                    <div class="form__item" ref="newScaleDownConditionRelationalOperator">
-                      <div class="form__label">
-                        <span class="form__required">*</span>
-                        <tooltip-label :title="$t('label.relationaloperator')" :tooltip="createConditionApiParams.relationaloperator.description"/>
-                      </div>
-                      <a-select
-                        v-model:value="newScaleDownCondition.relationaloperator"
-                        style="width: 100%;"
-                        optionFilterProp="value"
-                        :filterOption="(input, option) => {
-                          return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                        }" >
-                        <a-select-option v-for="operator in ['GT', 'GE', 'LT', 'LE', 'EQ']" :key="operator" :value="operator">{{ getOperator(operator) }}</a-select-option>
-                      </a-select>
-                      <span class="error-text">{{ $t('label.required') }}</span>
-                    </div>
-                    <div class="form__item" ref="newScaleDownConditionThreshold">
-                      <div class="form__label">
-                        <span class="form__required">*</span>
-                        <tooltip-label :title="$t('label.threshold')" :tooltip="$t('label.threshold.description')"/>
-                      </div>
-                      <a-input v-model:value="newScaleDownCondition.threshold" type="number"></a-input>
-                      <span class="error-text">{{ $t('label.invalid.number') }}</span>
-                    </div>
-                    <div class="form__item">
-                      <div class="form__label">{{ $t('label.action') }}</div>
-                      <a-button ref="submit" type="primary" @click="addScaleDownCondition">
-                        <template #icon><plus-outlined /></template>
-                        {{ $t('label.autoscale.condition.add') }}
-                      </a-button>
-                    </div>
-                  </div>
-                  <a-divider/>
-                  <div style="display: block">
-                    <a-table
-                      size="small"
-                      style="overflow-y: auto"
-                      :loading="false"
-                      :columns="scaleDownColumns"
-                      :dataSource="scaleDownConditions"
-                      :pagination="false"
-                      :rowKey="record => record.counterid">
-                      <template #bodyCell="{ column, record }">
-                        <template v-if="column.dataIndex === 'countername'">
-                          {{ counterLabel(record.countername) }}
-                        </template>
-                        <template v-if="column.key === 'relationaloperator'">
-                          {{ getOperator(record.relationaloperator) }}
-                        </template>
-                        <template v-if="column.key === 'actions'">
-                          <a-button ref="submit" type="primary" :danger="true" @click="deleteScaleDownCondition(record.counterid)">
-                            <template #icon><delete-outlined /></template>
-                            {{ $t('label.delete') }}
-                          </a-button>
-                        </template>
-                      </template>
-                    </a-table>
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                :title="$t('label.advanced.mode')"
-                :status="zoneSelected ? 'process' : 'wait'">
-                <template #description v-if="zoneSelected">
-                  <span>
-                    {{ $t('label.isadvanced') }}
-                    <a-switch v-model:checked="showDetails" style="margin-left: 10px"/>
-                  </span>
-                  <a-alert v-if="userDataSelectionBlocked" class="autoscale-userdata-status" type="warning" show-icon :message="$t('message.autoscale.userdata.selection.blocked')">
-                    <template #description><a-button size="small" @click="showDetails = true">{{ $t('label.isadvanced') }}</a-button></template>
-                  </a-alert>
-                  <p v-else-if="!showDetails && !form.userdataid && !template?.userdataid && userdataTabKey === 'userdataregistered'" class="autoscale-userdata-status" role="status">{{ $t('label.user.data') }}: {{ $t('label.noselect') }}</p>
-                  <div style="margin-top: 15px" v-if="showDetails">
-                    <a-form-item :label="$t('label.sshkeypairs')">
-                      <ssh-key-pair-selection
-                        :items="options.sshKeyPairs"
-                        :row-count="rowCount.sshKeyPairs"
-                        :zoneId="zoneId"
-                        :value="sshKeyPairs"
-                        :loading="loading.sshKeyPairs"
-                        :preFillContent="dataPreFill"
-                        @select-ssh-key-pair-item="($event) => updateSshKeyPairs($event)"
-                        @handle-search-filter="($event) => handleSearchFilter('sshKeyPairs', $event)"
-                      />
-                    </a-form-item>
-                    <a-form-item :label="$t('label.affinity.groups')">
-                      <affinity-group-selection
-                        :items="options.affinityGroups"
-                        :row-count="rowCount.affinityGroups"
-                        :zoneId="zoneId"
-                        :value="affinityGroupIds"
-                        :loading="loading.affinityGroups"
-                        :error="affinityGroupsError"
-                        :owner="params.affinityGroups.options"
-                        :preFillContent="dataPreFill"
-                        @select-affinity-group-item="($event) => updateAffinityGroups($event)"
-                        @handle-search-filter="($event) => handleSearchFilter('affinityGroups', $event)"/>
-                    </a-form-item>
-                  </div>
-                    <!-- Keep selection ownership/readiness alive while advanced fields are collapsed. -->
-                    <a-form-item v-show="showDetails" class="autoscale-userdata-options">
-                      <template #label>
-                        <tooltip-label :title="$t('label.user.data')" :tooltip="createAutoScaleVmProfileApiParams.userdata.description"/>
-                      </template>
-                      <a-card>
-                        <div v-if="this.template && this.template.userdataid">
-                          <a-typography-text>
-                            Userdata "{{ $t(this.template.userdataname) }}" is linked with template "{{ $t(this.template.name) }}" with override policy "{{ $t(this.template.userdatapolicy) }}"
-                          </a-typography-text><br/><br/>
-                          <div v-if="templateUserDataParams.length > 0 && !doUserdataOverride">
-                            <a-typography-text v-if="this.template && this.template.userdataid && templateUserDataParams.length > 0">
-                              Enter the values for the variables in userdata
-                            </a-typography-text>
-                            <a-input-group>
-                              <a-table
-                                size="small"
-                                style="overflow-y: auto"
-                                :columns="userDataParamCols"
-                                :dataSource="templateUserDataParams"
-                                :pagination="false"
-                                :rowKey="record => record.key">
-                                <template #value="{ record }">
-                                  <a-input v-model:value="templateUserDataValues[record.key]" />
-                                </template>
-                              </a-table>
-                            </a-input-group>
-                          </div>
-                        </div><br/><br/>
-                        <div v-if="userdataDefaultOverridePolicy === 'ALLOWOVERRIDE' || userdataDefaultOverridePolicy === 'APPEND' || !userdataDefaultOverridePolicy">
-                          <span v-if="userdataDefaultOverridePolicy === 'ALLOWOVERRIDE'" >
-                            {{ $t('label.user.data.do.override') }}
-                            <a-switch v-model:checked="doUserdataOverride" style="margin-left: 10px"/>
-                          </span>
-                          <span v-if="userdataDefaultOverridePolicy === 'APPEND'">
-                            {{ $t('label.user.data.do.append') }}
-                            <a-switch v-model:checked="doUserdataAppend" style="margin-left: 10px"/>
-                          </span>
-                          <a-step
-                            :status="zoneSelected ? 'process' : 'wait'">
-                            <template #description>
-                              <div v-if="doUserdataOverride || doUserdataAppend || !userdataDefaultOverridePolicy" style="margin-top: 15px">
-                                <a-card
-                                  :tabList="userdataTabList"
-                                  :activeTabKey="userdataTabKey"
-                                  @tabChange="key => onUserdataTabChange(key, 'userdataTabKey')">
-                                  <div v-if="userdataTabKey === 'userdataregistered'">
-                                    <a-step
-                                      :status="zoneSelected ? 'process' : 'wait'">
-                                      <template #description>
-                                        <div v-if="zoneSelected">
-                                          <user-data-selection
-                                            :scope="userDataOwner"
-                                            :value="form.userdataid"
-                                            :zoneId="zoneId"
-                                            :disabled="template.userdatapolicy === 'DENYOVERRIDE'"
-                                            :preFillContent="dataPreFill"
-                                            @select-user-data-item="updateUserData"
-                                            @ready="userDataSelectionReady = $event"
-                                          />
-                                          <div v-if="userDataParams.length > 0">
-                                            <a-input-group>
-                                              <a-table
-                                                size="small"
-                                                style="overflow-y: auto"
-                                                :columns="userDataParamCols"
-                                                :dataSource="userDataParams"
-                                                :pagination="false"
-                                                :rowKey="record => record.key">
-                                                <template #value="{ record }">
-                                                  <a-input v-model:value="userDataValues[record.key]" />
-                                                </template>
-                                              </a-table>
-                                            </a-input-group>
-                                          </div>
-                                        </div>
-                                      </template>
-                                    </a-step>
-                                  </div>
-                                  <div v-else>
-                                    <a-form-item name="userdata" ref="userdata" >
-                                      <a-textarea
-                                        placeholder="Userdata"
-                                        v-model:value="form.userdata">
-                                      </a-textarea>
-                                    </a-form-item>
-                                  </div>
-                                </a-card>
-                              </div>
-                            </template>
-                          </a-step>
-                        </div>
-                      </a-card>
-                    </a-form-item>
-                </template>
-              </a-step>
-              <a-step
-                :title="$t('label.details')"
-                :status="zoneSelected ? 'process' : 'wait'">
-                <template #description v-if="zoneSelected">
-                  <div style="margin-top: 15px">
-                    <a-form-item name="name" ref="name">
-                      <template #label>
-                        <tooltip-label :title="$t('label.name')" :tooltip="createAutoScaleVmGroupApiParams.name.description"/>
-                      </template>
-                      <a-input v-model:value="form.name"></a-input>
-                    </a-form-item>
-                    <a-form-item name="autoscaleuserid" ref="autoscaleuserid" v-if="this.selectedLbProdiver === 'Netscaler'">
-                      <template #label>
-                        <tooltip-label :title="$t('label.user')" :tooltip="createAutoScaleVmProfileApiParams.autoscaleuserid.description"/>
-                      </template>
-                      <a-select
-                        style="width: 100%"
-                        showSearch
-                        optionFilterProp="label"
-                        :filterOption="(input, option) => {
-                          return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                        }"
-                        v-focus="true"
-                        v-model:value="form.autoscaleuserid">
-                        <a-select-option
-                          v-for="(user, index) in usersList"
-                          :value="user.id"
-                          :key="index"
-                          :label="user.username">
-                          {{ user.username }}
-                        </a-select-option>
-                      </a-select>
-                    </a-form-item>
-                    <a-form-item name="expungevmgraceperiod" ref="expungevmgraceperiod">
-                      <template #label>
-                        <tooltip-label :title="$t('label.expungevmgraceperiod')" :tooltip="createAutoScaleVmProfileApiParams.expungevmgraceperiod.description"/>
-                      </template>
-                      <a-input v-model:value="form.expungevmgraceperiod" type="number"></a-input>
-                    </a-form-item>
-                    <a-form-item name="maxmembers" ref="maxmembers">
-                      <template #label>
-                        <tooltip-label :title="$t('label.maxmembers')" :tooltip="createAutoScaleVmGroupApiParams.maxmembers.description"/>
-                      </template>
-                      <a-input v-model:value="form.maxmembers" type="number"></a-input>
-                    </a-form-item>
-                    <a-form-item name="minmembers" ref="minmembers">
-                      <template #label>
-                        <tooltip-label :title="$t('label.minmembers')" :tooltip="createAutoScaleVmGroupApiParams.minmembers.description"/>
-                      </template>
-                      <a-input v-model:value="form.minmembers" type="number"></a-input>
-                    </a-form-item>
-                    <a-form-item name="interval" ref="interval">
-                      <template #label>
-                        <tooltip-label :title="$t('label.interval')" :tooltip="createAutoScaleVmGroupApiParams.interval.description"/>
-                      </template>
-                      <a-input v-model:value="form.interval" type="number"></a-input>
-                    </a-form-item>
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                :title="$t('label.license.agreements')"
-                :status="zoneSelected ? 'process' : 'wait'"
-                v-if="vm.templateid && templateLicenses && templateLicenses.length > 0">
-                <template #description>
-                  <div style="margin-top: 10px">
-                    {{ $t('message.read.accept.license.agreements') }}
-                    <a-form-item
-                      style="margin-top: 10px"
-                      v-for="(license, licenseIndex) in templateLicenses"
-                      :key="licenseIndex"
-                      :v-bind="license.id">
-                      <template #label>
-                        <tooltip-label style="text-transform: capitalize" :title="$t('label.agreement' + ' ' + (licenseIndex+1) + ': ' + license.name)"/>
-                      </template>
-                      <a-textarea
-                        v-model:value="license.text"
-                        :auto-size="{ minRows: 3, maxRows: 8 }"
-                        readOnly />
-                      <a-checkbox
-                        style="margin-top: 10px"
-                        v-model:checked="form.licensesaccepted">
-                        {{ $t('label.i.accept.all.license.agreements') }}
-                      </a-checkbox>
-                    </a-form-item>
-                  </div>
-                </template>
-              </a-step>
-            </a-steps>
-            <auto-scale-creation-summary v-if="!showSideSummary" :form="form" :loadbalancer="loadbalancer || {}" />
-          </a-form>
-          <div class="card-footer autoscale-create-mobile-footer" v-if="!showSideSummary">
-            <deploy-buttons
-              :loading="loading.deploy || submitting || creationBusy"
-              :disabled="Boolean(hasUnresolvedCreation) || userDataSelectionBlocked"
-              :deployButtonText="$t('label.create')"
-              @handle-cancel="() => $router.back()"
-              @handle-deploy="handleSubmit" />
-          </div>
-        </a-card>
-      </a-col>
-      <a-col :lg="7" v-if="showSideSummary" class="autoscale-create-summary-column">
-        <div class="vm-info-card">
-          <info-card :footerVisible="true" scrollable :resource="vm" :title="$t('label.your.autoscale.vmgroup')" @change-resource="(data) => resource = data">
-            <template #details><auto-scale-creation-summary :form="form" :loadbalancer="loadbalancer || {}" /></template>
-            <template #footer-content>
-              <deploy-buttons
-                :loading="loading.deploy || submitting || creationBusy"
-                :disabled="Boolean(hasUnresolvedCreation) || userDataSelectionBlocked"
-                :deployButtonText="$t('label.create')"
-                @handle-cancel="() => $router.back()"
-                @handle-deploy="handleSubmit" />
+                    </template>
+                  </a-step>
+                </div>
+              </a-card>
+            </a-form-item>
+        </template>
+      </section>
+      <section v-if="wizardStepIds.has(14)" v-show="wizardStep === 14" class="resource-create-section" data-wizard-step="14">
+        <h3 class="resource-create-section-title">{{ $t('label.license.agreements') }}</h3>
+        <div style="margin-top: 10px">
+          {{ $t('message.read.accept.license.agreements') }}
+          <a-form-item
+            style="margin-top: 10px"
+            v-for="(license, licenseIndex) in templateLicenses"
+            :key="licenseIndex"
+            :v-bind="license.id">
+            <template #label>
+              <tooltip-label style="text-transform: capitalize" :title="$t('label.agreement' + ' ' + (licenseIndex+1) + ': ' + license.name)"/>
             </template>
-          </info-card>
+            <a-textarea
+              v-model:value="license.text"
+              :auto-size="{ minRows: 3, maxRows: 8 }"
+              readOnly />
+            <a-checkbox
+              style="margin-top: 10px"
+              v-model:checked="form.licensesaccepted">
+              {{ $t('label.i.accept.all.license.agreements') }}
+            </a-checkbox>
+          </a-form-item>
         </div>
-      </a-col>
-    </a-row>
-  </div>
+      </section>
+    </a-form>
+    <template #summary>
+      <resource-create-summary-fields tabindex="0" title-key="label.vm.wizard.summary" icon="deployment-unit-outlined" :name="form.name" :architecture="selectedArchitecture" :resource="vmSummary">
+        <div v-if="storageSelectionEnabled && rootStorageSelection.id" class="kubernetes-summary-item">
+          <strong>{{ $t('label.vm.storage.root') }}</strong>{{ rootStorageSelection.name }}
+        </div>
+        <div v-if="storageSelectionEnabled && diskOffering?.id && dataStorageSelection.id" class="kubernetes-summary-item">
+          <strong>{{ $t('label.vm.storage.data') }}</strong>{{ dataStorageSelection.name }}
+        </div>
+        <auto-scale-creation-summary :form="form" :loadbalancer="loadbalancer || {}" />
+      </resource-create-summary-fields>
+    </template>
+    <template #submit>
+      <deploy-buttons
+        :loading="loading.deploy || submitting || creationBusy"
+        :disabled="!!hasUnresolvedCreation || userDataSelectionBlocked || !hasRequiredCreationApis || checkingEligibility"
+        :deploy-button-text="$t('label.create')"
+        @handle-deploy="handleSubmit" />
+    </template>
+  </resource-create-wizard>
   <auto-scale-creation-progress
 :visible="processStatusModalVisible"
 :operation="creationOperation"
@@ -1014,11 +960,16 @@
 </template>
 
 <script>
+import ResourceCreateWizard from './wizard/ResourceCreateWizard.vue'
+import ResourceCreateSummaryFields from './wizard/ResourceCreateSummaryFields.vue'
 import '@/style/components/view/autoscale.less'
 import AutoScaleCreationSummary from '@/views/compute/AutoScaleCreationSummary'
 import { ref, reactive, toRaw, markRaw } from 'vue'
 import { affinitySelectionIds, affinitySelectionGroups, fetchAffinityGroupOptions } from '@/utils/affinityGroupSelection'
 import { getAPI, postAPI } from '@/api'
+import { isAdmin } from '@/role'
+import { deploymentStorageQuery } from '@/utils/vmDiskDeployment'
+import DeploymentStorageSelection from '@views/compute/wizard/DeploymentStorageSelection'
 import { createAutoScaleCreation, autoScaleCreationScope } from '@/utils/autoScaleCreation'
 import AutoScaleCreationProgress from './AutoScaleCreationProgress.vue'
 import _ from 'lodash'
@@ -1028,7 +979,6 @@ import eventBus from '@/config/eventBus'
 import { autoScaleInteger, autoScaleOfferingEligible, autoScaleCreationApis } from '@/utils/autoscaleValidation'
 import { autoScaleCounterLabel } from '@/utils/autoScalePolicyEvaluation'
 
-import InfoCard from '@/components/view/InfoCard'
 import DeployButtons from '@views/compute/wizard/DeployButtons'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import ZoneBlockRadioGroupSelect from '@views/compute/wizard/ZoneBlockRadioGroupSelect.vue'
@@ -1059,9 +1009,10 @@ const STATUS_FAILED = 'error'
 export default {
   name: 'Wizard',
   components: {
+    ResourceCreateWizard,
+    ResourceCreateSummaryFields,
     AutoScaleCreationSummary,
     AutoScaleCreationProgress,
-    InfoCard,
     DeployButtons,
     ResourceIcon,
     ZoneBlockRadioGroupSelect,
@@ -1075,6 +1026,7 @@ export default {
     TemplateIsoSelection,
     OsBasedImageSelection,
     DiskSizeSelection,
+    DeploymentStorageSelection,
     MultiDiskSelection,
     DiskOfferingSelection,
     ComputeOfferingSelection,
@@ -1095,8 +1047,7 @@ export default {
   mixins: [mixin, mixinDevice, userDataSelectionConsumer],
   data () {
     return {
-      creationViewportHeight: '',
-      showSideSummary: true,
+      wizardStep: 0,
       creationController: null,
       creationOperation: null,
       creationBusy: false,
@@ -1281,13 +1232,12 @@ export default {
       showDetails: false,
       showRootDiskSizeChanger: false,
       showOverrideDiskOfferingOption: false,
-      showDiskOfferingOption: false,
+      rootStorageSelection: { valid: true },
+      dataStorageSelection: { valid: true },
       securitygroupids: [],
       rootDiskSizeFixed: 0,
       hasError: false,
       error: false,
-      diskSelected: {},
-      rootDiskSelected: {},
       diskIOpsMin: 0,
       diskIOpsMax: 0,
       minIops: 0,
@@ -1301,6 +1251,32 @@ export default {
     }
   },
   computed: {
+    wizardStages () {
+      const hasChildTemplates = this.template && !this.template.deployasis && this.template.childtemplates?.length > 0
+      const hasTemplateProperties = this.vm.templateid && this.templateProperties && Object.keys(this.templateProperties).length > 0
+      const hasTemplateLicenses = this.vm.templateid && this.templateLicenses?.length > 0
+      return [
+        { id: 0, label: 'label.select.a.zone' },
+        { id: 13, label: 'label.vm.wizard.basic' },
+        { id: 1, label: 'label.arch', available: !this.zoneSelected || this.isZoneSelectedMultiArch },
+        { id: 2, label: 'label.template.select' },
+        { id: 3, label: 'label.serviceofferingid' },
+        { id: 15, label: 'label.rootdisk' },
+        { id: 4, label: 'label.data.disk', available: hasChildTemplates },
+        { id: 5, label: 'label.data.disk', available: !hasChildTemplates && !this.template?.deployasis },
+        { id: 6, label: 'label.select.network', available: this.zone && this.zone.networktype !== 'Basic' },
+        { id: 7, label: 'label.loadbalancing', available: this.networks.length > 0 },
+        { id: 8, label: 'label.security.groups', available: this.showSecurityGroupSection },
+        { id: 9, label: 'label.ovf.properties', available: hasTemplateProperties },
+        { id: 10, label: 'label.scaleup.policies' },
+        { id: 11, label: 'label.scaledown.policies' },
+        { id: 12, label: 'label.vm.wizard.advanced' },
+        { id: 14, label: 'label.license.agreements', available: hasTemplateLicenses }
+      ].filter(stage => !('available' in stage) || stage.available)
+    },
+    wizardStepIds () {
+      return new Set(this.wizardStages.map(stage => stage.id))
+    },
     creationScope () { return autoScaleCreationScope(window.location.origin, this.$store.getters.userInfo, this.$store.getters.project) },
     canQueryCreation () { return Boolean(this.$store.getters.apis.queryAutoScaleCreationRequest && this.$store.getters.apis.queryAsyncJobResult) },
     canCleanupCreation () { return ['deleteAutoScaleVmProfile', 'deleteCondition', 'deleteAutoScalePolicy', 'deleteAutoScaleVmGroup', 'listAutoScaleVmProfiles', 'listConditions', 'listAutoScalePolicies', 'listAutoScaleVmGroups'].every(name => Boolean(this.$store.getters.apis[name])) },
@@ -1311,25 +1287,91 @@ export default {
     userDataLookupFailed () {
       return Object.values(this.userDataLookupErrors).some(Boolean)
     },
-    rootDiskSize () {
-      return this.showRootDiskSizeChanger && this.rootDiskSizeFixed > 0
+    vmSummary () {
+      const rootDisk = this.showOverrideDiskOfferingOption ? this.overrideDiskOffering : null
+      const fixedRoot = this.template?.id && !this.template.deployasis &&
+        !this.showOverrideDiskOfferingOption && !this.showRootDiskSizeChanger && this.serviceOffering?.rootdisksize > 0
+      const rootOffering = fixedRoot
+        ? this.serviceOffering.name || this.serviceOffering.displaytext
+        : rootDisk?.displaytext || rootDisk?.name
+      const dataDisk = this.diskOffering
+      const dataOffering = dataDisk?.displaytext || dataDisk?.name
+      const unselected = this.$t('label.vm.wizard.disk.unselected')
+      return {
+        ...this.vm,
+        disksizetotalgb: this.diskSize,
+        rootdiskofferingdisplaytext: rootOffering || unselected,
+        datadiskofferingdisplaytext: dataOffering || unselected
+      }
+    },
+    storageSelectionEnabled () {
+      return isAdmin() && !!this.$store.getters.apis.listDeploymentStoragePools &&
+        !!this.template?.id && !this.template.deployasis && this.template.hypervisor !== 'External' && !!this.serviceOffering?.id
+    },
+    storageQuery () {
+      return deploymentStorageQuery({ form: this.form, imageType: 'templateid', template: this.template })
+    },
+    rootStorageQuery () {
+      return {
+        ...this.storageQuery,
+        rootdisk: true,
+        diskcount: 1,
+        diskofferingid: this.overrideDiskOffering?.id,
+        size: this.selectedRootDiskSize,
+        otherstorageid: this.diskOffering?.id ? this.dataStorageSelection.id : undefined,
+        otherrequiredbytes: this.dataStorageSelection.id ? (this.selectedDataDiskSize || 0) * 1024 ** 3 : undefined
+      }
+    },
+    dataStorageQuery () {
+      return {
+        ...this.storageQuery,
+        rootdisk: false,
+        diskcount: 1,
+        diskofferingid: this.diskOffering?.id,
+        size: this.selectedDataDiskSize,
+        otherstorageid: this.rootStorageSelection.id,
+        otherrequiredbytes: this.rootStorageSelection.id ? (this.selectedRootDiskSize || 0) * 1024 ** 3 : undefined
+      }
+    },
+    rootOfferingLocked () {
+      return this.serviceOffering?.diskofferingstrictness || this.template?.deployasis
+    },
+    defaultRootOfferingName () {
+      return this.serviceOffering?.diskofferingname || this.$t('label.vm.root.offering.default')
+    },
+    selectedRootDiskSize () {
+      if (this.showOverrideDiskOfferingOption) {
+        return this.overrideDiskOffering?.iscustomized ? Number(this.form.rootdisksize) || undefined : this.overrideDiskOffering?.disksize
+      }
+      if (this.showRootDiskSizeChanger) return Number(this.form.rootdisksize) || undefined
+      return this.serviceOffering?.rootdisksize || this.dataPreFill.minrootdisksize || undefined
+    },
+    selectedDataDiskSize () {
+      if (!this.diskOffering?.id) return undefined
+      return this.diskOffering.iscustomized ? Number(this.form.size) || undefined : this.diskOffering.disksize
+    },
+    rootDiskPlanIncomplete () {
+      if (!this.serviceOffering?.id) return false
+      if (this.showOverrideDiskOfferingOption && (!this.overrideDiskOffering?.id ||
+        !Number.isSafeInteger(this.selectedRootDiskSize) || this.selectedRootDiskSize < (this.dataPreFill.minrootdisksize || 1))) return true
+      if (this.showRootDiskSizeChanger && (!Number.isSafeInteger(this.selectedRootDiskSize) ||
+        this.selectedRootDiskSize < (this.dataPreFill.minrootdisksize || 1))) return true
+      return this.storageSelectionEnabled && this.rootStorageSelection.valid === false
+    },
+    dataDiskPlanIncomplete () {
+      return !!this.diskOffering?.id && (!Number.isSafeInteger(this.selectedDataDiskSize) ||
+        this.selectedDataDiskSize <= 0 || (this.storageSelectionEnabled && this.dataStorageSelection.valid === false))
+    },
+    netScalerStorageConflict () {
+      return this.storageSelectionEnabled && this.selectedLbProdiver === 'Netscaler' &&
+        !!(this.rootStorageSelection.id || this.dataStorageSelection.id)
     },
     isNormalAndDomainUser () {
       return ['DomainAdmin', 'User'].includes(this.$store.getters.userInfo.roletype)
     },
     diskSize () {
-      const rootDiskSize = _.get(this.vmgroupConfig, 'rootdisksize', 0)
-      const customDiskSize = _.get(this.vmgroupConfig, 'size', 0)
-      const diskOfferingDiskSize = _.get(this.diskOffering, 'disksize', 0)
-      const dataDiskSize = diskOfferingDiskSize > 0 ? diskOfferingDiskSize : customDiskSize
-      const size = []
-      if (rootDiskSize > 0) {
-        size.push(`${rootDiskSize} GB (Root)`)
-      }
-      if (dataDiskSize > 0) {
-        size.push(`${dataDiskSize} GB (Data)`)
-      }
-      return size.join(' | ')
+      return [this.selectedRootDiskSize && this.selectedRootDiskSize + ' GB (Root)',
+        this.selectedDataDiskSize && this.selectedDataDiskSize + ' GB (Data)'].filter(Boolean).join(' | ')
     },
     affinityGroupIds () {
       return affinitySelectionIds(this.form.affinitygroupids)
@@ -1492,7 +1534,7 @@ export default {
       return this.diskSelected?.iscustomizediops || false
     },
     isCustomizedIOPS () {
-      return this.rootDiskSelected?.iscustomizediops || this.serviceOffering?.iscustomizediops || false
+      return this.overrideDiskOffering?.iscustomizediops || this.serviceOffering?.iscustomizediops || false
     },
     isModernImageSelection () {
       return this.$config.imageSelectionInterface === undefined || this.$config.imageSelectionInterface === 'modern'
@@ -1531,21 +1573,6 @@ export default {
         }
 
         this.serviceOffering = _.find(this.options.serviceOfferings, (option) => option.id === vmgroupConfig.computeofferingid)
-        if (this.serviceOffering?.diskofferingid) {
-          vmgroupConfig.overridediskofferingid = this.serviceOffering.diskofferingid
-        }
-        if (this.diskSelected) {
-          this.diskOffering = _.find(this.options.diskOfferings, (option) => option.id === vmgroupConfig.diskofferingid)
-        }
-        if (this.rootDiskSelected?.id) {
-          vmgroupConfig.overridediskofferingid = this.rootDiskSelected.id
-        }
-        if (vmgroupConfig.overridediskofferingid) {
-          this.overrideDiskOffering = _.find(this.options.diskOfferings, (option) => option.id === vmgroupConfig.overridediskofferingid)
-        } else {
-          this.overrideDiskOffering = null
-        }
-
         this.zone = _.find(this.options.zones, (option) => option.id === vmgroupConfig.zoneid)
         this.networks = _.filter(this.options.networks, (option) => _.includes(vmgroupConfig.networkids, option.id))
         this.affinityGroups = affinitySelectionGroups(vmgroupConfig.affinitygroupids, [...this.affinityGroups, ...this.options.affinityGroups])
@@ -1554,18 +1581,6 @@ export default {
         if (this.zone) {
           this.vm.zoneid = this.zone.id
           this.vm.zonename = this.zone.name
-        }
-
-        if (this.serviceOffering?.rootdisksize) {
-          this.vm.disksizetotalgb = this.serviceOffering.rootdisksize
-        } else if (this.diskSize) {
-          this.vm.disksizetotalgb = this.diskSize
-        } else {
-          this.vm.disksizetotalgb = null
-        }
-
-        if (this.diskSize) {
-          this.vm.disksizetotalgb = this.diskSize
         }
 
         if (this.networks) {
@@ -1646,12 +1661,10 @@ export default {
     this.dataPreFill = this.preFillContent && Object.keys(this.preFillContent).length > 0 ? this.preFillContent : {}
     this.fetchData()
   },
-  mounted () { this.startLayoutObservation() },
-  beforeUnmount () { this.stopLayoutObservation(); this.stopCreationTracking() },
-  deactivated () { this.stopLayoutObservation(); this.stopCreationTracking() },
+  beforeUnmount () { this.stopCreationTracking() },
+  deactivated () { this.stopCreationTracking() },
   activated () {
     if (!this.creationController) this.initCreationTracking()
-    this.$nextTick(this.startLayoutObservation)
   },
   provide () {
     return {
@@ -1661,32 +1674,64 @@ export default {
     }
   },
   methods: {
-    startLayoutObservation () {
-      this.stopLayoutObservation()
-      const layout = this.$refs.creationLayout
-      const content = layout?.closest('.layout-content')
-      if (layout && content && typeof ResizeObserver !== 'undefined') {
-        this.creationLayoutObserver = new ResizeObserver(this.updateCreationViewportHeight)
-        this.creationLayoutObserver.observe(content)
-        this.creationLayoutObserver.observe(layout)
+    handleWizardEnter (event) {
+      if (this.wizardStep !== this.wizardStages[this.wizardStages.length - 1]?.id) {
+        if (event?.preventDefault) event.preventDefault()
+        return this.$refs.wizard.next()
       }
-      window.addEventListener('resize', this.updateCreationViewportHeight)
-      this.updateCreationViewportHeight()
+      if (!(!!this.hasUnresolvedCreation || this.userDataSelectionBlocked || !this.hasRequiredCreationApis || this.checkingEligibility)) return this.handleSubmit(event)
     },
-    stopLayoutObservation () {
-      if (this.creationLayoutObserver) this.creationLayoutObserver.disconnect()
-      window.removeEventListener('resize', this.updateCreationViewportHeight)
+    async validateWizardStep (step) {
+      const fields = {
+        0: ['zoneid'],
+        7: this.selectedLbProdiver === 'Netscaler' && !this.netScalerStorageConflict ? ['autoscaleuserid'] : undefined,
+        13: ['name', 'expungevmgraceperiod', 'maxmembers', 'minmembers', 'interval'],
+        14: ['licensesaccepted']
+      }[step]
+      if (fields) {
+        try {
+          await this.formRef.value.validateFields(fields)
+        } catch (error) {
+          return error.errorFields?.[0]?.errors?.[0] || 'error.form.message'
+        }
+      }
+      if (step === 1 && !this.selectedArchitecture) return 'message.instance.architecture'
+      if (step === 2 && !this.form.templateid) return 'message.template.iso'
+      if (step === 3 && !this.form.computeofferingid) return 'message.step.2.continue'
+      if (step === 6) {
+        if (!this.defaultNetworkId) return 'message.error.select.network'
+        if (!this.networks.some(network => network.id === this.defaultNetworkId && network.supportsvmautoscaling === true)) {
+          return 'message.error.select.network.supports.vm.autoscaling'
+        }
+      }
+      if ((step === 15 && this.rootDiskPlanIncomplete) || (step === 5 && this.dataDiskPlanIncomplete)) return 'message.vm.wizard.storage.incomplete'
+      if (step === 7 && this.netScalerStorageConflict) return 'message.autoscale.storage.netscaler'
+      if (step === 7 && !this.form.loadbalancerid) return 'message.error.select.load.balancer'
+      if (step === 10) return this.scalePolicyError(this.scaleUpPolicies, 'scaleup', this.form.interval)
+      if (step === 11) return this.scalePolicyError(this.scaleDownPolicies, 'scaledown', this.form.interval)
+      if (step === 13) return this.basicInfoError(this.form)
+      return ''
     },
-    updateCreationViewportHeight () {
-      this.showSideSummary = window.innerWidth >= 992
-      const layout = this.$refs.creationLayout
-      const content = layout?.closest('.layout-content')
-      if (!content || !layout.getClientRects().length) return
-      // Follow DeployVM: measure the workspace rather than guessing header heights.
-      const top = layout.getBoundingClientRect().top - content.getBoundingClientRect().top + content.scrollTop - content.clientTop
-      const bottom = parseFloat(getComputedStyle(content).paddingBottom) || 0
-      const height = Math.max(0, Math.floor(content.clientHeight - top - bottom))
-      this.creationViewportHeight = height ? `${height}px` : ''
+    basicInfoError ({ name, minmembers, maxmembers }) {
+      if (!name || !/^[a-zA-Z0-9-]{1,255}$/.test(name)) {
+        return 'message.error.invalid.autoscale.vmgroup.name'
+      }
+      if (parseInt(maxmembers) < parseInt(minmembers)) {
+        return 'message.error.max.members.less.than.min.members'
+      }
+      return ''
+    },
+    scalePolicyError (policies, direction, interval) {
+      if (!policies.length) return 'message.' + direction + '.policy.continue'
+      for (const policy of policies) {
+        if (!policy.name) return 'message.' + direction + '.policy.name.continue'
+        const duration = autoScaleInteger(policy[direction + 'duration'], 1, 2147483647)
+        const quietTime = autoScaleInteger(policy[direction + 'quiettime'], 0, 2147483647)
+        if (duration === null || quietTime === null) return 'message.' + direction + '.policy.duration.continue'
+        if (!policy.conditions.length) return 'message.' + direction + '.policy.continue'
+        if (duration < Number(interval)) return 'message.error.duration.less.than.interval'
+      }
+      return ''
     },
     counterLabel (name) {
       return autoScaleCounterLabel(name, this.$t)
@@ -2008,13 +2053,16 @@ export default {
         'maxmemory' in serviceOffering.serviceofferingdetails && 'maxcpunumber' in serviceOffering.serviceofferingdetails &&
         'minmemory' in serviceOffering.serviceofferingdetails
     },
-    updateOverrideRootDiskShowParam (val) {
-      if (val) {
-        this.showRootDiskSizeChanger = false
-      } else {
-        this.rootDiskSelected = null
-      }
-      this.showOverrideDiskOfferingOption = val
+    updateOverrideRootDiskShowParam (value) {
+      this.changeRootDiskSizeOverride(false)
+      this.form.overridediskofferingid = undefined
+      this.overrideDiskOffering = null
+      this.rootStorageSelection = { valid: true }
+      this.showOverrideDiskOfferingOption = value
+    },
+    changeRootDiskSizeOverride (value) {
+      this.showRootDiskSizeChanger = value
+      this.form.rootdisksize = undefined
     },
     async fetchDataByZone (zoneId) {
       this.fillValue('zoneid')
@@ -2128,11 +2176,13 @@ export default {
         disksize: null
       }
       this.zoneSelected = false
+      this.resetDiskPlan()
       this.formRef.value.resetFields()
       this.fetchData()
     },
     updateFieldValue (name, value) {
       if (name === 'templateid') {
+        if (value !== this.form.templateid) this.resetDiskPlan()
         this.form.templateid = value
         this.resetFromTemplateConfiguration()
         let template = ''
@@ -2158,22 +2208,24 @@ export default {
       }
     },
     updateComputeOffering (id) {
+      if (id !== this.form.computeofferingid) this.updateOverrideRootDiskShowParam(false)
       this.form.computeofferingid = id
       setTimeout(() => {
-        this.updateTemplateConfigurationOfferingDetails(id)
+        if (this.form.computeofferingid === id) this.updateTemplateConfigurationOfferingDetails(id)
       }, 500)
     },
     updateDiskOffering (id) {
-      if (id === '0') {
-        this.form.diskofferingid = undefined
-        return
+      const offeringId = id !== '0' ? id : undefined
+      if (offeringId !== this.form.diskofferingid) {
+        this.form.size = undefined
+        this.dataStorageSelection = { valid: true }
       }
-      this.form.diskofferingid = id
+      this.form.diskofferingid = offeringId
     },
     updateOverrideDiskOffering (id) {
-      if (id === '0') {
-        this.form.overridediskofferingid = undefined
-        return
+      if (id !== this.form.overridediskofferingid) {
+        this.form.rootdisksize = undefined
+        this.rootStorageSelection = { valid: true }
       }
       this.form.overridediskofferingid = id
     },
@@ -2462,6 +2514,13 @@ export default {
         params['otherdeployparams[' + j + '].value'] = createVmGroupData.size
         j++
       }
+      for (const key of ['rootstorageid', 'datastorageid']) {
+        if (createVmGroupData[key]) {
+          params['otherdeployparams[' + j + '].name'] = key
+          params['otherdeployparams[' + j + '].value'] = createVmGroupData[key]
+          j++
+        }
+      }
       if (createVmGroupData.securitygroupids) {
         params['otherdeployparams[' + j + '].name'] = 'securitygroupids'
         params['otherdeployparams[' + j + '].value'] = createVmGroupData.securitygroupids
@@ -2545,6 +2604,11 @@ export default {
     },
     async handleSubmit (e, recovery = false) {
       if (e && e.preventDefault) e.preventDefault()
+      if (this.rootDiskPlanIncomplete || this.dataDiskPlanIncomplete || this.netScalerStorageConflict) {
+        const message = this.netScalerStorageConflict ? 'message.autoscale.storage.netscaler' : 'message.vm.wizard.storage.incomplete'
+        this.$notification.error({ message: this.$t('message.request.failed'), description: this.$t(message) })
+        return
+      }
       if (this.userDataSelectionBlocked || this.submitting || this.creationBusy || (this.hasUnresolvedCreation && !recovery) || this.loading.deploy || this.checkingEligibility) return
       this.submitting = true
       return this.formRef.value.validate().then(async () => {
@@ -2598,97 +2662,13 @@ export default {
           return
         }
 
-        const regex = /^([a-zA-Z0-9-]){0,255}$/
-        if (!values.name || values.name.length === 0 || !regex.test(values.name)) {
+        const detailsError = this.basicInfoError(values) ||
+          this.scalePolicyError(this.scaleUpPolicies, 'scaleup', values.interval) ||
+          this.scalePolicyError(this.scaleDownPolicies, 'scaledown', values.interval)
+        if (detailsError) {
           this.$notification.error({
             message: this.$t('message.request.failed'),
-            description: this.$t('message.error.invalid.autoscale.vmgroup.name')
-          })
-          return
-        }
-
-        if (this.scaleUpPolicies.length === 0) {
-          this.$notification.error({
-            message: this.$t('message.request.failed'),
-            description: this.$t('message.scaleup.policy.continue')
-          })
-          return
-        }
-        for (const policy of this.scaleUpPolicies) {
-          if (!policy.name || policy.name.length === 0) {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.scaleup.policy.name.continue')
-            })
-            return
-          }
-          if (autoScaleInteger(policy.scaleupduration, 1, 2147483647) === null ||
-              autoScaleInteger(policy.scaleupquiettime, 0, 2147483647) === null) {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.scaleup.policy.duration.continue')
-            })
-            return
-          }
-          if (policy.conditions.length === 0) {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.scaleup.policy.continue')
-            })
-            return
-          }
-          if (parseInt(policy.scaleupduration) < parseInt(values.interval)) {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.error.duration.less.than.interval')
-            })
-            return
-          }
-        }
-
-        if (this.scaleDownPolicies.length === 0) {
-          this.$notification.error({
-            message: this.$t('message.request.failed'),
-            description: this.$t('message.scaledown.policy.continue')
-          })
-          return
-        }
-        for (const policy of this.scaleDownPolicies) {
-          if (!policy.name || policy.name.length === 0) {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.scaledown.policy.name.continue')
-            })
-            return
-          }
-          if (autoScaleInteger(policy.scaledownduration, 1, 2147483647) === null ||
-              autoScaleInteger(policy.scaledownquiettime, 0, 2147483647) === null) {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.scaledown.policy.duration.continue')
-            })
-            return
-          }
-          if (policy.conditions.length === 0) {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.scaledown.policy.continue')
-            })
-            return
-          }
-          if (parseInt(policy.scaledownduration) < parseInt(values.interval)) {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.error.duration.less.than.interval')
-            })
-            return
-          }
-        }
-
-        if (parseInt(values.maxmembers) < parseInt(values.minmembers)) {
-          this.$notification.error({
-            message: this.$t('message.request.failed'),
-            description: this.$t('message.error.max.members.less.than.min.members')
+            description: this.$t(detailsError)
           })
           return
         }
@@ -2702,6 +2682,10 @@ export default {
         let createVmGroupData = {}
         // step 1 : select zone
         createVmGroupData.zoneid = values.zoneid
+        if (this.storageSelectionEnabled) {
+          createVmGroupData.rootstorageid = this.rootStorageSelection.id
+          createVmGroupData.datastorageid = this.diskOffering?.id ? this.dataStorageSelection.id : undefined
+        }
         // step 2: select template/iso
         createVmGroupData.templateid = values.templateid
 
@@ -2727,7 +2711,7 @@ export default {
         if (this.selectedTemplateConfiguration) {
           createVmGroupData['details[0].configurationId'] = this.selectedTemplateConfiguration.id
         }
-        if (!this.serviceOffering.diskofferingstrictness && values.overridediskofferingid) {
+        if (!this.rootOfferingLocked && this.showOverrideDiskOfferingOption && values.overridediskofferingid) {
           createVmGroupData.overridediskofferingid = values.overridediskofferingid
           if (values.rootdisksize && values.rootdisksize > 0) {
             createVmGroupData.rootdisksize = values.rootdisksize
@@ -2751,7 +2735,7 @@ export default {
           }
         } else {
           createVmGroupData.diskofferingid = values.diskofferingid
-          if (values.size) {
+          if (this.diskOffering?.iscustomized && values.size) {
             createVmGroupData.size = values.size
           }
         }
@@ -2835,9 +2819,7 @@ export default {
         }
       }).catch(err => {
         if (err) {
-          if (err.errorFields) {
-            this.formRef.value.scrollToField(err.errorFields[0].name, { block: 'center' })
-          }
+          if (err.errorFields?.length && this.$refs.wizard) this.$refs.wizard.showInvalidField()
           if (err.licensesaccepted) {
             this.$notification.error({
               message: this.$t('message.license.agreements.not.accepted'),
@@ -3045,7 +3027,15 @@ export default {
       this.updateTemplateKey()
       this.formModel = toRaw(this.form)
     },
+    resetDiskPlan () {
+      this.updateOverrideRootDiskShowParam(false)
+      this.updateDiskOffering('0')
+      this.diskOffering = null
+      this.dataStorageSelection = { valid: true }
+      this.form.multidiskoffering = undefined
+    },
     onSelectZoneId (value) {
+      if (value !== this.form.zoneid) this.resetDiskPlan()
       if (this.dataPreFill.zoneid !== value) {
         this.dataPreFill = {}
       }
@@ -3245,7 +3235,6 @@ export default {
         this.rootDiskSizeFixed = offering.rootdisksize
         this.showRootDiskSizeChanger = false
       }
-      this.form.rootdisksizeitem = this.showRootDiskSizeChanger && this.rootDiskSizeFixed > 0
       this.formModel = toRaw(this.form)
     },
     handlerError (error) {
@@ -3260,10 +3249,10 @@ export default {
       this.messageError = ''
     },
     onSelectDiskSize (rowSelected) {
-      this.diskSelected = rowSelected
+      this.diskOffering = rowSelected?.id ? rowSelected : null
     },
     onSelectRootDiskSize (rowSelected) {
-      this.rootDiskSelected = rowSelected
+      this.overrideDiskOffering = rowSelected?.id ? rowSelected : null
     },
     updateIOPSValue (input, value) {
       this[input] = value
@@ -3276,82 +3265,29 @@ export default {
 </script>
 
 <style lang="less" scoped>
+  .disk-step-section { margin: 12px 0 20px; }
+  .disk-step-heading { display: flex; align-items: center; gap: 8px; color: var(--ui-text-primary); font-size: 14px; font-weight: 600; }
+  .disk-step-heading span, .disk-step-storage :deep(.storage-toolbar strong)::before {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 21px;
+    height: 21px;
+    border: 1px solid var(--ui-border);
+    border-radius: 50%;
+    color: var(--ui-text-secondary);
+    font-size: 12px;
+    font-weight: normal;
+  }
+  .disk-step-storage :deep(.storage-toolbar strong) { display: flex; align-items: center; gap: 8px; }
+  .disk-step-storage :deep(.storage-toolbar strong)::before { content: '2'; }
+  .disk-size-unit { margin: 0 8px; }
+  .disk-fixed-value { background: var(--ui-bg-elevated); border: 1px solid var(--ui-border); border-radius: 3px; padding: 10px 12px; margin-bottom: 12px; }
+  .option-help { margin: 8px 0 0; opacity: .75; font-size: 12px; line-height: 1.6; }
+
   .autoscale-userdata-status { margin-top: 12px; overflow-wrap: anywhere; }
   .autoscale-userdata-options { margin-top: 15px; }
-  .autoscale-create--bounded {
-    display: flex;
-    flex-direction: column;
-    height: var(--autoscale-viewport-height);
-    min-height: 0;
-
-    > .ant-alert { flex-shrink: 0; }
-    > .ant-row { flex: 1; min-height: 0; }
-
-    .autoscale-create-form-column,
-    .autoscale-create-summary-column,
-    .vm-info-card,
-    .vm-info-card > :deep(.ant-spin-nested-loading),
-    .vm-info-card > :deep(.ant-spin-nested-loading > .ant-spin-container) {
-      height: 100%;
-      min-height: 0;
-    }
-
-    .autoscale-create-form-column > .ant-card,
-    .vm-info-card :deep(.spin-content) {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      min-height: 0;
-    }
-
-    .autoscale-create-form-column > .ant-card > :deep(.ant-card-head),
-    .vm-info-card :deep(.spin-content > .ant-card-head) {
-      flex-shrink: 0;
-    }
-
-    .autoscale-create-form-column > .ant-card > :deep(.ant-card-body),
-    .vm-info-card :deep(.spin-content > .ant-card-body) {
-      display: flex;
-      flex: 1;
-      flex-direction: column;
-      min-height: 0;
-      overflow: hidden;
-    }
-
-    .vm-info-card :deep(.card-body) {
-      flex: 1;
-      min-height: 0;
-    }
-
-    .autoscale-create-form-scroll,
-    .vm-info-card :deep(.card-content) {
-      flex: 1;
-      min-height: 0;
-      overflow-y: auto;
-      overscroll-behavior-y: contain;
-      scrollbar-width: none;
-
-      &::-webkit-scrollbar { display: none; }
-    }
-
-    .vm-info-card :deep(.card-footer),
-    .autoscale-create-mobile-footer {
-      flex-shrink: 0;
-    }
-
-    .autoscale-create-mobile-footer { margin-top: 16px; }
-  }
-
-  .card-footer {
-    text-align: right;
-    margin-top: 2rem;
-
-    button + button {
-      margin-left: 8px;
-    }
-  }
-
-  .ant-list-item-meta-avatar {
+.ant-list-item-meta-avatar {
     font-size: 1rem;
   }
 

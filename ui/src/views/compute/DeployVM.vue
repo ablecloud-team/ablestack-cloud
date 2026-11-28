@@ -16,1225 +16,1166 @@
 // under the License.
 
 <template>
-  <div ref="deployLayout" class="deploy-vm-layout" :class="{ 'deploy-vm-layout--bounded': deployViewportHeight }" :style="{ '--deploy-viewport-height': deployViewportHeight }">
-    <a-row :gutter="12">
-      <a-col :md="24" :lg="17" class="deploy-vm-form-column">
-        <a-card :bordered="true" :title="$t('label.newinstance')">
-          <a-form
-            class="deploy-vm-form-scroll"
-            :disabled="loading.deploy"
-            tabindex="0"
-            :aria-label="$t('label.newinstance')"
-            v-ctrl-enter="handleSubmit"
-            :ref="formRef"
-            :model="form"
-            :rules="rules"
-            @finish="handleSubmit"
-            layout="vertical"
-          >
-            <div v-for="operation in isoDataOperations" :key="operation.deployJobId" style="margin-bottom: 16px">
-              <div style="display: flex; align-items: center; gap: 10px">
-                <strong>{{ $t('label.vm.disk.progress') }} · {{ operation.vmId || operation.deployJobId }}</strong>
-                <a-button v-if="operation.status === 'failed'" :loading="loading.deploy" @click="retryIsoDisks(operation)">
-                  <template #icon><ReloadOutlined /></template>{{ $t('label.retry') }}
-                </a-button>
-              </div>
-              <p>{{ operation.disks.filter(disk => disk.status === 'attached').length }} / {{ operation.disks.length }} · {{ $t('label.vm.disk.status.' + operation.status) }}</p>
-              <p v-if="operation.status === 'complete' && !operation.started">{{ $t('message.vm.disk.logical.complete') }}</p>
-              <a-table :data-source="operation.disks" :pagination="false" row-key="index" size="small" style="margin: 8px 0">
-                <a-table-column :title="$t('label.deviceid')" data-index="deviceId" />
-                <a-table-column :title="$t('label.id')" data-index="volumeId" />
-                <a-table-column :title="$t('label.status')">
-                  <template #default="{ record }">{{ $t('label.vm.disk.item.' + record.status) }}</template>
-                </a-table-column>
-              </a-table>
-              <a-alert v-if="operation.error"  type="error" show-icon :message="operation.error" />
+  <resource-create-wizard
+    ref="wizard"
+    v-model:step="wizardStep"
+    :stages="wizardStages"
+    split-scroll
+    summary-title-key="label.vm.wizard.summary"
+    :title="$t('label.newinstance')"
+    return-route="/vm"
+    :validate-step="validateWizardStep"
+    :busy="loading.deploy">
+    <a-form
+      class="deploy-vm-form"
+      :disabled="loading.deploy"
+      tabindex="0"
+      :aria-label="$t('label.newinstance')"
+      v-ctrl-enter="handleWizardEnter"
+      :ref="formRef"
+      :model="form"
+      :rules="rules"
+      @finish="handleWizardEnter"
+      layout="vertical"
+    >
+      <div v-for="operation in isoDataOperations" :key="operation.deployJobId" style="margin-bottom: 16px">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <strong>{{ $t('label.vm.disk.progress') }} · {{ operation.vmId || operation.deployJobId }}</strong>
+          <a-button v-if="operation.status === 'failed'" :loading="loading.deploy" @click="retryIsoDisks(operation)">
+            <template #icon><ReloadOutlined /></template>{{ $t('label.retry') }}
+          </a-button>
+        </div>
+        <p>{{ operation.disks.filter(disk => disk.status === 'attached').length }} / {{ operation.disks.length }} · {{ $t('label.vm.disk.status.' + operation.status) }}</p>
+        <p v-if="operation.status === 'complete' && !operation.started">{{ $t('message.vm.disk.logical.complete') }}</p>
+        <a-table :data-source="operation.disks" :pagination="false" row-key="index" size="small" style="margin: 8px 0">
+          <a-table-column :title="$t('label.deviceid')" data-index="deviceId" />
+          <a-table-column :title="$t('label.id')" data-index="volumeId" />
+          <a-table-column :title="$t('label.status')">
+            <template #default="{ record }">{{ $t('label.vm.disk.item.' + record.status) }}</template>
+          </a-table-column>
+        </a-table>
+        <a-alert v-if="operation.error"  type="error" show-icon :message="operation.error" />
+      </div>
+      <creation-source-operations v-model:operations="sourceOperations" :storage-key="sourceOperationsKey" />
+      <section v-show="wizardStep === 0" class="resource-create-section" data-wizard-step="0">
+        <h3 class="resource-create-section-title">{{ $t('label.vm.wizard.account.infrastructure') }}</h3>
+        <div v-if="!isNormalUserOrProject" class="vm-deployment-owner">
+          {{ $t('label.assigning.vms') }}
+          <ownership-selection
+            safe-scope
+            @fetch-owner="fetchOwnerOptions"/>
+        </div>
+        <div>
+          <span>{{ $t('message.select.a.zone') }}</span><br/>
+          <a-form-item :label="$t('label.zoneid')" name="zoneid" ref="zoneid">
+            <zone-block-radio-group-select
+              :items="zones"
+              :selectedValue="form.zoneid"
+              @change="onSelectZoneId" />
+          </a-form-item>
+          <a-form-item
+            v-if="!isNormalAndDomainUser"
+            :label="$t('label.podid')"
+            name="podid"
+            ref="podid">
+            <a-select
+              v-model:value="form.podid"
+              showSearch
+              optionFilterProp="label"
+              :filterOption="filterOption"
+              :options="podSelectOptions"
+              :loading="loading.pods"
+              @change="onSelectPodId"
+            ></a-select>
+          </a-form-item>
+          <a-form-item
+            v-if="!isNormalAndDomainUser"
+            :label="$t('label.clusterid')"
+            name="clusterid"
+            ref="clusterid">
+            <a-select
+              v-model:value="form.clusterid"
+              :disabled="imageType === 'volumeid' && selectedCreationSource?.storage?.scope === 'CLUSTER'"
+              showSearch
+              optionFilterProp="label"
+              :filterOption="filterOption"
+              :options="clusterSelectOptions"
+              :loading="loading.clusters"
+              @change="onSelectClusterId"
+            ></a-select>
+          </a-form-item>
+          <a-form-item
+            v-if="!isNormalAndDomainUser"
+            :label="$t('label.hostid')"
+            name="hostid"
+            ref="hostid">
+            <a-select
+              v-model:value="form.hostid"
+              showSearch
+              optionFilterProp="label"
+              :filterOption="filterOption"
+              :options="hostSelectOptions"
+              :loading="loading.hosts"
+              @change="onSelectHostId"
+            ></a-select>
+          </a-form-item>
+        </div>
+      </section>
+      <section v-show="wizardStep === 16" class="resource-create-section" data-wizard-step="16">
+        <h3 class="resource-create-section-title">{{ $t('label.vm.wizard.basic') }}</h3>
+        <template v-if="zoneSelected">
+          <div style="margin-top: 15px">
+            <a-form-item :label="$t('label.name.optional')" name="name" ref="name">
+              <a-input v-model:value="form.name" />
+            </a-form-item>
+            <a-form-item :label="$t('label.group.optional')" name="group" ref="group">
+              <a-auto-complete
+                v-model:value="form.group"
+                :disabled="!groupLookupReady"
+                :filterOption="filterOption"
+                :options="options.instanceGroups" />
+              <div role="status" aria-live="polite">{{ $t('message.vm.group.lookup.' + groupLookupState.status) }}</div>
+              <a-button v-if="['error', 'forbidden', 'empty'].includes(groupLookupState.status)" size="small" :loading="loading.groups" @click="fetchInstaceGroups">{{ $t('label.refresh') }}</a-button>
+            </a-form-item>
+            <a-form-item :label="$t('label.keyboard')" name="keyboard" ref="keyboard">
+              <a-select
+                v-model:value="form.keyboard"
+                @change="keyboardOverridden = true"
+                :options="keyboardSelectOptions"
+                showSearch
+                optionFilterProp="label"
+                :filterOption="filterOption"
+              ></a-select>
+            </a-form-item>
+            <a-form-item :label="$t('label.deploy.vm.number')" name="vmNumber" ref="vmNumber">
+              <a-input-number :min=1 :max="isCreationSource ? 1 : 50" :disabled="isCreationSource" :maxlength="2" v-model:value="form.vmNumber" />
+            </a-form-item>
+            <a-form-item :label="$t('label.vm.start.after.creation')" name="startvm" ref="startvm">
+              <a-switch v-model:checked="form.startvm" />
+              <p style="margin-top: 8px">{{ $t(form.startvm ? 'message.vm.start.enabled' : 'message.vm.start.disabled') }}</p>
+            </a-form-item>
+          </div>
+        </template>
+      </section>
+      <section v-if="wizardStepIds.has(2)" v-show="wizardStep === 2" class="resource-create-section" data-wizard-step="2">
+        <h3 class="resource-create-section-title">{{ $t('label.arch') }}</h3>
+        <div v-if="zoneSelected" style="margin-top: 15px">
+          {{ $t('message.instance.architecture') }}
+          <block-radio-group-select
+            style="margin-top: 5px;"
+            :items="architectureTypes.opts"
+            :selectedValue="selectedArchitecture"
+            @change="changeArchitecture">
+              <template #radio-option="{ item }">
+                <span>{{ item.name || item.description }}</span>
+              </template>
+              <template #select-option="{ item }">
+                <span>{{ item.name || item.description }}</span>
+              </template>
+          </block-radio-group-select>
+        </div>
+      </section>
+      <section v-show="wizardStep === 3" class="resource-create-section" data-wizard-step="3">
+        <h3 class="resource-create-section-title">{{ $t('label.image') }}</h3>
+        <div v-if="zoneSelected" style="margin-top: 15px">
+          <template v-if="isCreationSource">
+            <creation-source-selection
+              ref="creationSourceSelection"
+              :key="imageType"
+              :image-type="imageType"
+              :query="creationSourceQuery"
+              :owner-ready="creationSourceOwnerReady"
+              :selected="selectedCreationSource"
+              :preselected-id="imageType === 'volumeid' ? queryVolumeId : querySnapshotId"
+              @select="selectCreationSource"
+              @loading="sourceLoading = $event"
+              @change-image-type="changeImageType" />
+            <creation-source-summary :source="selectedCreationSource" :target-storage="rootStorageSelection" :execution-profile="creationSourceExecutionProfile" />
+            <creation-source-configuration v-if="selectedCreationSource" :source="selectedCreationSource" :value="sourceConfiguration" @update:value="sourceConfiguration = $event" />
+            <a-alert type="info" show-icon :message="$t('message.creation.source.responsibility')" />
+          </template>
+          <os-based-image-selection
+            ref="imageSelection"
+            v-else-if="isModernImageSelection"
+            :selectedImageType="imageType"
+            :imagePreSelected="!!this.queryTemplateId || !!this.queryIsoId"
+            :guestOsCategoriesSelectionDisallowed="guestOsCategoriesSelectionDisallowed"
+            :guestOsCategories="options.guestOsCategories"
+            :guestOsCategoriesLoading="loading.guestOsCategories"
+            :selectedGuestOsCategoryId="form.guestoscategoryid"
+            :imageItems="imageType === 'isoid' ? options.isos : imageType === 'volumeid' ? options.volumes : imageType === 'snapshotid' ? options.snapshots : options.templates"
+            :imagesLoading="imageType === 'isoid' ? loading.isos : imageType === 'volumeid' ? loading.volumes : imageType === 'snapshotid' ? loading.snapshots : loading.templates"
+            :diskSizeSelectionAllowed="false"
+            :diskSizeSelectionDeployAsIsMessageVisible="template && template.deployasis"
+            :rootDiskOverrideDisabled="rootDiskSizeFixed > 0 || (template && template.deployasis) || showOverrideDiskOfferingOption"
+            :rootDiskOverrideChecked="form.rootdisksizeitem"
+            :isoHypervisor="form.hypervisor"
+            :isoHypervisorItems="hypervisorSelectOptions"
+            :filterOption="filterOption"
+            :preFillContent="dataPreFill"
+            @change-image-type="changeImageType"
+            @change-guest-os-category="onSelectGuestOsCategory"
+            @handle-image-search-filter="filters => fetchImages(filters)"
+            @update-image="updateFieldValue"
+            @update-disk-size="updateFieldValue"
+            @change-iso-hypervisor="value => form.hypervisor = value" />
+          <a-card
+            ref="legacyImageSelection"
+            v-else
+            :tabList="imageTypeList"
+            :activeTabKey="imageType"
+            @tabChange="key => changeImageType(key, true)">
+            <div v-if="imageType === 'templateid'">
+              {{ $t('message.template.desc') }}
+              <template-iso-selection
+                input-decorator="templateid"
+                :items="options.templates"
+                :selected="imageType"
+                :loading="loading.templates"
+                :preFillContent="dataPreFill"
+                :key="templateKey"
+                @handle-search-filter="filters => fetchAllTemplates(filters)"
+                @update-template-iso="updateFieldValue" />
             </div>
-            <creation-source-operations v-model:operations="sourceOperations" :storage-key="sourceOperationsKey" />
-            <a-steps direction="vertical" size="small">
-              <a-step
-                v-if="!isNormalUserOrProject"
-                :title="this.$t('label.assign.instance.another')">
-                <template #description>
-                  <div style="margin-top: 15px">
-                    {{ $t('label.assigning.vms') }}
-                    <ownership-selection
-                      safe-scope
-                      @fetch-owner="fetchOwnerOptions"/>
-                  </div>
-                </template>
-              </a-step>
-              <a-step :title="$t('label.select.deployment.infrastructure')" status="process">
-                <template #description>
-                  <div style="margin-top: 15px">
-                    <span>{{ $t('message.select.a.zone') }}</span><br/>
-                    <a-form-item :label="$t('label.zoneid')" name="zoneid" ref="zoneid">
-                      <zone-block-radio-group-select
-                        :items="zones"
-                        :selectedValue="form.zoneid"
-                        @change="onSelectZoneId" />
-                    </a-form-item>
-                    <a-form-item
-                      v-if="!isNormalAndDomainUser"
-                      :label="$t('label.podid')"
-                      name="podid"
-                      ref="podid">
-                      <a-select
-                        v-model:value="form.podid"
-                        showSearch
-                        optionFilterProp="label"
-                        :filterOption="filterOption"
-                        :options="podSelectOptions"
-                        :loading="loading.pods"
-                        @change="onSelectPodId"
-                      ></a-select>
-                    </a-form-item>
-                    <a-form-item
-                      v-if="!isNormalAndDomainUser"
-                      :label="$t('label.clusterid')"
-                      name="clusterid"
-                      ref="clusterid">
-                      <a-select
-                        v-model:value="form.clusterid"
-                        :disabled="imageType === 'volumeid' && selectedCreationSource?.storage?.scope === 'CLUSTER'"
-                        showSearch
-                        optionFilterProp="label"
-                        :filterOption="filterOption"
-                        :options="clusterSelectOptions"
-                        :loading="loading.clusters"
-                        @change="onSelectClusterId"
-                      ></a-select>
-                    </a-form-item>
-                    <a-form-item
-                      v-if="!isNormalAndDomainUser"
-                      :label="$t('label.hostid')"
-                      name="hostid"
-                      ref="hostid">
-                      <a-select
-                        v-model:value="form.hostid"
-                        showSearch
-                        optionFilterProp="label"
-                        :filterOption="filterOption"
-                        :options="hostSelectOptions"
-                        :loading="loading.hosts"
-                        @change="onSelectHostId"
-                      ></a-select>
-                    </a-form-item>
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                v-if="!zoneSelected || isZoneSelectedMultiArch"
-                :title="$t('label.arch')"
-                :status="zoneSelected ? 'process' : 'wait'">
-                <template #description>
-                  <div v-if="zoneSelected" style="margin-top: 15px">
-                    {{ $t('message.instance.architecture') }}
-                    <block-radio-group-select
-                      style="margin-top: 5px;"
-                      :items="architectureTypes.opts"
-                      :selectedValue="selectedArchitecture"
-                      @change="changeArchitecture">
-                        <template #radio-option="{ item }">
-                          <span>{{ item.name || item.description }}</span>
-                        </template>
-                        <template #select-option="{ item }">
-                          <span>{{ item.name || item.description }}</span>
-                        </template>
-                    </block-radio-group-select>
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                :title="$t('label.image')"
-                :status="zoneSelected ? 'process' : 'wait'">
-                <template #description>
-                  <div v-if="zoneSelected" style="margin-top: 15px">
-                    <template v-if="isCreationSource">
-                      <creation-source-selection
-                        ref="creationSourceSelection"
-                        :key="imageType"
-                        :image-type="imageType"
-                        :query="creationSourceQuery"
-                        :owner-ready="creationSourceOwnerReady"
-                        :selected="selectedCreationSource"
-                        :preselected-id="imageType === 'volumeid' ? queryVolumeId : querySnapshotId"
-                        @select="selectCreationSource"
-                        @loading="sourceLoading = $event"
-                        @change-image-type="changeImageType" />
-                      <creation-source-summary :source="selectedCreationSource" :target-storage="rootStorageSelection" :execution-profile="creationSourceExecutionProfile" />
-                      <creation-source-configuration v-if="selectedCreationSource" :source="selectedCreationSource" :value="sourceConfiguration" @update:value="sourceConfiguration = $event" />
-                      <a-alert type="info" show-icon :message="$t('message.creation.source.responsibility')" />
-                    </template>
-                    <os-based-image-selection
-                      ref="imageSelection"
-                      v-else-if="isModernImageSelection"
-                      :selectedImageType="imageType"
-                      :imagePreSelected="!!this.queryTemplateId || !!this.queryIsoId"
-                      :guestOsCategoriesSelectionDisallowed="guestOsCategoriesSelectionDisallowed"
-                      :guestOsCategories="options.guestOsCategories"
-                      :guestOsCategoriesLoading="loading.guestOsCategories"
-                      :selectedGuestOsCategoryId="form.guestoscategoryid"
-                      :imageItems="imageType === 'isoid' ? options.isos : imageType === 'volumeid' ? options.volumes : imageType === 'snapshotid' ? options.snapshots : options.templates"
-                      :imagesLoading="imageType === 'isoid' ? loading.isos : imageType === 'volumeid' ? loading.volumes : imageType === 'snapshotid' ? loading.snapshots : loading.templates"
-                      :diskSizeSelectionAllowed="false"
-                      :diskSizeSelectionDeployAsIsMessageVisible="template && template.deployasis"
-                      :rootDiskOverrideDisabled="rootDiskSizeFixed > 0 || (template && template.deployasis) || showOverrideDiskOfferingOption"
-                      :rootDiskOverrideChecked="form.rootdisksizeitem"
-                      :isoHypervisor="form.hypervisor"
-                      :isoHypervisorItems="hypervisorSelectOptions"
-                      :filterOption="filterOption"
-                      :preFillContent="dataPreFill"
-                      @change-image-type="changeImageType"
-                      @change-guest-os-category="onSelectGuestOsCategory"
-                      @handle-image-search-filter="filters => fetchImages(filters)"
-                      @update-image="updateFieldValue"
-                      @update-disk-size="updateFieldValue"
-                      @change-iso-hypervisor="value => form.hypervisor = value" />
-                    <a-card
-                      ref="legacyImageSelection"
-                      v-else
-                      :tabList="imageTypeList"
-                      :activeTabKey="imageType"
-                      @tabChange="key => changeImageType(key, true)">
-                      <div v-if="imageType === 'templateid'">
-                        {{ $t('message.template.desc') }}
-                        <template-iso-selection
-                          input-decorator="templateid"
-                          :items="options.templates"
-                          :selected="imageType"
-                          :loading="loading.templates"
-                          :preFillContent="dataPreFill"
-                          :key="templateKey"
-                          @handle-search-filter="filters => fetchAllTemplates(filters)"
-                          @update-template-iso="updateFieldValue" />
-                      </div>
-                      <div v-else>
-                        {{ $t('message.iso.desc') }}
-                        <template-iso-selection
-                          input-decorator="isoid"
-                          :items="options.isos"
-                          :selected="imageType"
-                          :loading="loading.isos"
-                          :preFillContent="dataPreFill"
-                          @handle-search-filter="filters => fetchAllIsos(filters)"
-                          @update-template-iso="updateFieldValue" />
-                        <a-form-item :label="$t('label.hypervisor')">
-                          <a-select
-                            v-model:value="form.hypervisor"
-                            :preFillContent="dataPreFill"
-                            :options="hypervisorSelectOptions"
-                            @change="value => hypervisor = value"
-                            showSearch
-                            optionFilterProp="label"
-                            :filterOption="filterOption" />
-                        </a-form-item>
-                      </div>
-                    </a-card>
-                    <additional-iso-selection
-                      v-if="imageType === 'isoid'"
-                      :zone-id="form.zoneid"
-                      :primary-id="form.isoid"
-                      :owner="owner"
-                      :project-id="$store.getters.project?.id"
-                      :supported="!!apiParams?.additionalisoids && form.hypervisor === 'KVM'"
-                      @change="additionalIsoSelection = $event" />
-                    <a-form-item class="form-item-hidden">
-                      <a-input v-model:value="form.templateid" />
-                    </a-form-item>
-                    <a-form-item class="form-item-hidden">
-                      <a-input v-model:value="form.isoid" />
-                    </a-form-item>
-                    <a-form-item class="form-item-hidden">
-                      <a-input v-model:value="form.volumeid" />
-                    </a-form-item>
-                    <a-form-item class="form-item-hidden">
-                      <a-input v-model:value="form.snapshotid" />
-                    </a-form-item>
-                    <a-form-item class="form-item-hidden">
-                      <a-input v-model:value="form.rootdisksize" />
-                    </a-form-item>
-                    <a-form-item class="form-item-hidden">
-                      <a-input v-model:value="form.templateKvdoEnable" />
-                    </a-form-item>
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                :title="$t('label.serviceofferingid')"
-                :status="zoneSelected ? 'process' : 'wait'">
-                <template #description>
-                  <div v-if="zoneSelected">
-                    <a-form-item v-if="zoneSelected && templateConfigurationExists" name="templateConfiguration" ref="templateConfiguration">
-                      <template #label>
-                        <tooltip-label :title="$t('label.configuration')" :tooltip="$t('message.ovf.configurations')"/>
-                      </template>
-                      <a-select
-                        showSearch
-                        optionFilterProp="label"
-                        v-model:value="form.templateConfiguration"
-                        defaultActiveFirstOption
-                        :placeholder="$t('message.ovf.configurations')"
-                        :filterOption="(input, option) => {
-                          return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                        }"
-                        @change="onSelectTemplateConfigurationId"
-                      >
-                        <a-select-option v-for="opt in templateConfigurations" :key="opt.id" :label="opt.name || opt.description">
-                          {{ opt.name || opt.description }}
-                        </a-select-option>
-                      </a-select>
-                      <span v-if="selectedTemplateConfiguration && selectedTemplateConfiguration.description">{{ selectedTemplateConfiguration.description }}</span>
-                    </a-form-item>
-                    <compute-offering-selection
-                      :compute-items="options.serviceOfferings"
-                      :selected-template="template ? template : {}"
-                      :row-count="rowCount.serviceOfferings"
-                      :zoneId="zoneId"
-                      :value="serviceOffering ? serviceOffering.id : ''"
-                      :loading="loading.serviceOfferings"
-                      :preFillContent="dataPreFill"
-                      :show-gpu-filter="zone.gputotal && zone.gputotal > 0"
-                      :minimum-cpunumber="templateConfigurationExists && selectedTemplateConfiguration && selectedTemplateConfiguration.cpunumber ? selectedTemplateConfiguration.cpunumber : 0"
-                      :minimum-cpuspeed="templateConfigurationExists && selectedTemplateConfiguration && selectedTemplateConfiguration.cpuspeed ? selectedTemplateConfiguration.cpuspeed : 0"
-                      :minimum-memory="templateConfigurationExists && selectedTemplateConfiguration && selectedTemplateConfiguration.memory ? selectedTemplateConfiguration.memory : 0"
-                      @select-compute-item="($event, $kvdoEnable) => updateComputeOffering($event, $kvdoEnable)"
-                      @handle-search-filter="($event) => handleSearchFilter('serviceOfferings', $event)"
-                    ></compute-offering-selection>
-                    <compute-selection
-                      v-if="serviceOffering && (serviceOffering.iscustomized || serviceOffering.iscustomizediops)"
-                      cpuNumberInputDecorator="cpunumber"
-                      cpuSpeedInputDecorator="cpuspeed"
-                      memoryInputDecorator="memory"
-                      :preFillContent="dataPreFill"
-                      :computeOfferingId="instanceConfig.computeofferingid"
-                      :computeOfferingKvdoEnable="serviceOffering.kvdoenable"
-                      :isConstrained="isOfferingConstrained(serviceOffering)"
-                      :minCpu="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.mincpunumber*1 : 1"
-                      :maxCpu="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.maxcpunumber*1 : Number.MAX_SAFE_INTEGER"
-                      :minMemory="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.minmemory*1 : 1024"
-                      :maxMemory="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.maxmemory*1 : Number.MAX_SAFE_INTEGER"
-                      :isCustomized="serviceOffering.iscustomized"
-                      :isCustomizedIOps="'iscustomizediops' in serviceOffering && serviceOffering.iscustomizediops"
-                      @handler-error="handlerError"
-                      @update-iops-value="updateIOPSValue"
-                      @update-compute-cpunumber="updateFieldValue"
-                      @update-compute-cpuspeed="updateFieldValue"
-                      @update-compute-memory="updateFieldValue" />
-                    <span v-if="serviceOffering && serviceOffering.iscustomized">
-                      <a-form-item name="cpunumber" ref="cpunumber" class="form-item-hidden">
-                        <a-input v-model:value="form.cpunumber"/>
-                      </a-form-item>
-                      <a-form-item
-                        class="form-item-hidden"
-                        v-if="(serviceOffering && !(serviceOffering.cpuspeed > 0))"
-                        name="cpuspeed"
-                        ref="cpuspeed">
-                        <a-input v-model:value="form.cpuspeed"/>
-                      </a-form-item>
-                      <a-form-item class="form-item-hidden" name="memory" ref="memory">
-                        <a-input v-model:value="form.memory"/>
-                      </a-form-item>
-                    </span>
-                    <span v-if="!['templateid', 'isoid'].includes(imageType) && serviceOffering && !serviceOffering.diskofferingstrictness">
-                      <a-step
-                        :status="zoneSelected ? 'process' : 'wait'"
-                        v-if="template && !template.deployasis && template.childtemplates && template.childtemplates.length > 0" >
-                        <template #description>
-                          <div v-if="zoneSelected">
-                            <multi-disk-selection
-                              :items="template.childtemplates"
-                              :diskOfferings="options.diskOfferings"
-                              :zoneId="zoneId"
-                              @select-multi-disk-offering="updateMultiDiskOffering($event)" />
-                          </div>
-                        </template>
-                      </a-step>
-                      <div v-else-if="zoneSelected" class="root-offering-selection">
-                            <disk-offering-selection
-                              v-if="showOverrideDiskOfferingOption"
-                              :items="options.diskOfferings"
-                              all-items
-                              :scope-key="diskOfferingQueryScope"
-                              :error="diskOfferingsError"
-                              @retry="fetchOptions(params.diskOfferings, 'diskOfferings')"
-                              :row-count="rowCount.diskOfferings"
-                              :zoneId="zoneId"
-                              :value="overrideDiskOffering ? overrideDiskOffering.id : ''"
-                              :loading="loading.diskOfferings"
-                              :preFillContent="dataPreFill"
-                              :isIsoSelected="imageType==='isoid'"
-                              :isRootDiskOffering="true"
-                              @on-selected-root-disk-size="onSelectRootDiskSize"
-                              @select-disk-offering-item="($event) => updateOverrideDiskOffering($event)"
-                              @handle-search-filter="($event) => handleSearchFilter('diskOfferings', $event)"
-                            ></disk-offering-selection>
-                            <disk-size-selection
-                              v-if="(overrideDiskOffering && (overrideDiskOffering.iscustomized || overrideDiskOffering.iscustomizediops || overrideDiskOffering.encrypt)) || (serviceOffering && serviceOffering.encryptroot)"
-                              input-decorator="rootdisksize"
-                              :value="form.rootdisksize"
-                              :preFillContent="dataPreFill"
-                              :minDiskSize="dataPreFill.minrootdisksize"
-                              :rootDiskSelected="overrideDiskOffering"
-                              :isCustomized="overrideDiskOffering && overrideDiskOffering.iscustomized"
-                              :kmsKeys="options.kmsKeys"
-                              :loadingKmsKeys="loading.kmsKeys"
-                              :computeOfferingEncryptRoot="serviceOffering && serviceOffering.encryptroot"
-                              @handler-error="handlerError"
-                              @update-disk-size="updateFieldValue"
-                              @update-root-disk-iops-value="updateIOPSValue"
-                              @update-root-kms-key="updateRootKmsKey"/>
-                            <a-form-item class="form-item-hidden">
-                              <a-input v-model:value="form.rootdisksize"/>
-                            </a-form-item>
-                            <a-form-item class="form-item-hidden">
-                              <a-input v-model:value="form.offeringKvdoEnable" />
-                            </a-form-item>
-                      </div>
-                    </span>
-                  </div>
-                </template>
-              </a-step>
-              <a-step v-if="(imageType === 'snapshotid' || selectedCreationSource?.sourceusage === 'stage-and-adopt') && storageSelectionEnabled" :title="$t('label.vm.storage.root')" status="process">
-                <template #description>
-                  <deployment-storage-selection :title="$t('label.vm.storage.root')" v-model:value="rootStorageSelection" :query="rootStorageQuery" />
-                </template>
-              </a-step>
-              <a-step
-                v-if="['templateid', 'isoid'].includes(imageType) && !isTemplateHypervisorExternal"
-                :title="$t('label.rootdisk')"
-                :status="serviceOffering?.id ? 'process' : 'wait'">
-                <template #description>
-                  <div v-if="zoneSelected && serviceOffering?.id" class="root-disk-configuration">
-                    <template v-if="imageType === 'templateid'">
-                      <section class="root-configuration-section root-offering-section">
-                        <h4 class="root-section-heading"><span class="root-section-number">1</span>{{ $t('label.vm.root.offering') }}</h4>
-                        <a-form-item :label="$t('label.override.root.diskoffering')">
-                          <a-switch
-                            v-model:checked="showOverrideDiskOfferingOption"
-                            :disabled="serviceOffering?.diskofferingstrictness || (template && template.deployasis)"
-                            @change="updateOverrideRootDiskShowParam" />
-                          <p class="option-help">{{ $t('message.vm.root.offering.override') }}</p>
-                        </a-form-item>
-                        <div v-if="!showOverrideDiskOfferingOption" class="root-default-value">
-                          <span>{{ defaultRootOfferingName }}</span>
-                          <a-tag v-if="defaultRootOfferingName !== $t('label.vm.root.offering.default')">{{ $t('label.vm.root.offering.default') }}</a-tag>
-                        </div>
-                        <p v-if="serviceOffering?.diskofferingstrictness" class="option-help">{{ $t('message.vm.root.offering.required') }}</p>
-                        <div v-if="template && template.deployasis" class="option-help">{{ $t('message.deployasis') }}</div>
-                        <template v-if="serviceOffering && !serviceOffering.diskofferingstrictness">
-                          <div
-                            v-if="template && !template.deployasis && template.childtemplates && template.childtemplates.length > 0" >
-                            <template>
-                              <div v-if="zoneSelected">
-                                <multi-disk-selection
-                                  :items="template.childtemplates"
-                                  :diskOfferings="options.diskOfferings"
-                                  :zoneId="zoneId"
-                                  @select-multi-disk-offering="updateMultiDiskOffering($event)" />
-                              </div>
-                            </template>
-                          </div>
-
-                          <template v-else>
-                            <disk-offering-selection
-                              v-if="showOverrideDiskOfferingOption"
-                              :items="options.diskOfferings"
-                              all-items
-                              :scope-key="diskOfferingQueryScope"
-                              :error="diskOfferingsError"
-                              @retry="fetchOptions(params.diskOfferings, 'diskOfferings')"
-                              :row-count="rowCount.diskOfferings"
-                              :zoneId="zoneId"
-                              :value="overrideDiskOffering ? overrideDiskOffering.id : ''"
-                              :loading="loading.diskOfferings"
-                              :preFillContent="dataPreFill"
-                              :isIsoSelected="imageType==='isoid'"
-                              :isRootDiskOffering="true"
-                              @on-selected-root-disk-size="onSelectRootDiskSize"
-                              @select-disk-offering-item="($event) => updateOverrideDiskOffering($event)"
-                              @handle-search-filter="($event) => handleSearchFilter('diskOfferings', $event)"
-                            ></disk-offering-selection>
-                          </template>
-                        </template>
-                      </section>
-                      <section class="root-configuration-section root-size-section">
-                        <h4 class="root-section-heading"><span class="root-section-number">2</span>{{ $t('label.vm.root.capacity') }}</h4>
-                        <template v-if="!showOverrideDiskOfferingOption">
-                          <div v-if="selectedRootDiskSize && !showRootDiskSizeChanger" class="root-default-value">
-                            <span>{{ selectedRootDiskSize }} GB</span>
-                            <a-tag v-if="serviceOffering?.diskofferingstrictness && !templateStrictCustomRoot">{{ $t('label.vm.disk.fixed') }}</a-tag>
-                          </div>
-                          <a-form-item :label="$t('label.override.rootdisk.size')">
-                            <a-switch
-                              v-model:checked="form.rootdisksizeitem"
-                              :disabled="templateStrictCustomRoot || serviceOffering?.diskofferingstrictness || (template && template.deployasis)"
-                              @change="changeRootDiskSizeOverride" />
-                            <p class="option-help">{{ $t('message.vm.root.size.override') }}</p>
-                          </a-form-item>
-                          <disk-size-selection
-                            v-if="showRootDiskSizeChanger"
-                            input-decorator="rootdisksize"
-                            :hide-size-label="true"
-                            :value="form.rootdisksize"
-                            :preFillContent="dataPreFill"
-                            :isCustomized="true"
-                            :minDiskSize="dataPreFill.minrootdisksize"
-                            @update-disk-size="updateFieldValue" />
-                        </template>
-                        <a-form-item v-if="showOverrideDiskOfferingOption && overrideDiskOffering?.id && !overrideDiskOffering.iscustomized">
-                          <a-input-number :value="overrideDiskOffering.disksize" disabled />
-                          <span class="root-size-unit">GB</span>
-                          <a-tag class="root-fixed-size-tag">{{ $t('label.vm.disk.fixed') }}</a-tag>
-                        </a-form-item>
-                            <disk-size-selection
-                              v-if="!serviceOffering.diskofferingstrictness && !(template?.childtemplates?.length > 0) && ((overrideDiskOffering && (overrideDiskOffering.iscustomized || overrideDiskOffering.iscustomizediops || overrideDiskOffering.encrypt)) || (serviceOffering && serviceOffering.encryptroot))"
-                              input-decorator="rootdisksize"
-                              :value="form.rootdisksize"
-                              :hide-size-label="true"
-                              :show-size="showOverrideDiskOfferingOption"
-                              :preFillContent="dataPreFill"
-                              :minDiskSize="dataPreFill.minrootdisksize"
-                              :rootDiskSelected="overrideDiskOffering"
-                              :isCustomized="overrideDiskOffering && overrideDiskOffering.iscustomized"
-                              :kmsKeys="options.kmsKeys"
-                              :loadingKmsKeys="loading.kmsKeys"
-                              :computeOfferingEncryptRoot="serviceOffering && serviceOffering.encryptroot"
-                              @handler-error="handlerError"
-                              @update-disk-size="updateFieldValue"
-                              @update-root-disk-iops-value="updateIOPSValue"
-                              @update-root-kms-key="updateRootKmsKey"/>
-
-                        <a-form-item class="form-item-hidden"><a-input v-model:value="form.rootdisksize"/></a-form-item>
-                        <a-form-item class="form-item-hidden"><a-input v-model:value="form.offeringKvdoEnable"/></a-form-item>
-                      </section>
-                    </template>
-                    <template v-else>
-                      <section class="root-configuration-section root-offering-section">
-                        <h4 class="root-section-heading"><span class="root-section-number">1</span>{{ $t('label.vm.root.offering') }}</h4>
-                        <a-alert v-if="isoRootOfferingStrict" type="info" :message="mappedRootOffering?.displaytext || serviceOffering.diskofferingname" style="margin: 12px 0" />
-                        <disk-offering-selection
-                          v-else
-                          :items="options.diskOfferings"
-                          all-items
-                          :scope-key="diskOfferingQueryScope"
-                          :error="diskOfferingsError"
-                          @retry="fetchOptions(params.diskOfferings, 'diskOfferings')"
-                          :row-count="rowCount.diskOfferings"
-                          :zoneId="zoneId"
-                          :value="diskOffering ? diskOffering.id : ''"
-                          :loading="loading.diskOfferings"
-                          :preFillContent="dataPreFill"
-                          :isIsoSelected="true"
-                          @on-selected-disk-size="onSelectDiskSize"
-                          @select-disk-offering-item="($event) => updateDiskOffering($event)"
-                          @handle-search-filter="($event) => handleSearchFilter('diskOfferings', $event)" />
-                      </section>
-                      <section v-if="diskOffering?.id" class="root-configuration-section root-size-section">
-                        <h4 class="root-section-heading"><span class="root-section-number">2</span>{{ $t('label.vm.root.capacity') }}</h4>
-                        <a-form-item v-if="!diskOffering.iscustomized">
-                          <a-input-number :value="diskOffering.disksize" disabled />
-                          <span class="root-size-unit">GB</span>
-                          <a-tag class="root-fixed-size-tag">{{ $t('label.vm.disk.fixed') }}</a-tag>
-                        </a-form-item>
-                        <disk-size-selection
-                          v-if="diskOffering.iscustomized || diskOffering.iscustomizediops || diskOffering.encrypt"
-                          input-decorator="size"
-                          :hide-size-label="true"
-                          :show-size="true"
-                          :preFillContent="dataPreFill"
-                          :diskSelected="diskSelected"
-                          :isCustomized="diskOffering.iscustomized"
-                          :kmsKeys="options.kmsKeys"
-                          :loadingKmsKeys="loading.kmsKeys"
-                          @handler-error="handlerError"
-                          @update-disk-size="updateFieldValue"
-                          @update-iops-value="updateIOPSValue"
-                          @update-data-kms-key="updateDataKmsKey" />
-                        <a-form-item class="form-item-hidden"><a-input v-model:value="form.size"/></a-form-item>
-                      </section>
-                    </template>
-                    <deployment-storage-selection
-                      v-if="storageSelectionEnabled && (imageType === 'templateid' || diskOffering?.id)"
-                      class="root-storage-section"
-                      v-model:value="rootStorageSelection"
-                      :title="$t('label.vm.storage.root')"
-                      :query="rootStorageQuery" />
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                :title="$t('label.data.disk')"
-                :status="zoneSelected ? 'process' : 'wait'"
-                v-if="template && !template.deployasis && template.childtemplates && template.childtemplates.length > 0" >
-                <template #description>
-                  <div v-if="zoneSelected">
-                    <multi-disk-selection
-                      :items="template.childtemplates"
-                      :diskOfferings="options.diskOfferings"
-                      :zoneId="zoneId"
-                      @select-multi-disk-offering="updateMultiDiskOffering($event)" />
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                v-else-if="imageType !== 'isoid'"
-                :title="$t('label.data.disk')"
-                :disabled="isTemplateHypervisorExternal ? true : false"
-                :status="zoneSelected ? 'process' : 'wait'">
-                <template #description>
-                  <div v-if="zoneSelected && !isTemplateHypervisorExternal">
-                    <disk-offering-selection
-                      :items="options.diskOfferings"
-                      all-items
-                      :scope-key="diskOfferingQueryScope"
-                      :error="diskOfferingsError"
-                      @retry="fetchOptions(params.diskOfferings, 'diskOfferings')"
-                      :row-count="rowCount.diskOfferings"
-                      :zoneId="zoneId"
-                      :value="diskOffering ? diskOffering.id : ''"
-                      :loading="loading.diskOfferings"
-                      :preFillContent="dataPreFill"
-                      :isIsoSelected="imageType==='isoid'"
-                      @on-selected-disk-size="onSelectDiskSize"
-                      @select-disk-offering-item="($event) => updateDiskOffering($event)"
-                      @handle-search-filter="($event) => handleSearchFilter('diskOfferings', $event)"
-                    ></disk-offering-selection>
-                    <disk-size-selection
-                      v-if="diskOffering && (diskOffering.iscustomizediops || diskOffering.encrypt)"
-                      input-decorator="size"
-                      :show-size="false"
-                      :preFillContent="dataPreFill"
-                      :diskSelected="diskSelected"
-                      :isCustomized="diskOffering.iscustomized"
-                      :kmsKeys="options.kmsKeys"
-                      :loadingKmsKeys="loading.kmsKeys"
-                      @handler-error="handlerError"
-                      @update-disk-size="updateFieldValue"
-                      @update-iops-value="updateIOPSValue"
-                      @update-data-kms-key="updateDataKmsKey"/>
-                    <a-form-item class="form-item-hidden"><a-input v-model:value="form.size"/></a-form-item>
-                    <template v-if="(imageType === 'templateid' || isCreationSource) && diskOffering?.id && diskOffering.id !== '0'">
-                      <disk-quantity-selection
-                        :offering="diskOffering"
-                        v-model:size="form.size"
-                        v-model:count="form.datadiskcount" />
-                      <deployment-storage-selection
-                        v-if="storageSelectionEnabled"
-                        v-model:value="dataStorageSelection"
-                        :title="$t('label.vm.storage.data')"
-                        :query="dataStorageQuery" />
-                    </template>
-                  </div>
-                  <div v-else-if="isTemplateHypervisorExternal" style="margin-bottom: 20px; margin-top: 7px">
-                    {{ $t('message.host.external.datadisk') }}
-                  </div>
-                </template>
-              </a-step>
-              <a-step v-if="imageType === 'isoid' && zoneSelected" :title="$t('label.data.disk')" :status="'process'">
-                <template #description>
-                  <iso-additional-data-disks
-                    v-model:value="isoDataDiskSelection"
+            <div v-else>
+              {{ $t('message.iso.desc') }}
+              <template-iso-selection
+                input-decorator="isoid"
+                :items="options.isos"
+                :selected="imageType"
+                :loading="loading.isos"
+                :preFillContent="dataPreFill"
+                @handle-search-filter="filters => fetchAllIsos(filters)"
+                @update-template-iso="updateFieldValue" />
+              <a-form-item :label="$t('label.hypervisor')">
+                <a-select
+                  v-model:value="form.hypervisor"
+                  :preFillContent="dataPreFill"
+                  :options="hypervisorSelectOptions"
+                  @change="value => hypervisor = value"
+                  showSearch
+                  optionFilterProp="label"
+                  :filterOption="filterOption" />
+              </a-form-item>
+            </div>
+          </a-card>
+          <additional-iso-selection
+            v-if="imageType === 'isoid'"
+            :zone-id="form.zoneid"
+            :primary-id="form.isoid"
+            :owner="owner"
+            :project-id="$store.getters.project?.id"
+            :supported="!!apiParams?.additionalisoids && form.hypervisor === 'KVM'"
+            @change="additionalIsoSelection = $event" />
+          <a-form-item class="form-item-hidden">
+            <a-input v-model:value="form.templateid" />
+          </a-form-item>
+          <a-form-item class="form-item-hidden">
+            <a-input v-model:value="form.isoid" />
+          </a-form-item>
+          <a-form-item class="form-item-hidden">
+            <a-input v-model:value="form.volumeid" />
+          </a-form-item>
+          <a-form-item class="form-item-hidden">
+            <a-input v-model:value="form.snapshotid" />
+          </a-form-item>
+          <a-form-item class="form-item-hidden">
+            <a-input v-model:value="form.rootdisksize" />
+          </a-form-item>
+          <a-form-item class="form-item-hidden">
+            <a-input v-model:value="form.templateKvdoEnable" />
+          </a-form-item>
+        </div>
+      </section>
+      <section v-show="wizardStep === 4" class="resource-create-section" data-wizard-step="4">
+        <h3 class="resource-create-section-title">{{ $t('label.serviceofferingid') }}</h3>
+        <div v-if="zoneSelected">
+          <a-form-item v-if="zoneSelected && templateConfigurationExists" name="templateConfiguration" ref="templateConfiguration">
+            <template #label>
+              <tooltip-label :title="$t('label.configuration')" :tooltip="$t('message.ovf.configurations')"/>
+            </template>
+            <a-select
+              showSearch
+              optionFilterProp="label"
+              v-model:value="form.templateConfiguration"
+              defaultActiveFirstOption
+              :placeholder="$t('message.ovf.configurations')"
+              :filterOption="(input, option) => {
+                return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }"
+              @change="onSelectTemplateConfigurationId"
+            >
+              <a-select-option v-for="opt in templateConfigurations" :key="opt.id" :label="opt.name || opt.description">
+                {{ opt.name || opt.description }}
+              </a-select-option>
+            </a-select>
+            <span v-if="selectedTemplateConfiguration && selectedTemplateConfiguration.description">{{ selectedTemplateConfiguration.description }}</span>
+          </a-form-item>
+          <compute-offering-selection
+            name-only
+            :compute-items="options.serviceOfferings"
+            :selected-template="template ? template : {}"
+            :row-count="rowCount.serviceOfferings"
+            :zoneId="zoneId"
+            :value="serviceOffering ? serviceOffering.id : ''"
+            :loading="loading.serviceOfferings"
+            :preFillContent="dataPreFill"
+            :show-gpu-filter="zone.gputotal && zone.gputotal > 0"
+            :minimum-cpunumber="templateConfigurationExists && selectedTemplateConfiguration && selectedTemplateConfiguration.cpunumber ? selectedTemplateConfiguration.cpunumber : 0"
+            :minimum-cpuspeed="templateConfigurationExists && selectedTemplateConfiguration && selectedTemplateConfiguration.cpuspeed ? selectedTemplateConfiguration.cpuspeed : 0"
+            :minimum-memory="templateConfigurationExists && selectedTemplateConfiguration && selectedTemplateConfiguration.memory ? selectedTemplateConfiguration.memory : 0"
+            @select-compute-item="($event, $kvdoEnable) => updateComputeOffering($event, $kvdoEnable)"
+            @handle-search-filter="($event) => handleSearchFilter('serviceOfferings', $event)"
+          ></compute-offering-selection>
+          <compute-selection
+            v-if="serviceOffering && (serviceOffering.iscustomized || serviceOffering.iscustomizediops)"
+            cpuNumberInputDecorator="cpunumber"
+            cpuSpeedInputDecorator="cpuspeed"
+            memoryInputDecorator="memory"
+            :preFillContent="dataPreFill"
+            :computeOfferingId="instanceConfig.computeofferingid"
+            :computeOfferingKvdoEnable="serviceOffering.kvdoenable"
+            :isConstrained="isOfferingConstrained(serviceOffering)"
+            :minCpu="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.mincpunumber*1 : 1"
+            :maxCpu="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.maxcpunumber*1 : Number.MAX_SAFE_INTEGER"
+            :minMemory="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.minmemory*1 : 1024"
+            :maxMemory="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.maxmemory*1 : Number.MAX_SAFE_INTEGER"
+            :isCustomized="serviceOffering.iscustomized"
+            :isCustomizedIOps="'iscustomizediops' in serviceOffering && serviceOffering.iscustomizediops"
+            @handler-error="handlerError"
+            @update-iops-value="updateIOPSValue"
+            @update-compute-cpunumber="updateFieldValue"
+            @update-compute-cpuspeed="updateFieldValue"
+            @update-compute-memory="updateFieldValue" />
+          <span v-if="serviceOffering && serviceOffering.iscustomized">
+            <a-form-item name="cpunumber" ref="cpunumber" class="form-item-hidden">
+              <a-input v-model:value="form.cpunumber"/>
+            </a-form-item>
+            <a-form-item
+              class="form-item-hidden"
+              v-if="(serviceOffering && !(serviceOffering.cpuspeed > 0))"
+              name="cpuspeed"
+              ref="cpuspeed">
+              <a-input v-model:value="form.cpuspeed"/>
+            </a-form-item>
+            <a-form-item class="form-item-hidden" name="memory" ref="memory">
+              <a-input v-model:value="form.memory"/>
+            </a-form-item>
+          </span>
+          <span v-if="!['templateid', 'isoid'].includes(imageType) && serviceOffering && !serviceOffering.diskofferingstrictness">
+            <a-step
+              :status="zoneSelected ? 'process' : 'wait'"
+              v-if="template && !template.deployasis && template.childtemplates && template.childtemplates.length > 0" >
+              <template #description>
+                <div v-if="zoneSelected">
+                  <multi-disk-selection
+                    :items="template.childtemplates"
+                    :diskOfferings="options.diskOfferings"
+                    :zoneId="zoneId"
+                    @select-multi-disk-offering="updateMultiDiskOffering($event)" />
+                </div>
+              </template>
+            </a-step>
+            <div v-else-if="zoneSelected" class="root-offering-selection">
+                  <disk-offering-selection
+                    v-if="showOverrideDiskOfferingOption"
                     :items="options.diskOfferings"
                     all-items
                     :scope-key="diskOfferingQueryScope"
                     :error="diskOfferingsError"
                     @retry="fetchOptions(params.diskOfferings, 'diskOfferings')"
-                    :zone-id="zoneId"
-                    :loading="loading.diskOfferings"
-                    :kms-keys="options.kmsKeys"
-                    :loading-kms-keys="loading.kmsKeys"
-                    @search="handleSearchFilter('diskOfferings', $event)">
-                    <deployment-storage-selection
-                      v-if="storageSelectionEnabled"
-                        v-model:value="dataStorageSelection"
-                      :title="$t('label.vm.storage.data')"
-                      :query="dataStorageQuery" />
-                  </iso-additional-data-disks>
-                </template>
-              </a-step>
-              <a-step
-                :title="$t('label.networks')"
-                :status="zoneSelected ? 'process' : 'wait'"
-                v-if="zone && zone.networktype !== 'Basic'">
-                <template #description>
-                  <div v-if="zoneSelected" style="margin-top: 5px">
-                    <div style="margin-bottom: 10px">
-                      {{ $t('message.network.selection') + ('createNetwork' in $store.getters.apis ? ' ' + $t('message.network.selection.new.network') : '') }}
-                    </div>
-                    <div v-if="vm.templateid && templateNics && templateNics.length > 0">
-                      <instance-nics-network-select-list-view
-                        :key="deploymentNetworkScope"
-                        :nics="templateNics"
-                        :zoneid="selectedZone"
-                        :owner="params.networks.options"
-                        @select="handleNicsNetworkSelection" />
-                    </div>
-                    <div v-show="!(vm.templateid && templateNics && templateNics.length > 0)" >
-                      <network-selection
-                        :key="deploymentNetworkScope"
-                        :items="options.networks"
-                        :row-count="rowCount.networks"
-                        :value="networkOfferingIds"
-                        :loading="loading.networks"
-                        :zoneId="zoneId"
-                        :preFillContent="dataPreFill"
-                        @select-network-item="($event) => updateNetworks($event)"
-                        @handle-search-filter="($event) => handleSearchFilter('networks', $event)"
-                      ></network-selection>
-                      <network-configuration
-                        v-if="networks.length > 0"
-                        :items="networks"
-                        :preFillContent="dataPreFill"
-                        @update-network-config="($event) => updateNetworkConfig($event)"
-                        @handler-error="($event) => hasError = $event"
-                        @select-default-network-item="($event) => updateDefaultNetworks($event)"
-                      ></network-configuration>
-                      <a-alert
-                        v-if="additionalIsoConfigDriveConflict"
-                        type="error"
-                        show-icon
-                        :message="$t('message.additional.iso.configdrive.conflict')"
-                        style="margin-top: 12px" />
-                    </div>
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                v-if="showSecurityGroupSection"
-                :title="$t('label.security.groups')"
-                :status="zoneSelected ? 'process' : 'wait'">
-                <template #description>
-                  <security-group-selection
+                    :row-count="rowCount.diskOfferings"
                     :zoneId="zoneId"
-                    :value="securitygroupids"
-                    :loading="loading.networks"
+                    :value="overrideDiskOffering ? overrideDiskOffering.id : ''"
+                    :loading="loading.diskOfferings"
                     :preFillContent="dataPreFill"
-                    :domainId="owner.domainid"
-                    :account="owner.account"
-                    :projectId="owner.projectid"
-                    @select-security-group-item="($event) => updateSecurityGroups($event)"></security-group-selection>
-                </template>
-              </a-step>
-              <a-step
-                v-if="isUserAllowedToListSshKeys && !isCreationSource"
-                :title="$t('label.sshkeypairs')"
-                :status="zoneSelected ? 'process' : 'wait'">
-                <template #description>
-                  <div v-if="zoneSelected">
-                    <ssh-key-pair-selection
-                      :items="options.sshKeyPairs"
-                      :row-count="rowCount.sshKeyPairs"
-                      :zoneId="zoneId"
-                      :value="sshKeyPairs"
-                      :loading="loading.sshKeyPairs"
-                      :preFillContent="dataPreFill"
-                      @select-ssh-key-pair-item="($event) => updateSshKeyPairs($event)"
-                      @handle-search-filter="($event) => handleSearchFilter('sshKeyPairs', $event)"
-                    />
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                :title="$t('label.ovf.properties')"
-                :status="zoneSelected ? 'process' : 'wait'"
-                v-if="vm.templateid && templateProperties && Object.keys(templateProperties).length > 0">
-                <template #description>
-                  <div v-for="(props, category) in templateProperties" :key="category">
-                    <a-alert :message="'Category: ' + category + ' (' + props.length + ' properties)'" type="info" />
-                    <div style="margin-left: 15px; margin-top: 10px">
-                      <a-form-item
-                        v-for="(property, propertyIndex) in props"
-                        :key="propertyIndex"
-                        :v-bind="property.key"
-                        :name="'properties.' + escapePropertyKey(property.key)"
-                        :ref="'properties.' + escapePropertyKey(property.key)">
-                        <tooltip-label style="text-transform: capitalize" :title="property.label" :tooltip="property.description"/>
-
-                        <span v-if="property.type && property.type==='boolean'">
-                          <a-switch
-                            v-model:checked="form.properties[escapePropertyKey(property.key)]"
-                            :placeholder="property.description"
-                          />
-                        </span>
-                        <span v-else-if="property.type && (property.type==='int' || property.type==='real')">
-                          <a-input-number
-                            v-model:value="form.properties[escapePropertyKey(property.key)]"
-                            :placeholder="property.description"
-                            :min="getPropertyQualifiers(property.qualifiers, 'number-select').min"
-                            :max="getPropertyQualifiers(property.qualifiers, 'number-select').max" />
-                        </span>
-                        <span v-else-if="property.type && property.type==='string' && property.qualifiers && property.qualifiers.startsWith('ValueMap')">
-                          <a-select
-                            showSearch
-                            optionFilterProp="label"
-                            v-model:value="form.properties[escapePropertyKey(property.key)]"
-                            :placeholder="property.description"
-                            :filterOption="(input, option) => {
-                              return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                            }"
-                          >
-                            <a-select-option v-for="opt in getPropertyQualifiers(property.qualifiers, 'select')" :key="opt">
-                              {{ opt }}
-                            </a-select-option>
-                          </a-select>
-                        </span>
-                        <span v-else-if="property.type && property.type==='string' && property.password">
-                          <a-input-password
-                            v-model:value="form.properties[escapePropertyKey(property.key)]"
-                            :placeholder="property.description" />
-                        </span>
-                        <span v-else>
-                          <a-input
-                            v-model:value="form.properties[escapePropertyKey(property.key)]"
-                            :placeholder="property.description" />
-                        </span>
-                      </a-form-item>
-                    </div>
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                v-if="zoneAllowsBackupOperations"
-                :title="$t('label.backup')"
-                :status="zoneSelected ? 'process' : 'wait'">
-                <template #description>
-                  <div v-if="zoneSelected" style="margin-top: 15px">
-                    <deploy-instance-backup-selection
-                      :zoneId="zoneId"
-                      v-model:backupOfferingId="form.backupofferingid"
-                      :backupSchedules="backupSchedules"
-                      @change-backup-offering="onChangeBackupOffering"
-                      @add-backup-schedule="onAddBackupSchedule"
-                      @delete-backup-schedule="backupSchedules = backupSchedules.filter(schedule => schedule.id !== $event.id)" />
-                    <a-form-item class="form-item-hidden">
-                      <a-input v-model:value="form.backupofferingid" />
-                    </a-form-item>
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                :title="$t('label.advanced.mode')"
-                :status="zoneSelected ? 'process' : 'wait'">
-                <template #description v-if="zoneSelected">
-                  <span>
-                    {{ $t('label.isadvanced') }}
-                    <a-switch v-model:checked="showDetails" style="margin-left: 10px"/>
-                  </span>
-                  <div style="margin-top: 15px" v-if="showDetails">
-                    <div
-                      v-if="['KVM', 'VMware', 'XenServer'].includes(hypervisor) && ((vm.templateid && template && !template.deployasis) || vm.isoid)">
-                      <a-form-item :label="$t('label.boottype')" name="boottype" ref="boottype">
-                        <a-select
-                          v-model:value="form.boottype"
-                          @change="onBootTypeChange"
-                          showSearch
-                          optionFilterProp="label"
-                          :filterOption="filterOption">
-                          <a-select-option v-for="bootType in options.bootTypes" :key="bootType.id" :label="bootType.description">
-                            {{ bootType.description }}
-                          </a-select-option>
-                        </a-select>
-                      </a-form-item>
-                      <a-form-item :label="$t('label.bootmode')" name="bootmode" ref="bootmode">
-                        <a-select
-                          v-model:value="form.bootmode"
-                          showSearch
-                          optionFilterProp="label"
-                          :filterOption="filterOption">
-                          <a-select-option v-for="bootMode in options.bootModes" :key="bootMode.id" :label="bootMode.description">
-                            {{ bootMode.description }}
-                          </a-select-option>
-                        </a-select>
-                      </a-form-item>
-                    </div>
-                    <a-form-item v-if="hypervisor === 'KVM' && !isCreationSource" name="machinecompatibility" ref="machinecompatibility">
-                      <template #label>
-                        <tooltip-label :title="$t('label.ft.machine.compatibility')" :tooltip="$t('message.ft.machine.compatibility.desc')"/>
-                      </template>
-                      <a-select v-model:value="form.machinecompatibility">
-                        <a-select-option value="standard">
-                          {{ $t('label.ft.machine.compatibility.standard') }}
-                        </a-select-option>
-                        <a-select-option value="ft-compatible">
-                          {{ $t('label.ft.machine.compatibility.ft') }}
-                        </a-select-option>
-                      </a-select>
-                    </a-form-item>
-                    <a-form-item v-if="hypervisor === 'KVM' && !isCreationSource" :label="$t('label.tpm')" name="tpmversion" ref="tpmversion">
-                      <a-select
-                        v-model:value="form.tpmversion"
-                        @change="form.tpmmodel = 'tpm-tis'"
-                        showSearch
-                        optionFilterProp="label"
-                        :filterOption="filterOption">
-                        <a-select-option v-for="tpmversion in options.tpmversion" :key="tpmversion.id">
-                          {{ tpmversion.description }}
-                        </a-select-option>
-                      </a-select>
-                    </a-form-item>
-                    <a-form-item v-if="hypervisor === 'KVM' && ['V1_2', 'V2_0'].includes(form.tpmversion)" :label="$t('label.tpm.model')" name="tpmmodel">
-                      <a-select v-model:value="form.tpmmodel" :options="form.tpmversion === 'V1_2' ? [{ value: 'tpm-tis', label: 'TIS' }] : [{ value: 'tpm-tis', label: 'TIS' }, { value: 'tpm-crb', label: 'CRB' }]" />
-                    </a-form-item>
-                    <a-form-item
-                      :label="$t('label.bootintosetup')"
-                      v-if="zoneSelected && ((imageType === 'isoid' && hypervisor === 'VMware') || (imageType === 'templateid' && template && template.hypervisor === 'VMware'))"
-                      name="bootintosetup"
-                      ref="bootintosetup">
-                      <a-switch v-model:checked="form.bootintosetup" />
-                    </a-form-item>
-                    <a-form-item name="dynamicscalingenabled" ref="dynamicscalingenabled" v-if="!!template && !isTemplateHypervisorExternal">
-                      <template #label>
-                        <tooltip-label :title="$t('label.dynamicscalingenabled')" :tooltip="$t('label.dynamicscalingenabled.tooltip')"/>
-                      </template>
-                      <a-form-item name="dynamicscalingenabled" ref="dynamicscalingenabled">
-                        <a-switch
-                          v-model:checked="form.dynamicscalingenabled"
-                          :checked="isDynamicallyScalable() && dynamicscalingenabled"
-                          :disabled="!isDynamicallyScalable()"
-                          @change="val => { dynamicscalingenabled = val }"/>
-                      </a-form-item>
-                    </a-form-item>
-                    <a-form-item name="showLeaseOptions" ref="showLeaseOptions" v-if="isLeaseFeatureEnabled">
-                      <template #label>
-                        <tooltip-label :title="$t('label.lease.enable')" :tooltip="$t('label.lease.enable.tooltip')"/>
-                      </template>
-                      <a-switch v-model:checked="showLeaseOptions" @change="onToggleLeaseData"/>
-                    </a-form-item>
-                    <a-row :gutter="12" v-if="isLeaseFeatureEnabled && showLeaseOptions">
-                      <a-col :md="12" :lg="12">
-                        <a-form-item name="leaseduration" ref="leaseduration">
-                          <template #label>
-                            <tooltip-label :title="$t('label.leaseduration')" />
-                          </template>
-                          <a-input
-                            v-model:value="form.leaseduration"
-                            :placeholder="$t('label.instance.lease.placeholder')"/>
-                        </a-form-item>
-                      </a-col>
-                      <a-col :md="12" :lg="12">
-                        <a-form-item name="leaseexpiryaction" ref="leaseexpiryaction">
-                          <template #label>
-                            <tooltip-label :title="$t('label.leaseexpiryaction')"  />
-                          </template>
-                          <a-select v-model:value="form.leaseexpiryaction" :defaultValue="leaseexpiryaction">
-                            <a-select-option v-for="action in expiryActions" :key="action" :label="action" />
-                          </a-select>
-                        </a-form-item>
-                      </a-col>
-                    </a-row>
-                    <a-form-item v-if="!isCreationSource" :label="$t('label.user.data')">
-                      <a-card>
-                        <div v-if="this.template && this.template.userdataid">
-                          <a-typography-text>
-                            Userdata "{{ $t(this.template.userdataname) }}" is linked with template "{{ $t(this.template.name) }}" with override policy "{{ $t(this.template.userdatapolicy) }}"
-                          </a-typography-text><br/><br/>
-                          <div v-if="templateUserDataParams.length > 0 && !doUserdataOverride">
-                            <a-typography-text v-if="this.template && this.template.userdataid && templateUserDataParams.length > 0">
-                              Enter the values for the variables in userdata
-                            </a-typography-text>
-                            <a-input-group>
-                              <a-table
-                                size="small"
-                                style="overflow-y: auto"
-                                :columns="userDataParamCols"
-                                :dataSource="templateUserDataParams"
-                                :pagination="false"
-                                :rowKey="record => record.key">
-                                <template #bodyCell="{ column, record }">
-                                  <template v-if="column.key === 'value'">
-                                    <a-input v-model:value="templateUserDataValues[record.key]" />
-                                  </template>
-                                </template>
-                              </a-table>
-                            </a-input-group>
-                          </div>
-                        </div>
-                        <div v-if="this.iso && this.iso.userdataid">
-                          <a-typography-text>
-                            Userdata "{{ $t(this.iso.userdataname) }}" is linked with ISO "{{ $t(this.iso.name) }}" with override policy "{{ $t(this.iso.userdatapolicy) }}"
-                          </a-typography-text><br/><br/>
-                          <div v-if="templateUserDataParams.length > 0 && !doUserdataOverride">
-                            <a-typography-text v-if="this.iso && this.iso.userdataid && templateUserDataParams.length > 0">
-                              Enter the values for the variables in userdata
-                            </a-typography-text>
-                            <a-input-group>
-                              <a-table
-                                size="small"
-                                style="overflow-y: auto"
-                                :columns="userDataParamCols"
-                                :dataSource="templateUserDataParams"
-                                :pagination="false"
-                                :rowKey="record => record.key">
-                                <template #bodyCell="{ column, record }">
-                                  <template v-if="column.key === 'value'">
-                                    <a-input v-model:value="templateUserDataValues[record.key]" />
-                                  </template>
-                                </template>
-                              </a-table>
-                            </a-input-group>
-                          </div>
-                        </div><br/><br/>
-                        <div v-if="userdataDefaultOverridePolicy === 'ALLOWOVERRIDE' || userdataDefaultOverridePolicy === 'APPEND' || !userdataDefaultOverridePolicy">
-                          <span v-if="userdataDefaultOverridePolicy === 'ALLOWOVERRIDE'" >
-                            {{ $t('label.user.data.do.override') }}
-                            <a-switch v-model:checked="doUserdataOverride" style="margin-left: 10px"/>
-                          </span>
-                          <span v-if="userdataDefaultOverridePolicy === 'APPEND'">
-                            {{ $t('label.user.data.do.append') }}
-                            <a-switch v-model:checked="doUserdataAppend" style="margin-left: 10px"/>
-                          </span>
-                          <a-step
-                            :status="zoneSelected ? 'process' : 'wait'">
-                            <template #description>
-                              <div v-if="doUserdataOverride || doUserdataAppend || !userdataDefaultOverridePolicy" style="margin-top: 15px">
-                                <a-card
-                                  :tabList="userdataTabList"
-                                  :activeTabKey="userdataTabKey"
-                                  @tabChange="key => onUserdataTabChange(key, 'userdataTabKey')">
-                                  <div v-if="userdataTabKey === 'userdataregistered'">
-                                    <a-step
-                                      :status="zoneSelected ? 'process' : 'wait'">
-                                      <template #description>
-                                        <div v-if="zoneSelected">
-                                          <user-data-selection
-                                            :scope="userDataOwner"
-                                            :value="form.userdataid"
-                                            :zoneId="zoneId"
-                                            :disabled="template && template.userdatapolicy === 'DENYOVERRIDE'"
-                                            :preFillContent="dataPreFill"
-                                            @select-user-data-item="updateUserData"
-                                            @ready="userDataSelectionReady = $event"
-                                          />
-                                          <div v-if="userDataParams.length > 0">
-                                            <a-input-group>
-                                              <a-table
-                                                size="small"
-                                                style="overflow-y: auto"
-                                                :columns="userDataParamCols"
-                                                :dataSource="userDataParams"
-                                                :pagination="false"
-                                                :rowKey="record => record.key">
-                                                <template #bodyCell="{ column, record }">
-                                                  <template v-if="column.key === 'value'">
-                                                    <a-input v-model:value="userDataValues[record.key]" />
-                                                  </template>
-                                                </template>
-                                              </a-table>
-                                            </a-input-group>
-                                          </div>
-                                        </div>
-                                      </template>
-                                    </a-step>
-                                  </div>
-                                  <div v-else>
-                                    <a-form-item name="userdata" ref="userdata" >
-                                      <a-textarea
-                                        placeholder="Userdata"
-                                        v-model:value="form.userdata">
-                                      </a-textarea>
-                                    </a-form-item>
-                                  </div>
-                                </a-card>
-                              </div>
-                            </template>
-                          </a-step>
-                        </div>
-                      </a-card>
-                    </a-form-item>
-                    <a-form-item v-if="extraConfigEnabled" name="extraconfig" ref="extraconfig">
-                      <template #label>
-                        <tooltip-label :title="$t('label.extraconfig')" :tooltip="$t('label.extraconfig.tooltip')"/>
-                      </template>
-                      <a-textarea v-model:value="form.extraconfig"/>
-                    </a-form-item>
-                    <a-form-item :label="$t('label.affinity.groups')">
-                      <affinity-group-selection
-                        :items="options.affinityGroups"
-                        :row-count="rowCount.affinityGroups"
-                        :zoneId="zoneId"
-                        :value="affinityGroupIds"
-                        :loading="loading.affinityGroups"
-                        :error="affinityGroupsError"
-                        :owner="params.affinityGroups.options"
-                        :preFillContent="dataPreFill"
-                        @select-affinity-group-item="($event) => updateAffinityGroups($event)"
-                        @handle-search-filter="($event) => handleSearchFilter('affinityGroups', $event)"/>
-                    </a-form-item>
-                    <a-form-item name="nicmultiqueuenumber" ref="nicmultiqueuenumber" v-if="vm.templateid && ['KVM'].includes(hypervisor)">
-                      <template #label>
-                        <tooltip-label :title="$t('label.nicmultiqueuenumber')" :tooltip="$t('label.nicmultiqueuenumber.tooltip')"/>
-                      </template>
-                      <a-input-number
-                        style="width: 100%;"
-                        v-model:value="form.nicmultiqueuenumber" />
-                    </a-form-item>
-                    <a-form-item name="nicpackedvirtqueuesenabled" ref="nicpackedvirtqueuesenabled" v-if="vm.templateid && ['KVM'].includes(hypervisor)">
-                      <template #label>
-                        <tooltip-label :title="$t('label.nicpackedvirtqueuesenabled')" :tooltip="$t('label.nicpackedvirtqueuesenabled.tooltip')"/>
-                      </template>
-                      <a-switch
-                        v-model:checked="form.nicpackedvirtqueuesenabled"
-                        :checked="nicpackedvirtqueuesenabled"
-                        @change="val => { nicpackedvirtqueuesenabled = val }"/>
-                    </a-form-item>
-                    <a-form-item name="iothreadsenabled" ref="iothreadsenabled" v-if="vm.templateid && ['KVM'].includes(hypervisor)">
-                      <template #label>
-                        <tooltip-label :title="$t('label.iothreadsenabled')" :tooltip="$t('label.iothreadsenabled.tooltip')"/>
-                      </template>
-                      <a-form-item name="iothreadsenabled" ref="iothreadsenabled">
-                        <a-switch
-                          v-model:checked="form.iothreadsenabled"
-                          :checked="iothreadsenabled"
-                          @change="val => { iothreadsenabled = val }"/>
-                      </a-form-item>
-                    </a-form-item>
-                    <a-form-item name="iodriverpolicy" ref="iodriverpolicy" v-if="vm.templateid && ['KVM'].includes(hypervisor)">
-                      <template #label>
-                        <tooltip-label :title="$t('label.iodriverpolicy')" :tooltip="$t('label.iodriverpolicy.tooltip')"/>
-                      </template>
-                      <a-select
-                        v-model:value="form.iodriverpolicy"
-                        optionFilterProp="label"
-                        :filterOption="filterOption">
-                        <a-select-option v-for="iodriverpolicy in options.ioPolicyTypes" :key="iodriverpolicy.id" :label="iodriverpolicy.description">
-                          {{ iodriverpolicy.description }}
-                        </a-select-option>
-                      </a-select>
-                    </a-form-item>
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                :title="$t('label.details')"
-                :status="zoneSelected ? 'process' : 'wait'">
-                <template #description v-if="zoneSelected">
-                  <div style="margin-top: 15px">
-                    {{ $t('message.vm.review.launch') }}
-                    <a-form-item :label="$t('label.name.optional')" name="name" ref="name">
-                      <a-input v-model:value="form.name" />
-                    </a-form-item>
-                    <a-form-item :label="$t('label.group.optional')" name="group" ref="group">
-                      <a-auto-complete
-                        v-model:value="form.group"
-                        :disabled="!groupLookupReady"
-                        :filterOption="filterOption"
-                        :options="options.instanceGroups" />
-                      <div role="status" aria-live="polite">{{ $t('message.vm.group.lookup.' + groupLookupState.status) }}</div>
-                      <a-button v-if="['error', 'forbidden', 'empty'].includes(groupLookupState.status)" size="small" :loading="loading.groups" @click="fetchInstaceGroups">{{ $t('label.refresh') }}</a-button>
-                    </a-form-item>
-                    <a-form-item :label="$t('label.keyboard')" name="keyboard" ref="keyboard">
-                      <a-select
-                        v-model:value="form.keyboard"
-                        :options="keyboardSelectOptions"
-                        showSearch
-                        optionFilterProp="label"
-                        :filterOption="filterOption"
-                      ></a-select>
-                    </a-form-item>
-                    <a-form-item :label="$t('label.deploy.vm.number')" name="vmNumber" ref="vmNumber">
-                      <a-input-number :min=1 :max="isCreationSource ? 1 : 50" :disabled="isCreationSource" :maxlength="2" v-model:value="form.vmNumber" />
-                    </a-form-item>
-                    <a-form-item name="externaldetails" ref="externaldetails" v-if="imageType === 'templateid' && isTemplateHypervisorExternal">
-                      <template #label>
-                        <tooltip-label :title="$t('label.externaldetails')" :tooltip="apiParams.externaldetails.description" />
-                      </template>
-                      <a-switch v-model:checked="externalDetailsEnabled" @change="onExternalDetailsEnabledChange"/>
-                      <a-card v-if="externalDetailsEnabled" style="margin-top: 10px">
-                        <div style="margin-bottom: 10px">{{ $t('message.add.orchestrator.resource.details') }}</div>
-                        <details-input
-                          v-model:value="form.externaldetails" />
-                      </a-card>
-                    </a-form-item>
-                    <a-form-item :label="$t('label.vm.start.after.creation')" name="startvm" ref="startvm">
-                      <a-switch v-model:checked="form.startvm" />
-                      <p style="margin-top: 8px">{{ $t(form.startvm ? 'message.vm.start.enabled' : 'message.vm.start.disabled') }}</p>
-                    </a-form-item>
-                  </div>
-                </template>
-              </a-step>
-              <a-step
-                :title="$t('label.license.agreements')"
-                :status="zoneSelected ? 'process' : 'wait'"
-                v-if="vm.templateid && templateLicenses && templateLicenses.length > 0">
-                <template #description>
-                  <div style="margin-top: 10px">
-                    {{ $t('message.read.accept.license.agreements') }}
-                    <a-form-item
-                      style="margin-top: 10px"
-                      v-for="(license, licenseIndex) in templateLicenses"
-                      :key="licenseIndex"
-                      :v-bind="license.id">
-                      <template #label>
-                        <tooltip-label style="text-transform: capitalize" :title="$t('label.agreement' + ' ' + (licenseIndex+1) + ': ' + license.name)"/>
-                      </template>
-                      <a-textarea
-                        v-model:value="license.text"
-                        :auto-size="{ minRows: 3, maxRows: 8 }"
-                        readOnly />
-                      <a-checkbox
-                        style="margin-top: 10px"
-                        v-model:checked="form.licensesaccepted">
-                        {{ $t('label.i.accept.all.license.agreements') }}
-                      </a-checkbox>
-                    </a-form-item>
-                  </div>
-                </template>
-              </a-step>
-            </a-steps>
-            <div class="card-footer" v-if="isMobile()">
-              <deploy-buttons
-                :loading="loading.deploy"
-                :disabled="diskPlanIncomplete || userDataSelectionBlocked || deploymentOwnerPending"
-                :deployButtonText="form.startvm ? $t('label.launch.vm') : $t('label.create.vm')"
-                :deployButtonMenuOptions="deployMenuOptions"
-                @handle-cancel="() => $router.back()"
-                @handle-deploy="handleSubmit"
-                @handle-deploy-menu="(index, e) => handleSubmitAndStay(e)" />
+                    :isIsoSelected="imageType==='isoid'"
+                    :isRootDiskOffering="true"
+                    @on-selected-root-disk-size="onSelectRootDiskSize"
+                    @select-disk-offering-item="($event) => updateOverrideDiskOffering($event)"
+                    @handle-search-filter="($event) => handleSearchFilter('diskOfferings', $event)"
+                  ></disk-offering-selection>
+                  <disk-size-selection
+                    v-if="(overrideDiskOffering && (overrideDiskOffering.iscustomized || overrideDiskOffering.iscustomizediops || overrideDiskOffering.encrypt)) || (serviceOffering && serviceOffering.encryptroot)"
+                    input-decorator="rootdisksize"
+                    :value="form.rootdisksize"
+                    :preFillContent="dataPreFill"
+                    :minDiskSize="dataPreFill.minrootdisksize"
+                    :rootDiskSelected="overrideDiskOffering"
+                    :isCustomized="overrideDiskOffering && overrideDiskOffering.iscustomized"
+                    :kmsKeys="options.kmsKeys"
+                    :loadingKmsKeys="loading.kmsKeys"
+                    :computeOfferingEncryptRoot="serviceOffering && serviceOffering.encryptroot"
+                    @handler-error="handlerError"
+                    @update-disk-size="updateFieldValue"
+                    @update-root-disk-iops-value="updateIOPSValue"
+                    @update-root-kms-key="updateRootKmsKey"/>
+                  <a-form-item class="form-item-hidden">
+                    <a-input v-model:value="form.rootdisksize"/>
+                  </a-form-item>
+                  <a-form-item class="form-item-hidden">
+                    <a-input v-model:value="form.offeringKvdoEnable" />
+                  </a-form-item>
             </div>
-          </a-form>
-        </a-card>
-      </a-col>
-      <a-col :md="24" :lg="7" v-if="!isMobile()" class="deploy-vm-summary-column">
-        <div class="vm-info-card">
-          <info-card :footerVisible="true" :resource="vmSummary" :title="$t('label.yourinstance')" @change-resource="(data) => resource = data">
-            <template #details>
-              <creation-source-summary v-if="isCreationSource" :source="selectedCreationSource" :target-storage="rootStorageSelection" :execution-profile="creationSourceExecutionProfile" />
-              <div v-if="serviceOffering?.id && !isTemplateHypervisorExternal && !isCreationSource" class="vm-storage-summary">
-                <div><strong>{{ $t('label.vm.storage.root') }}</strong><br>{{ rootStorageSelection.name || $t('label.vm.storage.auto') }} · {{ selectedRootDiskSize || '—' }} GB</div>
-                <div v-if="selectedDataDiskOffering?.id"><strong>{{ $t('label.vm.storage.data') }}</strong><br>
-                  {{ dataStorageSelection.name || $t('label.vm.storage.auto') }} · {{ selectedDataDiskSize }} GB × {{ selectedDataDiskCount }} · {{ selectedDataDiskSize * selectedDataDiskCount }} GB
-                </div>
-              </div>
-            </template>
-            <template #footer-content>
-              <deploy-buttons
-                :loading="loading.deploy"
-                :disabled="diskPlanIncomplete || userDataSelectionBlocked || deploymentOwnerPending"
-                :deployButtonText="form.startvm ? $t('label.launch.vm') : $t('label.create.vm')"
-                :deployButtonMenuOptions="deployMenuOptions"
-                @handle-cancel="() => $router.back()"
-                @handle-deploy="handleSubmit"
-                @handle-deploy-menu="(index, e) => handleSubmitAndStay(e)" />
-            </template>
-          </info-card>
+          </span>
         </div>
-      </a-col>
-    </a-row>
-    <mold-dialog v-if="sourceConfirmVisible" :title="$t('label.creation.source.confirm')" @cancel="sourceConfirmVisible = false">
-      <p><strong>{{ form.name || $t('label.name.optional') }}</strong> · {{ $t(form.startvm ? 'label.launch.vm' : 'label.create.vm') }}</p>
-      <creation-source-summary :source="selectedCreationSource" :target-storage="rootStorageSelection" :execution-profile="creationSourceExecutionProfile" />
-      <p v-if="imageType === 'volumeid'">{{ $t('message.creation.source.delete.policy') }}</p>
-      <a-checkbox v-if="imageType === 'volumeid'" v-model:checked="sourceAcknowledged">{{ $t('label.creation.source.ack') }}</a-checkbox>
-      <template #footer>
-        <a-button @click="sourceConfirmVisible = false">{{ $t('label.cancel') }}</a-button>
-        <a-button type="primary" :disabled="imageType === 'volumeid' && !sourceAcknowledged" :loading="loading.deploy" @click="confirmCreationSource">{{ $t(form.startvm ? 'label.launch.vm' : 'label.create.vm') }}</a-button>
-      </template>
-    </mold-dialog>
-  </div>
+      </section>
+      <section v-if="wizardStepIds.has(5)" v-show="wizardStep === 5" class="resource-create-section" data-wizard-step="5">
+        <h3 class="resource-create-section-title">{{ $t('label.vm.storage.root') }}</h3>
+        <deployment-storage-selection :title="$t('label.vm.storage.root')" v-model:value="rootStorageSelection" :query="rootStorageQuery" />
+      </section>
+      <section v-if="wizardStepIds.has(6)" v-show="wizardStep === 6" class="resource-create-section" data-wizard-step="6">
+        <h3 class="resource-create-section-title">{{ $t('label.rootdisk') }}</h3>
+        <div v-if="zoneSelected && serviceOffering?.id" class="root-disk-configuration">
+          <template v-if="imageType === 'templateid'">
+            <section class="root-configuration-section root-offering-section">
+              <h4 class="root-section-heading"><span class="root-section-number">1</span>{{ $t('label.vm.root.offering') }}</h4>
+              <a-form-item :label="$t('label.override.root.diskoffering')">
+                <a-switch
+                  v-model:checked="showOverrideDiskOfferingOption"
+                  :disabled="serviceOffering?.diskofferingstrictness || (template && template.deployasis)"
+                  @change="updateOverrideRootDiskShowParam" />
+                <p class="option-help">{{ $t('message.vm.root.offering.override') }}</p>
+              </a-form-item>
+              <div v-if="!showOverrideDiskOfferingOption" class="root-default-value">
+                <span>{{ defaultRootOfferingName }}</span>
+                <a-tag v-if="defaultRootOfferingName !== $t('label.vm.root.offering.default')">{{ $t('label.vm.root.offering.default') }}</a-tag>
+              </div>
+              <p v-if="serviceOffering?.diskofferingstrictness" class="option-help">{{ $t('message.vm.root.offering.required') }}</p>
+              <div v-if="template && template.deployasis" class="option-help">{{ $t('message.deployasis') }}</div>
+              <template v-if="serviceOffering && !serviceOffering.diskofferingstrictness">
+                <div
+                  v-if="template && !template.deployasis && template.childtemplates && template.childtemplates.length > 0" >
+                  <template>
+                    <div v-if="zoneSelected">
+                      <multi-disk-selection
+                        :items="template.childtemplates"
+                        :diskOfferings="options.diskOfferings"
+                        :zoneId="zoneId"
+                        @select-multi-disk-offering="updateMultiDiskOffering($event)" />
+                    </div>
+                  </template>
+                </div>
+
+                <template v-else>
+                  <disk-offering-selection
+                    v-if="showOverrideDiskOfferingOption"
+                    :items="options.diskOfferings"
+                    all-items
+                    :scope-key="diskOfferingQueryScope"
+                    :error="diskOfferingsError"
+                    @retry="fetchOptions(params.diskOfferings, 'diskOfferings')"
+                    :row-count="rowCount.diskOfferings"
+                    :zoneId="zoneId"
+                    :value="overrideDiskOffering ? overrideDiskOffering.id : ''"
+                    :loading="loading.diskOfferings"
+                    :preFillContent="dataPreFill"
+                    :isIsoSelected="imageType==='isoid'"
+                    :isRootDiskOffering="true"
+                    @on-selected-root-disk-size="onSelectRootDiskSize"
+                    @select-disk-offering-item="($event) => updateOverrideDiskOffering($event)"
+                    @handle-search-filter="($event) => handleSearchFilter('diskOfferings', $event)"
+                  ></disk-offering-selection>
+                </template>
+              </template>
+            </section>
+          </template>
+          <template v-else>
+            <section class="root-configuration-section root-offering-section">
+              <h4 class="root-section-heading"><span class="root-section-number">1</span>{{ $t('label.vm.root.offering') }}</h4>
+              <a-alert v-if="isoRootOfferingStrict" type="info" :message="mappedRootOffering?.displaytext || serviceOffering.diskofferingname" style="margin: 12px 0" />
+              <disk-offering-selection
+                v-else
+                :items="options.diskOfferings"
+                all-items
+                :scope-key="diskOfferingQueryScope"
+                :error="diskOfferingsError"
+                @retry="fetchOptions(params.diskOfferings, 'diskOfferings')"
+                :row-count="rowCount.diskOfferings"
+                :zoneId="zoneId"
+                :value="diskOffering ? diskOffering.id : ''"
+                :loading="loading.diskOfferings"
+                :preFillContent="dataPreFill"
+                :isIsoSelected="true"
+                @on-selected-disk-size="onSelectDiskSize"
+                @select-disk-offering-item="($event) => updateDiskOffering($event)"
+                @handle-search-filter="($event) => handleSearchFilter('diskOfferings', $event)" />
+            </section>
+          </template>
+          <deployment-storage-selection
+            v-if="storageSelectionEnabled && (imageType === 'templateid' || diskOffering?.id)"
+            class="root-storage-section"
+            v-model:value="rootStorageSelection"
+            :title="$t('label.vm.storage.root')"
+            :query="rootStorageQuery" />
+          <template v-if="imageType === 'templateid'">
+            <section class="root-configuration-section root-size-section">
+              <h4 class="root-section-heading"><span class="root-section-number">{{ storageSelectionEnabled ? 3 : 2 }}</span>{{ $t('label.vm.root.capacity') }}</h4>
+              <template v-if="!showOverrideDiskOfferingOption">
+                <div v-if="selectedRootDiskSize && !showRootDiskSizeChanger" class="root-default-value">
+                  <span>{{ selectedRootDiskSize }} GB</span>
+                  <a-tag v-if="serviceOffering?.diskofferingstrictness && !templateStrictCustomRoot">{{ $t('label.vm.disk.fixed') }}</a-tag>
+                </div>
+                <a-form-item :label="$t('label.override.rootdisk.size')">
+                  <a-switch
+                    v-model:checked="form.rootdisksizeitem"
+                    :disabled="templateStrictCustomRoot || serviceOffering?.diskofferingstrictness || (template && template.deployasis)"
+                    @change="changeRootDiskSizeOverride" />
+                  <p class="option-help">{{ $t('message.vm.root.size.override') }}</p>
+                </a-form-item>
+                <disk-size-selection
+                  v-if="showRootDiskSizeChanger"
+                  input-decorator="rootdisksize"
+                  :hide-size-label="true"
+                  allow-empty-size
+                  :value="form.rootdisksize"
+                  :preFillContent="dataPreFill"
+                  :isCustomized="true"
+                  :minDiskSize="dataPreFill.minrootdisksize"
+                  @update-disk-size="updateFieldValue" />
+              </template>
+              <a-form-item v-if="showOverrideDiskOfferingOption && overrideDiskOffering?.id && !overrideDiskOffering.iscustomized">
+                <a-input-number :value="overrideDiskOffering.disksize" disabled />
+                <span class="root-size-unit">GB</span>
+                <a-tag class="root-fixed-size-tag">{{ $t('label.vm.disk.fixed') }}</a-tag>
+              </a-form-item>
+                  <disk-size-selection
+                    v-if="!serviceOffering.diskofferingstrictness && !(template?.childtemplates?.length > 0) && ((overrideDiskOffering && (overrideDiskOffering.iscustomized || overrideDiskOffering.iscustomizediops || overrideDiskOffering.encrypt)) || (serviceOffering && serviceOffering.encryptroot))"
+                    input-decorator="rootdisksize"
+                    :value="form.rootdisksize"
+                    :hide-size-label="true"
+                    allow-empty-size
+                    :show-size="showOverrideDiskOfferingOption"
+                    :preFillContent="dataPreFill"
+                    :minDiskSize="dataPreFill.minrootdisksize"
+                    :rootDiskSelected="overrideDiskOffering"
+                    :isCustomized="overrideDiskOffering && overrideDiskOffering.iscustomized"
+                    :kmsKeys="options.kmsKeys"
+                    :loadingKmsKeys="loading.kmsKeys"
+                    :computeOfferingEncryptRoot="serviceOffering && serviceOffering.encryptroot"
+                    @handler-error="handlerError"
+                    @update-disk-size="updateFieldValue"
+                    @update-root-disk-iops-value="updateIOPSValue"
+                    @update-root-kms-key="updateRootKmsKey"/>
+
+              <a-form-item class="form-item-hidden"><a-input v-model:value="form.rootdisksize"/></a-form-item>
+              <a-form-item class="form-item-hidden"><a-input v-model:value="form.offeringKvdoEnable"/></a-form-item>
+            </section>
+          </template>
+          <template v-else>
+            <section v-if="diskOffering?.id" class="root-configuration-section root-size-section">
+              <h4 class="root-section-heading"><span class="root-section-number">{{ storageSelectionEnabled ? 3 : 2 }}</span>{{ $t('label.vm.root.capacity') }}</h4>
+              <a-form-item v-if="!diskOffering.iscustomized">
+                <a-input-number :value="diskOffering.disksize" disabled />
+                <span class="root-size-unit">GB</span>
+                <a-tag class="root-fixed-size-tag">{{ $t('label.vm.disk.fixed') }}</a-tag>
+              </a-form-item>
+              <disk-size-selection
+                v-if="diskOffering.iscustomized || diskOffering.iscustomizediops || diskOffering.encrypt"
+                input-decorator="size"
+                :hide-size-label="true"
+                allow-empty-size
+                :show-size="true"
+                :preFillContent="dataPreFill"
+                :diskSelected="diskSelected"
+                :isCustomized="diskOffering.iscustomized"
+                :kmsKeys="options.kmsKeys"
+                :loadingKmsKeys="loading.kmsKeys"
+                @handler-error="handlerError"
+                @update-disk-size="updateFieldValue"
+                @update-iops-value="updateIOPSValue"
+                @update-data-kms-key="updateDataKmsKey" />
+              <a-form-item class="form-item-hidden"><a-input v-model:value="form.size"/></a-form-item>
+            </section>
+          </template>
+        </div>
+      </section>
+      <section v-if="wizardStepIds.has(7)" v-show="wizardStep === 7" class="resource-create-section" data-wizard-step="7">
+        <h3 class="resource-create-section-title">{{ $t('label.data.disk') }}</h3>
+        <div v-if="zoneSelected">
+          <multi-disk-selection
+            :items="template.childtemplates"
+            :diskOfferings="options.diskOfferings"
+            :zoneId="zoneId"
+            @select-multi-disk-offering="updateMultiDiskOffering($event)" />
+        </div>
+      </section>
+      <section v-if="wizardStepIds.has(8)" v-show="wizardStep === 8" class="resource-create-section" data-wizard-step="8">
+        <h3 class="resource-create-section-title">{{ $t('label.data.disk') }}</h3>
+        <div v-if="zoneSelected && !isTemplateHypervisorExternal">
+          <disk-offering-selection
+            :items="options.diskOfferings"
+            all-items
+            :scope-key="diskOfferingQueryScope"
+            :error="diskOfferingsError"
+            @retry="fetchOptions(params.diskOfferings, 'diskOfferings')"
+            :row-count="rowCount.diskOfferings"
+            :zoneId="zoneId"
+            :value="diskOffering ? diskOffering.id : ''"
+            :loading="loading.diskOfferings"
+            :preFillContent="dataPreFill"
+            :isIsoSelected="imageType==='isoid'"
+            @on-selected-disk-size="onSelectDiskSize"
+            @select-disk-offering-item="($event) => updateDiskOffering($event)"
+            @handle-search-filter="($event) => handleSearchFilter('diskOfferings', $event)"
+          ></disk-offering-selection>
+          <template v-if="(imageType === 'templateid' || isCreationSource) && diskOffering?.id && diskOffering.id !== '0'">
+            <deployment-storage-selection
+              v-if="storageSelectionEnabled"
+              v-model:value="dataStorageSelection"
+              :title="$t('label.vm.storage.data')"
+              :query="dataStorageQuery" />
+            <disk-quantity-selection
+              :offering="diskOffering"
+              v-model:size="form.size"
+              v-model:count="form.datadiskcount" />
+          </template>
+          <disk-size-selection
+            v-if="diskOffering && (diskOffering.iscustomizediops || diskOffering.encrypt)"
+            input-decorator="size"
+            :show-size="false"
+            :preFillContent="dataPreFill"
+            :diskSelected="diskSelected"
+            :isCustomized="diskOffering.iscustomized"
+            :kmsKeys="options.kmsKeys"
+            :loadingKmsKeys="loading.kmsKeys"
+            @handler-error="handlerError"
+            @update-disk-size="updateFieldValue"
+            @update-iops-value="updateIOPSValue"
+            @update-data-kms-key="updateDataKmsKey"/>
+          <a-form-item class="form-item-hidden"><a-input v-model:value="form.size"/></a-form-item>
+        </div>
+        <div v-else-if="isTemplateHypervisorExternal" style="margin-bottom: 20px; margin-top: 7px">
+          {{ $t('message.host.external.datadisk') }}
+        </div>
+      </section>
+      <section v-if="wizardStepIds.has(9)" v-show="wizardStep === 9" class="resource-create-section" data-wizard-step="9">
+        <h3 class="resource-create-section-title">{{ $t('label.data.disk') }}</h3>
+        <iso-additional-data-disks
+          v-model:value="isoDataDiskSelection"
+          :items="options.diskOfferings"
+          all-items
+          :scope-key="diskOfferingQueryScope"
+          :error="diskOfferingsError"
+          @retry="fetchOptions(params.diskOfferings, 'diskOfferings')"
+          :zone-id="zoneId"
+          :loading="loading.diskOfferings"
+          :kms-keys="options.kmsKeys"
+          :loading-kms-keys="loading.kmsKeys"
+          @search="handleSearchFilter('diskOfferings', $event)">
+          <deployment-storage-selection
+            v-if="storageSelectionEnabled"
+              v-model:value="dataStorageSelection"
+            :title="$t('label.vm.storage.data')"
+            :query="dataStorageQuery" />
+        </iso-additional-data-disks>
+      </section>
+      <section v-if="wizardStepIds.has(10)" v-show="wizardStep === 10" class="resource-create-section" data-wizard-step="10">
+        <h3 class="resource-create-section-title">{{ $t('label.networks') }}</h3>
+        <div v-if="zoneSelected" style="margin-top: 5px">
+          <div style="margin-bottom: 10px">
+            {{ $t('message.network.selection') + ('createNetwork' in $store.getters.apis ? ' ' + $t('message.network.selection.new.network') : '') }}
+          </div>
+          <div v-if="vm.templateid && templateNics && templateNics.length > 0">
+            <instance-nics-network-select-list-view
+              :key="deploymentNetworkScope"
+              :nics="templateNics"
+              :zoneid="selectedZone"
+              :owner="params.networks.options"
+              @select="handleNicsNetworkSelection" />
+          </div>
+          <div v-show="!(vm.templateid && templateNics && templateNics.length > 0)" >
+            <network-selection
+              :key="deploymentNetworkScope"
+              :items="options.networks"
+              :row-count="rowCount.networks"
+              :value="networkOfferingIds"
+              :loading="loading.networks"
+              :zoneId="zoneId"
+              :preFillContent="dataPreFill"
+              @select-network-item="($event) => updateNetworks($event)"
+              @handle-search-filter="($event) => handleSearchFilter('networks', $event)"
+            ></network-selection>
+            <network-configuration
+              v-if="networks.length > 0"
+              :items="networks"
+              :preFillContent="dataPreFill"
+              @update-network-config="($event) => updateNetworkConfig($event)"
+              @handler-error="($event) => hasError = $event"
+              @select-default-network-item="($event) => updateDefaultNetworks($event)"
+            ></network-configuration>
+            <a-alert
+              v-if="additionalIsoConfigDriveConflict"
+              type="error"
+              show-icon
+              :message="$t('message.additional.iso.configdrive.conflict')"
+              style="margin-top: 12px" />
+          </div>
+        </div>
+      </section>
+      <section v-if="wizardStepIds.has(11)" v-show="wizardStep === 11" class="resource-create-section" data-wizard-step="11">
+        <h3 class="resource-create-section-title">{{ $t('label.security.groups') }}</h3>
+        <security-group-selection
+          :zoneId="zoneId"
+          :value="securitygroupids"
+          :loading="loading.networks"
+          :preFillContent="dataPreFill"
+          :domainId="owner.domainid"
+          :account="owner.account"
+          :projectId="owner.projectid"
+          @select-security-group-item="($event) => updateSecurityGroups($event)"></security-group-selection>
+      </section>
+      <section v-if="wizardStepIds.has(12)" v-show="wizardStep === 12" class="resource-create-section" data-wizard-step="12">
+        <h3 class="resource-create-section-title">{{ $t('label.sshkeypairs') }}</h3>
+        <div v-if="zoneSelected">
+          <ssh-key-pair-selection
+            :items="options.sshKeyPairs"
+            :row-count="rowCount.sshKeyPairs"
+            :zoneId="zoneId"
+            :value="sshKeyPairs"
+            :loading="loading.sshKeyPairs"
+            :preFillContent="dataPreFill"
+            @select-ssh-key-pair-item="($event) => updateSshKeyPairs($event)"
+            @handle-search-filter="($event) => handleSearchFilter('sshKeyPairs', $event)"
+          />
+        </div>
+      </section>
+      <section v-if="wizardStepIds.has(13)" v-show="wizardStep === 13" class="resource-create-section" data-wizard-step="13">
+        <h3 class="resource-create-section-title">{{ $t('label.ovf.properties') }}</h3>
+        <div v-for="(props, category) in templateProperties" :key="category">
+          <a-alert :message="'Category: ' + category + ' (' + props.length + ' properties)'" type="info" />
+          <div style="margin-left: 15px; margin-top: 10px">
+            <a-form-item
+              v-for="(property, propertyIndex) in props"
+              :key="propertyIndex"
+              :v-bind="property.key"
+              :name="'properties.' + escapePropertyKey(property.key)"
+              :ref="'properties.' + escapePropertyKey(property.key)">
+              <tooltip-label style="text-transform: capitalize" :title="property.label" :tooltip="property.description"/>
+
+              <span v-if="property.type && property.type==='boolean'">
+                <a-switch
+                  v-model:checked="form.properties[escapePropertyKey(property.key)]"
+                  :placeholder="property.description"
+                />
+              </span>
+              <span v-else-if="property.type && (property.type==='int' || property.type==='real')">
+                <a-input-number
+                  v-model:value="form.properties[escapePropertyKey(property.key)]"
+                  :placeholder="property.description"
+                  :min="getPropertyQualifiers(property.qualifiers, 'number-select').min"
+                  :max="getPropertyQualifiers(property.qualifiers, 'number-select').max" />
+              </span>
+              <span v-else-if="property.type && property.type==='string' && property.qualifiers && property.qualifiers.startsWith('ValueMap')">
+                <a-select
+                  showSearch
+                  optionFilterProp="label"
+                  v-model:value="form.properties[escapePropertyKey(property.key)]"
+                  :placeholder="property.description"
+                  :filterOption="(input, option) => {
+                    return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }"
+                >
+                  <a-select-option v-for="opt in getPropertyQualifiers(property.qualifiers, 'select')" :key="opt">
+                    {{ opt }}
+                  </a-select-option>
+                </a-select>
+              </span>
+              <span v-else-if="property.type && property.type==='string' && property.password">
+                <a-input-password
+                  v-model:value="form.properties[escapePropertyKey(property.key)]"
+                  :placeholder="property.description" />
+              </span>
+              <span v-else>
+                <a-input
+                  v-model:value="form.properties[escapePropertyKey(property.key)]"
+                  :placeholder="property.description" />
+              </span>
+            </a-form-item>
+          </div>
+        </div>
+      </section>
+      <section v-if="wizardStepIds.has(14)" v-show="wizardStep === 14" class="resource-create-section" data-wizard-step="14">
+        <h3 class="resource-create-section-title">{{ $t('label.backup') }}</h3>
+        <div v-if="zoneSelected" style="margin-top: 15px">
+          <deploy-instance-backup-selection
+            :zoneId="zoneId"
+            v-model:backupOfferingId="form.backupofferingid"
+            :backupSchedules="backupSchedules"
+            @change-backup-offering="onChangeBackupOffering"
+            @add-backup-schedule="onAddBackupSchedule"
+            @delete-backup-schedule="backupSchedules = backupSchedules.filter(schedule => schedule.id !== $event.id)" />
+          <a-form-item class="form-item-hidden">
+            <a-input v-model:value="form.backupofferingid" />
+          </a-form-item>
+        </div>
+      </section>
+      <section v-show="wizardStep === 15" class="resource-create-section" data-wizard-step="15">
+        <h3 class="resource-create-section-title">{{ $t('label.vm.wizard.advanced') }}</h3>
+        <template v-if="zoneSelected">
+          <span>
+            {{ $t('label.isadvanced') }}
+            <a-switch v-model:checked="showDetails" style="margin-left: 10px"/>
+          </span>
+          <div style="margin-top: 15px" v-if="showDetails">
+            <div
+              v-if="['KVM', 'VMware', 'XenServer'].includes(hypervisor) && ((vm.templateid && template && !template.deployasis) || vm.isoid)">
+              <a-form-item :label="$t('label.boottype')" name="boottype" ref="boottype">
+                <a-select
+                  v-model:value="form.boottype"
+                  @change="onBootTypeChange"
+                  showSearch
+                  optionFilterProp="label"
+                  :filterOption="filterOption">
+                  <a-select-option v-for="bootType in options.bootTypes" :key="bootType.id" :label="bootType.description">
+                    {{ bootType.description }}
+                  </a-select-option>
+                </a-select>
+              </a-form-item>
+              <a-form-item :label="$t('label.bootmode')" name="bootmode" ref="bootmode">
+                <a-select
+                  v-model:value="form.bootmode"
+                  showSearch
+                  optionFilterProp="label"
+                  :filterOption="filterOption">
+                  <a-select-option v-for="bootMode in options.bootModes" :key="bootMode.id" :label="bootMode.description">
+                    {{ bootMode.description }}
+                  </a-select-option>
+                </a-select>
+              </a-form-item>
+            </div>
+            <a-form-item v-if="hypervisor === 'KVM' && !isCreationSource" name="machinecompatibility" ref="machinecompatibility">
+              <template #label>
+                <tooltip-label :title="$t('label.ft.machine.compatibility')" :tooltip="$t('message.ft.machine.compatibility.desc')"/>
+              </template>
+              <a-select v-model:value="form.machinecompatibility">
+                <a-select-option value="standard">
+                  {{ $t('label.ft.machine.compatibility.standard') }}
+                </a-select-option>
+                <a-select-option value="ft-compatible">
+                  {{ $t('label.ft.machine.compatibility.ft') }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+            <a-form-item v-if="hypervisor === 'KVM' && !isCreationSource" :label="$t('label.tpm')" name="tpmversion" ref="tpmversion">
+              <a-select
+                v-model:value="form.tpmversion"
+                @change="form.tpmmodel = 'tpm-tis'"
+                showSearch
+                optionFilterProp="label"
+                :filterOption="filterOption">
+                <a-select-option v-for="tpmversion in options.tpmversion" :key="tpmversion.id">
+                  {{ tpmversion.description }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+            <a-form-item v-if="hypervisor === 'KVM' && ['V1_2', 'V2_0'].includes(form.tpmversion)" :label="$t('label.tpm.model')" name="tpmmodel">
+              <a-select v-model:value="form.tpmmodel" :options="form.tpmversion === 'V1_2' ? [{ value: 'tpm-tis', label: 'TIS' }] : [{ value: 'tpm-tis', label: 'TIS' }, { value: 'tpm-crb', label: 'CRB' }]" />
+            </a-form-item>
+            <a-form-item
+              :label="$t('label.bootintosetup')"
+              v-if="zoneSelected && ((imageType === 'isoid' && hypervisor === 'VMware') || (imageType === 'templateid' && template && template.hypervisor === 'VMware'))"
+              name="bootintosetup"
+              ref="bootintosetup">
+              <a-switch v-model:checked="form.bootintosetup" />
+            </a-form-item>
+            <a-form-item name="dynamicscalingenabled" ref="dynamicscalingenabled" v-if="!!template && !isTemplateHypervisorExternal">
+              <template #label>
+                <tooltip-label :title="$t('label.dynamicscalingenabled')" :tooltip="$t('label.dynamicscalingenabled.tooltip')"/>
+              </template>
+              <a-form-item name="dynamicscalingenabled" ref="dynamicscalingenabled">
+                <a-switch
+                  v-model:checked="form.dynamicscalingenabled"
+                  :checked="isDynamicallyScalable() && dynamicscalingenabled"
+                  :disabled="!isDynamicallyScalable()"
+                  @change="val => { dynamicscalingenabled = val }"/>
+              </a-form-item>
+            </a-form-item>
+            <a-form-item name="showLeaseOptions" ref="showLeaseOptions" v-if="isLeaseFeatureEnabled">
+              <template #label>
+                <tooltip-label :title="$t('label.lease.enable')" :tooltip="$t('label.lease.enable.tooltip')"/>
+              </template>
+              <a-switch v-model:checked="showLeaseOptions" @change="onToggleLeaseData"/>
+            </a-form-item>
+            <a-row :gutter="12" v-if="isLeaseFeatureEnabled && showLeaseOptions">
+              <a-col :md="12" :lg="12">
+                <a-form-item name="leaseduration" ref="leaseduration">
+                  <template #label>
+                    <tooltip-label :title="$t('label.leaseduration')" />
+                  </template>
+                  <a-input
+                    v-model:value="form.leaseduration"
+                    :placeholder="$t('label.instance.lease.placeholder')"/>
+                </a-form-item>
+              </a-col>
+              <a-col :md="12" :lg="12">
+                <a-form-item name="leaseexpiryaction" ref="leaseexpiryaction">
+                  <template #label>
+                    <tooltip-label :title="$t('label.leaseexpiryaction')"  />
+                  </template>
+                  <a-select v-model:value="form.leaseexpiryaction" :defaultValue="leaseexpiryaction">
+                    <a-select-option v-for="action in expiryActions" :key="action" :label="action" />
+                  </a-select>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-form-item v-if="!isCreationSource" :label="$t('label.user.data')">
+              <a-card>
+                <div v-if="this.template && this.template.userdataid">
+                  <a-typography-text>
+                    Userdata "{{ $t(this.template.userdataname) }}" is linked with template "{{ $t(this.template.name) }}" with override policy "{{ $t(this.template.userdatapolicy) }}"
+                  </a-typography-text><br/><br/>
+                  <div v-if="templateUserDataParams.length > 0 && !doUserdataOverride">
+                    <a-typography-text v-if="this.template && this.template.userdataid && templateUserDataParams.length > 0">
+                      Enter the values for the variables in userdata
+                    </a-typography-text>
+                    <a-input-group>
+                      <a-table
+                        size="small"
+                        style="overflow-y: auto"
+                        :columns="userDataParamCols"
+                        :dataSource="templateUserDataParams"
+                        :pagination="false"
+                        :rowKey="record => record.key">
+                        <template #bodyCell="{ column, record }">
+                          <template v-if="column.key === 'value'">
+                            <a-input v-model:value="templateUserDataValues[record.key]" />
+                          </template>
+                        </template>
+                      </a-table>
+                    </a-input-group>
+                  </div>
+                </div>
+                <div v-if="this.iso && this.iso.userdataid">
+                  <a-typography-text>
+                    Userdata "{{ $t(this.iso.userdataname) }}" is linked with ISO "{{ $t(this.iso.name) }}" with override policy "{{ $t(this.iso.userdatapolicy) }}"
+                  </a-typography-text><br/><br/>
+                  <div v-if="templateUserDataParams.length > 0 && !doUserdataOverride">
+                    <a-typography-text v-if="this.iso && this.iso.userdataid && templateUserDataParams.length > 0">
+                      Enter the values for the variables in userdata
+                    </a-typography-text>
+                    <a-input-group>
+                      <a-table
+                        size="small"
+                        style="overflow-y: auto"
+                        :columns="userDataParamCols"
+                        :dataSource="templateUserDataParams"
+                        :pagination="false"
+                        :rowKey="record => record.key">
+                        <template #bodyCell="{ column, record }">
+                          <template v-if="column.key === 'value'">
+                            <a-input v-model:value="templateUserDataValues[record.key]" />
+                          </template>
+                        </template>
+                      </a-table>
+                    </a-input-group>
+                  </div>
+                </div><br/><br/>
+                <div v-if="userdataDefaultOverridePolicy === 'ALLOWOVERRIDE' || userdataDefaultOverridePolicy === 'APPEND' || !userdataDefaultOverridePolicy">
+                  <span v-if="userdataDefaultOverridePolicy === 'ALLOWOVERRIDE'" >
+                    {{ $t('label.user.data.do.override') }}
+                    <a-switch v-model:checked="doUserdataOverride" style="margin-left: 10px"/>
+                  </span>
+                  <span v-if="userdataDefaultOverridePolicy === 'APPEND'">
+                    {{ $t('label.user.data.do.append') }}
+                    <a-switch v-model:checked="doUserdataAppend" style="margin-left: 10px"/>
+                  </span>
+                  <a-step
+                    :status="zoneSelected ? 'process' : 'wait'">
+                    <template #description>
+                      <div v-if="doUserdataOverride || doUserdataAppend || !userdataDefaultOverridePolicy" style="margin-top: 15px">
+                        <a-card
+                          :tabList="userdataTabList"
+                          :activeTabKey="userdataTabKey"
+                          @tabChange="key => onUserdataTabChange(key, 'userdataTabKey')">
+                          <div v-if="userdataTabKey === 'userdataregistered'">
+                            <a-step
+                              :status="zoneSelected ? 'process' : 'wait'">
+                              <template #description>
+                                <div v-if="zoneSelected">
+                                  <user-data-selection
+                                    :scope="userDataOwner"
+                                    :value="form.userdataid"
+                                    :zoneId="zoneId"
+                                    :disabled="template && template.userdatapolicy === 'DENYOVERRIDE'"
+                                    :preFillContent="dataPreFill"
+                                    @select-user-data-item="updateUserData"
+                                    @ready="userDataSelectionReady = $event"
+                                  />
+                                  <div v-if="userDataParams.length > 0">
+                                    <a-input-group>
+                                      <a-table
+                                        size="small"
+                                        style="overflow-y: auto"
+                                        :columns="userDataParamCols"
+                                        :dataSource="userDataParams"
+                                        :pagination="false"
+                                        :rowKey="record => record.key">
+                                        <template #bodyCell="{ column, record }">
+                                          <template v-if="column.key === 'value'">
+                                            <a-input v-model:value="userDataValues[record.key]" />
+                                          </template>
+                                        </template>
+                                      </a-table>
+                                    </a-input-group>
+                                  </div>
+                                </div>
+                              </template>
+                            </a-step>
+                          </div>
+                          <div v-else>
+                            <a-form-item name="userdata" ref="userdata" >
+                              <a-textarea
+                                placeholder="Userdata"
+                                v-model:value="form.userdata">
+                              </a-textarea>
+                            </a-form-item>
+                          </div>
+                        </a-card>
+                      </div>
+                    </template>
+                  </a-step>
+                </div>
+              </a-card>
+            </a-form-item>
+            <a-form-item v-if="extraConfigEnabled" name="extraconfig" ref="extraconfig">
+              <template #label>
+                <tooltip-label :title="$t('label.extraconfig')" :tooltip="$t('label.extraconfig.tooltip')"/>
+              </template>
+              <a-textarea v-model:value="form.extraconfig"/>
+            </a-form-item>
+            <a-form-item :label="$t('label.affinity.groups')">
+              <affinity-group-selection
+                :items="options.affinityGroups"
+                :row-count="rowCount.affinityGroups"
+                :zoneId="zoneId"
+                :value="affinityGroupIds"
+                :loading="loading.affinityGroups"
+                :error="affinityGroupsError"
+                :owner="params.affinityGroups.options"
+                :preFillContent="dataPreFill"
+                @select-affinity-group-item="($event) => updateAffinityGroups($event)"
+                @handle-search-filter="($event) => handleSearchFilter('affinityGroups', $event)"/>
+            </a-form-item>
+            <a-form-item name="nicmultiqueuenumber" ref="nicmultiqueuenumber" v-if="vm.templateid && ['KVM'].includes(hypervisor)">
+              <template #label>
+                <tooltip-label :title="$t('label.nicmultiqueuenumber')" :tooltip="$t('label.nicmultiqueuenumber.tooltip')"/>
+              </template>
+              <a-input-number
+                style="width: 100%;"
+                v-model:value="form.nicmultiqueuenumber" />
+            </a-form-item>
+            <a-form-item name="nicpackedvirtqueuesenabled" ref="nicpackedvirtqueuesenabled" v-if="vm.templateid && ['KVM'].includes(hypervisor)">
+              <template #label>
+                <tooltip-label :title="$t('label.nicpackedvirtqueuesenabled')" :tooltip="$t('label.nicpackedvirtqueuesenabled.tooltip')"/>
+              </template>
+              <a-switch
+                v-model:checked="form.nicpackedvirtqueuesenabled"
+                :checked="nicpackedvirtqueuesenabled"
+                @change="val => { nicpackedvirtqueuesenabled = val }"/>
+            </a-form-item>
+            <a-form-item name="iothreadsenabled" ref="iothreadsenabled" v-if="vm.templateid && ['KVM'].includes(hypervisor)">
+              <template #label>
+                <tooltip-label :title="$t('label.iothreadsenabled')" :tooltip="$t('label.iothreadsenabled.tooltip')"/>
+              </template>
+              <a-form-item name="iothreadsenabled" ref="iothreadsenabled">
+                <a-switch
+                  v-model:checked="form.iothreadsenabled"
+                  :checked="iothreadsenabled"
+                  @change="val => { iothreadsenabled = val }"/>
+              </a-form-item>
+            </a-form-item>
+            <a-form-item name="iodriverpolicy" ref="iodriverpolicy" v-if="vm.templateid && ['KVM'].includes(hypervisor)">
+              <template #label>
+                <tooltip-label :title="$t('label.iodriverpolicy')" :tooltip="$t('label.iodriverpolicy.tooltip')"/>
+              </template>
+              <a-select
+                v-model:value="form.iodriverpolicy"
+                optionFilterProp="label"
+                :filterOption="filterOption">
+                <a-select-option v-for="iodriverpolicy in options.ioPolicyTypes" :key="iodriverpolicy.id" :label="iodriverpolicy.description">
+                  {{ iodriverpolicy.description }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+          </div>
+
+          <a-form-item name="externaldetails" ref="externaldetails" v-if="imageType === 'templateid' && isTemplateHypervisorExternal">
+            <template #label>
+              <tooltip-label :title="$t('label.externaldetails')" :tooltip="apiParams.externaldetails.description" />
+            </template>
+            <a-switch v-model:checked="externalDetailsEnabled" @change="onExternalDetailsEnabledChange"/>
+            <a-card v-if="externalDetailsEnabled" style="margin-top: 10px">
+              <div style="margin-bottom: 10px">{{ $t('message.add.orchestrator.resource.details') }}</div>
+              <details-input
+                v-model:value="form.externaldetails" />
+            </a-card>
+          </a-form-item>
+        </template>
+      </section>
+      <section v-if="wizardStepIds.has(17)" v-show="wizardStep === 17" class="resource-create-section" data-wizard-step="17">
+        <h3 class="resource-create-section-title">{{ $t('label.license.agreements') }}</h3>
+        <div style="margin-top: 10px">
+          {{ $t('message.read.accept.license.agreements') }}
+          <a-form-item
+            style="margin-top: 10px"
+            v-for="(license, licenseIndex) in templateLicenses"
+            :key="licenseIndex"
+            :v-bind="license.id">
+            <template #label>
+              <tooltip-label style="text-transform: capitalize" :title="$t('label.agreement' + ' ' + (licenseIndex+1) + ': ' + license.name)"/>
+            </template>
+            <a-textarea
+              v-model:value="license.text"
+              :auto-size="{ minRows: 3, maxRows: 8 }"
+              readOnly />
+            <a-checkbox
+              style="margin-top: 10px"
+              v-model:checked="form.licensesaccepted">
+              {{ $t('label.i.accept.all.license.agreements') }}
+            </a-checkbox>
+          </a-form-item>
+        </div>
+      </section>
+    </a-form>
+    <template #summary>
+      <resource-create-summary-fields tabindex="0" title-key="label.vm.wizard.summary" icon="cloud-server-outlined" :name="form.name" :architecture="selectedArchitecture" :resource="vmSummary">
+        <template v-if="isCreationSource || (serviceOffering?.id && !isTemplateHypervisorExternal)">
+          <creation-source-summary v-if="isCreationSource" :source="selectedCreationSource" :target-storage="rootStorageSelection" :execution-profile="creationSourceExecutionProfile" />
+          <div v-else class="vm-storage-summary">
+            <div class="kubernetes-summary-item"><strong>{{ $t('label.vm.storage.root') }}</strong>{{ rootStorageSelection.name || $t('label.vm.storage.auto') }} · {{ selectedRootDiskSize || '—' }} GB</div>
+            <div v-if="selectedDataDiskOffering?.id" class="kubernetes-summary-item"><strong>{{ $t('label.vm.storage.data') }}</strong>
+              {{ dataStorageSelection.name || $t('label.vm.storage.auto') }} · {{ selectedDataDiskSize }} GB × {{ selectedDataDiskCount }} · {{ selectedDataDiskSize * selectedDataDiskCount }} GB
+            </div>
+          </div>
+        </template>
+      </resource-create-summary-fields>
+    </template>
+    <template #submit>
+      <deploy-buttons
+        :loading="loading.deploy"
+        :disabled="diskPlanIncomplete || userDataSelectionBlocked || deploymentOwnerPending"
+        :deploy-button-text="form.startvm ? $t('label.launch.vm') : $t('label.create.vm')"
+        @handle-deploy="handleSubmit"
+        :deploy-button-menu-options="deployMenuOptions"
+        @handle-deploy-menu="(index, e) => handleSubmitAndStay(e)" />
+    </template>
+  </resource-create-wizard>
+  <mold-dialog v-if="sourceConfirmVisible" :title="$t('label.creation.source.confirm')" @cancel="sourceConfirmVisible = false">
+    <p><strong>{{ form.name || $t('label.name.optional') }}</strong> · {{ $t(form.startvm ? 'label.launch.vm' : 'label.create.vm') }}</p>
+    <creation-source-summary :source="selectedCreationSource" :target-storage="rootStorageSelection" :execution-profile="creationSourceExecutionProfile" />
+    <p v-if="imageType === 'volumeid'">{{ $t('message.creation.source.delete.policy') }}</p>
+    <a-checkbox v-if="imageType === 'volumeid'" v-model:checked="sourceAcknowledged">{{ $t('label.creation.source.ack') }}</a-checkbox>
+    <template #footer>
+      <a-button @click="sourceConfirmVisible = false">{{ $t('label.cancel') }}</a-button>
+      <a-button type="primary" :disabled="imageType === 'volumeid' && !sourceAcknowledged" :loading="loading.deploy" @click="confirmCreationSource">{{ $t(form.startvm ? 'label.launch.vm' : 'label.create.vm') }}</a-button>
+    </template>
+  </mold-dialog>
 </template>
 
 <script>
+import ResourceCreateWizard from './wizard/ResourceCreateWizard.vue'
+import ResourceCreateSummaryFields from './wizard/ResourceCreateSummaryFields.vue'
 import { strictTemplateCustomRoot } from '@/utils/templateRootDisk'
 import { deploymentTpmParams } from '@/utils/tpm'
 import AdditionalIsoSelection from './AdditionalIsoSelection.vue'
@@ -1257,7 +1198,6 @@ import store from '@/store'
 import eventBus from '@/config/eventBus'
 
 import OwnershipSelection from '@views/compute/wizard/OwnershipSelection'
-import InfoCard from '@/components/view/InfoCard'
 import DeployButtons from '@views/compute/wizard/DeployButtons'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import ZoneBlockRadioGroupSelect from '@views/compute/wizard/ZoneBlockRadioGroupSelect'
@@ -1290,6 +1230,8 @@ import DeployInstanceBackupSelection from '@views/compute/wizard/DeployInstanceB
 export default {
   name: 'Wizard',
   components: {
+    ResourceCreateWizard,
+    ResourceCreateSummaryFields,
     ReloadOutlined,
     AdditionalIsoSelection,
     CreationSourceSelection,
@@ -1298,7 +1240,6 @@ export default {
     CreationSourceOperations,
     MoldDialog,
     OwnershipSelection,
-    InfoCard,
     DeployButtons,
     ResourceIcon,
     ZoneBlockRadioGroupSelect,
@@ -1336,7 +1277,8 @@ export default {
   mixins: [mixin, mixinDevice, userDataSelectionConsumer],
   data () {
     return {
-      deployViewportHeight: '',
+      wizardStep: 0,
+      keyboardOverridden: false,
       zoneId: '',
       podId: null,
       clusterId: null,
@@ -1538,6 +1480,33 @@ export default {
     }
   },
   computed: {
+    wizardStages () {
+      const hasChildTemplates = this.template && !this.template.deployasis && this.template.childtemplates?.length > 0
+      const hasTemplateProperties = this.vm.templateid && this.templateProperties && Object.keys(this.templateProperties).length > 0
+      const hasTemplateLicenses = this.vm.templateid && this.templateLicenses?.length > 0
+      return [
+        { id: 0, label: 'label.vm.wizard.account.infrastructure' },
+        { id: 16, label: 'label.vm.wizard.basic' },
+        { id: 2, label: 'label.arch', available: !this.zoneSelected || this.isZoneSelectedMultiArch },
+        { id: 3, label: 'label.image' },
+        { id: 4, label: 'label.serviceofferingid' },
+        { id: 5, label: 'label.vm.storage.root', available: (this.imageType === 'snapshotid' || this.selectedCreationSource?.sourceusage === 'stage-and-adopt') && this.storageSelectionEnabled },
+        { id: 6, label: 'label.rootdisk', available: ['templateid', 'isoid'].includes(this.imageType) && !this.isTemplateHypervisorExternal },
+        { id: 7, label: 'label.data.disk', available: hasChildTemplates },
+        { id: 8, label: 'label.data.disk', available: !hasChildTemplates && this.imageType !== 'isoid' },
+        { id: 9, label: 'label.data.disk', available: this.imageType === 'isoid' && this.zoneSelected },
+        { id: 10, label: 'label.networks', available: this.zone && this.zone.networktype !== 'Basic' },
+        { id: 11, label: 'label.security.groups', available: this.showSecurityGroupSection },
+        { id: 12, label: 'label.sshkeypairs', available: this.isUserAllowedToListSshKeys && !this.isCreationSource },
+        { id: 13, label: 'label.ovf.properties', available: hasTemplateProperties },
+        { id: 14, label: 'label.backup', available: this.zoneAllowsBackupOperations },
+        { id: 15, label: 'label.vm.wizard.advanced' },
+        { id: 17, label: 'label.license.agreements', available: hasTemplateLicenses }
+      ].filter(stage => !('available' in stage) || stage.available)
+    },
+    wizardStepIds () {
+      return new Set(this.wizardStages.map(stage => stage.id))
+    },
     groupOwnerKey () { return vmGroupOwnerKey(this.owner) },
     deploymentNetworkScope () {
       const { userInfo, project, apis } = this.$store.getters
@@ -1591,9 +1560,9 @@ export default {
         } : {}),
         disksizetotalgb: this.diskSize || null,
         rootdiskofferingid: this.rootDiskOffering?.id,
-        rootdiskofferingdisplaytext: this.rootDiskOffering?.displayText,
+        rootdiskofferingdisplaytext: this.rootDiskOffering?.displayText || this.$t('label.vm.wizard.disk.unselected'),
         datadiskofferingid: this.dataDiskOffering?.id,
-        datadiskofferingdisplaytext: this.dataDiskOffering?.displayText,
+        datadiskofferingdisplaytext: this.dataDiskOffering?.displayText || this.$t('label.vm.wizard.disk.unselected'),
         templateformat: this.isCreationSource ? undefined : this.imageType === 'isoid' ? 'ISO' : this.template?.format,
         isoname: this.iso?.name,
         isodisplaytext: this.iso?.displaytext
@@ -1642,24 +1611,27 @@ export default {
     },
     diskOfferingQueryScope () { return deploymentDiskOfferingScope(this.params.diskOfferings.options, this.$store) },
     diskPlanIncomplete () {
-      if (this.loading?.diskOfferings || this.diskOfferingsError) return true
-      if (this.additionalIsoConfigDriveConflict) return true
+      return this.loading?.diskOfferings || !!this.diskOfferingsError || this.additionalIsoConfigDriveConflict ||
+        this.rootDiskPlanIncomplete || this.dataDiskPlanIncomplete
+    },
+    rootDiskPlanIncomplete () {
       if (this.isCreationSource) {
         return !this.creationSourceOwnerReady || !this.selectedCreationSource?.allowed || this.sourceLoading || this.sourceOperationPending ||
-          (this.storageSelectionEnabled && this.rootStorageSelection.valid === false) ||
-          (!!this.selectedDataDiskOffering?.id && (!(this.selectedDataDiskSize > 0) ||
-            !Number.isSafeInteger(this.selectedDataDiskCount) || this.selectedDataDiskCount < 1 ||
-            (this.storageSelectionEnabled && this.dataStorageSelection.valid === false)))
+          (this.storageSelectionEnabled && this.rootStorageSelection.valid === false)
       }
       if (!['templateid', 'isoid'].includes(this.imageType) || this.template?.deployasis) return false
       if (this.imageType === 'isoid' && (!this.diskOffering?.id || !(this.selectedRootDiskSize > 0))) return true
       if (this.imageType === 'templateid' && this.showOverrideDiskOfferingOption &&
         (!this.overrideDiskOffering?.id || this.overrideDiskOffering.iscustomized && !(this.selectedRootDiskSize > 0))) return true
       if (this.showRootDiskSizeChanger && !(Number(this.form.rootdisksize) > 0)) return true
-      if (this.selectedDataDiskOffering?.id && (!(this.selectedDataDiskSize > 0) || !Number.isSafeInteger(this.selectedDataDiskCount) ||
-        this.selectedDataDiskCount < 1 || this.isoDataDiskSelection.invalid)) return true
-      return this.storageSelectionEnabled && (this.rootStorageSelection.valid === false ||
-        !!this.selectedDataDiskOffering?.id && this.dataStorageSelection.valid === false)
+      return this.storageSelectionEnabled && this.rootStorageSelection.valid === false
+    },
+    dataDiskPlanIncomplete () {
+      if (!this.selectedDataDiskOffering?.id) return false
+      if (!this.isCreationSource && (!['templateid', 'isoid'].includes(this.imageType) || this.template?.deployasis)) return false
+      return !(this.selectedDataDiskSize > 0) || !Number.isSafeInteger(this.selectedDataDiskCount) ||
+        this.selectedDataDiskCount < 1 || (this.imageType === 'isoid' && this.isoDataDiskSelection.invalid) ||
+        (this.storageSelectionEnabled && this.dataStorageSelection.valid === false)
     },
     defaultRootOfferingName () {
       const offering = this.options.diskOfferings.find(item => item.id === this.serviceOffering?.diskofferingid)
@@ -1778,29 +1750,22 @@ export default {
       return size.join(' | ')
     },
     rootDiskOffering () {
-      const rootDiskOffering = this.vm.isoid != null ? this.diskOffering : this.overrideDiskOffering
-
-      const id = _.get(rootDiskOffering, 'id', null)
-      const displayText = _.get(rootDiskOffering, 'displaytext', null)
-
-      return {
-        id: id,
-        displayText: `${displayText} (Root)`
+      if (this.isCreationSource || this.isTemplateHypervisorExternal) return null
+      const iso = this.imageType === 'isoid'
+      const disk = iso ? this.diskOffering : this.showOverrideDiskOfferingOption ? this.overrideDiskOffering : null
+      const computeSetsSize = iso
+        ? this.isoRootOfferingStrict && disk?.id && !disk.iscustomized && this.selectedRootDiskSize > 0
+        : this.imageType === 'templateid' && this.template?.id && !this.template.deployasis && !this.showOverrideDiskOfferingOption &&
+          !this.showRootDiskSizeChanger && this.serviceOffering?.rootdisksize > 0
+      if (computeSetsSize) {
+        const offering = this.serviceOffering
+        return { id: offering.diskofferingid, displayText: offering.name || offering.displaytext }
       }
+      return disk?.id && disk.id !== '0' ? { id: disk.id, displayText: disk.displaytext || disk.name } : null
     },
     dataDiskOffering () {
-      if (this.vm.isoid != null) {
-        const offering = this.selectedDataDiskOffering
-        return offering ? { id: offering.id, displayText: offering.displaytext + ' (Data)' } : null
-      }
-
-      const id = _.get(this.diskOffering, 'id', null)
-      const displayText = _.get(this.diskOffering, 'displaytext', null)
-
-      return {
-        id: id,
-        displayText: `${displayText} (Data)`
-      }
+      const disk = this.selectedDataDiskOffering
+      return disk?.id && disk.id !== '0' ? { id: disk.id, displayText: disk.displaytext || disk.name } : null
     },
     affinityGroupIds () {
       return affinitySelectionIds(this.form.affinitygroupids)
@@ -2406,32 +2371,42 @@ export default {
       vmFetchNetworks: this.fetchNetwork
     }
   },
-  mounted () {
-    this.deployResizeObserver = new ResizeObserver(this.updateDeployViewportHeight)
-    const layout = this.$refs.deployLayout
-    const content = layout.closest('.layout-content')
-    if (content) {
-      this.deployResizeObserver.observe(content)
-      this.deployResizeObserver.observe(layout)
-    }
-    this.updateDeployViewportHeight()
-  },
   beforeUnmount () {
     this.deploymentNetworkVersion++
     this.groupLookup.dispose()
-    if (this.deployResizeObserver) this.deployResizeObserver.disconnect()
   },
   methods: {
-    updateDeployViewportHeight () {
-      const layout = this.$refs.deployLayout
-      const content = layout?.closest('.layout-content')
-      if (!content || !layout.getClientRects().length) return
-      // Measure the actual workspace, including header/banner and page padding.
-      // Adding scrollTop keeps this offset stable when an outer scroll is restored.
-      const top = layout.getBoundingClientRect().top - content.getBoundingClientRect().top + content.scrollTop - content.clientTop
-      const bottom = parseFloat(getComputedStyle(content).paddingBottom) || 0
-      const height = Math.max(0, Math.floor(content.clientHeight - top - bottom))
-      this.deployViewportHeight = height ? `${height}px` : ''
+    handleWizardEnter (event) {
+      if (this.wizardStep !== this.wizardStages[this.wizardStages.length - 1]?.id) {
+        if (event?.preventDefault) event.preventDefault()
+        return this.$refs.wizard.next()
+      }
+      if (!(this.diskPlanIncomplete || this.userDataSelectionBlocked || this.deploymentOwnerPending)) return this.handleSubmit(event)
+    },
+    async validateWizardStep (step) {
+      const fields = { 0: ['zoneid'], 16: ['name'] }[step]
+      if (fields) {
+        try {
+          await this.formRef.value.validateFields(fields)
+        } catch (error) {
+          return error.errorFields?.[0]?.errors?.[0] || 'error.form.message'
+        }
+      }
+      if (step === 0 && (this.deploymentOwnerPending || !vmGroupOwner(this.owner))) return 'message.vm.group.lookup.unavailable'
+      if (step === 2 && !this.selectedArchitecture) return 'message.instance.architecture'
+      if (step === 3) {
+        if (!(this.form.templateid || this.form.isoid || this.form.volumeid || this.form.snapshotid)) return 'message.template.iso'
+        if (this.isCreationSource && !this.selectedCreationSource?.allowed) return 'message.creation.source.required'
+        if (this.imageType === 'isoid' && this.additionalIsoSelection.enabled && !this.additionalIsoSelection.valid) return 'message.additional.iso.required'
+      }
+      if (step === 4 && !this.form.computeofferingid) return 'message.step.2.continue'
+      if (step === 5 || step === 6) {
+        if (this.loading.diskOfferings || this.diskOfferingsError || this.rootDiskPlanIncomplete) return 'message.vm.wizard.storage.incomplete'
+      }
+      if (step >= 7 && step <= 9 && (this.loading.diskOfferings || this.diskOfferingsError || this.dataDiskPlanIncomplete)) return 'message.vm.wizard.storage.incomplete'
+      if (step === 10 && this.additionalIsoConfigDriveConflict) return 'message.additional.iso.configdrive.conflict'
+      if (step === 17 && !this.form.licensesaccepted) return 'message.step.license.agreements.continue'
+      return ''
     },
     updateTemplateKey () {
       this.templateKey += 1
@@ -2823,7 +2798,7 @@ export default {
           this.form.bootmode = this.defaultBootMode
           this.form.iothreadsenabled = template.details && Object.prototype.hasOwnProperty.call(template.details, 'iothreads')
           this.form.iodriverpolicy = template.details?.['io.policy']
-          this.form.keyboard = template.details?.keyboard
+          if (!this.keyboardOverridden) this.form.keyboard = template.details?.keyboard
           this.form.templateKvdoEnable = template.kvdoenable
           this.showOverrideDiskOfferingOption = false
           this.updateOverrideRootDiskShowParam(false)
@@ -3133,7 +3108,6 @@ export default {
       this.handleSubmit(e.domEvent)
     },
     handleSubmit (e) {
-      console.log('wizard submit')
       if (this.loading.deploy || this.userDataSelectionBlocked || this.deploymentOwnerPending) return
       const networkScope = this.deploymentNetworkScope
       this.formRef.value.validate().then(async () => {
@@ -3627,14 +3601,14 @@ export default {
               eventBus.emit('vm-refresh-data')
             })
             if (!values.stayonpage && !this.isoDataOperations.some(operation => operation.status === 'failed')) {
-              await this.$router.back()
+              await this.$refs.wizard?.closeAfterSubmit()
             }
           }
           this.form.stayonpage = false
           this.loading.deploy = false
         }
       }).catch(err => {
-        this.formRef.value.scrollToField(err.errorFields[0].name, { block: 'center' })
+        if (err.errorFields?.length && this.$refs.wizard) this.$refs.wizard.showInvalidField()
         if (err) {
           if (err.licensesaccepted) {
             this.$notification.error({
@@ -4610,6 +4584,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.vm-deployment-owner { margin-bottom: 24px; }
 .root-disk-configuration { padding-top: 8px; }
 .root-configuration-section { margin-bottom: 20px; }
 .root-section-heading { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--ui-text-primary); margin: 0 0 12px; }
@@ -4620,89 +4595,10 @@ export default {
 .root-size-unit { margin-left: 8px; }
 .root-fixed-size-tag { margin-left: 8px; }
 .root-storage-section :deep(.storage-toolbar strong) { display: flex; align-items: center; gap: 8px; }
-.root-storage-section :deep(.storage-toolbar strong)::before { content: '3'; display: inline-flex; align-items: center; justify-content: center; width: 21px; height: 21px; flex-shrink: 0; border: 1px solid var(--ui-border); border-radius: 50%; font-size: 12px; font-weight: normal; color: var(--ui-text-secondary); }
+.root-storage-section :deep(.storage-toolbar strong)::before { content: '2'; display: inline-flex; align-items: center; justify-content: center; width: 21px; height: 21px; flex-shrink: 0; border: 1px solid var(--ui-border); border-radius: 50%; font-size: 12px; font-weight: normal; color: var(--ui-text-secondary); }
 .option-help { margin: 8px 0 0; opacity: .75; font-size: 12px; line-height: 1.6; }
 
-  @media (min-width: 992px) {
-    .deploy-vm-layout--bounded {
-      height: var(--deploy-viewport-height);
-      min-height: 0;
-
-      > .ant-row,
-      .deploy-vm-form-column,
-      .deploy-vm-summary-column,
-      .vm-info-card {
-        height: 100%;
-        min-height: 0;
-      }
-
-      .deploy-vm-form-column > .ant-card,
-      .vm-info-card :deep(.spin-content) {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        min-height: 0;
-      }
-
-      .deploy-vm-form-column > .ant-card > :deep(.ant-card-head),
-      .vm-info-card :deep(.spin-content > .ant-card-head) {
-        flex-shrink: 0;
-      }
-
-      .deploy-vm-form-column > .ant-card > :deep(.ant-card-body),
-      .vm-info-card :deep(.spin-content > .ant-card-body) {
-        flex: 1;
-        min-height: 0;
-      }
-
-      .deploy-vm-form-column > .ant-card > :deep(.ant-card-body) {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .deploy-vm-form-scroll {
-        flex: 1;
-        min-height: 0;
-        overflow-y: auto;
-        overscroll-behavior-y: contain;
-        scrollbar-width: none;
-
-        &::-webkit-scrollbar {
-          display: none;
-        }
-      }
-
-      .vm-info-card {
-        > :deep(.ant-spin-nested-loading),
-        > :deep(.ant-spin-nested-loading > .ant-spin-container) {
-          height: 100%;
-          min-height: 0;
-        }
-
-        :deep(.ant-card-body) {
-          overflow: hidden;
-        }
-
-        :deep(.card-content) {
-          flex: 1;
-          min-height: 0;
-          overflow-y: auto;
-          overscroll-behavior-y: contain;
-        }
-
-        :deep(.card-footer) {
-          flex-shrink: 0;
-        }
-      }
-    }
-  }
-
-  .card-footer {
-    text-align: right;
-    margin-top: 2rem;
-  }
-
-  .ant-list-item-meta-avatar {
+.ant-list-item-meta-avatar {
     font-size: 1rem;
   }
 
@@ -4742,14 +4638,14 @@ export default {
   }
 
   // Keep invalid input text on the same dark surface as valid inputs.
-  .dark-mode .deploy-vm-layout .ant-form-item-has-error {
+  .dark-mode .deploy-vm-form .ant-form-item-has-error {
     .ant-input,
     .ant-input:hover,
     .ant-input-affix-wrapper,
     .ant-input-affix-wrapper:hover,
     .ant-select:not(.ant-select-customize-input) .ant-select-selector {
-      // Override the shared dark theme error background.
-      background-color: transparent !important;
+      background-color: var(--ui-bg-input) !important;
+      color: var(--ui-text-primary) !important;
     }
   }
 

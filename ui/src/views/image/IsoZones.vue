@@ -52,7 +52,7 @@ size="small"
           <a-table size="small" :columns="storeColumns" :data-source="storeRows(record,section.role)" :pagination="false" :scroll="{x:550}" :row-key="(row,index)=>row.datastoreId || (record.zoneid+':'+section.role+':'+index)">
             <template #bodyCell="{column,record:store}">
               <a-tooltip v-if="column.key==='datastore'" :title="store.datastore || '—'"><router-link v-if="store.datastoreId && section.api in $store.getters.apis" class="template-cell-value" :to="section.path+'/'+encodeURIComponent(store.datastoreId)">{{ store.datastore || '—' }}</router-link><span v-else class="template-cell-value">{{ store.datastore || '—' }}</span></a-tooltip>
-              <template v-else-if="column.key==='downloadPercent'"><a-progress v-if="storePresentation(store).percent!==null" :percent="storePresentation(store).percent" size="small" :status="storePresentation(store).badge==='error'?'exception':undefined" /><span v-else>—</span></template>
+              <template v-else-if="column.key==='downloadPercent'"><a-progress :format="percent => percent + '%'" v-if="storePresentation(store).percent!==null" :percent="storePresentation(store).percent" size="small" :status="storePresentation(store).badge==='error'?'exception':undefined" /><span v-else>—</span></template>
               <a-tooltip v-else-if="column.key==='downloadState'" :title="store.downloadState" :trigger="['hover','focus']"><span tabindex="0"><a-badge :status="storePresentation(store).badge" :text="$t(storePresentation(store).label)" /></span></a-tooltip>
             </template>
           </a-table>

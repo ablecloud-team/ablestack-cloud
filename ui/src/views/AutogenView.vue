@@ -1204,6 +1204,7 @@ export default {
       searchFilters: [],
       searchParams: {},
       actions: [],
+      pendingCreateRoute: null,
       confirmDirty: false,
       firstIndex: 0,
       modalWidth: '30vw',
@@ -2509,7 +2510,35 @@ export default {
       this.detailActionsVisible = false
       if (this.showAction) this.closeAction()
     },
+    async openCreateRouteAction (route, api, label) {
+      if (this.pendingCreateRoute === route.fullPath) return
+      this.pendingCreateRoute = route.fullPath
+      const { action, ...query } = route.query
+      const location = { path: route.path, hash: route.hash, query: api === 'registerTemplate' ? listRouteQuery({ ...route, query }, this.pageSize, this.$store.getters) : query }
+      const expected = this.$router.resolve(location).fullPath
+      try {
+        // Let the destination list handle its canonical URL before opening the dialog.
+        const failure = await this.$router.replace(location)
+        await this.$nextTick()
+        if (failure || this.$route.fullPath !== expected) return
+        const create = this.visibleListActions.find(item => item.api === api && item.label === label)
+        if (create && !create.disabled?.()) this.execAction(create, false)
+      } finally {
+        if (this.pendingCreateRoute === route.fullPath) this.pendingCreateRoute = null
+      }
+    },
     fetchData (params = {}) {
+      const route = this.$route
+      const createRoutes = {
+        volume: ['createVolume', 'label.action.create.volume'],
+        vpc: ['createVPC', 'label.add.vpc'],
+        template: ['registerTemplate', 'label.action.register.template']
+      }
+      const create = createRoutes[route.meta?.name]
+      if (!route.params?.id && create && route.query.action === create[0]) {
+        return this.openCreateRouteAction(route, ...create)
+      }
+
       // The selector view owns its required Zone-scoped read.
       if (this.$route.meta?.name === selectorPage) return Promise.resolve()
       const vpnUser = this.isVpnUser

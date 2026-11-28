@@ -17,26 +17,26 @@
 
 <template>
   <div>
+    <resource-table-toolbar :loading="fetchLoading || listRefreshing > 0" @refresh="fetchData">
+      <a-button
+        v-if="selectedRowKeys.length > 0"
+        type="primary"
+        danger
+        @click="bulkActionConfirmation">
+        <template #icon><delete-outlined /></template>
+        {{ $t('label.action.delete.result') }}
+      </a-button>
+    </resource-table-toolbar>
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <a-button
-      v-if="(this.selectedRowKeys.length > 0)"
-      type="primary"
-      danger
-      style="width: 100%; margin-bottom: 15px"
-      @click="bulkActionConfirmation()">
-      <template #icon><delete-outlined /></template>
-      {{ $t('label.action.delete.result') }}
-    </a-button>
     <detail-tab-table
       size="small"
-      style="overflow-y: auto"
       :columns="columns"
       :dataSource="integrityVerificationFinalResult"
-      :pagination="{showSizeChanger: true, total: total, position: ['bottomLeft']}"
-      :pageSize="pageSize"
-      :pageSizeOptions="pageSizeOptions"
-      :rowKey="record => record.id || record.name"
-      @expand="showUuid">
+      :loading="fetchLoading"
+      :pagination="{ defaultPageSize: 10, showSizeChanger: true }"
+      :scroll="{ x: 580 }"
+      :row-key="record => record.id || record.name"
+      :row-expandable="record => record.parsedFailedList.length > 0">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'status'">
           <status class="status" :text="record.success === true ? 'True' : 'False'" displayText />
@@ -54,12 +54,11 @@
       </template>
       <template #expandedRowRender="{ record } ">
         <a-table
-          style="margin: 0;"
+          size="small"
           :columns="innerColumns"
-          :dataSource="record.parsedFailedList"
+          :data-source="record.parsedFailedList"
           :pagination="false"
-          :bordered="true"
-          :rowKey="record.id">
+          row-key="name">
         </a-table>
       </template>
       <template #action="{ record }">
@@ -125,7 +124,8 @@
 </template>
 
 <script>
-import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
+import { detailTabRouteKey, listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { ref, reactive } from 'vue'
 import { getAPI } from '@/api'
@@ -139,9 +139,10 @@ import eventBus from '@/config/eventBus'
 import { genericCompare } from '@/utils/sort'
 
 export default {
-  mixins: [listRefreshMixin(['fetchData'])],
+  mixins: [listRefreshMixin(['fetchData'], { routeKey: vm => detailTabRouteKey(vm.$route) })],
   name: 'IntegrityVerificationTab',
   components: {
+    ResourceTableToolbar,
     Status,
     TooltipLabel,
     BulkActionProgress,
@@ -162,16 +163,11 @@ export default {
   data () {
     return {
       dateData: new Date(),
-      total: 0,
-      integrityVerification: [],
       integrityVerificationFinalResult: [],
-      integrityVerificationFinalResultTwo: [],
       listValue: [],
       defaultPagination: false,
       columns: [],
       innerColumns: [],
-      page: 1,
-      pageSize: 10,
       itemCount: 0,
       fetchLoading: false,
       showCopyActionForm: false,
@@ -196,15 +192,6 @@ export default {
     }
   },
   computed: {
-    pageSizeOptions () {
-      var sizes = [20, 50, 100, 200, this.$store.getters.defaultListViewPageSize]
-      if (this.device !== 'desktop') {
-        sizes.unshift(20)
-      }
-      return [...new Set(sizes)].sort(function (a, b) {
-        return a - b
-      }).map(String)
-    },
     filteredData () {
       return this.data.filter(record => record.id === this.desiredId)
     }
@@ -217,7 +204,7 @@ export default {
         key: 'lastupdated',
         title: this.$t('label.created'),
         dataIndex: 'lastupdated',
-        defaultSortOrder: ['descend'],
+        defaultSortOrder: 'descend',
         sorter: function (a, b) { return genericCompare(a.lastupdated || '', b.lastupdated || '') }
       },
       {
@@ -233,6 +220,7 @@ export default {
     this.innerColumns = [
       {
         key: 'failed',
+        dataIndex: 'name',
         title: this.$t('label.failed.integrity.verification.list')
       }
     ]
@@ -244,6 +232,11 @@ export default {
     })
   },
   watch: {
+    'resource.id' () {
+      this.integrityVerificationFinalResult = []
+      this.resetSelection()
+      this.fetchData()
+    },
     loading (newData, oldData) {
       if (!newData && !this.showGroupActionModal) {
         this.fetchData()
@@ -256,25 +249,18 @@ export default {
       this.form = reactive({})
       this.rules = reactive({})
     },
-    showUuid (record, index) {
-      // this.integrityVerificationFinalResultTwo = this.integrityVerificationFinalResult.filter(item => item.id === index.id) || []
-      // const failedList = index.integrityverificationsfailedlist
-      // this.integrityVerificationFinalResultTwo = failedList.split(', ').filter(item => item.trim() !== '')
-    },
     async fetchData () {
+      if (!this.resource.id) return
       const request = this.listRequestToken('fetchData')
       this.fetchLoading = !request.loaded
       try {
-        const [final, current] = await Promise.all([
-          getAPI('getIntegrityVerificationFinalResult', { managementserverid: this.resource.id }),
-          getAPI('getIntegrityVerification', { managementserverid: this.resource.id })
-        ])
+        const final = await getAPI('getIntegrityVerificationFinalResult', { managementserverid: this.resource.id }, { preserveOnFailure: true })
         if (!this.isListRequestCurrent('fetchData', request)) return
-        this.integrityVerificationFinalResult = (final.getintegrityverificationfinalresultresponse.integrityverificationsfinalresults || []).map(item => ({
+        this.integrityVerificationFinalResult = (final.getintegrityverificationfinalresultresponse?.integrityverificationsfinalresults || []).map(item => ({
           ...item,
-          parsedFailedList: item.integrityverificationsfailedlist ? item.integrityverificationsfailedlist.split(', ').filter(Boolean) : []
+          parsedFailedList: [...new Set((item.integrityverificationsfailedlist || '').split(',').map(name => name.trim()).filter(Boolean))]
+            .map(name => ({ name }))
         }))
-        this.integrityVerification = current.getintegrityverificationresponse.integrityverificationsresult.integrityverificationsresult || []
       } catch (error) {
         if (!this.isListRequestCurrent('fetchData', request)) return
         request.failed = true
@@ -283,16 +269,6 @@ export default {
       } finally {
         if (this.isListRequestCurrent('fetchData', request)) this.fetchLoading = false
       }
-    },
-    handleChangePage (page, pageSize) {
-      this.page = page
-      this.pageSize = pageSize
-      this.fetchData()
-    },
-    handleChangePageSize (currentPage, pageSize) {
-      this.page = currentPage
-      this.pageSize = pageSize
-      this.fetchData()
     },
     setSelection (selection) {
       this.selectedRowKeys = selection

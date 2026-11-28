@@ -24,10 +24,14 @@ export function projectLimitValue (value) {
 export const projectLimitKey = (type, tag) => JSON.stringify([Number(type), tag || null])
 
 export function projectLimitRows (records) {
+  return resourceLimitRows(records, true)
+}
+
+export function resourceLimitRows (records, project = false) {
   return records.flatMap(record => {
     const type = Number(record.resourcetype)
     const saved = projectLimitValue(record.max ?? -1)
-    if (!Number.isInteger(type) || type < 0 || type === 5 || saved === null) return []
+    if (!Number.isInteger(type) || type < 0 || (project && type === 5) || saved === null) return []
     const tag = record.tag || null
     return [{
       key: projectLimitKey(type, tag),

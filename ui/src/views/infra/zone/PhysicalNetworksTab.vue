@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="fetchLoading">
+  <div class="physical-networks-tab">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <resource-table-toolbar :loading="fetchLoading || listRefreshing > 0" @refresh="fetchData()">
       <a-button
@@ -27,13 +27,20 @@
         <template #icon><plus-outlined /></template> {{ $t('label.add.physical.network') }}
       </a-button>
     </resource-table-toolbar>
-    <a-table size="small" row-key="id" :columns="columns" :data-source="networks" :pagination="false" :scroll="{ x: 740 }">
+    <detail-tab-table
+      size="small"
+      row-key="id"
+      :columns="columns"
+      :data-source="networks"
+      :loading="fetchLoading"
+      :pagination="{ defaultPageSize: 10, showSizeChanger: true }"
+      :scroll="{ x: 740 }">
       <template #bodyCell="{ column, record, text }">
         <router-link v-if="column.key === 'name'" :to="{ path: '/physicalnetwork/' + record.id, query: zoneListQuery($route.query) }">{{ text }}</router-link>
         <status v-else-if="column.key === 'state'" :text="text" display-text />
         <span v-else>{{ text || '—' }}</span>
       </template>
-    </a-table>
+    </detail-tab-table>
     <mold-dialog
       size="md"
       focus-guard
@@ -110,14 +117,14 @@
         </mold-dialog-actions>
       </a-form>
     </mold-dialog>
-  </a-spin>
+  </div>
 </template>
 
 <script>
 import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
 import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
-import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import { detailTabRouteKey, listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
@@ -126,7 +133,7 @@ import Status from '@/components/widgets/Status'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
-  mixins: [listRefreshMixin(['fetchData'])],
+  mixins: [listRefreshMixin(['fetchData'], { routeKey: vm => detailTabRouteKey(vm.$route) })],
   name: 'PhysicalNetworksTab',
   components: {
     ResourceTableToolbar,
@@ -154,21 +161,15 @@ export default {
   },
   beforeCreate () {
     this.apiParams = this.$getApiParams('createPhysicalNetwork')
-    console.log(this.apiParams)
   },
   created () {
     this.fetchData()
     this.initAddPhyNetForm()
   },
   watch: {
-    resource: {
-      deep: true,
-      handler (newItem) {
-        if (!newItem || !newItem.id) {
-          return
-        }
-        this.fetchData()
-      }
+    'resource.id' () {
+      this.networks = []
+      this.fetchData()
     }
   },
   computed: {
@@ -191,16 +192,19 @@ export default {
         const json = await getAPI('listPhysicalNetworks', { zoneid: this.resource.id }, { preserveOnFailure: true })
         if (!current()) return
         const networks = json.listphysicalnetworksresponse.physicalnetwork || []
-        const previous = new Map(request.loaded ? this.networks.map(network => [network.id, network.traffictype]) : [])
-        const labels = await Promise.allSettled(networks.map(network =>
-          getAPI('listTrafficTypes', { physicalnetworkid: network.id }, { preserveOnFailure: true })))
-        if (!current()) return
-        this.networks = networks.map((network, i) => ({
-          ...network,
-          traffictype: labels[i].status === 'fulfilled'
-            ? (labels[i].value.listtraffictypesresponse.traffictype || []).map(type => type.traffictype).filter(Boolean).join(', ')
-            : previous.get(network.id)
+        const previous = new Map(this.networks.map(network => [network.id, network.traffictype]))
+        this.networks = networks.map(network => ({ ...network, traffictype: previous.get(network.id) ?? network.traffictype }))
+        request.loaded = true
+        this.fetchLoading = false
+        if (!('listTrafficTypes' in this.$store.getters.apis)) return
+
+        const labels = await Promise.allSettled(networks.map(async network => {
+          const result = await getAPI('listTrafficTypes', { physicalnetworkid: network.id }, { preserveOnFailure: true })
+          if (!current()) return
+          const label = (result.listtraffictypesresponse.traffictype || []).map(type => type.traffictype).filter(Boolean).join(', ')
+          this.networks = this.networks.map(row => row.id === network.id ? { ...row, traffictype: label } : row)
         }))
+        if (!current()) return
         request.failed = labels.some(result => result.status === 'rejected')
         if (request.failed) this.listRefreshFailed = true
       } catch (error) {

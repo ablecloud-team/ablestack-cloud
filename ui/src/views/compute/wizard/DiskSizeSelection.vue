@@ -87,6 +87,7 @@ export default {
       type: String,
       default: ''
     },
+    allowEmptySize: Boolean,
     value: {
       type: Number,
       default: undefined
@@ -130,7 +131,7 @@ export default {
   },
   watch: {
     value (value) {
-      if (value == null) {
+      if (value == null && !this.allowEmptySize) {
         // The deployment form can reset while this component remains mounted.
         this.fillValue()
       } else {
@@ -187,10 +188,11 @@ export default {
       if (this.value != null) {
         this.inputValue = this.value
       }
+      if (this.allowEmptySize && this.inputValue === 0) this.inputValue = null
       this.$emit('update-disk-size', this.inputDecorator, this.inputValue)
     },
     updateDiskSize (value) {
-      if (value < this.minDiskSize) {
+      if (!(this.allowEmptySize && value == null) && value < this.minDiskSize) {
         this.inputValue = this.minDiskSize
         this.$emit('update-disk-size', this.inputDecorator, this.inputValue)
         this.error = `${this.$t('message.error.limit.value')} ` + this.minDiskSize + ' GB'

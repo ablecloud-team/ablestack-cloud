@@ -17,14 +17,15 @@
 
 <template>
   <aside class="kubernetes-create-summary">
-    <div class="network-form-group-label">{{ $t('label.kubernetes.ui.summary') }}</div>
-    <div class="kubernetes-summary-name"><render-icon :svgIcon="kubernetesIcon" />{{ name || '—' }}</div>
+    <div class="network-form-group-label">{{ $t(titleKey) }}</div>
+    <div class="kubernetes-summary-name"><render-icon v-if="icon" :icon="icon" /><render-icon v-else :svgIcon="kubernetesIcon" />{{ name || '—' }}</div>
     <a-divider />
     <div v-for="item in items" :key="item.label" class="kubernetes-summary-item"><strong>{{ $t(item.label) }}</strong><div>{{ item.value === undefined || item.value === null || item.value === '' ? '—' : item.value }}</div></div>
+    <slot />
   </aside>
 </template>
 <script>
 import kubernetesIcon from '@/assets/icons/kubernetes.svg?inline'
 import RenderIcon from '@/utils/renderIcon'
-export default { name: 'KubernetesCreateSummary', components: { RenderIcon }, props: { name: { type: String, default: '' }, items: { type: Array, default: () => [] } }, data () { return { kubernetesIcon } } }
+export default { name: 'KubernetesCreateSummary', components: { RenderIcon }, props: { titleKey: { type: String, default: 'label.kubernetes.ui.summary' }, name: { type: String, default: '' }, icon: { type: String, default: '' }, items: { type: Array, default: () => [] } }, data () { return { kubernetesIcon } } }
 </script>

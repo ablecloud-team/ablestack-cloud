@@ -16,32 +16,39 @@
 // under the License.
 
 <template>
-  <a-table
-    class="table"
-    size="small"
-    :columns="columns"
-    :dataSource="hostAgents"
-    :rowKey="item => item.id"
-    :pagination="false" >
-    <template #name="{ text, record }">
-      <router-link v-if="record.type === 'Routing'" :to="{ path: '/host/' + record.id }">{{ text }}</router-link>
-      <router-link v-else :to="{ path: '/systemvm/' + record.virtualmachineid }">{{ text }}</router-link>
-    </template>
-  </a-table>
+  <div>
+    <resource-table-toolbar :loading="fetchLoading || listRefreshing > 0" @refresh="fetchData" />
+    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
+    <detail-tab-table
+      size="small"
+      :columns="columns"
+      :data-source="hostAgents"
+      :loading="fetchLoading"
+      :row-key="record => record.id"
+      :pagination="{ defaultPageSize: 10, showSizeChanger: true }"
+      :scroll="{ x: 510 }">
+      <template #bodyCell="{ column, text, record }">
+        <router-link v-if="column.dataIndex === 'name' && record.type === 'Routing'" :to="'/host/' + record.id">{{ text }}</router-link>
+        <router-link v-else-if="column.dataIndex === 'name' && record.virtualmachineid" :to="'/systemvm/' + record.virtualmachineid">{{ text }}</router-link>
+        <status v-else-if="column.dataIndex === 'state'" :text="text || ''" display-text />
+        <table-overflow-text v-else :text="String(text ?? '—')" />
+      </template>
+    </detail-tab-table>
+  </div>
 </template>
 
 <script>
-import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
+import TableOverflowText from '@/components/view/TableOverflowText'
+import { detailTabRouteKey, listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { getAPI } from '@/api'
 import Status from '@/components/widgets/Status'
 
 export default {
-  mixins: [listRefreshMixin(['fetchData'])],
+  mixins: [listRefreshMixin(['fetchData'], { routeKey: vm => detailTabRouteKey(vm.$route) })],
   name: 'ConnectedAgentsTab',
-  components: {
-    Status
-  },
+  components: { ResourceTableToolbar, TableOverflowText, Status },
   props: {
     resource: {
       type: Object,
@@ -50,12 +57,12 @@ export default {
   },
   data () {
     return {
+      fetchLoading: false,
       hostAgents: [],
       columns: [
         {
           title: this.$t('label.name'),
-          dataIndex: 'name',
-          slots: { customRender: 'name' }
+          dataIndex: 'name'
         },
         {
           title: this.$t('label.ipaddress'),
@@ -72,25 +79,29 @@ export default {
     this.fetchData()
   },
   watch: {
-    resource: function (newItem) {
+    'resource.id' () {
+      this.hostAgents = []
       this.fetchData()
     }
   },
   methods: {
     fetchData () {
+      if (!this.resource.id) return
       const listRequest = this.listRequestToken('fetchData')
+      this.fetchLoading = !listRequest.loaded
       return getAPI('listHosts', {
         listall: true,
         managementserverid: this.resource.id
-      }).then(json => {
+      }, { preserveOnFailure: true }).then(json => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
-        this.hostAgents = []
         this.hostAgents = json.listhostsresponse.host || []
       }).catch(error => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
         listRequest.failed = true
         this.listRefreshFailed = true
         if (!listRequest.loaded) this.$notifyError(error)
+      }).finally(() => {
+        if (this.isListRequestCurrent('fetchData', listRequest)) this.fetchLoading = false
       })
     }
   }

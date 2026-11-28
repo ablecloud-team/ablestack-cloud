@@ -150,7 +150,14 @@ public class VmStorageSelectionManager extends ManagerBase implements VmStorageS
             throw new InvalidParameterValueException("Invalid disk or VM count / requested capacity");
         }
         HypervisorType hypervisor = hypervisor(template, cmd.getHypervisor());
-        Long size = sourceVolume != null && cmd.isRootDisk() ? sourceVolume.getSize() : sourceSnapshot != null && cmd.isRootDisk() ? sourceSnapshot.getSize() : requestedSize(offering, template, cmd.isRootDisk(), cmd.getSize());
+        Long size;
+        if (cmd.isRootDisk() && sourceVolume != null) {
+            size = sourceVolume.getSize();
+        } else if (cmd.isRootDisk() && sourceSnapshot != null) {
+            size = sourceSnapshot.getSize();
+        } else {
+            size = requestedSize(offering, template, cmd.isRootDisk(), cmd.getSize());
+        }
         Long required = size == null ? null : multiply(size, (long) cmd.getDiskCount() * cmd.getVmCount());
         DiskProfile disk = profile(offering, cmd.isRootDisk(), 1, hypervisor, template.getId(), cmd.getMinIops());
         VirtualMachineProfile vm = vmProfile(zone, compute, template, hypervisor, CallContext.current().getCallingAccount());
@@ -348,6 +355,29 @@ public class VmStorageSelectionManager extends ManagerBase implements VmStorageS
         if (uploaded && !selections.containsKey(0L)) {
             selections.put(0L, automaticUploadedRoot(adopting, vmProfile, storedTemplate, type, disks, selections, cmd.getHostId()));
         }
+        Long rootOffering = storedTemplate.getFormat() == ImageFormat.ISO ? cmd.getDiskOfferingId()
+                : cmd.getOverrideDiskOfferingId() == null ? compute.getDiskOfferingId() : cmd.getOverrideDiskOfferingId();
+        String requestedRootSize = cmd.getDetails().get(VmDetailConstants.ROOT_DISK_SIZE);
+        Long rootSize = !selections.containsKey(0L) ? null : storedTemplate.getFormat() == ImageFormat.ISO
+                ? cmd.getSize() : requestedRootSize == null ? null : Long.valueOf(requestedRootSize);
+        Long sourceBytes = adopting != null ? Long.valueOf(adopting.getSize()) : restoring != null ? Long.valueOf(restoring.getSize()) : null;
+        validateSelections(selections, zone, owner, storedTemplate, type, vmProfile, cmd.getHostId(),
+                adopting == null ? rootOffering : Long.valueOf(adopting.getDiskOfferingId()), rootSize, sourceBytes, disks);
+        return selections;
+    }
+
+    public void validateAutoScaleStorage(Map<Long, Long> selections, DataCenter zone, Account owner, ServiceOffering compute,
+                                         VirtualMachineTemplate template, Long rootOfferingId, Long rootSize, List<VmDiskInfo> disks) {
+        configurationManager.checkZoneAccess(owner, zone);
+        VMTemplateVO storedTemplate = templateDao.findById(template.getId());
+        templateDao.loadDetails(storedTemplate);
+        HypervisorType type = hypervisor(storedTemplate, null);
+        validateSelections(selections, zone, owner, storedTemplate, type, vmProfile(zone, compute, storedTemplate, type, owner), null,
+                rootOfferingId, rootSize, null, disks);
+    }
+
+    private void validateSelections(Map<Long, Long> selections, DataCenter zone, Account owner, VMTemplateVO template, HypervisorType type,
+                                    VirtualMachineProfile vmProfile, Long hostId, Long rootOfferingId, Long rootSize, Long sourceBytes, List<VmDiskInfo> disks) {
         Map<Long, Long> totals = new HashMap<>();
         Set<String> commonHosts = null;
         for (Map.Entry<Long, Long> choice : selections.entrySet()) {
@@ -355,23 +385,20 @@ public class VmStorageSelectionManager extends ManagerBase implements VmStorageS
             DiskOffering offering;
             Long sizeGb;
             if (root) {
-                Long rootOffering = storedTemplate.getFormat() == ImageFormat.ISO ? cmd.getDiskOfferingId()
-                        : cmd.getOverrideDiskOfferingId() == null ? compute.getDiskOfferingId() : cmd.getOverrideDiskOfferingId();
-                offering = offeringDao.findById(adopting == null ? rootOffering : adopting.getDiskOfferingId());
-                String requestedRootSize = cmd.getDetails().get(VmDetailConstants.ROOT_DISK_SIZE);
-                sizeGb = storedTemplate.getFormat() == ImageFormat.ISO ? cmd.getSize() : requestedRootSize == null ? null : Long.valueOf(requestedRootSize);
+                offering = offeringDao.findById(rootOfferingId);
+                sizeGb = rootSize;
             } else {
-                VmDiskInfo diskInfo = disks.stream().filter(disk -> choice.getKey().equals(disk.getDeviceId())).findFirst().orElseThrow(
+                VmDiskInfo disk = disks.stream().filter(info -> choice.getKey().equals(info.getDeviceId())).findFirst().orElseThrow(
                         () -> new InvalidParameterValueException("Missing selected data disk"));
-                offering = diskInfo.getDiskOffering();
-                sizeGb = diskInfo.getSize();
+                offering = disk.getDiskOffering();
+                sizeGb = disk.getSize();
             }
             if (offering == null) { throw new InvalidParameterValueException("Invalid selected disk offering"); }
             configurationManager.checkDiskOfferingAccess(owner, offering, zone);
-            Long bytes = adopting != null && root ? adopting.getSize() : restoring != null && root ? restoring.getSize() : requestedSize(offering, storedTemplate, root, sizeGb);
+            Long bytes = root && sourceBytes != null ? sourceBytes : requestedSize(offering, template, root, sizeGb);
             if (bytes == null || bytes <= 0) { throw new InvalidParameterValueException("Disk size must be specified before selecting storage"); }
-            DiskProfile disk = profile(offering, root, bytes, type, storedTemplate.getId(), null);
-            Set<String> eligible = candidates(disk, vmProfile, null, null, cmd.getHostId()).get(choice.getValue());
+            DiskProfile disk = profile(offering, root, bytes, type, template.getId(), null);
+            Set<String> eligible = candidates(disk, vmProfile, null, null, hostId).get(choice.getValue());
             if (eligible == null || eligible.isEmpty()) {
                 throw new InvalidParameterValueException("Selected storage is incompatible with disk " + choice.getKey() + " or deployment hosts");
             }
@@ -384,7 +411,6 @@ public class VmStorageSelectionManager extends ManagerBase implements VmStorageS
                 throw new InvalidParameterValueException("Selected storage has insufficient capacity for all requested disks");
             }
         }
-        return selections;
     }
     @Override
     public void bind(UserVm vm, Map<Long, Long> selections) {

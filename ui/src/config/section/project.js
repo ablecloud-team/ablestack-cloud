@@ -59,12 +59,7 @@ export default {
       component: shallowRef(defineAsyncComponent(() => import('@/views/iam/SSLCertificateTab.vue')))
     },
     {
-      name: 'limits',
-      component: shallowRef(defineAsyncComponent(() => import('@/components/view/ResourceCountUsage.vue')))
-    },
-    {
       name: 'limits.configure',
-      show: (record, route, user) => ['Admin', 'DomainAdmin'].includes(user.roletype) && !!store.getters.apis.listResourceLimits,
       component: shallowRef(defineAsyncComponent(() => import('@/views/project/ProjectResourceLimitTab.vue')))
     },
     {

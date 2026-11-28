@@ -68,11 +68,14 @@ export default {
   },
   computed: {
     // Validation updates replace selection objects. Only actual query changes trigger a fetch.
-    queryKey () { return JSON.stringify(this.query) },
+    queryParams () {
+      return Object.fromEntries(Object.entries(this.query).filter(([, value]) => value != null && value !== ''))
+    },
+    queryKey () { return JSON.stringify(this.queryParams) },
     automaticUnavailable () {
       return !this.value.id && this.verified && !this.error && !this.valid && this.pools.every(pool => pool.requiredbytes != null)
     },
-    selectedSizePending () { return this.pools.find(pool => pool.id === this.value.id)?.requiredbytes == null },
+    selectedSizePending () { return this.pools.some(pool => pool.id === this.value.id && pool.requiredbytes == null) },
     columns () {
       return [
         { key: 'name', title: this.$t('label.storage'), width: 150 },
@@ -100,6 +103,7 @@ export default {
         clearTimeout(this.refreshTimer)
         this.requestSequence++
         this.verified = false
+        this.error = false
         this.valid = false
         this.$emit('update:value', { ...this.value, valid: false })
         this.refreshTimer = setTimeout(() => this.fetchPools(), 200)
@@ -119,12 +123,13 @@ export default {
       this.$emit('update:value', pool ? { id: pool.id, name: pool.name, valid: this.valid } : { valid: this.valid })
     },
     async fetchPools () {
+      clearTimeout(this.refreshTimer)
       if (!this.query.zoneid || (!this.query.templateid && !this.query.snapshotid && !this.query.volumeid) || !this.query.serviceofferingid || !this.query.hypervisor || !Number.isInteger(this.query.diskcount || 1) || (this.query.diskcount != null && this.query.diskcount < 1)) { this.loading = false; return }
       const sequence = ++this.requestSequence
       this.loading = true
       this.error = false
       try {
-        const result = await getAPI('listDeploymentStoragePools', Object.fromEntries(Object.entries(this.query).filter(([, value]) => value != null && value !== '')))
+        const result = await getAPI('listDeploymentStoragePools', { ...this.queryParams }, { preserveOnFailure: true })
         if (sequence !== this.requestSequence) return
         this.pools = result.listdeploymentstoragepoolsresponse.deploymentstoragepool || []
         this.verified = true

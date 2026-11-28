@@ -42,10 +42,10 @@
 .workspace-table,
 .workspace-table > .ant-table-wrapper,
 .workspace-table > .ant-spin-nested-loading,
-.workspace-table .ant-table-wrapper > .ant-spin-nested-loading,
-.workspace-table .ant-spin-nested-loading > .ant-spin-container,
-.workspace-table .ant-spin-nested-loading > .ant-spin-container > .ant-table,
-.workspace-table .ant-table > .ant-table-container {
+.workspace-table .ant-table-wrapper > .ant-spin-nested-loading:not(.ant-table-expanded-row *),
+.workspace-table .ant-spin-nested-loading > .ant-spin-container:not(.ant-table-expanded-row *),
+.workspace-table .ant-spin-nested-loading > .ant-spin-container > .ant-table:not(.ant-table-expanded-row *),
+.workspace-table .ant-table > .ant-table-container:not(.ant-table-expanded-row *) {
   display: flex;
   flex-direction: column;
   flex: 1 1 0;
@@ -55,7 +55,7 @@
 
 .workspace-list > .ant-pagination,
 .workspace-table > .ant-pagination,
-.workspace-table .ant-table > .ant-table-footer {
+.workspace-table .ant-table > .ant-table-footer:not(.ant-table-expanded-row *) {
   flex: none;
 }
 
@@ -64,13 +64,13 @@
   margin-block-end: 0;
 }
 
-.workspace-table .ant-table > .ant-table-footer {
+.workspace-table .ant-table > .ant-table-footer:not(.ant-table-expanded-row *) {
   display: flex;
   align-items: center;
   min-block-size: 46px;
 }
 
-.workspace-table .ant-table > .ant-table-container {
+.workspace-table .ant-table > .ant-table-container:not(.ant-table-expanded-row *) {
   overflow: visible;
 }
 
@@ -81,7 +81,7 @@
   background: var(--ui-bg-surface);
 }
 
-.workspace-table .ant-table-container > .ant-table-header {
+.workspace-table .ant-table-container > .ant-table-header:not(.ant-table-expanded-row *) {
   flex: none;
 }
 
@@ -188,10 +188,10 @@
   min-inline-size: 0;
 }
 .resource-layout-viewport .detail-tab-table,
-.resource-layout-viewport .detail-tab-table .ant-table-wrapper {
+.resource-layout-viewport .detail-tab-table > .ant-table-wrapper {
   overflow: visible !important;
 }
-.resource-layout-viewport .detail-tab-table .ant-table-content:has(.ant-table-placeholder) {
+.resource-layout-viewport .detail-tab-table .ant-table-content:not(.ant-table-expanded-row *):has(> table > .ant-table-tbody > .ant-table-placeholder) {
   overflow-y: hidden !important;
 }
 .resource-layout-viewport .detail-table-footer,
