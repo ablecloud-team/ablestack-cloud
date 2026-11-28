@@ -54,10 +54,10 @@
               }"/> {{ $t('label.gpu') }}</template>
       </template>
       <template #displayText="{ record }">
-        <span>{{ record.name }}</span>
-        <AllocationSummary :resource="record.allocationResource" compact inheritance />
+        <span :class="{ 'offering-name-only': nameOnly }" :title="nameOnly ? record.name : undefined">{{ record.name }}</span>
+        <AllocationSummary v-if="!nameOnly" :resource="record.allocationResource" compact inheritance />
         <span
-            v-if="record.leaseduration !== undefined"
+            v-if="!nameOnly && record.leaseduration !== undefined"
             :style="{
               'margin-right': '10px',
               'float': 'right'}">
@@ -104,6 +104,7 @@ export default {
   components: { AllocationSummary },
   name: 'ComputeOfferingSelection',
   props: {
+    nameOnly: Boolean,
     computeItems: {
       type: Array,
       default: () => []
@@ -447,6 +448,8 @@ export default {
   .ant-table-wrapper {
     margin: 2rem 0;
   }
+
+  .offering-name-only { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   :deep(.ant-table-tbody) > tr > td {
     cursor: pointer;

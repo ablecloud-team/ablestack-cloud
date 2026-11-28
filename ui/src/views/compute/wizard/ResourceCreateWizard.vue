@@ -17,8 +17,27 @@
 
 <template>
   <mold-dialog size="xl" focus-guard :title="title" :closable="!busy" :keyboard="!busy" @cancel="close">
-    <div ref="content" class="mold-form-dialog kubernetes-create-dialog resource-create-wizard">
+    <div
+      ref="content"
+      class="mold-form-dialog kubernetes-create-dialog resource-create-wizard"
+      :class="{ 'resource-create-wizard--split': splitScroll }">
+      <div
+        v-if="splitScroll"
+        ref="steps"
+        class="resource-create-step-strip"
+        role="region"
+        :aria-label="title"
+        tabindex="0"
+        @wheel="scrollSteps">
+        <ol>
+          <li v-for="(stage, index) in stages" :key="stage.id" :aria-current="index === activeIndex ? 'step' : undefined">
+            <span class="step-number">{{ index + 1 }}</span>
+            <span>{{ $t(stage.label) }}</span>
+          </li>
+        </ol>
+      </div>
       <a-steps
+        v-else
         ref="steps"
         class="kubernetes-wizard-steps resource-create-wizard-steps"
         size="small"
@@ -28,14 +47,19 @@
         <a-step v-for="stage in stages" :key="stage.id" :title="$t(stage.label)" />
       </a-steps>
       <div ref="body" class="mold-form-content kubernetes-wizard-body">
-        <div class="kubernetes-wizard-main">
+        <div
+          ref="main"
+          class="kubernetes-wizard-main"
+          :tabindex="splitScroll ? 0 : undefined"
+          :role="splitScroll ? 'region' : undefined"
+          :aria-label="splitScroll ? title : undefined">
           <a-alert v-if="stepError" type="error" show-icon :message="$t(stepError)" class="resource-create-wizard-error" />
           <slot />
         </div>
         <slot name="summary" />
       </div>
       <details v-if="$slots.summary" class="kubernetes-summary-mobile">
-        <summary>{{ $t('label.kubernetes.ui.summary') }}</summary>
+        <summary>{{ $t(summaryTitleKey) }}</summary>
         <slot name="summary" />
       </details>
     </div>
@@ -62,6 +86,8 @@ export default {
     step: { type: Number, required: true },
     stages: { type: Array, required: true },
     validateStep: { type: Function, required: true },
+    splitScroll: Boolean,
+    summaryTitleKey: { type: String, default: 'label.kubernetes.ui.summary' },
     busy: Boolean,
     blocked: Boolean
   },
@@ -76,10 +102,11 @@ export default {
   watch: {
     stages: {
       immediate: true,
-      handler (stages) {
-        if (this.activeIndex === -1) {
-          const fallback = stages.find(stage => stage.id >= this.step) || stages[stages.length - 1]
-          if (fallback) this.$emit('update:step', fallback.id)
+      handler (stages, previousStages) {
+        if (this.activeIndex === -1 && stages.length) {
+          const previousIndex = previousStages?.findIndex(stage => stage.id === this.step) ?? 0
+          const fallback = stages[Math.min(Math.max(0, previousIndex), stages.length - 1)]
+          this.$emit('update:step', fallback.id)
         }
         this.$nextTick(this.revealStep)
       }
@@ -98,14 +125,29 @@ export default {
       this.stepError = ''
       this.$emit('update:step', step)
       await this.$nextTick()
-      const body = this.$refs.body
+      const body = this.splitScroll ? this.$refs.main : this.$refs.body
       if (body) body.scrollTop = 0
       this.revealStep()
     },
     revealStep () {
-      const steps = this.$refs.steps?.$el
-      const active = steps?.querySelector('.ant-steps-item-process')
-      if (steps && active && steps.scrollWidth > steps.clientWidth) steps.scrollLeft = active.offsetLeft
+      const steps = this.$refs.steps?.$el || this.$refs.steps
+      const active = steps?.querySelector(this.splitScroll ? '[aria-current="step"]' : '.ant-steps-item-process')
+      if (!active || steps.scrollWidth <= steps.clientWidth) return
+      if (!this.splitScroll) {
+        steps.scrollLeft = active.offsetLeft
+        return
+      }
+      const viewport = steps.getBoundingClientRect()
+      const item = active.getBoundingClientRect()
+      if (item.left < viewport.left) steps.scrollLeft += item.left - viewport.left
+      if (item.right > viewport.right) steps.scrollLeft += item.right - viewport.right
+    },
+    scrollSteps (event) {
+      const steps = this.$refs.steps
+      if (event.ctrlKey || event.shiftKey || !event.deltaY || event.deltaX || steps.scrollWidth <= steps.clientWidth) return
+      const unit = event.deltaMode === 1 ? 16 : (event.deltaMode === 2 ? steps.clientWidth : 1)
+      steps.scrollLeft += event.deltaY * unit
+      event.preventDefault()
     },
     async next () {
       if (this.activeIndex < 0 || this.isLastStep || this.busy || this.blocked || this.validating) return
@@ -148,7 +190,77 @@ export default {
   font-weight: 600;
   margin: 0 0 12px;
 }
+/* Input and summary share the viewport height and retain independent scroll positions. */
+.resource-create-wizard--split { height: min(680px, calc(100dvh - 180px)); }
+.resource-create-wizard--split .kubernetes-wizard-body {
+  grid-template-rows: minmax(0, 1fr);
+  align-items: stretch;
+  overflow: hidden;
+}
+.resource-create-wizard--split .kubernetes-wizard-main,
+.resource-create-wizard--split .kubernetes-wizard-body > :deep(.kubernetes-create-summary) {
+  min-height: 0;
+  overflow: auto;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+.resource-create-wizard--split .kubernetes-wizard-main { padding-inline: 2px 8px; }
+.resource-create-wizard--split .kubernetes-wizard-body > :deep(.kubernetes-create-summary) { padding-inline-end: 8px; }
+.resource-create-wizard--split .kubernetes-wizard-main:focus-visible,
+.resource-create-wizard--split .kubernetes-wizard-body > :deep(.kubernetes-create-summary:focus-visible),
+.resource-create-step-strip:focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: -2px;
+}
+.resource-create-step-strip {
+  flex: 0 0 auto;
+  margin-bottom: 16px;
+  padding: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.resource-create-step-strip::-webkit-scrollbar { display: none; }
+.resource-create-step-strip ol {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  width: max-content;
+  list-style: none;
+}
+.resource-create-step-strip li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ui-text-secondary);
+  white-space: nowrap;
+}
+.resource-create-step-strip li + li::before {
+  content: '';
+  flex: 0 0 24px;
+  height: 1px;
+  margin-inline-start: 8px;
+  background: var(--ui-border-strong);
+}
+.resource-create-step-strip .step-number {
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  min-height: 24px;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: 50%;
+  font-size: 12px;
+}
+.resource-create-step-strip [aria-current="step"] { color: var(--ui-text-primary); font-weight: 600; }
+.resource-create-step-strip [aria-current="step"] .step-number {
+  background: var(--ui-action-primary-bg);
+  border-color: var(--ui-action-primary-bg);
+  color: var(--ui-action-primary-text);
+}
+@media (max-width: 765px) {
+  .resource-create-wizard--split .kubernetes-wizard-main { height: 100%; }
+}
 @media (max-width: 576px) {
   .resource-create-wizard { max-height: calc(100dvh - 155px); }
+  .resource-create-wizard--split { height: calc(100dvh - 155px); }
 }
 </style>

@@ -20,11 +20,14 @@
     ref="wizard"
     v-model:step="wizardStep"
     :stages="wizardStages"
+    split-scroll
+    summary-title-key="label.vm.wizard.summary"
     :title="$t('label.newinstance')"
     return-route="/vm"
     :validate-step="validateWizardStep"
     :busy="loading.deploy">
     <a-form
+      class="deploy-vm-form"
       :disabled="loading.deploy"
       tabindex="0"
       :aria-label="$t('label.newinstance')"
@@ -54,18 +57,15 @@
         <a-alert v-if="operation.error"  type="error" show-icon :message="operation.error" />
       </div>
       <creation-source-operations v-model:operations="sourceOperations" :storage-key="sourceOperationsKey" />
-      <section v-if="wizardStepIds.has(0)" v-show="wizardStep === 0" class="resource-create-section" data-wizard-step="0">
-        <h3 class="resource-create-section-title">{{ $t('label.assign.instance.another') }}</h3>
-        <div style="margin-top: 15px">
+      <section v-show="wizardStep === 0" class="resource-create-section" data-wizard-step="0">
+        <h3 class="resource-create-section-title">{{ $t('label.vm.wizard.account.infrastructure') }}</h3>
+        <div v-if="!isNormalUserOrProject" class="vm-deployment-owner">
           {{ $t('label.assigning.vms') }}
           <ownership-selection
             safe-scope
             @fetch-owner="fetchOwnerOptions"/>
         </div>
-      </section>
-      <section v-show="wizardStep === 1" class="resource-create-section" data-wizard-step="1">
-        <h3 class="resource-create-section-title">{{ $t('label.select.deployment.infrastructure') }}</h3>
-        <div style="margin-top: 15px">
+        <div>
           <span>{{ $t('message.select.a.zone') }}</span><br/>
           <a-form-item :label="$t('label.zoneid')" name="zoneid" ref="zoneid">
             <zone-block-radio-group-select
@@ -120,6 +120,42 @@
             ></a-select>
           </a-form-item>
         </div>
+      </section>
+      <section v-show="wizardStep === 16" class="resource-create-section" data-wizard-step="16">
+        <h3 class="resource-create-section-title">{{ $t('label.vm.wizard.basic') }}</h3>
+        <template v-if="zoneSelected">
+          <div style="margin-top: 15px">
+            <a-form-item :label="$t('label.name.optional')" name="name" ref="name">
+              <a-input v-model:value="form.name" />
+            </a-form-item>
+            <a-form-item :label="$t('label.group.optional')" name="group" ref="group">
+              <a-auto-complete
+                v-model:value="form.group"
+                :disabled="!groupLookupReady"
+                :filterOption="filterOption"
+                :options="options.instanceGroups" />
+              <div role="status" aria-live="polite">{{ $t('message.vm.group.lookup.' + groupLookupState.status) }}</div>
+              <a-button v-if="['error', 'forbidden', 'empty'].includes(groupLookupState.status)" size="small" :loading="loading.groups" @click="fetchInstaceGroups">{{ $t('label.refresh') }}</a-button>
+            </a-form-item>
+            <a-form-item :label="$t('label.keyboard')" name="keyboard" ref="keyboard">
+              <a-select
+                v-model:value="form.keyboard"
+                @change="keyboardOverridden = true"
+                :options="keyboardSelectOptions"
+                showSearch
+                optionFilterProp="label"
+                :filterOption="filterOption"
+              ></a-select>
+            </a-form-item>
+            <a-form-item :label="$t('label.deploy.vm.number')" name="vmNumber" ref="vmNumber">
+              <a-input-number :min=1 :max="isCreationSource ? 1 : 50" :disabled="isCreationSource" :maxlength="2" v-model:value="form.vmNumber" />
+            </a-form-item>
+            <a-form-item :label="$t('label.vm.start.after.creation')" name="startvm" ref="startvm">
+              <a-switch v-model:checked="form.startvm" />
+              <p style="margin-top: 8px">{{ $t(form.startvm ? 'message.vm.start.enabled' : 'message.vm.start.disabled') }}</p>
+            </a-form-item>
+          </div>
+        </template>
       </section>
       <section v-if="wizardStepIds.has(2)" v-show="wizardStep === 2" class="resource-create-section" data-wizard-step="2">
         <h3 class="resource-create-section-title">{{ $t('label.arch') }}</h3>
@@ -276,6 +312,7 @@
             <span v-if="selectedTemplateConfiguration && selectedTemplateConfiguration.description">{{ selectedTemplateConfiguration.description }}</span>
           </a-form-item>
           <compute-offering-selection
+            name-only
             :compute-items="options.serviceOfferings"
             :selected-template="template ? template : {}"
             :row-count="rowCount.serviceOfferings"
@@ -553,7 +590,7 @@
           </template>
         </div>
       </section>
-      <section v-if="wizardStepIds.has(7)" v-show="wizardStep === 7" class="resource-create-section" data-wizard-step="7"> 0">
+      <section v-if="wizardStepIds.has(7)" v-show="wizardStep === 7" class="resource-create-section" data-wizard-step="7">
         <h3 class="resource-create-section-title">{{ $t('label.data.disk') }}</h3>
         <div v-if="zoneSelected">
           <multi-disk-selection
@@ -703,7 +740,7 @@
           />
         </div>
       </section>
-      <section v-if="wizardStepIds.has(13)" v-show="wizardStep === 13" class="resource-create-section" data-wizard-step="13"> 0">
+      <section v-if="wizardStepIds.has(13)" v-show="wizardStep === 13" class="resource-create-section" data-wizard-step="13">
         <h3 class="resource-create-section-title">{{ $t('label.ovf.properties') }}</h3>
         <div v-for="(props, category) in templateProperties" :key="category">
           <a-alert :message="'Category: ' + category + ' (' + props.length + ' properties)'" type="info" />
@@ -774,7 +811,7 @@
         </div>
       </section>
       <section v-show="wizardStep === 15" class="resource-create-section" data-wizard-step="15">
-        <h3 class="resource-create-section-title">{{ $t('label.advanced.mode') }}</h3>
+        <h3 class="resource-create-section-title">{{ $t('label.vm.wizard.advanced') }}</h3>
         <template v-if="zoneSelected">
           <span>
             {{ $t('label.isadvanced') }}
@@ -1062,56 +1099,21 @@
               </a-select>
             </a-form-item>
           </div>
+
+          <a-form-item name="externaldetails" ref="externaldetails" v-if="imageType === 'templateid' && isTemplateHypervisorExternal">
+            <template #label>
+              <tooltip-label :title="$t('label.externaldetails')" :tooltip="apiParams.externaldetails.description" />
+            </template>
+            <a-switch v-model:checked="externalDetailsEnabled" @change="onExternalDetailsEnabledChange"/>
+            <a-card v-if="externalDetailsEnabled" style="margin-top: 10px">
+              <div style="margin-bottom: 10px">{{ $t('message.add.orchestrator.resource.details') }}</div>
+              <details-input
+                v-model:value="form.externaldetails" />
+            </a-card>
+          </a-form-item>
         </template>
       </section>
-      <section v-show="wizardStep === 16" class="resource-create-section" data-wizard-step="16">
-        <h3 class="resource-create-section-title">{{ $t('label.details') }}</h3>
-        <template v-if="zoneSelected">
-          <div style="margin-top: 15px">
-            {{ $t('message.vm.review.launch') }}
-            <a-form-item :label="$t('label.name.optional')" name="name" ref="name">
-              <a-input v-model:value="form.name" />
-            </a-form-item>
-            <a-form-item :label="$t('label.group.optional')" name="group" ref="group">
-              <a-auto-complete
-                v-model:value="form.group"
-                :disabled="!groupLookupReady"
-                :filterOption="filterOption"
-                :options="options.instanceGroups" />
-              <div role="status" aria-live="polite">{{ $t('message.vm.group.lookup.' + groupLookupState.status) }}</div>
-              <a-button v-if="['error', 'forbidden', 'empty'].includes(groupLookupState.status)" size="small" :loading="loading.groups" @click="fetchInstaceGroups">{{ $t('label.refresh') }}</a-button>
-            </a-form-item>
-            <a-form-item :label="$t('label.keyboard')" name="keyboard" ref="keyboard">
-              <a-select
-                v-model:value="form.keyboard"
-                :options="keyboardSelectOptions"
-                showSearch
-                optionFilterProp="label"
-                :filterOption="filterOption"
-              ></a-select>
-            </a-form-item>
-            <a-form-item :label="$t('label.deploy.vm.number')" name="vmNumber" ref="vmNumber">
-              <a-input-number :min=1 :max="isCreationSource ? 1 : 50" :disabled="isCreationSource" :maxlength="2" v-model:value="form.vmNumber" />
-            </a-form-item>
-            <a-form-item name="externaldetails" ref="externaldetails" v-if="imageType === 'templateid' && isTemplateHypervisorExternal">
-              <template #label>
-                <tooltip-label :title="$t('label.externaldetails')" :tooltip="apiParams.externaldetails.description" />
-              </template>
-              <a-switch v-model:checked="externalDetailsEnabled" @change="onExternalDetailsEnabledChange"/>
-              <a-card v-if="externalDetailsEnabled" style="margin-top: 10px">
-                <div style="margin-bottom: 10px">{{ $t('message.add.orchestrator.resource.details') }}</div>
-                <details-input
-                  v-model:value="form.externaldetails" />
-              </a-card>
-            </a-form-item>
-            <a-form-item :label="$t('label.vm.start.after.creation')" name="startvm" ref="startvm">
-              <a-switch v-model:checked="form.startvm" />
-              <p style="margin-top: 8px">{{ $t(form.startvm ? 'message.vm.start.enabled' : 'message.vm.start.disabled') }}</p>
-            </a-form-item>
-          </div>
-        </template>
-      </section>
-      <section v-if="wizardStepIds.has(17)" v-show="wizardStep === 17" class="resource-create-section" data-wizard-step="17"> 0">
+      <section v-if="wizardStepIds.has(17)" v-show="wizardStep === 17" class="resource-create-section" data-wizard-step="17">
         <h3 class="resource-create-section-title">{{ $t('label.license.agreements') }}</h3>
         <div style="margin-top: 10px">
           {{ $t('message.read.accept.license.agreements') }}
@@ -1137,7 +1139,7 @@
       </section>
     </a-form>
     <template #summary>
-      <resource-create-summary-fields icon="cloud-server-outlined" :name="form.name" :architecture="selectedArchitecture" :resource="vmSummary">
+      <resource-create-summary-fields tabindex="0" title-key="label.vm.wizard.summary" icon="cloud-server-outlined" :name="form.name" :architecture="selectedArchitecture" :resource="vmSummary">
         <template v-if="isCreationSource || (serviceOffering?.id && !isTemplateHypervisorExternal)">
           <creation-source-summary v-if="isCreationSource" :source="selectedCreationSource" :target-storage="rootStorageSelection" :execution-profile="creationSourceExecutionProfile" />
           <div v-else class="vm-storage-summary">
@@ -1276,6 +1278,7 @@ export default {
   data () {
     return {
       wizardStep: 0,
+      keyboardOverridden: false,
       zoneId: '',
       podId: null,
       clusterId: null,
@@ -1482,8 +1485,8 @@ export default {
       const hasTemplateProperties = this.vm.templateid && this.templateProperties && Object.keys(this.templateProperties).length > 0
       const hasTemplateLicenses = this.vm.templateid && this.templateLicenses?.length > 0
       return [
-        { id: 0, label: 'label.assign.instance.another', available: !this.isNormalUserOrProject },
-        { id: 1, label: 'label.select.deployment.infrastructure' },
+        { id: 0, label: 'label.vm.wizard.account.infrastructure' },
+        { id: 16, label: 'label.vm.wizard.basic' },
         { id: 2, label: 'label.arch', available: !this.zoneSelected || this.isZoneSelectedMultiArch },
         { id: 3, label: 'label.image' },
         { id: 4, label: 'label.serviceofferingid' },
@@ -1497,8 +1500,7 @@ export default {
         { id: 12, label: 'label.sshkeypairs', available: this.isUserAllowedToListSshKeys && !this.isCreationSource },
         { id: 13, label: 'label.ovf.properties', available: hasTemplateProperties },
         { id: 14, label: 'label.backup', available: this.zoneAllowsBackupOperations },
-        { id: 15, label: 'label.advanced.mode' },
-        { id: 16, label: 'label.details' },
+        { id: 15, label: 'label.vm.wizard.advanced' },
         { id: 17, label: 'label.license.agreements', available: hasTemplateLicenses }
       ].filter(stage => !('available' in stage) || stage.available)
     },
@@ -2386,7 +2388,7 @@ export default {
       if (!(this.diskPlanIncomplete || this.userDataSelectionBlocked || this.deploymentOwnerPending)) return this.handleSubmit(event)
     },
     async validateWizardStep (step) {
-      const fields = { 1: ['zoneid', 'hypervisor'], 16: ['name'], 17: ['licensesaccepted'] }[step]
+      const fields = { 0: ['zoneid'], 16: ['name'], 17: ['licensesaccepted'] }[step]
       if (fields) {
         try {
           await this.formRef.value.validateFields(fields)
@@ -2791,7 +2793,7 @@ export default {
           this.form.bootmode = this.defaultBootMode
           this.form.iothreadsenabled = template.details && Object.prototype.hasOwnProperty.call(template.details, 'iothreads')
           this.form.iodriverpolicy = template.details?.['io.policy']
-          this.form.keyboard = template.details?.keyboard
+          if (!this.keyboardOverridden) this.form.keyboard = template.details?.keyboard
           this.form.templateKvdoEnable = template.kvdoenable
           this.showOverrideDiskOfferingOption = false
           this.updateOverrideRootDiskShowParam(false)
@@ -4577,6 +4579,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.vm-deployment-owner { margin-bottom: 24px; }
 .root-disk-configuration { padding-top: 8px; }
 .root-configuration-section { margin-bottom: 20px; }
 .root-section-heading { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--ui-text-primary); margin: 0 0 12px; }
@@ -4630,14 +4633,14 @@ export default {
   }
 
   // Keep invalid input text on the same dark surface as valid inputs.
-  .dark-mode .deploy-vm-layout .ant-form-item-has-error {
+  .dark-mode .deploy-vm-form .ant-form-item-has-error {
     .ant-input,
     .ant-input:hover,
     .ant-input-affix-wrapper,
     .ant-input-affix-wrapper:hover,
     .ant-select:not(.ant-select-customize-input) .ant-select-selector {
-      // Override the shared dark theme error background.
-      background-color: transparent !important;
+      background-color: var(--ui-bg-input) !important;
+      color: var(--ui-text-primary) !important;
     }
   }
 
