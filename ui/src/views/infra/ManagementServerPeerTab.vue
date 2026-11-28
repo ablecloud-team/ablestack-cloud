@@ -16,37 +16,39 @@
 // under the License.
 
 <template>
-  <a-table
-    class="table"
-    size="small"
-    :columns="columns"
-    :dataSource="managementservers"
-    :rowKey="item => item.id"
-    :pagination="false" >
-    <template #peername="{ text, record }">
-      <router-link :to="{ path: '/managementserver/' + record.peerid }">{{ text }}</router-link>
-    </template>
-    <template #peerserviceip="{ text, record }">
-      <router-link :to="{ path: '/managementserver/' + record.peerid }">{{ text }}</router-link>
-    </template>
-    <template #lastupdated="{ text }">
-      {{ $toLocaleDate(text) }}
-    </template>
-  </a-table>
+  <div>
+    <resource-table-toolbar :loading="fetchLoading || listRefreshing > 0" @refresh="fetchData" />
+    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
+    <detail-tab-table
+      size="small"
+      :columns="columns"
+      :data-source="managementservers"
+      :loading="fetchLoading"
+      :row-key="record => record.peerid || record.peermsid"
+      :pagination="{ defaultPageSize: 10, showSizeChanger: true }"
+      :scroll="{ x: 900 }">
+      <template #bodyCell="{ column, text, record }">
+        <router-link v-if="['peername', 'peerserviceip'].includes(column.dataIndex) && record.peerid" :to="'/managementserver/' + record.peerid">{{ text }}</router-link>
+        <status v-else-if="column.dataIndex === 'state'" :text="text || ''" display-text />
+        <span v-else-if="column.dataIndex === 'lastupdated'">{{ text ? $toLocaleDate(text) : '—' }}</span>
+        <table-overflow-text v-else :text="String(text ?? '—')" />
+      </template>
+    </detail-tab-table>
+  </div>
 </template>
 
 <script>
-import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
+import TableOverflowText from '@/components/view/TableOverflowText'
+import { detailTabRouteKey, listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { getAPI } from '@/api'
 import Status from '@/components/widgets/Status'
 
 export default {
-  mixins: [listRefreshMixin(['fetchData'])],
+  mixins: [listRefreshMixin(['fetchData'], { routeKey: vm => detailTabRouteKey(vm.$route) })],
   name: 'ManagementServerPeerTab',
-  components: {
-    Status
-  },
+  components: { ResourceTableToolbar, TableOverflowText, Status },
   props: {
     resource: {
       type: Object,
@@ -55,12 +57,12 @@ export default {
   },
   data () {
     return {
+      fetchLoading: false,
       managementservers: [],
       columns: [
         {
           title: this.$t('label.peername'),
-          dataIndex: 'peername',
-          slots: { customRender: 'peername' }
+          dataIndex: 'peername'
         },
         {
           title: this.$t('label.peermsid'),
@@ -72,8 +74,7 @@ export default {
         },
         {
           title: this.$t('label.peerserviceip'),
-          dataIndex: 'peerserviceip',
-          slots: { customRender: 'peerserviceip' }
+          dataIndex: 'peerserviceip'
         },
         {
           title: this.$t('label.peerserviceport'),
@@ -85,8 +86,7 @@ export default {
         },
         {
           title: this.$t('label.peerstate.lastupdated'),
-          dataIndex: 'lastupdated',
-          slots: { customRender: 'lastupdated' }
+          dataIndex: 'lastupdated'
         }
       ]
     }
@@ -95,25 +95,29 @@ export default {
     this.fetchData()
   },
   watch: {
-    resource: function (newItem) {
+    'resource.id' () {
+      this.managementservers = []
       this.fetchData()
     }
   },
   methods: {
     fetchData () {
+      if (!this.resource.id) return
       const listRequest = this.listRequestToken('fetchData')
+      this.fetchLoading = !listRequest.loaded
       return getAPI('listManagementServers', {
         peers: true,
         id: this.resource.id
-      }).then(json => {
+      }, { preserveOnFailure: true }).then(json => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
-        this.managementservers = []
         this.managementservers = json.listmanagementserversresponse.managementserver?.[0]?.peers || []
       }).catch(error => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
         listRequest.failed = true
         this.listRefreshFailed = true
         if (!listRequest.loaded) this.$notifyError(error)
+      }).finally(() => {
+        if (this.isListRequestCurrent('fetchData', listRequest)) this.fetchLoading = false
       })
     }
   }

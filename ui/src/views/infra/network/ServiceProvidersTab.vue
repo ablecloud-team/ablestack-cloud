@@ -54,10 +54,10 @@
           row-key="name"
           :columns="serviceColumns"
           :data-source="visibleServices"
-          :pagination="{ pageSize: 6, hideOnSinglePage: true, showSizeChanger: false }"
+          :pagination="{ pageSize: 12, hideOnSinglePage: true, showSizeChanger: false }"
           table-layout="fixed">
           <template #bodyCell="{ column, record }">
-            <a-button v-if="column.key === 'name'" type="link" @click="openService(record.name)">
+            <a-button v-if="column.key === 'name'" type="link" class="service-name-link" @click="openService(record.name)">
               {{ serviceName(record.name) }}
             </a-button>
             <span v-else-if="column.key === 'providers'">{{ record.providers.map(provider => provider.name).join(', ') }}</span>
@@ -1679,7 +1679,9 @@ export default {
 .provider-details {
   overflow-wrap: anywhere;
 }
-.service-directory :deep(.ant-btn-link) {
+.service-name-link {
+  inline-size: min(100%, 12rem);
+  justify-content: flex-start;
   height: auto;
   min-height: 32px;
   max-width: 100%;

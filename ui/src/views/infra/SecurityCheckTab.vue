@@ -16,41 +16,37 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="loading">
+  <div>
+    <resource-table-toolbar :loading="loading || listRefreshing > 0" @refresh="fetchData" />
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <div>
-      <a-table
-        style="overflow-y: auto"
-        :columns="columns"
-        :dataSource="securityChecks"
-        :pagination="false"
-        :rowKey="record => record.checkname"
-        size="large">
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'status'">
-            <status class="status" :text="record.success === true ? 'True' : 'False'" displayText />
-          </template>
-        </template>
-      </a-table>
-    </div>
-  </a-spin>
+    <detail-tab-table
+      size="small"
+      :columns="columns"
+      :data-source="securityChecks"
+      :loading="loading"
+      :pagination="{ defaultPageSize: 10, showSizeChanger: true }"
+      :row-key="record => record.checkname"
+      :scroll="{ x: 650 }">
+      <template #bodyCell="{ column, text, record }">
+        <status v-if="column.key === 'status'" :text="record.success === true ? 'True' : 'False'" display-text />
+        <table-overflow-text v-else :text="String(text ?? '—')" />
+      </template>
+    </detail-tab-table>
+  </div>
 </template>
 
 <script>
-import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import ResourceTableToolbar from '@/components/view/ResourceTableToolbar'
+import TableOverflowText from '@/components/view/TableOverflowText'
+import { detailTabRouteKey, listRefreshMixin } from '@/utils/listRefreshMixin'
 
-import { ref, reactive } from 'vue'
 import { getAPI } from '@/api'
 import Status from '@/components/widgets/Status'
-import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
-  mixins: [listRefreshMixin(['fetchData'])],
+  mixins: [listRefreshMixin(['fetchData'], { routeKey: vm => detailTabRouteKey(vm.$route) })],
   name: 'SecurityCheckTab',
-  components: {
-    Status,
-    TooltipLabel
-  },
+  components: { ResourceTableToolbar, TableOverflowText, Status },
   props: {
     resource: {
       type: Object,
@@ -82,22 +78,23 @@ export default {
     }
   },
   created () {
-    this.initForm()
     this.fetchData()
   },
+  watch: {
+    'resource.id' () {
+      this.securityChecks = []
+      this.fetchData()
+    }
+  },
   methods: {
-    initForm () {
-      this.formRef = ref()
-      this.form = reactive({})
-      this.rules = reactive({})
-    },
     fetchData () {
+      if (!this.resource.id) return
       const listRequest = this.listRequestToken('fetchData')
       this.loading = !listRequest.loaded
-      return getAPI('getSecurityCheck', { managementserverid: this.resource.id }).then(json => {
+      return getAPI('getSecurityCheck', { managementserverid: this.resource.id }, { preserveOnFailure: true }).then(json => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
 
-        this.securityChecks = json.getsecuritycheckresponse.securitychecks.securitychecks
+        this.securityChecks = json.getsecuritycheckresponse?.securitychecks?.securitychecks || []
       }).catch(error => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
         listRequest.failed = true
@@ -105,10 +102,6 @@ export default {
         if (listRequest.loaded) return
 
         this.$notifyError(error)
-      }).finally(f => {
-        if (!this.isListRequestCurrent('fetchData', listRequest)) return
-
-        this.loading = false
       }).finally(() => {
         if (!this.isListRequestCurrent('fetchData', listRequest)) return
         this.loading = false
