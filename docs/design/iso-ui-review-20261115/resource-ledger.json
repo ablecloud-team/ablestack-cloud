@@ -1,0 +1,66 @@
+{
+  "isos": [
+    {
+      "id": "1ffb3c5f-bfd1-4cf2-8b56-273f54eacad6",
+      "name": "qa-iso-url-20261114",
+      "source": "URL",
+      "bootable": false,
+      "cleanup": "DELETED_UI"
+    },
+    {
+      "id": "de9279c7-b869-413a-baff-bee6ceff8d19",
+      "name": "qa-iso-local-20261114",
+      "source": "local",
+      "bootable": false,
+      "cleanup": "DELETED_UI"
+    },
+    {
+      "id": "d1c7baed-c14d-44eb-a0c2-49134b3dffe7",
+      "name": "qa-iso-local-userdata-20261114",
+      "source": "local+userdata",
+      "ready": false,
+      "cleanup": "DELETED_UI_AFTER_NORMAL_ABANDONED"
+    },
+    {
+      "id": "d6daa825-a5d2-4abc-8850-e391cbd6a977",
+      "name": "qa-iso-owned-20261115",
+      "source": "URL",
+      "owner": "qa-iso-review-20261115",
+      "bootable": false,
+      "ready": true,
+      "cleanup": "DELETED_UI"
+    }
+  ],
+  "accounts": [
+    {
+      "id": "8aec7d98-a30e-4fb5-959f-0e43dc3b94a7",
+      "name": "qa-iso-review-20261115",
+      "role": "User",
+      "disposable": true,
+      "cleanup": "DELETED_UI_BASELINE_3_PRESERVED"
+    }
+  ],
+  "vms": [],
+  "fixtures": [
+    {
+      "path": "/usr/share/cloudstack-management/webapp/qa-iso-review-20261114/fixture.iso",
+      "sha256": "171cc1569c3078e9b4b9e0d88338ba8ac990fb0843a431193c63d60669662ca4",
+      "cleanup": "REMOVED_EXACT_FILE_HTTP_404"
+    }
+  ],
+  "userdatas": [
+    {
+      "id": "8acaa908-fad1-42c3-8847-c22d98306394",
+      "name": "qa-iso-userdata-20261114",
+      "cleanup": "DELETED_UI"
+    }
+  ],
+  "permissions": [
+    {
+      "isoId": "1ffb3c5f-bfd1-4cf2-8b56-273f54eacad6",
+      "account": "qa-iso-review-20261115",
+      "operation": "add",
+      "cleanup": "RESET_VERIFIED_RECIPIENT_SHARED_COUNT_0"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "base": "1046a5dc3f21cb9cca0ab6881dd906d64b591e80",
+  "command": [
+    "npm",
+    "run",
+    "test:unit",
+    "--",
+    "--runTestsByPath",
+    "tests/unit/utils/templateAvailability.spec.js",
+    "tests/unit/utils/templateSearch.spec.js",
+    "tests/unit/views/image/TemplatePermissions.spec.js",
+    "tests/unit/utils/vmIsoActions.spec.js",
+    "tests/unit/components/view/VpcDialog.spec.js",
+    "--runInBand"
+  ],
+  "paths": [
+    "tests/unit/utils/templateAvailability.spec.js",
+    "tests/unit/utils/templateSearch.spec.js",
+    "tests/unit/views/image/TemplatePermissions.spec.js",
+    "tests/unit/utils/vmIsoActions.spec.js",
+    "tests/unit/components/view/VpcDialog.spec.js"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 177.6,
+  "stage": "preparation baseline only; not ISO implementation validation",
+  "passedSuites": 5,
+  "totalSuites": 5,
+  "passedTests": 64,
+  "totalTests": 64
+}

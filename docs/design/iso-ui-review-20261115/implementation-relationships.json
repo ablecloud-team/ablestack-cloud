@@ -1,0 +1,84 @@
+{
+  "parent": 1664,
+  "orderedChildren": [
+    1666,
+    1667,
+    1668,
+    1669,
+    1670,
+    1671,
+    1672,
+    1673
+  ],
+  "blockedByEdges": [
+    {
+      "issue": 1667,
+      "blockedBy": 1666
+    },
+    {
+      "issue": 1668,
+      "blockedBy": 1666
+    },
+    {
+      "issue": 1669,
+      "blockedBy": 1666
+    },
+    {
+      "issue": 1669,
+      "blockedBy": 1667
+    },
+    {
+      "issue": 1670,
+      "blockedBy": 1666
+    },
+    {
+      "issue": 1671,
+      "blockedBy": 1668
+    },
+    {
+      "issue": 1671,
+      "blockedBy": 1670
+    },
+    {
+      "issue": 1672,
+      "blockedBy": 1667
+    },
+    {
+      "issue": 1672,
+      "blockedBy": 1668
+    },
+    {
+      "issue": 1672,
+      "blockedBy": 1669
+    },
+    {
+      "issue": 1673,
+      "blockedBy": 1666
+    },
+    {
+      "issue": 1673,
+      "blockedBy": 1667
+    },
+    {
+      "issue": 1673,
+      "blockedBy": 1668
+    },
+    {
+      "issue": 1673,
+      "blockedBy": 1669
+    },
+    {
+      "issue": 1673,
+      "blockedBy": 1670
+    },
+    {
+      "issue": 1673,
+      "blockedBy": 1671
+    },
+    {
+      "issue": 1673,
+      "blockedBy": 1672
+    }
+  ],
+  "verified": true
+}

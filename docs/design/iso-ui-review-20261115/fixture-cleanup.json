@@ -1,0 +1,22 @@
+{
+  "fixtureRemoved": true,
+  "directoryRemoved": true,
+  "httpStatus": 404,
+  "protectedBefore": {
+    "index.html": "a70a72b89234fc6d3b5592e17f0be63a7adbbe25b8fa2330aa2cf6fce57976c9",
+    "color.less": "b4828a78c5034913ce0f62a6315e0303ae63a154d2ecf8ce9e1ad0c4c170b8f0",
+    "config.json": "71c175523a2e251faf574bd5d977c37e81d21c9cc0b8a98dfb1642c6b8a448d7",
+    "WEB-INF/web.xml": "04772d62c28054b1947a84e7b83f2f7c0ab343dc457f0b5e730a631d2ef08c25"
+  },
+  "protectedAfter": {
+    "index.html": "a70a72b89234fc6d3b5592e17f0be63a7adbbe25b8fa2330aa2cf6fce57976c9",
+    "color.less": "b4828a78c5034913ce0f62a6315e0303ae63a154d2ecf8ce9e1ad0c4c170b8f0",
+    "config.json": "71c175523a2e251faf574bd5d977c37e81d21c9cc0b8a98dfb1642c6b8a448d7",
+    "WEB-INF/web.xml": "04772d62c28054b1947a84e7b83f2f7c0ab343dc457f0b5e730a631d2ef08c25"
+  },
+  "protectedUnchanged": true,
+  "moldPidBefore": "2473572",
+  "moldPidAfter": "2473572",
+  "moldPidUnchanged": true,
+  "moldActive": "active"
+}
