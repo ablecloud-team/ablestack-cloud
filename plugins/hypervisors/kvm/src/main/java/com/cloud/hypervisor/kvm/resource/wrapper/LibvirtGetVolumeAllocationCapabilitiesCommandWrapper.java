@@ -35,7 +35,8 @@ public final class LibvirtGetVolumeAllocationCapabilitiesCommandWrapper extends
         try {
             KVMStoragePool pool = resource.getStoragePoolMgr().getStoragePoolByUuid(command.getPoolUuid());
             String backend = pool.getType() == Storage.StoragePoolType.SharedMountPoint ? "GFS2" : "RBD";
-            Map<String, String> methods = "GFS2".equals(backend) ?
+            Map<String, String> methods = "GFS2".equals(backend) && "import".equals(command.getOperation()) ?
+                    new com.cloud.hypervisor.kvm.storage.Gfs2VolumeImportAllocation().importCapabilities(pool, command.getFormat()) : "GFS2".equals(backend) ?
                     new Gfs2VolumeAllocation().capabilities(pool, command.getFormat(), command.getOperation()) :
                     new RbdVolumeAllocation().capabilities(pool, command.getFormat(), command.getOperation());
             if (command.getContractVersion() != 1 || methods.isEmpty()) {

@@ -183,6 +183,9 @@ public class ResourceMetaDataManagerImpl extends ManagerBase implements Resource
                 .anyMatch(com.cloud.network.router.RouterPublicMacManager.DETAIL::equalsIgnoreCase)) {
             throw new InvalidParameterValueException("Router Public MAC receipts are managed by the network service");
         }
+        if (details.keySet().stream().anyMatch(key -> (key.startsWith("migration.disk.controller.")||key.startsWith("migration.guest.config."))))
+            throw new InvalidParameterValueException(
+                    "Migration controller metadata is reserved for the migration service");
         if (isAllocationResource(resourceType) && details.keySet().stream().anyMatch(key -> key.startsWith("allocation."))) {
             throw new InvalidParameterValueException("Allocation contract metadata is reserved for the storage service");
         }
@@ -230,6 +233,13 @@ public class ResourceMetaDataManagerImpl extends ManagerBase implements Resource
         }
 
         DetailDaoHelper newDetailDaoHelper = new DetailDaoHelper(resourceType);
+        if ((key != null && (key.startsWith("migration.disk.controller.")||key.startsWith("migration.guest.config.")))
+                || (key == null
+                        && newDetailDaoHelper.getDetailsMap(id, null).keySet().stream()
+                                .anyMatch(name -> (name.startsWith("migration.disk.controller.")||name.startsWith("migration.guest.config.")))))
+            throw new InvalidParameterValueException(
+                    "Migration controller metadata cannot be removed");
+
         if (isAllocationResource(resourceType) && ((key != null && key.startsWith("allocation.")) ||
                 (key == null && newDetailDaoHelper.getDetailsMap(id, null).keySet().stream().anyMatch(name -> name.startsWith("allocation."))))) {
             throw new InvalidParameterValueException("Allocation contract metadata cannot be removed through the metadata API");

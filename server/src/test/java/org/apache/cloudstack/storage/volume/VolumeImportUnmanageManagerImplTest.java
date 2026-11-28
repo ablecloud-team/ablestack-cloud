@@ -252,6 +252,8 @@ public class VolumeImportUnmanageManagerImplTest {
     @Test
     public void testImportVolumeAllGood() throws ResourceAllocationException {
         ImportVolumeCmd cmd = mock(ImportVolumeCmd.class);
+        // Omitted API Integer is null; Mockito otherwise supplies zero for wrapper types.
+        when(cmd.getAllocationContractVersion()).thenReturn(null);
         when(cmd.getPath()).thenReturn(path);
         when(cmd.getStorageId()).thenReturn(poolId);
         when(cmd.getDiskOfferingId()).thenReturn(diskOfferingId);

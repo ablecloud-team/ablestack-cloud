@@ -475,6 +475,7 @@ import com.google.gson.reflect.TypeToken;
 public class UserVmManagerImpl extends ManagerBase implements UserVmManager, VirtualMachineGuru, Configurable, VmWorkJobHandler {
     @Inject private VmCloneBatchManager cloneBatches;
     @Inject private com.cloud.storage.VolumeAllocationService allocationService;
+    @Inject private org.apache.cloudstack.storage.volume.VolumeImportUnmanageService volumeImportAllocationService;
 
     public static final String VM_WORK_JOB_HANDLER = UserVmManagerImpl.class.getSimpleName();
     private final VmWorkJobHandlerProxy fastCloneJobHandler = new VmWorkJobHandlerProxy(this);
@@ -3625,6 +3626,16 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         Boolean isDynamicallyScalable = cmd.isDynamicallyScalable();
         String hostName = cmd.getHostName();
         Map<String,String> details = cmd.getDetails();
+        if (details != null
+                && details.keySet().stream()
+                        .anyMatch(key -> (key.startsWith("migration.disk.controller.")||key.startsWith("migration.guest.config."))))
+            throw new InvalidParameterValueException(
+                    "Migration controller policy is immutable; create a new migration");
+        if (cmd.isCleanupDetails()
+                && vmInstanceDetailsDao.listDetailsKeyPairs(cmd.getId()).keySet().stream()
+                        .anyMatch(key -> (key.startsWith("migration.disk.controller.")||key.startsWith("migration.guest.config."))))
+            throw new InvalidParameterValueException(
+                    "Migration controller evidence cannot be removed");
         List<Long> securityGroupIdList = getSecurityGroupIdList(cmd);
         boolean cleanupDetails = cmd.isCleanupDetails();
         String extraConfig = cmd.getExtraConfig();
@@ -3749,7 +3760,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
                 // ensure details marked as non-displayable are maintained, regardless of admin or not
                 for (final VMInstanceDetailVO existingDetail : existingDetails) {
-                    if (!existingDetail.isDisplay() || isExtraConfig(existingDetail.getName())) {
+                    if (!existingDetail.isDisplay()
+                            || isExtraConfig(existingDetail.getName())
+                            || (existingDetail.getName().startsWith("migration.disk.controller.")||existingDetail.getName().startsWith("migration.guest.config."))) {
                         details.put(existingDetail.getName(), existingDetail.getValue());
                     }
                 }
@@ -4167,7 +4180,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         if (tpmDetail != null){
             additonalParams.put(VirtualMachineProfile.Param.TpmVersion, tpmDetail.getValue());
         }
-        return startVirtualMachine(cmd.getId(), cmd.getPodId(), cmd.getClusterId(), cmd.getHostId(), additonalParams, cmd.getDeploymentPlanner()).first();
+        UserVm started = startVirtualMachine(cmd.getId(), cmd.getPodId(), cmd.getClusterId(), cmd.getHostId(), additonalParams, cmd.getDeploymentPlanner()).first();
+        recordImportedAllocationStarted(started.getId());
+        return started;
     }
 
     @Override
@@ -4990,12 +5005,20 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             rootDiskOfferingId = overrideDiskOfferingId;
         }
 
-        DiskOfferingVO rootDiskOffering = _diskOfferingDao.findById(rootDiskOfferingId);
-        validateAllocationOffering(rootDiskOffering, zone);
+        DiskOfferingVO rootDiskOffering = importedRootOffering(_diskOfferingDao.findById(rootDiskOfferingId), owner, customParameters);
+        if (!isAllocationImportRoot(customParameters)) validateAllocationOffering(rootDiskOffering, zone);
         if (volume != null || snapshot != null) {
-            com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(allocationDetailsDao.listDetailsKeyPairs(rootDiskOffering.getId()), "existing root or snapshot restore");
+            if (!isAllocationImportRoot(customParameters)) {
+                com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(allocationDetailsDao.listDetailsKeyPairs(rootDiskOffering.getId()), "existing root or snapshot restore");
+            }
             Long sourceId = volume != null ? volume.getId() : snapshot.getVolumeId();
-            com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(volumeDetailsDao.listDetailsKeyPairs(sourceId), "existing root or snapshot restore");
+            Map<String, String> sourceAllocation = volumeDetailsDao.listDetailsKeyPairs(sourceId);
+            if (volume == null || !isAllocationImportRoot(customParameters) || sourceAllocation == null || !sourceAllocation.containsKey(com.cloud.storage.VolumeAllocationImport.REQUEST_ID)) {
+                com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(sourceAllocation, "existing root or snapshot restore");
+            } else {
+                if (volumeImportAllocationService == null) throw new CloudRuntimeException("ALLOCATION_IMPORT_UNSUPPORTED");
+                volumeImportAllocationService.verifyAllocationForAssembly(sourceId);
+            }
         }
         if (rootDiskKmsKeyId != null) {
             com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(allocationDetailsDao.listDetailsKeyPairs(rootDiskOffering.getId()), "encrypted root");
@@ -5745,6 +5768,28 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         vm.setUserVmType(vmType);
         _vmDao.persist(vm);
         for (String key : customParameters.keySet()) {
+            if(key.startsWith(com.cloud.storage.MigrationGuestConfigurationPolicy.PREFIX)) {
+                if(!key.equals(com.cloud.storage.MigrationGuestConfigurationPolicy.PLAN)||hypervisorType!=HypervisorType.KVM||customParameters.get("volumeId")==null||CallContext.current().getCallingAccount().getType()!=Account.Type.ADMIN)throw new InvalidParameterValueException("GUEST_CONFIG_RESERVED_DETAILS");
+                var guestPlan=com.cloud.storage.MigrationGuestConfigurationPolicy.parse(customParameters.get(key));
+                com.cloud.storage.MigrationDiskControllerPolicy.chunks(key,com.cloud.storage.MigrationGuestConfigurationPolicy.canonical(guestPlan)).forEach(vm::setDetail);continue;
+            }
+            if (key.startsWith("migration.disk.controller.")) {
+                if (!key.equals(com.cloud.storage.MigrationDiskControllerPolicy.PLAN)
+                        || hypervisorType != HypervisorType.KVM
+                        || customParameters.get("volumeId") == null
+                        || CallContext.current().getCallingAccount().getType()
+                                != Account.Type.ADMIN)
+                    throw new InvalidParameterValueException("DISK_CONTROLLER_RESERVED_DETAILS");
+                var plan =
+                        com.cloud.storage.MigrationDiskControllerPolicy.parse(
+                                customParameters.get(key));
+                com.cloud.storage.MigrationDiskControllerPolicy.chunks(
+                                key,
+                                com.cloud.storage.MigrationDiskControllerPolicy.canonical(plan))
+                        .forEach(vm::setDetail);
+                continue;
+            }
+
             // BIOS was explicitly passed as the boot type, so honour it
             if (key.equalsIgnoreCase(ApiConstants.BootType.BIOS.toString())) {
                 vm.details.remove(ApiConstants.BootType.UEFI.toString());
@@ -5798,6 +5843,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         if (customParameters.containsKey(VmDetailConstants.NAME_ON_HYPERVISOR)) {
             hiddenDetails.add(VmDetailConstants.NAME_ON_HYPERVISOR);
         }
+        for (String protectedKey : vm.details.keySet())
+            if ((protectedKey.startsWith("migration.disk.controller.")||protectedKey.startsWith("migration.guest.config.")))
+                hiddenDetails.add(protectedKey);
         _vmDao.saveDetails(vm, hiddenDetails);
         if (!isImport) {
             logger.debug("Allocating in the DB for vm");
@@ -6677,9 +6725,68 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         return startVirtualMachine(vmId, podId, clusterId, hostId, additionalParams, deploymentPlannerToUse, isExplicitHost, false);
     }
 
+    @Inject private com.cloud.storage.MigrationDiskControllerService migrationDiskControllerService;
+    @Inject private com.cloud.storage.MigrationGuestConfigurationService migrationGuestConfigurationService;
+
+    private boolean isAllocationImportRoot(Map<String, String> details) {
+        if (details == null || details.get("volumeId") == null || volumeDetailsDao == null) return false;
+        long volumeId;
+        try { volumeId = Long.parseLong(details.get("volumeId")); }
+        catch (NumberFormatException invalid) { throw new InvalidParameterValueException("Invalid imported volume identity"); }
+        return volumeDetailsDao.findDetail(volumeId, com.cloud.storage.VolumeAllocationImport.REQUEST_ID) != null;
+    }
+
+    private DiskOfferingVO importedRootOffering(DiskOfferingVO proposed, Account owner, Map<String, String> details) {
+        if (!isAllocationImportRoot(details)) return proposed;
+        VolumeVO imported = _volsDao.findById(Long.parseLong(details.get("volumeId")));
+        if (imported == null || imported.getAccountId() != owner.getId() || imported.getState() != Volume.State.Ready || imported.getInstanceId() != null) {
+            throw new InvalidParameterValueException("ALLOCATION_POLICY_MISMATCH: imported root ownership/state differs");
+        }
+        Map<String, String> source = com.cloud.storage.VolumeAllocationPolicy.validateStored(volumeDetailsDao.listDetailsKeyPairs(imported.getId()));
+        Map<String, String> target = com.cloud.storage.VolumeAllocationPolicy.validateStored(allocationDetailsDao.listDetailsKeyPairs(proposed.getId()));
+        if (source.isEmpty() || (!target.isEmpty() && !target.equals(source))) {
+            throw new InvalidParameterValueException("ALLOCATION_POLICY_MISMATCH: service offering cannot overwrite imported root intent");
+        }
+        if (volumeImportAllocationService == null) throw new CloudRuntimeException("ALLOCATION_IMPORT_UNSUPPORTED");
+        volumeImportAllocationService.verifyAllocationForAssembly(imported.getId());
+        DiskOfferingVO offering = _diskOfferingDao.findById(imported.getDiskOfferingId());
+        if (offering == null || offering.getState() != DiskOffering.State.Active) throw new InvalidParameterValueException("Imported root offering is unavailable");
+        return offering;
+    }
+
+    private boolean hasImportedAllocation(long vmId) {
+        List<VolumeVO> volumes = _volsDao.findByInstance(vmId);
+        if (volumes == null || volumeDetailsDao == null) return false;
+        return volumes.stream().anyMatch(volume -> volumeDetailsDao.findDetail(volume.getId(), com.cloud.storage.VolumeAllocationImport.REQUEST_ID) != null);
+    }
+
+    private void verifyImportedAllocationBeforeStart(long vmId) {
+        if (!hasImportedAllocation(vmId)) return;
+        if (volumeImportAllocationService == null) throw new CloudRuntimeException("ALLOCATION_IMPORT_UNSUPPORTED: verification service unavailable");
+        volumeImportAllocationService.verifyAllocationBeforeStart(vmId);
+    }
+
+    private void recordImportedAllocationStarted(long vmId) {
+        if (!hasImportedAllocation(vmId)) return;
+        if (volumeImportAllocationService == null) throw new CloudRuntimeException("ALLOCATION_EVIDENCE_REQUIRED: verification service unavailable");
+        volumeImportAllocationService.recordAllocationStarted(vmId);
+    }
+
     private Pair<UserVmVO, Map<VirtualMachineProfile.Param, Object>> startVirtualMachineUnchecked(UserVmVO vm, VMTemplateVO template, Long podId,
             Long clusterId, Long hostId, @NotNull Map<VirtualMachineProfile.Param, Object> additionalParams, String deploymentPlannerToUse,
             boolean isExplicitHost, boolean isRootAdmin, boolean quickRestore) throws ResourceUnavailableException, InsufficientCapacityException {
+
+        if (vmInstanceDetailsDao.listDetailsKeyPairs(vm.getId()).keySet().stream()
+                .anyMatch(key -> (key.startsWith("migration.disk.controller.")||key.startsWith("migration.guest.config.")))) {
+            if (migrationDiskControllerService == null)
+                throw new CloudRuntimeException("DISK_CONTROLLER_SERVICE_UNAVAILABLE");
+            migrationDiskControllerService.beforeStart(vm.getId());
+        }
+        if(vmInstanceDetailsDao.listDetailsKeyPairs(vm.getId()).keySet().stream().anyMatch(key->key.startsWith(com.cloud.storage.MigrationGuestConfigurationPolicy.PREFIX))) {
+            if(migrationGuestConfigurationService==null)throw new CloudRuntimeException("GUEST_CONFIG_SERVICE_UNAVAILABLE");
+            migrationGuestConfigurationService.beforeStart(vm.getId());
+        }
+        verifyImportedAllocationBeforeStart(vm.getId());
 
         // check if vm is disaster recovery cluster vm enabled
         final boolean disasterRecoveryEnabled = Boolean.parseBoolean(_configDao.getValue("cloud.dr.service.enabled"));
@@ -11583,7 +11690,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             additionalParams.put(VirtualMachineProfile.Param.VmPassword, cmd.getPassword());
         }
 
-        return startVirtualMachine(vmId, podId, clusterId, hostId, diskOfferingMap, additionalParams, cmd.getDeploymentPlanner());
+        UserVm started = startVirtualMachine(vmId, podId, clusterId, hostId, diskOfferingMap, additionalParams, cmd.getDeploymentPlanner());
+        recordImportedAllocationStarted(started.getId());
+        return started;
     }
 
     @Override

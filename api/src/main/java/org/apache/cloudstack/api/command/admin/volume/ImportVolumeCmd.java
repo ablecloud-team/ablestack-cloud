@@ -52,6 +52,23 @@ import javax.inject.Inject;
         since = "4.19.1")
 public class ImportVolumeCmd extends BaseAsyncCmd {
 
+    @Parameter(name = "allocationpolicy", type = BaseCmd.CommandType.STRING, description = "Expected imported allocation policy; requires format, version and request UUID")
+    private String allocationPolicy;
+    @Parameter(name = "allocationformat", type = BaseCmd.CommandType.STRING, description = "Expected qcow2 or raw format")
+    private String allocationFormat;
+    @Parameter(name = "allocationcontractversion", type = BaseCmd.CommandType.INTEGER, description = "Expected import allocation contract version (1)")
+    private Integer allocationContractVersion;
+    @Parameter(name = "allocationrequestid", type = BaseCmd.CommandType.STRING, description = "Stable canonical UUID for idempotent import; becomes the volume UUID")
+    private String allocationRequestId;
+    @Parameter(name = "allocationallowcopy", type = BaseCmd.CommandType.BOOLEAN, description = "Explicitly permit offline, data-preserving allocation copy when adoption cannot establish the policy")
+    private Boolean allocationAllowCopy;
+
+    public String getAllocationPolicy() { return allocationPolicy; }
+    public String getAllocationFormat() { return allocationFormat; }
+    public Integer getAllocationContractVersion() { return allocationContractVersion; }
+    public String getAllocationRequestId() { return allocationRequestId; }
+    public boolean isAllocationAllowCopy() { return Boolean.TRUE.equals(allocationAllowCopy); }
+
     @Inject
     public VolumeImportUnmanageService volumeImportService;
 

@@ -7359,6 +7359,17 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                 allocationService.validateCreate(intent, dof.getProvisioningType(), zone.getId(), null, dof.getTagsArray());
             }
         }
+        checkDiskOfferingAuthorization(caller, dof, zone);
+    }
+
+    @Override
+    public void checkDiskOfferingAccessForImport(final Account caller, final DiskOffering dof, DataCenter zone) {
+        if (dof == null) throw new InvalidParameterValueException("Disk offering required for allocation import");
+        VolumeAllocationPolicy.validateStored(diskOfferingDetailsDao.listDetailsKeyPairs(dof.getId()));
+        checkDiskOfferingAuthorization(caller, dof, zone);
+    }
+
+    private void checkDiskOfferingAuthorization(final Account caller, final DiskOffering dof, DataCenter zone) {
         for (final SecurityChecker checker : _secChecker) {
             if (checker.checkAccess(caller, dof, zone)) {
                 if (logger.isDebugEnabled()) {

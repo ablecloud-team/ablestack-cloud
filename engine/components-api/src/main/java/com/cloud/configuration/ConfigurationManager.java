@@ -134,6 +134,11 @@ public interface ConfigurationManager {
 
     void checkDiskOfferingAccess(Account caller, DiskOffering dof, DataCenter zone);
 
+    /** Authorization only; explicit import capability is verified against the target pool by the import service. */
+    default void checkDiskOfferingAccessForImport(Account caller, DiskOffering dof, DataCenter zone) {
+        checkDiskOfferingAccess(caller, dof, zone);
+    }
+
     /**
      * Creates a new network offering
      * @param name

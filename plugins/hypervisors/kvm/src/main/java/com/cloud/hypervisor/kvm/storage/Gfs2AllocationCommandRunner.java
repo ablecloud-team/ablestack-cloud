@@ -41,7 +41,7 @@ final class Gfs2AllocationCommandRunner {
         java.util.function.BooleanSupplier capacity = () -> true;
         if (arguments.size() > 2 && "qemu-img".equals(arguments.get(0)) && "convert".equals(arguments.get(1))) {
             Path parent = Path.of(arguments.get(arguments.size() - 1)).toAbsolutePath().getParent();
-            if (parent != null && parent.getFileName().toString().startsWith(".volume-export-")) {
+            if (parent != null && parent.getFileName() != null && parent.getFileName().toString().startsWith(".volume-export-")) {
                 capacity = () -> {
                     try { return Files.getFileStore(parent).getUsableSpace() >= 64L * 1024 * 1024; }
                     catch (IOException e) { throw new CloudRuntimeException("VOLUME_EXPORT_CAPACITY_UNVERIFIED", e); }

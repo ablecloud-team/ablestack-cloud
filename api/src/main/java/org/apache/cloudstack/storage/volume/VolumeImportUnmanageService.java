@@ -52,6 +52,14 @@ public interface VolumeImportUnmanageService extends PluggableService, Configura
 
     VolumeResponse importVolume(ImportVolumeCmd cmd);
 
+    VolumeResponse verifyImportedAllocation(org.apache.cloudstack.api.command.admin.volume.VerifyImportedVolumeAllocationCmd cmd);
+
+    void verifyAllocationForAssembly(long volumeId);
+
+    void verifyAllocationBeforeStart(long vmId);
+
+    void recordAllocationStarted(long vmId);
+
     boolean unmanageVolume(long volumeId);
 
 }

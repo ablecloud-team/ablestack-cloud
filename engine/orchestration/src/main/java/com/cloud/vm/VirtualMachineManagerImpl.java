@@ -599,6 +599,14 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
                 allocateRootVolume(persistedVm, template, rootDiskOfferingInfo, owner, rootDiskSizeFinal, volume, snapshot);
             } else if (!MapUtils.isEmpty(customParameters) && customParameters.containsKey("volumeId")) {
                 VolumeVO volVO =_volsDao.findById(Long.parseLong(customParameters.get("volumeId")));
+                Map<String, String> allocationImport = _volsDetailsDao.listDetailsKeyPairs(volVO.getId());
+                if (allocationImport != null && allocationImport.containsKey(com.cloud.storage.VolumeAllocationImport.REQUEST_ID)) {
+                    com.cloud.storage.VolumeAllocationImport.validateRootAssembly(volVO, persistedVm, allocationImport);
+                    // This is role assignment in the VM allocation transaction, not a manual image mutation.
+                    // Preserve the imported offering, inspected format, path and allocation evidence.
+                    volVO.setVolumeType(Volume.Type.ROOT);
+                    volVO.setDeviceId(0L);
+                }
                 volVO.setInstanceId(vm.getId());
                 _volsDao.update(volVO.getId(), volVO);
             } else if (isBlankInstance(template)) {
@@ -1605,6 +1613,69 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
 
                     final List<VolumeVO> vols = _volsDao.findByInstance(vm.getId());
 
+                    String controllerPlan =
+                            com.cloud.storage.MigrationDiskControllerPolicy.read(
+                                    vmTO.getDetails(),
+                                    com.cloud.storage.MigrationDiskControllerPolicy.PLAN);
+                    if (controllerPlan == null
+                            && com.cloud.storage.MigrationDiskControllerPolicy.read(
+                                            vmTO.getDetails(),
+                                            com.cloud.storage.MigrationDiskControllerPolicy
+                                                    .BINDINGS)
+                                    != null)
+                        throw new CloudRuntimeException("DISK_CONTROLLER_POLICY_MISSING");
+                    if (controllerPlan != null) {
+                        var controllerIntent =
+                                com.cloud.storage.MigrationDiskControllerPolicy.parse(
+                                        controllerPlan);
+                        Answer qualification =
+                                _agentMgr.easySend(
+                                        dest.getHost().getId(),
+                                        new com.cloud.agent.api.MigrationDiskControllerCommand(
+                                                "CAPABILITIES",
+                                                controllerIntent.get("machine").getAsString(),
+                                                controllerIntent.get("firmware").getAsString(),
+                                                vmTO.getName(),
+                                                controllerPlan,
+                                                com.cloud.storage.MigrationDiskControllerPolicy
+                                                        .read(
+                                                                vmTO.getDetails(),
+                                                                com.cloud.storage
+                                                                        .MigrationDiskControllerPolicy
+                                                                        .BINDINGS)));
+                        if (!(qualification
+                                        instanceof
+                                        com.cloud.agent.api.MigrationDiskControllerAnswer)
+                                || !qualification.getResult()
+                                || ((com.cloud.agent.api.MigrationDiskControllerAnswer)
+                                                        qualification)
+                                                .getContractVersion()
+                                        != 1
+                                || ((com.cloud.agent.api.MigrationDiskControllerAnswer)
+                                                        qualification)
+                                                .getObservation()
+                                        == null
+                                || !controllerIntent
+                                        .get("hash")
+                                        .getAsString()
+                                        .equals(
+                                                ((com.cloud.agent.api.MigrationDiskControllerAnswer)
+                                                                qualification)
+                                                        .getObservation()
+                                                        .get("planhash")))
+                            throw new CloudRuntimeException(
+                                    "DISK_CONTROLLER_SELECTED_AGENT_UNQUALIFIED");
+                    }
+                    String guestConfiguration=com.cloud.storage.MigrationDiskControllerPolicy.read(vmTO.getDetails(),com.cloud.storage.MigrationGuestConfigurationPolicy.PLAN);
+                    if(guestConfiguration!=null) {
+                        var guestIntent=com.cloud.storage.MigrationGuestConfigurationPolicy.parse(guestConfiguration);
+                        guestConfiguration=com.cloud.storage.MigrationGuestConfigurationPolicy.canonical(guestIntent);
+                        var guestCommand=new com.cloud.agent.api.MigrationGuestConfigurationCommand("CAPABILITIES",vmTO.getName(),vmTO.getUuid(),guestConfiguration,null,null);
+                        guestCommand.setContractVersion(guestIntent.get("version").getAsInt());
+                        Answer guestCapability=_agentMgr.easySend(dest.getHost().getId(),guestCommand);
+                        if(!(guestCapability instanceof com.cloud.agent.api.MigrationGuestConfigurationAnswer)||!guestCapability.getResult()||((com.cloud.agent.api.MigrationGuestConfigurationAnswer)guestCapability).getContractVersion()!=guestCommand.getContractVersion()||((com.cloud.agent.api.MigrationGuestConfigurationAnswer)guestCapability).getObservation()==null||!Boolean.TRUE.equals(((com.cloud.agent.api.MigrationGuestConfigurationAnswer)guestCapability).getObservation().get("fresh_observation"))||!guestIntent.get("hash").getAsString().equals(((com.cloud.agent.api.MigrationGuestConfigurationAnswer)guestCapability).getObservation().get("plan_hash")))throw new CloudRuntimeException("GUEST_CONFIG_SELECTED_AGENT_UNQUALIFIED");
+                        if(guestCommand.getContractVersion()==2&&!java.util.List.of(com.cloud.storage.MigrationWindowsNetworkPolicy.FEATURE).stream().allMatch(((java.util.Collection<?>)((com.cloud.agent.api.MigrationGuestConfigurationAnswer)guestCapability).getObservation().getOrDefault("features",java.util.List.of()))::contains))throw new CloudRuntimeException("GUEST_CONFIG_SELECTED_AGENT_UNQUALIFIED");
+                    }
                     StartCommand command = new StartCommand(vmTO, dest.getHost(), getExecuteInSequence(vm.getHypervisorType()));
                     updateStartCommandWithExternalDetails(dest.getHost(), vmTO, command);
                     cmds.addCommand(command);
