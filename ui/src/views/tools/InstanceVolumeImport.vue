@@ -75,9 +75,12 @@ export default {
       return this.tabs.find(workspace => workspace.key === tab)?.key || this.tabs[0]?.key
     }
   },
-  created () {
-    if (this.legacyUrl) {
-      this.$router.replace({ path: '/manageinstances', query: { ...this.$route.query, tab: 'volumes' } })
+  watch: {
+    legacyUrl: {
+      immediate: true,
+      handler (legacyUrl) {
+        if (legacyUrl) this.$router.replace({ path: '/manageinstances', query: { ...this.$route.query, tab: 'volumes' } })
+      }
     }
   },
   methods: {
