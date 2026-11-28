@@ -34,9 +34,9 @@ beforeEach(() => {
 })
 afterEach(() => jest.useRealTimers())
 
-function mount (value = {}) {
+function mount (value = {}, request = query) {
   return shallowMount(Selection, {
-    props: { title: 'Storage', query, value },
+    props: { title: 'Storage', query: request, value },
     global: { mocks: { $t: key => key }, stubs: { 'a-button': true, 'a-input-search': true, 'a-radio': true, 'a-table': true, 'a-alert': true } }
   })
 }
@@ -80,6 +80,48 @@ test('pending disk size keeps the selection without a misleading reselect warnin
   await flushPromises()
   expect(wrapper.vm.selectedSizePending).toBe(true)
   expect(wrapper.find('a-alert-stub[type="warning"]').exists()).toBe(false)
+  wrapper.unmount()
+})
+
+test.each([false, true])('keeps a custom pool selectable before and after clearing size (rootdisk: %s)', async rootdisk => {
+  const pending = { ...pool, requiredbytes: null, suitable: false }
+  const request = { ...query, rootdisk, diskofferingid: 'custom', diskcount: 1, size: undefined }
+  const answer = entry => ({ listdeploymentstoragepoolsresponse: { deploymentstoragepool: [entry] } })
+  getAPI.mockResolvedValueOnce(answer(pending)).mockResolvedValueOnce(answer(pool)).mockResolvedValueOnce(answer(pending))
+  const wrapper = mount({}, request)
+  jest.advanceTimersByTime(200)
+  await flushPromises()
+  expect(getAPI.mock.calls[0][1]).not.toHaveProperty('size')
+  expect(wrapper.vm.pools).toEqual([pending])
+  expect(wrapper.vm.rowSelection.getCheckboxProps(pending).disabled).toBe(false)
+  wrapper.vm.select(pending)
+  await wrapper.setProps({ value: { id: pending.id, name: pending.name, valid: false }, query: { ...request, size: 17 } })
+  jest.advanceTimersByTime(200)
+  await flushPromises()
+  expect(wrapper.vm.valid).toBe(true)
+  await wrapper.setProps({ query: request })
+  jest.advanceTimersByTime(200)
+  await flushPromises()
+  expect(getAPI.mock.calls[2][1]).not.toHaveProperty('size')
+  expect(wrapper.vm.pools).toEqual([pending])
+  expect(wrapper.vm.rowSelection.selectedRowKeys).toEqual([pending.id])
+  expect(wrapper.vm.valid).toBe(false)
+  expect(wrapper.find('a-alert-stub').exists()).toBe(false)
+  wrapper.unmount()
+})
+
+test('a superseded error clears as soon as the storage query changes', async () => {
+  getAPI.mockRejectedValueOnce(new Error('lookup failed'))
+  const wrapper = mount()
+  jest.advanceTimersByTime(200)
+  await flushPromises()
+  expect(wrapper.find('a-alert-stub[type="error"]').exists()).toBe(true)
+  await wrapper.setProps({ query: { ...query, size: undefined } })
+  expect(wrapper.find('a-alert-stub[type="error"]').exists()).toBe(false)
+  await wrapper.vm.fetchPools()
+  jest.advanceTimersByTime(200)
+  await flushPromises()
+  expect(getAPI).toHaveBeenCalledTimes(2)
   wrapper.unmount()
 })
 
@@ -193,7 +235,7 @@ test.each(['volumeid', 'snapshotid'])('%s without a template fetches pools and e
   await wrapper.setProps({ query: sourceQuery })
   jest.advanceTimersByTime(200)
   await flushPromises()
-  expect(getAPI).toHaveBeenCalledWith('listDeploymentStoragePools', expect.objectContaining({ [sourceKey]: 'source' }))
+  expect(getAPI).toHaveBeenCalledWith('listDeploymentStoragePools', expect.objectContaining({ [sourceKey]: 'source' }), { preserveOnFailure: true })
   expect(wrapper.vm.verified).toBe(true)
   expect(wrapper.emitted('update:value').slice(-1)[0][0]).toEqual({ valid: true })
   wrapper.vm.select(pool)

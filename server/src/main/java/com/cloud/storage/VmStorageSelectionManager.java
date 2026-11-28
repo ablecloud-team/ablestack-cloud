@@ -150,7 +150,14 @@ public class VmStorageSelectionManager extends ManagerBase implements VmStorageS
             throw new InvalidParameterValueException("Invalid disk or VM count / requested capacity");
         }
         HypervisorType hypervisor = hypervisor(template, cmd.getHypervisor());
-        Long size = sourceVolume != null && cmd.isRootDisk() ? sourceVolume.getSize() : sourceSnapshot != null && cmd.isRootDisk() ? sourceSnapshot.getSize() : requestedSize(offering, template, cmd.isRootDisk(), cmd.getSize());
+        Long size;
+        if (cmd.isRootDisk() && sourceVolume != null) {
+            size = sourceVolume.getSize();
+        } else if (cmd.isRootDisk() && sourceSnapshot != null) {
+            size = sourceSnapshot.getSize();
+        } else {
+            size = requestedSize(offering, template, cmd.isRootDisk(), cmd.getSize());
+        }
         Long required = size == null ? null : multiply(size, (long) cmd.getDiskCount() * cmd.getVmCount());
         DiskProfile disk = profile(offering, cmd.isRootDisk(), 1, hypervisor, template.getId(), cmd.getMinIops());
         VirtualMachineProfile vm = vmProfile(zone, compute, template, hypervisor, CallContext.current().getCallingAccount());

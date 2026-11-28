@@ -30,6 +30,7 @@
       @select-disk-offering-item="selectOffering"
       @handle-search-filter="$emit('search', $event)" />
     <template v-if="offering">
+      <slot :offering="offering"></slot>
       <disk-quantity-selection
         :offering="offering"
         :size="value.size"
@@ -46,7 +47,6 @@
         @handler-error="error => change({ invalid: error })"
         @update-iops-value="(key, amount) => change({ [key]: amount })"
         @update-data-kms-key="kmskeyid => change({ kmskeyid })" />
-      <slot :offering="offering"></slot>
     </template>
   </div>
 </template>

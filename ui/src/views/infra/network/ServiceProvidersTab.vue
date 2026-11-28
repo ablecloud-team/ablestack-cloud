@@ -1685,7 +1685,7 @@ export default {
   height: auto;
   min-height: 32px;
   max-width: 100%;
-  padding-inline: 0;
+  padding-inline: 8px;
   white-space: normal;
   text-align: start;
 }
