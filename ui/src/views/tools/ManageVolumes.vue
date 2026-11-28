@@ -17,7 +17,7 @@
 
 <template>
   <a-row :gutter="12" v-if="isPageAllowed">
-    <a-col :span="24" class="content-breadcrumb">
+    <a-col v-if="!embedded" :span="24" class="content-breadcrumb">
       <a-card class="breadcrumb-card breadcrumb-toolbar">
         <div class="breadcrumb-toolbar-row">
           <div class="breadcrumb-toolbar-path">
@@ -485,6 +485,9 @@ export default {
     InfiniteScrollSelect
   },
   name: 'ManageVolumes',
+  props: {
+    embedded: { type: Boolean, default: false }
+  },
   directives: { scrollActivity },
   data () {
     const unmanagedVolumesColumns = [

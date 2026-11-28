@@ -780,6 +780,8 @@
   "label.action.health.monitor": "Health monitor",
   "label.action.image.store.read.only": "Make image store read-only",
   "label.action.image.store.read.write": "Make image store read-write",
+  "label.action.import.instances.volumes": "Import Instances and Volumes",
+  "label.instances.unmanage.tab": "Unmanage Instances",
   "label.action.import.export.instances": "Import-Export Instances",
   "label.action.import.unmanage.volumes": "Import Data Volumes",
   "label.action.ingest.instances": "Ingest instances",

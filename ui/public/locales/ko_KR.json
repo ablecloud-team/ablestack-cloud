@@ -742,6 +742,8 @@
   "label.action.health.monitor": "상태 모니터",
   "label.action.image.store.read.only": "이미지 저장소를 읽기 전용으로 설정",
   "label.action.image.store.read.write": "이미지 저장소를 읽기/쓰기로 설정",
+  "label.action.import.instances.volumes": "인스턴스/볼륨 가져오기",
+  "label.instances.unmanage.tab": "인스턴스 관리 해제",
   "label.action.import.export.instances": "인스턴스 가져오기-내보내기",
   "label.action.import.unmanage.volumes": "데이터 볼륨 가져오기",
   "label.action.ingest.instances": "인스턴스 수집",

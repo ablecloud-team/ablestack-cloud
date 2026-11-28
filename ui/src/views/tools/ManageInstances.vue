@@ -17,7 +17,7 @@
 
 <template>
   <a-row :gutter="12" v-if="isPageAllowed">
-    <a-col :span="24" class="content-breadcrumb">
+    <a-col v-if="mode === 'legacy'" :span="24" class="content-breadcrumb">
       <a-card class="breadcrumb-card breadcrumb-toolbar">
       <a-row class="breadcrumb-toolbar-row">
         <a-col class="breadcrumb-toolbar-path">
@@ -47,6 +47,7 @@
       <div>
         <a-card>
           <a-alert
+            v-if="showImportWorkspace"
             class="manage-instances-alert"
             type="info"
             :showIcon="true"
@@ -67,7 +68,7 @@
                   :rules="rules"
                   layout="vertical"
                 >
-                  <a-col :md="24" :lg="24">
+                  <a-col v-if="showImportWorkspace" :md="24" :lg="24">
                     <a-form-item name="sourcehypervisor" ref="sourcehypervisor" :label="$t('label.source')">
                       <a-radio-group
                         style="text-align: center; width: 100%"
@@ -220,7 +221,7 @@
                     </a-select>
                   </a-form-item>
                   <a-form-item
-                    v-if="showPod"
+                    v-if="showPod && mode !== 'tasks'"
                     name="podid"
                     ref="podid"
                     :label="isMigrateFromVmware ? $t('label.destination.pod') : $t('label.podid')">
@@ -235,7 +236,7 @@
                     ></a-select>
                   </a-form-item>
                   <a-form-item
-                    v-if="showCluster"
+                    v-if="showCluster && mode !== 'tasks'"
                     name="clusterid"
                     ref="clusterid"
                     :label="isMigrateFromVmware ? $t('label.destination.cluster') : $t('label.clusterid')">
@@ -401,10 +402,10 @@
           </a-row>
           <a-divider />
 
-          <a-tabs v-model:activeKey="activeTabKey" @change="onTabChange">
-            <a-tab-pane :key=1 :tab="$t('label.instances.listing')">
+          <a-tabs v-model:activeKey="activeTabKey" :class="{ 'embedded-instance-tabs': mode !== 'legacy' }" @change="onTabChange">
+            <a-tab-pane v-if="mode !== 'tasks'" :key=1 :tab="$t('label.instances.listing')">
               <a-row :gutter="12">
-                <a-col v-if="!isDiskImport" :md="24" :lg="(!isMigrateFromVmware && showManagedInstances) ? 12 : 24">
+                <a-col v-if="showImportWorkspace && !isDiskImport" :md="24" :lg="mode === 'legacy' && !isMigrateFromVmware && showManagedInstances ? 12 : 24">
                   <a-card class="instances-card">
                     <template #title>
                       {{ (isMigrateFromVmware && vmwareVcenterType === 'existing') ? $t('label.instances') : $t('label.unmanaged.instances') }}
@@ -496,7 +497,7 @@
                     </div>
                   </a-card>
                 </a-col>
-                <a-col :md="24" :lg="12" v-if="!isMigrateFromVmware && showManagedInstances">
+                <a-col v-if="mode === 'release' || (mode === 'legacy' && !isMigrateFromVmware && showManagedInstances)" :md="24" :lg="mode === 'release' ? 24 : 12">
                   <a-card class="instances-card">
                     <template #title>
                       {{ $t('label.managed.instances') }}
@@ -570,7 +571,7 @@
                 </a-col>
               </a-row>
             </a-tab-pane>
-            <a-tab-pane :key=2 :tab="$t('label.import.vm.tasks')" v-if="isAblestackCloudMigration">
+            <a-tab-pane v-if="mode === 'tasks' || (mode === 'legacy' && isAblestackCloudMigration)" :key=2 :tab="$t('label.import.vm.tasks')">
               <ImportVmTasks
                 :tasks="importVmTasks"
                 :loading="loadingImportVmTasks"
@@ -650,7 +651,7 @@ import TooltipLabel from '@/components/widgets/TooltipLabel.vue'
 import ImportVmTasks from '@/views/tools/ImportVmTasks.vue'
 
 export default {
-  mixins: [listRefreshMixin(['fetchImportVmTasks'], { active: vm => String(vm.activeTabKey) === '2' && !!vm.zoneId && vm.isAblestackCloudMigration })],
+  mixins: [listRefreshMixin(['fetchImportVmTasks'], { active: vm => String(vm.activeTabKey) === '2' && !!vm.zoneId && (vm.mode === 'tasks' || vm.isAblestackCloudMigration) })],
   components: {
     TooltipLabel,
     Breadcrumb,
@@ -662,6 +663,9 @@ export default {
     ImportVmTasks
   },
   name: 'ManageVms',
+  props: {
+    mode: { type: String, default: 'legacy' }
+  },
   directives: { scrollActivity },
   data () {
     const AllSourceActions = [
@@ -868,7 +872,7 @@ export default {
       query: {},
       vmwareVcenterType: undefined,
       selectedVmwareVcenter: undefined,
-      activeTabKey: 1,
+      activeTabKey: this.mode === 'tasks' ? 2 : 1,
       loadingImportVmTasks: false,
       importVmTasks: [],
       selectedImportVmTask: null,
@@ -888,6 +892,9 @@ export default {
     this.stopImportVmTasksAutoRefresh()
   },
   computed: {
+    showImportWorkspace () {
+      return this.mode === 'legacy' || this.mode === 'instances'
+    },
     tableScrollSelector () { return tableScrollSelector },
     isPageAllowed () {
       if (this.$route.meta.permission) {
@@ -1142,7 +1149,8 @@ export default {
       this.unmanagedInstances = []
       this.managedInstances = []
       try {
-        await restoreImportOptions(this.$router, initial => this.onSelectHypervisor(this.sourceHypervisor, initial))
+        const source = this.showImportWorkspace ? this.sourceHypervisor : 'kvm'
+        await restoreImportOptions(this.$router, initial => this.onSelectHypervisor(source, initial))
       } finally {
         this.initialOptionsPending = false
       }
@@ -1240,7 +1248,7 @@ export default {
       this.managedInstances = []
       this.managedInstancesSelectedRowKeys = []
       this.page.tasks = 1
-      this.activeTabKey = 1
+      this.activeTabKey = this.mode === 'tasks' ? 2 : 1
       this.stopImportVmTasksAutoRefresh()
     },
     getSourceActionsForHypervisor (hypervisor) {
@@ -1304,6 +1312,11 @@ export default {
       this.form.podid = undefined
       this.form.poolid = undefined
       this.updateQuery('zoneid', value, initial)
+      if (this.mode === 'tasks') {
+        if (initial) initial.read = () => this.onTabChange(2)
+        else this.onTabChange(2)
+        return
+      }
       return this.fetchOptions(this.params.pods, 'pods', undefined, initial)
     },
     onSelectPodId (value, initial) {
@@ -1468,10 +1481,10 @@ export default {
         tasksfilter: this.importVmTasksFilter,
         targetprovider: 'cloud'
       }
-      if (this.isMigrateFromVmware) {
+      if (this.mode !== 'tasks' && this.isMigrateFromVmware) {
         params.sourceprovider = 'vmware'
         params.migrationtool = 'ablestack_v2k'
-      } else if (this.isMigrateFromNutanix) {
+      } else if (this.mode !== 'tasks' && this.isMigrateFromNutanix) {
         params.sourceprovider = 'nutanix'
         params.migrationtool = 'ablestack_n2k'
       }
@@ -1497,8 +1510,8 @@ export default {
       })
     },
     fetchInstances () {
-      this.fetchUnmanagedInstances()
-      if (this.isUnmanaged) {
+      if (this.mode !== 'release') this.fetchUnmanagedInstances()
+      if (this.mode === 'release' || (this.mode === 'legacy' && this.isUnmanaged)) {
         this.fetchManagedInstances()
       } else if (this.kvmOption === 'external') {
         this.fetchExternalInstances()
@@ -1985,5 +1998,8 @@ export default {
 :deep(.ant-table-tbody > tr:focus-visible) {
   outline: 2px solid var(--ui-focus);
   outline-offset: -2px;
+}
+.embedded-instance-tabs > .ant-tabs-nav {
+  display: none;
 }
 </style>
