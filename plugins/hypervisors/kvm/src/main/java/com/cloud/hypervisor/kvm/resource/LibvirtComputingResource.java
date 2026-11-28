@@ -4384,6 +4384,15 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                 PhysicalDiskFormat.RAW.equals(physicalDisk.getFormat());
     }
 
+    public static boolean isFileBackedRawDisk(KVMPhysicalDisk disk) {
+        if (disk == null || disk.getPool() == null || disk.getFormat() != PhysicalDiskFormat.RAW || disk.getPath() == null) {
+            return false;
+        }
+        StoragePoolType type = disk.getPool().getType();
+        return (type == StoragePoolType.Filesystem || type == StoragePoolType.NetworkFilesystem || type == StoragePoolType.SharedMountPoint)
+                && Files.isRegularFile(Paths.get(disk.getPath()));
+    }
+
     public static DiskDef.DiskType getDiskType(KVMPhysicalDisk physicalDisk) {
         return useBLOCKDiskType(physicalDisk) ? DiskDef.DiskType.BLOCK : DiskDef.DiskType.FILE;
     }
@@ -4631,6 +4640,9 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                     final String glusterVolume = pool.getSourceDir().replace("/", "");
                     disk.defNetworkBasedDisk(glusterVolume + path.replace(mountpoint, ""), pool.getSourceHost(), pool.getSourcePort(), null,
                             null, devId, diskBusType, DiskProtocol.GLUSTER, DiskDef.DiskFmtType.QCOW2);
+                } else if (isFileBackedRawDisk(physicalDisk)) {
+                    DiskDef.DiskBus bus = volume.getType() == Volume.Type.DATADISK && !(isWindowsTemplate && isUefiEnabled) ? diskBusTypeData : diskBusType;
+                    disk.defFileBasedDisk(physicalDisk.getPath(), devId, bus, DiskDef.DiskFmtType.RAW);
                 } else if (pool.getType() == StoragePoolType.CLVM || pool.getType() == StoragePoolType.CLVM_NG || physicalDisk.getFormat() == PhysicalDiskFormat.RAW) {
                     if (volume.getType() == Volume.Type.DATADISK && !(isWindowsTemplate && isUefiEnabled)) {
                         disk.defBlockBasedDisk(physicalDisk.getPath(), devId, diskBusTypeData);
@@ -5193,6 +5205,8 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                             null, devId, busT, DiskProtocol.GLUSTER, DiskDef.DiskFmtType.QCOW2);
                 } else if (attachingDisk.getFormat() == PhysicalDiskFormat.QCOW2) {
                     diskdef.defFileBasedDisk(attachingDisk.getPath(), devId, busT, DiskDef.DiskFmtType.QCOW2);
+                } else if (isFileBackedRawDisk(attachingDisk)) {
+                    diskdef.defFileBasedDisk(attachingDisk.getPath(), devId, busT, DiskDef.DiskFmtType.RAW);
                 } else if (attachingDisk.getFormat() == PhysicalDiskFormat.RAW) {
                     diskdef.defBlockBasedDisk(attachingDisk.getPath(), devId, busT);
                     if (attachingPool.getType() == StoragePoolType.Linstor) {

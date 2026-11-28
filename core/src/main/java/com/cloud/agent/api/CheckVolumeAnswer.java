@@ -24,6 +24,7 @@ import java.util.Map;
 public class CheckVolumeAnswer extends Answer {
 
     private long size;
+    private String sourcePath;
     private Map<VolumeOnStorageTO.Detail, String> volumeDetails;
 
     CheckVolumeAnswer() {
@@ -34,6 +35,15 @@ public class CheckVolumeAnswer extends Answer {
         super(cmd, success, details);
         this.size = size;
         this.volumeDetails = volumeDetails;
+    }
+
+    public CheckVolumeAnswer(CheckVolumeCommand cmd, String path, long size, Map<VolumeOnStorageTO.Detail, String> volumeDetails) {
+        this(cmd, true, null, size, volumeDetails);
+        this.sourcePath = path;
+    }
+
+    public String getSourcePath() {
+        return sourcePath;
     }
 
     public long getSize() {

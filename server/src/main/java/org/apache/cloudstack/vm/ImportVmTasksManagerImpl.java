@@ -184,7 +184,7 @@ public class ImportVmTasksManagerImpl implements ImportVmTasksManager {
 
         if (action == ImportVmTask.Action.Refresh) {
             appendImportVMTaskEvent(task, EVENT_TYPE_ACTION, null, "Refresh import VM task status", actionPayload(action));
-            return createImportVMTaskResponse(importVMTaskDao.findById(task.getId()));
+            return createImportVMTaskResponse(importVMTaskDao.findById(task.getId()), true);
         }
         if (action == ImportVmTask.Action.ClearCredentials) {
             if (task.getState() == ImportVmTask.TaskState.Running && !isPhase1CompletedWaiting(task)) {
@@ -579,6 +579,10 @@ public class ImportVmTasksManagerImpl implements ImportVmTasksManager {
     }
 
     private ImportVMTaskResponse createImportVMTaskResponse(ImportVMTaskVO task) {
+        return createImportVMTaskResponse(task, false);
+    }
+
+    private ImportVMTaskResponse createImportVMTaskResponse(ImportVMTaskVO task, boolean reconcileN2K) {
         ImportVMTaskResponse response = new ImportVMTaskResponse();
         response.setId(task.getUuid());
         DataCenterVO zone = dataCenterDao.findById(task.getZoneId());
@@ -624,7 +628,7 @@ public class ImportVmTasksManagerImpl implements ImportVmTasksManager {
         response.setDescription(task.getDescription());
         response.setState(task.getState().name());
         setAblestackV2KStatus(response, task);
-        setAblestackN2KStatus(response, task);
+        setAblestackN2KStatus(response, task, reconcileN2K);
         response.setCredentialState(getCredentialState(task));
         response.setAvailableActions(getAvailableActions(task));
 
@@ -694,8 +698,12 @@ public class ImportVmTasksManagerImpl implements ImportVmTasksManager {
         }
     }
 
-    private void setAblestackN2KStatus(ImportVMTaskResponse response, ImportVMTaskVO task) {
-        if (task == null || task.getState() != ImportVmTask.TaskState.Running || !isN2KTask(task) || StringUtils.isBlank(task.getWorkdir())) {
+    private void setAblestackN2KStatus(ImportVMTaskResponse response, ImportVMTaskVO task, boolean reconcile) {
+        if (task == null || !isN2KTask(task) || StringUtils.isBlank(task.getWorkdir())) {
+            return;
+        }
+        boolean running = task.getState() == ImportVmTask.TaskState.Running;
+        if (!running && (!reconcile || task.getState() != ImportVmTask.TaskState.Failed)) {
             return;
         }
         HostVO host = hostDao.findById(task.getConvertHostId());
@@ -713,6 +721,13 @@ public class ImportVmTasksManagerImpl implements ImportVmTasksManager {
                 return;
             }
             AblestackN2KStatusAnswer status = (AblestackN2KStatusAnswer) answer;
+            if (reconcile && reconcileCompletedN2KCloudTask(task, status)) {
+                response.setState(task.getState().name());
+                response.setV2kStep(task.getV2kStep());
+                response.setDescription(task.getDescription());
+            } else if (!running) {
+                return;
+            }
             ImportVmTaskStatus normalizedStatus = normalizeN2KStatusForTask(task, status);
             response.setPhase(normalizedStatus.getCurrentPhase());
             response.setCurrentPhase(normalizedStatus.getCurrentPhase());
@@ -727,6 +742,32 @@ public class ImportVmTasksManagerImpl implements ImportVmTasksManager {
             logger.debug("Error while retrieving ablestack-n2k status for source VM {} on host {}: {}",
                     task.getSourceVMName(), host.getName(), e.getMessage());
         }
+    }
+
+    private boolean reconcileCompletedN2KCloudTask(ImportVMTaskVO task, AblestackN2KStatusAnswer status) {
+        String cloudVmId = status.getCloudVmId();
+        if (task.getVmId() != null || StringUtils.isBlank(cloudVmId)
+                || !"ablestack-cloud".equals(status.getTargetProvider())
+                || !"phase2".equals(status.getPhase()) || !"completed".equals(status.getMigrationState())) {
+            return false;
+        }
+        UserVmVO importedVm = userVmDao.findByUuid(cloudVmId);
+        if (importedVm == null || importedVm.getAccountId() != task.getAccountId()
+                || importedVm.getDataCenterId() != task.getZoneId()
+                || (StringUtils.isNotBlank(task.getTargetVMName())
+                && !StringUtils.equalsAny(task.getTargetVMName(), importedVm.getName(), importedVm.getDisplayName()))) {
+            return false;
+        }
+        Date updated = DateUtil.now();
+        task.setVmId(importedVm.getId());
+        task.setState(ImportVmTask.TaskState.Completed);
+        task.setV2kStep(ImportVmTask.V2KStep.Completed.name());
+        task.setDescription("Managed instance import succeeded (vmId=" + cloudVmId + ")");
+        task.setUpdated(updated);
+        if (task.getCreated() != null) {
+            task.setDuration(Duration.between(task.getCreated().toInstant(), updated.toInstant()).toMillis());
+        }
+        return true;
     }
 
     private void updateTaskDescriptionWithN2KStatus(ImportVMTaskResponse response, ImportVMTaskVO task, AblestackN2KStatusAnswer status,

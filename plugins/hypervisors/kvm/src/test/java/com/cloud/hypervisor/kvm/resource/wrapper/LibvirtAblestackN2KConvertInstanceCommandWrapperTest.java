@@ -36,7 +36,9 @@ import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LibvirtAblestackN2KConvertInstanceCommandWrapperTest {
@@ -129,6 +131,37 @@ public class LibvirtAblestackN2KConvertInstanceCommandWrapperTest {
             Mockito.verify(script).add("--cloud-network-ids", "network-uuid");
             Mockito.verify(script).add("--cloud-storage-id", "storage-uuid");
             Mockito.verify(script, Mockito.never()).add(Mockito.contains("secret"));
+        }
+    }
+
+    @Test
+    public void executeRejectsResumeWithoutAnExistingManifest() throws IOException {
+        File workdir = temporaryFolder.newFolder("missing-manifest");
+        AblestackN2KConvertInstanceCommand cmd = validCommand(workdir.getAbsolutePath());
+        cmd.setResume(true);
+
+        Answer answer = wrapper.execute(cmd, libvirtComputingResource);
+
+        Assert.assertFalse(answer.getResult());
+        Assert.assertTrue(answer.getDetails().contains("existing migration manifest"));
+    }
+
+    @Test
+    public void executeRunsTheExistingWorkDirectoryWithoutThePlanOnlyFlag() throws IOException {
+        File workdir = temporaryFolder.newFolder("existing-manifest");
+        Files.writeString(workdir.toPath().resolve("manifest.json"), "{}");
+        AblestackN2KConvertInstanceCommand cmd = validCommand(workdir.getAbsolutePath());
+        cmd.setResume(true);
+
+        try (MockedConstruction<Script> scripts = Mockito.mockConstruction(Script.class, (mock, context) -> {
+            Mockito.when(mock.execute(Mockito.any(OutputInterpreter.class))).thenReturn("");
+            Mockito.when(mock.getExitValue()).thenReturn(0);
+        })) {
+            Assert.assertTrue(wrapper.execute(cmd, libvirtComputingResource).getResult());
+            Script script = scripts.constructed().get(0);
+            Mockito.verify(script).add("--workdir", workdir.getAbsolutePath());
+            Mockito.verify(script).add("run");
+            Mockito.verify(script, Mockito.never()).add("--resume");
         }
     }
 

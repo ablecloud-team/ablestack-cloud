@@ -29,6 +29,7 @@ import com.cloud.event.ActionEventUtils;
 import com.cloud.event.EventTypes;
 import com.cloud.event.EventVO;
 import com.cloud.event.UsageEventUtils;
+import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.exception.PermissionDeniedException;
 import com.cloud.exception.ResourceAllocationException;
 import com.cloud.host.HostVO;
@@ -53,6 +54,9 @@ import com.cloud.user.AccountManager;
 import com.cloud.user.ResourceLimitService;
 import com.cloud.user.User;
 import com.cloud.utils.Pair;
+import com.cloud.utils.db.GlobalLock;
+import com.cloud.utils.db.Transaction;
+import com.cloud.utils.db.TransactionCallback;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.vm.DiskProfile;
 
@@ -86,6 +90,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class VolumeImportUnmanageManagerImpl implements VolumeImportUnmanageService {
     protected Logger logger = LogManager.getLogger(VolumeImportUnmanageManagerImpl.class);
@@ -177,7 +182,7 @@ public class VolumeImportUnmanageManagerImpl implements VolumeImportUnmanageServ
         // 1. verify owner
         final Account caller = CallContext.current().getCallingAccount();
         if (caller.getType() != Account.Type.ADMIN) {
-            throw new PermissionDeniedException(String.format("Cannot import VM as the caller account [%s] is not ROOT Admin.", caller.getUuid()));
+            throw new PermissionDeniedException(String.format("Cannot import volume as the caller account [%s] is not ROOT Admin.", caller.getUuid()));
         }
         Account owner = accountMgr.finalizeOwner(caller, cmd.getAccountName(), cmd.getDomainId(), cmd.getProjectId());
         if (owner == null) {
@@ -193,51 +198,78 @@ public class VolumeImportUnmanageManagerImpl implements VolumeImportUnmanageServ
             return importAllocatedVolume(cmd, owner, pool);
         }
 
-        // 3. check if the volume already exists in cloudstack by path
         String volumePath = cmd.getPath();
         if (StringUtils.isBlank(volumePath)) {
-            logFailureAndThrowException("Volume path is null or blank: " + volumePath);
-        }
-        if (checkIfVolumeManaged(pool, volumePath)){
-            logFailureAndThrowException("Volume is already managed by CloudStack: " + volumePath);
-        }
-        if (checkIfVolumeForTemplate(pool, volumePath)) {
-            logFailureAndThrowException("Volume is a base image of a template: " + volumePath);
+            throw new InvalidParameterValueException("Volume path is required");
         }
 
-        // 4. get volume info on storage through host and check
-        VolumeOnStorageTO volume = getVolumeOnStorageAndCheck(pool, volumePath);
+        VolumeOnStorageTO selected = getVolumeOnStorageAndCheck(pool, volumePath);
+        GlobalLock sourceLock = getImportSourceLock(pool, selected.getPath());
+        boolean acquired = false;
+        try {
+            if (!(acquired = sourceLock.lock(30))) {
+                throw new CloudRuntimeException("Volume source is busy. Retry after the current operation completes.");
+            }
+            if (checkIfVolumeManaged(pool, selected.getPath())) {
+                throw new InvalidParameterValueException("Volume is already managed by CloudStack: " + selected.getPath());
+            }
+            if (checkIfVolumeForTemplate(pool, selected.getPath())) {
+                throw new InvalidParameterValueException("Volume is a base image of a template: " + selected.getPath());
+            }
+            VolumeOnStorageTO volume = getVolumeOnStorageAndCheck(pool, selected.getPath());
+            verifySourceIdentity(cmd.getSourceIdentity(), selected, volume);
+            if (checkIfVolumeForSnapshot(pool, volume.getFullPath())) {
+                throw new InvalidParameterValueException("Volume is a reference of snapshot on primary: " + volume.getFullPath());
+            }
 
-        if (checkIfVolumeForSnapshot(pool, volume.getFullPath())) {
-            logFailureAndThrowException("Volume is a reference of snapshot on primary: " + volume.getFullPath());
+            return registerVolume(cmd, owner, pool, volume);
+        } finally {
+            if (acquired) {
+                sourceLock.unlock();
+            }
+            sourceLock.releaseRef();
         }
+    }
 
-        // 5. get disk offering
+    protected GlobalLock getImportSourceLock(StoragePoolVO pool, String path) {
+        return VolumeImportSourceLock.get(pool, path);
+    }
+
+    protected void verifySourceIdentity(String expectedIdentity, VolumeOnStorageTO selected, VolumeOnStorageTO current) {
+        String selectedIdentity = sourceIdentity(selected);
+        String currentIdentity = sourceIdentity(current);
+        if (!Objects.equals(selected.getPath(), current.getPath()) || !Objects.equals(selected.getFormat(), current.getFormat())
+                || selected.getVirtualSize() != current.getVirtualSize() || !Objects.equals(selectedIdentity, currentIdentity)
+                || (StringUtils.isNotBlank(expectedIdentity) && !expectedIdentity.equals(currentIdentity))) {
+            throw new InvalidParameterValueException("Volume source changed. Refresh the list and select the source again.");
+        }
+    }
+
+    private String sourceIdentity(VolumeOnStorageTO volume) {
+        Map<VolumeOnStorageTO.Detail, String> details = volume.getDetails();
+        return details == null ? null : details.get(VolumeOnStorageTO.Detail.SOURCE_IDENTITY);
+    }
+
+    private VolumeResponse registerVolume(ImportVolumeCmd cmd, Account owner, StoragePoolVO pool, VolumeOnStorageTO volume) {
         DiskOfferingVO diskOffering = getOrCreateDiskOffering(owner, cmd.getDiskOfferingId(), pool.getDataCenterId(), pool.isLocal());
         if (diskOffering.isCustomized()) {
             volumeApiService.validateCustomDiskOfferingSizeRange(volume.getVirtualSize() / ByteScaleUtils.GiB);
         }
         if (!volumeApiService.doesStoragePoolSupportDiskOffering(pool, diskOffering)) {
-            logFailureAndThrowException(String.format("Disk offering: %s storage tags are not compatible with selected storage pool: %s", diskOffering, pool));
+            throw new InvalidParameterValueException(String.format("Disk offering %s storage tags are not compatible with selected storage pool %s",
+                    diskOffering.getId(), pool.getId()));
         }
-
         List<Reserver> reservations = new ArrayList<>();
         try {
-        // 6. check resource limitation
-        checkResourceLimitForImportVolume(owner, volume, diskOffering, reservations);
-
-        // 7. create records
-        String volumeName = StringUtils.isNotBlank(cmd.getName()) ? cmd.getName().trim() : volumePath;
-        VolumeVO volumeVO = importVolumeInternal(volume, diskOffering, owner, pool, volumeName);
-
-        // 8. Update resource count
-        updateResourceLimitForVolumeImport(volumeVO);
-
-        // 9. Publish event
-        publicUsageEventForVolumeImportAndUnmanage(volumeVO, true);
-
-        return responseGenerator.createVolumeResponse(ResponseObject.ResponseView.Full, volumeVO);
-
+            checkResourceLimitForImportVolume(owner, volume, diskOffering, reservations);
+            String volumeName = StringUtils.defaultIfBlank(StringUtils.trim(cmd.getName()), cmd.getPath());
+            VolumeVO registered = Transaction.execute((TransactionCallback<VolumeVO>) status -> {
+                VolumeVO imported = importVolumeInternal(volume, diskOffering, owner, pool, volumeName);
+                updateResourceLimitForVolumeImport(imported);
+                return imported;
+            });
+            publicUsageEventForVolumeImportAndUnmanage(registered, true);
+            return responseGenerator.createVolumeResponse(ResponseObject.ResponseView.Full, registered);
         } finally {
             ReservationHelper.closeAll(reservations);
         }
@@ -252,7 +284,11 @@ public class VolumeImportUnmanageManagerImpl implements VolumeImportUnmanageServ
 
         VolumeOnStorageTO volume = volumes.get(0);
 
-        // check if volume is locked, encrypted or has backing file
+        if (volume.getVirtualSize() <= 0) {
+            throw new InvalidParameterValueException("Source virtual size must be positive");
+        }
+
+        // Do not admit an active, encrypted or dependent source.
         checkIfVolumeIsLocked(volume);
         checkIfVolumeIsEncrypted(volume);
         checkIfVolumeHasBackingFile(volume);
@@ -314,11 +350,12 @@ public class VolumeImportUnmanageManagerImpl implements VolumeImportUnmanageServ
             if (!intent.get(com.cloud.storage.VolumeAllocationPolicy.FORMAT).equalsIgnoreCase(source.getFormat())) {
                 throw new com.cloud.exception.InvalidParameterValueException("ALLOCATION_POLICY_MISMATCH: inspected source format differs from offering");
             }
-            com.cloud.utils.db.GlobalLock sourceLock = com.cloud.utils.db.GlobalLock.getInternLock("allocation-source-" +
-                    java.util.UUID.nameUUIDFromBytes((pool.getUuid() + "/" + source.getPath()).getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+            GlobalLock sourceLock = getImportSourceLock(pool, source.getPath());
             boolean sourceAcquired = false;
             try {
             if (!(sourceAcquired = sourceLock.lock(30))) throw new CloudRuntimeException("ALLOCATION_IMPORT_BUSY: source is being imported");
+            VolumeOnStorageTO current = getVolumeOnStorageAndCheck(pool, source.getPath());
+            verifySourceIdentity(cmd.getSourceIdentity(), source, current);
             if (checkIfVolumeManaged(pool, source.getPath()) || checkIfVolumeForTemplate(pool, source.getPath()) || checkIfVolumeForSnapshot(pool, source.getFullPath())) {
                 throw new com.cloud.exception.InvalidParameterValueException("ALLOCATION_IMPORT_SOURCE_MANAGED: source must be an independent unmanaged image");
             }
@@ -464,25 +501,32 @@ public class VolumeImportUnmanageManagerImpl implements VolumeImportUnmanageServ
 
     @Override
     public boolean unmanageVolume(long volumeId) {
-        // 1. check if volume can be unmanaged
-        VolumeVO volume = checkIfVolumeCanBeUnmanaged(volumeId);
-
-        // 2. check if pool available
-        StoragePoolVO pool = checkIfPoolAvailable(volume.getPoolId());
-
-        // 3. unmanage volume internally
-        getVolumeOnStorageAndCheck(pool, volume.getPath());
-
-        // 3. Update resource count
-        updateResourceLimitForVolumeUnmanage(volume);
-
-        // 4. publish events
-        publicUsageEventForVolumeImportAndUnmanage(volume, false);
-
-        // 5. update the state/removed of record
-        unmanageVolumeFromDatabase(volume);
-
-        return true;
+        VolumeVO selected = checkIfVolumeCanBeUnmanaged(volumeId);
+        StoragePoolVO pool = checkIfPoolAvailable(selected.getPoolId());
+        GlobalLock sourceLock = getImportSourceLock(pool, selected.getPath());
+        boolean acquired = false;
+        try {
+            if (!(acquired = sourceLock.lock(30))) {
+                throw new CloudRuntimeException("Volume source is busy. Retry after the current operation completes.");
+            }
+            VolumeVO volume = checkIfVolumeCanBeUnmanaged(volumeId);
+            if (!Objects.equals(selected.getPoolId(), volume.getPoolId()) || !Objects.equals(selected.getPath(), volume.getPath())) {
+                throw new InvalidParameterValueException("Volume location changed. Refresh before unmanaging the volume.");
+            }
+            getVolumeOnStorageAndCheck(pool, volume.getPath());
+            Transaction.execute((TransactionCallback<Void>) status -> {
+                unmanageVolumeFromDatabase(volume);
+                updateResourceLimitForVolumeUnmanage(volume);
+                return null;
+            });
+            publicUsageEventForVolumeImportAndUnmanage(volume, false);
+            return true;
+        } finally {
+            if (acquired) {
+                sourceLock.unlock();
+            }
+            sourceLock.releaseRef();
+        }
     }
 
     protected StoragePoolVO checkIfPoolAvailable(Long poolId) {

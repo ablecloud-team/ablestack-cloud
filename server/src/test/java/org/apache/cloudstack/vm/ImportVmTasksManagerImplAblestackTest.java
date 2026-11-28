@@ -16,10 +16,13 @@
 // under the License.
 package org.apache.cloudstack.vm;
 
+import com.cloud.agent.api.AblestackN2KStatusAnswer;
 import com.cloud.vm.ImportVMTaskEventVO;
 import com.cloud.vm.ImportVMTaskVO;
+import com.cloud.vm.UserVmVO;
 import com.cloud.vm.dao.ImportVMTaskDao;
 import com.cloud.vm.dao.ImportVMTaskEventDao;
+import com.cloud.vm.dao.UserVmDao;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,11 +46,15 @@ public class ImportVmTasksManagerImplAblestackTest {
     @Mock
     private ImportVMTaskEventDao importVMTaskEventDao;
 
+    @Mock
+    private UserVmDao userVmDao;
+
     @Before
     public void setUp() {
         manager = new ImportVmTasksManagerImpl();
         ReflectionTestUtils.setField(manager, "importVMTaskDao", importVMTaskDao);
         ReflectionTestUtils.setField(manager, "importVMTaskEventDao", importVMTaskEventDao);
+        ReflectionTestUtils.setField(manager, "userVmDao", userVmDao);
     }
 
     @Test
@@ -96,5 +103,28 @@ public class ImportVmTasksManagerImplAblestackTest {
         Assert.assertEquals("******", sanitized.get("password"));
         Assert.assertEquals("******", sanitized.get("apiSecretKey"));
         Assert.assertEquals("admin", sanitized.get("usernamehint"));
+    }
+
+    @Test
+    public void reconcileCompletedN2KCloudTaskLinksOnlyTheExpectedVm() {
+        ImportVMTaskVO task = Mockito.mock(ImportVMTaskVO.class);
+        Mockito.when(task.getVmId()).thenReturn(null);
+        Mockito.when(task.getAccountId()).thenReturn(42L);
+        Mockito.when(task.getZoneId()).thenReturn(17L);
+        Mockito.when(task.getTargetVMName()).thenReturn("import-target");
+        UserVmVO vm = Mockito.mock(UserVmVO.class);
+        Mockito.when(vm.getAccountId()).thenReturn(31L, 42L);
+        Mockito.when(vm.getDataCenterId()).thenReturn(17L);
+        Mockito.when(vm.getDisplayName()).thenReturn("import-target");
+        Mockito.when(vm.getId()).thenReturn(52L);
+        Mockito.when(userVmDao.findByUuid("vm-uuid")).thenReturn(vm);
+        AblestackN2KStatusAnswer status = new AblestackN2KStatusAnswer(null, true, "OK", "phase2", "completed",
+                "cutover", "100%", "/workdir", "{}", "ablestack-cloud", "vm-uuid");
+
+        Assert.assertEquals(Boolean.FALSE, ReflectionTestUtils.invokeMethod(manager, "reconcileCompletedN2KCloudTask", task, status));
+        Assert.assertEquals(Boolean.TRUE, ReflectionTestUtils.invokeMethod(manager, "reconcileCompletedN2KCloudTask", task, status));
+        Mockito.verify(task).setVmId(52L);
+        Mockito.verify(task).setState(ImportVmTask.TaskState.Completed);
+        Mockito.verify(task).setV2kStep(ImportVmTask.V2KStep.Completed.name());
     }
 }

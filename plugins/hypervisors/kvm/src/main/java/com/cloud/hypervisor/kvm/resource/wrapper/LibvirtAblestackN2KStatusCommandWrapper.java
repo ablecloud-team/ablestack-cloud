@@ -16,6 +16,10 @@
 // under the License.
 package com.cloud.hypervisor.kvm.resource.wrapper;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import com.cloud.agent.api.AblestackN2KStatusAnswer;
 import com.cloud.agent.api.AblestackN2KStatusCommand;
 import com.cloud.agent.api.Answer;
@@ -60,27 +64,61 @@ public class LibvirtAblestackN2KStatusCommandWrapper extends CommandWrapper<Able
             JsonObject phases = getObject(status, "phases");
             JsonObject progress = getObject(runtime, "progress");
 
-            String phase = resolvePhase(runtime, phases, resume, progress);
-            String migrationState = resolveMigrationState(runtime, phases, resume, progress);
+            JsonObject cloudRuntime = getObject(runtime, "cloud");
+            JsonObject checkpoint = getObject(cloudRuntime, "checkpoint");
+            String completedCloudVmId = getBoolean(checkpoint, "complete")
+                    && "ablestack-cloud".equals(getString(cloudRuntime, "provider")) ? getString(checkpoint, "vm_id") : null;
+            boolean completedCloudCutover = StringUtils.isNotBlank(completedCloudVmId);
+            String phase = completedCloudCutover ? "phase2" : resolvePhase(runtime, phases, resume, progress);
+            String migrationState = completedCloudCutover ? "completed" : resolveMigrationState(runtime, phases, resume, progress);
+            String failedPhase = "phase2".equals(phase) && "completed".equals(migrationState)
+                    ? null : readFailedRunnerPhase(cmd.getWorkdir(), phase);
+            if (failedPhase != null) {
+                phase = failedPhase;
+                migrationState = "failed";
+            }
             String migrationStep = StringUtils.defaultIfBlank(getString(resume, "next_step"),
                     StringUtils.defaultIfBlank(getString(resume, "last_step"),
                             StringUtils.defaultIfBlank(getString(progress, "next_step"), getString(progress, "last_step"))));
+            if (failedPhase != null) {
+                migrationStep = failedPhase + "_failed";
+            }
             String syncPhysical = getPercent(resume);
             String workdir = StringUtils.defaultIfBlank(getString(status, "workdir"), cmd.getWorkdir());
             JsonObject target = getObject(status, "target");
             JsonObject targetResult = getObject(target, "result");
-            JsonObject cloudRuntime = getObject(runtime, "cloud");
             String targetProvider = StringUtils.defaultIfBlank(getString(targetResult, "provider"),
                     StringUtils.defaultIfBlank(getString(cloudRuntime, "provider"), getString(target, "provider")));
-            String cloudVmId = StringUtils.defaultIfBlank(getString(targetResult, "vm_id"), getString(cloudRuntime, "vm_id"));
+            String cloudVmId = StringUtils.defaultIfBlank(completedCloudVmId,
+                    StringUtils.defaultIfBlank(getString(targetResult, "vm_id"), getString(cloudRuntime, "vm_id")));
             AblestackN2KStatusAnswer answer = new AblestackN2KStatusAnswer(cmd, true, "OK", phase, migrationState, migrationStep,
                     syncPhysical, workdir, status.toString(), targetProvider, cloudVmId);
             applyStructuredProgress(answer, status);
+            if (failedPhase != null) {
+                answer.setDisplayStep(failedPhase.equals("phase2") ? "PHASE2_FAILED" : "PHASE1_FAILED");
+            }
             return answer;
         } catch (RuntimeException e) {
             return new AblestackN2KStatusAnswer(cmd, false,
                     String.format("Unable to parse ablestack_n2k status output for workdir %s: %s", cmd.getWorkdir(), e.getMessage()));
         }
+    }
+
+    private String readFailedRunnerPhase(String workdir, String inferredPhase) {
+        Path statePath = Path.of(workdir, "runner.json");
+        if (!Files.isRegularFile(statePath) || !Files.isReadable(statePath)) {
+            return null;
+        }
+        try {
+            JsonObject runner = new JsonParser().parse(Files.readString(statePath)).getAsJsonObject();
+            String phase = getString(runner, "split");
+            if ("failed".equals(getString(runner, "state"))) {
+                return "phase1".equals(phase) || "phase2".equals(phase) ? phase : inferredPhase;
+            }
+        } catch (IOException | RuntimeException e) {
+            logger.debug("Unable to read the ablestack_n2k runner state for workdir {}", workdir);
+        }
+        return null;
     }
 
     private void applyStructuredProgress(AblestackN2KStatusAnswer answer, JsonObject status) {

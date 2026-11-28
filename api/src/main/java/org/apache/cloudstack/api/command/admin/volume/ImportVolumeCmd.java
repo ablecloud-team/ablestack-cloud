@@ -69,6 +69,14 @@ public class ImportVolumeCmd extends BaseAsyncCmd {
     public String getAllocationRequestId() { return allocationRequestId; }
     public boolean isAllocationAllowCopy() { return Boolean.TRUE.equals(allocationAllowCopy); }
 
+    @Parameter(name = "sourceidentity", type = BaseCmd.CommandType.STRING,
+            description = "Optional source identity from listVolumesForImport. The import fails if the inspected source has changed.")
+    private String sourceIdentity;
+
+    public String getSourceIdentity() {
+        return sourceIdentity;
+    }
+
     @Inject
     public VolumeImportUnmanageService volumeImportService;
 

@@ -604,6 +604,8 @@ export default {
     CheckBoxSelectPair
   },
   props: {
+    wizard: { type: Boolean, default: false },
+    sourceidentity: { type: String, default: undefined },
     cluster: {
       type: Object,
       required: true
@@ -1589,9 +1591,10 @@ export default {
       this.selectedRootDiskSources = [rootDisk]
     },
     handleSubmit (e) {
-      e.preventDefault()
+      if (e?.preventDefault) e.preventDefault()
       if (this.loading) return
       this.formRef.value.validate().then(() => {
+        if (this.loading) return
         const values = toRaw(this.form)
         const params = {
           name: this.resource.name,
@@ -1624,6 +1627,7 @@ export default {
             }
             params.name = values.displayname
             params.networkid = values.networkid
+            if (this.sourceidentity) params.sourceidentity = this.sourceidentity
           }
         }
         if (!this.computeOffering || !this.computeOffering.id) {
@@ -1815,6 +1819,10 @@ export default {
             } else {
               jobId = response.importunmanagedinstanceresponse.jobid
             }
+            if (this.wizard && (useAblestackV2KWorkflow || useAblestackN2KWorkflow)) {
+              this.updateLoading(false)
+              this.$emit('submitted', jobId)
+            }
             let msgLoading = this.$t('label.import.instance') + ' ' + name + ' ' + this.$t('label.in.progress')
             if (this.selectedKvmHostForConversion) {
               const kvmHost = this.kvmHostsForConversion.filter(x => x.id === this.selectedKvmHostForConversion)[0]
@@ -1836,19 +1844,29 @@ export default {
               successMessage: this.$t('message.success.import.instance') + ' ' + name,
               successMethod: result => {
                 this.$emit('refresh-data')
+                if (this.wizard && !useAblestackV2KWorkflow) {
+                  this.updateLoading(false)
+                  this.$emit('submitted', jobId)
+                }
                 resolve(result)
               },
-              errorMethod: (result) => {
+              errorMethod: result => {
                 this.updateLoading(false)
                 reject(result.jobresult.errortext)
+              },
+              catchMethod: result => {
+                this.updateLoading(false)
+                reject(result)
               }
             })
           }).catch(error => {
             this.updateLoading(false)
             this.$notifyError(error)
           }).finally(() => {
-            this.closeAction()
-            this.updateLoading(false)
+            if (!this.wizard) {
+              this.closeAction()
+              this.updateLoading(false)
+            }
           })
         })
       }).catch(() => {

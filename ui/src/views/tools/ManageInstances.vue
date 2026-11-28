@@ -17,7 +17,7 @@
 
 <template>
   <a-row :gutter="12" v-if="isPageAllowed">
-    <a-col :span="24" class="content-breadcrumb">
+    <a-col v-if="mode === 'legacy'" :span="24" class="content-breadcrumb">
       <a-card class="breadcrumb-card breadcrumb-toolbar">
       <a-row class="breadcrumb-toolbar-row">
         <a-col class="breadcrumb-toolbar-path">
@@ -45,8 +45,30 @@
     </a-col>
     <a-col :md="24">
       <div>
-        <a-card>
+        <div v-if="mode === 'instances'" class="import-source-cards">
+          <a-button
+            v-for="action in allowedSourceActions"
+            :key="action.name"
+            :data-import-source="action.name"
+            block
+            @click="openImportWizard(action)">
+            <template #icon><ImportOutlined /></template>
+            {{ action.label }}
+          </a-button>
+        </div>
+        <component
+          :is="mode === 'instances' ? 'MoldDialog' : 'a-card'"
+          v-if="mode !== 'instances' || wizardOpen"
+          v-bind="mode === 'instances' ? { title: wizardTitle, size: 'xl', closable: !importUnmanagedInstanceLoading } : {}"
+          @cancel="closeImportWizard">
+          <a-steps v-if="mode === 'instances'" :current="wizardStep" size="small" class="import-wizard-steps">
+            <a-step :title="$t('label.destination')" />
+            <a-step :title="$t(isDiskImport ? 'label.disk' : 'label.instances.listing')" />
+            <a-step :title="$t('label.details')" />
+          </a-steps>
+          <div v-show="mode !== 'instances' || wizardStep === 0">
           <a-alert
+            v-if="showImportWorkspace"
             class="manage-instances-alert"
             type="info"
             :showIcon="true"
@@ -58,7 +80,7 @@
           </a-alert>
           <br />
           <a-row :gutter="12">
-            <a-card class="source-dest-card">
+            <a-card v-if="mode !== 'instances' || isExternal" class="source-dest-card">
               <a-col :md="24" :lg="48">
                 <a-form
                   style="min-width: 170px"
@@ -67,7 +89,7 @@
                   :rules="rules"
                   layout="vertical"
                 >
-                  <a-col :md="24" :lg="24">
+                  <a-col v-if="mode === 'legacy'" :md="24" :lg="24">
                     <a-form-item name="sourcehypervisor" ref="sourcehypervisor" :label="$t('label.source')">
                       <a-radio-group
                         style="text-align: center; width: 100%"
@@ -220,7 +242,7 @@
                     </a-select>
                   </a-form-item>
                   <a-form-item
-                    v-if="showPod"
+                    v-if="showPod && mode !== 'tasks'"
                     name="podid"
                     ref="podid"
                     :label="isMigrateFromVmware ? $t('label.destination.pod') : $t('label.podid')">
@@ -235,7 +257,7 @@
                     ></a-select>
                   </a-form-item>
                   <a-form-item
-                    v-if="showCluster"
+                    v-if="showCluster && mode !== 'tasks'"
                     name="clusterid"
                     ref="clusterid"
                     :label="isMigrateFromVmware ? $t('label.destination.cluster') : $t('label.clusterid')">
@@ -362,27 +384,6 @@
                         @change="onSelectPoolId"
                       ></a-select>
                   </a-form-item>
-                  <a-form-item
-                    v-if="showDiskPath"
-                    name="diskpath"
-                    ref="diskpath">
-                    <template #label>
-                          <tooltip-label
-                            :title="$t('label.disk')"
-                            :tooltip="$t('label.disk.tooltip')"/>
-                    </template>
-                    <a-input
-                      v-model:value="form.diskpath"
-                    ></a-input>
-                  </a-form-item>
-                  <a-col v-if="showDiskPath" :md="24" :lg="8">
-                    <a-button
-                        type="primary"
-                        @click="onImportInstanceAction">
-                      <template #icon><import-outlined /></template>
-                      {{ $t('label.import.instance') }}
-                    </a-button>
-                  </a-col>
                 </a-form>
               </a-col>
             </a-card>
@@ -399,12 +400,36 @@
               </div>
             </a-col>
           </a-row>
-          <a-divider />
-
-          <a-tabs v-model:activeKey="activeTabKey" @change="onTabChange">
-            <a-tab-pane :key=1 :tab="$t('label.instances.listing')">
+          </div>
+          <div v-show="mode !== 'instances' || wizardStep === 1" class="import-wizard-candidates">
+            <a-form v-if="isDiskImport" :model="form" layout="vertical">
+                  <a-form-item
+                    v-if="showDiskPath"
+                    name="diskpath"
+                    ref="diskpath">
+                    <template #label>
+                          <tooltip-label
+                            :title="$t('label.disk')"
+                            :tooltip="$t('label.disk.tooltip')"/>
+                    </template>
+                    <a-input
+                      v-model:value="form.diskpath"
+                      @change="checkedDisk = null"
+                    ></a-input>
+                  </a-form-item>
+                  <a-col v-if="showDiskPath && mode === 'legacy'" :md="24" :lg="8">
+                    <a-button
+                        type="primary"
+                        @click="onImportInstanceAction">
+                      <template #icon><import-outlined /></template>
+                      {{ $t('label.import.instance') }}
+                    </a-button>
+                  </a-col>
+            </a-form>
+          <a-tabs v-model:activeKey="activeTabKey" :class="{ 'embedded-instance-tabs': mode !== 'legacy' }" @change="onTabChange">
+            <a-tab-pane v-if="mode !== 'tasks'" :key=1 :tab="$t('label.instances.listing')">
               <a-row :gutter="12">
-                <a-col v-if="!isDiskImport" :md="24" :lg="(!isMigrateFromVmware && showManagedInstances) ? 12 : 24">
+                <a-col v-if="showImportWorkspace && !isDiskImport" :md="24" :lg="mode === 'legacy' && !isMigrateFromVmware && showManagedInstances ? 12 : 24">
                   <a-card class="instances-card">
                     <template #title>
                       {{ (isMigrateFromVmware && vmwareVcenterType === 'existing') ? $t('label.instances') : $t('label.unmanaged.instances') }}
@@ -486,7 +511,8 @@
                       <div :span="24" class="action-button-right">
                         <a-button
                           :loading="importUnmanagedInstanceLoading"
-                          :disabled="!(('importUnmanagedInstance' in $store.getters.apis) && unmanagedInstancesSelectedRowKeys.length > 0)"
+                          v-if="mode === 'legacy'"
+                          :disabled="!canAdvanceImportWizard"
                           type="primary"
                           @click="onManageInstanceAction">
                           <template #icon><import-outlined /></template>
@@ -496,7 +522,7 @@
                     </div>
                   </a-card>
                 </a-col>
-                <a-col :md="24" :lg="12" v-if="!isMigrateFromVmware && showManagedInstances">
+                <a-col v-if="mode === 'release' || (mode === 'legacy' && !isMigrateFromVmware && showManagedInstances)" :md="24" :lg="mode === 'release' ? 24 : 12">
                   <a-card class="instances-card">
                     <template #title>
                       {{ $t('label.managed.instances') }}
@@ -570,7 +596,7 @@
                 </a-col>
               </a-row>
             </a-tab-pane>
-            <a-tab-pane :key=2 :tab="$t('label.import.vm.tasks')" v-if="isAblestackCloudMigration">
+            <a-tab-pane v-if="mode === 'tasks' || (mode === 'legacy' && isAblestackCloudMigration)" :key=2 :tab="$t('label.import.vm.tasks')">
               <ImportVmTasks
                 :tasks="importVmTasks"
                 :loading="loadingImportVmTasks"
@@ -585,10 +611,15 @@
               />
             </a-tab-pane>
           </a-tabs>
-
-        </a-card>
-
-        <a-modal
+          </div>
+          <a-descriptions v-if="mode === 'instances' && wizardStep === 2 && checkedDisk" :column="2" bordered size="small">
+            <a-descriptions-item :label="$t('label.format')">{{ checkedDisk.format }}</a-descriptions-item>
+            <a-descriptions-item :label="$t('label.size')">{{ $bytesToHumanReadableSize(checkedDisk.virtualsize || checkedDisk.size) }}</a-descriptions-item>
+            <a-descriptions-item :label="$t('label.storagepool')">{{ selectedPool.name }}</a-descriptions-item>
+            <a-descriptions-item :label="$t('label.disk.path')">{{ checkedDisk.path }}</a-descriptions-item>
+          </a-descriptions>
+        <component
+          :is="mode === 'instances' ? 'div' : 'AModal'"
           v-if="showUnmanageForm"
           :visible="showUnmanageForm"
           :title="$t('label.import.instance')"
@@ -599,9 +630,11 @@
           @cancel="showUnmanageForm = false"
           centered
           ref="importModal"
-          width="auto">
+          :width="mode === 'instances' ? undefined : 'auto'">
           <import-unmanaged-instances
-            class="importform"
+            :class="{ importform: mode !== 'instances' }"
+            :sourceidentity="checkedDisk?.details?.SOURCE_IDENTITY"
+            :wizard="mode === 'instances'"
             :resource="selectedUnmanagedInstance"
             :cluster="selectedCluster"
             :host="selectedHost"
@@ -622,10 +655,19 @@
             :insecure="values?.insecure ?? form.insecure"
             @refresh-data="fetchInstances"
             @close-action="closeImportUnmanagedInstanceForm"
+            @submitted="onImportSubmitted"
             @loading-changed="updateManageInstanceActionLoading"
             @track-import-jobid="trackImportJobId"
           />
-        </a-modal>
+        </component>
+          <template v-if="mode === 'instances'" #footer>
+            <a-button :disabled="importUnmanagedInstanceLoading" @click="closeImportWizard">{{ $t('label.cancel') }}</a-button>
+            <a-button v-if="wizardStep > 0" :disabled="importUnmanagedInstanceLoading" @click="previousImportStep">{{ $t('label.previous') }}</a-button>
+            <a-button v-if="wizardStep < 2" type="primary" :loading="checkingDisk" :disabled="!canAdvanceImportWizard" @click="nextImportStep">
+              {{ $t('label.next') }}
+            </a-button>
+          </template>
+        </component>
       </div>
     </a-col>
   </a-row>
@@ -644,24 +686,31 @@ import Breadcrumb from '@/components/widgets/Breadcrumb'
 import Status from '@/components/widgets/Status'
 import SearchView from '@/components/view/SearchView'
 import ImportUnmanagedInstances from '@/views/tools/ImportUnmanagedInstance'
+import MoldDialog from '@/components/view/MoldDialog'
+import { Modal } from 'ant-design-vue'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import SelectVmwareVcenter from '@/views/tools/SelectVmwareVcenter'
 import TooltipLabel from '@/components/widgets/TooltipLabel.vue'
 import ImportVmTasks from '@/views/tools/ImportVmTasks.vue'
 
 export default {
-  mixins: [listRefreshMixin(['fetchImportVmTasks'], { active: vm => String(vm.activeTabKey) === '2' && !!vm.zoneId && vm.isAblestackCloudMigration })],
+  mixins: [listRefreshMixin(['fetchImportVmTasks'], { active: vm => String(vm.activeTabKey) === '2' && !!vm.zoneId && (vm.mode === 'tasks' || vm.isAblestackCloudMigration) })],
   components: {
     TooltipLabel,
     Breadcrumb,
     Status,
     SearchView,
     ImportUnmanagedInstances,
+    MoldDialog,
+    AModal: Modal,
     ResourceIcon,
     SelectVmwareVcenter,
     ImportVmTasks
   },
   name: 'ManageVms',
+  props: {
+    mode: { type: String, default: 'legacy' }
+  },
   directives: { scrollActivity },
   data () {
     const AllSourceActions = [
@@ -669,7 +718,6 @@ export default {
         name: 'unmanaged',
         label: this.$t('label.manage.unmanage.instances'),
         sourceDestHypervisors: {
-          vmware: 'vmware',
           kvm: 'kvm'
         },
         wizardTitle: this.$t('label.desc.importexportinstancewizard'),
@@ -854,6 +902,11 @@ export default {
       unmanagedInstancesColumns,
       externalInstancesColumns,
       AllSourceActions,
+      wizardOpen: false,
+      wizardStep: 0,
+      checkedDisk: null,
+      checkingDisk: false,
+      optionRequestIds: {},
       unmanagedInstancesLoading: false,
       unmanagedInstances: [],
       unmanagedInstancesSelectedRowKeys: [],
@@ -868,7 +921,7 @@ export default {
       query: {},
       vmwareVcenterType: undefined,
       selectedVmwareVcenter: undefined,
-      activeTabKey: 1,
+      activeTabKey: this.mode === 'tasks' ? 2 : 1,
       loadingImportVmTasks: false,
       importVmTasks: [],
       selectedImportVmTask: null,
@@ -888,6 +941,36 @@ export default {
     this.stopImportVmTasksAutoRefresh()
   },
   computed: {
+    showImportWorkspace () {
+      return this.mode === 'legacy' || this.mode === 'instances'
+    },
+    allowedSourceActions () {
+      const apis = this.$store.getters.apis
+      const requirements = {
+        unmanaged: ['listUnmanagedInstances', 'importUnmanagedInstance'],
+        vmware: ['listVmsForImport', 'importUnmanagedInstanceForAblestackV2K'],
+        nutanix: ['listVmsForImport', 'importUnmanagedInstanceForAblestackN2K'],
+        external: ['listVmsForImport', 'importVm'],
+        local: ['listVolumesForImport', 'importVm'],
+        shared: ['listVolumesForImport', 'importVm']
+      }
+      return this.AllSourceActions.filter(action => requirements[action.name].every(api => api in apis))
+    },
+    canAdvanceImportWizard () {
+      if (this.mode !== 'instances') return 'importUnmanagedInstance' in this.$store.getters.apis && this.unmanagedInstancesSelectedRowKeys.length > 0
+      if (this.wizardStep === 1) {
+        return this.isDiskImport
+          ? !!this.form.diskpath?.trim()
+          : !this.unmanagedInstancesLoading && this.unmanagedInstancesSelectedRowKeys.length === 1
+      }
+      if (!this.zoneId || !this.clusterId) return false
+      if (this.isDiskImport) return !!this.poolId
+      if (this.isMigrateFromVmware) return !!this.selectedVmwareVcenter && !this.unmanagedInstancesLoading
+      if (this.isExternal || this.isMigrateFromNutanix) {
+        return !!(this.form.hostname?.trim() && this.form.username?.trim() && this.form.password)
+      }
+      return true
+    },
     tableScrollSelector () { return tableScrollSelector },
     isPageAllowed () {
       if (this.$route.meta.permission) {
@@ -936,12 +1019,14 @@ export default {
       return this.destinationHypervisor === 'kvm'
     },
     showPod () {
+      if (this.mode === 'instances' && this.isDiskImport) return true
       if (this.selectedSourceAction === 'shared') {
         return this.poolscope !== 'zone'
       }
       return (this.selectedSourceAction !== 'external')
     },
     showCluster () {
+      if (this.mode === 'instances' && this.isDiskImport) return true
       if (this.selectedSourceAction === 'shared') {
         return this.poolscope !== 'zone'
       }
@@ -1015,8 +1100,8 @@ export default {
           list: 'listStoragePools',
           options: {
             zoneid: _.get(this.zone, 'id'),
-            podid: this.podId,
-            clusterid: this.clusterId,
+            podid: this.getPoolScope === 'zone' ? undefined : this.podId,
+            clusterid: this.getPoolScope === 'zone' ? undefined : this.clusterId,
             hostid: this.hostId,
             scope: this.getPoolScope
           },
@@ -1142,10 +1227,84 @@ export default {
       this.unmanagedInstances = []
       this.managedInstances = []
       try {
-        await restoreImportOptions(this.$router, initial => this.onSelectHypervisor(this.sourceHypervisor, initial))
+        if (this.mode === 'instances' && !this.wizardOpen) return
+        const source = this.showImportWorkspace ? this.sourceHypervisor : 'kvm'
+        await restoreImportOptions(this.$router, initial => this.onSelectHypervisor(source, initial))
       } finally {
         this.initialOptionsPending = false
       }
+    },
+    async openImportWizard (action) {
+      this.initForm()
+      this.optionRequestIds = {}
+      Object.keys(this.optionLoading).forEach(key => { this.optionLoading[key] = false })
+      this.poolscope = 'cluster'
+      this.wizardStep = 0
+      this.checkedDisk = null
+      this.checkingDisk = false
+      this.wizardOpen = true
+      this.sourceHypervisor = Object.keys(action.sourceDestHypervisors)[0]
+      this.form.sourceAction = action.name
+      this.selectedVmwareVcenter = undefined
+      this.options.pods = []
+      this.options.clusters = []
+      this.options.hosts = []
+      this.options.pools = []
+      await this.onSelectSourceAction(action.name)
+    },
+    closeImportWizard () {
+      if (this.importUnmanagedInstanceLoading) return
+      this.optionRequestIds = {}
+      this.wizardOpen = false
+      this.showUnmanageForm = false
+      this.checkingDisk = false
+      this.checkedDisk = null
+      this.values = {}
+      this.selectedVmwareVcenter = undefined
+    },
+    previousImportStep () {
+      this.showUnmanageForm = false
+      this.wizardStep--
+    },
+    async nextImportStep () {
+      if (!this.canAdvanceImportWizard || this.checkingDisk) return
+      if (this.wizardStep === 0) {
+        this.wizardStep = 1
+        if (this.isExternal || this.isMigrateFromNutanix) this.fetchUnmanagedInstances()
+        return
+      }
+      if (this.isDiskImport) {
+        const form = this.form
+        const storageid = this.poolId
+        const path = form.diskpath.trim()
+        this.checkingDisk = true
+        try {
+          const data = await getAPI('listVolumesForImport', { storageid, path })
+          if (this.form !== form || !this.wizardOpen || storageid !== this.poolId || path !== form.diskpath?.trim()) return
+          const disk = data.listvolumesforimportresponse?.volumeforimport?.[0]
+          if (!disk || !['QCOW2', 'RAW'].includes(disk.format?.toUpperCase()) || disk.storagetype?.toUpperCase() === 'RBD') {
+            this.$notification.error({ message: this.$t('message.please.enter.valid.value') + ' - ' + this.$t('label.disk.path') })
+            return
+          }
+          this.checkedDisk = disk
+          this.selectedUnmanagedInstance = {}
+          this.values = { ...toRaw(form), diskpath: disk.path }
+          this.showUnmanageForm = true
+        } catch (error) {
+          if (this.wizardOpen && this.form === form) this.$notifyError(error)
+        } finally {
+          if (this.form === form) this.checkingDisk = false
+        }
+      } else {
+        this.onManageInstanceAction()
+      }
+      if (this.showUnmanageForm) this.wizardStep = 2
+    },
+    onImportSubmitted () {
+      const taskZone = this.zoneId
+      const hasTaskList = this.isAblestackCloudMigration && 'listImportVmTasks' in this.$store.getters.apis
+      this.closeImportWizard()
+      if (hasTaskList) this.$router.push({ path: '/manageinstances', query: { tab: 'tasks', zoneid: taskZone } })
     },
     filterOption (input, option) {
       return (
@@ -1169,10 +1328,13 @@ export default {
     },
     fetchOptions (param, name, exclude, initial) {
       if (exclude?.includes(name)) return
+      if (!(param.list in this.$store.getters.apis)) return
+      const request = Symbol(name)
+      this.optionRequestIds[name] = request
       this.optionLoading[name] = true
       const params = { ...param.options }
       return getAPI(param.list, params).then(response => {
-        if (initial && this.$router.currentRoute.value !== initial.route) return
+        if (this.optionRequestIds[name] !== request || (initial && this.$router.currentRoute.value !== initial.route)) return
         const body = Object.entries(response).find(([key]) => key.includes('response'))?.[1]
         const options = Object.values(body || {}).find(Array.isArray) || []
         this.rowCount[name] = body?.count ?? options.length
@@ -1181,7 +1343,7 @@ export default {
       }).catch(error => {
         console.log(error.stack)
       }).finally(() => {
-        this.optionLoading[name] = false
+        if (this.optionRequestIds[name] === request) this.optionLoading[name] = false
       })
     },
     getRowClassName (record, index) {
@@ -1221,6 +1383,7 @@ export default {
       }
     },
     updateQuery (field, value, initial) {
+      if (this.mode === 'instances') return
       const query = initial?.query || { ...this.$route.query }
       if (query[field] === value + '') {
         return
@@ -1240,7 +1403,7 @@ export default {
       this.managedInstances = []
       this.managedInstancesSelectedRowKeys = []
       this.page.tasks = 1
-      this.activeTabKey = 1
+      this.activeTabKey = this.mode === 'tasks' ? 2 : 1
       this.stopImportVmTasksAutoRefresh()
     },
     getSourceActionsForHypervisor (hypervisor) {
@@ -1282,6 +1445,12 @@ export default {
       this.destinationHypervisor = selectedAction.sourceDestHypervisors[this.sourceHypervisor]
       this.wizardTitle = selectedAction.wizardTitle
       this.wizardDescription = selectedAction.wizardDescription
+      this.zoneId = null
+      this.zone = null
+      this.podId = null
+      this.clusterId = null
+      this.hostId = null
+      this.poolId = null
       this.form.zoneid = undefined
       this.form.podid = undefined
       this.form.clusterid = undefined
@@ -1303,7 +1472,16 @@ export default {
       this.form.clusterid = undefined
       this.form.podid = undefined
       this.form.poolid = undefined
+      this.form.hostid = undefined
+      this.options.clusters = []
+      this.options.hosts = []
+      this.options.pools = []
       this.updateQuery('zoneid', value, initial)
+      if (this.mode === 'tasks') {
+        if (initial) initial.read = () => this.onTabChange(2)
+        else this.onTabChange(2)
+        return
+      }
       return this.fetchOptions(this.params.pods, 'pods', undefined, initial)
     },
     onSelectPodId (value, initial) {
@@ -1335,11 +1513,15 @@ export default {
       return this.fetchOptions(this.params.pools, 'pools', value, initial)
     },
     onSelectPoolId (value) {
+      this.checkedDisk = null
       this.poolId = value
     },
     onSelectPoolScope (value) {
       this.poolscope = value
       this.poolId = null
+      this.form.poolid = undefined
+      this.checkedDisk = null
+      this.options.pools = []
       this.updateQuery('scope', value)
       this.fetchOptions(this.params.pools, 'pools', value)
     },
@@ -1468,10 +1650,10 @@ export default {
         tasksfilter: this.importVmTasksFilter,
         targetprovider: 'cloud'
       }
-      if (this.isMigrateFromVmware) {
+      if (this.mode !== 'tasks' && this.isMigrateFromVmware) {
         params.sourceprovider = 'vmware'
         params.migrationtool = 'ablestack_v2k'
-      } else if (this.isMigrateFromNutanix) {
+      } else if (this.mode !== 'tasks' && this.isMigrateFromNutanix) {
         params.sourceprovider = 'nutanix'
         params.migrationtool = 'ablestack_n2k'
       }
@@ -1497,8 +1679,8 @@ export default {
       })
     },
     fetchInstances () {
-      this.fetchUnmanagedInstances()
-      if (this.isUnmanaged) {
+      if (this.mode !== 'release') this.fetchUnmanagedInstances()
+      if (this.mode === 'release' || (this.mode === 'legacy' && this.isUnmanaged)) {
         this.fetchManagedInstances()
       } else if (this.kvmOption === 'external') {
         this.fetchExternalInstances()
@@ -1802,6 +1984,7 @@ export default {
     closeImportUnmanagedInstanceForm () {
       this.selectedUnmanagedInstance = {}
       this.showUnmanageForm = false
+      if (this.mode === 'instances') this.wizardStep = 1
     },
     onUnmanageInstanceAction () {
       const self = this
@@ -1881,6 +2064,39 @@ export default {
 </script>
 
 <style scoped lang="less">
+.import-source-cards {
+  display: grid;
+  grid-template-columns: ~"repeat(auto-fit, minmax(min(100%, 238px), 1fr))";
+  gap: 12px;
+  padding: 0 4px 12px;
+}
+
+.import-source-cards > .ant-btn {
+  height: auto;
+  min-height: 54px;
+  white-space: normal;
+}
+
+.import-wizard-steps {
+  margin-bottom: 16px;
+}
+
+.import-wizard-candidates .instances-card-table {
+  margin-bottom: 0;
+}
+
+.import-wizard-candidates .instances-card-footer {
+  position: static;
+  height: auto;
+  margin: 0;
+}
+
+@media (max-width: 767px) {
+  .source-dest-card {
+    width: 100%;
+  }
+}
+
 :deep(.ant-table-small) > .ant-table-content > .ant-table-body {
   margin: 0;
 }
@@ -1985,5 +2201,8 @@ export default {
 :deep(.ant-table-tbody > tr:focus-visible) {
   outline: 2px solid var(--ui-focus);
   outline-offset: -2px;
+}
+.embedded-instance-tabs > .ant-tabs-nav {
+  display: none;
 }
 </style>

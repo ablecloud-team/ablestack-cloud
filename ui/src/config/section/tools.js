@@ -72,21 +72,21 @@ export default {
     },
     {
       name: 'manageinstances',
-      title: 'label.action.import.export.instances',
+      title: 'label.action.import.instances.volumes',
       icon: 'interaction-outlined',
       docHelp: 'adminguide/virtual_machines.html#importing-and-unmanaging-virtual-machine',
       resourceType: 'UserVm',
-      permission: ['listInfrastructure', 'listUnmanagedInstances'],
-      component: () => import('@/views/tools/ManageInstances.vue')
+      permissionAny: ['importVm', 'importUnmanagedInstance', 'importUnmanagedInstanceForAblestackV2K', 'importUnmanagedInstanceForAblestackN2K',
+        'listVolumesForImport', 'unmanageVirtualMachine', 'listImportVmTasks'],
+      component: () => import('@/views/tools/InstanceVolumeImport.vue')
     },
     {
       name: 'managevolumes',
-      title: 'label.action.import.unmanage.volumes',
+      title: 'label.action.import.instances.volumes',
       icon: 'interaction-outlined',
-      docHelp: 'adminguide/virtual_machines.html#importing-and-unmanaging-volume',
-      resourceType: 'UserVm',
-      permission: ['listInfrastructure', 'listVolumesForImport'],
-      component: () => import('@/views/tools/ManageVolumes.vue')
+      hidden: true,
+      permissionAny: ['listVolumesForImport'],
+      component: () => import('@/views/tools/InstanceVolumeImport.vue')
     },
     {
       name: 'webhook',

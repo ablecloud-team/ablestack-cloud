@@ -323,6 +323,22 @@ public class LibvirtComputingResourceTest {
     final OneLineParser statsParserMock = Mockito.mock(OneLineParser.class);
 
     @Test
+    public void treatsRawFileOnLocalPoolAsFileButNeverRbdAsFile() throws IOException {
+        Path file = Files.createTempFile("mold-raw-disk-", ".raw");
+        try {
+            KVMStoragePool pool = Mockito.mock(KVMStoragePool.class);
+            KVMPhysicalDisk disk = new KVMPhysicalDisk(file.toString(), "source.raw", pool);
+            disk.setFormat(PhysicalDiskFormat.RAW);
+            Mockito.when(pool.getType()).thenReturn(StoragePoolType.Filesystem);
+            Assert.assertTrue(LibvirtComputingResource.isFileBackedRawDisk(disk));
+            Mockito.when(pool.getType()).thenReturn(StoragePoolType.RBD);
+            Assert.assertFalse(LibvirtComputingResource.isFileBackedRawDisk(disk));
+        } finally {
+            Files.deleteIfExists(file);
+        }
+    }
+
+    @Test
     public void setQcow2FullMetadataCacheConfiguresFileBackedQcow2Disk() throws Exception {
         final LibvirtComputingResource resource = new LibvirtComputingResource();
         final KVMPhysicalDisk physicalDisk = Mockito.mock(KVMPhysicalDisk.class);

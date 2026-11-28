@@ -95,6 +95,14 @@ public class ImportVmCmd extends ImportUnmanagedInstanceCmd {
             description = "path of the disk image")
     private String diskPath;
 
+    @Parameter(name = "sourceidentity", type = CommandType.STRING,
+            description = "Optional inspected source identity for local or shared file import")
+    private String sourceIdentity;
+
+    public String getSourceIdentity() {
+        return sourceIdentity;
+    }
+
     @Parameter(name = ApiConstants.IMPORT_SOURCE,
             type = CommandType.STRING,
             required = true,
