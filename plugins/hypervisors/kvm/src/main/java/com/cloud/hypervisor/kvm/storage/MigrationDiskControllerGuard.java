@@ -209,8 +209,8 @@ public final class MigrationDiskControllerGuard {
     }
 
     public Map<String, Object> validate(
-            String planText, String bindingsText, String actualXml, boolean normalized) {
-        JsonObject plan = MigrationDiskControllerPolicy.parse(planText);
+            String serializedPlan, String bindingsText, String actualXml, boolean normalized) {
+        JsonObject plan = MigrationDiskControllerPolicy.parse(serializedPlan);
         if (plan.has("rbd_access_mode") && !List.of("krbd", "librbd").contains(plan.get("rbd_access_mode").getAsString()))
             throw new CloudRuntimeException("DISK_CONTROLLER_RBD_ACCESS_MODE_UNSUPPORTED");
         JsonArray expected = MigrationDiskControllerPolicy.bindingArray(bindingsText);
