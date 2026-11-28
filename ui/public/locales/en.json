@@ -9360,6 +9360,7 @@
   "label.vm.wizard.basic": "Basic information",
   "label.vm.wizard.advanced": "Advanced settings",
   "label.vm.wizard.summary": "Configuration summary",
+  "label.vm.wizard.disk.unselected": "Not selected",
   "message.vm.wizard.storage.incomplete": "Complete the required disk and storage settings before continuing.",
   "label.vm.disk.fixed": "Fixed size",
   "label.vm.disk.count": "Data disk count",

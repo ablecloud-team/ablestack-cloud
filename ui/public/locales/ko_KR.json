@@ -9369,6 +9369,7 @@
   "label.vm.wizard.basic": "기본 정보",
   "label.vm.wizard.advanced": "고급 설정",
   "label.vm.wizard.summary": "설정 요약",
+  "label.vm.wizard.disk.unselected": "선택 안함",
   "message.vm.wizard.storage.incomplete": "다음 단계로 이동하려면 필수 디스크 및 스토리지 설정을 완료하세요.",
   "label.vm.disk.fixed": "고정 용량",
   "label.vm.disk.count": "데이터 디스크 개수",

@@ -1560,9 +1560,9 @@ export default {
         } : {}),
         disksizetotalgb: this.diskSize || null,
         rootdiskofferingid: this.rootDiskOffering?.id,
-        rootdiskofferingdisplaytext: this.rootDiskOffering?.displayText,
+        rootdiskofferingdisplaytext: this.rootDiskOffering?.displayText || this.$t('label.vm.wizard.disk.unselected'),
         datadiskofferingid: this.dataDiskOffering?.id,
-        datadiskofferingdisplaytext: this.dataDiskOffering?.displayText,
+        datadiskofferingdisplaytext: this.dataDiskOffering?.displayText || this.$t('label.vm.wizard.disk.unselected'),
         templateformat: this.isCreationSource ? undefined : this.imageType === 'isoid' ? 'ISO' : this.template?.format,
         isoname: this.iso?.name,
         isodisplaytext: this.iso?.displaytext
@@ -1611,24 +1611,27 @@ export default {
     },
     diskOfferingQueryScope () { return deploymentDiskOfferingScope(this.params.diskOfferings.options, this.$store) },
     diskPlanIncomplete () {
-      if (this.loading?.diskOfferings || this.diskOfferingsError) return true
-      if (this.additionalIsoConfigDriveConflict) return true
+      return this.loading?.diskOfferings || !!this.diskOfferingsError || this.additionalIsoConfigDriveConflict ||
+        this.rootDiskPlanIncomplete || this.dataDiskPlanIncomplete
+    },
+    rootDiskPlanIncomplete () {
       if (this.isCreationSource) {
         return !this.creationSourceOwnerReady || !this.selectedCreationSource?.allowed || this.sourceLoading || this.sourceOperationPending ||
-          (this.storageSelectionEnabled && this.rootStorageSelection.valid === false) ||
-          (!!this.selectedDataDiskOffering?.id && (!(this.selectedDataDiskSize > 0) ||
-            !Number.isSafeInteger(this.selectedDataDiskCount) || this.selectedDataDiskCount < 1 ||
-            (this.storageSelectionEnabled && this.dataStorageSelection.valid === false)))
+          (this.storageSelectionEnabled && this.rootStorageSelection.valid === false)
       }
       if (!['templateid', 'isoid'].includes(this.imageType) || this.template?.deployasis) return false
       if (this.imageType === 'isoid' && (!this.diskOffering?.id || !(this.selectedRootDiskSize > 0))) return true
       if (this.imageType === 'templateid' && this.showOverrideDiskOfferingOption &&
         (!this.overrideDiskOffering?.id || this.overrideDiskOffering.iscustomized && !(this.selectedRootDiskSize > 0))) return true
       if (this.showRootDiskSizeChanger && !(Number(this.form.rootdisksize) > 0)) return true
-      if (this.selectedDataDiskOffering?.id && (!(this.selectedDataDiskSize > 0) || !Number.isSafeInteger(this.selectedDataDiskCount) ||
-        this.selectedDataDiskCount < 1 || this.isoDataDiskSelection.invalid)) return true
-      return this.storageSelectionEnabled && (this.rootStorageSelection.valid === false ||
-        !!this.selectedDataDiskOffering?.id && this.dataStorageSelection.valid === false)
+      return this.storageSelectionEnabled && this.rootStorageSelection.valid === false
+    },
+    dataDiskPlanIncomplete () {
+      if (!this.selectedDataDiskOffering?.id) return false
+      if (!this.isCreationSource && (!['templateid', 'isoid'].includes(this.imageType) || this.template?.deployasis)) return false
+      return !(this.selectedDataDiskSize > 0) || !Number.isSafeInteger(this.selectedDataDiskCount) ||
+        this.selectedDataDiskCount < 1 || (this.imageType === 'isoid' && this.isoDataDiskSelection.invalid) ||
+        (this.storageSelectionEnabled && this.dataStorageSelection.valid === false)
     },
     defaultRootOfferingName () {
       const offering = this.options.diskOfferings.find(item => item.id === this.serviceOffering?.diskofferingid)
@@ -1747,29 +1750,22 @@ export default {
       return size.join(' | ')
     },
     rootDiskOffering () {
-      const rootDiskOffering = this.vm.isoid != null ? this.diskOffering : this.overrideDiskOffering
-
-      const id = _.get(rootDiskOffering, 'id', null)
-      const displayText = _.get(rootDiskOffering, 'displaytext', null)
-
-      return {
-        id: id,
-        displayText: `${displayText} (Root)`
+      if (this.isCreationSource || this.isTemplateHypervisorExternal) return null
+      const iso = this.imageType === 'isoid'
+      const disk = iso ? this.diskOffering : this.showOverrideDiskOfferingOption ? this.overrideDiskOffering : null
+      const computeSetsSize = iso
+        ? this.isoRootOfferingStrict && disk?.id && !disk.iscustomized && this.selectedRootDiskSize > 0
+        : this.imageType === 'templateid' && this.template?.id && !this.template.deployasis && !this.showOverrideDiskOfferingOption &&
+          !this.showRootDiskSizeChanger && this.serviceOffering?.rootdisksize > 0
+      if (computeSetsSize) {
+        const offering = this.serviceOffering
+        return { id: offering.diskofferingid, displayText: offering.name || offering.displaytext }
       }
+      return disk?.id && disk.id !== '0' ? { id: disk.id, displayText: disk.displaytext || disk.name } : null
     },
     dataDiskOffering () {
-      if (this.vm.isoid != null) {
-        const offering = this.selectedDataDiskOffering
-        return offering ? { id: offering.id, displayText: offering.displaytext + ' (Data)' } : null
-      }
-
-      const id = _.get(this.diskOffering, 'id', null)
-      const displayText = _.get(this.diskOffering, 'displaytext', null)
-
-      return {
-        id: id,
-        displayText: `${displayText} (Data)`
-      }
+      const disk = this.selectedDataDiskOffering
+      return disk?.id && disk.id !== '0' ? { id: disk.id, displayText: disk.displaytext || disk.name } : null
     },
     affinityGroupIds () {
       return affinitySelectionIds(this.form.affinitygroupids)
@@ -2388,19 +2384,28 @@ export default {
       if (!(this.diskPlanIncomplete || this.userDataSelectionBlocked || this.deploymentOwnerPending)) return this.handleSubmit(event)
     },
     async validateWizardStep (step) {
-      const fields = { 0: ['zoneid'], 16: ['name'], 17: ['licensesaccepted'] }[step]
+      const fields = { 0: ['zoneid'], 16: ['name'] }[step]
       if (fields) {
         try {
           await this.formRef.value.validateFields(fields)
         } catch (error) {
-          await this.$refs.wizard.showInvalidField(step)
           return error.errorFields?.[0]?.errors?.[0] || 'error.form.message'
         }
       }
-      if (step === 0 && this.deploymentOwnerPending) return 'message.vm.group.lookup.unavailable'
-      if (step === 3 && !(this.form.templateid || this.form.isoid || this.form.volumeid || this.form.snapshotid)) return 'message.template.iso'
+      if (step === 0 && (this.deploymentOwnerPending || !vmGroupOwner(this.owner))) return 'message.vm.group.lookup.unavailable'
+      if (step === 2 && !this.selectedArchitecture) return 'message.instance.architecture'
+      if (step === 3) {
+        if (!(this.form.templateid || this.form.isoid || this.form.volumeid || this.form.snapshotid)) return 'message.template.iso'
+        if (this.isCreationSource && !this.selectedCreationSource?.allowed) return 'message.creation.source.required'
+        if (this.imageType === 'isoid' && this.additionalIsoSelection.enabled && !this.additionalIsoSelection.valid) return 'message.additional.iso.required'
+      }
       if (step === 4 && !this.form.computeofferingid) return 'message.step.2.continue'
-      if (step >= 5 && step <= 9 && this.diskPlanIncomplete) return 'message.vm.wizard.storage.incomplete'
+      if (step === 5 || step === 6) {
+        if (this.loading.diskOfferings || this.diskOfferingsError || this.rootDiskPlanIncomplete) return 'message.vm.wizard.storage.incomplete'
+      }
+      if (step >= 7 && step <= 9 && (this.loading.diskOfferings || this.diskOfferingsError || this.dataDiskPlanIncomplete)) return 'message.vm.wizard.storage.incomplete'
+      if (step === 10 && this.additionalIsoConfigDriveConflict) return 'message.additional.iso.configdrive.conflict'
+      if (step === 17 && !this.form.licensesaccepted) return 'message.step.license.agreements.continue'
       return ''
     },
     updateTemplateKey () {

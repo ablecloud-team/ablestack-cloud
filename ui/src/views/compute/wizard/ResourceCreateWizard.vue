@@ -31,8 +31,10 @@
         @wheel="scrollSteps">
         <ol>
           <li v-for="(stage, index) in stages" :key="stage.id" :aria-current="index === activeIndex ? 'step' : undefined">
-            <span class="step-number">{{ index + 1 }}</span>
-            <span>{{ $t(stage.label) }}</span>
+            <button type="button" class="resource-create-step-button" :disabled="busy || validating" @click="navigateToStep(stage.id)">
+              <span class="step-number">{{ index + 1 }}</span>
+              <span>{{ $t(stage.label) }}</span>
+            </button>
           </li>
         </ol>
       </div>
@@ -149,8 +151,37 @@ export default {
       steps.scrollLeft += event.deltaY * unit
       event.preventDefault()
     },
+    async navigateToStep (step) {
+      const targetIndex = this.stages.findIndex(stage => stage.id === step)
+      if (targetIndex < 0 || this.activeIndex < 0 || this.step === step || this.busy || this.validating) return
+      if (targetIndex < this.activeIndex) return this.moveTo(step)
+      if (this.blocked) return
+
+      const from = this.step
+      const path = this.stages.slice(0, targetIndex + 1).map(stage => stage.id)
+      this.validating = true
+      this.stepError = ''
+      try {
+        // Recheck preceding steps because a change or a request may invalidate
+        // selections the user previously completed.
+        for (const prerequisite of path.slice(0, -1)) {
+          const message = await this.validateStep(prerequisite)
+          if (this.step !== from || this.busy || this.blocked || path.some((id, index) => this.stages[index]?.id !== id)) return
+          if (!message) continue
+
+          await this.moveTo(prerequisite)
+          this.stepError = message
+          await this.showInvalidField(prerequisite)
+          return
+        }
+        await this.moveTo(step)
+      } finally {
+        this.validating = false
+      }
+    },
     async next () {
       if (this.activeIndex < 0 || this.isLastStep || this.busy || this.blocked || this.validating) return
+      if (this.splitScroll) return this.navigateToStep(this.stages[this.activeIndex + 1].id)
       const current = this.step
       this.validating = true
       this.stepError = ''
@@ -168,7 +199,8 @@ export default {
       const error = content?.querySelector('.ant-form-item-has-error')
       const stage = error?.closest('[data-wizard-step]')
       if (!stage) return
-      await this.moveTo(Number(stage.dataset.wizardStep))
+      const stepId = Number(stage.dataset.wizardStep)
+      if (this.step !== stepId) await this.moveTo(stepId)
       error.scrollIntoView({ block: 'nearest' })
       const control = error.querySelector('input, select, textarea, button, [tabindex="0"]')
       if (control) control.focus({ preventScroll: true })
@@ -201,8 +233,15 @@ export default {
 .resource-create-wizard--split .kubernetes-wizard-body > :deep(.kubernetes-create-summary) {
   min-height: 0;
   overflow: auto;
-  scrollbar-gutter: stable;
   overscroll-behavior: contain;
+}
+.resource-create-wizard--split .kubernetes-wizard-main,
+.resource-create-wizard--split :deep(.kubernetes-create-summary) {
+  scrollbar-width: none;
+}
+.resource-create-wizard--split .kubernetes-wizard-main::-webkit-scrollbar,
+.resource-create-wizard--split :deep(.kubernetes-create-summary::-webkit-scrollbar) {
+  display: none;
 }
 .resource-create-wizard--split .kubernetes-wizard-main { padding-inline: 2px 8px; }
 .resource-create-wizard--split .kubernetes-wizard-body > :deep(.kubernetes-create-summary) { padding-inline-end: 8px; }
@@ -211,6 +250,26 @@ export default {
 .resource-create-step-strip:focus-visible {
   outline: 2px solid var(--ui-focus);
   outline-offset: -2px;
+}
+/* Use the same search colors in the compute, disk and storage selectors. */
+.resource-create-wizard--split :deep(.ant-input-search .ant-input:not(:disabled)),
+.resource-create-wizard--split :deep(.ant-input-search .ant-input-affix-wrapper:not(.ant-input-affix-wrapper-disabled)),
+.resource-create-wizard--split :deep(.ant-input-search .ant-input-search-button:not(:disabled)) {
+  background: var(--ui-bg-input);
+  border-color: var(--ui-border-strong);
+}
+.resource-create-wizard--split :deep(.ant-input-search .ant-input:not(:disabled)) { color: var(--ui-text-primary); }
+.resource-create-wizard--split :deep(.ant-input-search .ant-input::placeholder) { color: var(--ui-text-muted); opacity: 1; }
+.resource-create-wizard--split :deep(.ant-input-search .ant-input:not(:disabled):is(:hover, :focus)),
+.resource-create-wizard--split :deep(.ant-input-search .ant-input-affix-wrapper:not(.ant-input-affix-wrapper-disabled):is(:hover, :focus-within)),
+.resource-create-wizard--split :deep(.ant-input-search .ant-input-search-button:not(:disabled):is(:hover, :focus)) {
+  border-color: var(--ui-focus);
+}
+.resource-create-wizard--split :deep(.ant-input-search > .ant-input-group > .ant-input-group-addon:last-child .ant-input-search-button:not(.ant-btn-primary):not(:disabled)) {
+  color: var(--ui-text-secondary) !important;
+}
+.resource-create-wizard--split :deep(.ant-input-search > .ant-input-group > .ant-input-group-addon:last-child .ant-input-search-button:not(.ant-btn-primary):not(:disabled):is(:hover, :focus-visible)) {
+  color: var(--ui-link) !important;
 }
 .resource-create-step-strip {
   flex: 0 0 auto;
@@ -234,6 +293,21 @@ export default {
   color: var(--ui-text-secondary);
   white-space: nowrap;
 }
+.resource-create-step-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 4px;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.resource-create-step-button:not(:disabled):hover { color: var(--ui-link); }
+.resource-create-step-button:focus-visible { outline: 2px solid var(--ui-focus); outline-offset: 2px; }
+.resource-create-step-button:disabled { cursor: default; }
 .resource-create-step-strip li + li::before {
   content: '';
   flex: 0 0 24px;
