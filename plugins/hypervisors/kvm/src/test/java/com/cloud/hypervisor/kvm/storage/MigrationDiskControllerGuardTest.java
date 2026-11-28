@@ -142,4 +142,58 @@ public class MigrationDiskControllerGuardTest {
             assertNotNull(expected.getMessage());
         }
     }
+    private static String rbdPlan() {
+        var p = MigrationDiskControllerPolicy.parse(PLAN);
+        p.remove("hash");
+        p.addProperty("rbd_access_mode", "krbd");
+        p.addProperty("hash", MigrationDiskControllerPolicy.hash(p));
+        return MigrationDiskControllerPolicy.canonical(p);
+    }
+
+    private static String rbdBindings() {
+        return BINDINGS.replace("\"storage\":\"file\"", "\"storage\":\"rbd\"")
+                .replace("/mnt/pool/root", "rbd/root").replace("/mnt/pool/data", "rbd/data")
+                .replace("qcow2", "raw");
+    }
+
+    private static String krbdXml() {
+        return XML.replace("<disk device='disk'>", "<disk type='block' device='disk'>").replace("type='qcow2'", "type='raw'")
+                .replace("file='/mnt/pool/root'", "dev='/dev/rbd/rbd/root'")
+                .replace("file='/mnt/pool/data'", "dev='/dev/rbd/rbd/data'");
+    }
+
+    private static MigrationDiskControllerGuard krbdGuard(String rootName, String snapshot, String rootId) {
+        return new MigrationDiskControllerGuard(args -> {
+            if (args.get(0).equals("readlink")) return args.get(2).endsWith("/root") ? "/dev/rbd7" : "/dev/rbd8";
+            if (args.get(0).equals("cat")) return args.get(1).contains("/7/") ? rootId : "image-data";
+            if (args.contains("showmapped")) return "{\"7\":{\"device\":\"/dev/rbd7\",\"pool\":\"rbd\",\"name\":\""+rootName+"\",\"namespace\":\"\",\"snap\":\""+snapshot+"\"},\"8\":{\"device\":\"/dev/rbd8\",\"pool\":\"rbd\",\"name\":\"data\",\"namespace\":\"\",\"snap\":\"-\"}}";
+            if (args.contains("info")) return args.contains("rbd/root") ? "{\"id\":\"image-root\"}" : "{\"id\":\"image-data\"}";
+            throw new AssertionError("Unexpected command " + args);
+        });
+    }
+
+    @Test
+    public void krbdFinalXmlProvesKernelMappingAndImageIdentity() {
+        var proof = krbdGuard("root", "-", "image-root").validate(rbdPlan(), rbdBindings(), krbdXml(), true);
+        var disk = (java.util.Map<?, ?>) ((List<?>) proof.get("disks")).get(0);
+        assertEquals("krbd", disk.get("rbd_access_mode"));
+        assertEquals("image-root", disk.get("image_id"));
+        assertEquals("/dev/rbd7", disk.get("device_path"));
+    }
+
+    @Test
+    public void krbdRejectsForeignSnapshotAndReplacedImage() {
+        reject(() -> krbdGuard("other", "-", "image-root").validate(rbdPlan(), rbdBindings(), krbdXml(), true));
+        reject(() -> krbdGuard("root", "snapshot", "image-root").validate(rbdPlan(), rbdBindings(), krbdXml(), true));
+        reject(() -> krbdGuard("root", "-", "replaced-image").validate(rbdPlan(), rbdBindings(), krbdXml(), true));
+    }
+
+    @Test
+    public void krbdPolicyCannotFallBackToLibrbdXml() {
+        String network = krbdXml().replace("type='block'", "type='network'")
+                .replace("dev='/dev/rbd/rbd/root'", "protocol='rbd' name='rbd/root'")
+                .replace("dev='/dev/rbd/rbd/data'", "protocol='rbd' name='rbd/data'");
+        reject(() -> krbdGuard("root", "-", "image-root").validate(rbdPlan(), rbdBindings(), network, true));
+    }
+
 }
