@@ -23,6 +23,8 @@
     :title="$t('label.new.autoscale.vmgroup')"
     return-route="/autoscalevmgroup"
     :validate-step="validateWizardStep"
+    split-scroll
+    summary-title-key="label.vm.wizard.summary"
     :busy="loading.deploy || submitting || creationBusy"
     :blocked="!hasRequiredCreationApis">
     <a-alert v-if="!hasRequiredCreationApis" type="error" show-icon :message="$t('message.autoscale.apis.required')" style="margin-bottom: 16px" />
@@ -54,6 +56,43 @@
               @change="onSelectZoneId" />
           </a-form-item>
         </div>
+      </section>
+      <section v-show="wizardStep === 13" class="resource-create-section" data-wizard-step="13">
+        <h3 class="resource-create-section-title">{{ $t('label.vm.wizard.basic') }}</h3>
+        <template v-if="zoneSelected">
+          <div style="margin-top: 15px">
+            <a-form-item name="name" ref="name">
+              <template #label>
+                <tooltip-label :title="$t('label.name')" :tooltip="createAutoScaleVmGroupApiParams.name.description"/>
+              </template>
+              <a-input v-model:value="form.name"></a-input>
+            </a-form-item>
+            <a-form-item name="expungevmgraceperiod" ref="expungevmgraceperiod">
+              <template #label>
+                <tooltip-label :title="$t('label.expungevmgraceperiod')" :tooltip="createAutoScaleVmProfileApiParams.expungevmgraceperiod.description"/>
+              </template>
+              <a-input v-model:value="form.expungevmgraceperiod" type="number"></a-input>
+            </a-form-item>
+            <a-form-item name="maxmembers" ref="maxmembers">
+              <template #label>
+                <tooltip-label :title="$t('label.maxmembers')" :tooltip="createAutoScaleVmGroupApiParams.maxmembers.description"/>
+              </template>
+              <a-input v-model:value="form.maxmembers" type="number"></a-input>
+            </a-form-item>
+            <a-form-item name="minmembers" ref="minmembers">
+              <template #label>
+                <tooltip-label :title="$t('label.minmembers')" :tooltip="createAutoScaleVmGroupApiParams.minmembers.description"/>
+              </template>
+              <a-input v-model:value="form.minmembers" type="number"></a-input>
+            </a-form-item>
+            <a-form-item name="interval" ref="interval">
+              <template #label>
+                <tooltip-label :title="$t('label.interval')" :tooltip="createAutoScaleVmGroupApiParams.interval.description"/>
+              </template>
+              <a-input v-model:value="form.interval" type="number"></a-input>
+            </a-form-item>
+          </div>
+        </template>
       </section>
       <section v-if="wizardStepIds.has(1)" v-show="wizardStep === 1" class="resource-create-section" data-wizard-step="1">
         <h3 class="resource-create-section-title">{{ $t('label.arch') }}</h3>
@@ -162,6 +201,7 @@
             <span v-if="selectedTemplateConfiguration && selectedTemplateConfiguration.description">{{ selectedTemplateConfiguration.description }}</span>
           </a-form-item>
           <compute-offering-selection
+            name-only
             :compute-items="options.serviceOfferings"
             :selected-template="template ? template : {}"
             :row-count="rowCount.serviceOfferings"
@@ -272,7 +312,7 @@
           </span>
         </div>
       </section>
-      <section v-if="wizardStepIds.has(4)" v-show="wizardStep === 4" class="resource-create-section" data-wizard-step="4"> 0">
+      <section v-if="wizardStepIds.has(4)" v-show="wizardStep === 4" class="resource-create-section" data-wizard-step="4">
         <h3 class="resource-create-section-title">{{ $t('label.data.disk') }}</h3>
         <div v-if="zoneSelected">
           <multi-disk-selection
@@ -352,7 +392,7 @@
           </div>
         </div>
       </section>
-      <section v-if="wizardStepIds.has(7)" v-show="wizardStep === 7" class="resource-create-section" data-wizard-step="7"> 0">
+      <section v-if="wizardStepIds.has(7)" v-show="wizardStep === 7" class="resource-create-section" data-wizard-step="7">
         <h3 class="resource-create-section-title">{{ $t('label.loadbalancing') }}</h3>
         <load-balancer-selection
           :items="options.loadbalancers"
@@ -363,6 +403,27 @@
           @select-load-balancer-item="($event) => updateLoadBalancers($event)"
           @handle-search-filter="($event) => handleSearchFilter('loadbalancers', $event)"
         ></load-balancer-selection>
+        <a-form-item name="autoscaleuserid" ref="autoscaleuserid" v-if="selectedLbProdiver === 'Netscaler'">
+          <template #label>
+            <tooltip-label :title="$t('label.user')" :tooltip="createAutoScaleVmProfileApiParams.autoscaleuserid.description"/>
+          </template>
+          <a-select
+            style="width: 100%"
+            showSearch
+            optionFilterProp="label"
+            :filterOption="(input, option) => {
+              return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }"
+            v-model:value="form.autoscaleuserid">
+            <a-select-option
+              v-for="(user, index) in usersList"
+              :value="user.id"
+              :key="index"
+              :label="user.username">
+              {{ user.username }}
+            </a-select-option>
+          </a-select>
+        </a-form-item>
       </section>
       <section v-if="wizardStepIds.has(8)" v-show="wizardStep === 8" class="resource-create-section" data-wizard-step="8">
         <h3 class="resource-create-section-title">{{ $t('label.security.groups') }}</h3>
@@ -373,7 +434,7 @@
           :preFillContent="dataPreFill"
           @select-security-group-item="($event) => updateSecurityGroups($event)"></security-group-selection>
       </section>
-      <section v-if="wizardStepIds.has(9)" v-show="wizardStep === 9" class="resource-create-section" data-wizard-step="9"> 0">
+      <section v-if="wizardStepIds.has(9)" v-show="wizardStep === 9" class="resource-create-section" data-wizard-step="9">
         <h3 class="resource-create-section-title">{{ $t('label.ovf.properties') }}</h3>
         <div v-for="(props, category) in templateProperties" :key="category">
           <a-alert :message="'Category: ' + category + ' (' + props.length + ' properties)'" type="info" />
@@ -711,7 +772,7 @@
         </div>
       </section>
       <section v-show="wizardStep === 12" class="resource-create-section" data-wizard-step="12">
-        <h3 class="resource-create-section-title">{{ $t('label.advanced.mode') }}</h3>
+        <h3 class="resource-create-section-title">{{ $t('label.vm.wizard.advanced') }}</h3>
         <template v-if="zoneSelected">
           <span>
             {{ $t('label.isadvanced') }}
@@ -844,66 +905,7 @@
             </a-form-item>
         </template>
       </section>
-      <section v-show="wizardStep === 13" class="resource-create-section" data-wizard-step="13">
-        <h3 class="resource-create-section-title">{{ $t('label.details') }}</h3>
-        <template v-if="zoneSelected">
-          <div style="margin-top: 15px">
-            <a-form-item name="name" ref="name">
-              <template #label>
-                <tooltip-label :title="$t('label.name')" :tooltip="createAutoScaleVmGroupApiParams.name.description"/>
-              </template>
-              <a-input v-model:value="form.name"></a-input>
-            </a-form-item>
-            <a-form-item name="autoscaleuserid" ref="autoscaleuserid" v-if="this.selectedLbProdiver === 'Netscaler'">
-              <template #label>
-                <tooltip-label :title="$t('label.user')" :tooltip="createAutoScaleVmProfileApiParams.autoscaleuserid.description"/>
-              </template>
-              <a-select
-                style="width: 100%"
-                showSearch
-                optionFilterProp="label"
-                :filterOption="(input, option) => {
-                  return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                }"
-                v-focus="true"
-                v-model:value="form.autoscaleuserid">
-                <a-select-option
-                  v-for="(user, index) in usersList"
-                  :value="user.id"
-                  :key="index"
-                  :label="user.username">
-                  {{ user.username }}
-                </a-select-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item name="expungevmgraceperiod" ref="expungevmgraceperiod">
-              <template #label>
-                <tooltip-label :title="$t('label.expungevmgraceperiod')" :tooltip="createAutoScaleVmProfileApiParams.expungevmgraceperiod.description"/>
-              </template>
-              <a-input v-model:value="form.expungevmgraceperiod" type="number"></a-input>
-            </a-form-item>
-            <a-form-item name="maxmembers" ref="maxmembers">
-              <template #label>
-                <tooltip-label :title="$t('label.maxmembers')" :tooltip="createAutoScaleVmGroupApiParams.maxmembers.description"/>
-              </template>
-              <a-input v-model:value="form.maxmembers" type="number"></a-input>
-            </a-form-item>
-            <a-form-item name="minmembers" ref="minmembers">
-              <template #label>
-                <tooltip-label :title="$t('label.minmembers')" :tooltip="createAutoScaleVmGroupApiParams.minmembers.description"/>
-              </template>
-              <a-input v-model:value="form.minmembers" type="number"></a-input>
-            </a-form-item>
-            <a-form-item name="interval" ref="interval">
-              <template #label>
-                <tooltip-label :title="$t('label.interval')" :tooltip="createAutoScaleVmGroupApiParams.interval.description"/>
-              </template>
-              <a-input v-model:value="form.interval" type="number"></a-input>
-            </a-form-item>
-          </div>
-        </template>
-      </section>
-      <section v-if="wizardStepIds.has(14)" v-show="wizardStep === 14" class="resource-create-section" data-wizard-step="14"> 0">
+      <section v-if="wizardStepIds.has(14)" v-show="wizardStep === 14" class="resource-create-section" data-wizard-step="14">
         <h3 class="resource-create-section-title">{{ $t('label.license.agreements') }}</h3>
         <div style="margin-top: 10px">
           {{ $t('message.read.accept.license.agreements') }}
@@ -929,7 +931,7 @@
       </section>
     </a-form>
     <template #summary>
-      <resource-create-summary-fields icon="deployment-unit-outlined" :name="form.name" :architecture="selectedArchitecture" :resource="vm">
+      <resource-create-summary-fields tabindex="0" title-key="label.vm.wizard.summary" icon="deployment-unit-outlined" :name="form.name" :architecture="selectedArchitecture" :resource="vmSummary">
         <auto-scale-creation-summary :form="form" :loadbalancer="loadbalancer || {}" />
       </resource-create-summary-fields>
     </template>
@@ -1249,6 +1251,7 @@ export default {
       const hasTemplateLicenses = this.vm.templateid && this.templateLicenses?.length > 0
       return [
         { id: 0, label: 'label.select.a.zone' },
+        { id: 13, label: 'label.vm.wizard.basic' },
         { id: 1, label: 'label.arch', available: !this.zoneSelected || this.isZoneSelectedMultiArch },
         { id: 2, label: 'label.template.select' },
         { id: 3, label: 'label.serviceofferingid' },
@@ -1260,8 +1263,7 @@ export default {
         { id: 9, label: 'label.ovf.properties', available: hasTemplateProperties },
         { id: 10, label: 'label.scaleup.policies' },
         { id: 11, label: 'label.scaledown.policies' },
-        { id: 12, label: 'label.advanced.mode' },
-        { id: 13, label: 'label.details' },
+        { id: 12, label: 'label.vm.wizard.advanced' },
         { id: 14, label: 'label.license.agreements', available: hasTemplateLicenses }
       ].filter(stage => !('available' in stage) || stage.available)
     },
@@ -1277,6 +1279,22 @@ export default {
     },
     userDataLookupFailed () {
       return Object.values(this.userDataLookupErrors).some(Boolean)
+    },
+    vmSummary () {
+      const rootDisk = this.showOverrideDiskOfferingOption ? this.overrideDiskOffering : null
+      const fixedRoot = this.template?.id && !this.template.deployasis &&
+        !this.showOverrideDiskOfferingOption && !this.showRootDiskSizeChanger && this.serviceOffering?.rootdisksize > 0
+      const rootOffering = fixedRoot
+        ? this.serviceOffering.name || this.serviceOffering.displaytext
+        : rootDisk?.displaytext || rootDisk?.name
+      const dataDisk = this.showDiskOfferingOption && this.form.diskofferingid !== '0' ? this.diskOffering : null
+      const dataOffering = dataDisk?.displaytext || dataDisk?.name
+      const unselected = this.$t('label.vm.wizard.disk.unselected')
+      return {
+        ...this.vm,
+        rootdiskofferingdisplaytext: rootOffering || unselected,
+        datadiskofferingdisplaytext: dataOffering || unselected
+      }
     },
     rootDiskSize () {
       return this.showRootDiskSizeChanger && this.rootDiskSizeFixed > 0
@@ -1634,15 +1652,20 @@ export default {
       if (!(!!this.hasUnresolvedCreation || this.userDataSelectionBlocked || !this.hasRequiredCreationApis || this.checkingEligibility)) return this.handleSubmit(event)
     },
     async validateWizardStep (step) {
-      const fields = { 0: ['zoneid'], 10: ['scaleupduration', 'scaleupquiettime'], 11: ['scaledownduration', 'scaledownquiettime'], 13: ['name', 'autoscaleuserid', 'expungevmgraceperiod', 'maxmembers', 'minmembers', 'interval'], 14: ['licensesaccepted'] }[step]
+      const fields = {
+        0: ['zoneid'],
+        7: this.selectedLbProdiver === 'Netscaler' ? ['autoscaleuserid'] : undefined,
+        13: ['name', 'expungevmgraceperiod', 'maxmembers', 'minmembers', 'interval'],
+        14: ['licensesaccepted']
+      }[step]
       if (fields) {
         try {
           await this.formRef.value.validateFields(fields)
         } catch (error) {
-          await this.$refs.wizard.showInvalidField(step)
           return error.errorFields?.[0]?.errors?.[0] || 'error.form.message'
         }
       }
+      if (step === 1 && !this.selectedArchitecture) return 'message.instance.architecture'
       if (step === 2 && !this.form.templateid) return 'message.template.iso'
       if (step === 3 && !this.form.computeofferingid) return 'message.step.2.continue'
       if (step === 6) {
@@ -1652,8 +1675,30 @@ export default {
         }
       }
       if (step === 7 && !this.form.loadbalancerid) return 'message.error.select.load.balancer'
-      if (step === 10 && this.scaleUpPolicies.some(policy => !policy.conditions.length)) return 'message.scaleup.policy.continue'
-      if (step === 11 && this.scaleDownPolicies.some(policy => !policy.conditions.length)) return 'message.scaledown.policy.continue'
+      if (step === 10) return this.scalePolicyError(this.scaleUpPolicies, 'scaleup', this.form.interval)
+      if (step === 11) return this.scalePolicyError(this.scaleDownPolicies, 'scaledown', this.form.interval)
+      if (step === 13) return this.basicInfoError(this.form)
+      return ''
+    },
+    basicInfoError ({ name, minmembers, maxmembers }) {
+      if (!name || !/^[a-zA-Z0-9-]{1,255}$/.test(name)) {
+        return 'message.error.invalid.autoscale.vmgroup.name'
+      }
+      if (parseInt(maxmembers) < parseInt(minmembers)) {
+        return 'message.error.max.members.less.than.min.members'
+      }
+      return ''
+    },
+    scalePolicyError (policies, direction, interval) {
+      if (!policies.length) return 'message.' + direction + '.policy.continue'
+      for (const policy of policies) {
+        if (!policy.name) return 'message.' + direction + '.policy.name.continue'
+        const duration = autoScaleInteger(policy[direction + 'duration'], 1, 2147483647)
+        const quietTime = autoScaleInteger(policy[direction + 'quiettime'], 0, 2147483647)
+        if (duration === null || quietTime === null) return 'message.' + direction + '.policy.duration.continue'
+        if (!policy.conditions.length) return 'message.' + direction + '.policy.continue'
+        if (duration < Number(interval)) return 'message.error.duration.less.than.interval'
+      }
       return ''
     },
     counterLabel (name) {
@@ -2566,97 +2611,13 @@ export default {
           return
         }
 
-        const regex = /^([a-zA-Z0-9-]){0,255}$/
-        if (!values.name || values.name.length === 0 || !regex.test(values.name)) {
+        const detailsError = this.basicInfoError(values) ||
+          this.scalePolicyError(this.scaleUpPolicies, 'scaleup', values.interval) ||
+          this.scalePolicyError(this.scaleDownPolicies, 'scaledown', values.interval)
+        if (detailsError) {
           this.$notification.error({
             message: this.$t('message.request.failed'),
-            description: this.$t('message.error.invalid.autoscale.vmgroup.name')
-          })
-          return
-        }
-
-        if (this.scaleUpPolicies.length === 0) {
-          this.$notification.error({
-            message: this.$t('message.request.failed'),
-            description: this.$t('message.scaleup.policy.continue')
-          })
-          return
-        }
-        for (const policy of this.scaleUpPolicies) {
-          if (!policy.name || policy.name.length === 0) {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.scaleup.policy.name.continue')
-            })
-            return
-          }
-          if (autoScaleInteger(policy.scaleupduration, 1, 2147483647) === null ||
-              autoScaleInteger(policy.scaleupquiettime, 0, 2147483647) === null) {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.scaleup.policy.duration.continue')
-            })
-            return
-          }
-          if (policy.conditions.length === 0) {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.scaleup.policy.continue')
-            })
-            return
-          }
-          if (parseInt(policy.scaleupduration) < parseInt(values.interval)) {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.error.duration.less.than.interval')
-            })
-            return
-          }
-        }
-
-        if (this.scaleDownPolicies.length === 0) {
-          this.$notification.error({
-            message: this.$t('message.request.failed'),
-            description: this.$t('message.scaledown.policy.continue')
-          })
-          return
-        }
-        for (const policy of this.scaleDownPolicies) {
-          if (!policy.name || policy.name.length === 0) {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.scaledown.policy.name.continue')
-            })
-            return
-          }
-          if (autoScaleInteger(policy.scaledownduration, 1, 2147483647) === null ||
-              autoScaleInteger(policy.scaledownquiettime, 0, 2147483647) === null) {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.scaledown.policy.duration.continue')
-            })
-            return
-          }
-          if (policy.conditions.length === 0) {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.scaledown.policy.continue')
-            })
-            return
-          }
-          if (parseInt(policy.scaledownduration) < parseInt(values.interval)) {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.error.duration.less.than.interval')
-            })
-            return
-          }
-        }
-
-        if (parseInt(values.maxmembers) < parseInt(values.minmembers)) {
-          this.$notification.error({
-            message: this.$t('message.request.failed'),
-            description: this.$t('message.error.max.members.less.than.min.members')
+            description: this.$t(detailsError)
           })
           return
         }

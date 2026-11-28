@@ -23,6 +23,8 @@
     :title="$t('label.vnf.appliance.add')"
     return-route="/vnfapp"
     :validate-step="validateWizardStep"
+    split-scroll
+    summary-title-key="label.vm.wizard.summary"
     :busy="loading.deploy">
     <a-form
       v-ctrl-enter="handleWizardEnter"
@@ -43,6 +45,35 @@
               @change="onSelectZoneId" />
           </a-form-item>
         </div>
+      </section>
+      <section v-show="wizardStep === 11" class="resource-create-section" data-wizard-step="11">
+        <h3 class="resource-create-section-title">{{ $t('label.vm.wizard.basic') }}</h3>
+        <template v-if="zoneSelected">
+          <div style="margin-top: 15px">
+            <a-form-item :label="$t('label.name.optional')" name="name" ref="name">
+              <a-input v-model:value="form.name" />
+            </a-form-item>
+            <a-form-item :label="$t('label.group.optional')" name="group" ref="group">
+              <a-auto-complete
+                v-model:value="form.group"
+                :filterOption="filterOption"
+                :options="options.instanceGroups" />
+            </a-form-item>
+            <a-form-item :label="$t('label.keyboard')" name="keyboard" ref="keyboard">
+              <a-select
+                v-model:value="form.keyboard"
+                :options="keyboardSelectOptions"
+                @change="keyboardOverridden = true"
+                showSearch
+                optionFilterProp="label"
+                :filterOption="filterOption"
+              ></a-select>
+            </a-form-item>
+            <a-form-item :label="$t('label.action.start.instance')" name="startvm" ref="startvm">
+              <a-switch v-model:checked="form.startvm" />
+            </a-form-item>
+          </div>
+        </template>
       </section>
       <section v-if="wizardStepIds.has(1)" v-show="wizardStep === 1" class="resource-create-section" data-wizard-step="1">
         <h3 class="resource-create-section-title">{{ $t('label.arch') }}</h3>
@@ -149,6 +180,7 @@
             <span v-if="selectedTemplateConfiguration && selectedTemplateConfiguration.description">{{ selectedTemplateConfiguration.description }}</span>
           </a-form-item>
           <compute-offering-selection
+            name-only
             :compute-items="options.serviceOfferings"
             :selected-template="template ? template : {}"
             :row-count="rowCount.serviceOfferings"
@@ -249,7 +281,7 @@
           </span>
         </div>
       </section>
-      <section v-if="wizardStepIds.has(4)" v-show="wizardStep === 4" class="resource-create-section" data-wizard-step="4"> 0">
+      <section v-if="wizardStepIds.has(4)" v-show="wizardStep === 4" class="resource-create-section" data-wizard-step="4">
         <h3 class="resource-create-section-title">{{ $t('label.data.disk') }}</h3>
         <div v-if="zoneSelected">
           <multi-disk-selection
@@ -365,7 +397,7 @@
           :preFillContent="dataPreFill"
           @select-security-group-item="($event) => updateSecurityGroups($event)"></security-group-selection>
       </section>
-      <section v-if="wizardStepIds.has(9)" v-show="wizardStep === 9" class="resource-create-section" data-wizard-step="9"> 0">
+      <section v-if="wizardStepIds.has(9)" v-show="wizardStep === 9" class="resource-create-section" data-wizard-step="9">
         <h3 class="resource-create-section-title">{{ $t('label.ovf.properties') }}</h3>
         <div v-for="(props, category) in templateProperties" :key="category">
           <a-alert :message="'Category: ' + category + ' (' + props.length + ' properties)'" type="info" />
@@ -419,7 +451,7 @@
         </div>
       </section>
       <section v-show="wizardStep === 10" class="resource-create-section" data-wizard-step="10">
-        <h3 class="resource-create-section-title">{{ $t('label.advanced.mode') }}</h3>
+        <h3 class="resource-create-section-title">{{ $t('label.vm.wizard.advanced') }}</h3>
         <template v-if="zoneSelected">
           <span>
             {{ $t('label.isadvanced') }}
@@ -713,36 +745,7 @@
           </div>
         </template>
       </section>
-      <section v-show="wizardStep === 11" class="resource-create-section" data-wizard-step="11">
-        <h3 class="resource-create-section-title">{{ $t('label.details') }}</h3>
-        <template v-if="zoneSelected">
-          <div style="margin-top: 15px">
-            {{ $t('message.vm.review.launch') }}
-            <a-form-item :label="$t('label.name.optional')" name="name" ref="name">
-              <a-input v-model:value="form.name" />
-            </a-form-item>
-            <a-form-item :label="$t('label.group.optional')" name="group" ref="group">
-              <a-auto-complete
-                v-model:value="form.group"
-                :filterOption="filterOption"
-                :options="options.instanceGroups" />
-            </a-form-item>
-            <a-form-item :label="$t('label.keyboard')" name="keyboard" ref="keyboard">
-              <a-select
-                v-model:value="form.keyboard"
-                :options="keyboardSelectOptions"
-                showSearch
-                optionFilterProp="label"
-                :filterOption="filterOption"
-              ></a-select>
-            </a-form-item>
-            <a-form-item :label="$t('label.action.start.instance')" name="startvm" ref="startvm">
-              <a-switch v-model:checked="form.startvm" />
-            </a-form-item>
-          </div>
-        </template>
-      </section>
-      <section v-if="wizardStepIds.has(12)" v-show="wizardStep === 12" class="resource-create-section" data-wizard-step="12"> 0">
+      <section v-if="wizardStepIds.has(12)" v-show="wizardStep === 12" class="resource-create-section" data-wizard-step="12">
         <h3 class="resource-create-section-title">{{ $t('label.license.agreements') }}</h3>
         <div style="margin-top: 10px">
           {{ $t('message.read.accept.license.agreements') }}
@@ -768,7 +771,7 @@
       </section>
     </a-form>
     <template #summary>
-      <resource-create-summary-fields icon="gateway-outlined" :name="form.name" :architecture="selectedArchitecture" :resource="vm" />
+      <resource-create-summary-fields tabindex="0" title-key="label.vm.wizard.summary" icon="gateway-outlined" :name="form.name" :architecture="selectedArchitecture" :resource="vmSummary" />
     </template>
     <template #submit>
       <deploy-buttons
@@ -857,6 +860,7 @@ export default {
   data () {
     return {
       wizardStep: 0,
+      keyboardOverridden: false,
       zoneId: '',
       podId: null,
       clusterId: null,
@@ -1013,6 +1017,7 @@ export default {
       const hasTemplateLicenses = this.vm.templateid && this.templateLicenses?.length > 0
       return [
         { id: 0, label: 'label.select.deployment.infrastructure' },
+        { id: 11, label: 'label.vm.wizard.basic' },
         { id: 1, label: 'label.arch', available: !this.zoneSelected || this.isZoneSelectedMultiArch },
         { id: 2, label: 'label.template.select' },
         { id: 3, label: 'label.serviceofferingid' },
@@ -1022,13 +1027,30 @@ export default {
         { id: 7, label: 'label.vnf.nic.mappings', available: this.showVnfNicsSection },
         { id: 8, label: 'label.security.groups', available: this.showSecurityGroupSection },
         { id: 9, label: 'label.ovf.properties', available: hasTemplateProperties },
-        { id: 10, label: 'label.advanced.mode' },
-        { id: 11, label: 'label.details' },
+        { id: 10, label: 'label.vm.wizard.advanced' },
         { id: 12, label: 'label.license.agreements', available: hasTemplateLicenses }
       ].filter(stage => !('available' in stage) || stage.available)
     },
     wizardStepIds () {
       return new Set(this.wizardStages.map(stage => stage.id))
+    },
+    vmSummary () {
+      const iso = this.imageType === 'isoid'
+      const overrideDisk = this.showOverrideDiskOfferingOption ? this.overrideDiskOffering : null
+      const rootDisk = iso ? this.diskOffering : overrideDisk
+      const fixedRoot = !iso && this.template?.id && !this.template.deployasis &&
+        !this.showOverrideDiskOfferingOption && !this.showRootDiskSizeChanger && this.serviceOffering?.rootdisksize > 0
+      const rootOffering = fixedRoot
+        ? this.serviceOffering.name || this.serviceOffering.displaytext
+        : rootDisk?.displaytext || rootDisk?.name
+      const dataDisk = (!iso && this.showDiskOfferingOption) && this.form.diskofferingid !== '0' ? this.diskOffering : null
+      const dataOffering = dataDisk?.displaytext || dataDisk?.name
+      const unselected = this.$t('label.vm.wizard.disk.unselected')
+      return {
+        ...this.vm,
+        rootdiskofferingdisplaytext: rootOffering || unselected,
+        datadiskofferingdisplaytext: dataOffering || unselected
+      }
     },
     rootDiskSize () {
       return this.showRootDiskSizeChanger && this.rootDiskSizeFixed > 0
@@ -1555,13 +1577,30 @@ export default {
         try {
           await this.formRef.value.validateFields(fields)
         } catch (error) {
-          await this.$refs.wizard.showInvalidField(step)
           return error.errorFields?.[0]?.errors?.[0] || 'error.form.message'
         }
       }
+      if (step === 1 && !this.selectedArchitecture) return 'message.instance.architecture'
       if (step === 2 && !(this.form.templateid || this.form.isoid)) return 'message.template.iso'
       if (step === 3 && !this.form.computeofferingid) return 'message.step.2.continue'
+      if (step === 7) return this.vnfNetworkError(this.form.networkids)
       return ''
+    },
+    vnfNetworkError (networkIds = []) {
+      if (!this.templateVnfNics?.length || this.templateNics?.length) return ''
+      if (!Object.keys(this.vnfNicNetworks).length) return 'message.vnf.error.no.networks'
+
+      // Each selected network must be mapped once, with consecutive NIC device IDs.
+      const usedNetworkIds = new Set()
+      for (const nic of this.templateVnfNics) {
+        const networkId = this.vnfNicNetworks[String(nic.deviceid)]?.id
+        if (nic.required && !networkId) return 'message.vnf.error.no.network.for.required.deviceid'
+        if (!networkId) continue
+        if (nic.deviceid !== usedNetworkIds.size) return 'message.vnf.error.deviceid.should.be.consecutive'
+        if (usedNetworkIds.has(networkId)) return 'message.vnf.error.network.is.already.used'
+        usedNetworkIds.add(networkId)
+      }
+      return networkIds.some(id => !usedNetworkIds.has(id)) ? 'message.vnf.error.network.should.be.used' : ''
     },
     pollVnfDeployment (jobId, title, description, notice, key) {
       let shown = false
@@ -1911,6 +1950,7 @@ export default {
         disksize: null
       }
       this.zoneSelected = false
+      this.keyboardOverridden = false
       this.formRef.value.resetFields()
       this.fetchData()
     },
@@ -1942,7 +1982,7 @@ export default {
           this.form.bootmode = this.defaultBootMode
           this.form.iothreadsenabled = template.details && Object.prototype.hasOwnProperty.call(template.details, 'iothreads')
           this.form.iodriverpolicy = template.details?.['io.policy']
-          this.form.keyboard = template.details?.keyboard
+          if (!this.keyboardOverridden) this.form.keyboard = template.details?.keyboard
         }
       } else if (['cpuspeed', 'cpunumber', 'memory'].includes(name)) {
         this.vm[name] = value
@@ -2135,58 +2175,13 @@ export default {
           return
         }
 
-        // Verify VNF networks
-        // All checked networks should be used and only once.
-        // Required NIC must be associated to a network
-        // DeviceID must be consequent
-        if (this.templateVnfNics && this.templateVnfNics.length > 0 && (!this.templateNics || this.templateNics.length === 0)) {
-          let nextDeviceId = 0
-          const usedNetworkIds = []
-          const keys = Object.keys(this.vnfNicNetworks)
-          if (keys.length === 0) {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.vnf.error.no.networks')
-            })
-            return
-          }
-          for (var templateVnfNic of this.templateVnfNics) {
-            if (templateVnfNic.required && !keys.includes(String(templateVnfNic.deviceid))) {
-              this.$notification.error({
-                message: this.$t('message.request.failed'),
-                description: this.$t('message.vnf.error.no.network.for.required.deviceid')
-              })
-              return
-            }
-            const networkId = this.vnfNicNetworks[String(templateVnfNic.deviceid)]?.id || null
-            if (networkId) {
-              if (templateVnfNic.deviceid !== nextDeviceId) {
-                this.$notification.error({
-                  message: this.$t('message.request.failed'),
-                  description: this.$t('message.vnf.error.deviceid.should.be.consecutive')
-                })
-                return
-              }
-              if (usedNetworkIds.includes(networkId)) {
-                this.$notification.error({
-                  message: this.$t('message.request.failed'),
-                  description: this.$t('message.vnf.error.network.is.already.used')
-                })
-                return
-              }
-              usedNetworkIds.push(networkId)
-              nextDeviceId = templateVnfNic.deviceid + 1
-            }
-          }
-          for (var networkid of values.networkids) {
-            if (!usedNetworkIds.includes(networkid)) {
-              this.$notification.error({
-                message: this.$t('message.request.failed'),
-                description: this.$t('message.vnf.error.network.should.be.used')
-              })
-              return
-            }
-          }
+        const networkError = this.vnfNetworkError(values.networkids)
+        if (networkError) {
+          this.$notification.error({
+            message: this.$t('message.request.failed'),
+            description: this.$t(networkError)
+          })
+          return
         }
 
         if (this.error) {
